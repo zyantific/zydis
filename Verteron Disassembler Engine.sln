@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Verteron Disassembler Engine", "Verteron Disassembler Engine\Verteron Disassembler Engine.vcxproj", "{E9860351-F9EA-4D1B-8AE4-188E3212574A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Disassembler Test", "Disassembler Test\Disassembler Test.vcxproj", "{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Table Generator", "Table Generator\Table Generator.vcxproj", "{BAC14FF0-2567-489A-BC83-840B3603C84A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Debug|Win32.Build.0 = Debug|Win32
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Debug|x64.ActiveCfg = Debug|x64
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Debug|x64.Build.0 = Debug|x64
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Release|Win32.ActiveCfg = Release|Win32
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Release|Win32.Build.0 = Release|Win32
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Release|x64.ActiveCfg = Release|x64
+		{E9860351-F9EA-4D1B-8AE4-188E3212574A}.Release|x64.Build.0 = Release|x64
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Debug|Win32.Build.0 = Debug|Win32
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Debug|x64.ActiveCfg = Debug|x64
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Debug|x64.Build.0 = Debug|x64
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Release|Win32.ActiveCfg = Release|Win32
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Release|Win32.Build.0 = Release|Win32
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Release|x64.ActiveCfg = Release|x64
+		{26FB9B13-9A66-44D1-8E78-1E8AA2FCBEF3}.Release|x64.Build.0 = Release|x64
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Debug|Win32.Build.0 = Debug|Win32
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Debug|x64.ActiveCfg = Debug|x64
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Debug|x64.Build.0 = Debug|x64
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Release|Win32.ActiveCfg = Release|Win32
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Release|Win32.Build.0 = Release|Win32
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Release|x64.ActiveCfg = Release|x64
+		{BAC14FF0-2567-489A-BC83-840B3603C84A}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
