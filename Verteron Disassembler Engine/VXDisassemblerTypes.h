@@ -47,19 +47,19 @@ enum InstructionFlags : uint32_t
 {
     IF_NONE                         = 0x00000000,
     /**
-     * @brief   The instruction got decoded in 16 bit disassembler mode.
+     * @brief   The instruction was decoded in 16 bit disassembler mode.
      */
     IF_DISASSEMBLER_MODE_16         = 0x00000001,
     /**
-     * @brief   The instruction got decoded in 32 bit disassembler mode.
+     * @brief   The instruction was decoded in 32 bit disassembler mode.
      */
     IF_DISASSEMBLER_MODE_32         = 0x00000002,
     /**
-     * @brief   The instruction got decoded in 64 bit disassembler mode.
+     * @brief   The instruction was decoded in 64 bit disassembler mode.
      */
     IF_DISASSEMBLER_MODE_64         = 0x00000004,
     /**
-     * @brief   The instruction has a segment override prefix (0x26, 0x2E, 0x36, 0x3E, 0x64, 0x65).   
+     * @brief   The instruction has a segment prefix (0x26, 0x2E, 0x36, 0x3E, 0x64, 0x65).   
      */
     IF_PREFIX_SEGMENT               = 0x00000008, 
     /**
@@ -67,21 +67,21 @@ enum InstructionFlags : uint32_t
      */
     IF_PREFIX_LOCK                  = 0x00000010,  
     /**
-     * @brief   The instruction has a repnz prefix (0xF2).   
+     * @brief   The instruction has a repne prefix (0xF2).   
      */
-    IF_PREFIX_REPNZ                 = 0x00000020,  
+    IF_PREFIX_REPNE                 = 0x00000020,  
     /**
-     * @brief   The instruction has a repz prefix (0xF3).   
+     * @brief   The instruction has a rep prefix (0xF3).   
      */
-    IF_PREFIX_REPZ                  = 0x00000040,  
+    IF_PREFIX_REP                   = 0x00000040,  
     /**
-     * @brief   The instruction has an operand size override prefix (0x66).  
+     * @brief   The instruction has an operand size prefix (0x66).  
      */
-    IF_PREFIX_OPERAND_SIZE_OVERRIDE = 0x00000080, 
+    IF_PREFIX_OPERAND_SIZE          = 0x00000080, 
     /**
-     * @brief   The instruction has an address size override prefix (0x67).   
+     * @brief   The instruction has an address size prefix (0x67).   
      */
-    IF_PREFIX_ADDRESS_SIZE_OVERRIDE = 0x00000100, 
+    IF_PREFIX_ADDRESS_SIZE          = 0x00000100, 
     /**
      * @brief   The instruction has a rex prefix (0x40 - 0x4F).  
      */
@@ -126,41 +126,6 @@ enum InstructionFlags : uint32_t
      * @brief   An error occured while decoding the instruction operands.  
      */
     IF_ERROR_OPERAND                = 0x01000000
-};
-
-/**
- * @brief   Values that represent the type of a decoded operand.
- */
-enum class VXOperandType
-{
-    /**
-     * @brief   The operand is not used.
-     */
-    NONE,
-    /**
-     * @brief   The operand is a register operand.
-     */
-    REGISTER,
-    /**
-     * @brief   The operand is a memory operand.
-     */
-    MEMORY,
-    /**
-     * @brief   The operand is a pointer operand.
-     */
-    POINTER,
-    /**
-     * @brief   The operand is an immediate operand.
-     */
-    IMMEDIATE,
-    /**
-     * @brief   The operand is a relative immediate operand.
-     */
-    REL_IMMEDIATE,
-    /**
-     * @brief   The operand is a constant value.
-     */
-    CONSTANT
 };
 
 /**
@@ -224,6 +189,61 @@ enum class VXRegister : uint16_t
 };
 
 /**
+ * @brief   Values that represent the type of a decoded operand.
+ */
+enum class VXOperandType
+{
+    /**
+     * @brief   The operand is not used.
+     */
+    NONE,
+    /**
+     * @brief   The operand is a register operand.
+     */
+    REGISTER,
+    /**
+     * @brief   The operand is a memory operand.
+     */
+    MEMORY,
+    /**
+     * @brief   The operand is a pointer operand.
+     */
+    POINTER,
+    /**
+     * @brief   The operand is an immediate operand.
+     */
+    IMMEDIATE,
+    /**
+     * @brief   The operand is a relative immediate operand.
+     */
+    REL_IMMEDIATE,
+    /**
+     * @brief   The operand is a constant value.
+     */
+    CONSTANT
+};
+
+/**
+ * @brief   Values that represent the operand access mode.
+ */
+enum class VXOperandAccessMode
+{
+    NA,
+    /**
+     * @brief   The operand is accessed in read-only mode.
+     */
+    READ,
+    /**
+     * @brief   The operand is accessed in write mode.
+     */
+    WRITE,
+    /**
+     * @brief   The operand is accessed in read-write mode.
+     */
+    READWRITE
+};
+
+/**
  * @brief   This struct holds information about a decoded operand.
  */
 struct VXOperandInfo
@@ -237,6 +257,10 @@ struct VXOperandInfo
      */
     uint16_t size;
     /**
+     * @brief   The operand access mode.
+     */
+    VXOperandAccessMode access_mode;
+    /**
      * @brief   The base register.
      */
     VXRegister base;
@@ -249,11 +273,16 @@ struct VXOperandInfo
      */
     uint8_t scale;
     /**
-     * @brief   The offset. TODO: improve documentation
+     * @brief   The lvalue offset. If the @c offset is zero and the operand @c type is not 
+     *          @c CONSTANT, no lvalue is present.
      */
     uint8_t offset;
     /**
-     * @brief   The lvalue. TODO: improve documentation
+     * @brief   Signals, if the lval is signed.
+     */
+    bool signed_lval;
+    /**
+     * @brief   The lvalue.
      */
     union {
         int8_t sbyte;
@@ -289,13 +318,13 @@ struct VXInstructionInfo
      */
     uint8_t length;
     /**
-     * @brief   The instruction bytes.
+     * @brief   Contains all bytes of the instruction.
      */
-    uint8_t instructionBytes[15];
+    uint8_t data[15];
     /**
      * @brief   The length of the instruction opcodes.
      */
-    uint8_t opcodeLength;
+    uint8_t opcode_length;
     /**
      * @brief   The instruction opcodes.
      */
@@ -303,20 +332,20 @@ struct VXInstructionInfo
     /**
      * @brief   The operand mode.
      */
-    uint8_t operandMode;
+    uint8_t operand_mode;
     /**
      * @brief   The address mode.
      */
-    uint8_t addressMode;
+    uint8_t address_mode;
     /**
      * @brief   The decoded operands.
      */
     VXOperandInfo operand[4];
     /**
      * @brief   The segment register. This value will default to @c NONE, if no segment register 
-     *          override prefix is present.
+     *          prefix is present.
      */
-    VXRegister segmentRegister;
+    VXRegister segment;
     /**
      * @brief   The rex prefix byte.
      */
@@ -353,11 +382,23 @@ struct VXInstructionInfo
      */
     uint8_t modrm_reg;
     /**
+     * @brief   The extended modrm register bits. If the instruction definition does not have the
+     *          @c IDF_ACCEPTS_REXR flag set, this value defaults to the normal @c modrm_reg 
+     *          field.
+     */
+    uint8_t modrm_reg_ext;
+    /**
      * @brief   The modrm register/memory bits. Specifies a direct or indirect register operand, 
      *          optionally with a displacement. The REX.B, VEX.~B or XOP.~B field can extend this 
      *          field with 1 most-significant bit to 4 bits total. 
      */
     uint8_t modrm_rm;
+    /**
+     * @brief   The extended modrm register/memory bits. If the instruction definition does not 
+     *          have the @c IDF_ACCEPTS_REXB flag set, this value defaults to the normal 
+     *          @c modrm_rm field.
+     */
+    uint8_t modrm_rm_ext;
     /**
      * @brief   The sib byte.
      */
@@ -372,10 +413,22 @@ struct VXInstructionInfo
      */
     uint8_t sib_index;
     /**
+     * @brief   The extended index register. If the instruction definition does not have the
+     *          @c IDF_ACCEPTS_REXX flag set, this value defaults to the normal @c sib_index 
+     *          field.
+     */
+    uint8_t sib_index_ext;
+    /**
      * @brief   The base register to use. The REX.B, VEX.~B or XOP.~B field can extend this field 
      *          with 1 most-significant bit to 4 bits total.
      */
     uint8_t sib_base;
+    /**
+     * @brief   The extended base register. If the instruction definition does not have the
+     *          @c IDF_ACCEPTS_REXB flag set, this value defaults to the normal @c sib_index 
+     *          field.
+     */
+    uint8_t sib_base_ext;
     /**
      * @brief   The primary vex prefix byte.
      */
@@ -435,14 +488,45 @@ struct VXInstructionInfo
      */
     uint8_t vex_pp;
     /**
+     * @brief   The effectively used REX/VEX.w value. If the instruction definition does not have 
+     *          the @c IDF_ACCEPTS_REXW flag set, this value defaults to zero.
+     */
+    uint8_t eff_rexvex_w;
+    /**
+     * @brief   The effectively used REX/VEX.r value. If the instruction definition does not have 
+     *          the @c IDF_ACCEPTS_REXR flag set, this value defaults to zero.
+     */
+    uint8_t eff_rexvex_r;
+    /**
+     * @brief   The effectively used REX/VEX.x value. If the instruction definition does not have 
+     *          the @c IDF_ACCEPTS_REXX flag set, this value defaults to zero.
+     */
+    uint8_t eff_rexvex_x;
+    /**
+     * @brief   The effectively used REX/VEX.b value. If the instruction definition does not have 
+     *          the @c IDF_ACCEPTS_REXB flag set, this value defaults to zero.
+     */
+    uint8_t eff_rexvex_b;
+    /**
+     * @brief   The effectively used VEX.l value. If the instruction definition does not have 
+     *          the @c IDF_ACCEPTS_VEXL flag set, this value defaults to zero.
+     */
+    uint8_t eff_vex_l;
+    /**
      * @brief   The instruction definition.
      */
     const VXInstructionDefinition *instrDefinition;
     /**
-     * @brief   The instruction pointer. This field is used to properly format relative 
-     *          instructions.         
+     * @brief   The instruction address points to the current instruction (relative to the 
+     *          initial instruction pointer).
      */
-    uint64_t instructionPointer;
+    uint64_t instrAddress;
+    /**
+     * @brief   The instruction pointer points to the address of the next instruction (relative
+     *          to the initial instruction pointer). 
+     *          This field is used to properly format relative instructions.         
+     */
+    uint64_t instrPointer;
 };
 
 }

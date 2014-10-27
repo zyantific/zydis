@@ -195,12 +195,12 @@ uint64_t VXBaseInstructionFormatter::calcAbsoluteTarget(const VXInstructionInfo 
     switch (operand.size)
     {
     case 8:
-        return (info.instructionPointer + info.length + operand.lval.sbyte);
+        return (info.instrPointer + operand.lval.sbyte);
     case 16:
-        return (info.instructionPointer + info.length + operand.lval.sword);
+        return (info.instrPointer + operand.lval.sword);
     case 32:
     case 64:
-        return (info.instructionPointer + info.length + operand.lval.sdword);
+        return (info.instrPointer + operand.lval.sdword);
     default:
         assert(0);
     }
@@ -253,7 +253,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
         // TODO: resolve symbols for displacement only and RIP based memory operands
         if (info.flags & IF_PREFIX_SEGMENT)
         {
-            outputAppendFormatted("%s:", registerToString(info.segmentRegister));    
+            outputAppendFormatted("%s:", registerToString(info.segment));    
         }
         outputAppend("[");
         if (operand.base == VXRegister::RIP)
@@ -395,10 +395,10 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
     {
         outputAppend("lock ");
     }
-    if (info.flags & IF_PREFIX_REPZ)
+    if (info.flags & IF_PREFIX_REP)
     {
         outputAppend("rep ");
-    } else if (info.flags & IF_PREFIX_REPNZ)
+    } else if (info.flags & IF_PREFIX_REPNE)
     {
         outputAppend("repne ");
     }

@@ -102,7 +102,6 @@ protected:
      * @param   info    The instruction info.
      */
     virtual void internalFormatInstruction(const VXInstructionInfo &info);
-public:
     /**
      * @brief   Default constructor.
      */
@@ -113,6 +112,7 @@ public:
      *                          resolver should be used.
      */
     explicit VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver);
+public:
     /**
      * @brief   Destructor.
      */
