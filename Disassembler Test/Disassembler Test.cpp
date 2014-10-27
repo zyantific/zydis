@@ -68,19 +68,22 @@ int _tmain(int argc, _TCHAR* argv[])
     };
 
     VXInstructionInfo info;
+    VXInstructionDecoder decoder;
     VXIntelInstructionFormatter formatter;
-    VXInstructionDecoder decoder32(&data32[0], sizeof(data32), VXDisassemblerMode::M32BIT);
-    VXInstructionDecoder decoder64(&data64[0], sizeof(data64), VXDisassemblerMode::M64BIT);
+    VXBufferDataSource input32(&data32[0], sizeof(data32));
+    VXBufferDataSource input64(&data64[0], sizeof(data64));
 
-    decoder32.setInstructionPointer(0x77091852);
+    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+    decoder.setDataSource(&input32);
+    decoder.setInstructionPointer(0x77091852);
     std::cout << "32 bit test ..." << std::endl << std::endl;
-    while (decoder32.decodeNextInstruction(info))
+    while (decoder.decodeInstruction(info))
     {
         std::cout << std::hex << std::setw(8) << std::setfill('0') << std::uppercase 
-                  << info.instructionPointer << " "; 
+                  << info.instrAddress << " "; 
         if (info.flags & IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.instructionBytes[0];    
+            std::cout << "db " << std::setw(2) << info.data[0];    
         } else
         {
             std::cout << formatter.formatInstruction(info) << std::endl;
@@ -89,15 +92,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
     std::cout << std::endl;
 
-    decoder64.setInstructionPointer(0x00007FFA39A81930ull);
+    decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
+    decoder.setDataSource(&input64);
+    decoder.setInstructionPointer(0x00007FFA39A81930ull);
     std::cout << "64 bit test ..." << std::endl << std::endl;
-    while (decoder64.decodeNextInstruction(info))
+    while (decoder.decodeInstruction(info))
     {
         std::cout << std::hex << std::setw(16) << std::setfill('0') << std::uppercase 
-                  << info.instructionPointer << " "; 
+                  << info.instrAddress << " "; 
         if (info.flags & IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.instructionBytes[0];    
+            std::cout << "db " << std::setw(2) << info.data[0];    
         } else
         {
             std::cout << formatter.formatInstruction(info) << std::endl;

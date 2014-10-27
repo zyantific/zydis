@@ -15,6 +15,7 @@ Fast and lightweight x86/x86-64 disassembler library.
  - Only 44.00 KiB (64 bit: 47.00 KiB) for the decoder and 62.00 KiB (64 bit: 69.50 KiB) with the optional formatting functionality
 - Abstract formatter and symbol-resolver classes for custom syntax implementations.
  - Intel syntax is implemented by default
+- Complete doxygen documentation
 
 ## Compilation ##
  
