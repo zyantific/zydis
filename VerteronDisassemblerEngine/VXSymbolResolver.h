@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -91,6 +91,12 @@ public:
         uint64_t &offset) override;
 public:
     /**
+     * @brief   Query if the given address is a known symbol.
+     * @param   address The address.
+     * @return  True if the address is known, false if not.
+     */
+    bool containsSymbol(uint64_t address) const;
+    /**
      * @brief   Adds or changes a symbol.
      * @param   address The address.
      * @param   name    The symbol name.
@@ -106,12 +112,6 @@ public:
      * @brief   Clears the symbol tree.
      */
     void clear();
-    /**
-     * @brief   Query if the given address is a known symbol.
-     * @param   address The address.
-     * @return  True if the address is known, false if not.
-     */
-    bool containsSymbol(uint64_t address);
 };
 
 }

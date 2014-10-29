@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -602,6 +602,7 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
             return false;
         }
         operand.type = VXOperandType::REL_IMMEDIATE;
+        operand.signed_lval = true;
         info.flags |= IF_RELATIVE;
         break;
     case VXDefinedOperandType::L: 

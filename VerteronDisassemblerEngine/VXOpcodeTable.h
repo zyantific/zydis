@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 14. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1458,8 +1458,14 @@ enum VXInstructionDefinitionFlags : uint16_t
  * @brief   An operand definition.
  */
 struct VXOperandDefinition     
-{                                  
+{               
+    /**
+     * @brief   The defined operand type.
+     */
     VXDefinedOperandType type;
+    /**
+     * @brief   The defined operand size.
+     */
     VXDefinedOperandSize size;
 };
 /**
@@ -1467,9 +1473,18 @@ struct VXOperandDefinition
  */
 struct VXInstructionDefinition
 {
+    /**
+     * @brief   The instruction mnemonic.
+     */
     VXInstructionMnemonic mnemonic;
-    VXOperandDefinition   operand[4];
-    uint16_t              flags;   
+    /**
+     * @brief   The operand definitions for all four possible operands.
+     */
+    VXOperandDefinition operand[4];
+    /**
+     * @brief   Additional flags for the instruction definition.
+     */
+    uint16_t flags;   
 };
 #pragma pack (pop)
 

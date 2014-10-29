@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,7 +87,7 @@ public:
     uint8_t inputPeek(VXInstructionInfo &info);
     /**
      * @brief   Reads the next byte from the data source. This method increases the current
-     *          input position and the @c length field of the @info parameter. 
+     *          input position and the @c length field of the @c info parameter. 
      *          This method also appends the new byte to to @c data field of the @c info 
      *          parameter.
      * @param   info    The instruction info.
@@ -98,7 +98,7 @@ public:
     uint8_t inputNext(VXInstructionInfo &info);
     /**
      * @brief   Reads the next byte(s) from the data source. This method increases the current
-     *          input position and the @c length field of the @info parameter. 
+     *          input position and the @c length field of the @c info parameter. 
      *          This method also appends the new byte(s) to to @c data field of the @c info 
      *          parameter.
      * @param   info    The instruction info.
@@ -197,7 +197,7 @@ inline uint8_t VXBaseDataSource::inputCurrent() const
 /**
  * @brief   Implements a memory buffer based data source.
  */
-class VXBufferDataSource : public VXBaseDataSource
+class VXMemoryDataSource : public VXBaseDataSource
 {
 private:
     const void *m_inputBuffer;
@@ -222,7 +222,7 @@ public:
      * @param   buffer      The input buffer.
      * @param   bufferLen   The length of the input buffer.
      */
-    VXBufferDataSource(const void* buffer, size_t bufferLen)
+    VXMemoryDataSource(const void* buffer, size_t bufferLen)
         : m_inputBuffer(buffer)
         , m_inputBufferLen(bufferLen)
         , m_inputBufferPos(0) { };
@@ -245,28 +245,28 @@ public:
     bool setPosition(uint64_t position) override;
 };
 
-inline uint8_t VXBufferDataSource::internalInputPeek()
+inline uint8_t VXMemoryDataSource::internalInputPeek()
 {
     return *(static_cast<const uint8_t*>(m_inputBuffer) + m_inputBufferPos);
 }
 
-inline uint8_t VXBufferDataSource::internalInputNext()
+inline uint8_t VXMemoryDataSource::internalInputNext()
 {
     ++m_inputBufferPos;
     return *(static_cast<const uint8_t*>(m_inputBuffer) + m_inputBufferPos - 1);
 }
 
-inline bool VXBufferDataSource::isEndOfInput() const
+inline bool VXMemoryDataSource::isEndOfInput() const
 {
     return (m_inputBufferPos >= m_inputBufferLen);
 }
 
-inline uint64_t VXBufferDataSource::getPosition() const
+inline uint64_t VXMemoryDataSource::getPosition() const
 {
     return m_inputBufferPos;
 }
 
-inline bool VXBufferDataSource::setPosition(uint64_t position)
+inline bool VXMemoryDataSource::setPosition(uint64_t position)
 {
     m_inputBufferPos = position;
     return isEndOfInput();
@@ -346,7 +346,7 @@ inline bool VXStreamDataSource::isEndOfInput() const
     }
     // We use good() instead of eof() to make sure the decoding will fail, if an stream internal
     // error occured.
-    return m_inputStream->good();
+    return !m_inputStream->good();
 }
 
 inline uint64_t VXStreamDataSource::getPosition() const
@@ -575,7 +575,9 @@ public:
     /**
      * @brief   Constructor.
      * @param   input               A reference to the input data source.
-     * @param   instructionPointer  The initial instruction pointer.
+     * @param   disassemblerMode    The disasasembler mode.                            
+     * @param   preferredVendor     The preferred instruction-set vendor.
+     * @param   instructionPointer  The initial instruction pointer.                            
      */
     explicit VXInstructionDecoder(VXBaseDataSource *input, 
         VXDisassemblerMode disassemblerMode = VXDisassemblerMode::M32BIT,
@@ -612,6 +614,16 @@ public:
      * @param   disassemblerMode    The new disassembler mode.
      */
     void setDisassemblerMode(VXDisassemblerMode disassemblerMode);
+    /**
+     * @brief   Returns the preferred instruction-set vendor.
+     * @return  The preferred instruction-set vendor.
+     */
+    VXInstructionSetVendor getPreferredVendor() const;
+    /**
+     * @brief   Sets the preferred instruction-set vendor.
+     * @param   preferredVendor The new preferred instruction-set vendor.
+     */
+    void setPreferredVendor(VXInstructionSetVendor preferredVendor);
     /**
      * @brief   Returns the current instruction pointer.
      * @return  The current instruction pointer.
@@ -682,6 +694,16 @@ inline VXDisassemblerMode VXInstructionDecoder::getDisassemblerMode() const
 inline void VXInstructionDecoder::setDisassemblerMode(VXDisassemblerMode disassemblerMode)
 {
     m_disassemblerMode = disassemblerMode;
+}
+
+inline VXInstructionSetVendor VXInstructionDecoder::getPreferredVendor() const
+{
+    return m_preferredVendor;
+}
+
+inline void VXInstructionDecoder::setPreferredVendor(VXInstructionSetVendor preferredVendor)
+{
+    m_preferredVendor = preferredVendor;
 }
 
 inline uint64_t VXInstructionDecoder::getInstructionPointer() const

@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,60 +29,8 @@
  * SOFTWARE.
 
 **************************************************************************************************/
+#pragma once
+
+#include "VXInstructionDecoder.h"
+#include "VXInstructionFormatter.h"
 #include "VXSymbolResolver.h"
-
-namespace Verteron
-{
-
-namespace Disassembler
-{
-
-VXBaseSymbolResolver::~VXBaseSymbolResolver()
-{
-
-}
-
-const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    return nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-VXExactSymbolResolver::~VXExactSymbolResolver()
-{
-
-}
-
-const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? nullptr : iterator->second.c_str();
-}
-
-void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
-{
-    m_symbolMap[address].assign(name);
-}
-
-void VXExactSymbolResolver::removeSymbol(uint64_t address)
-{
-    m_symbolMap.erase(address);
-}
-
-void VXExactSymbolResolver::clear()
-{
-    m_symbolMap.clear();
-}
-
-bool VXExactSymbolResolver::containsSymbol(uint64_t address)
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? false : true;
-}
-
-}
-
-}
