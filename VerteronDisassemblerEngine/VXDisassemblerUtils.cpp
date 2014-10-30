@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 30. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,58 +29,48 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXSymbolResolver.h"
+#include "VXDisassemblerUtils.h"
 
 namespace Verteron
 {
 
 namespace Disassembler
 {
-
-VXBaseSymbolResolver::~VXBaseSymbolResolver()
+  
+uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand)
 {
-
-}
-
-const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    return nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-VXExactSymbolResolver::~VXExactSymbolResolver()
-{
-
-}
-
-const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? nullptr : iterator->second.c_str();
-}
-
-void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
-{
-    m_symbolMap[address].assign(name);
-}
-
-void VXExactSymbolResolver::removeSymbol(uint64_t address)
-{
-    m_symbolMap.erase(address);
-}
-
-void VXExactSymbolResolver::clear()
-{
-    m_symbolMap.clear();
-}
-
-bool VXExactSymbolResolver::containsSymbol(uint64_t address)
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? false : true;
+    assert((operand.type == VXOperandType::REL_IMMEDIATE) || 
+        ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP)));
+   
+    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
+    if (!(info.flags & IF_DISASSEMBLER_MODE_64)) 
+    {
+        truncMask >>= (64 - info.operand_mode);
+    }
+    uint16_t size = operand.size;
+    if ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP))
+    {
+        size = operand.offset;
+    }
+    switch (size)
+    {
+    case 8:
+        return (info.instrPointer + operand.lval.sbyte) & truncMask;
+    case 16:
+        {
+            uint32_t delta = operand.lval.sword & truncMask;
+            if ((info.instrPointer + delta) > 0xFFFF)
+            {
+                return (info.instrPointer & 0xF0000) + ((info.instrPointer + delta) & 0xFFFF);    
+            }
+            return info.instrPointer + delta;
+        }
+    case 32:
+        return (info.instrPointer + operand.lval.sdword) & truncMask;
+    default:
+        assert(0);
+    }
+    return 0;
 }
 
 }

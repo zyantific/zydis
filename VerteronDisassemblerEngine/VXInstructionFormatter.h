@@ -50,6 +50,7 @@ private:
     static const char    *m_registerStrings[];
     VXBaseSymbolResolver *m_symbolResolver;
     std::vector<char>     m_outputBuffer;
+    bool                  m_uppercase;
 protected:
     /**
      * @brief   Clears the output string buffer.
@@ -70,14 +71,36 @@ protected:
      * @param   format  The format string.
      */
     void outputAppendFormatted(const char *format, ...);
-protected:
     /**
-     * @brief   Calculates the absolute target address for a relative immediate operand.
-     * @param   info    The instruction info.
-     * @param   operand The operand.
-     * @return  The absolute target address.
+     * @brief   Changes automatic conversion of characters to uppercase.
+     * @param   uppercase   Set true to enable automatic uppercase conversion.
      */
-    uint64_t calcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand) const;
+    void outputSetUppercase(bool uppercase);
+    /**
+     * @brief   Appends a formatted address to the output string buffer.
+     * @param   info            The instruction info.
+     * @param   address         The address.
+     * @param   resolveSymbols  If this parameter is true, the method will try to display a
+     *                          smybol name instead of the numeric value.
+     */
+    void outputAppendAddress(const VXInstructionInfo &info, uint64_t address, 
+        bool resolveSymbols = true);
+    /**
+     * @brief   Appends a formatted immediate value to the output string buffer.
+     * @param   info            The instruction info.
+     * @param   operand         The immediate operand.
+     * @param   resolveSymbols  If this parameter is true, the method will try to display a
+     *                          smybol name instead of the numeric value.
+     */
+    void outputAppendImmediate(const VXInstructionInfo &info, const VXOperandInfo &operand,
+        bool resolveSymbols = false);
+    /**
+     * @brief   Appends a formatted memory displacement value to the output string buffer.
+     * @param   info    The instruction info.
+     * @param   operand The memory operand.
+     */
+    void outputAppendDisplacement(const VXInstructionInfo &info, const VXOperandInfo &operand);
+protected:
     /**
      * @brief   Returns the string representation of a given register.
      * @param   reg The register.
@@ -138,6 +161,11 @@ public:
     void setSymbolResolver(VXBaseSymbolResolver *symbolResolver);
 };
 
+inline void VXBaseInstructionFormatter::outputSetUppercase(bool uppercase)
+{
+    m_uppercase = uppercase;
+}
+
 inline char const* VXBaseInstructionFormatter::registerToString(VXRegister reg) const
 {
     if (reg == VXRegister::NONE)
@@ -175,8 +203,12 @@ inline void VXBaseInstructionFormatter::setSymbolResolver(VXBaseSymbolResolver *
 class VXIntelInstructionFormatter : public VXBaseInstructionFormatter
 {
 private:
-    void outputAppendAddress(const VXInstructionInfo &info, uint64_t address);
-private:
+    /**
+     * @brief   Appends an operand cast to the output string buffer.
+     * @param   info    The instruction info.
+     * @param   operand The operand.
+     */
+    void outputAppendOperandCast(const VXInstructionInfo &info, const VXOperandInfo &operand);
     /**
      * @brief   Formats the specified operand and appends the resulting string to the output
      *          buffer.

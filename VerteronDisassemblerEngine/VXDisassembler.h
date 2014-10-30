@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 22. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,5 +31,8 @@
 **************************************************************************************************/
 #pragma once
 
+#include "VXDisassemblerTypes.h"
 #include "VXInstructionDecoder.h"
 #include "VXInstructionFormatter.h"
+#include "VXSymbolResolver.h"
+#include "VXDisassemblerUtils.h"

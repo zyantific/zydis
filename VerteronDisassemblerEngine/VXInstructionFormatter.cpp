@@ -30,7 +30,9 @@
 
 **************************************************************************************************/
 #include "VXInstructionFormatter.h"
+#include "VXDisassemblerUtils.h"
 #include <cstdarg>
+#include <cctype>
 
 namespace Verteron
 {
@@ -101,12 +103,14 @@ void VXBaseInstructionFormatter::internalFormatInstruction(VXInstructionInfo con
 
 VXBaseInstructionFormatter::VXBaseInstructionFormatter()
     : m_symbolResolver(nullptr)
+    , m_uppercase(false)
 {
 
 }
 
 VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver)
     : m_symbolResolver(symbolResolver)
+    , m_uppercase(false)
 {
 
 }
@@ -120,7 +124,7 @@ const char* VXBaseInstructionFormatter::formatInstruction(const VXInstructionInf
     if (m_outputBuffer.size() == 0)
     {
         // The basic instruction formatter only returns the instruction menmonic.
-        return Internal::GetInstructionMnemonicString(info.mnemonic);
+        return Internal::VDEGetInstructionMnemonicString(info.mnemonic);
     } 
     // Return the formatted instruction string
     return outputString();
@@ -160,6 +164,14 @@ void VXBaseInstructionFormatter::outputAppend(char const *text)
     // Append the text
     m_outputBuffer.resize(offset + strLen);
     memcpy(&m_outputBuffer[offset], text, strLen);
+    // Convert to uppercase
+    if (m_uppercase)
+    {
+        for (size_t i = offset; i < m_outputBuffer.size() - 1; ++i)
+        {
+            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+        }
+    }
 }
 
 void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
@@ -185,35 +197,27 @@ void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
         // Append the formatted text
         m_outputBuffer.resize(offset + strLen);
         vsnprintf_s(&m_outputBuffer[offset], strLen, strLen, format, arguments);
+        // Convert to uppercase
+        if (m_uppercase)
+        {
+            for (size_t i = offset; i < m_outputBuffer.size() - 1; ++i)
+            {
+                m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+            }
+        }
     }
     va_end(arguments);
 }
 
-uint64_t VXBaseInstructionFormatter::calcAbsoluteTarget(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand) const
-{
-    switch (operand.size)
-    {
-    case 8:
-        return (info.instrPointer + operand.lval.sbyte);
-    case 16:
-        return (info.instrPointer + operand.lval.sword);
-    case 32:
-    case 64:
-        return (info.instrPointer + operand.lval.sdword);
-    default:
-        assert(0);
-    }
-    return 0;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-void VXIntelInstructionFormatter::outputAppendAddress(const VXInstructionInfo &info, 
-    uint64_t address)
+void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &info, 
+    uint64_t address, bool resolveSymbols)
 {
     uint64_t offset = 0;
-    const char* name = resolveSymbol(info, address, offset);
+    const char* name = nullptr;
+    if (resolveSymbols)
+    {
+        name = resolveSymbol(info, address, offset);
+    }
     if (name)
     {
         if (offset)
@@ -241,6 +245,154 @@ void VXIntelInstructionFormatter::outputAppendAddress(const VXInstructionInfo &i
     }
 }
 
+void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &info, 
+    const VXOperandInfo &operand, bool resolveSymbols)
+{
+    assert(operand.type == VXOperandType::IMMEDIATE);
+    uint64_t value = 0;
+    if (operand.signed_lval && (operand.size != info.operand_mode)) 
+    {
+        if (operand.size == 8) 
+        {
+            value = static_cast<int64_t>(operand.lval.sbyte);
+        } else 
+        {
+            assert(operand.size == 32);
+            value = static_cast<int64_t>(operand.lval.sdword);
+        }
+        if (info.operand_mode < 64) 
+        {
+            value = value & ((1ull << info.operand_mode) - 1ull);
+        }
+    } else 
+    {
+        switch (operand.size) 
+        {
+        case 8: 
+            value = operand.lval.ubyte; 
+            break;
+        case 16: 
+            value = operand.lval.uword; 
+            break;
+        case 32: 
+            value = operand.lval.udword; 
+            break;
+        case 64: 
+            value = operand.lval.uqword; 
+            break;
+        default:
+            assert(0);
+        }
+    }
+    uint64_t offset = 0;
+    const char* name = nullptr;
+    if (resolveSymbols)
+    {
+        name = resolveSymbol(info, value, offset);
+    }
+    if (name)
+    {
+        if (offset)
+        {
+            outputAppendFormatted("%s+%.2llX", name, offset);   
+        } else
+        {
+            outputAppend(name);     
+        }
+    } else
+    {
+        outputAppendFormatted("%.2llX", value);
+    }
+}
+
+void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInfo &info, 
+    const VXOperandInfo &operand)
+{
+    assert(operand.offset > 0);
+    if (operand.base == VXRegister::NONE && operand.index == VXRegister::NONE)
+    {
+        // Assume the displacement value is unsigned
+        assert(operand.scale == 0);
+        assert(operand.offset != 8);
+        uint64_t value = 0;
+        switch (operand.offset)
+        {
+        case 16:
+            value = operand.lval.uword;
+            break;
+        case 32:
+            value = operand.lval.udword;
+            break;
+        case 64:
+            value = operand.lval.uqword;
+            break;
+        default:
+            assert(0);
+        }
+        outputAppendFormatted("%.2llX", value);
+    } else
+    {
+        // The displacement value might be negative
+        assert(operand.offset != 64);  
+        int64_t value = 0;
+        switch (operand.offset)
+        {
+        case 8:
+            value = operand.lval.sbyte;
+            break;
+        case 16:
+            value = operand.lval.sword;
+            break;
+        case 32:
+            value = operand.lval.sdword;
+            break;
+        default:
+            assert(0);
+        }
+        if (value < 0)
+        {
+            outputAppendFormatted("-%.2lX", -value);
+        } else
+        {
+            outputAppendFormatted("%s%.2lX", (operand.base != VXRegister::NONE || 
+                operand.index != VXRegister::NONE) ? "+" : "", value);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void VXIntelInstructionFormatter::outputAppendOperandCast(const VXInstructionInfo &info, 
+    const VXOperandInfo &operand)
+{
+    switch(operand.size) 
+    {
+    case 8:     
+        outputAppend("byte ptr " ); 
+        break;
+    case 16:    
+        outputAppend("word ptr " ); 
+        break;
+    case 32:    
+        outputAppend("dword ptr "); 
+        break;
+    case 64:    
+        outputAppend("qword ptr "); 
+        break;
+    case 80:    
+        outputAppend("tword ptr "); 
+        break;
+    case 128:   
+        outputAppend("oword ptr "); 
+        break;
+    case 256:   
+        outputAppend("yword ptr "); 
+        break;
+    default: 
+        break;
+    }
+}
+
 void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info, 
     const VXOperandInfo &operand)
 {
@@ -250,7 +402,6 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
         outputAppend(registerToString(operand.base));
         break;
     case VXOperandType::MEMORY: 
-        // TODO: resolve symbols for displacement only and RIP based memory operands
         if (info.flags & IF_PREFIX_SEGMENT)
         {
             outputAppendFormatted("%s:", registerToString(info.segment));    
@@ -259,7 +410,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
         if (operand.base == VXRegister::RIP)
         {
             // TODO: Add option
-            outputAppendAddress(info, calcAbsoluteTarget(info, operand));   
+            outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);   
         } else
         {
             if (operand.base != VXRegister::NONE)
@@ -275,58 +426,9 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
                     outputAppendFormatted("*%d", operand.scale);
                 }
             }
-            if (operand.lval.uqword || 
-                (operand.base == VXRegister::NONE && operand.index == VXRegister::NONE)) 
+            if (operand.offset) 
             {
-                if (operand.base == VXRegister::NONE && operand.index == VXRegister::NONE)
-                {
-                    // Assume the displacement value is unsigned
-                    assert(operand.scale == 0);
-                    assert(operand.offset != 8);
-                    uint64_t value = 0;
-                    switch (operand.offset)
-                    {
-                    case 16:
-                        value = operand.lval.uword;
-                        break;
-                    case 32:
-                        value = operand.lval.udword;
-                        break;
-                    case 64:
-                        value = operand.lval.uqword;
-                        break;
-                    default:
-                        assert(0);
-                    }
-                    outputAppendFormatted("%.2llX", value);
-                } else
-                {
-                    // The displacement value might be negative
-                    assert(operand.offset != 64);  
-                    int64_t value = 0;
-                    switch (operand.offset)
-                    {
-                    case 8:
-                        value = operand.lval.sbyte;
-                        break;
-                    case 16:
-                        value = operand.lval.sword;
-                        break;
-                    case 32:
-                        value = operand.lval.sdword;
-                        break;
-                    default:
-                        assert(0);
-                    }
-                    if (value < 0)
-                    {
-                        outputAppendFormatted("-%.2lX", -value);
-                    } else
-                    {
-                        outputAppendFormatted("%s%.2lX", (operand.base != VXRegister::NONE || 
-                            operand.index != VXRegister::NONE) ? "+" : "", value);
-                    }
-                }
+                outputAppendDisplacement(info, operand);
             }
         }
         outputAppend("]");
@@ -348,26 +450,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
         break;
     case VXOperandType::IMMEDIATE: 
         {
-            // TODO: resolve symbols
-            uint64_t value = 0;
-            switch (operand.size) 
-            {
-            case 8 : 
-                value = operand.lval.ubyte; 
-                break;
-            case 16: 
-                value = operand.lval.uword; 
-                break;
-            case 32: 
-                value = operand.lval.udword; 
-                break;
-            case 64: 
-                value = operand.lval.uqword; 
-                break;
-            default: 
-                assert(0);
-            }   
-            outputAppendFormatted("%.2llX", value);
+            outputAppendImmediate(info, operand, true);
         }
         break;
     case VXOperandType::REL_IMMEDIATE: 
@@ -376,11 +459,11 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             {
                 outputAppend("short ");
             }
-            outputAppendAddress(info, calcAbsoluteTarget(info, operand));
+            outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);
         }
         break;
     case VXOperandType::CONSTANT: 
-        outputAppendFormatted("%d", operand.lval.udword);
+        outputAppendFormatted("%.2X", operand.lval.udword);
         break;
     default: 
         assert(0);
@@ -403,23 +486,82 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
         outputAppend("repne ");
     }
     // Append the instruction mnemonic
-    outputAppend(Internal::GetInstructionMnemonicString(info.mnemonic));
+    outputAppend(Internal::VDEGetInstructionMnemonicString(info.mnemonic));
     // Append the first operand
     if (info.operand[0].type != VXOperandType::NONE)
     {
         outputAppend(" ");
+        bool cast = false;
+        if (info.operand[0].type == VXOperandType::MEMORY) 
+        {
+            if (info.operand[1].type == VXOperandType::IMMEDIATE ||
+                info.operand[1].type == VXOperandType::CONSTANT ||
+                info.operand[1].type == VXOperandType::NONE ||
+                (info.operand[0].size != info.operand[1].size)) 
+            {
+                cast = true;
+            } else if (info.operand[1].type == VXOperandType::REGISTER &&
+                info.operand[1].base == VXRegister::CL) 
+            {
+                switch (info.mnemonic) 
+                {
+                case VXInstructionMnemonic::RCL:
+                case VXInstructionMnemonic::ROL:
+                case VXInstructionMnemonic::ROR:
+                case VXInstructionMnemonic::RCR:
+                case VXInstructionMnemonic::SHL:
+                case VXInstructionMnemonic::SHR:
+                case VXInstructionMnemonic::SAR:
+                    cast = true;
+                    break;
+                default: 
+                    break;
+                }
+            }
+        }
+        if (cast)
+        {
+            outputAppendOperandCast(info, info.operand[0]);
+        }
         formatOperand(info, info.operand[0]);
     }
     // Append the second operand
     if (info.operand[1].type != VXOperandType::NONE)
     {
         outputAppend(", ");
+        bool cast = false;
+        if (info.operand[1].type == VXOperandType::MEMORY &&
+            info.operand[0].size != info.operand[1].size &&
+            ((info.operand[0].type != VXOperandType::REGISTER) ||
+             ((info.operand[0].base != VXRegister::ES) && 
+             (info.operand[0].base != VXRegister::CS) &&
+             (info.operand[0].base != VXRegister::SS) &&
+             (info.operand[0].base != VXRegister::DS) &&
+             (info.operand[0].base != VXRegister::FS) &&
+             (info.operand[0].base != VXRegister::GS)))) 
+        {
+            cast = true;
+        }
+        if (cast)
+        {
+            outputAppendOperandCast(info, info.operand[1]);
+        }
         formatOperand(info, info.operand[1]);
     }
     // Append the third operand
     if (info.operand[2].type != VXOperandType::NONE)
     {
         outputAppend(", ");
+        bool cast = false;
+        if (info.operand[2].type == VXOperandType::MEMORY && 
+            (info.operand[2].size != info.operand[1].size)) 
+        {
+            cast = true;
+        }
+        if (cast)
+        {
+            outputAppendOperandCast(info, info.operand[2]);
+        }
         formatOperand(info, info.operand[2]);
     }
     // Append the fourth operand

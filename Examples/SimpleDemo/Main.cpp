@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 24. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@
 
 using namespace Verteron;
 using namespace Disassembler;
-  
+
 int _tmain(int argc, _TCHAR* argv[])
 {
     uint8_t data32[] =
@@ -70,8 +70,8 @@ int _tmain(int argc, _TCHAR* argv[])
     VXInstructionInfo info;
     VXInstructionDecoder decoder;
     VXIntelInstructionFormatter formatter;
-    VXBufferDataSource input32(&data32[0], sizeof(data32));
-    VXBufferDataSource input64(&data64[0], sizeof(data64));
+    VXMemoryDataSource input32(&data32[0], sizeof(data32));
+    VXMemoryDataSource input64(&data64[0], sizeof(data64));
 
     decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
     decoder.setDataSource(&input32);

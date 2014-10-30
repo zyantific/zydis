@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 23. October 2014
+  Last change     : 29. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -475,11 +475,11 @@ uint16_t VXInstructionDecoder::getEffectiveOperandSize(const VXInstructionInfo &
     case VXDefinedOperandSize::RDQ: 
         return (m_disassemblerMode == VXDisassemblerMode::M64BIT) ? 64 : 32;
     default: 
-        return Internal::GetSimpleOperandSize(operandSize);
+        return Internal::VDEGetSimpleOperandSize(operandSize);
     }
 }
 
-bool VXInstructionDecoder::decodeOperands(VXInstructionInfo& info)
+bool VXInstructionDecoder::decodeOperands(VXInstructionInfo &info)
 {
     assert(info.instrDefinition);
     // Always try to decode the first operand
@@ -493,7 +493,6 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo& info)
     {
         if (info.operand[i - 1].type != VXOperandType::NONE)
         {
-            info.operand[i - 1].access_mode = VXOperandAccessMode::READ;
             if (!decodeOperand(info, info.operand[i], info.instrDefinition->operand[i].type, 
                 info.instrDefinition->operand[i].size))
             {
@@ -502,24 +501,30 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo& info)
         }    
     }
     // Update operand access modes
-    if (info.operand[0].type != VXOperandType::NONE)
+    for (unsigned int i = 0; i < 4; ++i)
     {
-        if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
+        if (info.operand[i].type != VXOperandType::NONE)
         {
-            info.operand[0].access_mode = VXOperandAccessMode::WRITE;
-        } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
-        {
-            info.operand[0].access_mode = VXOperandAccessMode::READWRITE;
-        }
-    }
-    if (info.operand[1].type != VXOperandType::NONE)
-    {
-        if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
-        {
-            info.operand[1].access_mode = VXOperandAccessMode::WRITE;
-        } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
-        {
-            info.operand[1].access_mode = VXOperandAccessMode::READWRITE;
+            info.operand[i].access_mode = VXOperandAccessMode::READ;
+            if (i == 0)
+            {
+                if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
+                {
+                    info.operand[0].access_mode = VXOperandAccessMode::WRITE;
+                } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
+                {
+                    info.operand[0].access_mode = VXOperandAccessMode::READWRITE;
+                }
+            } else if (i == 1)
+            {
+                if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
+                {
+                    info.operand[1].access_mode = VXOperandAccessMode::WRITE;
+                } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
+                {
+                    info.operand[1].access_mode = VXOperandAccessMode::READWRITE;
+                }    
+            }
         }
     }
     return true;
@@ -602,6 +607,7 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
             return false;
         }
         operand.type = VXOperandType::REL_IMMEDIATE;
+        operand.signed_lval = true;
         info.flags |= IF_RELATIVE;
         break;
     case VXDefinedOperandType::L: 
@@ -619,11 +625,11 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
     case VXDefinedOperandType::MR: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             info.modrm_mod == 3 ? 
-            GetComplexOperandRegSize(operandSize) : GetComplexOperandMemSize(operandSize));
+            VDEGetComplexOperandRegSize(operandSize) : VDEGetComplexOperandMemSize(operandSize));
     case VXDefinedOperandType::MU: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::XMM, 
             info.modrm_mod == 3 ? 
-            GetComplexOperandRegSize(operandSize) : GetComplexOperandMemSize(operandSize));
+            VDEGetComplexOperandRegSize(operandSize) : VDEGetComplexOperandMemSize(operandSize));
     case VXDefinedOperandType::N: 
         // ModR/M byte may refer only to memory
         if (info.modrm_mod != 3)
@@ -901,24 +907,24 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
     info.opcode[0] = inputCurrent();
     info.opcode_length = 1;
     // Iterate through opcode tree
-    VXOpcodeTreeNode node = GetOpcodeTreeChild(GetOpcodeTreeRoot(), inputCurrent());
+    VXOpcodeTreeNode node = VDEGetOpcodeTreeChild(VDEGetOpcodeTreeRoot(), inputCurrent());
     VXOpcodeTreeNodeType nodeType;
     do
     {
         uint16_t index = 0;
-        nodeType = GetOpcodeNodeType(node);
+        nodeType = VDEGetOpcodeNodeType(node);
         switch (nodeType)
         {
         case VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION: 
             {
                 // Check for invalid instruction
-                if (GetOpcodeNodeValue(node) == 0)
+                if (VDEGetOpcodeNodeValue(node) == 0)
                 {
                     info.flags |= IF_ERROR_INVALID;
                     return false;
                 }
                 // Get instruction definition
-                const VXInstructionDefinition *instrDefinition = GetInstructionDefinition(node);
+                const VXInstructionDefinition *instrDefinition = VDEGetInstructionDefinition(node);
                 // Check for invalid 64 bit instruction
                 if ((m_disassemblerMode == VXDisassemblerMode::M64BIT) && 
                     (instrDefinition->flags & IDF_INVALID_64))
@@ -989,11 +995,11 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             {
                 index = 3; // 66
             }
-            if (GetOpcodeTreeChild(node, index) == 0)
+            if (VDEGetOpcodeTreeChild(node, index) == 0)
             {
                 index = 0;
             }
-            if (index && (GetOpcodeTreeChild(node, index) != 0))
+            if (index && (VDEGetOpcodeTreeChild(node, index) != 0))
             {
                 // Remove REP and REPNE prefix
                 info.flags &= ~IF_PREFIX_REP;
@@ -1053,7 +1059,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             switch (m_preferredVendor)
             {
             case VXInstructionSetVendor::ANY: 
-                index = (GetOpcodeTreeChild(node, 0) != 0) ? 0 : 1;
+                index = (VDEGetOpcodeTreeChild(node, 0) != 0) ? 0 : 1;
                 break;
             case VXInstructionSetVendor::INTEL: 
                 index = 1;
@@ -1069,9 +1075,9 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             {     
                 // As all 3dnow instructions got the same operands and flag definitions, we just
                 // decode a random instruction and determine the specific opcode later.
-                assert(GetOpcodeTreeChild(node, 0x0C) != 0);
+                assert(VDEGetOpcodeTreeChild(node, 0x0C) != 0);
                 const VXInstructionDefinition *instrDefinition =
-                    GetInstructionDefinition(GetOpcodeTreeChild(node, 0x0C));
+                    VDEGetInstructionDefinition(VDEGetOpcodeTreeChild(node, 0x0C));
                 // Update instruction info
                 info.instrDefinition = instrDefinition;
                 info.mnemonic = instrDefinition->mnemonic;
@@ -1092,7 +1098,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 }
                 // Update instruction info
                 instrDefinition = 
-                    GetInstructionDefinition(GetOpcodeTreeChild(node, info.opcode[2]));
+                    VDEGetInstructionDefinition(VDEGetOpcodeTreeChild(node, info.opcode[2]));
                 if (!instrDefinition || 
                     (instrDefinition->mnemonic == VXInstructionMnemonic::INVALID))
                 {
@@ -1177,7 +1183,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
         default: 
             assert(0);
         }
-        node = GetOpcodeTreeChild(node, index);
+        node = VDEGetOpcodeTreeChild(node, index);
     } while (nodeType != VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
     return false;
 }
@@ -1250,6 +1256,8 @@ bool VXInstructionDecoder::decodeInstruction(VXInstructionInfo &info)
             info.mnemonic = VXInstructionMnemonic::NOP;
             info.operand[0].type = VXOperandType::NONE;    
             info.operand[1].type = VXOperandType::NONE; 
+            info.operand[0].access_mode = VXOperandAccessMode::NA;
+            info.operand[1].access_mode = VXOperandAccessMode::NA;
         }
     }
     if ((info.mnemonic == VXInstructionMnemonic::NOP) && (info.flags & IF_PREFIX_REP))
@@ -1277,7 +1285,7 @@ DecodeError:
     info.length = length;
     info.data[0] = firstByte;
     info.instrAddress = instrAddress;
-    info.instrDefinition = Internal::GetInstructionDefinition(0);
+    info.instrDefinition = Internal::VDEGetInstructionDefinition(0);
     // Return with error, if the end of the input source was reached while decoding the 
     // invalid instruction
     if (info.flags & IF_ERROR_END_OF_INPUT)
