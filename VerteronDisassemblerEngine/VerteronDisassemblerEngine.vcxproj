@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="VXDisassembler.h" />
+    <ClInclude Include="VXDisassemblerUtils.h" />
     <ClInclude Include="VXDisassemblerTypes.h" />
     <ClInclude Include="VXInstructionDecoder.h" />
     <ClInclude Include="VXInstructionFormatter.h" />
@@ -27,6 +28,7 @@
     <ClInclude Include="VXSymbolResolver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="VXDisassemblerUtils.cpp" />
     <ClCompile Include="VXInstructionDecoder.cpp" />
     <ClCompile Include="VXInstructionFormatter.cpp" />
     <ClCompile Include="VXOpcodeTable.cpp" />

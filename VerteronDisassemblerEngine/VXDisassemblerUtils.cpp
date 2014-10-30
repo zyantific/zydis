@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 29. October 2014
+  Last change     : 30. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,50 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#pragma once
-
-#include "VXDisassemblerTypes.h"
-#include "VXInstructionDecoder.h"
-#include "VXInstructionFormatter.h"
-#include "VXSymbolResolver.h"
 #include "VXDisassemblerUtils.h"
+
+namespace Verteron
+{
+
+namespace Disassembler
+{
+  
+uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand)
+{
+    assert((operand.type == VXOperandType::REL_IMMEDIATE) || 
+        ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP)));
+   
+    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
+    if (!(info.flags & IF_DISASSEMBLER_MODE_64)) 
+    {
+        truncMask >>= (64 - info.operand_mode);
+    }
+    uint16_t size = operand.size;
+    if ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP))
+    {
+        size = operand.offset;
+    }
+    switch (size)
+    {
+    case 8:
+        return (info.instrPointer + operand.lval.sbyte) & truncMask;
+    case 16:
+        {
+            uint32_t delta = operand.lval.sword & truncMask;
+            if ((info.instrPointer + delta) > 0xFFFF)
+            {
+                return (info.instrPointer & 0xF0000) + ((info.instrPointer + delta) & 0xFFFF);    
+            }
+            return info.instrPointer + delta;
+        }
+    case 32:
+        return (info.instrPointer + operand.lval.sdword) & truncMask;
+    default:
+        assert(0);
+    }
+    return 0;
+}
+
+}
+
+}

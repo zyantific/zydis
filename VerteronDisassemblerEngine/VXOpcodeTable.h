@@ -291,17 +291,17 @@ enum class VXInstructionMnemonic : uint16_t
     /* 0F3 */ IRETQ,
     /* 0F4 */ IRETW,
     /* 0F5 */ JA,
-    /* 0F6 */ JAE,
-    /* 0F7 */ JB,
-    /* 0F8 */ JBE,
-    /* 0F9 */ JCXZ,
-    /* 0FA */ JE,
-    /* 0FB */ JECXZ,
-    /* 0FC */ JG,
-    /* 0FD */ JGE,
-    /* 0FE */ JL,
-    /* 0FF */ JLE,
-    /* 100 */ JMP,
+    /* 0F6 */ JB,
+    /* 0F7 */ JBE,
+    /* 0F8 */ JCXZ,
+    /* 0F9 */ JE,
+    /* 0FA */ JECXZ,
+    /* 0FB */ JG,
+    /* 0FC */ JGE,
+    /* 0FD */ JL,
+    /* 0FE */ JLE,
+    /* 0FF */ JMP,
+    /* 100 */ JNB,
     /* 101 */ JNE,
     /* 102 */ JNO,
     /* 103 */ JNP,
@@ -1608,7 +1608,7 @@ extern const char* instrMnemonicStrings[];
  * @param   node    The node.
  * @return  The type of the specified opcode tree node.
  */
-inline VXOpcodeTreeNodeType GetOpcodeNodeType(VXOpcodeTreeNode node)
+inline VXOpcodeTreeNodeType VDEGetOpcodeNodeType(VXOpcodeTreeNode node)
 {
     return static_cast<VXOpcodeTreeNodeType>((node >> 12) & 0x0F);
 } 
@@ -1618,7 +1618,7 @@ inline VXOpcodeTreeNodeType GetOpcodeNodeType(VXOpcodeTreeNode node)
  * @param   node    The node.
  * @return  The value of the specified opcode tree node.
  */
-inline uint16_t GetOpcodeNodeValue(VXOpcodeTreeNode node)
+inline uint16_t VDEGetOpcodeNodeValue(VXOpcodeTreeNode node)
 {
     return (node & 0x0FFF);   
 }
@@ -1627,7 +1627,7 @@ inline uint16_t GetOpcodeNodeValue(VXOpcodeTreeNode node)
  * @brief   Returns the root node of the opcode tree.
  * @return  The root node of the opcode tree.
  */
-inline VXOpcodeTreeNode GetOpcodeTreeRoot()
+inline VXOpcodeTreeNode VDEGetOpcodeTreeRoot()
 {
     return 0x1000;
 }
@@ -1638,11 +1638,11 @@ inline VXOpcodeTreeNode GetOpcodeTreeRoot()
  * @param   index   The index of the child node to retrieve.
  * @return  The specified child node.
  */
-inline VXOpcodeTreeNode GetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
+inline VXOpcodeTreeNode VDEGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
 {
     using namespace Internal;
-    VXOpcodeTreeNodeType nodeType = GetOpcodeNodeType(parent);
-    uint16_t tableIndex = GetOpcodeNodeValue(parent);
+    VXOpcodeTreeNodeType nodeType = VDEGetOpcodeNodeType(parent);
+    uint16_t tableIndex = VDEGetOpcodeNodeValue(parent);
     switch (nodeType)
     {
     case VXOpcodeTreeNodeType::TABLE:
@@ -1698,9 +1698,9 @@ inline VXOpcodeTreeNode GetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t ind
  * @param   node    The instruction definition node.
  * @return  Pointer to the instruction definition.
  */
-inline const VXInstructionDefinition* GetInstructionDefinition(VXOpcodeTreeNode node)
+inline const VXInstructionDefinition* VDEGetInstructionDefinition(VXOpcodeTreeNode node)
 {
-    assert(GetOpcodeNodeType(node) == VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
+    assert(VDEGetOpcodeNodeType(node) == VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
     return &instrDefinitions[node & 0x0FFF];    
 }
 
@@ -1709,7 +1709,7 @@ inline const VXInstructionDefinition* GetInstructionDefinition(VXOpcodeTreeNode 
  * @param   mnemonic    The mnemonic.
  * @return  The instruction mnemonic string.
  */
-inline const char* GetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
+inline const char* VDEGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
 {
     return instrMnemonicStrings[static_cast<uint16_t>(mnemonic)];
 }
@@ -1719,7 +1719,7 @@ inline const char* GetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
  * @param   operandSize The defined operand size.
  * @return  The the numeric value for the simple operand size definition.
  */
-inline uint16_t GetSimpleOperandSize(VXDefinedOperandSize operandSize)
+inline uint16_t VDEGetSimpleOperandSize(VXDefinedOperandSize operandSize)
 {
     static uint16_t operandSizes[8] =
     {
@@ -1736,7 +1736,7 @@ inline uint16_t GetSimpleOperandSize(VXDefinedOperandSize operandSize)
  * @param   operandSize The defined operand size.
  * @return  The memory-size part of the operand size definition.
  */
-inline VXDefinedOperandSize GetComplexOperandMemSize(VXDefinedOperandSize operandSize)
+inline VXDefinedOperandSize VDEGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
 {
     return static_cast<VXDefinedOperandSize>(static_cast<uint8_t>(operandSize) & 0x0F);
 }
@@ -1746,7 +1746,7 @@ inline VXDefinedOperandSize GetComplexOperandMemSize(VXDefinedOperandSize operan
  * @param   operandSize The defined operand size.
  * @return  The register-size part of the operand size definition.
  */
-inline VXDefinedOperandSize GetComplexOperandRegSize(VXDefinedOperandSize operandSize)
+inline VXDefinedOperandSize VDEGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
 {
     return static_cast<VXDefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4) & 0x0F);    
 }

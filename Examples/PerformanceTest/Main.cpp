@@ -48,7 +48,7 @@ void testDecodingAndFormatting(uintptr_t baseAddress, PIMAGE_NT_HEADERS ntHeader
         reinterpret_cast<PIMAGE_SECTION_HEADER>(
         reinterpret_cast<uintptr_t>(ntHeaders) + sizeof(IMAGE_NT_HEADERS) 
             + ntHeaders->FileHeader.SizeOfOptionalHeader - sizeof(IMAGE_OPTIONAL_HEADER));
-    // Decode all code sections
+    // Decode and format all code sections
     for (unsigned int i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
     {
         if (sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE)
@@ -60,7 +60,7 @@ void testDecodingAndFormatting(uintptr_t baseAddress, PIMAGE_NT_HEADERS ntHeader
             decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);
             while (decoder.decodeInstruction(info))
             {
-   
+                formatter.formatInstruction(info);   
             }
         }
         sectionHeader++;
@@ -116,6 +116,5 @@ int _tmain(int argc, _TCHAR* argv[])
               << std::endl;
 
     std::cin.get();
-
     return 0;
 }

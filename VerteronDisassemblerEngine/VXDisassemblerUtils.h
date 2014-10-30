@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   :
 
-  Last change     : 29. October 2014
+  Last change     : 30. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,23 @@
 **************************************************************************************************/
 #pragma once
 
+#include <stdint.h>
 #include "VXDisassemblerTypes.h"
-#include "VXInstructionDecoder.h"
-#include "VXInstructionFormatter.h"
-#include "VXSymbolResolver.h"
-#include "VXDisassemblerUtils.h"
+
+namespace Verteron
+{
+
+namespace Disassembler
+{
+
+/**
+ * @brief   Calculates the absolute target address of a relative instruction operand.
+ * @param   info    The instruction info.
+ * @param   operand The operand.
+ * @return  The absolute target address.
+ */
+uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand);
+
+}
+
+}
