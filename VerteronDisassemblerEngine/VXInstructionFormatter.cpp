@@ -256,11 +256,12 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             outputAppendFormatted("%s:", registerToString(info.segment));    
         }
         outputAppend("[");
-        if (operand.base == VXRegister::RIP)
-        {
-            // TODO: Add option
-            outputAppendAddress(info, calcAbsoluteTarget(info, operand));   
-        } else
+        // TODO: Fix zero sized memory operands (lea eax, [rip+1] | lidt [0])
+        //if (operand.base == VXRegister::RIP)
+        //{
+        //    // TODO: Add option
+        //    outputAppendAddress(info, calcAbsoluteTarget(info, operand));   
+        //} else
         {
             if (operand.base != VXRegister::NONE)
             {

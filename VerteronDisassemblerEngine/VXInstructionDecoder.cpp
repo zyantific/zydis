@@ -493,7 +493,7 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo& info)
     {
         if (info.operand[i - 1].type != VXOperandType::NONE)
         {
-            info.operand[i - 1].access_mode = VXOperandAccessMode::READ;
+            info.operand[i].access_mode = VXOperandAccessMode::READ;
             if (!decodeOperand(info, info.operand[i], info.instrDefinition->operand[i].type, 
                 info.instrDefinition->operand[i].size))
             {
@@ -502,6 +502,7 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo& info)
         }    
     }
     // Update operand access modes
+    info.operand[0].access_mode = VXOperandAccessMode::READ;
     if (info.operand[0].type != VXOperandType::NONE)
     {
         if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
