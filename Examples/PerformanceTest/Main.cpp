@@ -40,30 +40,38 @@ using namespace Disassembler;
 
 void testDecodingAndFormatting(uintptr_t baseAddress, PIMAGE_NT_HEADERS ntHeaders)
 {
+    uint32_t sizeTotal = 0;
     VXInstructionInfo info;
     VXInstructionDecoder decoder;
     VXIntelInstructionFormatter formatter;
+#ifdef _M_X64
+    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+#else
     decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
-    PIMAGE_SECTION_HEADER sectionHeader = 
-        reinterpret_cast<PIMAGE_SECTION_HEADER>(
-        reinterpret_cast<uintptr_t>(ntHeaders) + sizeof(IMAGE_NT_HEADERS) 
-            + ntHeaders->FileHeader.SizeOfOptionalHeader - sizeof(IMAGE_OPTIONAL_HEADER));
-    // Decode and format all code sections
-    for (unsigned int i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
+#endif
+    while (sizeTotal < 1024 * 1024 * 50)
     {
-        if (sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE)
+        PIMAGE_SECTION_HEADER sectionHeader = 
+            reinterpret_cast<PIMAGE_SECTION_HEADER>(
+            reinterpret_cast<uintptr_t>(ntHeaders) + sizeof(IMAGE_NT_HEADERS) 
+                + ntHeaders->FileHeader.SizeOfOptionalHeader - sizeof(IMAGE_OPTIONAL_HEADER));
+        // Decode and format all code sections
+        for (unsigned int i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
         {
-            std::cout << sectionHeader->SizeOfRawData / 1024 << " KiB" << std::endl;
-            VXMemoryDataSource input(reinterpret_cast<const void*>(
-                baseAddress + sectionHeader->VirtualAddress), sectionHeader->SizeOfRawData);
-            decoder.setDataSource(&input);
-            decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);
-            while (decoder.decodeInstruction(info))
+            if (sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE)
             {
-                formatter.formatInstruction(info);   
+                VXMemoryDataSource input(reinterpret_cast<const void*>(
+                    baseAddress + sectionHeader->VirtualAddress), sectionHeader->SizeOfRawData);
+                decoder.setDataSource(&input);
+                decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);
+                while (decoder.decodeInstruction(info))
+                {
+                    formatter.formatInstruction(info);   
+                }
+                sizeTotal += sectionHeader->SizeOfRawData;
             }
+            sectionHeader++;
         }
-        sectionHeader++;
     }
 }
 
@@ -87,8 +95,8 @@ int _tmain(int argc, _TCHAR* argv[])
         return 1;
     }
 
-    double pcFrequency = 0.0;
-    uint64_t pcStart = 0;
+    double pcFrequency;
+    uint64_t pcStart;
     LARGE_INTEGER li;
 
     // Start the performance counter

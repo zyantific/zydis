@@ -50,6 +50,7 @@ private:
     static const char    *m_registerStrings[];
     VXBaseSymbolResolver *m_symbolResolver;
     std::vector<char>     m_outputBuffer;
+    size_t                m_outputStringLen;
     bool                  m_uppercase;
 protected:
     /**

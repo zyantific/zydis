@@ -59,13 +59,18 @@ const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, 
     uint64_t &offset)
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? nullptr : iterator->second.c_str();
+    if (iterator != m_symbolMap.end())
+    {
+        offset = 0;
+        return iterator->second.c_str();
+    }
+    return nullptr;
 }
 
 bool VXExactSymbolResolver::containsSymbol(uint64_t address) const
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator == m_symbolMap.end()) ? false : true;
+    return (iterator != m_symbolMap.end());
 }
 
 void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
