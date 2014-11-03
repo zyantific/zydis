@@ -36,7 +36,6 @@
 #include "VXDisassembler.h"
 
 using namespace Verteron;
-using namespace Disassembler;
 
 int _tmain(int argc, _TCHAR* argv[])
 {

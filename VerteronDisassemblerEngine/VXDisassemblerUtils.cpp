@@ -30,11 +30,9 @@
 
 **************************************************************************************************/
 #include "VXDisassemblerUtils.h"
+#include <assert.h>
 
 namespace Verteron
-{
-
-namespace Disassembler
 {
   
 uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand)
@@ -71,8 +69,6 @@ uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInf
         assert(0);
     }
     return 0;
-}
-
 }
 
 }

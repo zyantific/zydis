@@ -34,5 +34,4 @@
 #include "VXDisassemblerTypes.h"
 #include "VXInstructionDecoder.h"
 #include "VXInstructionFormatter.h"
-#include "VXSymbolResolver.h"
 #include "VXDisassemblerUtils.h"

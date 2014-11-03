@@ -37,8 +37,20 @@
 namespace Verteron
 {
 
-namespace Disassembler
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+VXBaseSymbolResolver::~VXBaseSymbolResolver()
 {
+
+}
+
+const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    uint64_t &offset)
+{
+    return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char* VXBaseInstructionFormatter::m_registerStrings[] =
 {
@@ -96,21 +108,23 @@ const char* VXBaseInstructionFormatter::m_registerStrings[] =
     "rip"
 };
 
-void VXBaseInstructionFormatter::internalFormatInstruction(VXInstructionInfo const& info)
+void VXBaseInstructionFormatter::internalFormatInstruction(const VXInstructionInfo &info)
 {
     // Nothing to do here
 }
 
 VXBaseInstructionFormatter::VXBaseInstructionFormatter()
     : m_symbolResolver(nullptr)
-    , m_uppercase(false)
+    , m_outputStringLen(0)
+    , m_outputUppercase(false)
 {
 
 }
 
 VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver)
     : m_symbolResolver(symbolResolver)
-    , m_uppercase(false)
+    , m_outputStringLen(0)
+    , m_outputUppercase(false)
 {
 
 }
@@ -137,7 +151,7 @@ VXBaseInstructionFormatter::~VXBaseInstructionFormatter()
 
 void VXBaseInstructionFormatter::outputClear()
 {
-    m_outputBuffer.clear();
+    m_outputStringLen = 0;
 }
 
 char const* VXBaseInstructionFormatter::outputString()
@@ -145,65 +159,72 @@ char const* VXBaseInstructionFormatter::outputString()
     return &m_outputBuffer[0];
 }
 
-void VXBaseInstructionFormatter::outputAppend(char const *text)
-{
+ void VXBaseInstructionFormatter::outputAppend(char const *text)
+ {
     // Get the string length including the null-terminator char
     size_t strLen = strlen(text) + 1;
-    // Get the buffer capacity and size
-    size_t bufCap = m_outputBuffer.capacity();
+    // Get the buffer size
     size_t bufLen = m_outputBuffer.size();
-    // Decrease the offset by one, to exclude already existing null-terminator chars in the 
+    // Decrease the offset by one, to exclude already existing null-terminator chars in the
     // output buffer
-    size_t offset = (bufLen) ? bufLen - 1 : 0;
+    size_t offset = (m_outputStringLen) ? m_outputStringLen - 1 : 0;
     // Resize capacity of the output buffer on demand and add some extra space to improve the
-    // performance 
-    if (bufCap <= (bufLen + strLen))
+    // performance
+    if (bufLen <= (m_outputStringLen + strLen))
     {
-        m_outputBuffer.reserve(bufCap + strLen + 256);
+        m_outputBuffer.resize(bufLen + strLen + 512);
     }
-    // Append the text
-    m_outputBuffer.resize(offset + strLen);
+    // Write the text to the output buffer
     memcpy(&m_outputBuffer[offset], text, strLen);
+    // Increase the string length
+    m_outputStringLen = offset + strLen;
     // Convert to uppercase
-    if (m_uppercase)
+    if (m_outputUppercase)
     {
-        for (size_t i = offset; i < m_outputBuffer.size() - 1; ++i)
+        for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
             m_outputBuffer[i] = toupper(m_outputBuffer[i]);
         }
     }
-}
+ }
 
-void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
-{
+ void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
+ {
     va_list arguments;
     va_start(arguments, format);
-    // Get the string length including the null-terminator char
-    size_t strLen = _vscprintf(format, arguments) + 1;
-    // Get the buffer capacity and size
-    size_t bufCap = m_outputBuffer.capacity();
+    // Get the buffer size
     size_t bufLen = m_outputBuffer.size();
-    // Decrease the offset by one, to exclude already existing null-terminator chars in the 
+    // Decrease the offset by one, to exclude already existing null-terminator chars in the
     // output buffer
-    size_t offset = (bufLen) ? bufLen - 1 : 0;
-    if (strLen > 1)
+    size_t offset = (m_outputStringLen) ? m_outputStringLen - 1 : 0;
+    // Resize the output buffer on demand and add some extra space to improve the performance
+    if ((bufLen - m_outputStringLen) < 256)
     {
-        // Resize capacity of the output buffer on demand and add some extra space to improve the
-        // performance 
-        if (bufCap < (bufLen + strLen))
+        bufLen = bufLen + 512;
+        m_outputBuffer.resize(bufLen);
+    }
+    int strLen = 0;
+    do
+    {
+        // If the formatted text did not fit in the output buffer, resize it, and try again
+        if (strLen < 0)
         {
-            m_outputBuffer.reserve(bufCap + strLen + 256);
+            m_outputBuffer.resize(bufLen + 512);
+            return outputAppendFormatted(format, arguments);
         }
-        // Append the formatted text
-        m_outputBuffer.resize(offset + strLen);
-        vsnprintf_s(&m_outputBuffer[offset], strLen, strLen, format, arguments);
-        // Convert to uppercase
-        if (m_uppercase)
+        // Write the formatted text to the output buffer
+        assert((bufLen - offset) > 0);
+        strLen =
+            vsnprintf_s(&m_outputBuffer[offset], bufLen - offset, _TRUNCATE, format, arguments);
+    } while (strLen < 0);
+    // Increase the string length
+    m_outputStringLen = offset + strLen + 1;
+    // Convert to uppercase
+    if (m_outputUppercase)
+    {
+        for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
-            for (size_t i = offset; i < m_outputBuffer.size() - 1; ++i)
-            {
-                m_outputBuffer[i] = toupper(m_outputBuffer[i]);
-            }
+            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
         }
     }
     va_end(arguments);
@@ -309,7 +330,7 @@ void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInf
     const VXOperandInfo &operand)
 {
     assert(operand.offset > 0);
-    if (operand.base == VXRegister::NONE && operand.index == VXRegister::NONE)
+    if ((operand.base == VXRegister::NONE) && (operand.index == VXRegister::NONE))
     {
         // Assume the displacement value is unsigned
         assert(operand.scale == 0);
@@ -589,6 +610,46 @@ VXIntelInstructionFormatter::~VXIntelInstructionFormatter()
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+VXExactSymbolResolver::~VXExactSymbolResolver()
+{
+
 }
+
+const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    uint64_t &offset)
+{
+    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
+    if (iterator != m_symbolMap.end())
+    {
+        offset = 0;
+        return iterator->second.c_str();
+    }
+    return nullptr;
+}
+
+bool VXExactSymbolResolver::containsSymbol(uint64_t address) const
+{
+    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
+    return (iterator != m_symbolMap.end());
+}
+
+void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
+{
+    m_symbolMap[address].assign(name);
+}
+
+void VXExactSymbolResolver::removeSymbol(uint64_t address)
+{
+    m_symbolMap.erase(address);
+}
+
+void VXExactSymbolResolver::clear()
+{
+    m_symbolMap.clear();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

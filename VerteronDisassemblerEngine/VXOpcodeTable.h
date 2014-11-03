@@ -37,9 +37,6 @@
 namespace Verteron
 {
 
-namespace Disassembler 
-{
-
 /**
  * @brief   Values that represent an instruction mnemonic.
  */
@@ -1749,8 +1746,6 @@ inline VXDefinedOperandSize VDEGetComplexOperandMemSize(VXDefinedOperandSize ope
 inline VXDefinedOperandSize VDEGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
 {
     return static_cast<VXDefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4) & 0x0F);    
-}
-
 }
 
 }
