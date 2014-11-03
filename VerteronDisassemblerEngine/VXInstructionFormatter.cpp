@@ -37,8 +37,20 @@
 namespace Verteron
 {
 
-namespace Disassembler
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+VXBaseSymbolResolver::~VXBaseSymbolResolver()
 {
+
+}
+
+const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    uint64_t &offset)
+{
+    return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 const char* VXBaseInstructionFormatter::m_registerStrings[] =
 {
@@ -104,7 +116,7 @@ void VXBaseInstructionFormatter::internalFormatInstruction(const VXInstructionIn
 VXBaseInstructionFormatter::VXBaseInstructionFormatter()
     : m_symbolResolver(nullptr)
     , m_outputStringLen(0)
-    , m_uppercase(false)
+    , m_outputUppercase(false)
 {
 
 }
@@ -112,7 +124,7 @@ VXBaseInstructionFormatter::VXBaseInstructionFormatter()
 VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver)
     : m_symbolResolver(symbolResolver)
     , m_outputStringLen(0)
-    , m_uppercase(false)
+    , m_outputUppercase(false)
 {
 
 }
@@ -167,7 +179,7 @@ char const* VXBaseInstructionFormatter::outputString()
     // Increase the string length
     m_outputStringLen = offset + strLen;
     // Convert to uppercase
-    if (m_uppercase)
+    if (m_outputUppercase)
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
@@ -208,7 +220,7 @@ char const* VXBaseInstructionFormatter::outputString()
     // Increase the string length
     m_outputStringLen = offset + strLen + 1;
     // Convert to uppercase
-    if (m_uppercase)
+    if (m_outputUppercase)
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
@@ -318,7 +330,7 @@ void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInf
     const VXOperandInfo &operand)
 {
     assert(operand.offset > 0);
-    if (operand.base == VXRegister::NONE && operand.index == VXRegister::NONE)
+    if ((operand.base == VXRegister::NONE) && (operand.index == VXRegister::NONE))
     {
         // Assume the displacement value is unsigned
         assert(operand.scale == 0);
@@ -598,6 +610,46 @@ VXIntelInstructionFormatter::~VXIntelInstructionFormatter()
 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+VXExactSymbolResolver::~VXExactSymbolResolver()
+{
+
 }
+
+const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    uint64_t &offset)
+{
+    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
+    if (iterator != m_symbolMap.end())
+    {
+        offset = 0;
+        return iterator->second.c_str();
+    }
+    return nullptr;
+}
+
+bool VXExactSymbolResolver::containsSymbol(uint64_t address) const
+{
+    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
+    return (iterator != m_symbolMap.end());
+}
+
+void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
+{
+    m_symbolMap[address].assign(name);
+}
+
+void VXExactSymbolResolver::removeSymbol(uint64_t address)
+{
+    m_symbolMap.erase(address);
+}
+
+void VXExactSymbolResolver::clear()
+{
+    m_symbolMap.clear();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

@@ -3,17 +3,15 @@
   <ItemGroup>
     <ClInclude Include="VXDisassembler.h" />
     <ClInclude Include="VXDisassemblerTypes.h" />
+    <ClInclude Include="VXDisassemblerUtils.h" />
     <ClInclude Include="VXInstructionDecoder.h" />
     <ClInclude Include="VXInstructionFormatter.h" />
     <ClInclude Include="VXOpcodeTable.h" />
-    <ClInclude Include="VXSymbolResolver.h" />
-    <ClInclude Include="VXDisassemblerUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="VXDisassemblerUtils.cpp" />
     <ClCompile Include="VXInstructionDecoder.cpp" />
     <ClCompile Include="VXInstructionFormatter.cpp" />
     <ClCompile Include="VXOpcodeTable.cpp" />
-    <ClCompile Include="VXSymbolResolver.cpp" />
-    <ClCompile Include="VXDisassemblerUtils.cpp" />
   </ItemGroup>
 </Project>

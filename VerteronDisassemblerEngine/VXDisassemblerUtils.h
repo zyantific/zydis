@@ -37,9 +37,6 @@
 namespace Verteron
 {
 
-namespace Disassembler
-{
-
 /**
  * @brief   Calculates the absolute target address of a relative instruction operand.
  * @param   info    The instruction info.
@@ -47,7 +44,5 @@ namespace Disassembler
  * @return  The absolute target address.
  */
 uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand);
-
-}
 
 }

@@ -25,14 +25,12 @@
     <ClInclude Include="VXInstructionDecoder.h" />
     <ClInclude Include="VXInstructionFormatter.h" />
     <ClInclude Include="VXOpcodeTable.h" />
-    <ClInclude Include="VXSymbolResolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VXDisassemblerUtils.cpp" />
     <ClCompile Include="VXInstructionDecoder.cpp" />
     <ClCompile Include="VXInstructionFormatter.cpp" />
     <ClCompile Include="VXOpcodeTable.cpp" />
-    <ClCompile Include="VXSymbolResolver.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F5C6F0A7-F75D-42BD-A8AB-A2D1D5F67099}</ProjectGuid>

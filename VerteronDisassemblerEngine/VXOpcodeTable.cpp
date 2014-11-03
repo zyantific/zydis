@@ -34,16 +34,13 @@
 namespace Verteron
 {
 
-namespace Disassembler
-{
-
 namespace Internal
 {
 
 #define INVALID 0
 #define NODE(type, n) (static_cast<VXOpcodeTreeNode>(type) << 12 | (n))
 
-static const VXOpcodeTreeNode optreeTable[][256] = 
+const VXOpcodeTreeNode optreeTable[][256] = 
 {
     {
         /* 00 */ 0x0015,
@@ -2627,7 +2624,7 @@ static const VXOpcodeTreeNode optreeTable[][256] =
     },
 };
 
-static const VXOpcodeTreeNode optreeModrmMod[][2] = 
+const VXOpcodeTreeNode optreeModrmMod[][2] = 
 {
     {
         /* 00 */ NODE(VXOpcodeTreeNodeType::MANDATORY, 0x0001),
@@ -2747,7 +2744,7 @@ static const VXOpcodeTreeNode optreeModrmMod[][2] =
     },
 };
 
-static const VXOpcodeTreeNode optreeModrmReg[][8] = 
+const VXOpcodeTreeNode optreeModrmReg[][8] = 
 {
     {
         /* 00 */ 0x0531,
@@ -3231,7 +3228,7 @@ static const VXOpcodeTreeNode optreeModrmReg[][8] =
     },
 };
 
-static const VXOpcodeTreeNode optreeModrmRm[][8] = 
+const VXOpcodeTreeNode optreeModrmRm[][8] = 
 {
     {
         /* 00 */ INVALID,
@@ -3375,7 +3372,7 @@ static const VXOpcodeTreeNode optreeModrmRm[][8] =
     },
 };
 
-static const VXOpcodeTreeNode optreeMandatory[][4] = 
+const VXOpcodeTreeNode optreeMandatory[][4] = 
 {
     {
         /* 00 */ NODE(VXOpcodeTreeNodeType::MODRM_REG, 0x0000),
@@ -5293,7 +5290,7 @@ static const VXOpcodeTreeNode optreeMandatory[][4] =
     },
 };
 
-static const VXOpcodeTreeNode optreeX87[][64] = 
+const VXOpcodeTreeNode optreeX87[][64] = 
 {
     {
         /* 00 */ 0x00BC,
@@ -5825,7 +5822,7 @@ static const VXOpcodeTreeNode optreeX87[][64] =
     },
 };
 
-static const VXOpcodeTreeNode optreeAddressSize[][3] = 
+const VXOpcodeTreeNode optreeAddressSize[][3] = 
 {
     {
         /* 00 */ 0x02CD,
@@ -5834,7 +5831,7 @@ static const VXOpcodeTreeNode optreeAddressSize[][3] =
     },
 };
 
-static const VXOpcodeTreeNode optreeOperandSize[][3] = 
+const VXOpcodeTreeNode optreeOperandSize[][3] = 
 {
     {
         /* 00 */ 0x03E0,
@@ -5958,7 +5955,7 @@ static const VXOpcodeTreeNode optreeOperandSize[][3] =
     },
 };
 
-static const VXOpcodeTreeNode optreeMode[][2] = 
+const VXOpcodeTreeNode optreeMode[][2] = 
 {
     {
         /* 00 */ 0x04AA,
@@ -6142,7 +6139,7 @@ static const VXOpcodeTreeNode optreeMode[][2] =
     },
 };
 
-static const VXOpcodeTreeNode optreeVendor[][2] = 
+const VXOpcodeTreeNode optreeVendor[][2] = 
 {
     {
         /* 00 */ INVALID,
@@ -6246,7 +6243,7 @@ static const VXOpcodeTreeNode optreeVendor[][2] =
     },
 };
 
-static const VXOpcodeTreeNode optree3dnow[][256] = 
+const VXOpcodeTreeNode optree3dnow[][256] = 
 {
     {
         /* 00 */ INVALID,
@@ -6508,7 +6505,7 @@ static const VXOpcodeTreeNode optree3dnow[][256] =
     },
 };
 
-static const VXOpcodeTreeNode optreeVex[][16] = 
+const VXOpcodeTreeNode optreeVex[][16] = 
 {
     {
         /* 00 */ NODE(VXOpcodeTreeNodeType::MODE, 0x0024),
@@ -6548,7 +6545,7 @@ static const VXOpcodeTreeNode optreeVex[][16] =
     },
 };
 
-static const VXOpcodeTreeNode optreeVexW[][2] = 
+const VXOpcodeTreeNode optreeVexW[][2] = 
 {
     {
         /* 00 */ 0x061D,
@@ -6652,7 +6649,7 @@ static const VXOpcodeTreeNode optreeVexW[][2] =
     },
 };
 
-static const VXOpcodeTreeNode optreeVexL[][2] = 
+const VXOpcodeTreeNode optreeVexL[][2] = 
 {
     {
         /* 00 */ 0x069C,
@@ -6865,7 +6862,7 @@ static const VXOpcodeTreeNode optreeVexL[][2] =
 #define OPI_sIb     { VXDefinedOperandType::sI,      VXDefinedOperandSize::B  }
 #define OPI_sIz     { VXDefinedOperandType::sI,      VXDefinedOperandSize::Z  }
 
-static const VXInstructionDefinition instrDefinitions[] =
+const VXInstructionDefinition instrDefinitions[] =
 {
     /* 000 */ { VXInstructionMnemonic::INVALID,          { OPI_NONE, OPI_NONE, OPI_NONE, OPI_NONE }, 0 },
     /* 001 */ { VXInstructionMnemonic::AAA,              { OPI_NONE, OPI_NONE, OPI_NONE, OPI_NONE }, 0 },
@@ -9652,8 +9649,6 @@ const char* instrMnemonicStrings[] =
     /* 387 */ "xsha256",
     /* 388 */ "xstore",
 };
-
-}
 
 }
 

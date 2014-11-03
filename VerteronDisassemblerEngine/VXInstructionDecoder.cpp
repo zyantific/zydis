@@ -35,9 +35,6 @@
 namespace Verteron
 {
 
-namespace Disassembler
-{
-
 bool VXInstructionDecoder::decodeRegisterOperand(VXInstructionInfo &info, VXOperandInfo &operand, 
     RegisterClass registerClass, uint8_t registerId, VXDefinedOperandSize operandSize) const
 {
@@ -1301,8 +1298,6 @@ DecodeError:
         info.length = 1;
     }
     return true;
-}
-
 }
 
 }

@@ -37,7 +37,6 @@
 #include <Windows.h>
 
 using namespace Verteron;
-using namespace Disassembler;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -61,7 +60,11 @@ int _tmain(int argc, _TCHAR* argv[])
     VXInstructionDecoder decoder;
     VXExactSymbolResolver resolver;
     VXIntelInstructionFormatter formatter;
+#ifdef _M_X64
     decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
+#else
+    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+#endif
     formatter.setSymbolResolver(&resolver);
     // Initialize output stream
     std::ofstream out;
@@ -83,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[])
             decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);
             while (decoder.decodeInstruction(info))
             {
-                // Skip invalid instructions and non-relative instructions
+                // Skip invalid and non-relative instructions
                 if ((info.flags & IF_ERROR_MASK) || !(info.flags & IF_RELATIVE))
                 {
                     continue;

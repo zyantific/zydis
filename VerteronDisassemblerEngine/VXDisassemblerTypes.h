@@ -37,9 +37,6 @@
 namespace Verteron
 {
 
-namespace Disassembler
-{
- 
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
  */
@@ -528,7 +525,5 @@ struct VXInstructionInfo
      */
     uint64_t instrPointer;
 };
-
-}
 
 }

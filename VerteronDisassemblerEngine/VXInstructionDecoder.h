@@ -38,9 +38,6 @@
 namespace Verteron
 {
 
-namespace Disassembler
-{
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -195,7 +192,7 @@ inline uint8_t VXBaseDataSource::inputCurrent() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief   Implements a memory buffer based data source.
+ * @brief   A memory-buffer based data source for the @c VXInstructionDecoder class.
  */
 class VXMemoryDataSource : public VXBaseDataSource
 {
@@ -275,7 +272,7 @@ inline bool VXMemoryDataSource::setPosition(uint64_t position)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @brief   Implements a stream based data source.
+ * @brief   A stream based data source for the @c VXInstructionDecoder class.
  */
 class VXStreamDataSource : public VXBaseDataSource
 {
@@ -717,7 +714,5 @@ inline void VXInstructionDecoder::setInstructionPointer(uint64_t instructionPoin
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-}
 
 }
