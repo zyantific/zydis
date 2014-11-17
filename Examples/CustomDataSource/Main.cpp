@@ -29,9 +29,8 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include <tchar.h>
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
     // TODO:
     return 0;

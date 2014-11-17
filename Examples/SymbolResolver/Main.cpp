@@ -29,19 +29,18 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include <tchar.h>
 #include <fstream>
 #include <iomanip>
 #include <string>
-#include "VXDisassembler.h"
+#include <VXDisassembler.h>
 #include <Windows.h>
 
 using namespace Verteron;
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
     // Find module base in memory
-    void *moduleBase = GetModuleHandle(L"kernel32.dll");
+    void *moduleBase = GetModuleHandle("kernel32.dll");
     uintptr_t baseAddress = reinterpret_cast<uintptr_t>(moduleBase);
     // Parse PE headers
     PIMAGE_DOS_HEADER dosHeader = static_cast<PIMAGE_DOS_HEADER>(moduleBase);

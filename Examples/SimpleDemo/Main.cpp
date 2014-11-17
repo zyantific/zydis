@@ -29,15 +29,14 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include <tchar.h>
 #include <stdint.h>
 #include <iostream>
 #include <iomanip>
-#include "VXDisassembler.h"
+#include <VXDisassembler.h>
 
 using namespace Verteron;
 
-int _tmain(int argc, _TCHAR* argv[])
+int main(int argc, char* argv[])
 {
     uint8_t data32[] =
     {
