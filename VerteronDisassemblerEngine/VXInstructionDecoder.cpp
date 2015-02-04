@@ -30,7 +30,7 @@
 
 **************************************************************************************************/
 #include "VXInstructionDecoder.h"
-#include <string.h>
+#include <cstring>
 
 namespace Verteron
 {
