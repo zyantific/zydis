@@ -34,6 +34,8 @@
 #include <cstdarg>
 #include <cctype>
 #include <cstring>
+#include <cstdio>
+#include <string>
 
 namespace Verteron
 {
@@ -622,7 +624,7 @@ const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, 
     uint64_t &offset)
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    if (iterator != m_symbolMap.end())
+    if (iterator != m_symbolMap.cend())
     {
         offset = 0;
         return iterator->second.c_str();
