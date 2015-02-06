@@ -8,12 +8,13 @@ option(BUILD_C_BINDINGS "Build C bindings" TRUE) # TODO: default to FALSE when r
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(compiler_specific "-std=c++0x -Werror")
+        set(compiler_specific "-Werror")
+        set(compiler_specific_cxx "-std=c++0x")
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         set(compiler_specific "/WX /D_CRT_SECURE_NO_WARNINGS")
     endif ()
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific}"
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)

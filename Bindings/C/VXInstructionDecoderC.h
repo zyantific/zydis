@@ -38,6 +38,7 @@
 #include "VXDisassemblerTypesC.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -46,7 +47,7 @@ extern "C"
 
 /* VXBaseDataSource ============================================================================ */
 
-typedef struct _VXBaseDataSourceContext {} VXBaseDataSourceContext;
+typedef struct _VXBaseDataSourceContext { int a; } VXBaseDataSourceContext;
 
 void VXBaseDataSource_Release(
     VXBaseDataSourceContext *ctx);
@@ -102,7 +103,7 @@ typedef enum _VXInstructionSetVendor /* : uint8_t */
 
 /* VXInstructionDecoder ======================================================================== */
 
-typedef struct _VXInstructionDecoderContext {} VXInstructionDecoderContext;
+typedef struct _VXInstructionDecoderContext { int a; } VXInstructionDecoderContext;
 
 VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
 

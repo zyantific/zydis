@@ -42,7 +42,7 @@ extern "C"
 
 /* VXBaseSymbolResolver ======================================================================== */
 
-typedef struct _VXBaseSymbolResolverContext {} VXBaseSymbolResolverContext;
+    typedef struct _VXBaseSymbolResolverContext { int a; } VXBaseSymbolResolverContext;
 
 VXBaseSymbolResolverContext* VXBaseSymbolResolver_Create(void);
 
@@ -85,7 +85,7 @@ typedef const char* (*VXResolveSymbol_t)(
 
 /* VXBaseInstructionFormatter ================================================================== */
 
-typedef struct _VXBaseInstructionFormatterContext {} VXBaseInstructionFormatterContext;
+    typedef struct _VXBaseInstructionFormatterContext {int a;} VXBaseInstructionFormatterContext;
 
 VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
     const VXBaseInstructionFormatterContext *ctx);
@@ -98,7 +98,7 @@ void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx);
 
 /* VXIntelInstructionFormatter ================================================================ */
 
-typedef struct _VXIntelInstructionFormatterContext {} VXIntelInstructionFormatterContext;
+    typedef struct _VXIntelInstructionFormatterContext {int a;} VXIntelInstructionFormatterContext;
 
 VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
 
