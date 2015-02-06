@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(VerteronDisassemblerEngine)
 
 option(BUILD_EXAMPLES "Build examples" TRUE)
+option(BUILD_C_BINDINGS "Build C bindings" TRUE) # TODO: default to FALSE when ready
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
@@ -32,29 +33,45 @@ set(vde_sources
     "VerteronDisassemblerEngine/VXOpcodeTable.cpp"
     "VerteronDisassemblerEngine/VXInstructionDecoder.cpp")
 
-add_library("VerteronDisassemblerEngine"
-    ${vde_headers}
-    ${vde_sources})
+add_library("VerteronDisassemblerEngine" ${vde_headers} ${vde_sources})
+
+# C bindings
+if (BUILD_C_BINDINGS)
+    set(vdec_headers
+        "Bindings/C/VXDisassemblerC.h"
+        "Bindings/C/VXDisassemblerTypesC.h"
+        "Bindings/C/VXDisassemblerUtilsC.h"
+        "Bindings/C/VXInstructionDecoderC.h"
+        "Bindings/C/VXInstructionFormatterC.h"
+        "Bindings/C/VXOpcodeTableC.h")
+    set(vdec_sources
+        "Bindings/C/VXDisassemblerUtilsC.cpp"
+        "Bindings/C/VXInstructionFormatterC.cpp"
+        "Bindings/C/VXOpcodeTableC.cpp"
+        "Bindings/C/VXInstructionDecoderC.cpp")
+    add_library("VerteronDisassemblerEngineC" ${vdec_headers} ${vdec_sources})
+endif ()
 
 # Examples
 if (BUILD_EXAMPLES)
     include_directories("VerteronDisassemblerEngine")
 
-    add_executable("CustomDataSource"
-        "Examples/CustomDataSource/Main.cpp")
+    add_executable("CustomDataSource" "Examples/CustomDataSource/Main.cpp")
     target_link_libraries("CustomDataSource" "VerteronDisassemblerEngine")
 
-    add_executable("PerformanceTest"
-        "Examples/PerformanceTest/Main.cpp")
+    add_executable("PerformanceTest" "Examples/PerformanceTest/Main.cpp")
     target_link_libraries("PerformanceTest" "VerteronDisassemblerEngine")
 
-    add_executable("SimpleDemo"
-        "Examples/SimpleDemo/Main.cpp")
+    add_executable("SimpleDemo" "Examples/SimpleDemo/Main.cpp")
     target_link_libraries("SimpleDemo" "VerteronDisassemblerEngine")
 
+    if (BUILD_C_BINDINGS)
+        add_executable("CBindingsTest" "Examples/CBindings/test.c")
+        target_link_libraries("CBindingsTest" "VerteronDisassemblerEngineC")
+    endif ()
+
     if (WIN32)
-        add_executable("SymbolResolver"
-            "Examples/SymbolResolver/Main.cpp")
+        add_executable("SymbolResolver" "Examples/SymbolResolver/Main.cpp")
         target_link_libraries("SymbolResolver" "VerteronDisassemblerEngine")
     else ()
         message(STATUS "Example 'SymbolResolver' not compatible with platform, ignoring.")

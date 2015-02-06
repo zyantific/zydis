@@ -370,7 +370,7 @@ inline bool VXStreamDataSource::setPosition(uint64_t position)
 /**
  * @brief   Values that represent a disassembler mode.
  */
-enum class VXDisassemblerMode
+enum class VXDisassemblerMode : uint8_t
 {
     M16BIT,
     M32BIT,
@@ -380,7 +380,7 @@ enum class VXDisassemblerMode
 /**
  * @brief   Values that represent an instruction-set vendor.
  */
-enum class VXInstructionSetVendor
+enum class VXInstructionSetVendor : uint8_t
 {
     ANY,
     INTEL,
@@ -394,7 +394,7 @@ enum class VXInstructionSetVendor
 class VXInstructionDecoder
 {
 private:
-    enum class RegisterClass
+    enum class RegisterClass : uint8_t
     {
         GENERAL_PURPOSE,
         MMX,
