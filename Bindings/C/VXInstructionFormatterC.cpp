@@ -113,13 +113,13 @@ inline const Verteron::VXBaseInstructionFormatter* VXBaseInstructionFormatter_Cp
 }
 
 inline Verteron::VXBaseInstructionFormatter* VXIntelInstructionFormatter_CppPtr(
-    VXIntelInstructionFormatterContext *ctx)
+    VXBaseInstructionFormatterContext *ctx)
 {
     return reinterpret_cast<Verteron::VXBaseInstructionFormatter*>(ctx);
 }
 
 inline const Verteron::VXBaseInstructionFormatter* VXIntelInstructionFormatter_CppPtr(
-    const VXIntelInstructionFormatterContext *ctx)
+    const VXBaseInstructionFormatterContext *ctx)
 {
     return reinterpret_cast<const Verteron::VXBaseInstructionFormatter*>(ctx);
 }
@@ -135,7 +135,6 @@ inline const VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CPtr
 {
     return reinterpret_cast<const VXBaseInstructionFormatterContext*>(ctx);
 }
-
 
 }
 
@@ -201,6 +200,14 @@ void VXExactSymbolResolverContext_Clear(
 
 /* VXBaseInstructionFormatter ================================================================== */
 
+const char* VXBaseInstructionFormatter_FormatInstruction(
+    VXBaseInstructionFormatterContext *ctx,
+    const VXInstructionInfo *info)
+{
+    return VXBaseInstructionFormatter_CppPtr(ctx)->formatInstruction(
+        *VXInstructionInfo_CppPtr(info));
+}
+
 VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
     const VXBaseInstructionFormatterContext *ctx)
 {
@@ -234,11 +241,6 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
 {
     return VXIntelInstructionFormatter_CPtr(new Verteron::VXIntelInstructionFormatter(
         VXBaseSymbolResolver_CppPtr(resolver)));
-}
-
-void VXIntelInstructionFormatter_Release(VXIntelInstructionFormatterContext *ctx)
-{
-    delete VXIntelInstructionFormatter_CppPtr(ctx);
 }
 
 /* ============================================================================================= */

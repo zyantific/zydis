@@ -109,9 +109,9 @@ VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
 
 VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
     VXBaseDataSourceContext *input, 
-    VXDisassemblerMode disassemblerMode = DM_M32BIT,
-    VXInstructionSetVendor preferredVendor = ISV_ANY, 
-    uint64_t instructionPointer = 0);
+    VXDisassemblerMode disassemblerMode,
+    VXInstructionSetVendor preferredVendor, 
+    uint64_t instructionPointer);
 
 void VXInstructionDecoder_Release(
     VXInstructionDecoderContext *ctx);

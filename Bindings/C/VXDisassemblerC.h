@@ -35,9 +35,9 @@
 #ifndef _VDE_VXDISASSEMBLERC_H_
 #define _VDE_VXDISASSEMBLERC_H_
 
-#include "VXDisassemblerTypes.h"
-#include "VXInstructionDecoder.h"
-#include "VXInstructionFormatter.h"
-#include "VXDisassemblerUtils.h"
+#include "VXDisassemblerTypesC.h"
+#include "VXInstructionDecoderC.h"
+#include "VXInstructionFormatterC.h"
+#include "VXDisassemblerUtilsC.h"
 
 #endif /* _VDE_VXDISASSEMBLERC_H_ */

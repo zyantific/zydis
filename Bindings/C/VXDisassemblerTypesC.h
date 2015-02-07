@@ -36,6 +36,7 @@
 #define _VDE_VXDISASSEMBLERTYPESC_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "VXOpcodeTableC.h"
 
 #ifdef __cplusplus

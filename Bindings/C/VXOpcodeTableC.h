@@ -1354,39 +1354,39 @@ typedef enum _VXDefinedOperandSize /* : uint8_t */
     /**
      * @brief   B sized register or D sized memory operand.
      */
-    DOS_BD  = (uint8_t(DOS_B) << 4) | uint8_t(DOS_D),
+    DOS_BD  = (DOS_B << 4) | DOS_D,
     /**
      * @brief   B sized register or V sized memory operand.
      */
-    DOS_BV  = (uint8_t(DOS_B) << 4) | uint8_t(DOS_V),
+    DOS_BV  = (DOS_B << 4) | DOS_V,
     /**
      * @brief   W sized register or D sized memory operand.
      */
-    DOS_WD  = (uint8_t(DOS_W) << 4) | uint8_t(DOS_D),
+    DOS_WD  = (DOS_W << 4) | DOS_D,
     /**
      * @brief   W sized register or V sized memory operand.
      */
-    DOS_WV  = (uint8_t(DOS_W) << 4) | uint8_t(DOS_V),
+    DOS_WV  = (DOS_W << 4) | DOS_V,
     /**
      * @brief   W sized register or Y sized memory operand.
      */
-    DOS_WY  = (uint8_t(DOS_W) << 4) | uint8_t(DOS_Y),
+    DOS_WY  = (DOS_W << 4) | DOS_Y,
     /**
      * @brief   D sized register or Y sized memory operand.
      */
-    DOS_DY  = (uint8_t(DOS_D) << 4) | uint8_t(DOS_Y),
+    DOS_DY  = (DOS_D << 4) | DOS_Y,
     /**
      * @brief   W sized register or O sized memory operand.
      */
-    DOS_WO  = (uint8_t(DOS_W) << 4) | uint8_t(DOS_O),
+    DOS_WO  = (DOS_W << 4) | DOS_O,
     /**
      * @brief   D sized register or O sized memory operand.
      */
-    DOS_DO  = (uint8_t(DOS_D) << 4) | uint8_t(DOS_O),
+    DOS_DO  = (DOS_D << 4) | DOS_O,
     /**
      * @brief   Q sized register or O sized memory operand.
      */
-    DOS_QO  = (uint8_t(DOS_Q) << 4) | uint8_t(DOS_O),
+    DOS_QO  = (DOS_Q << 4) | DOS_O,
 } VXDefinedOperandSize;
 
 /**

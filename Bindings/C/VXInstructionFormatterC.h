@@ -85,7 +85,11 @@ typedef const char* (*VXResolveSymbol_t)(
 
 /* VXBaseInstructionFormatter ================================================================== */
 
-    typedef struct _VXBaseInstructionFormatterContext {int a;} VXBaseInstructionFormatterContext;
+typedef struct _VXBaseInstructionFormatterContext {int a;} VXBaseInstructionFormatterContext;
+
+const char* VXBaseInstructionFormatter_FormatInstruction(
+    VXBaseInstructionFormatterContext *ctx,
+    const VXInstructionInfo *info);
 
 VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
     const VXBaseInstructionFormatterContext *ctx);
@@ -97,8 +101,6 @@ void VXBaseInstructionFormatter_SetSymbolResolver(
 void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx);
 
 /* VXIntelInstructionFormatter ================================================================ */
-
-    typedef struct _VXIntelInstructionFormatterContext {int a;} VXIntelInstructionFormatterContext;
 
 VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
 

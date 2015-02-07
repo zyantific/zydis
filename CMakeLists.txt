@@ -51,6 +51,7 @@ if (BUILD_C_BINDINGS)
         "Bindings/C/VXOpcodeTableC.cpp"
         "Bindings/C/VXInstructionDecoderC.cpp")
     add_library("VerteronDisassemblerEngineC" ${vdec_headers} ${vdec_sources})
+    target_link_libraries("VerteronDisassemblerEngineC" "VerteronDisassemblerEngine")
 endif ()
 
 # Examples
@@ -68,6 +69,7 @@ if (BUILD_EXAMPLES)
 
     if (BUILD_C_BINDINGS)
         add_executable("CBindingsTest" "Examples/CBindings/test.c")
+        include_directories("Bindings/C")
         target_link_libraries("CBindingsTest" "VerteronDisassemblerEngineC")
     endif ()
 
