@@ -77,11 +77,15 @@ void VXExactSymbolResolverContext_Clear(
 
 /* VXCustomSymbolResolver ====================================================================== */
 
-/* TODO: actually implement support for custom resolvers in C binding */
-
 typedef const char* (*VXResolveSymbol_t)(
     const VXInstructionInfo *info, 
-    uint64_t address, uint64_t *offset);
+    uint64_t address, 
+    uint64_t *offset,
+    void *userData);
+
+VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
+    VXResolveSymbol_t resolverCb,
+    void *userData);
 
 /* VXBaseInstructionFormatter ================================================================== */
 

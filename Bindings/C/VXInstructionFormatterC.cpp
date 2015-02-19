@@ -100,6 +100,18 @@ inline const Verteron::VXInstructionInfo* VXInstructionInfo_CppPtr(
     return reinterpret_cast<const Verteron::VXInstructionInfo*>(ptr);
 }
 
+inline VXInstructionInfo* VXInstructionInfo_CPtr(
+    Verteron::VXInstructionInfo *ptr)
+{
+    return reinterpret_cast<VXInstructionInfo*>(ptr);
+}
+
+inline const VXInstructionInfo* VXInstructionInfo_CPtr(
+    const Verteron::VXInstructionInfo *ptr)
+{
+    return reinterpret_cast<const VXInstructionInfo*>(ptr);
+}
+
 inline Verteron::VXBaseInstructionFormatter* VXBaseInstructionFormatter_CppPtr(
     VXBaseInstructionFormatterContext *ctx)
 {
@@ -241,6 +253,65 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
 {
     return VXIntelInstructionFormatter_CPtr(new Verteron::VXIntelInstructionFormatter(
         VXBaseSymbolResolver_CppPtr(resolver)));
+}
+
+/* VXCustomSymbolResolver ====================================================================== */
+
+/* Internal helper class ----------------------------------------------------------------------- */
+
+namespace
+{
+
+class VXCustomSymbolResolver : public Verteron::VXBaseSymbolResolver
+{
+    VXResolveSymbol_t   m_resolverCb;
+    void                *m_userData;
+public:
+    /**
+     * @brief   Constructor.
+     * @param   resolverCb The resolver callback.
+     * @param   userData   User provided pointer to arbitrary data passed to resolve callback.
+     */
+    VXCustomSymbolResolver(VXResolveSymbol_t resolverCb, void *userData);
+    /**
+     * @brief   Destructor.
+     */
+    ~VXCustomSymbolResolver() override = default;
+public:
+    /**
+     * @brief   Resolves a symbol.
+     * @param   info        The instruction info.
+     * @param   address     The address.
+     * @param   offset      Reference to an unsigned 64 bit integer that receives an offset 
+     *                      relative to the base address of the symbol.
+     * @return  The name of the symbol, if the symbol was found, @c NULL if not.
+     */
+    const char* resolveSymbol(const Verteron::VXInstructionInfo &info, uint64_t address, 
+        uint64_t &offset) override;
+};
+
+VXCustomSymbolResolver::VXCustomSymbolResolver(VXResolveSymbol_t resolverCb, void *userData)
+    : m_resolverCb(resolverCb)
+    , m_userData(userData)
+{
+    
+}
+
+const char* VXCustomSymbolResolver::resolveSymbol(
+    const Verteron::VXInstructionInfo &info, uint64_t address, uint64_t &offset)
+{
+    return m_resolverCb(VXInstructionInfo_CPtr(&info), address, &offset, m_userData);
+}
+
+} // anon namespace
+
+/* C API implementation ------------------------------------------------------------------------ */
+
+VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
+    VXResolveSymbol_t resolverCb,
+    void *userData)
+{
+    return VXBaseSymbolResolver_CPtr(new VXCustomSymbolResolver(resolverCb, userData));
 }
 
 /* ============================================================================================= */
