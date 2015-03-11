@@ -30,8 +30,6 @@
 
 **************************************************************************************************/
 
-/* NOTE: fully ported to C */
-
 #ifndef _VDE_VXDISASSEMBLERUTILSC_H_
 #define _VDE_VXDISASSEMBLERUTILSC_H_
 
