@@ -152,11 +152,6 @@ inline const VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CPtr
 
 /* VXBaseSymbolResolver ======================================================================== */
 
-VXBaseSymbolResolverContext* VXBaseSymbolResolver_Create()
-{
-    return VXBaseSymbolResolver_CPtr(new Verteron::VXBaseSymbolResolver);
-}
-
 void VXBaseSymbolResolver_Release(
     VXBaseSymbolResolverContext *ctx)
 {

@@ -125,7 +125,7 @@ bool VXBaseDataSource_SetPosition(
  * @brief   Creates a memory data source.
  * @param   buffer      The input buffer.
  * @param   bufferLen   THe length of the input buffer.
- * @return  @c nullptr if it fails, else a data source context.
+ * @return  @c NULL if it fails, else a data source context.
  * @see     VXBaseDataSource_Release
  */
 // TODO: verify return value
@@ -161,7 +161,7 @@ typedef struct _VXInstructionDecoderContext { int a; } VXInstructionDecoderConte
 
 /**
  * @brief   Creates an instruction decoder.
- * @return  @c nullptr if it fails, else an instruction decoder context.
+ * @return  @c NULL if it fails, else an instruction decoder context.
  * @see     VXInstructionDecoder_Release
  */
 // TODO: verify return value
@@ -173,7 +173,7 @@ VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
  * @param   disassemblerMode    The disassembler mode.
  * @param   preferredVendor     The preferred instruction-set vendor.
  * @param   instructionPointer  The initial instruction pointer.
- * @return  @c nullptr if it fails, else an instruction decoder context.
+ * @return  @c NULL if it fails, else an instruction decoder context.
  * @see     VXInstructionDecoder_Release
  */
 VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
