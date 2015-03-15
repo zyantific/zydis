@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : athre0z
-  Modifications   :
+  Original Author : Florian Bernd
+  Modifications   : athre0z
 
-  Last change     : 04. February 2015
+  Last change     : 13. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,44 @@
 **************************************************************************************************/
 
 #include "VXDisassemblerUtilsC.h"
-#include "VXDisassemblerUtils.h"
 
-static_assert(sizeof(VXInstructionInfo) == sizeof(Verteron::VXInstructionInfo), "struct rekt");
-static_assert(sizeof(VXOperandInfo) == sizeof(Verteron::VXOperandInfo), "struct rekt");
+#include <assert.h>
 
-uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand)
+uint64_t VXCalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand)
 {
-    return Verteron::VDECalcAbsoluteTarget(
-        *reinterpret_cast<const Verteron::VXInstructionInfo*>(info),
-        *reinterpret_cast<const Verteron::VXOperandInfo*>(operand));
+    assert((operand->type == OPTYPE_REL_IMMEDIATE) || 
+        ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP)));
+   
+    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
+    if (!(info->flags & IF_DISASSEMBLER_MODE_64)) 
+    {
+        truncMask >>= (64 - info->operand_mode);
+    }
+
+    uint16_t size = operand->size;
+    if ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP))
+    {
+        size = operand->offset;
+    }
+
+    switch (size)
+    {
+    case 8:
+        return (info->instrPointer + operand->lval.sbyte) & truncMask;
+    case 16:
+        {
+            uint32_t delta = operand->lval.sword & truncMask;
+            if ((info->instrPointer + delta) > 0xFFFF)
+            {
+                return (info->instrPointer & 0xF0000) + ((info->instrPointer + delta) & 0xFFFF);    
+            }
+            return info->instrPointer + delta;
+        }
+    case 32:
+        return (info->instrPointer + operand->lval.sdword) & truncMask;
+    default:
+        assert(0);
+    }
+
+    return 0;
 }

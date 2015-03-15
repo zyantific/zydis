@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   : athre0z
 
-  Last change     : 04. February 2015
+  Last change     : 14. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@
 #define _VDE_VXINSTRUCTIONFORMATTERC_H_
 
 #include "VXDisassemblerTypesC.h"
+#include "VXDisassemblerUtilsC.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -42,7 +43,10 @@ extern "C"
 
 /* VXBaseSymbolResolver ======================================================================== */
 
-typedef struct _VXBaseSymbolResolverContext { int a; } VXBaseSymbolResolverContext;
+typedef struct _VXBaseSymbolResolverContext 
+{ 
+    VXContextDescriptor d; 
+} VXBaseSymbolResolverContext;
 
 /**
  * @brief   Releases a symbol resolver.
@@ -67,55 +71,6 @@ const char* VXBaseSymbolResolver_ResolveSymbol(
     uint64_t address, 
     uint64_t *offset);
 
-/* VXExactSymbolResolver ======================================================================= */
-
-/**
- * @brief   Creates an exact symbol resolver.
- * @return  @c NULL if it fails, else a symbol resolver context.
- * @see     VXBaseSymbolResolver_Release
- * An exact resolver is a simple symbol resolver that only matches exact addresses.
- */
-// TODO: verify return value
-VXBaseSymbolResolverContext* VXExactSymbolResolver_Create(void);
-
-/**
- * @brief   Query if the given address is a known symbol.
- * @param   ctx     The exact symbol resolver context.
- * @param   address The address.
- * @return  @c true if the address is known, @c false if not.
- */
-bool VXExactSymbolResolver_ContainsSymbol(
-    VXBaseSymbolResolverContext *ctx,
-    uint64_t address);
-
-/**
- * @brief   Adds or changes a symbol.
- * @param   ctx     The exact symbol resolver context.
- * @param   address The address.
- * @param   name    The symbol name.
- */
-void VXExactSymbolResolverContext_SetSymbol(
-    VXBaseSymbolResolverContext *ctx,
-    uint64_t address, 
-    const char* name);
-
-/**
- * @brief   Removes the symbol described by address.
- * @param   ctx     The exact symbol resolver context.
- * @param   address The address.
- * This will invalidate all char-pointers to the affected symbol name.
- */
-void VXExactSymbolResolverContext_RemoveSymbol(
-    VXBaseSymbolResolverContext *ctx,
-    uint64_t address);
-
-/**
- * @brief   Clears the symbol tree.
- * @param   ctx The exact symbol resolver context.
- */
-void VXExactSymbolResolverContext_Clear(
-    VXBaseSymbolResolverContext *ctx);
-
 /* VXCustomSymbolResolver ====================================================================== */
 
 typedef const char* (*VXResolveSymbol_t)(
@@ -137,7 +92,10 @@ VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
 
 /* VXBaseInstructionFormatter ================================================================== */
 
-typedef struct _VXBaseInstructionFormatterContext {int a;} VXBaseInstructionFormatterContext;
+typedef struct _VXBaseInstructionFormatterContext
+{
+    VXContextDescriptor d;
+} VXBaseInstructionFormatterContext;
 
 /**
  * @brief   Formats a decoded instruction.

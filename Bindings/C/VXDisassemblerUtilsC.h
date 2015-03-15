@@ -41,13 +41,19 @@ extern "C"
 {
 #endif
 
+typedef struct _VXContextDescriptor
+{
+    uint8_t type;
+    void *ptr;
+} VXContextDescriptor;
+
 /**
  * @brief   Calculates the absolute target address of a relative instruction operand.
  * @param   info    The instruction info.
  * @param   operand The operand.
  * @return  The absolute target address.
  */
-uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand);
+uint64_t VXCalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand);
 
 #ifdef __cplusplus
 }

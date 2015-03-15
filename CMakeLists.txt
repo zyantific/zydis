@@ -44,12 +44,14 @@ if (BUILD_C_BINDINGS)
         "Bindings/C/VXDisassemblerUtilsC.h"
         "Bindings/C/VXInstructionDecoderC.h"
         "Bindings/C/VXInstructionFormatterC.h"
-        "Bindings/C/VXOpcodeTableC.h")
+        "Bindings/C/VXOpcodeTableC.h"
+        "Bindings/C/VXOpcodeTableInternalC.h"
+        "Bindings/C/VXInternalHelpersC.h")
     set(vdec_sources
-        "Bindings/C/VXDisassemblerUtilsC.cpp"
-        "Bindings/C/VXInstructionFormatterC.cpp"
-        "Bindings/C/VXOpcodeTableC.cpp"
-        "Bindings/C/VXInstructionDecoderC.cpp")
+        "Bindings/C/VXDisassemblerUtilsC.c"
+        "Bindings/C/VXInstructionFormatterC.c"
+        "Bindings/C/VXOpcodeTableC.c"
+        "Bindings/C/VXInstructionDecoderC.c")
     add_library("VerteronDisassemblerEngineC" ${vdec_headers} ${vdec_sources})
     target_link_libraries("VerteronDisassemblerEngineC" "VerteronDisassemblerEngine")
 endif ()

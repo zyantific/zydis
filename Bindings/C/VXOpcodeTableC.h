@@ -34,6 +34,7 @@
 #define _VDE_VXOPCODETABLEC_H_
 
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C"

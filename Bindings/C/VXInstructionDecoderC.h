@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   : athre0z
 
-  Last change     : 04. February 2015
+  Last change     : 14. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@
 #define _VDE_VXINSTRUCTIONDECODERC_H_
 
 #include "VXDisassemblerTypesC.h"
+#include "VXDisassemblerUtilsC.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -45,7 +46,7 @@ extern "C"
 
 /* VXBaseDataSource ============================================================================ */
 
-typedef struct _VXBaseDataSourceContext { int a; } VXBaseDataSourceContext;
+typedef struct _VXBaseDataSourceContext { VXContextDescriptor d; } VXBaseDataSourceContext;
 
 /**
  * @brief Releases a data source. 
@@ -79,7 +80,28 @@ uint8_t VXBaseDataSource_InputPeek(
   * parameter. This function also appends the new byte to to @c data field of the @c info 
   * parameter.
   */
-uint8_t VXBaseDataSource_InputNext(
+uint8_t VXBaseDataSource_InputNext8(
+    VXBaseDataSourceContext *ctx, 
+    VXInstructionInfo *info);
+
+/**
+ * @copydoc VXBaseDataSource_InputNext8
+ */
+uint16_t VXBaseDataSource_InputNext16(
+    VXBaseDataSourceContext *ctx, 
+    VXInstructionInfo *info);
+
+/**
+ * @copydoc VXBaseDataSource_InputNext8
+ */
+uint32_t VXBaseDataSource_InputNext32(
+    VXBaseDataSourceContext *ctx, 
+    VXInstructionInfo *info);
+
+/**
+ * @copydoc VXBaseDataSource_InputNext8
+ */
+uint64_t VXBaseDataSource_InputNext64(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
@@ -157,7 +179,10 @@ typedef enum _VXInstructionSetVendor /* : uint8_t */
 
 /* VXInstructionDecoder ======================================================================== */
 
-typedef struct _VXInstructionDecoderContext { int a; } VXInstructionDecoderContext;
+typedef struct _VXInstructionDecoderContext 
+{ 
+    VXContextDescriptor d; 
+} VXInstructionDecoderContext;
 
 /**
  * @brief   Creates an instruction decoder.
@@ -225,7 +250,7 @@ void VXInstructionDecoder_SetDataSource(
  * @return  The current disassembler mode.
  */
 VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
-    VXInstructionDecoderContext *ctx);
+    const VXInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets the current disassembler mode.
@@ -259,7 +284,7 @@ void VXInstructionDecoder_SetPreferredVendor(
  * @return  The current instruction pointer.
  */
 uint64_t VXInstructionDecoder_GetInstructionPointer(
-    VXInstructionDecoderContext *ctx);
+    const VXInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets a new instruction pointer.
