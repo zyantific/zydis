@@ -49,7 +49,7 @@ typedef enum _VXTypeId
     TYPE_MEMORYDATASOURCE,
     TYPE_INSTRUCTIONDECODER,
     TYPE_BASESYMBOLRESOLVER,
-    TYPE_EXACTSYMBOLRESOLVER,
+    TYPE_CUSTOMSYMBOLRESOLVER,
     TYPE_BASEINSTRUCTIONFORMATTER,
     TYPE_INTELINSTRUCTIONFORMATTER,
 } VXTypeId;
@@ -105,29 +105,31 @@ __inline const struct _VXInstructionDecoder* VXInstructionDecoder_cthiz(
 __inline struct _VXBaseSymbolResolver* VXBaseSymbolResolver_thiz(
     VXBaseSymbolResolverContext *ctx)
 {
-    assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER);
+    assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER
+        || ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
     return (struct _VXBaseSymbolResolver*)ctx->d.ptr;
 }
 
 __inline const struct _VXBaseSymbolResolver* VXBaseSymbolResolver_cthiz(
     const VXBaseSymbolResolverContext *ctx)
 {
-    assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER);
+    assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER
+        || ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
     return (const struct _VXBaseSymbolResolver*)ctx->d.ptr;
 }
 
-__inline struct _VXExactSymbolResolver* VXExactSymbolResolver_thiz(
+__inline struct _VXCustomSymbolResolver* VXCustomSymbolResolver_thiz(
     VXBaseSymbolResolverContext *ctx)
 {
-    assert(ctx->d.type == TYPE_EXACTSYMBOLRESOLVER);
-    return (struct _VXExactSymbolResolver*)ctx->d.ptr;
+    assert(ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
+    return (struct _VXCustomSymbolResolver*)ctx->d.ptr;
 }
 
-__inline const struct _VXExactSymbolResolver* VXExactSymbolResolver_cthiz(
+__inline const struct _VXCustomSymbolResolver* VXCustomSymbolResolver_cthiz(
     const VXBaseSymbolResolverContext *ctx)
 {
-    assert(ctx->d.type == TYPE_EXACTSYMBOLRESOLVER);
-    return (const struct _VXExactSymbolResolver*)ctx->d.ptr;
+    assert(ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
+    return (const struct _VXCustomSymbolResolver*)ctx->d.ptr;
 }
 
 __inline struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_thiz(

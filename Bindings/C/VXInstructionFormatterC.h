@@ -73,7 +73,7 @@ const char* VXBaseSymbolResolver_ResolveSymbol(
 
 /* VXCustomSymbolResolver ====================================================================== */
 
-typedef const char* (*VXResolveSymbol_t)(
+typedef const char* (*VXCustomSymbolResolver_ResolveSymbolCallback)(
     const VXInstructionInfo *info, 
     uint64_t address, 
     uint64_t *offset,
@@ -87,7 +87,7 @@ typedef const char* (*VXResolveSymbol_t)(
  * @return  @c NULL if it fails, else a symbol resolver context.
  */
 VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
-    VXResolveSymbol_t resolverCb,
+    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb,
     void *userData);
 
 /* VXBaseInstructionFormatter ================================================================== */
