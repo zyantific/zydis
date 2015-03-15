@@ -113,6 +113,11 @@ int main()
         }
     }
 
+    VXBaseDataSource_Release(input32);
+    VXBaseDataSource_Release(input64);
+    VXBaseInstructionFormatter_Release(formatter);
+    VXInstructionDecoder_Release(decoder);
+
     getchar();
     return 0;
 }

@@ -287,6 +287,11 @@ VXBaseDataSourceContext* VXMemoryDataSource_Create(
     VXMemoryDataSource      *thiz = malloc(sizeof(VXMemoryDataSource));
     VXBaseDataSourceContext *ctx  = malloc(sizeof(VXBaseDataSourceContext));
 
+    if (!thiz || !ctx)
+    {
+        return NULL;
+    }
+
     ctx->d.type = TYPE_MEMORYDATASOURCE;
     ctx->d.ptr  = thiz;
 
@@ -361,6 +366,11 @@ VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
 {
     VXInstructionDecoder *thiz       = malloc(sizeof(VXInstructionDecoder));
     VXInstructionDecoderContext *ctx = malloc(sizeof(VXInstructionDecoderContext));
+
+    if (!thiz || !ctx)
+    {
+        return NULL;
+    }
 
     ctx->d.ptr  = thiz;
     ctx->d.type = TYPE_INSTRUCTIONDECODER;
@@ -1590,7 +1600,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
                 {
                     if (info->operand[i].type != OPTYPE_NONE)
                     {
-                        info->operand[i - 1].access_mode = OPACCESSMODE_READ;
+                        info->operand[i].access_mode = OPACCESSMODE_READ;
                     }    
                 }
                 if (info->operand[0].type != OPTYPE_NONE)

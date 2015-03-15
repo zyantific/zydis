@@ -193,6 +193,11 @@ VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
     VXCustomSymbolResolver      *thiz = malloc(sizeof(VXCustomSymbolResolver));
     VXBaseSymbolResolverContext *ctx  = malloc(sizeof(VXBaseSymbolResolverContext));
 
+    if (!thiz || !ctx)
+    {
+        return NULL;
+    }
+
     ctx->d.type = TYPE_CUSTOMSYMBOLRESOLVER;
     ctx->d.ptr  = thiz;
 
@@ -675,6 +680,9 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
 {
     VXIntelInstructionFormatter *thiz = malloc(sizeof(VXIntelInstructionFormatter));
     VXBaseInstructionFormatterContext *ctx = malloc(sizeof(VXBaseInstructionFormatterContext));
+
+    if (!thiz || !ctx)
+        return NULL;
 
     ctx->d.type = TYPE_INTELINSTRUCTIONFORMATTER;
     ctx->d.ptr  = thiz;
