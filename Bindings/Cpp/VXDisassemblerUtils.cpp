@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : athre0z
-  Modifications   : 
+  Original Author : Florian Bernd
+  Modifications   :
 
-  Last change     : 16. March 2015
+  Last change     : 30. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,16 +29,46 @@
  * SOFTWARE.
 
 **************************************************************************************************/
+#include "VXDisassemblerUtils.hpp"
+#include <cassert>
 
-#ifndef _VDE_VXINTERNALCONFIG_H_
-#define _VDE_VXINTERNALCONFIG_H_
+namespace Verteron
+{
+  
+uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand)
+{
+    assert((operand.type == VXOperandType::REL_IMMEDIATE) || 
+        ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP)));
+   
+    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
+    if (!(info.flags & IF_DISASSEMBLER_MODE_64)) 
+    {
+        truncMask >>= (64 - info.operand_mode);
+    }
+    uint16_t size = operand.size;
+    if ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP))
+    {
+        size = operand.offset;
+    }
+    switch (size)
+    {
+    case 8:
+        return (info.instrPointer + operand.lval.sbyte) & truncMask;
+    case 16:
+        {
+            uint32_t delta = operand.lval.sword & truncMask;
+            if ((info.instrPointer + delta) > 0xFFFF)
+            {
+                return (info.instrPointer & 0xF0000) + ((info.instrPointer + delta) & 0xFFFF);    
+            }
+            return info.instrPointer + delta;
+        }
+    case 32:
+        return (info.instrPointer + operand.lval.sdword) & truncMask;
+    default:
+        assert(0);
+    }
+    return 0;
+}
 
-#ifdef _MSC_VER
-#   define VX_INLINE __inline
-#else
-#   define VX_INLINE extern inline
-#endif
-
-#define VX_EXPORT
-
-#endif /* _VDE_VXINTERNALCONFIG_H_ */
+}

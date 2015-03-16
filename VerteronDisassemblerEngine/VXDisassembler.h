@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
+  Modifications   : athre0z
 
-  Last change     : 29. October 2014
+  Last change     : 04. February 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#pragma once
+ **************************************************************************************************/
+
+#ifndef _VDE_VXDISASSEMBLERC_H_
+#define _VDE_VXDISASSEMBLERC_H_
 
 #include "VXDisassemblerTypes.h"
 #include "VXInstructionDecoder.h"
 #include "VXInstructionFormatter.h"
 #include "VXDisassemblerUtils.h"
+
+#endif /* _VDE_VXDISASSEMBLERC_H_ */

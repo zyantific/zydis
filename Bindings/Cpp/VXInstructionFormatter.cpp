@@ -29,8 +29,8 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXInstructionFormatter.h"
-#include "VXDisassemblerUtils.h"
+#include "VXInstructionFormatter.hpp"
+#include "VXDisassemblerUtils.hpp"
 #include <cstdarg>
 #include <cctype>
 #include <cstring>

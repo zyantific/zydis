@@ -29,27 +29,27 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include <fstream>
-#include <iomanip>
-#include <string>
+
 #include <VXDisassembler.h>
 #include <Windows.h>
 
-using namespace Verteron;
-
 int main(int argc, char* argv[])
 {
+    // TODO: port to C
+    /*
+
     // Find module base in memory
     void *moduleBase = GetModuleHandle("kernel32.dll");
-    uintptr_t baseAddress = reinterpret_cast<uintptr_t>(moduleBase);
+    uintptr_t baseAddress = (uintptr_t)moduleBase;
+
     // Parse PE headers
-    PIMAGE_DOS_HEADER dosHeader = static_cast<PIMAGE_DOS_HEADER>(moduleBase);
+    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)moduleBase;
     if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
     {
         return 1;
     }
-    PIMAGE_NT_HEADERS ntHeaders = 
-        reinterpret_cast<PIMAGE_NT_HEADERS>(baseAddress + dosHeader->e_lfanew);
+
+    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)(baseAddress + dosHeader->e_lfanew);
     if (ntHeaders->Signature != IMAGE_NT_SIGNATURE)
     {
         return 1;
@@ -187,5 +187,7 @@ int main(int argc, char* argv[])
         sectionHeader++;
     }
     out.close();
+    */
+
     return 0;
 }

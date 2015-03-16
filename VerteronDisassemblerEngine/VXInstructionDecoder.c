@@ -30,9 +30,9 @@
 
 **************************************************************************************************/
 
-#include "VXInstructionDecoderC.h"
-#include "VXInternalHelpersC.h"
-#include "VXOpcodeTableInternalC.h"
+#include "VXInstructionDecoder.h"
+#include "VXInternalHelpers.h"
+#include "VXOpcodeTableInternal.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -1605,7 +1605,8 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
                     if (info->instrDefinition->flags & IDF_OPERAND1_WRITE)
                     {
                         info->operand[0].access_mode = OPACCESSMODE_WRITE;
-                    } else if (info->instrDefinition->flags & IDF_OPERAND1_READWRITE)
+                    } 
+                    else if (info->instrDefinition->flags & IDF_OPERAND1_READWRITE)
                     {
                         info->operand[0].access_mode = OPACCESSMODE_READWRITE;
                     }
@@ -1615,7 +1616,8 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
                     if (info->instrDefinition->flags & IDF_OPERAND2_WRITE)
                     {
                         info->operand[1].access_mode = OPACCESSMODE_WRITE;
-                    } else if (info->instrDefinition->flags & IDF_OPERAND2_READWRITE)
+                    } 
+                    else if (info->instrDefinition->flags & IDF_OPERAND2_READWRITE)
                     {
                         info->operand[1].access_mode = OPACCESSMODE_READWRITE;
                     }
@@ -1654,7 +1656,8 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
 
                 // Set child node index for next iteration
                 index = info->vex_m_mmmm + (info->vex_pp << 2);
-            } else
+            } 
+            else
             {
                 index = 0;
             }
@@ -1672,6 +1675,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
         }
         node = VXGetOpcodeTreeChild(node, index);
     } while (nodeType != OTNT_INSTRUCTION_DEFINITION);
+
     return false;
 }
 

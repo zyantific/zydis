@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : Florian Bernd
-  Modifications   : athre0z
+  Original Author : athre0z
+  Modifications   : 
 
-  Last change     : 04. February 2015
+  Last change     : 16. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
- **************************************************************************************************/
+**************************************************************************************************/
 
-#ifndef _VDE_VXDISASSEMBLERC_H_
-#define _VDE_VXDISASSEMBLERC_H_
+#ifndef _VDE_VXINTERNALCONFIG_H_
+#define _VDE_VXINTERNALCONFIG_H_
 
-#include "VXDisassemblerTypesC.h"
-#include "VXInstructionDecoderC.h"
-#include "VXInstructionFormatterC.h"
-#include "VXDisassemblerUtilsC.h"
+#ifdef _MSC_VER
+#   define VX_INLINE __inline
+#else
+#   define VX_INLINE extern inline
+#endif
 
-#endif /* _VDE_VXDISASSEMBLERC_H_ */
+#ifdef VX_BUILD_SHARED /* set by CMake */
+#   if defined(_MSC_VER)
+#       define VX_EXPORT __declspec(dllexport)
+#   elif defined(__GNUC__) || defined(__clang__) 
+#       define VX_EXPORT __attribute__((dllexport))
+#   endif
+#else
+#   define VX_EXPORT
+#endif
+
+#endif /* _VDE_VXINTERNALCONFIG_H_ */

@@ -29,7 +29,7 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXOpcodeTable.h"
+#include "VXOpcodeTable.hpp"
 
 namespace Verteron
 {

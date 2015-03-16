@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
+  Modifications   : athre0z
 
-  Last change     : 29. October 2014
+  Last change     : 04. February 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,925 +29,931 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#pragma once
+
+#ifndef _VDE_VXOPCODETABLEC_H_
+#define _VDE_VXOPCODETABLEC_H_
 
 #include <stdint.h>
-#include <cassert>
+#include <assert.h>
 
-namespace Verteron
+#ifdef __cplusplus
+extern "C"
 {
+#endif
 
 /**
  * @brief   Values that represent an instruction mnemonic.
  */
-enum class VXInstructionMnemonic : uint16_t
+typedef enum _VXInstructionMnemonic /* : uint16_t */
 {
-    /* 000 */ INVALID,
-    /* 001 */ AAA,
-    /* 002 */ AAD,
-    /* 003 */ AAM,
-    /* 004 */ AAS,
-    /* 005 */ ADC,
-    /* 006 */ ADD,
-    /* 007 */ ADDPD,
-    /* 008 */ ADDPS,
-    /* 009 */ ADDSD,
-    /* 00A */ ADDSS,
-    /* 00B */ ADDSUBPD,
-    /* 00C */ ADDSUBPS,
-    /* 00D */ AESDEC,
-    /* 00E */ AESDECLAST,
-    /* 00F */ AESENC,
-    /* 010 */ AESENCLAST,
-    /* 011 */ AESIMC,
-    /* 012 */ AESKEYGENASSIST,
-    /* 013 */ AND,
-    /* 014 */ ANDNPD,
-    /* 015 */ ANDNPS,
-    /* 016 */ ANDPD,
-    /* 017 */ ANDPS,
-    /* 018 */ ARPL,
-    /* 019 */ BLENDPD,
-    /* 01A */ BLENDPS,
-    /* 01B */ BLENDVPD,
-    /* 01C */ BLENDVPS,
-    /* 01D */ BOUND,
-    /* 01E */ BSF,
-    /* 01F */ BSR,
-    /* 020 */ BSWAP,
-    /* 021 */ BT,
-    /* 022 */ BTC,
-    /* 023 */ BTR,
-    /* 024 */ BTS,
-    /* 025 */ CALL,
-    /* 026 */ CBW,
-    /* 027 */ CDQ,
-    /* 028 */ CDQE,
-    /* 029 */ CLC,
-    /* 02A */ CLD,
-    /* 02B */ CLFLUSH,
-    /* 02C */ CLGI,
-    /* 02D */ CLI,
-    /* 02E */ CLTS,
-    /* 02F */ CMC,
-    /* 030 */ CMOVA,
-    /* 031 */ CMOVAE,
-    /* 032 */ CMOVB,
-    /* 033 */ CMOVBE,
-    /* 034 */ CMOVE,
-    /* 035 */ CMOVG,
-    /* 036 */ CMOVGE,
-    /* 037 */ CMOVL,
-    /* 038 */ CMOVLE,
-    /* 039 */ CMOVNE,
-    /* 03A */ CMOVNO,
-    /* 03B */ CMOVNP,
-    /* 03C */ CMOVNS,
-    /* 03D */ CMOVO,
-    /* 03E */ CMOVP,
-    /* 03F */ CMOVS,
-    /* 040 */ CMP,
-    /* 041 */ CMPPD,
-    /* 042 */ CMPPS,
-    /* 043 */ CMPSB,
-    /* 044 */ CMPSD,
-    /* 045 */ CMPSQ,
-    /* 046 */ CMPSS,
-    /* 047 */ CMPSW,
-    /* 048 */ CMPXCHG,
-    /* 049 */ CMPXCHG16B,
-    /* 04A */ CMPXCHG8B,
-    /* 04B */ COMISD,
-    /* 04C */ COMISS,
-    /* 04D */ CPUID,
-    /* 04E */ CQO,
-    /* 04F */ CRC32,
-    /* 050 */ CVTDQ2PD,
-    /* 051 */ CVTDQ2PS,
-    /* 052 */ CVTPD2DQ,
-    /* 053 */ CVTPD2PI,
-    /* 054 */ CVTPD2PS,
-    /* 055 */ CVTPI2PD,
-    /* 056 */ CVTPI2PS,
-    /* 057 */ CVTPS2DQ,
-    /* 058 */ CVTPS2PD,
-    /* 059 */ CVTPS2PI,
-    /* 05A */ CVTSD2SI,
-    /* 05B */ CVTSD2SS,
-    /* 05C */ CVTSI2SD,
-    /* 05D */ CVTSI2SS,
-    /* 05E */ CVTSS2SD,
-    /* 05F */ CVTSS2SI,
-    /* 060 */ CVTTPD2DQ,
-    /* 061 */ CVTTPD2PI,
-    /* 062 */ CVTTPS2DQ,
-    /* 063 */ CVTTPS2PI,
-    /* 064 */ CVTTSD2SI,
-    /* 065 */ CVTTSS2SI,
-    /* 066 */ CWD,
-    /* 067 */ CWDE,
-    /* 068 */ DAA,
-    /* 069 */ DAS,
-    /* 06A */ DEC,
-    /* 06B */ DIV,
-    /* 06C */ DIVPD,
-    /* 06D */ DIVPS,
-    /* 06E */ DIVSD,
-    /* 06F */ DIVSS,
-    /* 070 */ DPPD,
-    /* 071 */ DPPS,
-    /* 072 */ EMMS,
-    /* 073 */ ENTER,
-    /* 074 */ EXTRACTPS,
-    /* 075 */ F2XM1,
-    /* 076 */ FABS,
-    /* 077 */ FADD,
-    /* 078 */ FADDP,
-    /* 079 */ FBLD,
-    /* 07A */ FBSTP,
-    /* 07B */ FCHS,
-    /* 07C */ FCLEX,
-    /* 07D */ FCMOVB,
-    /* 07E */ FCMOVBE,
-    /* 07F */ FCMOVE,
-    /* 080 */ FCMOVNB,
-    /* 081 */ FCMOVNBE,
-    /* 082 */ FCMOVNE,
-    /* 083 */ FCMOVNU,
-    /* 084 */ FCMOVU,
-    /* 085 */ FCOM,
-    /* 086 */ FCOM2,
-    /* 087 */ FCOMI,
-    /* 088 */ FCOMIP,
-    /* 089 */ FCOMP,
-    /* 08A */ FCOMP3,
-    /* 08B */ FCOMP5,
-    /* 08C */ FCOMPP,
-    /* 08D */ FCOS,
-    /* 08E */ FDECSTP,
-    /* 08F */ FDIV,
-    /* 090 */ FDIVP,
-    /* 091 */ FDIVR,
-    /* 092 */ FDIVRP,
-    /* 093 */ FEMMS,
-    /* 094 */ FFREE,
-    /* 095 */ FFREEP,
-    /* 096 */ FIADD,
-    /* 097 */ FICOM,
-    /* 098 */ FICOMP,
-    /* 099 */ FIDIV,
-    /* 09A */ FIDIVR,
-    /* 09B */ FILD,
-    /* 09C */ FIMUL,
-    /* 09D */ FINCSTP,
-    /* 09E */ FIST,
-    /* 09F */ FISTP,
-    /* 0A0 */ FISTTP,
-    /* 0A1 */ FISUB,
-    /* 0A2 */ FISUBR,
-    /* 0A3 */ FLD,
-    /* 0A4 */ FLD1,
-    /* 0A5 */ FLDCW,
-    /* 0A6 */ FLDENV,
-    /* 0A7 */ FLDL2E,
-    /* 0A8 */ FLDL2T,
-    /* 0A9 */ FLDLG2,
-    /* 0AA */ FLDLN2,
-    /* 0AB */ FLDPI,
-    /* 0AC */ FLDZ,
-    /* 0AD */ FMUL,
-    /* 0AE */ FMULP,
-    /* 0AF */ FNDISI,
-    /* 0B0 */ FNENI,
-    /* 0B1 */ FNINIT,
-    /* 0B2 */ FNOP,
-    /* 0B3 */ FNSAVE,
-    /* 0B4 */ FNSETPM,
-    /* 0B5 */ FNSTCW,
-    /* 0B6 */ FNSTENV,
-    /* 0B7 */ FNSTSW,
-    /* 0B8 */ FPATAN,
-    /* 0B9 */ FPREM,
-    /* 0BA */ FPREM1,
-    /* 0BB */ FPTAN,
-    /* 0BC */ FRNDINT,
-    /* 0BD */ FRSTOR,
-    /* 0BE */ FRSTPM,
-    /* 0BF */ FSCALE,
-    /* 0C0 */ FSIN,
-    /* 0C1 */ FSINCOS,
-    /* 0C2 */ FSQRT,
-    /* 0C3 */ FST,
-    /* 0C4 */ FSTP,
-    /* 0C5 */ FSTP1,
-    /* 0C6 */ FSTP8,
-    /* 0C7 */ FSTP9,
-    /* 0C8 */ FSUB,
-    /* 0C9 */ FSUBP,
-    /* 0CA */ FSUBR,
-    /* 0CB */ FSUBRP,
-    /* 0CC */ FTST,
-    /* 0CD */ FUCOM,
-    /* 0CE */ FUCOMI,
-    /* 0CF */ FUCOMIP,
-    /* 0D0 */ FUCOMP,
-    /* 0D1 */ FUCOMPP,
-    /* 0D2 */ FXAM,
-    /* 0D3 */ FXCH,
-    /* 0D4 */ FXCH4,
-    /* 0D5 */ FXCH7,
-    /* 0D6 */ FXRSTOR,
-    /* 0D7 */ FXSAVE,
-    /* 0D8 */ FXTRACT,
-    /* 0D9 */ FYL2X,
-    /* 0DA */ FYL2XP1,
-    /* 0DB */ GETSEC,
-    /* 0DC */ HADDPD,
-    /* 0DD */ HADDPS,
-    /* 0DE */ HLT,
-    /* 0DF */ HSUBPD,
-    /* 0E0 */ HSUBPS,
-    /* 0E1 */ IDIV,
-    /* 0E2 */ IMUL,
-    /* 0E3 */ IN,
-    /* 0E4 */ INC,
-    /* 0E5 */ INSB,
-    /* 0E6 */ INSD,
-    /* 0E7 */ INSERTPS,
-    /* 0E8 */ INSW,
-    /* 0E9 */ INT,
-    /* 0EA */ INT1,
-    /* 0EB */ INT3,
-    /* 0EC */ INTO,
-    /* 0ED */ INVD,
-    /* 0EE */ INVEPT,
-    /* 0EF */ INVLPG,
-    /* 0F0 */ INVLPGA,
-    /* 0F1 */ INVVPID,
-    /* 0F2 */ IRETD,
-    /* 0F3 */ IRETQ,
-    /* 0F4 */ IRETW,
-    /* 0F5 */ JA,
-    /* 0F6 */ JB,
-    /* 0F7 */ JBE,
-    /* 0F8 */ JCXZ,
-    /* 0F9 */ JE,
-    /* 0FA */ JECXZ,
-    /* 0FB */ JG,
-    /* 0FC */ JGE,
-    /* 0FD */ JL,
-    /* 0FE */ JLE,
-    /* 0FF */ JMP,
-    /* 100 */ JNB,
-    /* 101 */ JNE,
-    /* 102 */ JNO,
-    /* 103 */ JNP,
-    /* 104 */ JNS,
-    /* 105 */ JO,
-    /* 106 */ JP,
-    /* 107 */ JRCXZ,
-    /* 108 */ JS,
-    /* 109 */ LAHF,
-    /* 10A */ LAR,
-    /* 10B */ LDDQU,
-    /* 10C */ LDMXCSR,
-    /* 10D */ LDS,
-    /* 10E */ LEA,
-    /* 10F */ LEAVE,
-    /* 110 */ LES,
-    /* 111 */ LFENCE,
-    /* 112 */ LFS,
-    /* 113 */ LGDT,
-    /* 114 */ LGS,
-    /* 115 */ LIDT,
-    /* 116 */ LLDT,
-    /* 117 */ LMSW,
-    /* 118 */ LOCK,
-    /* 119 */ LODSB,
-    /* 11A */ LODSD,
-    /* 11B */ LODSQ,
-    /* 11C */ LODSW,
-    /* 11D */ LOOP,
-    /* 11E */ LOOPE,
-    /* 11F */ LOOPNE,
-    /* 120 */ LSL,
-    /* 121 */ LSS,
-    /* 122 */ LTR,
-    /* 123 */ MASKMOVDQU,
-    /* 124 */ MASKMOVQ,
-    /* 125 */ MAXPD,
-    /* 126 */ MAXPS,
-    /* 127 */ MAXSD,
-    /* 128 */ MAXSS,
-    /* 129 */ MFENCE,
-    /* 12A */ MINPD,
-    /* 12B */ MINPS,
-    /* 12C */ MINSD,
-    /* 12D */ MINSS,
-    /* 12E */ MONITOR,
-    /* 12F */ MONTMUL,
-    /* 130 */ MOV,
-    /* 131 */ MOVAPD,
-    /* 132 */ MOVAPS,
-    /* 133 */ MOVBE,
-    /* 134 */ MOVD,
-    /* 135 */ MOVDDUP,
-    /* 136 */ MOVDQ2Q,
-    /* 137 */ MOVDQA,
-    /* 138 */ MOVDQU,
-    /* 139 */ MOVHLPS,
-    /* 13A */ MOVHPD,
-    /* 13B */ MOVHPS,
-    /* 13C */ MOVLHPS,
-    /* 13D */ MOVLPD,
-    /* 13E */ MOVLPS,
-    /* 13F */ MOVMSKPD,
-    /* 140 */ MOVMSKPS,
-    /* 141 */ MOVNTDQ,
-    /* 142 */ MOVNTDQA,
-    /* 143 */ MOVNTI,
-    /* 144 */ MOVNTPD,
-    /* 145 */ MOVNTPS,
-    /* 146 */ MOVNTQ,
-    /* 147 */ MOVQ,
-    /* 148 */ MOVQ2DQ,
-    /* 149 */ MOVSB,
-    /* 14A */ MOVSD,
-    /* 14B */ MOVSHDUP,
-    /* 14C */ MOVSLDUP,
-    /* 14D */ MOVSQ,
-    /* 14E */ MOVSS,
-    /* 14F */ MOVSW,
-    /* 150 */ MOVSX,
-    /* 151 */ MOVSXD,
-    /* 152 */ MOVUPD,
-    /* 153 */ MOVUPS,
-    /* 154 */ MOVZX,
-    /* 155 */ MPSADBW,
-    /* 156 */ MUL,
-    /* 157 */ MULPD,
-    /* 158 */ MULPS,
-    /* 159 */ MULSD,
-    /* 15A */ MULSS,
-    /* 15B */ MWAIT,
-    /* 15C */ NEG,
-    /* 15D */ NOP,
-    /* 15E */ NOT,
-    /* 15F */ OR,
-    /* 160 */ ORPD,
-    /* 161 */ ORPS,
-    /* 162 */ OUT,
-    /* 163 */ OUTSB,
-    /* 164 */ OUTSD,
-    /* 165 */ OUTSW,
-    /* 166 */ PABSB,
-    /* 167 */ PABSD,
-    /* 168 */ PABSW,
-    /* 169 */ PACKSSDW,
-    /* 16A */ PACKSSWB,
-    /* 16B */ PACKUSDW,
-    /* 16C */ PACKUSWB,
-    /* 16D */ PADDB,
-    /* 16E */ PADDD,
-    /* 16F */ PADDQ,
-    /* 170 */ PADDSB,
-    /* 171 */ PADDSW,
-    /* 172 */ PADDUSB,
-    /* 173 */ PADDUSW,
-    /* 174 */ PADDW,
-    /* 175 */ PALIGNR,
-    /* 176 */ PAND,
-    /* 177 */ PANDN,
-    /* 178 */ PAUSE,
-    /* 179 */ PAVGB,
-    /* 17A */ PAVGUSB,
-    /* 17B */ PAVGW,
-    /* 17C */ PBLENDVB,
-    /* 17D */ PBLENDW,
-    /* 17E */ PCLMULQDQ,
-    /* 17F */ PCMPEQB,
-    /* 180 */ PCMPEQD,
-    /* 181 */ PCMPEQQ,
-    /* 182 */ PCMPEQW,
-    /* 183 */ PCMPESTRI,
-    /* 184 */ PCMPESTRM,
-    /* 185 */ PCMPGTB,
-    /* 186 */ PCMPGTD,
-    /* 187 */ PCMPGTQ,
-    /* 188 */ PCMPGTW,
-    /* 189 */ PCMPISTRI,
-    /* 18A */ PCMPISTRM,
-    /* 18B */ PEXTRB,
-    /* 18C */ PEXTRD,
-    /* 18D */ PEXTRQ,
-    /* 18E */ PEXTRW,
-    /* 18F */ PF2ID,
-    /* 190 */ PF2IW,
-    /* 191 */ PFACC,
-    /* 192 */ PFADD,
-    /* 193 */ PFCMPEQ,
-    /* 194 */ PFCMPGE,
-    /* 195 */ PFCMPGT,
-    /* 196 */ PFMAX,
-    /* 197 */ PFMIN,
-    /* 198 */ PFMUL,
-    /* 199 */ PFNACC,
-    /* 19A */ PFPNACC,
-    /* 19B */ PFRCP,
-    /* 19C */ PFRCPIT1,
-    /* 19D */ PFRCPIT2,
-    /* 19E */ PFRSQIT1,
-    /* 19F */ PFRSQRT,
-    /* 1A0 */ PFSUB,
-    /* 1A1 */ PFSUBR,
-    /* 1A2 */ PHADDD,
-    /* 1A3 */ PHADDSW,
-    /* 1A4 */ PHADDW,
-    /* 1A5 */ PHMINPOSUW,
-    /* 1A6 */ PHSUBD,
-    /* 1A7 */ PHSUBSW,
-    /* 1A8 */ PHSUBW,
-    /* 1A9 */ PI2FD,
-    /* 1AA */ PI2FW,
-    /* 1AB */ PINSRB,
-    /* 1AC */ PINSRD,
-    /* 1AD */ PINSRQ,
-    /* 1AE */ PINSRW,
-    /* 1AF */ PMADDUBSW,
-    /* 1B0 */ PMADDWD,
-    /* 1B1 */ PMAXSB,
-    /* 1B2 */ PMAXSD,
-    /* 1B3 */ PMAXSW,
-    /* 1B4 */ PMAXUB,
-    /* 1B5 */ PMAXUD,
-    /* 1B6 */ PMAXUW,
-    /* 1B7 */ PMINSB,
-    /* 1B8 */ PMINSD,
-    /* 1B9 */ PMINSW,
-    /* 1BA */ PMINUB,
-    /* 1BB */ PMINUD,
-    /* 1BC */ PMINUW,
-    /* 1BD */ PMOVMSKB,
-    /* 1BE */ PMOVSXBD,
-    /* 1BF */ PMOVSXBQ,
-    /* 1C0 */ PMOVSXBW,
-    /* 1C1 */ PMOVSXDQ,
-    /* 1C2 */ PMOVSXWD,
-    /* 1C3 */ PMOVSXWQ,
-    /* 1C4 */ PMOVZXBD,
-    /* 1C5 */ PMOVZXBQ,
-    /* 1C6 */ PMOVZXBW,
-    /* 1C7 */ PMOVZXDQ,
-    /* 1C8 */ PMOVZXWD,
-    /* 1C9 */ PMOVZXWQ,
-    /* 1CA */ PMULDQ,
-    /* 1CB */ PMULHRSW,
-    /* 1CC */ PMULHRW,
-    /* 1CD */ PMULHUW,
-    /* 1CE */ PMULHW,
-    /* 1CF */ PMULLD,
-    /* 1D0 */ PMULLW,
-    /* 1D1 */ PMULUDQ,
-    /* 1D2 */ POP,
-    /* 1D3 */ POPA,
-    /* 1D4 */ POPAD,
-    /* 1D5 */ POPCNT,
-    /* 1D6 */ POPFD,
-    /* 1D7 */ POPFQ,
-    /* 1D8 */ POPFW,
-    /* 1D9 */ POR,
-    /* 1DA */ PREFETCH,
-    /* 1DB */ PREFETCHNTA,
-    /* 1DC */ PREFETCHT0,
-    /* 1DD */ PREFETCHT1,
-    /* 1DE */ PREFETCHT2,
-    /* 1DF */ PSADBW,
-    /* 1E0 */ PSHUFB,
-    /* 1E1 */ PSHUFD,
-    /* 1E2 */ PSHUFHW,
-    /* 1E3 */ PSHUFLW,
-    /* 1E4 */ PSHUFW,
-    /* 1E5 */ PSIGNB,
-    /* 1E6 */ PSIGND,
-    /* 1E7 */ PSIGNW,
-    /* 1E8 */ PSLLD,
-    /* 1E9 */ PSLLDQ,
-    /* 1EA */ PSLLQ,
-    /* 1EB */ PSLLW,
-    /* 1EC */ PSRAD,
-    /* 1ED */ PSRAW,
-    /* 1EE */ PSRLD,
-    /* 1EF */ PSRLDQ,
-    /* 1F0 */ PSRLQ,
-    /* 1F1 */ PSRLW,
-    /* 1F2 */ PSUBB,
-    /* 1F3 */ PSUBD,
-    /* 1F4 */ PSUBQ,
-    /* 1F5 */ PSUBSB,
-    /* 1F6 */ PSUBSW,
-    /* 1F7 */ PSUBUSB,
-    /* 1F8 */ PSUBUSW,
-    /* 1F9 */ PSUBW,
-    /* 1FA */ PSWAPD,
-    /* 1FB */ PTEST,
-    /* 1FC */ PUNPCKHBW,
-    /* 1FD */ PUNPCKHDQ,
-    /* 1FE */ PUNPCKHQDQ,
-    /* 1FF */ PUNPCKHWD,
-    /* 200 */ PUNPCKLBW,
-    /* 201 */ PUNPCKLDQ,
-    /* 202 */ PUNPCKLQDQ,
-    /* 203 */ PUNPCKLWD,
-    /* 204 */ PUSH,
-    /* 205 */ PUSHA,
-    /* 206 */ PUSHAD,
-    /* 207 */ PUSHFD,
-    /* 208 */ PUSHFQ,
-    /* 209 */ PUSHFW,
-    /* 20A */ PXOR,
-    /* 20B */ RCL,
-    /* 20C */ RCPPS,
-    /* 20D */ RCPSS,
-    /* 20E */ RCR,
-    /* 20F */ RDMSR,
-    /* 210 */ RDPMC,
-    /* 211 */ RDRAND,
-    /* 212 */ RDTSC,
-    /* 213 */ RDTSCP,
-    /* 214 */ REP,
-    /* 215 */ REPNE,
-    /* 216 */ RET,
-    /* 217 */ RETF,
-    /* 218 */ ROL,
-    /* 219 */ ROR,
-    /* 21A */ ROUNDPD,
-    /* 21B */ ROUNDPS,
-    /* 21C */ ROUNDSD,
-    /* 21D */ ROUNDSS,
-    /* 21E */ RSM,
-    /* 21F */ RSQRTPS,
-    /* 220 */ RSQRTSS,
-    /* 221 */ SAHF,
-    /* 222 */ SALC,
-    /* 223 */ SAR,
-    /* 224 */ SBB,
-    /* 225 */ SCASB,
-    /* 226 */ SCASD,
-    /* 227 */ SCASQ,
-    /* 228 */ SCASW,
-    /* 229 */ SETA,
-    /* 22A */ SETAE,
-    /* 22B */ SETB,
-    /* 22C */ SETBE,
-    /* 22D */ SETE,
-    /* 22E */ SETG,
-    /* 22F */ SETGE,
-    /* 230 */ SETL,
-    /* 231 */ SETLE,
-    /* 232 */ SETNE,
-    /* 233 */ SETNO,
-    /* 234 */ SETNP,
-    /* 235 */ SETNS,
-    /* 236 */ SETO,
-    /* 237 */ SETP,
-    /* 238 */ SETS,
-    /* 239 */ SFENCE,
-    /* 23A */ SGDT,
-    /* 23B */ SHL,
-    /* 23C */ SHLD,
-    /* 23D */ SHR,
-    /* 23E */ SHRD,
-    /* 23F */ SHUFPD,
-    /* 240 */ SHUFPS,
-    /* 241 */ SIDT,
-    /* 242 */ SKINIT,
-    /* 243 */ SLDT,
-    /* 244 */ SMSW,
-    /* 245 */ SQRTPD,
-    /* 246 */ SQRTPS,
-    /* 247 */ SQRTSD,
-    /* 248 */ SQRTSS,
-    /* 249 */ STC,
-    /* 24A */ STD,
-    /* 24B */ STGI,
-    /* 24C */ STI,
-    /* 24D */ STMXCSR,
-    /* 24E */ STOSB,
-    /* 24F */ STOSD,
-    /* 250 */ STOSQ,
-    /* 251 */ STOSW,
-    /* 252 */ STR,
-    /* 253 */ SUB,
-    /* 254 */ SUBPD,
-    /* 255 */ SUBPS,
-    /* 256 */ SUBSD,
-    /* 257 */ SUBSS,
-    /* 258 */ SWAPGS,
-    /* 259 */ SYSCALL,
-    /* 25A */ SYSENTER,
-    /* 25B */ SYSEXIT,
-    /* 25C */ SYSRET,
-    /* 25D */ TEST,
-    /* 25E */ UCOMISD,
-    /* 25F */ UCOMISS,
-    /* 260 */ UD2,
-    /* 261 */ UNPCKHPD,
-    /* 262 */ UNPCKHPS,
-    /* 263 */ UNPCKLPD,
-    /* 264 */ UNPCKLPS,
-    /* 265 */ VADDPD,
-    /* 266 */ VADDPS,
-    /* 267 */ VADDSD,
-    /* 268 */ VADDSS,
-    /* 269 */ VADDSUBPD,
-    /* 26A */ VADDSUBPS,
-    /* 26B */ VAESDEC,
-    /* 26C */ VAESDECLAST,
-    /* 26D */ VAESENC,
-    /* 26E */ VAESENCLAST,
-    /* 26F */ VAESIMC,
-    /* 270 */ VAESKEYGENASSIST,
-    /* 271 */ VANDNPD,
-    /* 272 */ VANDNPS,
-    /* 273 */ VANDPD,
-    /* 274 */ VANDPS,
-    /* 275 */ VBLENDPD,
-    /* 276 */ VBLENDPS,
-    /* 277 */ VBLENDVPD,
-    /* 278 */ VBLENDVPS,
-    /* 279 */ VBROADCASTSD,
-    /* 27A */ VBROADCASTSS,
-    /* 27B */ VCMPPD,
-    /* 27C */ VCMPPS,
-    /* 27D */ VCMPSD,
-    /* 27E */ VCMPSS,
-    /* 27F */ VCOMISD,
-    /* 280 */ VCOMISS,
-    /* 281 */ VCVTDQ2PD,
-    /* 282 */ VCVTDQ2PS,
-    /* 283 */ VCVTPD2DQ,
-    /* 284 */ VCVTPD2PS,
-    /* 285 */ VCVTPS2DQ,
-    /* 286 */ VCVTPS2PD,
-    /* 287 */ VCVTSD2SI,
-    /* 288 */ VCVTSD2SS,
-    /* 289 */ VCVTSI2SD,
-    /* 28A */ VCVTSI2SS,
-    /* 28B */ VCVTSS2SD,
-    /* 28C */ VCVTSS2SI,
-    /* 28D */ VCVTTPD2DQ,
-    /* 28E */ VCVTTPS2DQ,
-    /* 28F */ VCVTTSD2SI,
-    /* 290 */ VCVTTSS2SI,
-    /* 291 */ VDIVPD,
-    /* 292 */ VDIVPS,
-    /* 293 */ VDIVSD,
-    /* 294 */ VDIVSS,
-    /* 295 */ VDPPD,
-    /* 296 */ VDPPS,
-    /* 297 */ VERR,
-    /* 298 */ VERW,
-    /* 299 */ VEXTRACTF128,
-    /* 29A */ VEXTRACTPS,
-    /* 29B */ VHADDPD,
-    /* 29C */ VHADDPS,
-    /* 29D */ VHSUBPD,
-    /* 29E */ VHSUBPS,
-    /* 29F */ VINSERTF128,
-    /* 2A0 */ VINSERTPS,
-    /* 2A1 */ VLDDQU,
-    /* 2A2 */ VMASKMOVDQU,
-    /* 2A3 */ VMASKMOVPD,
-    /* 2A4 */ VMASKMOVPS,
-    /* 2A5 */ VMAXPD,
-    /* 2A6 */ VMAXPS,
-    /* 2A7 */ VMAXSD,
-    /* 2A8 */ VMAXSS,
-    /* 2A9 */ VMCALL,
-    /* 2AA */ VMCLEAR,
-    /* 2AB */ VMINPD,
-    /* 2AC */ VMINPS,
-    /* 2AD */ VMINSD,
-    /* 2AE */ VMINSS,
-    /* 2AF */ VMLAUNCH,
-    /* 2B0 */ VMLOAD,
-    /* 2B1 */ VMMCALL,
-    /* 2B2 */ VMOVAPD,
-    /* 2B3 */ VMOVAPS,
-    /* 2B4 */ VMOVD,
-    /* 2B5 */ VMOVDDUP,
-    /* 2B6 */ VMOVDQA,
-    /* 2B7 */ VMOVDQU,
-    /* 2B8 */ VMOVHLPS,
-    /* 2B9 */ VMOVHPD,
-    /* 2BA */ VMOVHPS,
-    /* 2BB */ VMOVLHPS,
-    /* 2BC */ VMOVLPD,
-    /* 2BD */ VMOVLPS,
-    /* 2BE */ VMOVMSKPD,
-    /* 2BF */ VMOVMSKPS,
-    /* 2C0 */ VMOVNTDQ,
-    /* 2C1 */ VMOVNTDQA,
-    /* 2C2 */ VMOVNTPD,
-    /* 2C3 */ VMOVNTPS,
-    /* 2C4 */ VMOVQ,
-    /* 2C5 */ VMOVSD,
-    /* 2C6 */ VMOVSHDUP,
-    /* 2C7 */ VMOVSLDUP,
-    /* 2C8 */ VMOVSS,
-    /* 2C9 */ VMOVUPD,
-    /* 2CA */ VMOVUPS,
-    /* 2CB */ VMPSADBW,
-    /* 2CC */ VMPTRLD,
-    /* 2CD */ VMPTRST,
-    /* 2CE */ VMREAD,
-    /* 2CF */ VMRESUME,
-    /* 2D0 */ VMRUN,
-    /* 2D1 */ VMSAVE,
-    /* 2D2 */ VMULPD,
-    /* 2D3 */ VMULPS,
-    /* 2D4 */ VMULSD,
-    /* 2D5 */ VMULSS,
-    /* 2D6 */ VMWRITE,
-    /* 2D7 */ VMXOFF,
-    /* 2D8 */ VMXON,
-    /* 2D9 */ VORPD,
-    /* 2DA */ VORPS,
-    /* 2DB */ VPABSB,
-    /* 2DC */ VPABSD,
-    /* 2DD */ VPABSW,
-    /* 2DE */ VPACKSSDW,
-    /* 2DF */ VPACKSSWB,
-    /* 2E0 */ VPACKUSDW,
-    /* 2E1 */ VPACKUSWB,
-    /* 2E2 */ VPADDB,
-    /* 2E3 */ VPADDD,
-    /* 2E4 */ VPADDQ,
-    /* 2E5 */ VPADDSB,
-    /* 2E6 */ VPADDSW,
-    /* 2E7 */ VPADDUSB,
-    /* 2E8 */ VPADDUSW,
-    /* 2E9 */ VPADDW,
-    /* 2EA */ VPALIGNR,
-    /* 2EB */ VPAND,
-    /* 2EC */ VPANDN,
-    /* 2ED */ VPAVGB,
-    /* 2EE */ VPAVGW,
-    /* 2EF */ VPBLENDVB,
-    /* 2F0 */ VPBLENDW,
-    /* 2F1 */ VPCLMULQDQ,
-    /* 2F2 */ VPCMPEQB,
-    /* 2F3 */ VPCMPEQD,
-    /* 2F4 */ VPCMPEQQ,
-    /* 2F5 */ VPCMPEQW,
-    /* 2F6 */ VPCMPESTRI,
-    /* 2F7 */ VPCMPESTRM,
-    /* 2F8 */ VPCMPGTB,
-    /* 2F9 */ VPCMPGTD,
-    /* 2FA */ VPCMPGTQ,
-    /* 2FB */ VPCMPGTW,
-    /* 2FC */ VPCMPISTRI,
-    /* 2FD */ VPCMPISTRM,
-    /* 2FE */ VPERM2F128,
-    /* 2FF */ VPERMILPD,
-    /* 300 */ VPERMILPS,
-    /* 301 */ VPEXTRB,
-    /* 302 */ VPEXTRD,
-    /* 303 */ VPEXTRQ,
-    /* 304 */ VPEXTRW,
-    /* 305 */ VPHADDD,
-    /* 306 */ VPHADDSW,
-    /* 307 */ VPHADDW,
-    /* 308 */ VPHMINPOSUW,
-    /* 309 */ VPHSUBD,
-    /* 30A */ VPHSUBSW,
-    /* 30B */ VPHSUBW,
-    /* 30C */ VPINSRB,
-    /* 30D */ VPINSRD,
-    /* 30E */ VPINSRQ,
-    /* 30F */ VPINSRW,
-    /* 310 */ VPMADDUBSW,
-    /* 311 */ VPMADDWD,
-    /* 312 */ VPMAXSB,
-    /* 313 */ VPMAXSD,
-    /* 314 */ VPMAXSW,
-    /* 315 */ VPMAXUB,
-    /* 316 */ VPMAXUD,
-    /* 317 */ VPMAXUW,
-    /* 318 */ VPMINSB,
-    /* 319 */ VPMINSD,
-    /* 31A */ VPMINSW,
-    /* 31B */ VPMINUB,
-    /* 31C */ VPMINUD,
-    /* 31D */ VPMINUW,
-    /* 31E */ VPMOVMSKB,
-    /* 31F */ VPMOVSXBD,
-    /* 320 */ VPMOVSXBQ,
-    /* 321 */ VPMOVSXBW,
-    /* 322 */ VPMOVSXWD,
-    /* 323 */ VPMOVSXWQ,
-    /* 324 */ VPMOVZXBD,
-    /* 325 */ VPMOVZXBQ,
-    /* 326 */ VPMOVZXBW,
-    /* 327 */ VPMOVZXDQ,
-    /* 328 */ VPMOVZXWD,
-    /* 329 */ VPMOVZXWQ,
-    /* 32A */ VPMULDQ,
-    /* 32B */ VPMULHRSW,
-    /* 32C */ VPMULHUW,
-    /* 32D */ VPMULHW,
-    /* 32E */ VPMULLD,
-    /* 32F */ VPMULLW,
-    /* 330 */ VPOR,
-    /* 331 */ VPSADBW,
-    /* 332 */ VPSHUFB,
-    /* 333 */ VPSHUFD,
-    /* 334 */ VPSHUFHW,
-    /* 335 */ VPSHUFLW,
-    /* 336 */ VPSIGNB,
-    /* 337 */ VPSIGND,
-    /* 338 */ VPSIGNW,
-    /* 339 */ VPSLLD,
-    /* 33A */ VPSLLDQ,
-    /* 33B */ VPSLLQ,
-    /* 33C */ VPSLLW,
-    /* 33D */ VPSRAD,
-    /* 33E */ VPSRAW,
-    /* 33F */ VPSRLD,
-    /* 340 */ VPSRLDQ,
-    /* 341 */ VPSRLQ,
-    /* 342 */ VPSRLW,
-    /* 343 */ VPSUBB,
-    /* 344 */ VPSUBD,
-    /* 345 */ VPSUBQ,
-    /* 346 */ VPSUBSB,
-    /* 347 */ VPSUBSW,
-    /* 348 */ VPSUBUSB,
-    /* 349 */ VPSUBUSW,
-    /* 34A */ VPSUBW,
-    /* 34B */ VPTEST,
-    /* 34C */ VPUNPCKHBW,
-    /* 34D */ VPUNPCKHDQ,
-    /* 34E */ VPUNPCKHQDQ,
-    /* 34F */ VPUNPCKHWD,
-    /* 350 */ VPUNPCKLBW,
-    /* 351 */ VPUNPCKLDQ,
-    /* 352 */ VPUNPCKLQDQ,
-    /* 353 */ VPUNPCKLWD,
-    /* 354 */ VPXOR,
-    /* 355 */ VRCPPS,
-    /* 356 */ VRCPSS,
-    /* 357 */ VROUNDPD,
-    /* 358 */ VROUNDPS,
-    /* 359 */ VROUNDSD,
-    /* 35A */ VROUNDSS,
-    /* 35B */ VRSQRTPS,
-    /* 35C */ VRSQRTSS,
-    /* 35D */ VSHUFPD,
-    /* 35E */ VSHUFPS,
-    /* 35F */ VSQRTPD,
-    /* 360 */ VSQRTPS,
-    /* 361 */ VSQRTSD,
-    /* 362 */ VSQRTSS,
-    /* 363 */ VSTMXCSR,
-    /* 364 */ VSUBPD,
-    /* 365 */ VSUBPS,
-    /* 366 */ VSUBSD,
-    /* 367 */ VSUBSS,
-    /* 368 */ VTESTPD,
-    /* 369 */ VTESTPS,
-    /* 36A */ VUCOMISD,
-    /* 36B */ VUCOMISS,
-    /* 36C */ VUNPCKHPD,
-    /* 36D */ VUNPCKHPS,
-    /* 36E */ VUNPCKLPD,
-    /* 36F */ VUNPCKLPS,
-    /* 370 */ VXORPD,
-    /* 371 */ VXORPS,
-    /* 372 */ VZEROALL,
-    /* 373 */ VZEROUPPER,
-    /* 374 */ WAIT,
-    /* 375 */ WBINVD,
-    /* 376 */ WRMSR,
-    /* 377 */ XADD,
-    /* 378 */ XCHG,
-    /* 379 */ XCRYPTCBC,
-    /* 37A */ XCRYPTCFB,
-    /* 37B */ XCRYPTCTR,
-    /* 37C */ XCRYPTECB,
-    /* 37D */ XCRYPTOFB,
-    /* 37E */ XGETBV,
-    /* 37F */ XLATB,
-    /* 380 */ XOR,
-    /* 381 */ XORPD,
-    /* 382 */ XORPS,
-    /* 383 */ XRSTOR,
-    /* 384 */ XSAVE,
-    /* 385 */ XSETBV,
-    /* 386 */ XSHA1,
-    /* 387 */ XSHA256,
-    /* 388 */ XSTORE,
-};
+    /* 000 */ MNEM_INVALID,
+    /* 001 */ MNEM_AAA,
+    /* 002 */ MNEM_AAD,
+    /* 003 */ MNEM_AAM,
+    /* 004 */ MNEM_AAS,
+    /* 005 */ MNEM_ADC,
+    /* 006 */ MNEM_ADD,
+    /* 007 */ MNEM_ADDPD,
+    /* 008 */ MNEM_ADDPS,
+    /* 009 */ MNEM_ADDSD,
+    /* 00A */ MNEM_ADDSS,
+    /* 00B */ MNEM_ADDSUBPD,
+    /* 00C */ MNEM_ADDSUBPS,
+    /* 00D */ MNEM_AESDEC,
+    /* 00E */ MNEM_AESDECLAST,
+    /* 00F */ MNEM_AESENC,
+    /* 010 */ MNEM_AESENCLAST,
+    /* 011 */ MNEM_AESIMC,
+    /* 012 */ MNEM_AESKEYGENASSIST,
+    /* 013 */ MNEM_AND,
+    /* 014 */ MNEM_ANDNPD,
+    /* 015 */ MNEM_ANDNPS,
+    /* 016 */ MNEM_ANDPD,
+    /* 017 */ MNEM_ANDPS,
+    /* 018 */ MNEM_ARPL,
+    /* 019 */ MNEM_BLENDPD,
+    /* 01A */ MNEM_BLENDPS,
+    /* 01B */ MNEM_BLENDVPD,
+    /* 01C */ MNEM_BLENDVPS,
+    /* 01D */ MNEM_BOUND,
+    /* 01E */ MNEM_BSF,
+    /* 01F */ MNEM_BSR,
+    /* 020 */ MNEM_BSWAP,
+    /* 021 */ MNEM_BT,
+    /* 022 */ MNEM_BTC,
+    /* 023 */ MNEM_BTR,
+    /* 024 */ MNEM_BTS,
+    /* 025 */ MNEM_CALL,
+    /* 026 */ MNEM_CBW,
+    /* 027 */ MNEM_CDQ,
+    /* 028 */ MNEM_CDQE,
+    /* 029 */ MNEM_CLC,
+    /* 02A */ MNEM_CLD,
+    /* 02B */ MNEM_CLFLUSH,
+    /* 02C */ MNEM_CLGI,
+    /* 02D */ MNEM_CLI,
+    /* 02E */ MNEM_CLTS,
+    /* 02F */ MNEM_CMC,
+    /* 030 */ MNEM_CMOVA,
+    /* 031 */ MNEM_CMOVAE,
+    /* 032 */ MNEM_CMOVB,
+    /* 033 */ MNEM_CMOVBE,
+    /* 034 */ MNEM_CMOVE,
+    /* 035 */ MNEM_CMOVG,
+    /* 036 */ MNEM_CMOVGE,
+    /* 037 */ MNEM_CMOVL,
+    /* 038 */ MNEM_CMOVLE,
+    /* 039 */ MNEM_CMOVNE,
+    /* 03A */ MNEM_CMOVNO,
+    /* 03B */ MNEM_CMOVNP,
+    /* 03C */ MNEM_CMOVNS,
+    /* 03D */ MNEM_CMOVO,
+    /* 03E */ MNEM_CMOVP,
+    /* 03F */ MNEM_CMOVS,
+    /* 040 */ MNEM_CMP,
+    /* 041 */ MNEM_CMPPD,
+    /* 042 */ MNEM_CMPPS,
+    /* 043 */ MNEM_CMPSB,
+    /* 044 */ MNEM_CMPSD,
+    /* 045 */ MNEM_CMPSQ,
+    /* 046 */ MNEM_CMPSS,
+    /* 047 */ MNEM_CMPSW,
+    /* 048 */ MNEM_CMPXCHG,
+    /* 049 */ MNEM_CMPXCHG16B,
+    /* 04A */ MNEM_CMPXCHG8B,
+    /* 04B */ MNEM_COMISD,
+    /* 04C */ MNEM_COMISS,
+    /* 04D */ MNEM_CPUID,
+    /* 04E */ MNEM_CQO,
+    /* 04F */ MNEM_CRC32,
+    /* 050 */ MNEM_CVTDQ2PD,
+    /* 051 */ MNEM_CVTDQ2PS,
+    /* 052 */ MNEM_CVTPD2DQ,
+    /* 053 */ MNEM_CVTPD2PI,
+    /* 054 */ MNEM_CVTPD2PS,
+    /* 055 */ MNEM_CVTPI2PD,
+    /* 056 */ MNEM_CVTPI2PS,
+    /* 057 */ MNEM_CVTPS2DQ,
+    /* 058 */ MNEM_CVTPS2PD,
+    /* 059 */ MNEM_CVTPS2PI,
+    /* 05A */ MNEM_CVTSD2SI,
+    /* 05B */ MNEM_CVTSD2SS,
+    /* 05C */ MNEM_CVTSI2SD,
+    /* 05D */ MNEM_CVTSI2SS,
+    /* 05E */ MNEM_CVTSS2SD,
+    /* 05F */ MNEM_CVTSS2SI,
+    /* 060 */ MNEM_CVTTPD2DQ,
+    /* 061 */ MNEM_CVTTPD2PI,
+    /* 062 */ MNEM_CVTTPS2DQ,
+    /* 063 */ MNEM_CVTTPS2PI,
+    /* 064 */ MNEM_CVTTSD2SI,
+    /* 065 */ MNEM_CVTTSS2SI,
+    /* 066 */ MNEM_CWD,
+    /* 067 */ MNEM_CWDE,
+    /* 068 */ MNEM_DAA,
+    /* 069 */ MNEM_DAS,
+    /* 06A */ MNEM_DEC,
+    /* 06B */ MNEM_DIV,
+    /* 06C */ MNEM_DIVPD,
+    /* 06D */ MNEM_DIVPS,
+    /* 06E */ MNEM_DIVSD,
+    /* 06F */ MNEM_DIVSS,
+    /* 070 */ MNEM_DPPD,
+    /* 071 */ MNEM_DPPS,
+    /* 072 */ MNEM_EMMS,
+    /* 073 */ MNEM_ENTER,
+    /* 074 */ MNEM_EXTRACTPS,
+    /* 075 */ MNEM_F2XM1,
+    /* 076 */ MNEM_FABS,
+    /* 077 */ MNEM_FADD,
+    /* 078 */ MNEM_FADDP,
+    /* 079 */ MNEM_FBLD,
+    /* 07A */ MNEM_FBSTP,
+    /* 07B */ MNEM_FCHS,
+    /* 07C */ MNEM_FCLEX,
+    /* 07D */ MNEM_FCMOVB,
+    /* 07E */ MNEM_FCMOVBE,
+    /* 07F */ MNEM_FCMOVE,
+    /* 080 */ MNEM_FCMOVNB,
+    /* 081 */ MNEM_FCMOVNBE,
+    /* 082 */ MNEM_FCMOVNE,
+    /* 083 */ MNEM_FCMOVNU,
+    /* 084 */ MNEM_FCMOVU,
+    /* 085 */ MNEM_FCOM,
+    /* 086 */ MNEM_FCOM2,
+    /* 087 */ MNEM_FCOMI,
+    /* 088 */ MNEM_FCOMIP,
+    /* 089 */ MNEM_FCOMP,
+    /* 08A */ MNEM_FCOMP3,
+    /* 08B */ MNEM_FCOMP5,
+    /* 08C */ MNEM_FCOMPP,
+    /* 08D */ MNEM_FCOS,
+    /* 08E */ MNEM_FDECSTP,
+    /* 08F */ MNEM_FDIV,
+    /* 090 */ MNEM_FDIVP,
+    /* 091 */ MNEM_FDIVR,
+    /* 092 */ MNEM_FDIVRP,
+    /* 093 */ MNEM_FEMMS,
+    /* 094 */ MNEM_FFREE,
+    /* 095 */ MNEM_FFREEP,
+    /* 096 */ MNEM_FIADD,
+    /* 097 */ MNEM_FICOM,
+    /* 098 */ MNEM_FICOMP,
+    /* 099 */ MNEM_FIDIV,
+    /* 09A */ MNEM_FIDIVR,
+    /* 09B */ MNEM_FILD,
+    /* 09C */ MNEM_FIMUL,
+    /* 09D */ MNEM_FINCSTP,
+    /* 09E */ MNEM_FIST,
+    /* 09F */ MNEM_FISTP,
+    /* 0A0 */ MNEM_FISTTP,
+    /* 0A1 */ MNEM_FISUB,
+    /* 0A2 */ MNEM_FISUBR,
+    /* 0A3 */ MNEM_FLD,
+    /* 0A4 */ MNEM_FLD1,
+    /* 0A5 */ MNEM_FLDCW,
+    /* 0A6 */ MNEM_FLDENV,
+    /* 0A7 */ MNEM_FLDL2E,
+    /* 0A8 */ MNEM_FLDL2T,
+    /* 0A9 */ MNEM_FLDLG2,
+    /* 0AA */ MNEM_FLDLN2,
+    /* 0AB */ MNEM_FLDPI,
+    /* 0AC */ MNEM_FLDZ,
+    /* 0AD */ MNEM_FMUL,
+    /* 0AE */ MNEM_FMULP,
+    /* 0AF */ MNEM_FNDISI,
+    /* 0B0 */ MNEM_FNENI,
+    /* 0B1 */ MNEM_FNINIT,
+    /* 0B2 */ MNEM_FNOP,
+    /* 0B3 */ MNEM_FNSAVE,
+    /* 0B4 */ MNEM_FNSETPM,
+    /* 0B5 */ MNEM_FNSTCW,
+    /* 0B6 */ MNEM_FNSTENV,
+    /* 0B7 */ MNEM_FNSTSW,
+    /* 0B8 */ MNEM_FPATAN,
+    /* 0B9 */ MNEM_FPREM,
+    /* 0BA */ MNEM_FPREM1,
+    /* 0BB */ MNEM_FPTAN,
+    /* 0BC */ MNEM_FRNDINT,
+    /* 0BD */ MNEM_FRSTOR,
+    /* 0BE */ MNEM_FRSTPM,
+    /* 0BF */ MNEM_FSCALE,
+    /* 0C0 */ MNEM_FSIN,
+    /* 0C1 */ MNEM_FSINCOS,
+    /* 0C2 */ MNEM_FSQRT,
+    /* 0C3 */ MNEM_FST,
+    /* 0C4 */ MNEM_FSTP,
+    /* 0C5 */ MNEM_FSTP1,
+    /* 0C6 */ MNEM_FSTP8,
+    /* 0C7 */ MNEM_FSTP9,
+    /* 0C8 */ MNEM_FSUB,
+    /* 0C9 */ MNEM_FSUBP,
+    /* 0CA */ MNEM_FSUBR,
+    /* 0CB */ MNEM_FSUBRP,
+    /* 0CC */ MNEM_FTST,
+    /* 0CD */ MNEM_FUCOM,
+    /* 0CE */ MNEM_FUCOMI,
+    /* 0CF */ MNEM_FUCOMIP,
+    /* 0D0 */ MNEM_FUCOMP,
+    /* 0D1 */ MNEM_FUCOMPP,
+    /* 0D2 */ MNEM_FXAM,
+    /* 0D3 */ MNEM_FXCH,
+    /* 0D4 */ MNEM_FXCH4,
+    /* 0D5 */ MNEM_FXCH7,
+    /* 0D6 */ MNEM_FXRSTOR,
+    /* 0D7 */ MNEM_FXSAVE,
+    /* 0D8 */ MNEM_FXTRACT,
+    /* 0D9 */ MNEM_FYL2X,
+    /* 0DA */ MNEM_FYL2XP1,
+    /* 0DB */ MNEM_GETSEC,
+    /* 0DC */ MNEM_HADDPD,
+    /* 0DD */ MNEM_HADDPS,
+    /* 0DE */ MNEM_HLT,
+    /* 0DF */ MNEM_HSUBPD,
+    /* 0E0 */ MNEM_HSUBPS,
+    /* 0E1 */ MNEM_IDIV,
+    /* 0E2 */ MNEM_IMUL,
+    /* 0E3 */ MNEM_IN,
+    /* 0E4 */ MNEM_INC,
+    /* 0E5 */ MNEM_INSB,
+    /* 0E6 */ MNEM_INSD,
+    /* 0E7 */ MNEM_INSERTPS,
+    /* 0E8 */ MNEM_INSW,
+    /* 0E9 */ MNEM_INT,
+    /* 0EA */ MNEM_INT1,
+    /* 0EB */ MNEM_INT3,
+    /* 0EC */ MNEM_INTO,
+    /* 0ED */ MNEM_INVD,
+    /* 0EE */ MNEM_INVEPT,
+    /* 0EF */ MNEM_INVLPG,
+    /* 0F0 */ MNEM_INVLPGA,
+    /* 0F1 */ MNEM_INVVPID,
+    /* 0F2 */ MNEM_IRETD,
+    /* 0F3 */ MNEM_IRETQ,
+    /* 0F4 */ MNEM_IRETW,
+    /* 0F5 */ MNEM_JA,
+    /* 0F6 */ MNEM_JB,
+    /* 0F7 */ MNEM_JBE,
+    /* 0F8 */ MNEM_JCXZ,
+    /* 0F9 */ MNEM_JE,
+    /* 0FA */ MNEM_JECXZ,
+    /* 0FB */ MNEM_JG,
+    /* 0FC */ MNEM_JGE,
+    /* 0FD */ MNEM_JL,
+    /* 0FE */ MNEM_JLE,
+    /* 0FF */ MNEM_JMP,
+    /* 100 */ MNEM_JNB,
+    /* 101 */ MNEM_JNE,
+    /* 102 */ MNEM_JNO,
+    /* 103 */ MNEM_JNP,
+    /* 104 */ MNEM_JNS,
+    /* 105 */ MNEM_JO,
+    /* 106 */ MNEM_JP,
+    /* 107 */ MNEM_JRCXZ,
+    /* 108 */ MNEM_JS,
+    /* 109 */ MNEM_LAHF,
+    /* 10A */ MNEM_LAR,
+    /* 10B */ MNEM_LDDQU,
+    /* 10C */ MNEM_LDMXCSR,
+    /* 10D */ MNEM_LDS,
+    /* 10E */ MNEM_LEA,
+    /* 10F */ MNEM_LEAVE,
+    /* 110 */ MNEM_LES,
+    /* 111 */ MNEM_LFENCE,
+    /* 112 */ MNEM_LFS,
+    /* 113 */ MNEM_LGDT,
+    /* 114 */ MNEM_LGS,
+    /* 115 */ MNEM_LIDT,
+    /* 116 */ MNEM_LLDT,
+    /* 117 */ MNEM_LMSW,
+    /* 118 */ MNEM_LOCK,
+    /* 119 */ MNEM_LODSB,
+    /* 11A */ MNEM_LODSD,
+    /* 11B */ MNEM_LODSQ,
+    /* 11C */ MNEM_LODSW,
+    /* 11D */ MNEM_LOOP,
+    /* 11E */ MNEM_LOOPE,
+    /* 11F */ MNEM_LOOPNE,
+    /* 120 */ MNEM_LSL,
+    /* 121 */ MNEM_LSS,
+    /* 122 */ MNEM_LTR,
+    /* 123 */ MNEM_MASKMOVDQU,
+    /* 124 */ MNEM_MASKMOVQ,
+    /* 125 */ MNEM_MAXPD,
+    /* 126 */ MNEM_MAXPS,
+    /* 127 */ MNEM_MAXSD,
+    /* 128 */ MNEM_MAXSS,
+    /* 129 */ MNEM_MFENCE,
+    /* 12A */ MNEM_MINPD,
+    /* 12B */ MNEM_MINPS,
+    /* 12C */ MNEM_MINSD,
+    /* 12D */ MNEM_MINSS,
+    /* 12E */ MNEM_MONITOR,
+    /* 12F */ MNEM_MONTMUL,
+    /* 130 */ MNEM_MOV,
+    /* 131 */ MNEM_MOVAPD,
+    /* 132 */ MNEM_MOVAPS,
+    /* 133 */ MNEM_MOVBE,
+    /* 134 */ MNEM_MOVD,
+    /* 135 */ MNEM_MOVDDUP,
+    /* 136 */ MNEM_MOVDQ2Q,
+    /* 137 */ MNEM_MOVDQA,
+    /* 138 */ MNEM_MOVDQU,
+    /* 139 */ MNEM_MOVHLPS,
+    /* 13A */ MNEM_MOVHPD,
+    /* 13B */ MNEM_MOVHPS,
+    /* 13C */ MNEM_MOVLHPS,
+    /* 13D */ MNEM_MOVLPD,
+    /* 13E */ MNEM_MOVLPS,
+    /* 13F */ MNEM_MOVMSKPD,
+    /* 140 */ MNEM_MOVMSKPS,
+    /* 141 */ MNEM_MOVNTDQ,
+    /* 142 */ MNEM_MOVNTDQA,
+    /* 143 */ MNEM_MOVNTI,
+    /* 144 */ MNEM_MOVNTPD,
+    /* 145 */ MNEM_MOVNTPS,
+    /* 146 */ MNEM_MOVNTQ,
+    /* 147 */ MNEM_MOVQ,
+    /* 148 */ MNEM_MOVQ2DQ,
+    /* 149 */ MNEM_MOVSB,
+    /* 14A */ MNEM_MOVSD,
+    /* 14B */ MNEM_MOVSHDUP,
+    /* 14C */ MNEM_MOVSLDUP,
+    /* 14D */ MNEM_MOVSQ,
+    /* 14E */ MNEM_MOVSS,
+    /* 14F */ MNEM_MOVSW,
+    /* 150 */ MNEM_MOVSX,
+    /* 151 */ MNEM_MOVSXD,
+    /* 152 */ MNEM_MOVUPD,
+    /* 153 */ MNEM_MOVUPS,
+    /* 154 */ MNEM_MOVZX,
+    /* 155 */ MNEM_MPSADBW,
+    /* 156 */ MNEM_MUL,
+    /* 157 */ MNEM_MULPD,
+    /* 158 */ MNEM_MULPS,
+    /* 159 */ MNEM_MULSD,
+    /* 15A */ MNEM_MULSS,
+    /* 15B */ MNEM_MWAIT,
+    /* 15C */ MNEM_NEG,
+    /* 15D */ MNEM_NOP,
+    /* 15E */ MNEM_NOT,
+    /* 15F */ MNEM_OR,
+    /* 160 */ MNEM_ORPD,
+    /* 161 */ MNEM_ORPS,
+    /* 162 */ MNEM_OUT,
+    /* 163 */ MNEM_OUTSB,
+    /* 164 */ MNEM_OUTSD,
+    /* 165 */ MNEM_OUTSW,
+    /* 166 */ MNEM_PABSB,
+    /* 167 */ MNEM_PABSD,
+    /* 168 */ MNEM_PABSW,
+    /* 169 */ MNEM_PACKSSDW,
+    /* 16A */ MNEM_PACKSSWB,
+    /* 16B */ MNEM_PACKUSDW,
+    /* 16C */ MNEM_PACKUSWB,
+    /* 16D */ MNEM_PADDB,
+    /* 16E */ MNEM_PADDD,
+    /* 16F */ MNEM_PADDQ,
+    /* 170 */ MNEM_PADDSB,
+    /* 171 */ MNEM_PADDSW,
+    /* 172 */ MNEM_PADDUSB,
+    /* 173 */ MNEM_PADDUSW,
+    /* 174 */ MNEM_PADDW,
+    /* 175 */ MNEM_PALIGNR,
+    /* 176 */ MNEM_PAND,
+    /* 177 */ MNEM_PANDN,
+    /* 178 */ MNEM_PAUSE,
+    /* 179 */ MNEM_PAVGB,
+    /* 17A */ MNEM_PAVGUSB,
+    /* 17B */ MNEM_PAVGW,
+    /* 17C */ MNEM_PBLENDVB,
+    /* 17D */ MNEM_PBLENDW,
+    /* 17E */ MNEM_PCLMULQDQ,
+    /* 17F */ MNEM_PCMPEQB,
+    /* 180 */ MNEM_PCMPEQD,
+    /* 181 */ MNEM_PCMPEQQ,
+    /* 182 */ MNEM_PCMPEQW,
+    /* 183 */ MNEM_PCMPESTRI,
+    /* 184 */ MNEM_PCMPESTRM,
+    /* 185 */ MNEM_PCMPGTB,
+    /* 186 */ MNEM_PCMPGTD,
+    /* 187 */ MNEM_PCMPGTQ,
+    /* 188 */ MNEM_PCMPGTW,
+    /* 189 */ MNEM_PCMPISTRI,
+    /* 18A */ MNEM_PCMPISTRM,
+    /* 18B */ MNEM_PEXTRB,
+    /* 18C */ MNEM_PEXTRD,
+    /* 18D */ MNEM_PEXTRQ,
+    /* 18E */ MNEM_PEXTRW,
+    /* 18F */ MNEM_PF2ID,
+    /* 190 */ MNEM_PF2IW,
+    /* 191 */ MNEM_PFACC,
+    /* 192 */ MNEM_PFADD,
+    /* 193 */ MNEM_PFCMPEQ,
+    /* 194 */ MNEM_PFCMPGE,
+    /* 195 */ MNEM_PFCMPGT,
+    /* 196 */ MNEM_PFMAX,
+    /* 197 */ MNEM_PFMIN,
+    /* 198 */ MNEM_PFMUL,
+    /* 199 */ MNEM_PFNACC,
+    /* 19A */ MNEM_PFPNACC,
+    /* 19B */ MNEM_PFRCP,
+    /* 19C */ MNEM_PFRCPIT1,
+    /* 19D */ MNEM_PFRCPIT2,
+    /* 19E */ MNEM_PFRSQIT1,
+    /* 19F */ MNEM_PFRSQRT,
+    /* 1A0 */ MNEM_PFSUB,
+    /* 1A1 */ MNEM_PFSUBR,
+    /* 1A2 */ MNEM_PHADDD,
+    /* 1A3 */ MNEM_PHADDSW,
+    /* 1A4 */ MNEM_PHADDW,
+    /* 1A5 */ MNEM_PHMINPOSUW,
+    /* 1A6 */ MNEM_PHSUBD,
+    /* 1A7 */ MNEM_PHSUBSW,
+    /* 1A8 */ MNEM_PHSUBW,
+    /* 1A9 */ MNEM_PI2FD,
+    /* 1AA */ MNEM_PI2FW,
+    /* 1AB */ MNEM_PINSRB,
+    /* 1AC */ MNEM_PINSRD,
+    /* 1AD */ MNEM_PINSRQ,
+    /* 1AE */ MNEM_PINSRW,
+    /* 1AF */ MNEM_PMADDUBSW,
+    /* 1B0 */ MNEM_PMADDWD,
+    /* 1B1 */ MNEM_PMAXSB,
+    /* 1B2 */ MNEM_PMAXSD,
+    /* 1B3 */ MNEM_PMAXSW,
+    /* 1B4 */ MNEM_PMAXUB,
+    /* 1B5 */ MNEM_PMAXUD,
+    /* 1B6 */ MNEM_PMAXUW,
+    /* 1B7 */ MNEM_PMINSB,
+    /* 1B8 */ MNEM_PMINSD,
+    /* 1B9 */ MNEM_PMINSW,
+    /* 1BA */ MNEM_PMINUB,
+    /* 1BB */ MNEM_PMINUD,
+    /* 1BC */ MNEM_PMINUW,
+    /* 1BD */ MNEM_PMOVMSKB,
+    /* 1BE */ MNEM_PMOVSXBD,
+    /* 1BF */ MNEM_PMOVSXBQ,
+    /* 1C0 */ MNEM_PMOVSXBW,
+    /* 1C1 */ MNEM_PMOVSXDQ,
+    /* 1C2 */ MNEM_PMOVSXWD,
+    /* 1C3 */ MNEM_PMOVSXWQ,
+    /* 1C4 */ MNEM_PMOVZXBD,
+    /* 1C5 */ MNEM_PMOVZXBQ,
+    /* 1C6 */ MNEM_PMOVZXBW,
+    /* 1C7 */ MNEM_PMOVZXDQ,
+    /* 1C8 */ MNEM_PMOVZXWD,
+    /* 1C9 */ MNEM_PMOVZXWQ,
+    /* 1CA */ MNEM_PMULDQ,
+    /* 1CB */ MNEM_PMULHRSW,
+    /* 1CC */ MNEM_PMULHRW,
+    /* 1CD */ MNEM_PMULHUW,
+    /* 1CE */ MNEM_PMULHW,
+    /* 1CF */ MNEM_PMULLD,
+    /* 1D0 */ MNEM_PMULLW,
+    /* 1D1 */ MNEM_PMULUDQ,
+    /* 1D2 */ MNEM_POP,
+    /* 1D3 */ MNEM_POPA,
+    /* 1D4 */ MNEM_POPAD,
+    /* 1D5 */ MNEM_POPCNT,
+    /* 1D6 */ MNEM_POPFD,
+    /* 1D7 */ MNEM_POPFQ,
+    /* 1D8 */ MNEM_POPFW,
+    /* 1D9 */ MNEM_POR,
+    /* 1DA */ MNEM_PREFETCH,
+    /* 1DB */ MNEM_PREFETCHNTA,
+    /* 1DC */ MNEM_PREFETCHT0,
+    /* 1DD */ MNEM_PREFETCHT1,
+    /* 1DE */ MNEM_PREFETCHT2,
+    /* 1DF */ MNEM_PSADBW,
+    /* 1E0 */ MNEM_PSHUFB,
+    /* 1E1 */ MNEM_PSHUFD,
+    /* 1E2 */ MNEM_PSHUFHW,
+    /* 1E3 */ MNEM_PSHUFLW,
+    /* 1E4 */ MNEM_PSHUFW,
+    /* 1E5 */ MNEM_PSIGNB,
+    /* 1E6 */ MNEM_PSIGND,
+    /* 1E7 */ MNEM_PSIGNW,
+    /* 1E8 */ MNEM_PSLLD,
+    /* 1E9 */ MNEM_PSLLDQ,
+    /* 1EA */ MNEM_PSLLQ,
+    /* 1EB */ MNEM_PSLLW,
+    /* 1EC */ MNEM_PSRAD,
+    /* 1ED */ MNEM_PSRAW,
+    /* 1EE */ MNEM_PSRLD,
+    /* 1EF */ MNEM_PSRLDQ,
+    /* 1F0 */ MNEM_PSRLQ,
+    /* 1F1 */ MNEM_PSRLW,
+    /* 1F2 */ MNEM_PSUBB,
+    /* 1F3 */ MNEM_PSUBD,
+    /* 1F4 */ MNEM_PSUBQ,
+    /* 1F5 */ MNEM_PSUBSB,
+    /* 1F6 */ MNEM_PSUBSW,
+    /* 1F7 */ MNEM_PSUBUSB,
+    /* 1F8 */ MNEM_PSUBUSW,
+    /* 1F9 */ MNEM_PSUBW,
+    /* 1FA */ MNEM_PSWAPD,
+    /* 1FB */ MNEM_PTEST,
+    /* 1FC */ MNEM_PUNPCKHBW,
+    /* 1FD */ MNEM_PUNPCKHDQ,
+    /* 1FE */ MNEM_PUNPCKHQDQ,
+    /* 1FF */ MNEM_PUNPCKHWD,
+    /* 200 */ MNEM_PUNPCKLBW,
+    /* 201 */ MNEM_PUNPCKLDQ,
+    /* 202 */ MNEM_PUNPCKLQDQ,
+    /* 203 */ MNEM_PUNPCKLWD,
+    /* 204 */ MNEM_PUSH,
+    /* 205 */ MNEM_PUSHA,
+    /* 206 */ MNEM_PUSHAD,
+    /* 207 */ MNEM_PUSHFD,
+    /* 208 */ MNEM_PUSHFQ,
+    /* 209 */ MNEM_PUSHFW,
+    /* 20A */ MNEM_PXOR,
+    /* 20B */ MNEM_RCL,
+    /* 20C */ MNEM_RCPPS,
+    /* 20D */ MNEM_RCPSS,
+    /* 20E */ MNEM_RCR,
+    /* 20F */ MNEM_RDMSR,
+    /* 210 */ MNEM_RDPMC,
+    /* 211 */ MNEM_RDRAND,
+    /* 212 */ MNEM_RDTSC,
+    /* 213 */ MNEM_RDTSCP,
+    /* 214 */ MNEM_REP,
+    /* 215 */ MNEM_REPNE,
+    /* 216 */ MNEM_RET,
+    /* 217 */ MNEM_RETF,
+    /* 218 */ MNEM_ROL,
+    /* 219 */ MNEM_ROR,
+    /* 21A */ MNEM_ROUNDPD,
+    /* 21B */ MNEM_ROUNDPS,
+    /* 21C */ MNEM_ROUNDSD,
+    /* 21D */ MNEM_ROUNDSS,
+    /* 21E */ MNEM_RSM,
+    /* 21F */ MNEM_RSQRTPS,
+    /* 220 */ MNEM_RSQRTSS,
+    /* 221 */ MNEM_SAHF,
+    /* 222 */ MNEM_SALC,
+    /* 223 */ MNEM_SAR,
+    /* 224 */ MNEM_SBB,
+    /* 225 */ MNEM_SCASB,
+    /* 226 */ MNEM_SCASD,
+    /* 227 */ MNEM_SCASQ,
+    /* 228 */ MNEM_SCASW,
+    /* 229 */ MNEM_SETA,
+    /* 22A */ MNEM_SETAE,
+    /* 22B */ MNEM_SETB,
+    /* 22C */ MNEM_SETBE,
+    /* 22D */ MNEM_SETE,
+    /* 22E */ MNEM_SETG,
+    /* 22F */ MNEM_SETGE,
+    /* 230 */ MNEM_SETL,
+    /* 231 */ MNEM_SETLE,
+    /* 232 */ MNEM_SETNE,
+    /* 233 */ MNEM_SETNO,
+    /* 234 */ MNEM_SETNP,
+    /* 235 */ MNEM_SETNS,
+    /* 236 */ MNEM_SETO,
+    /* 237 */ MNEM_SETP,
+    /* 238 */ MNEM_SETS,
+    /* 239 */ MNEM_SFENCE,
+    /* 23A */ MNEM_SGDT,
+    /* 23B */ MNEM_SHL,
+    /* 23C */ MNEM_SHLD,
+    /* 23D */ MNEM_SHR,
+    /* 23E */ MNEM_SHRD,
+    /* 23F */ MNEM_SHUFPD,
+    /* 240 */ MNEM_SHUFPS,
+    /* 241 */ MNEM_SIDT,
+    /* 242 */ MNEM_SKINIT,
+    /* 243 */ MNEM_SLDT,
+    /* 244 */ MNEM_SMSW,
+    /* 245 */ MNEM_SQRTPD,
+    /* 246 */ MNEM_SQRTPS,
+    /* 247 */ MNEM_SQRTSD,
+    /* 248 */ MNEM_SQRTSS,
+    /* 249 */ MNEM_STC,
+    /* 24A */ MNEM_STD,
+    /* 24B */ MNEM_STGI,
+    /* 24C */ MNEM_STI,
+    /* 24D */ MNEM_STMXCSR,
+    /* 24E */ MNEM_STOSB,
+    /* 24F */ MNEM_STOSD,
+    /* 250 */ MNEM_STOSQ,
+    /* 251 */ MNEM_STOSW,
+    /* 252 */ MNEM_STR,
+    /* 253 */ MNEM_SUB,
+    /* 254 */ MNEM_SUBPD,
+    /* 255 */ MNEM_SUBPS,
+    /* 256 */ MNEM_SUBSD,
+    /* 257 */ MNEM_SUBSS,
+    /* 258 */ MNEM_SWAPGS,
+    /* 259 */ MNEM_SYSCALL,
+    /* 25A */ MNEM_SYSENTER,
+    /* 25B */ MNEM_SYSEXIT,
+    /* 25C */ MNEM_SYSRET,
+    /* 25D */ MNEM_TEST,
+    /* 25E */ MNEM_UCOMISD,
+    /* 25F */ MNEM_UCOMISS,
+    /* 260 */ MNEM_UD2,
+    /* 261 */ MNEM_UNPCKHPD,
+    /* 262 */ MNEM_UNPCKHPS,
+    /* 263 */ MNEM_UNPCKLPD,
+    /* 264 */ MNEM_UNPCKLPS,
+    /* 265 */ MNEM_VADDPD,
+    /* 266 */ MNEM_VADDPS,
+    /* 267 */ MNEM_VADDSD,
+    /* 268 */ MNEM_VADDSS,
+    /* 269 */ MNEM_VADDSUBPD,
+    /* 26A */ MNEM_VADDSUBPS,
+    /* 26B */ MNEM_VAESDEC,
+    /* 26C */ MNEM_VAESDECLAST,
+    /* 26D */ MNEM_VAESENC,
+    /* 26E */ MNEM_VAESENCLAST,
+    /* 26F */ MNEM_VAESIMC,
+    /* 270 */ MNEM_VAESKEYGENASSIST,
+    /* 271 */ MNEM_VANDNPD,
+    /* 272 */ MNEM_VANDNPS,
+    /* 273 */ MNEM_VANDPD,
+    /* 274 */ MNEM_VANDPS,
+    /* 275 */ MNEM_VBLENDPD,
+    /* 276 */ MNEM_VBLENDPS,
+    /* 277 */ MNEM_VBLENDVPD,
+    /* 278 */ MNEM_VBLENDVPS,
+    /* 279 */ MNEM_VBROADCASTSD,
+    /* 27A */ MNEM_VBROADCASTSS,
+    /* 27B */ MNEM_VCMPPD,
+    /* 27C */ MNEM_VCMPPS,
+    /* 27D */ MNEM_VCMPSD,
+    /* 27E */ MNEM_VCMPSS,
+    /* 27F */ MNEM_VCOMISD,
+    /* 280 */ MNEM_VCOMISS,
+    /* 281 */ MNEM_VCVTDQ2PD,
+    /* 282 */ MNEM_VCVTDQ2PS,
+    /* 283 */ MNEM_VCVTPD2DQ,
+    /* 284 */ MNEM_VCVTPD2PS,
+    /* 285 */ MNEM_VCVTPS2DQ,
+    /* 286 */ MNEM_VCVTPS2PD,
+    /* 287 */ MNEM_VCVTSD2SI,
+    /* 288 */ MNEM_VCVTSD2SS,
+    /* 289 */ MNEM_VCVTSI2SD,
+    /* 28A */ MNEM_VCVTSI2SS,
+    /* 28B */ MNEM_VCVTSS2SD,
+    /* 28C */ MNEM_VCVTSS2SI,
+    /* 28D */ MNEM_VCVTTPD2DQ,
+    /* 28E */ MNEM_VCVTTPS2DQ,
+    /* 28F */ MNEM_VCVTTSD2SI,
+    /* 290 */ MNEM_VCVTTSS2SI,
+    /* 291 */ MNEM_VDIVPD,
+    /* 292 */ MNEM_VDIVPS,
+    /* 293 */ MNEM_VDIVSD,
+    /* 294 */ MNEM_VDIVSS,
+    /* 295 */ MNEM_VDPPD,
+    /* 296 */ MNEM_VDPPS,
+    /* 297 */ MNEM_VERR,
+    /* 298 */ MNEM_VERW,
+    /* 299 */ MNEM_VEXTRACTF128,
+    /* 29A */ MNEM_VEXTRACTPS,
+    /* 29B */ MNEM_VHADDPD,
+    /* 29C */ MNEM_VHADDPS,
+    /* 29D */ MNEM_VHSUBPD,
+    /* 29E */ MNEM_VHSUBPS,
+    /* 29F */ MNEM_VINSERTF128,
+    /* 2A0 */ MNEM_VINSERTPS,
+    /* 2A1 */ MNEM_VLDDQU,
+    /* 2A2 */ MNEM_VMASKMOVDQU,
+    /* 2A3 */ MNEM_VMASKMOVPD,
+    /* 2A4 */ MNEM_VMASKMOVPS,
+    /* 2A5 */ MNEM_VMAXPD,
+    /* 2A6 */ MNEM_VMAXPS,
+    /* 2A7 */ MNEM_VMAXSD,
+    /* 2A8 */ MNEM_VMAXSS,
+    /* 2A9 */ MNEM_VMCALL,
+    /* 2AA */ MNEM_VMCLEAR,
+    /* 2AB */ MNEM_VMINPD,
+    /* 2AC */ MNEM_VMINPS,
+    /* 2AD */ MNEM_VMINSD,
+    /* 2AE */ MNEM_VMINSS,
+    /* 2AF */ MNEM_VMLAUNCH,
+    /* 2B0 */ MNEM_VMLOAD,
+    /* 2B1 */ MNEM_VMMCALL,
+    /* 2B2 */ MNEM_VMOVAPD,
+    /* 2B3 */ MNEM_VMOVAPS,
+    /* 2B4 */ MNEM_VMOVD,
+    /* 2B5 */ MNEM_VMOVDDUP,
+    /* 2B6 */ MNEM_VMOVDQA,
+    /* 2B7 */ MNEM_VMOVDQU,
+    /* 2B8 */ MNEM_VMOVHLPS,
+    /* 2B9 */ MNEM_VMOVHPD,
+    /* 2BA */ MNEM_VMOVHPS,
+    /* 2BB */ MNEM_VMOVLHPS,
+    /* 2BC */ MNEM_VMOVLPD,
+    /* 2BD */ MNEM_VMOVLPS,
+    /* 2BE */ MNEM_VMOVMSKPD,
+    /* 2BF */ MNEM_VMOVMSKPS,
+    /* 2C0 */ MNEM_VMOVNTDQ,
+    /* 2C1 */ MNEM_VMOVNTDQA,
+    /* 2C2 */ MNEM_VMOVNTPD,
+    /* 2C3 */ MNEM_VMOVNTPS,
+    /* 2C4 */ MNEM_VMOVQ,
+    /* 2C5 */ MNEM_VMOVSD,
+    /* 2C6 */ MNEM_VMOVSHDUP,
+    /* 2C7 */ MNEM_VMOVSLDUP,
+    /* 2C8 */ MNEM_VMOVSS,
+    /* 2C9 */ MNEM_VMOVUPD,
+    /* 2CA */ MNEM_VMOVUPS,
+    /* 2CB */ MNEM_VMPSADBW,
+    /* 2CC */ MNEM_VMPTRLD,
+    /* 2CD */ MNEM_VMPTRST,
+    /* 2CE */ MNEM_VMREAD,
+    /* 2CF */ MNEM_VMRESUME,
+    /* 2D0 */ MNEM_VMRUN,
+    /* 2D1 */ MNEM_VMSAVE,
+    /* 2D2 */ MNEM_VMULPD,
+    /* 2D3 */ MNEM_VMULPS,
+    /* 2D4 */ MNEM_VMULSD,
+    /* 2D5 */ MNEM_VMULSS,
+    /* 2D6 */ MNEM_VMWRITE,
+    /* 2D7 */ MNEM_VMXOFF,
+    /* 2D8 */ MNEM_VMXON,
+    /* 2D9 */ MNEM_VORPD,
+    /* 2DA */ MNEM_VORPS,
+    /* 2DB */ MNEM_VPABSB,
+    /* 2DC */ MNEM_VPABSD,
+    /* 2DD */ MNEM_VPABSW,
+    /* 2DE */ MNEM_VPACKSSDW,
+    /* 2DF */ MNEM_VPACKSSWB,
+    /* 2E0 */ MNEM_VPACKUSDW,
+    /* 2E1 */ MNEM_VPACKUSWB,
+    /* 2E2 */ MNEM_VPADDB,
+    /* 2E3 */ MNEM_VPADDD,
+    /* 2E4 */ MNEM_VPADDQ,
+    /* 2E5 */ MNEM_VPADDSB,
+    /* 2E6 */ MNEM_VPADDSW,
+    /* 2E7 */ MNEM_VPADDUSB,
+    /* 2E8 */ MNEM_VPADDUSW,
+    /* 2E9 */ MNEM_VPADDW,
+    /* 2EA */ MNEM_VPALIGNR,
+    /* 2EB */ MNEM_VPAND,
+    /* 2EC */ MNEM_VPANDN,
+    /* 2ED */ MNEM_VPAVGB,
+    /* 2EE */ MNEM_VPAVGW,
+    /* 2EF */ MNEM_VPBLENDVB,
+    /* 2F0 */ MNEM_VPBLENDW,
+    /* 2F1 */ MNEM_VPCLMULQDQ,
+    /* 2F2 */ MNEM_VPCMPEQB,
+    /* 2F3 */ MNEM_VPCMPEQD,
+    /* 2F4 */ MNEM_VPCMPEQQ,
+    /* 2F5 */ MNEM_VPCMPEQW,
+    /* 2F6 */ MNEM_VPCMPESTRI,
+    /* 2F7 */ MNEM_VPCMPESTRM,
+    /* 2F8 */ MNEM_VPCMPGTB,
+    /* 2F9 */ MNEM_VPCMPGTD,
+    /* 2FA */ MNEM_VPCMPGTQ,
+    /* 2FB */ MNEM_VPCMPGTW,
+    /* 2FC */ MNEM_VPCMPISTRI,
+    /* 2FD */ MNEM_VPCMPISTRM,
+    /* 2FE */ MNEM_VPERM2F128,
+    /* 2FF */ MNEM_VPERMILPD,
+    /* 300 */ MNEM_VPERMILPS,
+    /* 301 */ MNEM_VPEXTRB,
+    /* 302 */ MNEM_VPEXTRD,
+    /* 303 */ MNEM_VPEXTRQ,
+    /* 304 */ MNEM_VPEXTRW,
+    /* 305 */ MNEM_VPHADDD,
+    /* 306 */ MNEM_VPHADDSW,
+    /* 307 */ MNEM_VPHADDW,
+    /* 308 */ MNEM_VPHMINPOSUW,
+    /* 309 */ MNEM_VPHSUBD,
+    /* 30A */ MNEM_VPHSUBSW,
+    /* 30B */ MNEM_VPHSUBW,
+    /* 30C */ MNEM_VPINSRB,
+    /* 30D */ MNEM_VPINSRD,
+    /* 30E */ MNEM_VPINSRQ,
+    /* 30F */ MNEM_VPINSRW,
+    /* 310 */ MNEM_VPMADDUBSW,
+    /* 311 */ MNEM_VPMADDWD,
+    /* 312 */ MNEM_VPMAXSB,
+    /* 313 */ MNEM_VPMAXSD,
+    /* 314 */ MNEM_VPMAXSW,
+    /* 315 */ MNEM_VPMAXUB,
+    /* 316 */ MNEM_VPMAXUD,
+    /* 317 */ MNEM_VPMAXUW,
+    /* 318 */ MNEM_VPMINSB,
+    /* 319 */ MNEM_VPMINSD,
+    /* 31A */ MNEM_VPMINSW,
+    /* 31B */ MNEM_VPMINUB,
+    /* 31C */ MNEM_VPMINUD,
+    /* 31D */ MNEM_VPMINUW,
+    /* 31E */ MNEM_VPMOVMSKB,
+    /* 31F */ MNEM_VPMOVSXBD,
+    /* 320 */ MNEM_VPMOVSXBQ,
+    /* 321 */ MNEM_VPMOVSXBW,
+    /* 322 */ MNEM_VPMOVSXWD,
+    /* 323 */ MNEM_VPMOVSXWQ,
+    /* 324 */ MNEM_VPMOVZXBD,
+    /* 325 */ MNEM_VPMOVZXBQ,
+    /* 326 */ MNEM_VPMOVZXBW,
+    /* 327 */ MNEM_VPMOVZXDQ,
+    /* 328 */ MNEM_VPMOVZXWD,
+    /* 329 */ MNEM_VPMOVZXWQ,
+    /* 32A */ MNEM_VPMULDQ,
+    /* 32B */ MNEM_VPMULHRSW,
+    /* 32C */ MNEM_VPMULHUW,
+    /* 32D */ MNEM_VPMULHW,
+    /* 32E */ MNEM_VPMULLD,
+    /* 32F */ MNEM_VPMULLW,
+    /* 330 */ MNEM_VPOR,
+    /* 331 */ MNEM_VPSADBW,
+    /* 332 */ MNEM_VPSHUFB,
+    /* 333 */ MNEM_VPSHUFD,
+    /* 334 */ MNEM_VPSHUFHW,
+    /* 335 */ MNEM_VPSHUFLW,
+    /* 336 */ MNEM_VPSIGNB,
+    /* 337 */ MNEM_VPSIGND,
+    /* 338 */ MNEM_VPSIGNW,
+    /* 339 */ MNEM_VPSLLD,
+    /* 33A */ MNEM_VPSLLDQ,
+    /* 33B */ MNEM_VPSLLQ,
+    /* 33C */ MNEM_VPSLLW,
+    /* 33D */ MNEM_VPSRAD,
+    /* 33E */ MNEM_VPSRAW,
+    /* 33F */ MNEM_VPSRLD,
+    /* 340 */ MNEM_VPSRLDQ,
+    /* 341 */ MNEM_VPSRLQ,
+    /* 342 */ MNEM_VPSRLW,
+    /* 343 */ MNEM_VPSUBB,
+    /* 344 */ MNEM_VPSUBD,
+    /* 345 */ MNEM_VPSUBQ,
+    /* 346 */ MNEM_VPSUBSB,
+    /* 347 */ MNEM_VPSUBSW,
+    /* 348 */ MNEM_VPSUBUSB,
+    /* 349 */ MNEM_VPSUBUSW,
+    /* 34A */ MNEM_VPSUBW,
+    /* 34B */ MNEM_VPTEST,
+    /* 34C */ MNEM_VPUNPCKHBW,
+    /* 34D */ MNEM_VPUNPCKHDQ,
+    /* 34E */ MNEM_VPUNPCKHQDQ,
+    /* 34F */ MNEM_VPUNPCKHWD,
+    /* 350 */ MNEM_VPUNPCKLBW,
+    /* 351 */ MNEM_VPUNPCKLDQ,
+    /* 352 */ MNEM_VPUNPCKLQDQ,
+    /* 353 */ MNEM_VPUNPCKLWD,
+    /* 354 */ MNEM_VPXOR,
+    /* 355 */ MNEM_VRCPPS,
+    /* 356 */ MNEM_VRCPSS,
+    /* 357 */ MNEM_VROUNDPD,
+    /* 358 */ MNEM_VROUNDPS,
+    /* 359 */ MNEM_VROUNDSD,
+    /* 35A */ MNEM_VROUNDSS,
+    /* 35B */ MNEM_VRSQRTPS,
+    /* 35C */ MNEM_VRSQRTSS,
+    /* 35D */ MNEM_VSHUFPD,
+    /* 35E */ MNEM_VSHUFPS,
+    /* 35F */ MNEM_VSQRTPD,
+    /* 360 */ MNEM_VSQRTPS,
+    /* 361 */ MNEM_VSQRTSD,
+    /* 362 */ MNEM_VSQRTSS,
+    /* 363 */ MNEM_VSTMXCSR,
+    /* 364 */ MNEM_VSUBPD,
+    /* 365 */ MNEM_VSUBPS,
+    /* 366 */ MNEM_VSUBSD,
+    /* 367 */ MNEM_VSUBSS,
+    /* 368 */ MNEM_VTESTPD,
+    /* 369 */ MNEM_VTESTPS,
+    /* 36A */ MNEM_VUCOMISD,
+    /* 36B */ MNEM_VUCOMISS,
+    /* 36C */ MNEM_VUNPCKHPD,
+    /* 36D */ MNEM_VUNPCKHPS,
+    /* 36E */ MNEM_VUNPCKLPD,
+    /* 36F */ MNEM_VUNPCKLPS,
+    /* 370 */ MNEM_VXORPD,
+    /* 371 */ MNEM_VXORPS,
+    /* 372 */ MNEM_VZEROALL,
+    /* 373 */ MNEM_VZEROUPPER,
+    /* 374 */ MNEM_WAIT,
+    /* 375 */ MNEM_WBINVD,
+    /* 376 */ MNEM_WRMSR,
+    /* 377 */ MNEM_XADD,
+    /* 378 */ MNEM_XCHG,
+    /* 379 */ MNEM_XCRYPTCBC,
+    /* 37A */ MNEM_XCRYPTCFB,
+    /* 37B */ MNEM_XCRYPTCTR,
+    /* 37C */ MNEM_XCRYPTECB,
+    /* 37D */ MNEM_XCRYPTOFB,
+    /* 37E */ MNEM_XGETBV,
+    /* 37F */ MNEM_XLATB,
+    /* 380 */ MNEM_XOR,
+    /* 381 */ MNEM_XORPD,
+    /* 382 */ MNEM_XORPS,
+    /* 383 */ MNEM_XRSTOR,
+    /* 384 */ MNEM_XSAVE,
+    /* 385 */ MNEM_XSETBV,
+    /* 386 */ MNEM_XSHA1,
+    /* 387 */ MNEM_XSHA256,
+    /* 388 */ MNEM_XSTORE,
+
+    MNEM_FORCE_WORD = 0x7FFF
+} VXInstructionMnemonic;
 
 /**
  * @brief   Defines an alias representing an opcode tree node. An opcode tree node is a 16 bit
@@ -958,435 +964,435 @@ typedef uint16_t VXOpcodeTreeNode;
 /**
  * @brief   Values that represent the type of an opcode tree node.
  */
-enum class VXOpcodeTreeNodeType : uint8_t
+typedef enum _VXOpcodeTreeNodeType /* : uint8_t */
 {
     /**
      * @brief   Reference to a concrete instruction definition.
      */
-    INSTRUCTION_DEFINITION  =  0,
+    OTNT_INSTRUCTION_DEFINITION  =  0,
     /**
      * @brief   Reference to an opcode table.
      */
-    TABLE                   =  1,
+    OTNT_TABLE                   =  1,
     /**
      * @brief   Reference to a modrm_mod switch table.
      */
-    MODRM_MOD               =  2,
+    OTNT_MODRM_MOD               =  2,
     /**
      * @brief   Reference to a modrm_reg switch table.
      */                                                                                      
-    MODRM_REG               =  3,
+    OTNT_MODRM_REG               =  3,
     /**
      * @brief   Reference to a modrm_rm switch table.
      */
-    MODRM_RM                =  4,
+    OTNT_MODRM_RM                =  4,
     /**
      * @brief   Reference to a mandatory-prefix switch table.
      */
-    MANDATORY               =  5,
+    OTNT_MANDATORY               =  5,
     /**
      * @brief   Reference to a x87 opcode table.
      */
-    X87                     =  6,
+    OTNT_X87                     =  6,
     /**
      * @brief   Reference to an address-size switch table.
      */
-    ADDRESS_SIZE            =  7,
+    OTNT_ADDRESS_SIZE            =  7,
     /**
      * @brief   Reference to an operand-size switch table.
      */
-    OPERAND_SIZE            =  8,
+    OTNT_OPERAND_SIZE            =  8,
     /**
      * @brief   Reference to a cpu-mode switch table.
      */
-    MODE                    =  9,
+    OTNT_MODE                    =  9,
     /**
      * @brief   Reference to a vendor switch table.
      */
-    VENDOR                  = 10,
+    OTNT_VENDOR                  = 10,
     /**
      * @brief   Reference to a 3dnow! opcode table.
      */
-    AMD3DNOW                = 11,
+    OTNT_AMD3DNOW                = 11,
     /**
      * @brief   Reference to a vex-prefix switch table.
      */
-    VEX                     = 12,
+    OTNT_VEX                     = 12,
     /**
      * @brief   Reference to a vex_w switch table.
      */
-    VEXW                    = 13,
+    OTNT_VEXW                    = 13,
     /**
      * @brief   Reference to a vex_l switch table.
      */
-    VEXL                    = 14
-};
+    OTNT_VEXL                    = 14
+} VXOpcodeTreeNodeType;
 
 /**
  * @brief   Values that represent the type of an operand in the instruction definition.
  */
-enum class VXDefinedOperandType : uint8_t
+typedef enum _VXDefinedOperandType /* : uint8_t */
 {
     /*
      * @brief   No operand. 
      */
-    NONE,
+    DOT_NONE,
     /*
      * @brief   Direct address. The instruction has no ModR/M byte; the address of the operand is 
      *          encoded in the instruction; no base register, index register, or scaling factor 
      *          can be applied. 
      */
-    A,  
+    DOT_A,  
     /*
      * @brief   The reg field of the ModR/M byte selects a control register.
      */
-    C,
+    DOT_C,
     /*
      * @brief   The reg field of the ModR/M byte selects a debug register.
      */
-    D,
+    DOT_D,
     /*
      * @brief   A ModR/M byte follows the opcode and specifies the operand. The operand is either 
      *          a general-purpose register or a memory address. If it is a memory address, the 
      *          address is computed from a segment register and any of the following values: 
      *          a base register, an index register, a scaling factor, or a displacement.
      */
-    E,  
+    DOT_E,  
     /*
      * @brief   rFLAGS register.
      */
-    F,  
+    DOT_F,  
     /*
      * @brief   The reg field of the ModR/M byte selects a general register. 
      */
-    G,
+    DOT_G,
     /*
      * @brief   The r/m field of the ModR/M byte always selects a general register, regardless of 
      *          the mod field.
      */
-    H,
+    DOT_H,
     /*
      * @brief   Immediate data. The operand value is encoded in subsequent bytes of the 
      *          instruction. 
      */
-    I,
+    DOT_I,
     /*
      * @brief   Signed immediate data. The operand value is encoded in subsequent bytes of the 
      *          instruction. 
      */
-    sI,
+    DOT_sI,
     /*
      * @brief   Constant immediate data value of 1. 
      */
-    I1,
+    DOT_I1,
     /*
      * @brief   The instruction contains a relative offset to be added to the instruction pointer 
      *          register.
      */
-    J,
+    DOT_J,
     /*
      * @brief   Source operand is encoded in immediate byte (VEX only). 
      */
-    L,
+    DOT_L,
     /*
      * @brief   The ModR/M byte may refer only to memory: mod != 11bin. 
      */
-    M, 
+    DOT_M, 
     /*
      * @brief   Combination of M and R.  
      */
-    MR,
+    DOT_MR,
     /*
      * @brief   Combination of M and U. 
      */
-    MU,
+    DOT_MU,
     /*
      * @brief   The R/M field of the ModR/M byte selects a packed quadword MMX technology register.
      */
-    N, 
+    DOT_N, 
     /*
      * @brief   The instruction has no ModR/M byte; the offset of the operand is coded as a word, 
      *          double word or quad word (depending on address size attribute) in the instruction. 
      *          No base register, index register, or scaling factor can be applied.
      */
-    O,
+    DOT_O,
     /*
      * @brief   The reg field of the ModR/M byte selects a packed quadword MMX technology register.
      */
-    P,
+    DOT_P,
     /*
      * @brief   A ModR/M byte follows the opcode and specifies the operand. The operand is either 
      *          an MMX technology register or a memory address. If it is a memory address, the 
      *          address is computed from a segment register and any of the following values:
      *          a base register, an index register, a scaling factor, and a displacement.
      */
-    Q, 
+    DOT_Q, 
     /*
      * @brief   The mod field of the ModR/M byte may refer only to a general register.
      */
-    R,  
+    DOT_R,  
     /*
      * @brief   The reg field of the ModR/M byte selects a segment register.
      */
-    S, 
+    DOT_S, 
     /*
      * @brief   The R/M field of the ModR/M byte selects a 128-bit XMM register.
      */
-    U,  
+    DOT_U,  
     /*
      * @brief   The reg field of the ModR/M byte selects a 128-bit XMM register.
      */
-    V,   
+    DOT_V,   
     /*
      * @brief   A ModR/M byte follows the opcode and specifies the operand. The operand is either 
      *          a 128-bit XMM register or a memory address. If it is a memory address, the address 
      *          is computed from a segment register and any of the following values: 
      *          a base register, an index register, a scaling factor, and a displacement.
      */
-    W, 
+    DOT_W, 
     /**
      * @brief   Register 0.
      */
-    R0, 
+    DOT_R0, 
     /**
      * @brief   Register 1.
      */
-    R1, 
+    DOT_R1, 
     /**
      * @brief   Register 2.
      */
-    R2,    
+    DOT_R2,    
     /**
      * @brief   Register 3.
      */
-    R3, 
+    DOT_R3, 
     /**
      * @brief   Register 4.
      */
-    R4, 
+    DOT_R4, 
     /**
      * @brief   Register 5.
      */
-    R5, 
+    DOT_R5, 
     /**
      * @brief   Register 6.
      */
-    R6, 
+    DOT_R6, 
     /**
      * @brief   Register 7.
      */
-    R7,
+    DOT_R7,
     /**
      * @brief   AL register.
      */
-    AL,  
+    DOT_AL,  
     /**
      * @brief   CL register.
      */
-    CL,  
+    DOT_CL,  
     /**
      * @brief   DL register.
      */
-    DL,
+    DOT_DL,
     /**
      * @brief   AX register.
      */
-    AX,  
+    DOT_AX,  
     /**
      * @brief   CX register.
      */
-    CX,  
+    DOT_CX,  
     /**
      * @brief   DX register.
      */
-    DX,
+    DOT_DX,
     /**
      * @brief   EAX register.
      */
-    EAX, 
+    DOT_EAX, 
     /**
      * @brief   ECX register.
      */
-    ECX, 
+    DOT_ECX, 
     /**
      * @brief   EDX register.
      */
-    EDX,
+    DOT_EDX,
     /**
      * @brief   RAX register.
      */
-    RAX, 
+    DOT_RAX, 
     /**
      * @brief   RCX register.
      */
-    RCX, 
+    DOT_RCX, 
     /**
      * @brief   RDX register.
      */
-    RDX,
+    DOT_RDX,
     /**
      * @brief   ES segment register.
      */
-    ES, 
+    DOT_ES, 
     /**
      * @brief   CS segment register.
      */
-    CS, 
+    DOT_CS, 
     /**
      * @brief   SS segment register.
      */
-    SS, 
+    DOT_SS, 
     /**
      * @brief   DS segment register.
      */
-    DS, 
+    DOT_DS, 
     /**
      * @brief   FS segment register.
      */
-    FS, 
+    DOT_FS, 
     /**
      * @brief   GS segment register.
      */
-    GS,
+    DOT_GS,
     /**
      * @brief   Floating point register 0.
      */
-    ST0, 
+    DOT_ST0, 
     /**
      * @brief   Floating point register 1.
      */
-    ST1, 
+    DOT_ST1, 
     /**
      * @brief   Floating point register 2.
      */
-    ST2, 
+    DOT_ST2, 
     /**
      * @brief   Floating point register 3.
      */
-    ST3, 
+    DOT_ST3, 
     /**
      * @brief   Floating point register 4.
      */
-    ST4, 
+    DOT_ST4, 
     /**
      * @brief   Floating point register 5.
      */
-    ST5, 
+    DOT_ST5, 
     /**
      * @brief   Floating point register 6.
      */
-    ST6, 
+    DOT_ST6, 
     /**
      * @brief   Floating point register 7.
      */
-    ST7
-};
+    DOT_ST7
+} VXDefinedOperandType;
 
 /**
  * @brief   Values that represent the size of an operand in the instruction definition.
  *          Do not change the order or the values of this enum! 
  */
-enum class VXDefinedOperandSize : uint8_t
+typedef enum _VXDefinedOperandSize /* : uint8_t */
 {
     /**
      * @brief   No operand.
      */
-    NA  = 0,
+    DOS_NA  = 0,
     /**
      * @brief   Word, dword or qword.
      */
-    Z,
+    DOS_Z,
     /**
      * @brief   Word, dword or qword.
      */
-    V,
+    DOS_V,
     /**
      * @brief   Dword or qword.
      */
-    Y,
+    DOS_Y,
     /**
      * @brief   Oword or yword.
      */
-    X,
+    DOS_X,
     /**
      * @brief   Dword or qword, depending on the disassembler mode.
      */
-    RDQ,
+    DOS_RDQ,
     /*
      * @brief   Byte, regardless of operand-size attribute.
      */
-    B,
+    DOS_B,
     /*
      * @brief   Word, regardless of operand-size attribute.
      */
-    W,
+    DOS_W,
     /*
      * @brief   Doubleword, regardless of operand-size attribute.
      */
-    D,
+    DOS_D,
     /*
      * @brief   Quadword, regardless of operand-size attribute.
      */
-    Q,
+    DOS_Q,
     /*
      * @brief   10-byte far pointer.
      */
-    T,
+    DOS_T,
     /**
      * @brief   TODO:
      */
-    O,
+    DOS_O,
     /*
      * @brief   Double-quadword, regardless of operand-size attribute.
      */
-    DQ, 
+    DOS_DQ, 
     /*
      * @brief   Quad-quadword, regardless of operand-size attribute.
      */
-    QQ,
+    DOS_QQ,
     /**
      * @brief   B sized register or D sized memory operand.
      */
-    BD  = (static_cast<uint8_t>(B) << 4) | static_cast<uint8_t>(D),
+    DOS_BD  = (DOS_B << 4) | DOS_D,
     /**
      * @brief   B sized register or V sized memory operand.
      */
-    BV  = (static_cast<uint8_t>(B) << 4) | static_cast<uint8_t>(V),
+    DOS_BV  = (DOS_B << 4) | DOS_V,
     /**
      * @brief   W sized register or D sized memory operand.
      */
-    WD  = (static_cast<uint8_t>(W) << 4) | static_cast<uint8_t>(D),
+    DOS_WD  = (DOS_W << 4) | DOS_D,
     /**
      * @brief   W sized register or V sized memory operand.
      */
-    WV  = (static_cast<uint8_t>(W) << 4) | static_cast<uint8_t>(V),
+    DOS_WV  = (DOS_W << 4) | DOS_V,
     /**
      * @brief   W sized register or Y sized memory operand.
      */
-    WY  = (static_cast<uint8_t>(W) << 4) | static_cast<uint8_t>(Y),
+    DOS_WY  = (DOS_W << 4) | DOS_Y,
     /**
      * @brief   D sized register or Y sized memory operand.
      */
-    DY  = (static_cast<uint8_t>(D) << 4) | static_cast<uint8_t>(Y),
+    DOS_DY  = (DOS_D << 4) | DOS_Y,
     /**
      * @brief   W sized register or O sized memory operand.
      */
-    WO  = (static_cast<uint8_t>(W) << 4) | static_cast<uint8_t>(O),
+    DOS_WO  = (DOS_W << 4) | DOS_O,
     /**
      * @brief   D sized register or O sized memory operand.
      */
-    DO  = (static_cast<uint8_t>(D) << 4) | static_cast<uint8_t>(O),
+    DOS_DO  = (DOS_D << 4) | DOS_O,
     /**
      * @brief   Q sized register or O sized memory operand.
      */
-    QO  = (static_cast<uint8_t>(Q) << 4) | static_cast<uint8_t>(O),
-};
+    DOS_QO  = (DOS_Q << 4) | DOS_O,
+} VXDefinedOperandSize;
 
 /**
  * @brief   Values that represent optional flags in the instruction definition.   
  *          Do not change the order or the values of this enum!            
  */
-enum VXInstructionDefinitionFlags : uint16_t
+typedef enum _VXInstructionDefinitionFlags /* : uint16_t */
 {
     /**
      * @brief   The instruction accepts the rex.b prefix value.
@@ -1447,33 +1453,39 @@ enum VXInstructionDefinitionFlags : uint16_t
     /**
      * @brief   The second operand of the instruction is accessed in read-write mode.
      */
-    IDF_OPERAND2_READWRITE              = 0x4000
-};
+    IDF_OPERAND2_READWRITE              = 0x4000,
+
+    IDF_FORCE_WORD                      = 0x7FFF
+} VXInstructionDefinitionFlags;
 
 #pragma pack (push, 1)
 /**
  * @brief   An operand definition.
  */
-struct VXOperandDefinition     
+typedef struct _VXOperandDefinition
 {               
     /**
      * @brief   The defined operand type.
+     * @see     VXDefinedOperandType
      */
-    VXDefinedOperandType type;
+    uint8_t type;
     /**
      * @brief   The defined operand size.
+     * @see     VXDefinedOperandType
      */
-    VXDefinedOperandSize size;
-};
+    uint8_t size;
+} VXOperandDefinition;
+
 /**
  * @brief   An instruction definition.
  */
-struct VXInstructionDefinition
+typedef struct _VXInstructionDefinition
 {
     /**
      * @brief   The instruction mnemonic.
+     * @see     VXInstructionMnemonic
      */
-    VXInstructionMnemonic mnemonic;
+    uint16_t mnemonic;
     /**
      * @brief   The operand definitions for all four possible operands.
      */
@@ -1482,272 +1494,11 @@ struct VXInstructionDefinition
      * @brief   Additional flags for the instruction definition.
      */
     uint16_t flags;   
-};
+} VXInstructionDefinition;
 #pragma pack (pop)
 
-namespace Internal
-{
-
-/**
- * @brief   Contains all opcode tables.
- *          Indexed by the numeric value of the opcode.
- */
-extern const VXOpcodeTreeNode optreeTable[][256];
-/**
- * @brief   Contains all modrm_mod switch tables.
- *          Index values:
- *          0 = [modrm_mod == !11]
- *          1 = [modrm_mod ==  11]
- */
-extern const VXOpcodeTreeNode optreeModrmMod[][2];
-/**
- * @brief   Contains all modrm_reg switch tables.
- *          Indexed by the numeric value of the modrm_reg field.
- */
-extern const VXOpcodeTreeNode optreeModrmReg[][8];
-/**
- * @brief   Contains all modrm_rm switch tables.
- *          Indexed by the numeric value of the modrm_rm field.
- */
-extern const VXOpcodeTreeNode optreeModrmRm[][8];
-/**
- * @brief   Contains all mandatory-prefix switch tables.
- *          Index values:
- *          0 = none
- *          1 = F2  
- *          2 = F3  
- *          3 = 66
- */
-extern const VXOpcodeTreeNode optreeMandatory[][4];
-/**
- * @brief   Contains all x87 opcode tables.
- *          Indexed by the numeric value of the 6 lowest bits of the modrm byte (modrm_mod should
- *          always be 11). 
- */
-extern const VXOpcodeTreeNode optreeX87[][64];
-/**
- * @brief   Contains all address-size switch tables.
- *          Index values:
- *          0 = 16
- *          1 = 32  
- *          2 = 64
- */
-extern const VXOpcodeTreeNode optreeAddressSize[][3];
-/**
- * @brief   Contains all operand-size switch tables.
- *          Index values:
- *          0 = 16
- *          1 = 32  
- *          2 = 64
- */
-extern const VXOpcodeTreeNode optreeOperandSize[][3];
-/**
- * @brief   Contains all cpu-mode switch tables.
- *          Index values:
- *          0 = [!= 64]
- *          1 = 64
- */
-extern const VXOpcodeTreeNode optreeMode[][2];
-/**
- * @brief   Contains all vendor switch tables. 
- *          Index values:
- *          0 = AMD
- *          1 = Intel  
- */
-extern const VXOpcodeTreeNode optreeVendor[][2];
-/**
- * @brief   Contains all 3dnow! switch tables.
- *          Indexed by the numeric value of the 3dnow! opcode.
- */
-extern const VXOpcodeTreeNode optree3dnow[][256];
-/**
- * @brief   Contains all vex switch tables.
- *          Index values:
- *          0 = none
- *          1 = 0F  
- *          2 = 0F38  
- *          3 = 0F3A  
- *          4 = 66  
- *          5 = 66_0F  
- *          6 = 66_0F38  
- *          7 = 66_0F3A  
- *          8 = F3  
- *          9 = F3_0F
- *          A = F3_0F38
- *          B = F3_0F3A
- *          C = F2
- *          D = F2_0F
- *          E = F2_0F38
- *          F = F2_0F3A
- */
-extern const VXOpcodeTreeNode optreeVex[][16];
-/**
- * @brief   Contains all vex_w switch tables.
- *          Indexed by the numeric value of the vex_w field.
- */
-extern const VXOpcodeTreeNode optreeVexW[][2];
-/**
- * @brief   Contains all vex_l switch tables.
- *          Indexed by the numeric value of the vex_l field.
- */
-extern const VXOpcodeTreeNode optreeVexL[][2];
-/**
- * @brief   Contains all instruction definitions.
- */
-extern const VXInstructionDefinition instrDefinitions[];
-/**
- * @brief   Contains all instruction mnemonic strings.
- */
-extern const char* instrMnemonicStrings[];
-
-/**
- * @brief   Returns the type of the specified opcode tree node.
- * @param   node    The node.
- * @return  The type of the specified opcode tree node.
- */
-inline VXOpcodeTreeNodeType VDEGetOpcodeNodeType(VXOpcodeTreeNode node)
-{
-    return static_cast<VXOpcodeTreeNodeType>((node >> 12) & 0x0F);
-} 
-
-/**
- * @brief   Returns the value of the specified opcode tree node.
- * @param   node    The node.
- * @return  The value of the specified opcode tree node.
- */
-inline uint16_t VDEGetOpcodeNodeValue(VXOpcodeTreeNode node)
-{
-    return (node & 0x0FFF);   
+#ifdef __cplusplus
 }
+#endif
 
-/**
- * @brief   Returns the root node of the opcode tree.
- * @return  The root node of the opcode tree.
- */
-inline VXOpcodeTreeNode VDEGetOpcodeTreeRoot()
-{
-    return 0x1000;
-}
-
-/**
- * @brief   Returns a child node of @c parent specified by @c index.
- * @param   parent  The parent node.
- * @param   index   The index of the child node to retrieve.
- * @return  The specified child node.
- */
-inline VXOpcodeTreeNode VDEGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
-{
-    using namespace Internal;
-    VXOpcodeTreeNodeType nodeType = VDEGetOpcodeNodeType(parent);
-    uint16_t tableIndex = VDEGetOpcodeNodeValue(parent);
-    switch (nodeType)
-    {
-    case VXOpcodeTreeNodeType::TABLE:
-        assert(index < 256);
-        return optreeTable[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_MOD:
-        assert(index < 2);
-        return optreeModrmMod[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_REG:
-        assert(index < 8);
-        return optreeModrmReg[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_RM:
-        assert(index < 8);
-        return optreeModrmRm[tableIndex][index];
-    case VXOpcodeTreeNodeType::MANDATORY:
-        assert(index < 4);
-        return optreeMandatory[tableIndex][index];
-    case VXOpcodeTreeNodeType::X87:
-        assert(index < 64);
-        return optreeX87[tableIndex][index];
-    case VXOpcodeTreeNodeType::ADDRESS_SIZE:
-        assert(index < 3);
-        return optreeAddressSize[tableIndex][index];
-    case VXOpcodeTreeNodeType::OPERAND_SIZE:
-        assert(index < 3);
-        return optreeOperandSize[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODE:
-        assert(index < 2);
-        return optreeMode[tableIndex][index];
-    case VXOpcodeTreeNodeType::VENDOR:
-        assert(index < 3);
-        return optreeVendor[tableIndex][index];
-    case VXOpcodeTreeNodeType::AMD3DNOW:
-        assert(index < 256);
-        return optree3dnow[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEX:
-        assert(index < 16);
-        return optreeVex[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEXW:
-        assert(index < 2);
-        return optreeVexW[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEXL:
-        assert(index < 2);
-        return optreeVexL[tableIndex][index];
-    default:
-        assert(0);
-    }
-    return 0xFFFF;
-}
-
-/**
- * @brief   Returns the instruction definition that is linked to the given @c node.
- * @param   node    The instruction definition node.
- * @return  Pointer to the instruction definition.
- */
-inline const VXInstructionDefinition* VDEGetInstructionDefinition(VXOpcodeTreeNode node)
-{
-    assert(VDEGetOpcodeNodeType(node) == VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
-    return &instrDefinitions[node & 0x0FFF];    
-}
-
-/**
- * @brief   Returns the specified instruction mnemonic string.
- * @param   mnemonic    The mnemonic.
- * @return  The instruction mnemonic string.
- */
-inline const char* VDEGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
-{
-    return instrMnemonicStrings[static_cast<uint16_t>(mnemonic)];
-}
-
-/**
- * @brief   Returns the numeric value for a simple operand size definition.
- * @param   operandSize The defined operand size.
- * @return  The the numeric value for the simple operand size definition.
- */
-inline uint16_t VDEGetSimpleOperandSize(VXDefinedOperandSize operandSize)
-{
-    static uint16_t operandSizes[8] =
-    {
-        8, 16, 32, 64, 80, 12, 128, 256
-    };
-    uint16_t index = 
-        static_cast<uint8_t>(operandSize) - static_cast<uint8_t>(VXDefinedOperandSize::B);
-    assert(index < 8);
-    return operandSizes[index];
-}
-
-/**
- * @brief   Returns the memory-size part of a complex operand size definition.
- * @param   operandSize The defined operand size.
- * @return  The memory-size part of the operand size definition.
- */
-inline VXDefinedOperandSize VDEGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
-{
-    return static_cast<VXDefinedOperandSize>(static_cast<uint8_t>(operandSize) & 0x0F);
-}
-
-/**
- * @brief   Returns the register-size part of a complex operand size definition.
- * @param   operandSize The defined operand size.
- * @return  The register-size part of the operand size definition.
- */
-inline VXDefinedOperandSize VDEGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
-{
-    return static_cast<VXDefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4) & 0x0F);    
-}
-
-}
-
-}
+#endif // _VDE_VXOPCODETABLEC_H_

@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
+  Modifications   : athre0z
 
-  Last change     : 29. October 2014
+  Last change     : 04. February 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,14 +29,13 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include <stdint.h>
-#include <iostream>
-#include <iomanip>
+
 #include <VXDisassembler.h>
 
-using namespace Verteron;
+#include <stdio.h>
+#include <stdint.h>
 
-int main(int argc, char* argv[])
+int main()
 {
     uint8_t data32[] =
     {
@@ -66,47 +65,59 @@ int main(int argc, char* argv[])
     };
 
     VXInstructionInfo info;
-    VXInstructionDecoder decoder;
-    VXIntelInstructionFormatter formatter;
-    VXMemoryDataSource input32(&data32[0], sizeof(data32));
-    VXMemoryDataSource input64(&data64[0], sizeof(data64));
+    VXInstructionDecoderContext* decoder = NULL;
+    VXBaseInstructionFormatterContext* formatter = NULL;
+    VXBaseDataSourceContext* input32 = NULL;
+    VXBaseDataSourceContext* input64 = NULL;
 
-    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
-    decoder.setDataSource(&input32);
-    decoder.setInstructionPointer(0x77091852);
-    std::cout << "32 bit test ..." << std::endl << std::endl;
-    while (decoder.decodeInstruction(info))
+    decoder = VXInstructionDecoder_Create();
+    formatter = VXIntelInstructionFormatter_Create();
+
+    input32 = VXMemoryDataSource_Create(&data32[0], sizeof(data32));
+    input64 = VXMemoryDataSource_Create(&data64[0], sizeof(data64));
+
+    VXInstructionDecoder_SetDisassemblerMode(decoder, DM_M32BIT);
+    VXInstructionDecoder_SetDataSource(decoder, input32);
+    VXInstructionDecoder_SetInstructionPointer(decoder, 0x77091852);
+
+    puts("32 bit test ...\n\n");
+    while (VXInstructionDecoder_DecodeInstruction(decoder, &info))
     {
-        std::cout << std::hex << std::setw(8) << std::setfill('0') << std::uppercase 
-                  << info.instrAddress << " "; 
+        printf("%08X ", (uint32_t)(info.instrAddress & 0xFFFFFFFF));
         if (info.flags & IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.data[0];    
-        } else
+            printf("db %02X\n", info.data[0]);
+        } 
+        else
         {
-            std::cout << formatter.formatInstruction(info) << std::endl;
+            printf("%s\n", VXBaseInstructionFormatter_FormatInstruction(formatter, &info));
         }
     }
 
-    std::cout << std::endl;
+    puts("\n");
 
-    decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
-    decoder.setDataSource(&input64);
-    decoder.setInstructionPointer(0x00007FFA39A81930ull);
-    std::cout << "64 bit test ..." << std::endl << std::endl;
-    while (decoder.decodeInstruction(info))
+    VXInstructionDecoder_SetDisassemblerMode(decoder, DM_M64BIT);
+    VXInstructionDecoder_SetDataSource(decoder, input64);
+    VXInstructionDecoder_SetInstructionPointer(decoder, 0x00007FFA39A81930ull);
+    puts("64 bit test ...\n\n");
+    while (VXInstructionDecoder_DecodeInstruction(decoder, &info))
     {
-        std::cout << std::hex << std::setw(16) << std::setfill('0') << std::uppercase 
-                  << info.instrAddress << " "; 
+        printf("%016llX ", info.instrAddress); 
         if (info.flags & IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.data[0];    
-        } else
+            printf("db %02X", info.data[0]);
+        } 
+        else
         {
-            std::cout << formatter.formatInstruction(info) << std::endl;
+            printf("%s\n", VXBaseInstructionFormatter_FormatInstruction(formatter, &info));
         }
     }
 
-    std::cin.get();
+    VXBaseDataSource_Release(input32);
+    VXBaseDataSource_Release(input64);
+    VXBaseInstructionFormatter_Release(formatter);
+    VXInstructionDecoder_Release(decoder);
+
+    getchar();
     return 0;
 }

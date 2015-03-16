@@ -30,10 +30,10 @@
 
 **************************************************************************************************/
 
-#include "VXInstructionFormatterC.h"
-#include "VXDisassemblerUtilsC.h"
-#include "VXInternalHelpersC.h"
-#include "VXOpcodeTableInternalC.h"
+#include "VXInstructionFormatter.h"
+#include "VXDisassemblerUtils.h"
+#include "VXInternalHelpers.h"
+#include "VXOpcodeTableInternal.h"
 
 #include <stdarg.h>
 #include <stdlib.h>

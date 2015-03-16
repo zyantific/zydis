@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   : athre0z
 
-  Last change     : 04. February 2015
+  Last change     : 13. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,38 +30,45 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXDISASSEMBLERUTILSC_H_
-#define _VDE_VXDISASSEMBLERUTILSC_H_
+#include "VXDisassemblerUtils.h"
 
-#include "VXDisassemblerTypesC.h"
-#include "VXInternalConfig.h"
+#include <assert.h>
 
-#include <stdint.h>
-
-
-#ifdef __cplusplus
-extern "C"
+uint64_t VXCalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand)
 {
-#endif
+    assert((operand->type == OPTYPE_REL_IMMEDIATE) || 
+        ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP)));
+   
+    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
+    if (!(info->flags & IF_DISASSEMBLER_MODE_64)) 
+    {
+        truncMask >>= (64 - info->operand_mode);
+    }
 
-typedef struct _VXContextDescriptor
-{
-    uint8_t type;
-    void *ptr;
-} VXContextDescriptor;
+    uint16_t size = operand->size;
+    if ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP))
+    {
+        size = operand->offset;
+    }
 
-/**
- * @brief   Calculates the absolute target address of a relative instruction operand.
- * @param   info    The instruction info.
- * @param   operand The operand.
- * @return  The absolute target address.
- */
-VX_EXPORT uint64_t VXCalcAbsoluteTarget(
-    const VXInstructionInfo *info, 
-    const VXOperandInfo *operand);
+    switch (size)
+    {
+    case 8:
+        return (info->instrPointer + operand->lval.sbyte) & truncMask;
+    case 16:
+        {
+            uint32_t delta = operand->lval.sword & truncMask;
+            if ((info->instrPointer + delta) > 0xFFFF)
+            {
+                return (info->instrPointer & 0xF0000) + ((info->instrPointer + delta) & 0xFFFF);    
+            }
+            return info->instrPointer + delta;
+        }
+    case 32:
+        return (info->instrPointer + operand->lval.sdword) & truncMask;
+    default:
+        assert(0);
+    }
 
-#ifdef __cplusplus
+    return 0;
 }
-#endif
-
-#endif /* _VDE_VXDISASSEMBLERUTILSC_H_ */

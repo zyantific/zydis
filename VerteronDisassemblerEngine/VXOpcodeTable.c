@@ -30,7 +30,7 @@
 
 **************************************************************************************************/
 
-#include "VXOpcodeTableC.h"
+#include "VXOpcodeTable.h"
 
 #define VX_INVALID 0
 #define VX_NODE(type, n) ((VXOpcodeTreeNode)type << 12 | (n))

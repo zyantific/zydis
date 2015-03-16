@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   : athre0z
+  Modifications   :
 
-  Last change     : 13. March 2015
+  Last change     : 30. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,46 +29,20 @@
  * SOFTWARE.
 
 **************************************************************************************************/
+#pragma once
 
-#include "VXDisassemblerUtilsC.h"
+#include <stdint.h>
+#include "VXDisassemblerTypes.hpp"
 
-#include <assert.h>
-
-uint64_t VXCalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand)
+namespace Verteron
 {
-    assert((operand->type == OPTYPE_REL_IMMEDIATE) || 
-        ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP)));
-   
-    uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
-    if (!(info->flags & IF_DISASSEMBLER_MODE_64)) 
-    {
-        truncMask >>= (64 - info->operand_mode);
-    }
 
-    uint16_t size = operand->size;
-    if ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP))
-    {
-        size = operand->offset;
-    }
+/**
+ * @brief   Calculates the absolute target address of a relative instruction operand.
+ * @param   info    The instruction info.
+ * @param   operand The operand.
+ * @return  The absolute target address.
+ */
+uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand);
 
-    switch (size)
-    {
-    case 8:
-        return (info->instrPointer + operand->lval.sbyte) & truncMask;
-    case 16:
-        {
-            uint32_t delta = operand->lval.sword & truncMask;
-            if ((info->instrPointer + delta) > 0xFFFF)
-            {
-                return (info->instrPointer & 0xF0000) + ((info->instrPointer + delta) & 0xFFFF);    
-            }
-            return info->instrPointer + delta;
-        }
-    case 32:
-        return (info->instrPointer + operand->lval.sdword) & truncMask;
-    default:
-        assert(0);
-    }
-
-    return 0;
 }

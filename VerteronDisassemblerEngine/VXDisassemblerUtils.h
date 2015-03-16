@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
+  Modifications   : athre0z
 
-  Last change     : 30. October 2014
+  Last change     : 04. February 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,13 +29,26 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#pragma once
+
+#ifndef _VDE_VXDISASSEMBLERUTILSC_H_
+#define _VDE_VXDISASSEMBLERUTILSC_H_
+
+#include "VXDisassemblerTypes.h"
+#include "VXInternalConfig.h"
 
 #include <stdint.h>
-#include "VXDisassemblerTypes.h"
 
-namespace Verteron
+
+#ifdef __cplusplus
+extern "C"
 {
+#endif
+
+typedef struct _VXContextDescriptor
+{
+    uint8_t type;
+    void *ptr;
+} VXContextDescriptor;
 
 /**
  * @brief   Calculates the absolute target address of a relative instruction operand.
@@ -43,6 +56,12 @@ namespace Verteron
  * @param   operand The operand.
  * @return  The absolute target address.
  */
-uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand);
+VX_EXPORT uint64_t VXCalcAbsoluteTarget(
+    const VXInstructionInfo *info, 
+    const VXOperandInfo *operand);
 
+#ifdef __cplusplus
 }
+#endif
+
+#endif /* _VDE_VXDISASSEMBLERUTILSC_H_ */

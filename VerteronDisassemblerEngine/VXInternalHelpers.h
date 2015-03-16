@@ -33,8 +33,8 @@
 #ifndef _VDE_VXINTERNALHELPERS_H_
 #define _VDE_VXINTERNALHELPERS_H_
 
-#include "VXInstructionDecoderC.h"
-#include "VXInstructionFormatterC.h"
+#include "VXInstructionDecoder.h"
+#include "VXInstructionFormatter.h"
 #include "VXInternalConfig.h"
 
 #include <assert.h>

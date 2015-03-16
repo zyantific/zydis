@@ -34,7 +34,7 @@
 #define _VDE_VXOPCODETABLEINTERNAL_H_
 
 #include <stdint.h>
-#include "VXOpcodeTableC.h"
+#include "VXOpcodeTable.h"
 
 /**
  * @brief   Contains all opcode tables.

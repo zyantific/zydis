@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   : athre0z
+  Modifications   :
 
-  Last change     : 04. February 2015
+  Last change     : 22. October 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,23 +29,18 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-
-#ifndef _VDE_VXDISASSEMBLERTYPESC_H_
-#define _VDE_VXDISASSEMBLERTYPESC_H_
+#pragma once
 
 #include <stdint.h>
-#include <stdbool.h>
-#include "VXOpcodeTableC.h"
+#include "VXOpcodeTable.hpp"
 
-#ifdef __cplusplus
-extern "C"
+namespace Verteron
 {
-#endif
 
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
  */
-typedef enum _VXInstructionFlags /* : uint32_t */
+enum InstructionFlags : uint32_t
 {
     IF_NONE                         = 0x00000000,
     /**
@@ -127,157 +122,149 @@ typedef enum _VXInstructionFlags /* : uint32_t */
     /**
      * @brief   An error occured while decoding the instruction operands.  
      */
-    IF_ERROR_OPERAND                = 0x01000000,
-
-    IF_FORCE_DWORD                  = 0x7FFFFFFF
-} VXInstructionFlags;
+    IF_ERROR_OPERAND                = 0x01000000
+};
 
 /**
  * @brief   Values that represent a cpu register.
  */
-typedef enum _VXRegister /* : uint16_t */
+enum class VXRegister : uint16_t
 {
-    REG_NONE,
+    NONE,
     /* 8 bit general purpose registers */
-    REG_AL,     REG_CL,     REG_DL,     REG_BL,
-    REG_AH,     REG_CH,     REG_DH,     REG_BH,
-    REG_SPL,    REG_BPL,    REG_SIL,    REG_DIL,
-    REG_R8B,    REG_R9B,    REG_R10B,   REG_R11B,
-    REG_R12B,   REG_R13B,   REG_R14B,   REG_R15B,
+    AL,     CL,     DL,     BL,
+    AH,     CH,     DH,     BH,
+    SPL,    BPL,    SIL,    DIL,
+    R8B,    R9B,    R10B,   R11B,
+    R12B,   R13B,   R14B,   R15B,
     /* 16 bit general purpose registers */
-    REG_AX,     REG_CX,     REG_DX,     REG_BX,
-    REG_SP,     REG_BP,     REG_SI,     REG_DI,
-    REG_R8W,    REG_R9W,    REG_R10W,   REG_R11W,
-    REG_R12W,   REG_R13W,   REG_R14W,   REG_R15W,
+    AX,     CX,     DX,     BX,
+    SP,     BP,     SI,     DI,
+    R8W,    R9W,    R10W,   R11W,
+    R12W,   R13W,   R14W,   R15W,
     /* 32 bit general purpose registers */
-    REG_EAX,    REG_ECX,    REG_EDX,    REG_EBX,
-    REG_ESP,    REG_EBP,    REG_ESI,    REG_EDI,
-    REG_R8D,    REG_R9D,    REG_R10D,   REG_R11D,
-    REG_R12D,   REG_R13D,   REG_R14D,   REG_R15D,
+    EAX,    ECX,    EDX,    EBX,
+    ESP,    EBP,    ESI,    EDI,
+    R8D,    R9D,    R10D,   R11D,
+    R12D,   R13D,   R14D,   R15D,
     /* 64 bit general purpose registers */
-    REG_RAX,    REG_RCX,    REG_RDX,    REG_RBX,
-    REG_RSP,    REG_RBP,    REG_RSI,    REG_RDI,
-    REG_R8,     REG_R9,     REG_R10,    REG_R11,
-    REG_R12,    REG_R13,    REG_R14,    REG_R15,
+    RAX,    RCX,    RDX,    RBX,
+    RSP,    RBP,    RSI,    RDI,
+    R8,     R9,     R10,    R11,
+    R12,    R13,    R14,    R15,
     /* segment registers */
-    REG_ES,     REG_CS,     REG_SS,     
-    REG_DS,     REG_FS,     REG_GS,
+    ES,     CS,     SS,     
+    DS,     FS,     GS,
     /* control registers */
-    REG_CR0,    REG_CR1,    REG_CR2,    REG_CR3,
-    REG_CR4,    REG_CR5,    REG_CR6,    REG_CR7,
-    REG_CR8,    REG_CR9,    REG_CR10,   REG_CR11,
-    REG_CR12,   REG_CR13,   REG_CR14,   REG_CR15,
+    CR0,    CR1,    CR2,    CR3,
+    CR4,    CR5,    CR6,    CR7,
+    CR8,    CR9,    CR10,   CR11,
+    CR12,   CR13,   CR14,   CR15,
     /* debug registers */
-    REG_DR0,    REG_DR1,    REG_DR2,    REG_DR3,
-    REG_DR4,    REG_DR5,    REG_DR6,    REG_DR7,
-    REG_DR8,    REG_DR9,    REG_DR10,   REG_DR11,
-    REG_DR12,   REG_DR13,   REG_DR14,   REG_DR15,
+    DR0,    DR1,    DR2,    DR3,
+    DR4,    DR5,    DR6,    DR7,
+    DR8,    DR9,    DR10,   DR11,
+    DR12,   DR13,   DR14,   DR15,
     /* mmx registers */
-    REG_MM0,    REG_MM1,    REG_MM2,    REG_MM3,
-    REG_MM4,    REG_MM5,    REG_MM6,    REG_MM7,
+    MM0,    MM1,    MM2,    MM3,
+    MM4,    MM5,    MM6,    MM7,
     /* x87 registers */
-    REG_ST0,    REG_ST1,    REG_ST2,    REG_ST3,
-    REG_ST4,    REG_ST5,    REG_ST6,    REG_ST7,
+    ST0,    ST1,    ST2,    ST3,
+    ST4,    ST5,    ST6,    ST7,
     /* extended multimedia registers */
-    REG_XMM0,   REG_XMM1,   REG_XMM2,   REG_XMM3,
-    REG_XMM4,   REG_XMM5,   REG_XMM6,   REG_XMM7,
-    REG_XMM8,   REG_XMM9,   REG_XMM10,  REG_XMM11,
-    REG_XMM12,  REG_XMM13,  REG_XMM14,  REG_XMM15,
+    XMM0,   XMM1,   XMM2,   XMM3,
+    XMM4,   XMM5,   XMM6,   XMM7,
+    XMM8,   XMM9,   XMM10,  XMM11,
+    XMM12,  XMM13,  XMM14,  XMM15,
     /* 256 bit multimedia registers */
-    REG_YMM0,   REG_YMM1,   REG_YMM2,   REG_YMM3,
-    REG_YMM4,   REG_YMM5,   REG_YMM6,   REG_YMM7,
-    REG_YMM8,   REG_YMM9,   REG_YMM10,  REG_YMM11,
-    REG_YMM12,  REG_YMM13,  REG_YMM14,  YMM15,
+    YMM0,   YMM1,   YMM2,   YMM3,
+    YMM4,   YMM5,   YMM6,   YMM7,
+    YMM8,   YMM9,   YMM10,  YMM11,
+    YMM12,  YMM13,  YMM14,  YMM15,
     /* instruction pointer register */
-    REG_RIP,
-
-    REG_FORCE_WORD = 0x7FFF
-} VXRegister;
+    RIP
+};
 
 /**
  * @brief   Values that represent the type of a decoded operand.
  */
-typedef enum _VXOperandType /*: uint8_t*/
+enum class VXOperandType : uint8_t
 {
     /**
      * @brief   The operand is not used.
      */
-    OPTYPE_NONE,
+    NONE,
     /**
      * @brief   The operand is a register operand.
      */
-    OPTYPE_REGISTER,
+    REGISTER,
     /**
      * @brief   The operand is a memory operand.
      */
-    OPTYPE_MEMORY,
+    MEMORY,
     /**
      * @brief   The operand is a pointer operand.
      */
-    OPTYPE_POINTER,
+    POINTER,
     /**
      * @brief   The operand is an immediate operand.
      */
-    OPTYPE_IMMEDIATE,
+    IMMEDIATE,
     /**
      * @brief   The operand is a relative immediate operand.
      */
-    OPTYPE_REL_IMMEDIATE,
+    REL_IMMEDIATE,
     /**
      * @brief   The operand is a constant value.
      */
-    OPTYPE_CONSTANT
-} VXOperandType;
+    CONSTANT
+};
 
 /**
  * @brief   Values that represent the operand access mode.
  */
-typedef enum _VXOperandAccessMode /* : uint8_t */
+enum class VXOperandAccessMode : uint8_t
 {
-    OPACCESSMODE_NA,
+    NA,
     /**
      * @brief   The operand is accessed in read-only mode.
      */
-    OPACCESSMODE_READ,
+    READ,
     /**
      * @brief   The operand is accessed in write mode.
      */
-    OPACCESSMODE_WRITE,
+    WRITE,
     /**
      * @brief   The operand is accessed in read-write mode.
      */
-    OPACCESSMODE_READWRITE
-} VXOperandAccessMode;
+    READWRITE
+};
 
 /**
  * @brief   This struct holds information about a decoded operand.
  */
-typedef struct _VXOperandInfo
+struct VXOperandInfo
 {
     /**
      * @brief   The type of the operand.
-     * @see     VXOperandType
      */
-    uint8_t type;
+    VXOperandType type;
     /**
      * @brief   The size of the operand.
      */
     uint16_t size;
     /**
      * @brief   The operand access mode.
-     * @see     VXOperandAccessMode
      */
-    uint8_t access_mode;
+    VXOperandAccessMode access_mode;
     /**
      * @brief   The base register.
-     * @see     VXRegister
      */
-    uint16_t base;
+    VXRegister base;
     /**
      * @brief   The index register.
-     * @see     VXRegister
      */
-    uint16_t index;
+    VXRegister index;
     /**
      * @brief   The scale factor.
      */
@@ -308,12 +295,12 @@ typedef struct _VXOperandInfo
             uint32_t off;
         } ptr;
     } lval;   
-} VXOperandInfo;
+};
 
 /**
  * @brief   This struct holds information about a decoded instruction.
  */
-typedef struct _VXInstructionInfo
+struct VXInstructionInfo
 {
     /**
      * @brief   The instruction flags.
@@ -321,9 +308,8 @@ typedef struct _VXInstructionInfo
     uint32_t flags;
     /**
      * @brief   The instruction mnemonic.
-     * @see     VXInstructionMnemonic
      */
-    uint16_t mnemonic;
+    VXInstructionMnemonic mnemonic;
     /**
      * @brief   The total length of the instruction.
      */
@@ -355,9 +341,8 @@ typedef struct _VXInstructionInfo
     /**
      * @brief   The segment register. This value will default to @c NONE, if no segment register 
      *          prefix is present.
-     * @see     VXRegister
      */
-    uint16_t segment;
+    VXRegister segment;
     /**
      * @brief   The rex prefix byte.
      */
@@ -539,10 +524,6 @@ typedef struct _VXInstructionInfo
      *          This field is used to properly format relative instructions.         
      */
     uint64_t instrPointer;
-} VXInstructionInfo;
+};
 
-#ifdef __cplusplus
 }
-#endif
-
-#endif /* _VDE_VXDISASSEMBLERTYPESC_H_ */

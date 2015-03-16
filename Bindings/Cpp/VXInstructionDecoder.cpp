@@ -29,7 +29,7 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXInstructionDecoder.h"
+#include "VXInstructionDecoder.hpp"
 #include <cstring>
 
 namespace Verteron
