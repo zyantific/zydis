@@ -42,7 +42,7 @@
 #ifdef _MSC_VER
 #   define VX_INLINE __inline
 #else
-#   define VX_INLINE extern inline
+#   define VX_INLINE static inline
 #endif
 
 #endif /* _VDE_VXINTERNALCONFIG_H_ */
