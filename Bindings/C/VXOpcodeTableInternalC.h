@@ -168,7 +168,7 @@ extern const char* vxInstrMnemonicStrings[];
  * @param   node    The node.
  * @return  The type of the specified opcode tree node.
  */
-__inline VXOpcodeTreeNodeType VXGetOpcodeNodeType(VXOpcodeTreeNode node)
+VX_INLINE VXOpcodeTreeNodeType VXGetOpcodeNodeType(VXOpcodeTreeNode node)
 {
     return (VXOpcodeTreeNodeType)((node >> 12) & 0x0F);
 } 
@@ -178,7 +178,7 @@ __inline VXOpcodeTreeNodeType VXGetOpcodeNodeType(VXOpcodeTreeNode node)
  * @param   node    The node.
  * @return  The value of the specified opcode tree node.
  */
-__inline uint16_t VXGetOpcodeNodeValue(VXOpcodeTreeNode node)
+VX_INLINE uint16_t VXGetOpcodeNodeValue(VXOpcodeTreeNode node)
 {
     return (node & 0x0FFF);   
 }
@@ -187,7 +187,7 @@ __inline uint16_t VXGetOpcodeNodeValue(VXOpcodeTreeNode node)
  * @brief   Returns the root node of the opcode tree.
  * @return  The root node of the opcode tree.
  */
-__inline VXOpcodeTreeNode VXGetOpcodeTreeRoot()
+VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeRoot()
 {
     return 0x1000;
 }
@@ -198,7 +198,7 @@ __inline VXOpcodeTreeNode VXGetOpcodeTreeRoot()
  * @param   index   The index of the child node to retrieve.
  * @return  The specified child node.
  */
-__inline VXOpcodeTreeNode VXGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
+VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
 {
     VXOpcodeTreeNodeType nodeType = VXGetOpcodeNodeType(parent);
     uint16_t tableIndex = VXGetOpcodeNodeValue(parent);
@@ -257,7 +257,7 @@ __inline VXOpcodeTreeNode VXGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t
  * @param   node    The instruction definition node.
  * @return  Pointer to the instruction definition.
  */
-__inline const VXInstructionDefinition* VXGetInstructionDefinition(VXOpcodeTreeNode node)
+VX_INLINE const VXInstructionDefinition* VXGetInstructionDefinition(VXOpcodeTreeNode node)
 {
     assert(VXGetOpcodeNodeType(node) == OTNT_INSTRUCTION_DEFINITION);
     return &vxInstrDefinitions[node & 0x0FFF];    
@@ -268,7 +268,7 @@ __inline const VXInstructionDefinition* VXGetInstructionDefinition(VXOpcodeTreeN
  * @param   mnemonic    The mnemonic.
  * @return  The instruction mnemonic string.
  */
-__inline const char* VXGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
+VX_INLINE const char* VXGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
 {
     return vxInstrMnemonicStrings[(uint16_t)mnemonic];
 }
@@ -278,7 +278,7 @@ __inline const char* VXGetInstructionMnemonicString(VXInstructionMnemonic mnemon
  * @param   operandSize The defined operand size.
  * @return  The the numeric value for the simple operand size definition.
  */
-__inline uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
+VX_INLINE uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
 {
     static const uint16_t operandSizes[8] =
     {
@@ -295,7 +295,7 @@ __inline uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
  * @param   operandSize The defined operand size.
  * @return  The memory-size part of the operand size definition.
  */
-__inline VXDefinedOperandSize VXGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
+VX_INLINE VXDefinedOperandSize VXGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
 {
     return (VXDefinedOperandSize)(operandSize & 0x0F);
 }
@@ -305,7 +305,7 @@ __inline VXDefinedOperandSize VXGetComplexOperandMemSize(VXDefinedOperandSize op
  * @param   operandSize The defined operand size.
  * @return  The register-size part of the operand size definition.
  */
-__inline VXDefinedOperandSize VXGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
+VX_INLINE VXDefinedOperandSize VXGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
 {
     return (VXDefinedOperandSize)((operandSize >> 4) & 0x0F);    
 }

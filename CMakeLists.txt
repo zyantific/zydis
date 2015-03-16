@@ -46,7 +46,8 @@ if (BUILD_C_BINDINGS)
         "Bindings/C/VXInstructionFormatterC.h"
         "Bindings/C/VXOpcodeTableC.h"
         "Bindings/C/VXOpcodeTableInternalC.h"
-        "Bindings/C/VXInternalHelpersC.h")
+        "Bindings/C/VXInternalHelpersC.h"
+        "Bindings/C/VXInternalConfig.h")
     set(vdec_sources
         "Bindings/C/VXDisassemblerUtilsC.c"
         "Bindings/C/VXInstructionFormatterC.c"

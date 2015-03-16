@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : Florian Bernd
-  Modifications   : athre0z
+  Original Author : athre0z
+  Modifications   : 
 
-  Last change     : 04. February 2015
+  Last change     : 16. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,38 +30,15 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXDISASSEMBLERUTILSC_H_
-#define _VDE_VXDISASSEMBLERUTILSC_H_
+#ifndef _VDE_VXINTERNALCONFIG_H_
+#define _VDE_VXINTERNALCONFIG_H_
 
-#include "VXDisassemblerTypesC.h"
-#include "VXInternalConfig.h"
-
-#include <stdint.h>
-
-
-#ifdef __cplusplus
-extern "C"
-{
+#ifdef _MSC_VER
+#   define VX_INLINE __inline
+#else
+#   define VX_INLINE inline
 #endif
 
-typedef struct _VXContextDescriptor
-{
-    uint8_t type;
-    void *ptr;
-} VXContextDescriptor;
+#define VX_EXPORT
 
-/**
- * @brief   Calculates the absolute target address of a relative instruction operand.
- * @param   info    The instruction info.
- * @param   operand The operand.
- * @return  The absolute target address.
- */
-VX_EXPORT uint64_t VXCalcAbsoluteTarget(
-    const VXInstructionInfo *info, 
-    const VXOperandInfo *operand);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* _VDE_VXDISASSEMBLERUTILSC_H_ */
+#endif /* _VDE_VXINTERNALCONFIG_H_ */

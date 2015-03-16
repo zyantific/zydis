@@ -53,7 +53,7 @@ typedef struct _VXBaseSymbolResolverContext
  * @param   ctx The context of the symbol resolver to free.
  * The context may no longer used after it was released.
  */
-void VXBaseSymbolResolver_Release(
+VX_EXPORT void VXBaseSymbolResolver_Release(
     VXBaseSymbolResolverContext *ctx);
 
 /**
@@ -65,7 +65,7 @@ void VXBaseSymbolResolver_Release(
  *                  the base address of the symbol.
  * @return  The name of the symbol if the symbol was found, else @c NULL.
  */
-const char* VXBaseSymbolResolver_ResolveSymbol(
+VX_EXPORT const char* VXBaseSymbolResolver_ResolveSymbol(
     VXBaseSymbolResolverContext *ctx,
     const VXInstructionInfo *info, 
     uint64_t address, 
@@ -86,7 +86,7 @@ typedef const char* (*VXCustomSymbolResolver_ResolveSymbolCallback)(
  *                      May also be @c NULL.
  * @return  @c NULL if it fails, else a symbol resolver context.
  */
-VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
+VX_EXPORT VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
     VXCustomSymbolResolver_ResolveSymbolCallback resolverCb,
     void *userData);
 
@@ -104,7 +104,7 @@ typedef struct _VXBaseInstructionFormatterContext
  * @return  Pointer to the formatted instruction string. This pointer remains valid until 
  *          this function is called again or the context is released.
  */
-const char* VXBaseInstructionFormatter_FormatInstruction(
+VX_EXPORT const char* VXBaseInstructionFormatter_FormatInstruction(
     VXBaseInstructionFormatterContext *ctx,
     const VXInstructionInfo *info);
 
@@ -113,7 +113,7 @@ const char* VXBaseInstructionFormatter_FormatInstruction(
  * @param   ctx     The instruction formatter context.
  * @return  Pointer to the current symbol resolver or @c NULL if no symbol resolver is used.
  */
-VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
+VX_EXPORT VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
     const VXBaseInstructionFormatterContext *ctx);
 
 /**
@@ -122,7 +122,7 @@ VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
  * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
  *                          resolver should be used.
  */
-void VXBaseInstructionFormatter_SetSymbolResolver(
+VX_EXPORT void VXBaseInstructionFormatter_SetSymbolResolver(
     VXBaseInstructionFormatterContext *ctx,
     VXBaseSymbolResolverContext *resolver);
 
@@ -131,7 +131,7 @@ void VXBaseInstructionFormatter_SetSymbolResolver(
  * @param   ctx The context of the instruction formatter to release.
  * The context may no longer used after it has been released.
  */
-void VXBaseInstructionFormatter_Release(
+VX_EXPORT void VXBaseInstructionFormatter_Release(
     VXBaseInstructionFormatterContext *ctx);
 
 /* VXIntelInstructionFormatter ================================================================ */
@@ -141,7 +141,7 @@ void VXBaseInstructionFormatter_Release(
  * @return  @c NULL if it fails, else an Intel instruction formatter context.
  * @see     VXBaseInstructionFormatter_Release
  */
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
+VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
 
 /**
  * @brief   Creates an Intel-syntax instruction formatter.
@@ -149,7 +149,7 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
  * @return  @c NULL if it fails, else an Intel instruction formatter context.
  * @see     VXBaseInstructionFormatter_Release
  */
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
+VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
     VXBaseSymbolResolverContext *resolver);
 
 /* ============================================================================================= */

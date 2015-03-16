@@ -53,7 +53,7 @@ typedef struct _VXBaseDataSourceContext { VXContextDescriptor d; } VXBaseDataSou
  * @param ctx The context to release.
  * The context may no longer be used after it was released.
  */
-void VXBaseDataSource_Release(
+VX_EXPORT void VXBaseDataSource_Release(
     VXBaseDataSourceContext *ctx);
 
 /**
@@ -65,7 +65,7 @@ void VXBaseDataSource_Release(
  *          field of the @c info parameter for error flags. Possible error values are 
  *          @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
  */
-uint8_t VXBaseDataSource_InputPeek(
+VX_EXPORT uint8_t VXBaseDataSource_InputPeek(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
@@ -80,28 +80,28 @@ uint8_t VXBaseDataSource_InputPeek(
   * parameter. This function also appends the new byte to to @c data field of the @c info 
   * parameter.
   */
-uint8_t VXBaseDataSource_InputNext8(
+VX_EXPORT uint8_t VXBaseDataSource_InputNext8(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
 /**
  * @copydoc VXBaseDataSource_InputNext8
  */
-uint16_t VXBaseDataSource_InputNext16(
+VX_EXPORT uint16_t VXBaseDataSource_InputNext16(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
 /**
  * @copydoc VXBaseDataSource_InputNext8
  */
-uint32_t VXBaseDataSource_InputNext32(
+VX_EXPORT uint32_t VXBaseDataSource_InputNext32(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
 /**
  * @copydoc VXBaseDataSource_InputNext8
  */
-uint64_t VXBaseDataSource_InputNext64(
+VX_EXPORT uint64_t VXBaseDataSource_InputNext64(
     VXBaseDataSourceContext *ctx, 
     VXInstructionInfo *info);
 
@@ -112,7 +112,7 @@ uint64_t VXBaseDataSource_InputNext64(
  * The current input byte is set everytime the @c inputPeek or @c inputNext method is called.
  */
 // TODO: check long descr
-uint8_t VXBaseDataSource_InputCurrent(
+VX_EXPORT uint8_t VXBaseDataSource_InputCurrent(
     const VXBaseDataSourceContext *ctx);
 
 /**
@@ -120,7 +120,7 @@ uint8_t VXBaseDataSource_InputCurrent(
  * @param   ctx  The data soruce context.
  * @return  @c true if end of input, @c false if not.
  */
-bool VXBaseDataSource_IsEndOfInput(
+VX_EXPORT bool VXBaseDataSource_IsEndOfInput(
     const VXBaseDataSourceContext *ctx);
 
 /**
@@ -128,7 +128,7 @@ bool VXBaseDataSource_IsEndOfInput(
  * @param   ctx  The data soruce context.
  * @return  The current input position.
  */
-uint64_t VXBaseDataSource_GetPosition(
+VX_EXPORT uint64_t VXBaseDataSource_GetPosition(
     const VXBaseDataSourceContext *ctx);
 
 /**
@@ -137,7 +137,7 @@ uint64_t VXBaseDataSource_GetPosition(
  * @param   position    The new input position.
  * @return  @c false if the new position exceeds the maximum input length.
  */
-bool VXBaseDataSource_SetPosition(
+VX_EXPORT bool VXBaseDataSource_SetPosition(
     VXBaseDataSourceContext *ctx, 
     uint64_t position);
 
@@ -151,7 +151,7 @@ bool VXBaseDataSource_SetPosition(
  * @see     VXBaseDataSource_Release
  */
 // TODO: verify return value
-VXBaseDataSourceContext* VXMemoryDataSource_Create(
+VX_EXPORT VXBaseDataSourceContext* VXMemoryDataSource_Create(
     const void* buffer,
     size_t bufferLen);
 
@@ -190,7 +190,7 @@ typedef struct _VXInstructionDecoderContext
  * @see     VXInstructionDecoder_Release
  */
 // TODO: verify return value
-VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
+VX_EXPORT VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
 
 /**
  * @brief   Creates an instruction decoder.
@@ -201,7 +201,7 @@ VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
  * @return  @c NULL if it fails, else an instruction decoder context.
  * @see     VXInstructionDecoder_Release
  */
-VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
+VX_EXPORT VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
     VXBaseDataSourceContext *input, 
     VXDisassemblerMode disassemblerMode,
     VXInstructionSetVendor preferredVendor, 
@@ -211,7 +211,7 @@ VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
  * @brief   Releases an instruction decoder.
  * @param   ctx The context of the instruction decoder to release.
  */
-void VXInstructionDecoder_Release(
+VX_EXPORT void VXInstructionDecoder_Release(
     VXInstructionDecoderContext *ctx);
 
 /**
@@ -223,7 +223,7 @@ void VXInstructionDecoder_Release(
  *          length. In all other cases (valid and invalid instructions) the return value is 
  *          @c true.
  */
-bool VXInstructionDecoder_DecodeInstruction(
+VX_EXPORT bool VXInstructionDecoder_DecodeInstruction(
     VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
 
@@ -232,7 +232,7 @@ bool VXInstructionDecoder_DecodeInstruction(
  * @param   ctx The instruction decoder context.
  * @return  The context of the data source.
  */
-VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
+VX_EXPORT VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
     const VXInstructionDecoderContext *ctx);
 
 /**
@@ -240,7 +240,7 @@ VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
  * @param   ctx   The instruction decoder context.
  * @param   input The context of the new input data source.
  */
-void VXInstructionDecoder_SetDataSource(
+VX_EXPORT void VXInstructionDecoder_SetDataSource(
     VXInstructionDecoderContext *ctx, 
     VXBaseDataSourceContext *input);
 
@@ -249,7 +249,7 @@ void VXInstructionDecoder_SetDataSource(
  * @param   ctx The instruction decoder context.
  * @return  The current disassembler mode.
  */
-VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
+VX_EXPORT VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
     const VXInstructionDecoderContext *ctx);
 
 /**
@@ -257,7 +257,7 @@ VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
  * @param   ctx                 The instruction decoder context.
  * @param   disassemblerMode    The new disassembler mode.
  */
-void VXInstructionDecoder_SetDisassemblerMode(
+VX_EXPORT void VXInstructionDecoder_SetDisassemblerMode(
     VXInstructionDecoderContext *ctx,
     VXDisassemblerMode disassemblerMode);
 
@@ -266,7 +266,7 @@ void VXInstructionDecoder_SetDisassemblerMode(
  * @param   ctx The instruction decoder context.
  * @return  The preferred instruction-set vendor.
  */
-VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
+VX_EXPORT VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
     const VXInstructionDecoderContext *ctx);
 
 /**
@@ -274,7 +274,7 @@ VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
  * @param   ctx             The instruction decoder context.
  * @param   preferredVendor The new preferred instruction-set vendor.
  */
-void VXInstructionDecoder_SetPreferredVendor(
+VX_EXPORT void VXInstructionDecoder_SetPreferredVendor(
     VXInstructionDecoderContext *ctx,
     VXInstructionSetVendor preferredVendor);
 
@@ -283,7 +283,7 @@ void VXInstructionDecoder_SetPreferredVendor(
  * @param   ctx The instruction decoder context.
  * @return  The current instruction pointer.
  */
-uint64_t VXInstructionDecoder_GetInstructionPointer(
+VX_EXPORT uint64_t VXInstructionDecoder_GetInstructionPointer(
     const VXInstructionDecoderContext *ctx);
 
 /**
@@ -291,7 +291,7 @@ uint64_t VXInstructionDecoder_GetInstructionPointer(
  * @param   ctx                 The instruction decoder context.
  * @param   instructionPointer  The new instruction pointer.
  */
-void VXInstructionDecoder_SetInstructionPointer(
+VX_EXPORT void VXInstructionDecoder_SetInstructionPointer(
     VXInstructionDecoderContext *ctx,
     uint64_t instructionPointer);
 

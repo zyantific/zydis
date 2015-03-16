@@ -35,6 +35,7 @@
 
 #include "VXInstructionDecoderC.h"
 #include "VXInstructionFormatterC.h"
+#include "VXInternalConfig.h"
 
 #include <assert.h>
 
@@ -56,9 +57,7 @@ typedef enum _VXTypeId
 
 /* Context conversion helpers ================================================================== */
 
-// TODO: don't use __inline
-
-__inline struct _VXBaseDataSource* VXBaseDataSource_thiz(
+VX_INLINE struct _VXBaseDataSource* VXBaseDataSource_thiz(
     VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEDATASOURCE 
@@ -66,7 +65,7 @@ __inline struct _VXBaseDataSource* VXBaseDataSource_thiz(
     return (struct _VXBaseDataSource*)ctx->d.ptr;
 }
 
-__inline const struct _VXBaseDataSource* VXBaseDataSource_cthiz(
+VX_INLINE const struct _VXBaseDataSource* VXBaseDataSource_cthiz(
     const VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEDATASOURCE 
@@ -74,35 +73,35 @@ __inline const struct _VXBaseDataSource* VXBaseDataSource_cthiz(
     return (const struct _VXBaseDataSource*)ctx->d.ptr;
 }
 
-__inline struct _VXMemoryDataSource* VXMemoryDataSource_thiz(
+VX_INLINE struct _VXMemoryDataSource* VXMemoryDataSource_thiz(
     VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_MEMORYDATASOURCE);
     return (struct _VXMemoryDataSource*)ctx->d.ptr;
 }
 
-__inline const struct _VXMemoryDataSource* VXMemoryDataSource_cthiz(
+VX_INLINE const struct _VXMemoryDataSource* VXMemoryDataSource_cthiz(
     const VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_MEMORYDATASOURCE);
     return (const struct _VXMemoryDataSource*)ctx->d.ptr;
 }
 
-__inline struct _VXInstructionDecoder* VXInstructionDecoder_thiz(
+VX_INLINE struct _VXInstructionDecoder* VXInstructionDecoder_thiz(
     VXInstructionDecoderContext *ctx)
 {
     assert(ctx->d.type == TYPE_INSTRUCTIONDECODER);
     return (struct _VXInstructionDecoder*)ctx->d.ptr;
 }
 
-__inline const struct _VXInstructionDecoder* VXInstructionDecoder_cthiz(
+VX_INLINE const struct _VXInstructionDecoder* VXInstructionDecoder_cthiz(
     const VXInstructionDecoderContext *ctx)
 {
     assert(ctx->d.type == TYPE_INSTRUCTIONDECODER);
     return (const struct _VXInstructionDecoder*)ctx->d.ptr;
 }
 
-__inline struct _VXBaseSymbolResolver* VXBaseSymbolResolver_thiz(
+VX_INLINE struct _VXBaseSymbolResolver* VXBaseSymbolResolver_thiz(
     VXBaseSymbolResolverContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER
@@ -110,7 +109,7 @@ __inline struct _VXBaseSymbolResolver* VXBaseSymbolResolver_thiz(
     return (struct _VXBaseSymbolResolver*)ctx->d.ptr;
 }
 
-__inline const struct _VXBaseSymbolResolver* VXBaseSymbolResolver_cthiz(
+VX_INLINE const struct _VXBaseSymbolResolver* VXBaseSymbolResolver_cthiz(
     const VXBaseSymbolResolverContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASESYMBOLRESOLVER
@@ -118,21 +117,21 @@ __inline const struct _VXBaseSymbolResolver* VXBaseSymbolResolver_cthiz(
     return (const struct _VXBaseSymbolResolver*)ctx->d.ptr;
 }
 
-__inline struct _VXCustomSymbolResolver* VXCustomSymbolResolver_thiz(
+VX_INLINE struct _VXCustomSymbolResolver* VXCustomSymbolResolver_thiz(
     VXBaseSymbolResolverContext *ctx)
 {
     assert(ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
     return (struct _VXCustomSymbolResolver*)ctx->d.ptr;
 }
 
-__inline const struct _VXCustomSymbolResolver* VXCustomSymbolResolver_cthiz(
+VX_INLINE const struct _VXCustomSymbolResolver* VXCustomSymbolResolver_cthiz(
     const VXBaseSymbolResolverContext *ctx)
 {
     assert(ctx->d.type == TYPE_CUSTOMSYMBOLRESOLVER);
     return (const struct _VXCustomSymbolResolver*)ctx->d.ptr;
 }
 
-__inline struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_thiz(
+VX_INLINE struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_thiz(
     VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEINSTRUCTIONFORMATTER 
@@ -140,7 +139,7 @@ __inline struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_thiz(
     return (struct _VXBaseInstructionFormatter*)ctx->d.ptr;
 }
 
-__inline const struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_cthiz(
+VX_INLINE const struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_cthiz(
     const VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEINSTRUCTIONFORMATTER
@@ -148,14 +147,14 @@ __inline const struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_ct
     return (const struct _VXBaseInstructionFormatter*)ctx->d.ptr;
 }
 
-__inline struct _VXIntelInstructionFormatter* VXIntelInstructionFormatter_thiz(
+VX_INLINE struct _VXIntelInstructionFormatter* VXIntelInstructionFormatter_thiz(
     VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER);
     return (struct _VXIntelInstructionFormatter*)ctx->d.ptr;
 }
 
-__inline const struct _VXIntelInstructionFormatter* VXIntelInstructionFormatter_cthiz(
+VX_INLINE const struct _VXIntelInstructionFormatter* VXIntelInstructionFormatter_cthiz(
     const VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER);
