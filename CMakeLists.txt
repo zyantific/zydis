@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
+include(GenerateExportHeader)
 
 project(VerteronDisassemblerEngine)
 
-option(BUILD_SHARED "Build shared libraries rather than static ones" FALSE)
+option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
 option(BUILD_CPP_BINDINGS "Build C++ bindings" TRUE)
 
@@ -38,12 +39,12 @@ set(vde_sources
     "VerteronDisassemblerEngine/VXOpcodeTable.c"
     "VerteronDisassemblerEngine/VXInstructionDecoder.c")
 
-#if (BUILD_SHARED)
-#    add_definitions("-DVX_BUILD_SHARED")
-#    add_library("VerteronDisassemblerEngine" SHARED ${vde_headers} ${vde_sources})
-#else ()
-    add_library("VerteronDisassemblerEngine" STATIC ${vde_headers} ${vde_sources})
-#endif ()
+add_library("VerteronDisassemblerEngine" ${vde_headers} ${vde_sources})
+generate_export_header(
+    "VerteronDisassemblerEngine" 
+    BASE_NAME "VX"
+    EXPORT_FILE_NAME "VXExportConfig.h")
+include_directories(${PROJECT_BINARY_DIR})
 
 # C++ bindings
 if (BUILD_CPP_BINDINGS)

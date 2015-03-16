@@ -30,6 +30,12 @@
 
 **************************************************************************************************/
 
+/*
+ * Include CMake generated header defining macros im-/exporting functions statically or 
+ * dynamically depending what the user requested from CMake.
+ */
+#include "VXExportConfig.h"
+
 #ifndef _VDE_VXINTERNALCONFIG_H_
 #define _VDE_VXINTERNALCONFIG_H_
 
@@ -37,16 +43,6 @@
 #   define VX_INLINE __inline
 #else
 #   define VX_INLINE extern inline
-#endif
-
-#ifdef VX_BUILD_SHARED /* set by CMake */
-#   if defined(_MSC_VER)
-#       define VX_EXPORT __declspec(dllexport)
-#   elif defined(__GNUC__) || defined(__clang__) 
-#       define VX_EXPORT __attribute__((dllexport))
-#   endif
-#else
-#   define VX_EXPORT
 #endif
 
 #endif /* _VDE_VXINTERNALCONFIG_H_ */
