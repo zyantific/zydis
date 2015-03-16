@@ -59,8 +59,8 @@ typedef struct _VXBaseSymbolResolver
     VXBaseSymbolResolver_ResolveSymbolCallback  resolveCallback;
 } VXBaseSymbolResolver;
 
-void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx);
-void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
+static void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx);
+static void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
 void VXBaseSymbolResolver_Release(VXBaseSymbolResolverContext *ctx);
 const char* VXBaseSymbolResolver_ResolveSymbol(VXBaseSymbolResolverContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 
@@ -82,22 +82,22 @@ typedef struct _VXBaseInstructionFormatter
     bool outputUppercase;
 } VXBaseInstructionFormatter;
 
-void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
-void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
+static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
 void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx);
-void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx, bool uppercase);
-char const* VXBaseInstructionFormatter_RegisterToString(const VXBaseInstructionFormatterContext *ctx, VXRegister reg);
-char const* VXBaseInstructionFormatter_ResolveSymbol(const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
+static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx, bool uppercase);
+static char const* VXBaseInstructionFormatter_RegisterToString(const VXBaseInstructionFormatterContext *ctx, VXRegister reg);
+static char const* VXBaseInstructionFormatter_ResolveSymbol(const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(const VXBaseInstructionFormatterContext *ctx);
 void VXBaseInstructionFormatter_SetSymbolResolver(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
 const char* VXBaseInstructionFormatter_FormatInstruction(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
-void VXBaseInstructionFormatter_OutputClear(VXBaseInstructionFormatterContext *ctx);
-char const* VXBaseInstructionFormatter_OutputString(VXBaseInstructionFormatterContext *ctx);
-void VXBaseInstructionFormatter_OutputAppend(VXBaseInstructionFormatterContext *ctx, char const *text);
-void VXBaseInstructionFormatter_OutputAppendFormatted(VXBaseInstructionFormatterContext *ctx, char const *format, ...);
-void VXBaseInstructionFormatter_OutputAppendAddress(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info,  uint64_t address, bool resolveSymbols);
-void VXBaseInstructionFormatter_OutputAppendImmediate(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand, bool resolveSymbols);
-void VXBaseInstructionFormatter_OutputAppendDisplacement(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
+static void VXBaseInstructionFormatter_OutputClear(VXBaseInstructionFormatterContext *ctx);
+static char const* VXBaseInstructionFormatter_OutputString(VXBaseInstructionFormatterContext *ctx);
+static void VXBaseInstructionFormatter_OutputAppend(VXBaseInstructionFormatterContext *ctx, char const *text);
+static void VXBaseInstructionFormatter_OutputAppendFormatted(VXBaseInstructionFormatterContext *ctx, char const *format, ...);
+static void VXBaseInstructionFormatter_OutputAppendAddress(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info,  uint64_t address, bool resolveSymbols);
+static void VXBaseInstructionFormatter_OutputAppendImmediate(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand, bool resolveSymbols);
+static void VXBaseInstructionFormatter_OutputAppendDisplacement(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
 
 /* VXCustomSymbolResolver ---------------------------------------------------------------------- */
 
@@ -108,10 +108,10 @@ typedef struct _VXCustomSymbolResolver
     void *userData;
 } VXCustomSymbolResolver;
 
-void VXCustomSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx, VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
-void VXCustomSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
+static void VXCustomSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx, VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
+static void VXCustomSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
 VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
-const char* VXCustomSymbolResolver_Resolve(VXBaseSymbolResolverContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
+static const char* VXCustomSymbolResolver_Resolve(VXBaseSymbolResolverContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 
 /* VXIntelInstructionFormatter ----------------------------------------------------------------- */
 
@@ -120,11 +120,13 @@ typedef struct _VXIntelInstructionFormatter
     VXBaseInstructionFormatter super;
 } VXIntelInstructionFormatter;
 
-void VXIntelInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
-void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
-void VXIntelInstructionFormatter_OutputAppendOperandCast(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
-void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
-void VXIntelInstructionFormatter_InternalFormatInstruction(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
+VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
+VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(VXBaseSymbolResolverContext *resolver);
+static void VXIntelInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
+static void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+static void VXIntelInstructionFormatter_OutputAppendOperandCast(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
+static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, const VXOperandInfo *operand);
+static void VXIntelInstructionFormatter_InternalFormatInstruction(VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
 
 /* Implementation ============================================================================== */
 

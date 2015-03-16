@@ -39,9 +39,6 @@
 
 #include <assert.h>
 
-struct _VXBaseDataSource;
-struct _VXInstructionDecoder;
-
 /* Types IDs =================================================================================== */
 
 typedef enum _VXTypeId
