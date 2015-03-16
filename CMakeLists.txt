@@ -4,6 +4,9 @@ include(GenerateExportHeader)
 project(VerteronDisassemblerEngine)
 
 option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
+option(FORCE_SHARED_CRT 
+    "Forces shared linkage against the CRT even when building a static library" 
+    FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
 option(BUILD_CPP_BINDINGS "Build C++ bindings" TRUE)
 
@@ -12,7 +15,7 @@ if (NOT CONFIGURED_ONCE)
             "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         set(compiler_specific "-Werror")
         set(compiler_specific_cxx "-std=c++0x")
-    elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    elseif (MSVC)
         set(compiler_specific "/WX /D_CRT_SECURE_NO_WARNINGS")
     endif ()
 
@@ -20,6 +23,23 @@ if (NOT CONFIGURED_ONCE)
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
+endif ()
+
+# CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
+# to generate with a statically linked CRT when we build as a static library.
+if (MSVC AND NOT BUILD_SHARED_LIBS AND NOT FORCE_SHARED_CRT)
+    set(manipulated_vars
+        CMAKE_CXX_FLAGS_DEBUG
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_DEBUG
+        CMAKE_C_FLAGS_MINSIZEREL
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_RELWITHDEBINFO)
+    foreach (cur_var ${manipulated_vars})
+        string(REPLACE "/MD" "/MT" ${cur_var} "${${cur_var}}")
+    endforeach ()
 endif ()
 
 # Library
