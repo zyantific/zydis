@@ -85,7 +85,7 @@ typedef struct _VXBaseInstructionFormatter
 static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver);
 static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
 void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx);
-static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx, bool uppercase);
+/*static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx, bool uppercase);*/
 static char const* VXBaseInstructionFormatter_RegisterToString(const VXBaseInstructionFormatterContext *ctx, VXRegister reg);
 static char const* VXBaseInstructionFormatter_ResolveSymbol(const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(const VXBaseInstructionFormatterContext *ctx);
@@ -202,6 +202,8 @@ VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
 
     ctx->d.type = TYPE_CUSTOMSYMBOLRESOLVER;
     ctx->d.ptr  = thiz;
+    
+    VXCustomSymbolResolver_Construct(ctx, resolverCb, userData);
 
     return ctx;
 }
@@ -313,11 +315,13 @@ void VXBaseInstructionFormatter_Release(
     free(ctx);
 }
 
+/*
 static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx,
     bool uppercase)
 {
     VXBaseInstructionFormatter_thiz(ctx)->outputUppercase = uppercase;
 }
+*/
 
 static char const* VXBaseInstructionFormatter_RegisterToString(
     const VXBaseInstructionFormatterContext *ctx, VXRegister reg) 
@@ -530,8 +534,6 @@ static void VXBaseInstructionFormatter_OutputAppendImmediate(
     const VXOperandInfo *operand, 
     bool resolveSymbols)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
-
     assert(operand->type == OPTYPE_IMMEDIATE);
     uint64_t value = 0;
     if (operand->signed_lval && (operand->size != info->operand_mode)) 
@@ -600,8 +602,6 @@ static void VXBaseInstructionFormatter_OutputAppendDisplacement(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
     const VXOperandInfo *operand)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
-
     assert(operand->offset > 0);
     if ((operand->base == REG_NONE) && (operand->index == REG_NONE))
     {

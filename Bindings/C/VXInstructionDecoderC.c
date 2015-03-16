@@ -187,7 +187,7 @@ uint8_t VXBaseDataSource_InputPeek(VXBaseDataSourceContext *ctx, VXInstructionIn
     return thiz->currentInput;
 }
 
-static uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionInfo *info)
+uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionInfo *info)
 {
     VXBaseDataSource *thiz = VXBaseDataSource_thiz(ctx);
 
@@ -208,7 +208,7 @@ static uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstr
 }
 
 #define VXBASEDATASOURCE_INPUTNEXT_N(n)                                                           \
-    static uint##n##_t VXBaseDataSource_InputNext##n(                                             \
+    uint##n##_t VXBaseDataSource_InputNext##n(                                                    \
         VXBaseDataSourceContext *ctx, VXInstructionInfo *info)                                    \
     {                                                                                             \
         uint##n##_t result = 0;                                                                   \
@@ -274,8 +274,6 @@ void VXMemoryDataSource_Construct(
 
 void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx)
 {
-    VXMemoryDataSource *thiz = VXMemoryDataSource_thiz(ctx);
-
     // Nothing to destruct ourselfes, just call parent destructor
     VXBaseDataSource_Destruct(ctx);
 }

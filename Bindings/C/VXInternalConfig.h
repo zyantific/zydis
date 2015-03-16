@@ -36,7 +36,7 @@
 #ifdef _MSC_VER
 #   define VX_INLINE __inline
 #else
-#   define VX_INLINE inline
+#   define VX_INLINE extern inline
 #endif
 
 #define VX_EXPORT
