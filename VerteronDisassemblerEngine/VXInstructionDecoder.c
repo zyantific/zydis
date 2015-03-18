@@ -1773,14 +1773,6 @@ DecodeError:
     info->instrAddress = instrAddress;
     info->instrDefinition = VXGetInstructionDefinition(0);
 
-    // Return with error, if the end of the input source was reached while decoding the 
-    // invalid instruction
-    if (info->flags & IF_ERROR_END_OF_INPUT)
-    {
-        info->length = 0;
-        return false;
-    }
-
     // Decrement the input position, if more than one byte was read from the input data 
     // source while decoding the invalid instruction
     if (info->length != 1)
@@ -1788,6 +1780,14 @@ DecodeError:
         VXBaseDataSource_SetPosition(thiz->dataSource, 
             VXBaseDataSource_GetPosition(thiz->dataSource) - info->length + 1);
         info->length = 1;
+    }
+
+    // Return with error, if the end of the input source was reached while decoding the 
+    // invalid instruction
+    if (info->flags & IF_ERROR_END_OF_INPUT)
+    {
+        info->length = 0;
+        return false;
     }
 
     return true;
