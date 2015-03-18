@@ -79,7 +79,8 @@ typedef struct _VXMemoryDataSource
     uint64_t inputBufferPos;
 } VXMemoryDataSource;
 
-static void VXMemoryDataSource_Construct(VXBaseDataSourceContext *ctx, const void* buffer, size_t bufferLen);
+static void VXMemoryDataSource_Construct(VXBaseDataSourceContext *ctx, const void* buffer, 
+    size_t bufferLen);
 static void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx);
 VXBaseDataSourceContext* VXMemoryDataSource_Create(const void* buffer, size_t bufferLen);
 static uint8_t VXMemoryDataSource_InternalInputPeek(VXBaseDataSourceContext *ctx);
@@ -108,37 +109,70 @@ typedef enum _VXRegisterClass /* : uint8_t */
     RC_XMM
 } VXRegisterClass;
 
-static uint8_t VXInstructionDecoder_InputPeek(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static uint8_t VXInstructionDecoder_InputNext8(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static uint16_t VXInstructionDecoder_InputNext16(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static uint32_t VXInstructionDecoder_InputNext32(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static uint64_t VXInstructionDecoder_InputNext64(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+static uint8_t VXInstructionDecoder_InputPeek(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static uint8_t VXInstructionDecoder_InputNext8(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static uint16_t VXInstructionDecoder_InputNext16(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static uint32_t VXInstructionDecoder_InputNext32(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static uint64_t VXInstructionDecoder_InputNext64(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
 static uint8_t VXInstructionDecoder_InputCurrent(const VXInstructionDecoderContext *ctx);
-VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetDataSource(VXInstructionDecoderContext *ctx, VXBaseDataSourceContext *input);
-VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetDisassemblerMode(VXInstructionDecoderContext *ctx, VXDisassemblerMode disassemblerMode);
-VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetPreferredVendor(VXInstructionDecoderContext *ctx, VXInstructionSetVendor preferredVendor);
+VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
+    const VXInstructionDecoderContext *ctx);
+void VXInstructionDecoder_SetDataSource(VXInstructionDecoderContext *ctx, 
+    VXBaseDataSourceContext *input);
+VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
+    const VXInstructionDecoderContext *ctx);
+void VXInstructionDecoder_SetDisassemblerMode(VXInstructionDecoderContext *ctx, 
+    VXDisassemblerMode disassemblerMode);
+VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
+    const VXInstructionDecoderContext *ctx);
+void VXInstructionDecoder_SetPreferredVendor(VXInstructionDecoderContext *ctx, 
+    VXInstructionSetVendor preferredVendor);
 uint64_t VXInstructionDecoder_GetInstructionPointer(const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetInstructionPointer(VXInstructionDecoderContext *ctx, uint64_t instructionPointer);
-static bool VXInstructionDecoder_DecodeRegisterOperand(const VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, uint8_t registerId, VXDefinedOperandSize operandSize);
-static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, VXDefinedOperandSize operandSize);
-static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandSize operandSize);
-static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, uint8_t size);
-static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(const VXInstructionDecoderContext *ctx, const VXInstructionInfo *info, VXDefinedOperandSize operandSize);
-static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandType operandType, VXDefinedOperandSize operandSize);
-static void VXInstructionDecoder_ResolveOperandAndAddressMode(const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static void VXInstructionDecoder_CalculateEffectiveRexVexValues(const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
-static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+void VXInstructionDecoder_SetInstructionPointer(VXInstructionDecoderContext *ctx, 
+    uint64_t instructionPointer);
+static bool VXInstructionDecoder_DecodeRegisterOperand(const VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
+    uint8_t registerId, VXDefinedOperandSize operandSize);
+static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
+    VXDefinedOperandSize operandSize);
+static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandSize operandSize);
+static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info, VXOperandInfo *operand, uint8_t size);
+static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(
+    const VXInstructionDecoderContext *ctx, const VXInstructionInfo *info, 
+    VXDefinedOperandSize operandSize);
+static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandType operandType, 
+    VXDefinedOperandSize operandSize);
+static void VXInstructionDecoder_ResolveOperandAndAddressMode(
+    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
+    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
+static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx, 
+    VXInstructionInfo *info);
 VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
-VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(VXBaseDataSourceContext *input, VXDisassemblerMode disassemblerMode, VXInstructionSetVendor preferredVendor, uint64_t instructionPointer);
-bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
+    VXBaseDataSourceContext *input, VXDisassemblerMode disassemblerMode, 
+    VXInstructionSetVendor preferredVendor, uint64_t instructionPointer);
+bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx,
+    VXInstructionInfo *info);
 
 /* Implementation ============================================================================== */
 
@@ -330,12 +364,9 @@ static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_
 
 /* VXInstructionDecoder ------------------------------------------------------------------------ */
 
-void VXInstructionDecoder_Construct(
-    VXInstructionDecoderContext *ctx,
-    VXBaseDataSourceContext *input, 
-    VXDisassemblerMode disassemblerMode,
-    VXInstructionSetVendor preferredVendor, 
-    uint64_t instructionPointer)
+void VXInstructionDecoder_Construct(VXInstructionDecoderContext *ctx,
+    VXBaseDataSourceContext *input, VXDisassemblerMode disassemblerMode, 
+    VXInstructionSetVendor preferredVendor, uint64_t instructionPointer)
 {
     VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
 
@@ -355,10 +386,8 @@ VXInstructionDecoderContext* VXInstructionDecoder_Create(void)
     return VXInstructionDecoder_CreateEx(NULL, DM_M32BIT, ISV_ANY, 0);
 }   
 
-VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
-    VXBaseDataSourceContext *input, 
-    VXDisassemblerMode disassemblerMode,
-    VXInstructionSetVendor preferredVendor, 
+VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(VXBaseDataSourceContext *input, 
+    VXDisassemblerMode disassemblerMode, VXInstructionSetVendor preferredVendor, 
     uint64_t instructionPointer)
 {
     VXInstructionDecoder *thiz       = malloc(sizeof(VXInstructionDecoder));
@@ -1679,8 +1708,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
     return false;
 }
 
-bool VXInstructionDecoder_DecodeInstruction(
-    VXInstructionDecoderContext *ctx, 
+bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info)
 {
     VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
