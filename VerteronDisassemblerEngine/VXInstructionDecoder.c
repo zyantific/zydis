@@ -526,6 +526,15 @@ VXBaseDataSourceContext* VXMemoryDataSource_Create(
 
     if (!thiz || !ctx)
     {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
         return NULL;
     }
 
@@ -614,6 +623,20 @@ VXBaseDataSourceContext* VXCustomDataSource_Create(
     VXCustomDataSource *thiz     = malloc(sizeof(VXCustomDataSource));
     VXBaseDataSourceContext *ctx = malloc(sizeof(VXBaseDataSourceContext));
 
+    if (!thiz || !ctx)
+    {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
+        return NULL;
+    }
+
     ctx->d.type = TYPE_CUSTOMDATASOURCE;
     ctx->d.ptr  = thiz;
 
@@ -656,6 +679,15 @@ VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(VXBaseDataSourceConte
 
     if (!thiz || !ctx)
     {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
         return NULL;
     }
 

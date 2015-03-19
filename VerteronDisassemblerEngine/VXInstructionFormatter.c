@@ -325,6 +325,15 @@ VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
 
     if (!thiz || !ctx)
     {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
         return NULL;
     }
 
@@ -807,7 +816,18 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
     VXBaseInstructionFormatterContext *ctx = malloc(sizeof(VXBaseInstructionFormatterContext));
 
     if (!thiz || !ctx)
+    {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
         return NULL;
+    }
 
     ctx->d.type = TYPE_INTELINSTRUCTIONFORMATTER;
     ctx->d.ptr  = thiz;
