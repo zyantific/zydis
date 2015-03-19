@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   : athre0z
 
-  Last change     : 14. March 2014
+  Last change     : 19. March 2014
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -183,12 +183,10 @@ static void VXBaseInstructionFormatter_OutputAppendImmediate(
 /**
  * @brief   Appends a formatted memory displacement value to the output string buffer.
  * @param   ctx     The context.
- * @param   info    The instruction info.
  * @param   operand The memory operand.
  */
 static void VXBaseInstructionFormatter_OutputAppendDisplacement(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand);
+    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand);
 
 /* VXCustomSymbolResolver ---------------------------------------------------------------------- */
 
@@ -245,12 +243,10 @@ static void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterConte
 /**
  * @brief   Appends an operand cast to the output string buffer.
  * @param   ctx     The context.
- * @param   info    The instruction info.
  * @param   operand The operand.
  */
 static void VXIntelInstructionFormatter_OutputAppendOperandCast(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand);
+    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand);
 
 /**
  * @brief   Formats the specified operand and appends it to the output buffer.
@@ -278,7 +274,7 @@ void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx)
 
 void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx)
 {
-    
+    VX_UNUSED(ctx);
 }
 
 void VXBaseSymbolResolver_Release(VXBaseSymbolResolverContext *ctx)
@@ -454,6 +450,8 @@ static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionForma
 static char const* VXBaseInstructionFormatter_RegisterToString(
     const VXBaseInstructionFormatterContext *ctx, VXRegister reg) 
 {
+    VX_UNUSED(ctx);
+
     if (reg == REG_NONE)
     {
         return "error";   
@@ -553,7 +551,7 @@ static void VXBaseInstructionFormatter_OutputAppend(
     {
         for (size_t i = offset; i < thiz->outputStringLen - 1; ++i)
         {
-            thiz->outputBuffer[i] = toupper(thiz->outputBuffer[i]);
+            thiz->outputBuffer[i] = (char)toupper(thiz->outputBuffer[i]);
         }
     }
 }
@@ -605,7 +603,7 @@ static void VXBaseInstructionFormatter_OutputAppendFormatted(
     {
         for (size_t i = offset; i < thiz->outputStringLen - 1; ++i)
         {
-            thiz->outputBuffer[i] = toupper(thiz->outputBuffer[i]);
+            thiz->outputBuffer[i] = (char)toupper(thiz->outputBuffer[i]);
         }
     }
 
@@ -725,8 +723,7 @@ static void VXBaseInstructionFormatter_OutputAppendImmediate(
 }
 
 static void VXBaseInstructionFormatter_OutputAppendDisplacement(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand)
+    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand)
 {
     assert(operand->offset > 0);
     if ((operand->base == REG_NONE) && (operand->index == REG_NONE))
@@ -821,8 +818,7 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
 }
 
 static void VXIntelInstructionFormatter_OutputAppendOperandCast(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand)
+    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand)
 {
     switch(operand->size) 
     {
@@ -895,7 +891,7 @@ static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatter
 
             if (operand->offset) 
             {
-                VXBaseInstructionFormatter_OutputAppendDisplacement(ctx, info, operand);
+                VXBaseInstructionFormatter_OutputAppendDisplacement(ctx, operand);
             }
         }
         VXBaseInstructionFormatter_OutputAppend(ctx, "]");
@@ -996,7 +992,7 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, info, &info->operand[0]);
+            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[0]);
         }
         VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[0]);
     }
@@ -1021,7 +1017,7 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, info, &info->operand[1]);
+            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[1]);
         }
         VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[1]);
     }
@@ -1039,7 +1035,7 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, info, &info->operand[2]);
+            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[2]);
         }
 
         VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[2]);

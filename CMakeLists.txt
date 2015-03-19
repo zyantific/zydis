@@ -16,7 +16,7 @@ if (NOT CONFIGURED_ONCE)
         set(compiler_specific "-Werror")
         set(compiler_specific_cxx "-std=c++0x")
     elseif (MSVC)
-        set(compiler_specific "/WX /D_CRT_SECURE_NO_WARNINGS")
+        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS")
     endif ()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"

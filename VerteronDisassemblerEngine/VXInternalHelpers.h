@@ -8,7 +8,7 @@
   Original Author : athre0z
   Modifications   : 
 
-  Last change     : 13. March 2015
+  Last change     : 19. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,6 +45,7 @@ typedef enum _VXTypeId
 {
     TYPE_BASEDATASOURCE,
     TYPE_MEMORYDATASOURCE,
+    TYPE_CUSTOMDATASOURCE,
     TYPE_INSTRUCTIONDECODER,
     TYPE_BASESYMBOLRESOLVER,
     TYPE_CUSTOMSYMBOLRESOLVER,
@@ -58,7 +59,8 @@ VX_INLINE struct _VXBaseDataSource* VXBaseDataSource_thiz(
     VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEDATASOURCE 
-        || ctx->d.type == TYPE_MEMORYDATASOURCE);
+        || ctx->d.type == TYPE_MEMORYDATASOURCE
+        || ctx->d.type == TYPE_CUSTOMDATASOURCE);
     return (struct _VXBaseDataSource*)ctx->d.ptr;
 }
 
@@ -66,7 +68,8 @@ VX_INLINE const struct _VXBaseDataSource* VXBaseDataSource_cthiz(
     const VXBaseDataSourceContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEDATASOURCE 
-        || ctx->d.type == TYPE_MEMORYDATASOURCE);
+        || ctx->d.type == TYPE_MEMORYDATASOURCE
+        || ctx->d.type == TYPE_CUSTOMDATASOURCE);
     return (const struct _VXBaseDataSource*)ctx->d.ptr;
 }
 
@@ -82,6 +85,20 @@ VX_INLINE const struct _VXMemoryDataSource* VXMemoryDataSource_cthiz(
 {
     assert(ctx->d.type == TYPE_MEMORYDATASOURCE);
     return (const struct _VXMemoryDataSource*)ctx->d.ptr;
+}
+
+VX_INLINE struct _VXCustomDataSource* VXCustomDataSource_thiz(
+    VXBaseDataSourceContext *ctx)
+{
+    assert(ctx->d.type == TYPE_CUSTOMDATASOURCE);
+    return (struct _VXCustomDataSource*)ctx->d.ptr;
+}
+
+VX_INLINE const struct _VXCustomDataSource* VXCustomDataSource_cthiz(
+    const VXBaseDataSourceContext *ctx)
+{
+    assert(ctx->d.type == TYPE_CUSTOMDATASOURCE);
+    return (const struct _VXCustomDataSource*)ctx->d.ptr;
 }
 
 VX_INLINE struct _VXInstructionDecoder* VXInstructionDecoder_thiz(

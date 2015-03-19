@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : athre0z
-  Modifications   :
+  Original Author : Florian Bernd
+  Modifications   : athre0z
 
-  Last change     : 14. March 2015
+  Last change     : 19. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -285,7 +285,7 @@ VX_INLINE uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
         8, 16, 32, 64, 80, 12, 128, 256
     };
 
-    uint16_t index = operandSize - DOS_B;
+    uint16_t index = (uint16_t)(operandSize - DOS_B);
     assert(index < 8);
     return operandSizes[index];
 }

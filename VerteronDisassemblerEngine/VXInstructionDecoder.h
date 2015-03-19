@@ -48,6 +48,13 @@ extern "C"
 
 typedef struct _VXBaseDataSourceContext { VXContextDescriptor d; } VXBaseDataSourceContext;
 
+typedef void(*VXBaseDataSource_DestructionCallback)(VXBaseDataSourceContext *ctx);
+typedef uint8_t(*VXBaseDataSource_InputCallback)(VXBaseDataSourceContext *ctx);
+typedef bool(*VXBaseDataSource_IsEndOfInputCallback)(const VXBaseDataSourceContext *ctx);
+typedef uint64_t(*VXBaseDataSource_GetPositionCallback)(const VXBaseDataSourceContext *ctx);
+typedef bool(*VXBaseDataSource_SetPositionCallback)(
+    VXBaseDataSourceContext *ctx, uint64_t position);
+
 /**
  * @brief Releases a data source. 
  * @param ctx The context to release.
@@ -150,10 +157,31 @@ VX_EXPORT bool VXBaseDataSource_SetPosition(
  * @return  @c NULL if it fails, else a data source context.
  * @see     VXBaseDataSource_Release
  */
-// TODO: verify return value
 VX_EXPORT VXBaseDataSourceContext* VXMemoryDataSource_Create(
     const void* buffer,
     size_t bufferLen);
+
+/* VXCustomDataSource ========================================================================== */
+
+/**
+ * @brief   Creates a custom daat source.
+ * @param   ctx             The context.
+ * @param   inputPeekCb     The callback peeking the next input byte.
+ * @param   inputNextCb     The callback consuming the next input byte.
+ * @param   isEndOfInputCb  The callback determining if the end of input was reached.
+ * @param   getPositionCb   The callback obtaining the current input position.
+ * @param   setPositionCb   The callback setting the current input position.
+ * @param   destructionCb   The destruction callback. May be @c NULL.
+ * @return  @c NULL if it fails, else a data source context.
+ * @see     VXBaseDataSource_Release
+ */
+VX_EXPORT VXBaseDataSourceContext* VXCustomDataSource_Create(
+    VXBaseDataSource_InputCallback inputPeekCb,
+    VXBaseDataSource_InputCallback inputNextCb,
+    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    VXBaseDataSource_GetPositionCallback getPositionCb,
+    VXBaseDataSource_SetPositionCallback setPositionCb,
+    VXBaseDataSource_DestructionCallback destructionCb);
 
 /* Enums ======================================================================================= */
 

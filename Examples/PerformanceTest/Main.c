@@ -6,9 +6,9 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
+  Modifications   : athre0z
 
-  Last change     : 29. October 2014
+  Last change     : 19. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,12 @@
 
 **************************************************************************************************/
 
+#include <VXDisassembler.h>
+
 int main(int argc, char* argv[])
 {
+    VX_UNUSED(argc); VX_UNUSED(argv);
+
     // TODO:
     return 0;
 }

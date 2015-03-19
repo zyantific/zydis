@@ -323,7 +323,7 @@ inline uint8_t VXStreamDataSource::internalInputPeek()
     {
         return 0;
     }
-    return m_inputStream->peek();
+    return static_cast<uint8_t>(m_inputStream->peek());
 }
 
 inline uint8_t VXStreamDataSource::internalInputNext()
@@ -332,7 +332,7 @@ inline uint8_t VXStreamDataSource::internalInputNext()
     {
         return 0;
     }
-    return m_inputStream->get();
+    return static_cast<uint8_t>(m_inputStream->get());
 }
 
 inline bool VXStreamDataSource::isEndOfInput() const

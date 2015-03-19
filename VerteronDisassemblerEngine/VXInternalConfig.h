@@ -45,4 +45,6 @@
 #   define VX_INLINE static inline
 #endif
 
+#define VX_UNUSED(x) ((void)x)
+
 #endif /* _VDE_VXINTERNALCONFIG_H_ */

@@ -8,7 +8,7 @@
   Original Author : Florian Bernd
   Modifications   : athre0z
 
-  Last change     : 13. March 2015
+  Last change     : 19. March 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,13 +41,6 @@
 /* Internal interface ========================================================================== */
 
 /* VXBaseDataSource ---------------------------------------------------------------------------- */
-
-typedef void(*VXBaseDataSource_DestructionCallback)(VXBaseDataSourceContext *ctx);
-typedef uint8_t(*VXBaseDataSource_InputCallback)(VXBaseDataSourceContext *ctx);
-typedef bool(*VXBaseDataSource_IsEndOfInputCallback)(const VXBaseDataSourceContext *ctx);
-typedef uint64_t(*VXBaseDataSource_GetPositionCallback)(const VXBaseDataSourceContext *ctx);
-typedef bool(*VXBaseDataSource_SetPositionCallback)(
-    VXBaseDataSourceContext *ctx, uint64_t position);
 
 typedef struct _VXBaseDataSource
 {
@@ -127,6 +120,38 @@ static uint64_t VXMemoryDataSource_GetPosition(const VXBaseDataSourceContext *ct
  * @copydoc VXBaseDataSource_SetPosition
  */
 static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_t position);
+
+/* VXCustomDataSource -------------------------------------------------------------------------- */
+
+typedef struct _VXCustomDataSource
+{
+    VXBaseDataSource super;
+    VXBaseDataSource_DestructionCallback userDestruct; // may be NULL
+} VXCustomDataSource;
+
+/**
+ * @brief   Constructor.
+ * @param   ctx             The context.
+ * @param   inputPeekCb     The callback peeking the next input byte.
+ * @param   inputNextCb     The callback consuming the next input byte.
+ * @param   isEndOfInputCb  The callback determining if the end of input was reached.
+ * @param   getPositionCb   The callback obtaining the current input position.
+ * @param   setPositionCb   The callback setting the current input position.
+ * @param   destructionCb   The destruction callback. May be @c NULL.
+ */
+static void VXCustomDataSource_Construct(VXBaseDataSourceContext *ctx,
+    VXBaseDataSource_InputCallback inputPeekCb,
+    VXBaseDataSource_InputCallback inputNextCb,
+    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    VXBaseDataSource_GetPositionCallback getPositionCb,
+    VXBaseDataSource_SetPositionCallback setPositionCb,
+    VXBaseDataSource_DestructionCallback destructionCb);
+
+/**
+ * @brief   Destructor.
+ * @param   The context.
+ */
+static void VXCustomDataSource_Destruct(VXBaseDataSourceContext *ctx);
 
 /* VXInstructionDecoder ------------------------------------------------------------------------ */
 
@@ -367,7 +392,7 @@ static void VXBaseDataSource_Construct(VXBaseDataSourceContext *ctx)
 
 static void VXBaseDataSource_Destruct(VXBaseDataSourceContext *ctx)
 {
-    
+    VX_UNUSED(ctx);
 }
 
 void VXBaseDataSource_Release(VXBaseDataSourceContext *ctx)
@@ -543,6 +568,61 @@ static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_
     return thiz->super.isEndOfInput(ctx);
 }
 
+/* VXCustomDataSource -------------------------------------------------------------------------- */
+
+static void VXCustomDataSource_Construct(VXBaseDataSourceContext *ctx,
+    VXBaseDataSource_InputCallback inputPeekCb,
+    VXBaseDataSource_InputCallback inputNextCb,
+    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    VXBaseDataSource_GetPositionCallback getPositionCb,
+    VXBaseDataSource_SetPositionCallback setPositionCb,
+    VXBaseDataSource_DestructionCallback destructionCb)
+{
+    VXBaseDataSource_Construct(ctx);
+
+    VXCustomDataSource *thiz      = VXCustomDataSource_thiz(ctx);
+    thiz->super.destruct          = &VXCustomDataSource_Destruct;
+    thiz->super.internalInputPeek = inputPeekCb;
+    thiz->super.internalInputNext = inputNextCb;
+    thiz->super.isEndOfInput      = isEndOfInputCb;
+    thiz->super.getPosition       = getPositionCb;
+    thiz->super.setPosition       = setPositionCb;
+
+    thiz->userDestruct = destructionCb;
+}
+
+static void VXCustomDataSource_Destruct(VXBaseDataSourceContext *ctx)
+{
+    VXCustomDataSource *thiz = VXCustomDataSource_thiz(ctx);
+    
+    if (thiz->userDestruct)
+    {
+        thiz->userDestruct(ctx);
+    }
+
+    VXBaseDataSource_Destruct(ctx);
+}
+
+VXBaseDataSourceContext* VXCustomDataSource_Create(
+    VXBaseDataSource_InputCallback inputPeekCb,
+    VXBaseDataSource_InputCallback inputNextCb,
+    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    VXBaseDataSource_GetPositionCallback getPositionCb,
+    VXBaseDataSource_SetPositionCallback setPositionCb,
+    VXBaseDataSource_DestructionCallback destructionCb)
+{
+    VXCustomDataSource *thiz     = malloc(sizeof(VXCustomDataSource));
+    VXBaseDataSourceContext *ctx = malloc(sizeof(VXBaseDataSourceContext));
+
+    ctx->d.type = TYPE_CUSTOMDATASOURCE;
+    ctx->d.ptr  = thiz;
+
+    VXCustomDataSource_Construct(ctx, inputPeekCb, inputNextCb, isEndOfInputCb, getPositionCb,
+        setPositionCb, destructionCb);
+
+    return ctx;
+}
+
 /* VXInstructionDecoder ------------------------------------------------------------------------ */
 
 void VXInstructionDecoder_Construct(VXInstructionDecoderContext *ctx,
@@ -559,7 +639,7 @@ void VXInstructionDecoder_Construct(VXInstructionDecoderContext *ctx,
 
 void VXInstructionDecoder_Destruct(VXInstructionDecoderContext *ctx)
 {
-    
+    VX_UNUSED(ctx);
 }
 
 VXInstructionDecoderContext* VXInstructionDecoder_Create(void)
@@ -1377,7 +1457,7 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
     case DOT_R6: 
     case DOT_R7: 
         return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
-            ((info->eff_rexvex_b << 3) | operandType - DOT_R0), operandSize);
+            (uint8_t)((info->eff_rexvex_b << 3) | operandType - DOT_R0), operandSize);
     case DOT_AL: 
     case DOT_AX: 
     case DOT_EAX: 
@@ -1411,7 +1491,7 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
             }
         }
         operand->type = OPTYPE_REGISTER;
-        operand->base = operandType - DOT_ES + REG_ES;
+        operand->base = (uint16_t)(operandType - DOT_ES + REG_ES);
         operand->size = 16;
         break;
     case DOT_ST0: 
@@ -1423,7 +1503,7 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
     case DOT_ST6: 
     case DOT_ST7: 
         operand->type = OPTYPE_REGISTER;
-        operand->base = operandType - DOT_ST0 + REG_ST0;
+        operand->base = (uint16_t)(operandType - DOT_ST0 + REG_ST0);
         operand->size = 80;
         break;
     default: 
@@ -1472,6 +1552,8 @@ static void VXInstructionDecoder_ResolveOperandAndAddressMode(
 static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
     const VXInstructionDecoderContext *ctx, VXInstructionInfo *info)
 {
+    VX_UNUSED(ctx);
+
     assert(info->instrDefinition);
     uint8_t rex = info->rex;
     if (info->flags & IF_PREFIX_VEX)
