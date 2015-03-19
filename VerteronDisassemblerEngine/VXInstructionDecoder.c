@@ -60,14 +60,17 @@ typedef struct _VXBaseDataSource
     VXBaseDataSource_SetPositionCallback setPosition;
 } VXBaseDataSource;
 
+/**
+ * @brief   Constructor.
+ * @param   ctx The context.
+ */
 static void VXBaseDataSource_Construct(VXBaseDataSourceContext *ctx);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXBaseDataSource_Destruct(VXBaseDataSourceContext *ctx);
-uint8_t VXBaseDataSource_InputPeek(VXBaseDataSourceContext *ctx, VXInstructionInfo *info);
-uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionInfo *info);
-uint16_t VXBaseDataSource_InputNext16(VXBaseDataSourceContext *ctx, VXInstructionInfo *info);
-uint32_t VXBaseDataSource_InputNext32(VXBaseDataSourceContext *ctx, VXInstructionInfo *info);
-uint64_t VXBaseDataSource_InputNext64(VXBaseDataSourceContext *ctx, VXInstructionInfo *info);
-uint8_t VXBaseDataSource_InputCurrent(const VXBaseDataSourceContext *ctx);
 
 /* VXMemoryDataSource -------------------------------------------------------------------------- */
 
@@ -79,14 +82,50 @@ typedef struct _VXMemoryDataSource
     uint64_t inputBufferPos;
 } VXMemoryDataSource;
 
+/**
+ * @brief   Constructor.
+ * @param   ctx         The context.
+ * @param   buffer      The buffer.
+ * @param   bufferLen   Length of the buffer.
+ */
 static void VXMemoryDataSource_Construct(VXBaseDataSourceContext *ctx, const void* buffer, 
     size_t bufferLen);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx);
-VXBaseDataSourceContext* VXMemoryDataSource_Create(const void* buffer, size_t bufferLen);
+
+/**
+ * @brief   Reads the next byte from the data source.
+ * @param   ctx The context.
+ * @return  The current input byte.
+ * This method increases the current input position by one.  
+ */
 static uint8_t VXMemoryDataSource_InternalInputPeek(VXBaseDataSourceContext *ctx);
+
+/**
+ * @brief   Reads the next byte from the data source.
+ * @param   ctx The context.
+ * @return  The current input byte.
+ * This method does NOT increase the current input position.
+ */
 static uint8_t VXMemoryDataSource_InternalInputNext(VXBaseDataSourceContext *ctx);
+
+/**
+ * @copydoc VXBaseDataSource_IsEndOfInput
+ */
 static bool VXMemoryDataSource_IsEndOfInput(const VXBaseDataSourceContext *ctx);
+
+/**
+ * @copydoc VXBaseDataSource_GetPosition
+ */
 static uint64_t VXMemoryDataSource_GetPosition(const VXBaseDataSourceContext *ctx);
+
+/**
+ * @copydoc VXBaseDataSource_SetPosition
+ */
 static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_t position);
 
 /* VXInstructionDecoder ------------------------------------------------------------------------ */
@@ -109,69 +148,211 @@ typedef enum _VXRegisterClass /* : uint8_t */
     RC_XMM
 } VXRegisterClass;
 
+/**
+ * @brief   Reads the next byte from the data source.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @return  The current input byte. If the result is zero, you should always check the 
+ *          @c flags field of the @c info parameter for error flags.
+ *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
+ * This method does NOT increase the current input position or the @c length field of the 
+ * @c info parameter. 
+ */
 static uint8_t VXInstructionDecoder_InputPeek(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Reads the next byte(s) from the data source.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @return  The current input data. If the result is zero, you should always check the 
+ *          @c flags field of the @c info parameter for error flags.
+ *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
+ * This method increases the current input position and the @c length field of the @info 
+ * parameter. This method also appends the new byte(s) to to @c data field of the @c info 
+ * parameter.
+ */
 static uint8_t VXInstructionDecoder_InputNext8(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @copydoc VXInstructionDecoder_InputNext8
+ */
 static uint16_t VXInstructionDecoder_InputNext16(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @copydoc VXInstructionDecoder_InputNext8
+ */
 static uint32_t VXInstructionDecoder_InputNext32(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @copydoc VXInstructionDecoder_InputNext8
+ */
 static uint64_t VXInstructionDecoder_InputNext64(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Returns the current input byte. 
+ * @param   ctx     The context.
+ * @return  The current input byte.
+ * The current input byte is set everytime the @c VXInstructionDecoder_InputPeek or 
+ * @c VXInstructionDecoder_InputNextXX function is called.
+ */
 static uint8_t VXInstructionDecoder_InputCurrent(const VXInstructionDecoderContext *ctx);
-VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
-    const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetDataSource(VXInstructionDecoderContext *ctx, 
-    VXBaseDataSourceContext *input);
-VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
-    const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetDisassemblerMode(VXInstructionDecoderContext *ctx, 
-    VXDisassemblerMode disassemblerMode);
-VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
-    const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetPreferredVendor(VXInstructionDecoderContext *ctx, 
-    VXInstructionSetVendor preferredVendor);
-uint64_t VXInstructionDecoder_GetInstructionPointer(const VXInstructionDecoderContext *ctx);
-void VXInstructionDecoder_SetInstructionPointer(VXInstructionDecoderContext *ctx, 
-    uint64_t instructionPointer);
+
+/**
+ * @brief   Decodes a register operand.
+ * @param   ctx             The context.
+ * @param   info            The instruction info.
+ * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+ * @param   registerClass   The register class to use.
+ * @param   registerId      The register id.
+ * @param   operandSize     The defined size of the operand.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeRegisterOperand(const VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
     uint8_t registerId, VXDefinedOperandSize operandSize);
+
+/**
+ * @brief   Decodes a register/memory operand.
+ * @param   ctx             The context.
+ * @param   info            The instruction info.
+ * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+ * @param   registerClass   The register class to use.
+ * @param   operandSize     The defined size of the operand.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
     VXDefinedOperandSize operandSize);
+
+/**
+ * @brief   Decodes an immediate operand.
+ * @param   ctx         The context.
+ * @param   info        The instruction info.
+ * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operandSize The defined size of the operand.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandSize operandSize);
+
+/**
+ * @brief   Decodes a displacement operand.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @param   operand The @c VXOperandInfo struct that receives the decoded data.
+ * @param   size    The size of the displacement data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info, VXOperandInfo *operand, uint8_t size);
+
+/**
+ * @brief   Decodes the ModRM field of the instruction.
+ * @param   ctx The context.
+ * @param   The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ * This method reads an additional input byte.
+ */
 static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Decodes the SIB field of the instruction.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.1
+ * This method reads an additional input byte.
+ */
 static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Decodes VEX prefix of the instruction. 
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ * This method takes the current input byte to determine the vex prefix type and reads one or 
+ * two additional input bytes on demand.
+ */
 static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Returns the effective operand size.
+ * @param   ctx         The context.
+ * @param   info        The instruction info.
+ * @param   operandSize The defined operand size.
+ * @return  The effective operand size.
+ */
 static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(
     const VXInstructionDecoderContext *ctx, const VXInstructionInfo *info, 
     VXDefinedOperandSize operandSize);
+
+/**
+ * @brief   Decodes all instruction operands.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Decodes the specified instruction operand.
+ * @param   ctx         The context.
+ * @param   info        The instruction info.
+ * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operandType The defined type of the operand.
+ * @param   operandSize The defined size of the operand.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandType operandType, 
     VXDefinedOperandSize operandSize);
+
+/**
+ * @brief   Resolves the effective operand and address mode of the instruction.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+ *                  address mode.
+ * @remarks This function requires a non-null value in the @c instrDefinition field of the 
+ *          @c info struct.
+ */
 static void VXInstructionDecoder_ResolveOperandAndAddressMode(
     const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+
+/**
+ * @brief   Calculates the effective REX/VEX.w, r, x, b, l values.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+ *                  address mode.
+ * @remarks This method requires a non-null value in the @c instrDefinition field of the 
+ *          @c info struct.
+ */
 static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
     const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+
+/**
+ * @brief   Collects and decodes optional instruction prefixes.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx, 
     VXInstructionInfo *info);
+
+/**
+ * @brief   Collects and decodes the instruction opcodes using the opcode tree.
+ * @param   ctx     The context.
+ * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @return  @c true if it succeeds, @c false if it fails.
+ */
 static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
-VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
-VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
-    VXBaseDataSourceContext *input, VXDisassemblerMode disassemblerMode, 
-    VXInstructionSetVendor preferredVendor, uint64_t instructionPointer);
-bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx,
     VXInstructionInfo *info);
 
 /* Implementation ============================================================================== */
@@ -842,10 +1023,10 @@ static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx,
         info->modrm_rm  = (info->modrm >> 0) & 0x07;
     }
 
-    // The @c decodeModrm method might get called multiple times during the opcode- and the
-    // operand decoding, but the effective REX/VEX fields are not initialized before the end of  
-    // the opcode decoding process-> As the extended values are only used for the operand decoding,
-    // we should have no problems->
+    // This function might get called multiple times during the opcode- and the operand decoding, 
+    // but the effective REX/VEX fields are not initialized before the end of  the opcode 
+    // decoding process-> As the extended values are only used for the operand decoding, we 
+    // should have no problems->
     info->modrm_reg_ext = (info->eff_rexvex_r << 3) | info->modrm_reg;
     info->modrm_rm_ext  = (info->eff_rexvex_b << 3) | info->modrm_rm;
     return true;
@@ -856,6 +1037,7 @@ static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx,
 {
     assert(info->flags & IF_MODRM);
     assert((info->modrm_rm & 0x7) == 4);
+
     if (!(info->flags & IF_SIB))
     {
         info->sib = VXInstructionDecoder_InputNext8(ctx, info);
@@ -872,6 +1054,7 @@ static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx,
         info->sib_index_ext = (info->eff_rexvex_x << 3) | info->sib_index;
         info->sib_base_ext  = (info->eff_rexvex_b << 3) | info->sib_base;
     }
+
     return true;
 }
 
@@ -924,6 +1107,7 @@ static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx,
         default:
             assert(0);
         }
+
         if (info->vex_m_mmmm > 3)
         {
             // TODO: Add proper error flag

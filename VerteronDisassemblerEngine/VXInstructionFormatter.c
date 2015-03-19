@@ -59,11 +59,17 @@ typedef struct _VXBaseSymbolResolver
     VXBaseSymbolResolver_ResolveSymbolCallback  resolveCallback;
 } VXBaseSymbolResolver;
 
+/**
+ * @brief   Constructor.
+ * @param   ctx The context.
+ */
 static void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
-void VXBaseSymbolResolver_Release(VXBaseSymbolResolverContext *ctx);
-const char* VXBaseSymbolResolver_ResolveSymbol(VXBaseSymbolResolverContext *ctx, 
-    const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 
 /* VXBaseInstructionFormatter ------------------------------------------------------------------ */
 
@@ -83,33 +89,103 @@ typedef struct _VXBaseInstructionFormatter
     bool outputUppercase;
 } VXBaseInstructionFormatter;
 
+/**
+ * @brief   Constructor.
+ * @param   ctx             The context.
+ * @param   symbolResolver  The symbol resolver to use when formatting addresses.
+ */
 static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
     VXBaseSymbolResolverContext *symbolResolver);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
-void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx);
-/*static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx, bool uppercase);*/
+
+/*static void VXBaseInstructionFormatter_OutputSetUppercase(
+    VXBaseInstructionFormatterContext *ctx, bool uppercase);*/
+
+/**
+ * @brief   Returns the string representation of a given register.
+ * @param   ctx The context.
+ * @param   reg The register.
+ * @return  The string representation of the given register.
+ */
 static char const* VXBaseInstructionFormatter_RegisterToString(
     const VXBaseInstructionFormatterContext *ctx, VXRegister reg);
+
+/**
+ * @brief   Resolves a symbol.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @param   address The address.
+ * @param   offset  Reference to an unsigned 64 bit integer that receives an offset relative 
+ *                  to the base address of the symbol.
+ * @return  The name of the symbol, if the symbol was found, @c NULL if not.
+ */
 static char const* VXBaseInstructionFormatter_ResolveSymbol(
     const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, 
     uint64_t *offset);
-VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
-    const VXBaseInstructionFormatterContext *ctx);
-void VXBaseInstructionFormatter_SetSymbolResolver(VXBaseInstructionFormatterContext *ctx, 
-    VXBaseSymbolResolverContext *symbolResolver);
-const char* VXBaseInstructionFormatter_FormatInstruction(VXBaseInstructionFormatterContext *ctx, 
-    const VXInstructionInfo *info);
+
+/**
+ * @brief   Clears the output string buffer.
+ * @param   ctx The context.
+ */
 static void VXBaseInstructionFormatter_OutputClear(VXBaseInstructionFormatterContext *ctx);
+
+/**
+ * @brief   Returns the content of the output string buffer.
+ * @param   ctx The context.
+ * @return  Pointer to the content of the ouput string buffer.
+ */
 static char const* VXBaseInstructionFormatter_OutputString(VXBaseInstructionFormatterContext *ctx);
+
+/**
+ * @brief   Appends text to the ouput string buffer.
+ * @param   ctx     The context.
+ * @param   text    The text.
+ */
 static void VXBaseInstructionFormatter_OutputAppend(VXBaseInstructionFormatterContext *ctx, 
     char const *text);
+
+/**
+ * @brief   Appends formatted text to the output string buffer.
+ * @param   ctx     The context.
+ * @param   format  The format string.
+ */
 static void VXBaseInstructionFormatter_OutputAppendFormatted(
     VXBaseInstructionFormatterContext *ctx, char const *format, ...);
+
+/**
+ * @brief   Appends a formatted address to the output string buffer.
+ * @param   ctx             The context.
+ * @param   info            The instruction info.
+ * @param   address         The address.
+ * @param   resolveSymbols  If this parameter is true, the function will try to display a
+ *                          smybol name instead of the numeric value.
+ */
 static void VXBaseInstructionFormatter_OutputAppendAddress(VXBaseInstructionFormatterContext *ctx, 
-    const VXInstructionInfo *info,  uint64_t address, bool resolveSymbols);
+    const VXInstructionInfo *info, uint64_t address, bool resolveSymbols);
+
+/**
+ * @brief   Appends a formatted immediate value to the output string buffer.
+ * @param   ctx             The context.
+ * @param   info            The instruction info.
+ * @param   operand         The immediate operand.
+ * @param   resolveSymbols  If this parameter is true, the function will try to display a
+ *                          smybol name instead of the numeric value.
+ */
 static void VXBaseInstructionFormatter_OutputAppendImmediate(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
     const VXOperandInfo *operand, bool resolveSymbols);
+
+/**
+ * @brief   Appends a formatted memory displacement value to the output string buffer.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @param   operand The memory operand.
+ */
 static void VXBaseInstructionFormatter_OutputAppendDisplacement(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
     const VXOperandInfo *operand);
@@ -123,11 +199,24 @@ typedef struct _VXCustomSymbolResolver
     void *userData;
 } VXCustomSymbolResolver;
 
+/**
+ * @brief   Constructor.
+ * @param   ctx         The context.
+ * @param   resolverCb  The resolver callback.
+ * @param   userData    User defined data passed to the resolver callback.
+ */
 static void VXCustomSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx, 
     VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXCustomSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
-VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
-    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
+
+/**
+ * @copydoc VXBaseSymbolResolver_Resolve
+ */
 static const char* VXCustomSymbolResolver_Resolve(VXBaseSymbolResolverContext *ctx, 
     const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
 
@@ -138,17 +227,43 @@ typedef struct _VXIntelInstructionFormatter
     VXBaseInstructionFormatter super;
 } VXIntelInstructionFormatter;
 
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
-    VXBaseSymbolResolverContext *resolver);
+/**
+ * @brief   Constructor.
+ * @param   ctx             The context.
+ * @param   symbolResolver  The symbol resolver used to resolve addresses.
+ * @param   userData        User defined data passed to the resolver callback.
+ */
 static void VXIntelInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
     VXBaseSymbolResolverContext *symbolResolver);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
 static void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+
+/**
+ * @brief   Appends an operand cast to the output string buffer.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @param   operand The operand.
+ */
 static void VXIntelInstructionFormatter_OutputAppendOperandCast(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
     const VXOperandInfo *operand);
+
+/**
+ * @brief   Formats the specified operand and appends it to the output buffer.
+ * @param   ctx     The context.
+ * @param   info    The instruction info.
+ * @param   operand The operand.
+ */
 static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatterContext *ctx, 
     const VXInstructionInfo *info, const VXOperandInfo *operand);
+
+/**
+ * @coypdoc VXBaseInstructionFormatter_InternalFormatInstruction
+ */
 static void VXIntelInstructionFormatter_InternalFormatInstruction(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
 
