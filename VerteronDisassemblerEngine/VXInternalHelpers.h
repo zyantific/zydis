@@ -51,6 +51,7 @@ typedef enum _VXTypeId
     TYPE_CUSTOMSYMBOLRESOLVER,
     TYPE_BASEINSTRUCTIONFORMATTER,
     TYPE_INTELINSTRUCTIONFORMATTER,
+    TYPE_CUSTOMINSTRUCTIONFORMATTER,
 } VXTypeId;
 
 /* Context conversion helpers ================================================================== */
@@ -149,7 +150,8 @@ VX_INLINE struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_thiz(
     VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEINSTRUCTIONFORMATTER 
-        || ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER);
+        || ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER
+        || ctx->d.type == TYPE_CUSTOMINSTRUCTIONFORMATTER);
     return (struct _VXBaseInstructionFormatter*)ctx->d.ptr;
 }
 
@@ -157,7 +159,8 @@ VX_INLINE const struct _VXBaseInstructionFormatter* VXBaseInstructionFormatter_c
     const VXBaseInstructionFormatterContext *ctx)
 {
     assert(ctx->d.type == TYPE_BASEINSTRUCTIONFORMATTER
-        || ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER);
+        || ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER
+        || ctx->d.type == TYPE_CUSTOMINSTRUCTIONFORMATTER);
     return (const struct _VXBaseInstructionFormatter*)ctx->d.ptr;
 }
 
@@ -173,6 +176,20 @@ VX_INLINE const struct _VXIntelInstructionFormatter* VXIntelInstructionFormatter
 {
     assert(ctx->d.type == TYPE_INTELINSTRUCTIONFORMATTER);
     return (const struct _VXIntelInstructionFormatter*)ctx->d.ptr;
+}
+
+VX_INLINE struct _VXCustomInstructionFormatter* VXCustomInstructionFormatter_thiz(
+    VXBaseInstructionFormatterContext *ctx)
+{
+    assert(ctx->d.type == TYPE_CUSTOMINSTRUCTIONFORMATTER);
+    return (struct _VXCustomInstructionFormatter*)ctx->d.ptr;
+}
+
+VX_INLINE const struct _VXCustomInstructionFormatter* VXCustomInstructionFormatter_cthiz(
+    const VXBaseInstructionFormatterContext *ctx)
+{
+    assert(ctx->d.type == TYPE_CUSTOMINSTRUCTIONFORMATTER);
+    return (struct _VXCustomInstructionFormatter*)ctx->d.ptr;
 }
 
 /* ============================================================================================= */

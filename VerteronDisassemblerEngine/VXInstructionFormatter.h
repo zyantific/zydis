@@ -97,6 +97,9 @@ typedef struct _VXBaseInstructionFormatterContext
     VXContextDescriptor d;
 } VXBaseInstructionFormatterContext;
 
+typedef void(*VXBaseInstructionFormatter_InternalFormatInstructionCallback)(
+    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
+
 /**
  * @brief   Formats a decoded instruction.
  * @param   ctx     The instruction formatter context.
@@ -134,7 +137,7 @@ VX_EXPORT void VXBaseInstructionFormatter_SetSymbolResolver(
 VX_EXPORT void VXBaseInstructionFormatter_Release(
     VXBaseInstructionFormatterContext *ctx);
 
-/* VXIntelInstructionFormatter ================================================================ */
+/* VXIntelInstructionFormatter ================================================================= */
 
 /**
  * @brief   Creates an Intel-syntax instruction formatter.
@@ -151,6 +154,16 @@ VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(
  */
 VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
     VXBaseSymbolResolverContext *resolver);
+
+/* VXCustomInstructionFormatter ================================================================ */
+
+/**
+ * @brief   Creats a custom instruction formatter.
+ * @param   formatInsnCb    The callback formatting the instruction.
+ * @return  @c NULL if it fails, else a custom instruction formatter context.
+ */
+VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create(
+    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
 
 /* ============================================================================================= */
 

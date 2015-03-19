@@ -75,8 +75,6 @@ static void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
 
 typedef void(*VXBaseInstructionFormatter_DestructionCallback)(
     VXBaseInstructionFormatterContext *ctx);
-typedef void(*VXBaseInstructionFormatter_InternalFormatInstructionCallback)(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
 
 typedef struct _VXBaseInstructionFormatter
 {
@@ -262,6 +260,27 @@ static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatter
  */
 static void VXIntelInstructionFormatter_InternalFormatInstruction(
     VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
+
+/* VXCustomInstructionFormatter ---------------------------------------------------------------- */
+
+typedef struct _VXCustomInstructionFormatter
+{
+    VXBaseInstructionFormatter super;
+} VXCustomInstructionFormatter;
+
+/**
+ * @brief   Contructor.
+ * @param   ctx             The context.
+ * @param   formatInsnCb    The callback formatting the instruction.
+ */
+static void VXCustomInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx,
+    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
+
+/**
+ * @brief   Destructor.
+ * @param   ctx The context.
+ */
+static void VXCustomInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
 
 /* Implementation ============================================================================== */
 
@@ -1067,6 +1086,49 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
         VXBaseInstructionFormatter_OutputAppend(ctx, ", ");
         VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[3]);
     }
+}
+
+/* VXCustomInstructionFormatter ---------------------------------------------------------------- */
+
+static void VXCustomInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx,
+    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
+{
+    VXBaseInstructionFormatter_Construct(ctx, NULL);
+
+    VXCustomInstructionFormatter *thiz = VXCustomInstructionFormatter_thiz(ctx);
+    thiz->super.internalFormat = formatInsnCb;
+}
+
+static void VXCustomInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx)
+{
+    VXBaseInstructionFormatter_Destruct(ctx);
+}
+
+VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create(
+    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
+{
+    VXCustomInstructionFormatter *thiz = malloc(sizeof(VXCustomInstructionFormatter));
+    VXBaseInstructionFormatterContext *ctx = malloc(sizeof(VXBaseInstructionFormatterContext));
+
+    if (!thiz || !ctx)
+    {
+        if (thiz)
+        {
+            free(thiz);
+        }
+        if (ctx)
+        {
+            free(ctx);
+        }
+
+        return NULL;
+    }
+
+    ctx->d.type = TYPE_CUSTOMINSTRUCTIONFORMATTER;
+    ctx->d.ptr  = thiz;
+
+    VXCustomInstructionFormatter_Construct(ctx, formatInsnCb);
+    return ctx;
 }
 
 /* --------------------------------------------------------------------------------------------- */
