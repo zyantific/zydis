@@ -30,11 +30,11 @@
 
 **************************************************************************************************/
 
-#include "VXDisassemblerUtils.h"
+#include "ZyDisDisassemblerUtils.h"
 
 #include <assert.h>
 
-uint64_t VXCalcAbsoluteTarget(const VXInstructionInfo *info, const VXOperandInfo *operand)
+uint64_t ZyDisCalcAbsoluteTarget(const ZyDisInstructionInfo *info, const ZyDisOperandInfo *operand)
 {
     assert((operand->type == OPTYPE_REL_IMMEDIATE) || 
         ((operand->type == OPTYPE_MEMORY) && (operand->base == REG_RIP)));

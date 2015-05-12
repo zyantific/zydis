@@ -28,14 +28,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
- **************************************************************************************************/
+**************************************************************************************************/
 
-#ifndef _VDE_VXDISASSEMBLERC_H_
-#define _VDE_VXDISASSEMBLERC_H_
+#ifndef _VDE_ZyDisDISASSEMBLERUTILSC_H_
+#define _VDE_ZyDisDISASSEMBLERUTILSC_H_
 
-#include "VXDisassemblerTypes.h"
-#include "VXInstructionDecoder.h"
-#include "VXInstructionFormatter.h"
-#include "VXDisassemblerUtils.h"
+#include "ZyDisDisassemblerTypes.h"
+#include "ZyDisInternalConfig.h"
 
-#endif /* _VDE_VXDISASSEMBLERC_H_ */
+#include <stdint.h>
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+typedef struct _ZyDisContextDescriptor
+{
+    uint8_t type;
+    void *ptr;
+} ZyDisContextDescriptor;
+
+/**
+ * @brief   Calculates the absolute target address of a relative instruction operand.
+ * @param   info    The instruction info.
+ * @param   operand The operand.
+ * @return  The absolute target address.
+ */
+ZYDIS_EXPORT uint64_t ZyDisCalcAbsoluteTarget(
+    const ZyDisInstructionInfo *info, 
+    const ZyDisOperandInfo *operand);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* _VDE_ZyDisDISASSEMBLERUTILSC_H_ */

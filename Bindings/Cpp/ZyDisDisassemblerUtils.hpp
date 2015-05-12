@@ -32,7 +32,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "VXDisassemblerTypes.hpp"
+#include "ZyDisDisassemblerTypes.hpp"
 
 namespace Verteron
 {
@@ -43,6 +43,6 @@ namespace Verteron
  * @param   operand The operand.
  * @return  The absolute target address.
  */
-uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand);
+uint64_t VDECalcAbsoluteTarget(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand);
 
 }

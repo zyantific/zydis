@@ -44,42 +44,42 @@ endif ()
 
 # Library
 set(vde_headers
-    "VerteronDisassemblerEngine/VXDisassembler.h"
-    "VerteronDisassemblerEngine/VXDisassemblerTypes.h"
-    "VerteronDisassemblerEngine/VXDisassemblerUtils.h"
-    "VerteronDisassemblerEngine/VXInstructionDecoder.h"
-    "VerteronDisassemblerEngine/VXInstructionFormatter.h"
-    "VerteronDisassemblerEngine/VXOpcodeTable.h"
-    "VerteronDisassemblerEngine/VXOpcodeTableInternal.h"
-    "VerteronDisassemblerEngine/VXInternalHelpers.h"
-    "VerteronDisassemblerEngine/VXInternalConfig.h")
+    "VerteronDisassemblerEngine/ZyDisDisassembler.h"
+    "VerteronDisassemblerEngine/ZyDisDisassemblerTypes.h"
+    "VerteronDisassemblerEngine/ZyDisDisassemblerUtils.h"
+    "VerteronDisassemblerEngine/ZyDisInstructionDecoder.h"
+    "VerteronDisassemblerEngine/ZyDisInstructionFormatter.h"
+    "VerteronDisassemblerEngine/ZyDisOpcodeTable.h"
+    "VerteronDisassemblerEngine/ZyDisOpcodeTableInternal.h"
+    "VerteronDisassemblerEngine/ZyDisInternalHelpers.h"
+    "VerteronDisassemblerEngine/ZyDisInternalConfig.h")
 set(vde_sources
-    "VerteronDisassemblerEngine/VXDisassemblerUtils.c"
-    "VerteronDisassemblerEngine/VXInstructionFormatter.c"
-    "VerteronDisassemblerEngine/VXOpcodeTable.c"
-    "VerteronDisassemblerEngine/VXInstructionDecoder.c")
+    "VerteronDisassemblerEngine/ZyDisDisassemblerUtils.c"
+    "VerteronDisassemblerEngine/ZyDisInstructionFormatter.c"
+    "VerteronDisassemblerEngine/ZyDisOpcodeTable.c"
+    "VerteronDisassemblerEngine/ZyDisInstructionDecoder.c")
 
 add_library("VerteronDisassemblerEngine" ${vde_headers} ${vde_sources})
 generate_export_header(
     "VerteronDisassemblerEngine" 
-    BASE_NAME "VX"
-    EXPORT_FILE_NAME "VXExportConfig.h")
+    BASE_NAME "ZyDis"
+    EXPORT_FILE_NAME "ZyDisExportConfig.h")
 include_directories(${PROJECT_BINARY_DIR})
 
 # C++ bindings
 if (BUILD_CPP_BINDINGS)
     set(vdecpp_headers
-        "Bindings/Cpp/VXDisassembler.hpp"
-        "Bindings/Cpp/VXDisassemblerTypes.hpp"
-        "Bindings/Cpp/VXDisassemblerUtils.hpp"
-        "Bindings/Cpp/VXInstructionDecoder.hpp"
-        "Bindings/Cpp/VXInstructionFormatter.hpp"
-        "Bindings/Cpp/VXOpcodeTable.hpp")
+        "Bindings/Cpp/ZyDisDisassembler.hpp"
+        "Bindings/Cpp/ZyDisDisassemblerTypes.hpp"
+        "Bindings/Cpp/ZyDisDisassemblerUtils.hpp"
+        "Bindings/Cpp/ZyDisInstructionDecoder.hpp"
+        "Bindings/Cpp/ZyDisInstructionFormatter.hpp"
+        "Bindings/Cpp/ZyDisOpcodeTable.hpp")
     set(vdecpp_sources
-        "Bindings/Cpp/VXDisassemblerUtils.cpp"
-        "Bindings/Cpp/VXInstructionFormatter.cpp"
-        "Bindings/Cpp/VXOpcodeTable.cpp"
-        "Bindings/Cpp/VXInstructionDecoder.cpp")
+        "Bindings/Cpp/ZyDisDisassemblerUtils.cpp"
+        "Bindings/Cpp/ZyDisInstructionFormatter.cpp"
+        "Bindings/Cpp/ZyDisOpcodeTable.cpp"
+        "Bindings/Cpp/ZyDisInstructionDecoder.cpp")
     add_library("VerteronDisassemblerEngineCpp" ${vdecpp_headers} ${vdecpp_sources})
     target_link_libraries("VerteronDisassemblerEngineCpp" "VerteronDisassemblerEngine")
 endif ()

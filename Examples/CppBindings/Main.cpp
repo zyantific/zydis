@@ -33,7 +33,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <VXDisassembler.hpp>
+#include <ZyDisDisassembler.hpp>
 
 using namespace Verteron;
 

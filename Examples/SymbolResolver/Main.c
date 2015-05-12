@@ -30,12 +30,12 @@
 
 **************************************************************************************************/
 
-#include <VXDisassembler.h>
+#include <ZyDisDisassembler.h>
 #include <Windows.h>
 
 int main(int argc, char* argv[])
 {
-    VX_UNUSED(argc); VX_UNUSED(argv);
+    ZYDIS_UNUSED(argc); ZYDIS_UNUSED(argv);
 
     // TODO: port to C
     /*
@@ -57,14 +57,14 @@ int main(int argc, char* argv[])
         return 1;
     }
     // Initialize disassembler
-    VXInstructionInfo info;
-    VXInstructionDecoder decoder;
-    VXExactSymbolResolver resolver;
-    VXIntelInstructionFormatter formatter;
+    ZyDisInstructionInfo info;
+    ZyDisInstructionDecoder decoder;
+    ZyDisExactSymbolResolver resolver;
+    ZyDisIntelInstructionFormatter formatter;
 #ifdef _M_X64
-    decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
+    decoder.setDisassemblerMode(ZyDisDisassemblerMode::M64BIT);
 #else
-    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+    decoder.setDisassemblerMode(ZyDisDisassemblerMode::M32BIT);
 #endif
     formatter.setSymbolResolver(&resolver);
     // Initialize output stream
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     {
         if (sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE)
         {
-            VXMemoryDataSource input(reinterpret_cast<const void*>(
+            ZyDisMemoryDataSource input(reinterpret_cast<const void*>(
                 baseAddress + sectionHeader->VirtualAddress), sectionHeader->SizeOfRawData);
             decoder.setDataSource(&input);
             decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);
@@ -94,31 +94,31 @@ int main(int argc, char* argv[])
                 }
                 switch (info.mnemonic)
                 {
-                case VXInstructionMnemonic::CALL:
+                case ZyDisInstructionMnemonic::CALL:
                     resolver.setSymbol(VDECalcAbsoluteTarget(info, info.operand[0]), 
                         std::string("sub_" + std::to_string(subCount)).c_str());
                     subCount++;
                     break;
-                case VXInstructionMnemonic::JMP:
-                case VXInstructionMnemonic::JO:
-                case VXInstructionMnemonic::JNO:
-                case VXInstructionMnemonic::JB:
-                case VXInstructionMnemonic::JNB:
-                case VXInstructionMnemonic::JE:
-                case VXInstructionMnemonic::JNE:
-                case VXInstructionMnemonic::JBE:
-                case VXInstructionMnemonic::JA:
-                case VXInstructionMnemonic::JS:
-                case VXInstructionMnemonic::JNS:
-                case VXInstructionMnemonic::JP:
-                case VXInstructionMnemonic::JNP:
-                case VXInstructionMnemonic::JL:
-                case VXInstructionMnemonic::JGE:
-                case VXInstructionMnemonic::JLE:
-                case VXInstructionMnemonic::JG:
-                case VXInstructionMnemonic::JCXZ:
-                case VXInstructionMnemonic::JECXZ:
-                case VXInstructionMnemonic::JRCXZ:
+                case ZyDisInstructionMnemonic::JMP:
+                case ZyDisInstructionMnemonic::JO:
+                case ZyDisInstructionMnemonic::JNO:
+                case ZyDisInstructionMnemonic::JB:
+                case ZyDisInstructionMnemonic::JNB:
+                case ZyDisInstructionMnemonic::JE:
+                case ZyDisInstructionMnemonic::JNE:
+                case ZyDisInstructionMnemonic::JBE:
+                case ZyDisInstructionMnemonic::JA:
+                case ZyDisInstructionMnemonic::JS:
+                case ZyDisInstructionMnemonic::JNS:
+                case ZyDisInstructionMnemonic::JP:
+                case ZyDisInstructionMnemonic::JNP:
+                case ZyDisInstructionMnemonic::JL:
+                case ZyDisInstructionMnemonic::JGE:
+                case ZyDisInstructionMnemonic::JLE:
+                case ZyDisInstructionMnemonic::JG:
+                case ZyDisInstructionMnemonic::JCXZ:
+                case ZyDisInstructionMnemonic::JECXZ:
+                case ZyDisInstructionMnemonic::JRCXZ:
                     resolver.setSymbol(VDECalcAbsoluteTarget(info, info.operand[0]), 
                         std::string("loc_" + std::to_string(locCount)).c_str());
                     locCount++;
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
     {
         if (sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE)
         {
-            VXMemoryDataSource input(reinterpret_cast<const void*>(
+            ZyDisMemoryDataSource input(reinterpret_cast<const void*>(
                 baseAddress + sectionHeader->VirtualAddress), sectionHeader->SizeOfRawData);
             decoder.setDataSource(&input);
             decoder.setInstructionPointer(baseAddress + sectionHeader->VirtualAddress);

@@ -30,31 +30,31 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXINSTRUCTIONFORMATTERC_H_
-#define _VDE_VXINSTRUCTIONFORMATTERC_H_
+#ifndef _VDE_ZyDisINSTRUCTIONFORMATTERC_H_
+#define _VDE_ZyDisINSTRUCTIONFORMATTERC_H_
 
-#include "VXDisassemblerTypes.h"
-#include "VXDisassemblerUtils.h"
+#include "ZyDisDisassemblerTypes.h"
+#include "ZyDisDisassemblerUtils.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-/* VXBaseSymbolResolver ======================================================================== */
+/* ZyDisBaseSymbolResolver ======================================================================== */
 
-typedef struct _VXBaseSymbolResolverContext 
+typedef struct _ZyDisBaseSymbolResolverContext 
 { 
-    VXContextDescriptor d; 
-} VXBaseSymbolResolverContext;
+    ZyDisContextDescriptor d; 
+} ZyDisBaseSymbolResolverContext;
 
 /**
  * @brief   Releases a symbol resolver.
  * @param   ctx The context of the symbol resolver to free.
  * The context may no longer used after it was released.
  */
-VX_EXPORT void VXBaseSymbolResolver_Release(
-    VXBaseSymbolResolverContext *ctx);
+ZYDIS_EXPORT void ZyDisBaseSymbolResolver_Release(
+    ZyDisBaseSymbolResolverContext *ctx);
 
 /**
  * @brief   Resolves a symbol.
@@ -65,16 +65,16 @@ VX_EXPORT void VXBaseSymbolResolver_Release(
  *                  the base address of the symbol.
  * @return  The name of the symbol if the symbol was found, else @c NULL.
  */
-VX_EXPORT const char* VXBaseSymbolResolver_ResolveSymbol(
-    VXBaseSymbolResolverContext *ctx,
-    const VXInstructionInfo *info, 
+ZYDIS_EXPORT const char* ZyDisBaseSymbolResolver_ResolveSymbol(
+    ZyDisBaseSymbolResolverContext *ctx,
+    const ZyDisInstructionInfo *info, 
     uint64_t address, 
     uint64_t *offset);
 
-/* VXCustomSymbolResolver ====================================================================== */
+/* ZyDisCustomSymbolResolver ====================================================================== */
 
-typedef const char* (*VXCustomSymbolResolver_ResolveSymbolCallback)(
-    const VXInstructionInfo *info, 
+typedef const char* (*ZyDisCustomSymbolResolver_ResolveSymbolCallback)(
+    const ZyDisInstructionInfo *info, 
     uint64_t address, 
     uint64_t *offset,
     void *userData);
@@ -86,19 +86,19 @@ typedef const char* (*VXCustomSymbolResolver_ResolveSymbolCallback)(
  *                      May also be @c NULL.
  * @return  @c NULL if it fails, else a symbol resolver context.
  */
-VX_EXPORT VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
-    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb,
+ZYDIS_EXPORT ZyDisBaseSymbolResolverContext* ZyDisCustomSymbolResolver_Create(
+    ZyDisCustomSymbolResolver_ResolveSymbolCallback resolverCb,
     void *userData);
 
-/* VXBaseInstructionFormatter ================================================================== */
+/* ZyDisBaseInstructionFormatter ================================================================== */
 
-typedef struct _VXBaseInstructionFormatterContext
+typedef struct _ZyDisBaseInstructionFormatterContext
 {
-    VXContextDescriptor d;
-} VXBaseInstructionFormatterContext;
+    ZyDisContextDescriptor d;
+} ZyDisBaseInstructionFormatterContext;
 
-typedef void(*VXBaseInstructionFormatter_InternalFormatInstructionCallback)(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
+typedef void(*ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback)(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info);
 
 /**
  * @brief   Formats a decoded instruction.
@@ -107,17 +107,17 @@ typedef void(*VXBaseInstructionFormatter_InternalFormatInstructionCallback)(
  * @return  Pointer to the formatted instruction string. This pointer remains valid until 
  *          this function is called again or the context is released.
  */
-VX_EXPORT const char* VXBaseInstructionFormatter_FormatInstruction(
-    VXBaseInstructionFormatterContext *ctx,
-    const VXInstructionInfo *info);
+ZYDIS_EXPORT const char* ZyDisBaseInstructionFormatter_FormatInstruction(
+    ZyDisBaseInstructionFormatterContext *ctx,
+    const ZyDisInstructionInfo *info);
 
 /**
  * @brief   Returns a pointer to the current symbol resolver.
  * @param   ctx     The instruction formatter context.
  * @return  Pointer to the current symbol resolver or @c NULL if no symbol resolver is used.
  */
-VX_EXPORT VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
-    const VXBaseInstructionFormatterContext *ctx);
+ZYDIS_EXPORT ZyDisBaseSymbolResolverContext* ZyDisBaseInstructionFormatter_GetSymbolResolver(
+    const ZyDisBaseInstructionFormatterContext *ctx);
 
 /**
  * @brief   Sets a new symbol resolver.
@@ -125,45 +125,45 @@ VX_EXPORT VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResol
  * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
  *                          resolver should be used.
  */
-VX_EXPORT void VXBaseInstructionFormatter_SetSymbolResolver(
-    VXBaseInstructionFormatterContext *ctx,
-    VXBaseSymbolResolverContext *resolver);
+ZYDIS_EXPORT void ZyDisBaseInstructionFormatter_SetSymbolResolver(
+    ZyDisBaseInstructionFormatterContext *ctx,
+    ZyDisBaseSymbolResolverContext *resolver);
 
 /**
  * @brief   Releases an instruction formatter.
  * @param   ctx The context of the instruction formatter to release.
  * The context may no longer used after it has been released.
  */
-VX_EXPORT void VXBaseInstructionFormatter_Release(
-    VXBaseInstructionFormatterContext *ctx);
+ZYDIS_EXPORT void ZyDisBaseInstructionFormatter_Release(
+    ZyDisBaseInstructionFormatterContext *ctx);
 
-/* VXIntelInstructionFormatter ================================================================= */
+/* ZyDisIntelInstructionFormatter ================================================================= */
 
 /**
  * @brief   Creates an Intel-syntax instruction formatter.
  * @return  @c NULL if it fails, else an Intel instruction formatter context.
- * @see     VXBaseInstructionFormatter_Release
+ * @see     ZyDisBaseInstructionFormatter_Release
  */
-VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void);
+ZYDIS_EXPORT ZyDisBaseInstructionFormatterContext* ZyDisIntelInstructionFormatter_Create(void);
 
 /**
  * @brief   Creates an Intel-syntax instruction formatter.
  * @param   resolver The symbol resolver consulted to resolve symbols on formatting.
  * @return  @c NULL if it fails, else an Intel instruction formatter context.
- * @see     VXBaseInstructionFormatter_Release
+ * @see     ZyDisBaseInstructionFormatter_Release
  */
-VX_EXPORT VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
-    VXBaseSymbolResolverContext *resolver);
+ZYDIS_EXPORT ZyDisBaseInstructionFormatterContext* ZyDisIntelInstructionFormatter_CreateEx(
+    ZyDisBaseSymbolResolverContext *resolver);
 
-/* VXCustomInstructionFormatter ================================================================ */
+/* ZyDisCustomInstructionFormatter ================================================================ */
 
 /**
  * @brief   Creats a custom instruction formatter.
  * @param   formatInsnCb    The callback formatting the instruction.
  * @return  @c NULL if it fails, else a custom instruction formatter context.
  */
-VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create(
-    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
+ZYDIS_EXPORT ZyDisBaseInstructionFormatterContext* ZyDisCustomInstructionFormatter_Create(
+    ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
 
 /* ============================================================================================= */
 
@@ -171,4 +171,4 @@ VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create
 }
 #endif
 
-#endif /* _VDE_VXINSTRUCTIONFORMATTERC_H_ */
+#endif /* _VDE_ZyDisINSTRUCTIONFORMATTERC_H_ */

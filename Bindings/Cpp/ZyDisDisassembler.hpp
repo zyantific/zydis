@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include "VXDisassemblerTypes.hpp"
-#include "VXInstructionDecoder.hpp"
-#include "VXInstructionFormatter.hpp"
-#include "VXDisassemblerUtils.hpp"
+#include "ZyDisDisassemblerTypes.hpp"
+#include "ZyDisInstructionDecoder.hpp"
+#include "ZyDisInstructionFormatter.hpp"
+#include "ZyDisDisassemblerUtils.hpp"

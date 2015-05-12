@@ -32,7 +32,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "VXOpcodeTable.hpp"
+#include "ZyDisOpcodeTable.hpp"
 
 namespace Verteron
 {
@@ -128,7 +128,7 @@ enum InstructionFlags : uint32_t
 /**
  * @brief   Values that represent a cpu register.
  */
-enum class VXRegister : uint16_t
+enum class ZyDisRegister : uint16_t
 {
     NONE,
     /* 8 bit general purpose registers */
@@ -188,7 +188,7 @@ enum class VXRegister : uint16_t
 /**
  * @brief   Values that represent the type of a decoded operand.
  */
-enum class VXOperandType : uint8_t
+enum class ZyDisOperandType : uint8_t
 {
     /**
      * @brief   The operand is not used.
@@ -223,7 +223,7 @@ enum class VXOperandType : uint8_t
 /**
  * @brief   Values that represent the operand access mode.
  */
-enum class VXOperandAccessMode : uint8_t
+enum class ZyDisOperandAccessMode : uint8_t
 {
     NA,
     /**
@@ -243,12 +243,12 @@ enum class VXOperandAccessMode : uint8_t
 /**
  * @brief   This struct holds information about a decoded operand.
  */
-struct VXOperandInfo
+struct ZyDisOperandInfo
 {
     /**
      * @brief   The type of the operand.
      */
-    VXOperandType type;
+    ZyDisOperandType type;
     /**
      * @brief   The size of the operand.
      */
@@ -256,15 +256,15 @@ struct VXOperandInfo
     /**
      * @brief   The operand access mode.
      */
-    VXOperandAccessMode access_mode;
+    ZyDisOperandAccessMode access_mode;
     /**
      * @brief   The base register.
      */
-    VXRegister base;
+    ZyDisRegister base;
     /**
      * @brief   The index register.
      */
-    VXRegister index;
+    ZyDisRegister index;
     /**
      * @brief   The scale factor.
      */
@@ -300,7 +300,7 @@ struct VXOperandInfo
 /**
  * @brief   This struct holds information about a decoded instruction.
  */
-struct VXInstructionInfo
+struct ZyDisInstructionInfo
 {
     /**
      * @brief   The instruction flags.
@@ -309,7 +309,7 @@ struct VXInstructionInfo
     /**
      * @brief   The instruction mnemonic.
      */
-    VXInstructionMnemonic mnemonic;
+    ZyDisInstructionMnemonic mnemonic;
     /**
      * @brief   The total length of the instruction.
      */
@@ -337,12 +337,12 @@ struct VXInstructionInfo
     /**
      * @brief   The decoded operands.
      */
-    VXOperandInfo operand[4];
+    ZyDisOperandInfo operand[4];
     /**
      * @brief   The segment register. This value will default to @c NONE, if no segment register 
      *          prefix is present.
      */
-    VXRegister segment;
+    ZyDisRegister segment;
     /**
      * @brief   The rex prefix byte.
      */
@@ -512,7 +512,7 @@ struct VXInstructionInfo
     /**
      * @brief   The instruction definition.
      */
-    const VXInstructionDefinition *instrDefinition;
+    const ZyDisInstructionDefinition *instrDefinition;
     /**
      * @brief   The instruction address points to the current instruction (relative to the 
      *          initial instruction pointer).

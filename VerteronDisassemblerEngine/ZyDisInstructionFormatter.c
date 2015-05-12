@@ -30,10 +30,10 @@
 
 **************************************************************************************************/
 
-#include "VXInstructionFormatter.h"
-#include "VXDisassemblerUtils.h"
-#include "VXInternalHelpers.h"
-#include "VXOpcodeTableInternal.h"
+#include "ZyDisInstructionFormatter.h"
+#include "ZyDisDisassemblerUtils.h"
+#include "ZyDisInternalHelpers.h"
+#include "ZyDisOpcodeTableInternal.h"
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -43,66 +43,66 @@
 
 /* Interface =================================================================================== */
 
-/* VXBaseSymbolResolver ------------------------------------------------------------------------ */
+/* ZyDisBaseSymbolResolver ------------------------------------------------------------------------ */
 
-typedef void (*VXBaseSymbolResolver_DestructionCallback)(
-    VXBaseSymbolResolverContext *ctx);
-typedef const char* (*VXBaseSymbolResolver_ResolveSymbolCallback)(
-    VXBaseSymbolResolverContext *ctx, 
-    const VXInstructionInfo *info, 
+typedef void (*ZyDisBaseSymbolResolver_DestructionCallback)(
+    ZyDisBaseSymbolResolverContext *ctx);
+typedef const char* (*ZyDisBaseSymbolResolver_ResolveSymbolCallback)(
+    ZyDisBaseSymbolResolverContext *ctx, 
+    const ZyDisInstructionInfo *info, 
     uint64_t address, 
     uint64_t *offset);
 
-typedef struct _VXBaseSymbolResolver
+typedef struct _ZyDisBaseSymbolResolver
 {
-    VXBaseSymbolResolver_DestructionCallback    destruct; // may be NULL
-    VXBaseSymbolResolver_ResolveSymbolCallback  resolveCallback;
-} VXBaseSymbolResolver;
+    ZyDisBaseSymbolResolver_DestructionCallback    destruct; // may be NULL
+    ZyDisBaseSymbolResolver_ResolveSymbolCallback  resolveCallback;
+} ZyDisBaseSymbolResolver;
 
 /**
  * @brief   Constructor.
  * @param   ctx The context.
  */
-static void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx);
+static void ZyDisBaseSymbolResolver_Construct(ZyDisBaseSymbolResolverContext *ctx);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
+static void ZyDisBaseSymbolResolver_Destruct(ZyDisBaseSymbolResolverContext *ctx);
 
-/* VXBaseInstructionFormatter ------------------------------------------------------------------ */
+/* ZyDisBaseInstructionFormatter ------------------------------------------------------------------ */
 
-typedef void(*VXBaseInstructionFormatter_DestructionCallback)(
-    VXBaseInstructionFormatterContext *ctx);
+typedef void(*ZyDisBaseInstructionFormatter_DestructionCallback)(
+    ZyDisBaseInstructionFormatterContext *ctx);
 
-typedef struct _VXBaseInstructionFormatter
+typedef struct _ZyDisBaseInstructionFormatter
 {
-    VXBaseInstructionFormatter_DestructionCallback destruct; // may be NULL
-    VXBaseInstructionFormatter_InternalFormatInstructionCallback internalFormat;
-    VXBaseSymbolResolverContext *symbolResolver;
+    ZyDisBaseInstructionFormatter_DestructionCallback destruct; // may be NULL
+    ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback internalFormat;
+    ZyDisBaseSymbolResolverContext *symbolResolver;
     char *outputBuffer;
     size_t outputBufferCapacity;
     size_t outputStringLen;
     bool outputUppercase;
-} VXBaseInstructionFormatter;
+} ZyDisBaseInstructionFormatter;
 
 /**
  * @brief   Constructor.
  * @param   ctx             The context.
  * @param   symbolResolver  The symbol resolver to use when formatting addresses.
  */
-static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
-    VXBaseSymbolResolverContext *symbolResolver);
+static void ZyDisBaseInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx, 
+    ZyDisBaseSymbolResolverContext *symbolResolver);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+static void ZyDisBaseInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx);
 
-/*static void VXBaseInstructionFormatter_OutputSetUppercase(
-    VXBaseInstructionFormatterContext *ctx, bool uppercase);*/
+/*static void ZyDisBaseInstructionFormatter_OutputSetUppercase(
+    ZyDisBaseInstructionFormatterContext *ctx, bool uppercase);*/
 
 /**
  * @brief   Returns the string representation of a given register.
@@ -110,8 +110,8 @@ static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContex
  * @param   reg The register.
  * @return  The string representation of the given register.
  */
-static char const* VXBaseInstructionFormatter_RegisterToString(
-    const VXBaseInstructionFormatterContext *ctx, VXRegister reg);
+static char const* ZyDisBaseInstructionFormatter_RegisterToString(
+    const ZyDisBaseInstructionFormatterContext *ctx, ZyDisRegister reg);
 
 /**
  * @brief   Resolves a symbol.
@@ -122,29 +122,29 @@ static char const* VXBaseInstructionFormatter_RegisterToString(
  *                  to the base address of the symbol.
  * @return  The name of the symbol, if the symbol was found, @c NULL if not.
  */
-static char const* VXBaseInstructionFormatter_ResolveSymbol(
-    const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, 
+static char const* ZyDisBaseInstructionFormatter_ResolveSymbol(
+    const ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info, uint64_t address, 
     uint64_t *offset);
 
 /**
  * @brief   Clears the output string buffer.
  * @param   ctx The context.
  */
-static void VXBaseInstructionFormatter_OutputClear(VXBaseInstructionFormatterContext *ctx);
+static void ZyDisBaseInstructionFormatter_OutputClear(ZyDisBaseInstructionFormatterContext *ctx);
 
 /**
  * @brief   Returns the content of the output string buffer.
  * @param   ctx The context.
  * @return  Pointer to the content of the ouput string buffer.
  */
-static char const* VXBaseInstructionFormatter_OutputString(VXBaseInstructionFormatterContext *ctx);
+static char const* ZyDisBaseInstructionFormatter_OutputString(ZyDisBaseInstructionFormatterContext *ctx);
 
 /**
  * @brief   Appends text to the ouput string buffer.
  * @param   ctx     The context.
  * @param   text    The text.
  */
-static void VXBaseInstructionFormatter_OutputAppend(VXBaseInstructionFormatterContext *ctx, 
+static void ZyDisBaseInstructionFormatter_OutputAppend(ZyDisBaseInstructionFormatterContext *ctx, 
     char const *text);
 
 /**
@@ -152,8 +152,8 @@ static void VXBaseInstructionFormatter_OutputAppend(VXBaseInstructionFormatterCo
  * @param   ctx     The context.
  * @param   format  The format string.
  */
-static void VXBaseInstructionFormatter_OutputAppendFormatted(
-    VXBaseInstructionFormatterContext *ctx, char const *format, ...);
+static void ZyDisBaseInstructionFormatter_OutputAppendFormatted(
+    ZyDisBaseInstructionFormatterContext *ctx, char const *format, ...);
 
 /**
  * @brief   Appends a formatted address to the output string buffer.
@@ -163,8 +163,8 @@ static void VXBaseInstructionFormatter_OutputAppendFormatted(
  * @param   resolveSymbols  If this parameter is true, the function will try to display a
  *                          smybol name instead of the numeric value.
  */
-static void VXBaseInstructionFormatter_OutputAppendAddress(VXBaseInstructionFormatterContext *ctx, 
-    const VXInstructionInfo *info, uint64_t address, bool resolveSymbols);
+static void ZyDisBaseInstructionFormatter_OutputAppendAddress(ZyDisBaseInstructionFormatterContext *ctx, 
+    const ZyDisInstructionInfo *info, uint64_t address, bool resolveSymbols);
 
 /**
  * @brief   Appends a formatted immediate value to the output string buffer.
@@ -174,26 +174,26 @@ static void VXBaseInstructionFormatter_OutputAppendAddress(VXBaseInstructionForm
  * @param   resolveSymbols  If this parameter is true, the function will try to display a
  *                          smybol name instead of the numeric value.
  */
-static void VXBaseInstructionFormatter_OutputAppendImmediate(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand, bool resolveSymbols);
+static void ZyDisBaseInstructionFormatter_OutputAppendImmediate(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info, 
+    const ZyDisOperandInfo *operand, bool resolveSymbols);
 
 /**
  * @brief   Appends a formatted memory displacement value to the output string buffer.
  * @param   ctx     The context.
  * @param   operand The memory operand.
  */
-static void VXBaseInstructionFormatter_OutputAppendDisplacement(
-    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand);
+static void ZyDisBaseInstructionFormatter_OutputAppendDisplacement(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisOperandInfo *operand);
 
-/* VXCustomSymbolResolver ---------------------------------------------------------------------- */
+/* ZyDisCustomSymbolResolver ---------------------------------------------------------------------- */
 
-typedef struct _VXCustomSymbolResolver
+typedef struct _ZyDisCustomSymbolResolver
 {
-    VXBaseSymbolResolver super;
-    VXCustomSymbolResolver_ResolveSymbolCallback resolve;
+    ZyDisBaseSymbolResolver super;
+    ZyDisCustomSymbolResolver_ResolveSymbolCallback resolve;
     void *userData;
-} VXCustomSymbolResolver;
+} ZyDisCustomSymbolResolver;
 
 /**
  * @brief   Constructor.
@@ -201,27 +201,27 @@ typedef struct _VXCustomSymbolResolver
  * @param   resolverCb  The resolver callback.
  * @param   userData    User defined data passed to the resolver callback.
  */
-static void VXCustomSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx, 
-    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
+static void ZyDisCustomSymbolResolver_Construct(ZyDisBaseSymbolResolverContext *ctx, 
+    ZyDisCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXCustomSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx);
+static void ZyDisCustomSymbolResolver_Destruct(ZyDisBaseSymbolResolverContext *ctx);
 
 /**
- * @copydoc VXBaseSymbolResolver_Resolve
+ * @copydoc ZyDisBaseSymbolResolver_Resolve
  */
-static const char* VXCustomSymbolResolver_Resolve(VXBaseSymbolResolverContext *ctx, 
-    const VXInstructionInfo *info, uint64_t address, uint64_t *offset);
+static const char* ZyDisCustomSymbolResolver_Resolve(ZyDisBaseSymbolResolverContext *ctx, 
+    const ZyDisInstructionInfo *info, uint64_t address, uint64_t *offset);
 
-/* VXIntelInstructionFormatter ----------------------------------------------------------------- */
+/* ZyDisIntelInstructionFormatter ----------------------------------------------------------------- */
 
-typedef struct _VXIntelInstructionFormatter
+typedef struct _ZyDisIntelInstructionFormatter
 {
-    VXBaseInstructionFormatter super;
-} VXIntelInstructionFormatter;
+    ZyDisBaseInstructionFormatter super;
+} ZyDisIntelInstructionFormatter;
 
 /**
  * @brief   Constructor.
@@ -229,22 +229,22 @@ typedef struct _VXIntelInstructionFormatter
  * @param   symbolResolver  The symbol resolver used to resolve addresses.
  * @param   userData        User defined data passed to the resolver callback.
  */
-static void VXIntelInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
-    VXBaseSymbolResolverContext *symbolResolver);
+static void ZyDisIntelInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx, 
+    ZyDisBaseSymbolResolverContext *symbolResolver);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+static void ZyDisIntelInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx);
 
 /**
  * @brief   Appends an operand cast to the output string buffer.
  * @param   ctx     The context.
  * @param   operand The operand.
  */
-static void VXIntelInstructionFormatter_OutputAppendOperandCast(
-    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand);
+static void ZyDisIntelInstructionFormatter_OutputAppendOperandCast(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisOperandInfo *operand);
 
 /**
  * @brief   Formats the specified operand and appends it to the output buffer.
@@ -252,53 +252,53 @@ static void VXIntelInstructionFormatter_OutputAppendOperandCast(
  * @param   info    The instruction info.
  * @param   operand The operand.
  */
-static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatterContext *ctx, 
-    const VXInstructionInfo *info, const VXOperandInfo *operand);
+static void ZyDisIntelInstructionFormatter_FormatOperand(ZyDisBaseInstructionFormatterContext *ctx, 
+    const ZyDisInstructionInfo *info, const ZyDisOperandInfo *operand);
 
 /**
- * @coypdoc VXBaseInstructionFormatter_InternalFormatInstruction
+ * @coypdoc ZyDisBaseInstructionFormatter_InternalFormatInstruction
  */
-static void VXIntelInstructionFormatter_InternalFormatInstruction(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info);
+static void ZyDisIntelInstructionFormatter_InternalFormatInstruction(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info);
 
-/* VXCustomInstructionFormatter ---------------------------------------------------------------- */
+/* ZyDisCustomInstructionFormatter ---------------------------------------------------------------- */
 
-typedef struct _VXCustomInstructionFormatter
+typedef struct _ZyDisCustomInstructionFormatter
 {
-    VXBaseInstructionFormatter super;
-} VXCustomInstructionFormatter;
+    ZyDisBaseInstructionFormatter super;
+} ZyDisCustomInstructionFormatter;
 
 /**
  * @brief   Contructor.
  * @param   ctx             The context.
  * @param   formatInsnCb    The callback formatting the instruction.
  */
-static void VXCustomInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx,
-    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
+static void ZyDisCustomInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx,
+    ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXCustomInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx);
+static void ZyDisCustomInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx);
 
 /* Implementation ============================================================================== */
 
-/* VXBaseSymbolResolver ------------------------------------------------------------------------ */
+/* ZyDisBaseSymbolResolver ------------------------------------------------------------------------ */
 
-void VXBaseSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx)
+void ZyDisBaseSymbolResolver_Construct(ZyDisBaseSymbolResolverContext *ctx)
 {
-    memset(VXBaseSymbolResolver_thiz(ctx), 0, sizeof(VXBaseSymbolResolver));
+    memset(ZyDisBaseSymbolResolver_thiz(ctx), 0, sizeof(ZyDisBaseSymbolResolver));
 }
 
-void VXBaseSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx)
+void ZyDisBaseSymbolResolver_Destruct(ZyDisBaseSymbolResolverContext *ctx)
 {
-    VX_UNUSED(ctx);
+    ZYDIS_UNUSED(ctx);
 }
 
-void VXBaseSymbolResolver_Release(VXBaseSymbolResolverContext *ctx)
+void ZyDisBaseSymbolResolver_Release(ZyDisBaseSymbolResolverContext *ctx)
 {
-    VXBaseSymbolResolver *thiz = VXBaseSymbolResolver_thiz(ctx);
+    ZyDisBaseSymbolResolver *thiz = ZyDisBaseSymbolResolver_thiz(ctx);
     
     if (thiz->destruct)
     {
@@ -309,38 +309,38 @@ void VXBaseSymbolResolver_Release(VXBaseSymbolResolverContext *ctx)
     free(ctx);
 }
 
-const char* VXBaseSymbolResolver_ResolveSymbol(VXBaseSymbolResolverContext *ctx, 
-    const VXInstructionInfo *info, uint64_t address, uint64_t *offset)
+const char* ZyDisBaseSymbolResolver_ResolveSymbol(ZyDisBaseSymbolResolverContext *ctx, 
+    const ZyDisInstructionInfo *info, uint64_t address, uint64_t *offset)
 {
-    assert(VXBaseSymbolResolver_thiz(ctx)->resolveCallback);
-    return VXBaseSymbolResolver_thiz(ctx)->resolveCallback(ctx, info, address, offset);
+    assert(ZyDisBaseSymbolResolver_thiz(ctx)->resolveCallback);
+    return ZyDisBaseSymbolResolver_thiz(ctx)->resolveCallback(ctx, info, address, offset);
 }
 
-/* VXCustomSymbolResolver ---------------------------------------------------------------------- */
+/* ZyDisCustomSymbolResolver ---------------------------------------------------------------------- */
 
-static void VXCustomSymbolResolver_Construct(VXBaseSymbolResolverContext *ctx,
-    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData)
+static void ZyDisCustomSymbolResolver_Construct(ZyDisBaseSymbolResolverContext *ctx,
+    ZyDisCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData)
 {
-    VXBaseSymbolResolver_Construct(ctx);
-    VXCustomSymbolResolver *thiz = VXCustomSymbolResolver_thiz(ctx);
+    ZyDisBaseSymbolResolver_Construct(ctx);
+    ZyDisCustomSymbolResolver *thiz = ZyDisCustomSymbolResolver_thiz(ctx);
 
-    thiz->super.destruct        = &VXCustomSymbolResolver_Destruct;
-    thiz->super.resolveCallback = &VXCustomSymbolResolver_Resolve;
+    thiz->super.destruct        = &ZyDisCustomSymbolResolver_Destruct;
+    thiz->super.resolveCallback = &ZyDisCustomSymbolResolver_Resolve;
 
     thiz->resolve  = resolverCb;
     thiz->userData = userData;
 }
 
-static void VXCustomSymbolResolver_Destruct(VXBaseSymbolResolverContext *ctx)
+static void ZyDisCustomSymbolResolver_Destruct(ZyDisBaseSymbolResolverContext *ctx)
 {
-    VXBaseSymbolResolver_Destruct(ctx);
+    ZyDisBaseSymbolResolver_Destruct(ctx);
 }
 
-VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
-    VXCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData)
+ZyDisBaseSymbolResolverContext* ZyDisCustomSymbolResolver_Create(
+    ZyDisCustomSymbolResolver_ResolveSymbolCallback resolverCb, void *userData)
 {
-    VXCustomSymbolResolver      *thiz = malloc(sizeof(VXCustomSymbolResolver));
-    VXBaseSymbolResolverContext *ctx  = malloc(sizeof(VXBaseSymbolResolverContext));
+    ZyDisCustomSymbolResolver      *thiz = malloc(sizeof(ZyDisCustomSymbolResolver));
+    ZyDisBaseSymbolResolverContext *ctx  = malloc(sizeof(ZyDisBaseSymbolResolverContext));
 
     if (!thiz || !ctx)
     {
@@ -359,21 +359,21 @@ VXBaseSymbolResolverContext* VXCustomSymbolResolver_Create(
     ctx->d.type = TYPE_CUSTOMSYMBOLRESOLVER;
     ctx->d.ptr  = thiz;
     
-    VXCustomSymbolResolver_Construct(ctx, resolverCb, userData);
+    ZyDisCustomSymbolResolver_Construct(ctx, resolverCb, userData);
 
     return ctx;
 }
 
-static const char* VXCustomSymbolResolver_Resolve(VXBaseSymbolResolverContext *ctx, 
-    const VXInstructionInfo *info, uint64_t address, uint64_t *offset)
+static const char* ZyDisCustomSymbolResolver_Resolve(ZyDisBaseSymbolResolverContext *ctx, 
+    const ZyDisInstructionInfo *info, uint64_t address, uint64_t *offset)
 {
-    VXCustomSymbolResolver *thiz = VXCustomSymbolResolver_thiz(ctx);
+    ZyDisCustomSymbolResolver *thiz = ZyDisCustomSymbolResolver_thiz(ctx);
     return thiz->resolve(info, address, offset, thiz->userData);
 }
 
-/* VXBaseInstructionFormatter ------------------------------------------------------------------ */
+/* ZyDisBaseInstructionFormatter ------------------------------------------------------------------ */
 
-static const char* VXBaseInstructionFormatter_registerStrings[] =
+static const char* ZyDisBaseInstructionFormatter_registerStrings[] =
 {
     /* 8 bit general purpose registers */
     "al",       "cl",       "dl",       "bl",
@@ -429,12 +429,12 @@ static const char* VXBaseInstructionFormatter_registerStrings[] =
     "rip"
 };
 
-static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
-    VXBaseSymbolResolverContext *symbolResolver)
+static void ZyDisBaseInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx, 
+    ZyDisBaseSymbolResolverContext *symbolResolver)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
 
-    thiz->destruct              = &VXBaseInstructionFormatter_Destruct;
+    thiz->destruct              = &ZyDisBaseInstructionFormatter_Destruct;
     thiz->internalFormat        = NULL;
     thiz->symbolResolver        = symbolResolver;
     thiz->outputStringLen       = 0;
@@ -443,9 +443,9 @@ static void VXBaseInstructionFormatter_Construct(VXBaseInstructionFormatterConte
     thiz->outputBuffer          = malloc(thiz->outputBufferCapacity);
 }
 
-static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx)
+static void ZyDisBaseInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
 
     if (thiz->outputBuffer)
     {
@@ -454,9 +454,9 @@ static void VXBaseInstructionFormatter_Destruct(VXBaseInstructionFormatterContex
     }
 }
 
-void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx)
+void ZyDisBaseInstructionFormatter_Release(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
     
     if (thiz->destruct)
     {
@@ -468,59 +468,59 @@ void VXBaseInstructionFormatter_Release(VXBaseInstructionFormatterContext *ctx)
 }
 
 /*
-static void VXBaseInstructionFormatter_OutputSetUppercase(VXBaseInstructionFormatterContext *ctx,
+static void ZyDisBaseInstructionFormatter_OutputSetUppercase(ZyDisBaseInstructionFormatterContext *ctx,
     bool uppercase)
 {
-    VXBaseInstructionFormatter_thiz(ctx)->outputUppercase = uppercase;
+    ZyDisBaseInstructionFormatter_thiz(ctx)->outputUppercase = uppercase;
 }
 */
 
-static char const* VXBaseInstructionFormatter_RegisterToString(
-    const VXBaseInstructionFormatterContext *ctx, VXRegister reg) 
+static char const* ZyDisBaseInstructionFormatter_RegisterToString(
+    const ZyDisBaseInstructionFormatterContext *ctx, ZyDisRegister reg) 
 {
-    VX_UNUSED(ctx);
+    ZYDIS_UNUSED(ctx);
 
     if (reg == REG_NONE)
     {
         return "error";   
     }
-    return VXBaseInstructionFormatter_registerStrings[reg - 1]; 
+    return ZyDisBaseInstructionFormatter_registerStrings[reg - 1]; 
 }
 
-static char const* VXBaseInstructionFormatter_ResolveSymbol(
-    const VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
+static char const* ZyDisBaseInstructionFormatter_ResolveSymbol(
+    const ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info, 
     uint64_t address, uint64_t *offset)
 {
-    const VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_cthiz(ctx);
+    const ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_cthiz(ctx);
 
     if (thiz->symbolResolver)
     {
-        return VXBaseSymbolResolver_ResolveSymbol(
+        return ZyDisBaseSymbolResolver_ResolveSymbol(
             thiz->symbolResolver, info, address, offset);
     }
 
     return NULL;
 }
 
-VXBaseSymbolResolverContext* VXBaseInstructionFormatter_GetSymbolResolver(
-    const VXBaseInstructionFormatterContext *ctx)
+ZyDisBaseSymbolResolverContext* ZyDisBaseInstructionFormatter_GetSymbolResolver(
+    const ZyDisBaseInstructionFormatterContext *ctx)
 {
-    return VXBaseInstructionFormatter_cthiz(ctx)->symbolResolver;
+    return ZyDisBaseInstructionFormatter_cthiz(ctx)->symbolResolver;
 }
 
-void VXBaseInstructionFormatter_SetSymbolResolver(
-    VXBaseInstructionFormatterContext *ctx, VXBaseSymbolResolverContext *symbolResolver)
+void ZyDisBaseInstructionFormatter_SetSymbolResolver(
+    ZyDisBaseInstructionFormatterContext *ctx, ZyDisBaseSymbolResolverContext *symbolResolver)
 {
-    VXBaseInstructionFormatter_thiz(ctx)->symbolResolver = symbolResolver;
+    ZyDisBaseInstructionFormatter_thiz(ctx)->symbolResolver = symbolResolver;
 }
 
-const char* VXBaseInstructionFormatter_FormatInstruction(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info)
+const char* ZyDisBaseInstructionFormatter_FormatInstruction(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
 
     // Clears the internal string buffer
-    VXBaseInstructionFormatter_OutputClear(ctx);
+    ZyDisBaseInstructionFormatter_OutputClear(ctx);
 
     // Calls the virtual format method that actually formats the instruction
     thiz->internalFormat(ctx, info);
@@ -528,27 +528,27 @@ const char* VXBaseInstructionFormatter_FormatInstruction(
     if (thiz->outputBufferCapacity == 0)
     {
         // The basic instruction formatter only returns the instruction menmonic.
-        return VXGetInstructionMnemonicString(info->mnemonic);
+        return ZyDisGetInstructionMnemonicString(info->mnemonic);
     }
 
     // Return the formatted instruction string
-    return VXBaseInstructionFormatter_OutputString(ctx);
+    return ZyDisBaseInstructionFormatter_OutputString(ctx);
 }
 
-static void VXBaseInstructionFormatter_OutputClear(VXBaseInstructionFormatterContext *ctx)
+static void ZyDisBaseInstructionFormatter_OutputClear(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    VXBaseInstructionFormatter_thiz(ctx)->outputStringLen = 0;
+    ZyDisBaseInstructionFormatter_thiz(ctx)->outputStringLen = 0;
 }
 
-static char const* VXBaseInstructionFormatter_OutputString(VXBaseInstructionFormatterContext *ctx)
+static char const* ZyDisBaseInstructionFormatter_OutputString(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    return &VXBaseInstructionFormatter_thiz(ctx)->outputBuffer[0];
+    return &ZyDisBaseInstructionFormatter_thiz(ctx)->outputBuffer[0];
 }
 
-static void VXBaseInstructionFormatter_OutputAppend(
-    VXBaseInstructionFormatterContext *ctx, char const *text)
+static void ZyDisBaseInstructionFormatter_OutputAppend(
+    ZyDisBaseInstructionFormatterContext *ctx, char const *text)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
 
     // Get the string length including the null-terminator char
     size_t strLen = strlen(text) + 1;
@@ -584,10 +584,10 @@ static void VXBaseInstructionFormatter_OutputAppend(
     }
 }
 
-static void VXBaseInstructionFormatter_OutputAppendFormatted(
-    VXBaseInstructionFormatterContext *ctx, char const *format, ...)
+static void ZyDisBaseInstructionFormatter_OutputAppendFormatted(
+    ZyDisBaseInstructionFormatterContext *ctx, char const *format, ...)
 {
-    VXBaseInstructionFormatter *thiz = VXBaseInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter *thiz = ZyDisBaseInstructionFormatter_thiz(ctx);
 
     va_list arguments;
     va_start(arguments, format);
@@ -615,7 +615,7 @@ static void VXBaseInstructionFormatter_OutputAppendFormatted(
         {
             thiz->outputBufferCapacity = bufLen + 512;
             thiz->outputBuffer = realloc(thiz->outputBuffer, thiz->outputBufferCapacity);
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, format, arguments);
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, format, arguments);
             return;
         }
         // Write the formatted text to the output buffer
@@ -638,8 +638,8 @@ static void VXBaseInstructionFormatter_OutputAppendFormatted(
     va_end(arguments);
 }
 
-static void VXBaseInstructionFormatter_OutputAppendAddress(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, uint64_t address, 
+static void ZyDisBaseInstructionFormatter_OutputAppendAddress(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info, uint64_t address, 
     bool resolveSymbols)
 {
     uint64_t offset = 0;
@@ -647,33 +647,33 @@ static void VXBaseInstructionFormatter_OutputAppendAddress(
 
     if (resolveSymbols)
     {
-        name = VXBaseInstructionFormatter_ResolveSymbol(ctx, info, address, &offset);
+        name = ZyDisBaseInstructionFormatter_ResolveSymbol(ctx, info, address, &offset);
     }
 
     if (name)
     {
         if (offset)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s+%.2llX", name, offset);   
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s+%.2llX", name, offset);   
         } 
         else
         {
-            VXBaseInstructionFormatter_OutputAppend(ctx, name);     
+            ZyDisBaseInstructionFormatter_OutputAppend(ctx, name);     
         }
     } 
     else
     {
         if (info->flags & IF_DISASSEMBLER_MODE_16)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.4X", address);
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.4X", address);
         } 
         else if (info->flags & IF_DISASSEMBLER_MODE_32)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.8lX", address);
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.8lX", address);
         } 
         else if (info->flags & IF_DISASSEMBLER_MODE_64)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.16llX", address);
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.16llX", address);
         } 
         else
         {
@@ -682,9 +682,9 @@ static void VXBaseInstructionFormatter_OutputAppendAddress(
     }
 }
 
-static void VXBaseInstructionFormatter_OutputAppendImmediate(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info, 
-    const VXOperandInfo *operand, bool resolveSymbols)
+static void ZyDisBaseInstructionFormatter_OutputAppendImmediate(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info, 
+    const ZyDisOperandInfo *operand, bool resolveSymbols)
 {
     assert(operand->type == OPTYPE_IMMEDIATE);
     uint64_t value = 0;
@@ -730,28 +730,28 @@ static void VXBaseInstructionFormatter_OutputAppendImmediate(
     const char* name = NULL;
     if (resolveSymbols)
     {
-        name = VXBaseInstructionFormatter_ResolveSymbol(ctx, info, value, &offset);
+        name = ZyDisBaseInstructionFormatter_ResolveSymbol(ctx, info, value, &offset);
     }
 
     if (name)
     {
         if (offset)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s+%.2llX", name, offset);   
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s+%.2llX", name, offset);   
         } 
         else
         {
-            VXBaseInstructionFormatter_OutputAppend(ctx, name);     
+            ZyDisBaseInstructionFormatter_OutputAppend(ctx, name);     
         }
     } 
     else
     {
-        VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2llX", value);
+        ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2llX", value);
     }
 }
 
-static void VXBaseInstructionFormatter_OutputAppendDisplacement(
-    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand)
+static void ZyDisBaseInstructionFormatter_OutputAppendDisplacement(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisOperandInfo *operand)
 {
     assert(operand->offset > 0);
     if ((operand->base == REG_NONE) && (operand->index == REG_NONE))
@@ -774,7 +774,7 @@ static void VXBaseInstructionFormatter_OutputAppendDisplacement(
         default:
             assert(0);
         }
-        VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2llX", value);
+        ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2llX", value);
     } 
     else
     {
@@ -797,42 +797,42 @@ static void VXBaseInstructionFormatter_OutputAppendDisplacement(
         }
         if (value < 0)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "-%.2lX", -value);
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "-%.2lX", -value);
         } else
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s%.2lX", 
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s%.2lX", 
                 (operand->base != REG_NONE || operand->index != REG_NONE) ? "+" : "", value);
         }
     }
 }
 
-/* VXIntelInstructionFormatter ----------------------------------------------------------------- */
+/* ZyDisIntelInstructionFormatter ----------------------------------------------------------------- */
 
-static void VXIntelInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx, 
-    VXBaseSymbolResolverContext* symbolResolver)
+static void ZyDisIntelInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx, 
+    ZyDisBaseSymbolResolverContext* symbolResolver)
 {
-    VXBaseInstructionFormatter_Construct(ctx, symbolResolver);
-    VXIntelInstructionFormatter *thiz = VXIntelInstructionFormatter_thiz(ctx);
+    ZyDisBaseInstructionFormatter_Construct(ctx, symbolResolver);
+    ZyDisIntelInstructionFormatter *thiz = ZyDisIntelInstructionFormatter_thiz(ctx);
 
-    thiz->super.destruct       = &VXIntelInstructionFormatter_Destruct;
-    thiz->super.internalFormat = &VXIntelInstructionFormatter_InternalFormatInstruction;
+    thiz->super.destruct       = &ZyDisIntelInstructionFormatter_Destruct;
+    thiz->super.internalFormat = &ZyDisIntelInstructionFormatter_InternalFormatInstruction;
 }
 
-static void VXIntelInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx)
+static void ZyDisIntelInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    VXBaseInstructionFormatter_Destruct(ctx);
+    ZyDisBaseInstructionFormatter_Destruct(ctx);
 }
 
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_Create(void)
+ZyDisBaseInstructionFormatterContext* ZyDisIntelInstructionFormatter_Create(void)
 {
-    return VXIntelInstructionFormatter_CreateEx(NULL);
+    return ZyDisIntelInstructionFormatter_CreateEx(NULL);
 }
 
-VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
-    VXBaseSymbolResolverContext *resolver)
+ZyDisBaseInstructionFormatterContext* ZyDisIntelInstructionFormatter_CreateEx(
+    ZyDisBaseSymbolResolverContext *resolver)
 {
-    VXIntelInstructionFormatter *thiz = malloc(sizeof(VXIntelInstructionFormatter));
-    VXBaseInstructionFormatterContext *ctx = malloc(sizeof(VXBaseInstructionFormatterContext));
+    ZyDisIntelInstructionFormatter *thiz = malloc(sizeof(ZyDisIntelInstructionFormatter));
+    ZyDisBaseInstructionFormatterContext *ctx = malloc(sizeof(ZyDisBaseInstructionFormatterContext));
 
     if (!thiz || !ctx)
     {
@@ -851,100 +851,100 @@ VXBaseInstructionFormatterContext* VXIntelInstructionFormatter_CreateEx(
     ctx->d.type = TYPE_INTELINSTRUCTIONFORMATTER;
     ctx->d.ptr  = thiz;
 
-    VXIntelInstructionFormatter_Construct(ctx, resolver);
+    ZyDisIntelInstructionFormatter_Construct(ctx, resolver);
 
     return ctx;
 }
 
-static void VXIntelInstructionFormatter_OutputAppendOperandCast(
-    VXBaseInstructionFormatterContext *ctx, const VXOperandInfo *operand)
+static void ZyDisIntelInstructionFormatter_OutputAppendOperandCast(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisOperandInfo *operand)
 {
     switch(operand->size) 
     {
     case 8:     
-        VXBaseInstructionFormatter_OutputAppend(ctx, "byte ptr " ); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "byte ptr " ); 
         break;
     case 16:    
-        VXBaseInstructionFormatter_OutputAppend(ctx, "word ptr " ); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "word ptr " ); 
         break;
     case 32:    
-        VXBaseInstructionFormatter_OutputAppend(ctx, "dword ptr "); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "dword ptr "); 
         break;
     case 64:    
-        VXBaseInstructionFormatter_OutputAppend(ctx, "qword ptr "); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "qword ptr "); 
         break;
     case 80:    
-        VXBaseInstructionFormatter_OutputAppend(ctx, "tword ptr "); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "tword ptr "); 
         break;
     case 128:   
-        VXBaseInstructionFormatter_OutputAppend(ctx, "oword ptr "); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "oword ptr "); 
         break;
     case 256:   
-        VXBaseInstructionFormatter_OutputAppend(ctx, "yword ptr "); 
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "yword ptr "); 
         break;
     default: 
         break;
     }
 }
 
-static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatterContext *ctx, 
-    const VXInstructionInfo *info, const VXOperandInfo *operand)
+static void ZyDisIntelInstructionFormatter_FormatOperand(ZyDisBaseInstructionFormatterContext *ctx, 
+    const ZyDisInstructionInfo *info, const ZyDisOperandInfo *operand)
 {
     switch (operand->type)
     {
     case OPTYPE_REGISTER: 
-        VXBaseInstructionFormatter_OutputAppend(ctx, 
-            VXBaseInstructionFormatter_RegisterToString(ctx, operand->base));
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, 
+            ZyDisBaseInstructionFormatter_RegisterToString(ctx, operand->base));
         break;
     case OPTYPE_MEMORY: 
         if (info->flags & IF_PREFIX_SEGMENT)
         {
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx,
-                "%s:", VXBaseInstructionFormatter_RegisterToString(ctx, info->segment));    
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx,
+                "%s:", ZyDisBaseInstructionFormatter_RegisterToString(ctx, info->segment));    
         }
-        VXBaseInstructionFormatter_OutputAppend(ctx, "[");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "[");
         if (operand->base == REG_RIP)
         {
             // TODO: Add option
-            VXBaseInstructionFormatter_OutputAppendAddress(
-                ctx, info, VXCalcAbsoluteTarget(info, operand), true);   
+            ZyDisBaseInstructionFormatter_OutputAppendAddress(
+                ctx, info, ZyDisCalcAbsoluteTarget(info, operand), true);   
         } 
         else
         {
             if (operand->base != REG_NONE)
             {
-                VXBaseInstructionFormatter_OutputAppend(ctx, 
-                    VXBaseInstructionFormatter_RegisterToString(ctx, operand->base)); 
+                ZyDisBaseInstructionFormatter_OutputAppend(ctx, 
+                    ZyDisBaseInstructionFormatter_RegisterToString(ctx, operand->base)); 
             }
 
             if (operand->index != REG_NONE) 
             {
-                VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s%s", 
+                ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%s%s", 
                     operand->base != REG_NONE ? "+" : "", 
-                    VXBaseInstructionFormatter_RegisterToString(ctx, operand->index));
+                    ZyDisBaseInstructionFormatter_RegisterToString(ctx, operand->index));
                 if (operand->scale) 
                 {
-                    VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "*%d", operand->scale);
+                    ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "*%d", operand->scale);
                 }
             }
 
             if (operand->offset) 
             {
-                VXBaseInstructionFormatter_OutputAppendDisplacement(ctx, operand);
+                ZyDisBaseInstructionFormatter_OutputAppendDisplacement(ctx, operand);
             }
         }
-        VXBaseInstructionFormatter_OutputAppend(ctx, "]");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "]");
         break;
     case OPTYPE_POINTER:
         // TODO: resolve symbols
         switch (operand->size)
         {
         case 32:
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "word %.4X:%.4X", 
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "word %.4X:%.4X", 
                 operand->lval.ptr.seg, operand->lval.ptr.off & 0xFFFF);
             break;
         case 48:
-            VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "dword %.4X:%.8lX", 
+            ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "dword %.4X:%.8lX", 
                 operand->lval.ptr.seg, operand->lval.ptr.off);
             break;
         default:
@@ -953,21 +953,21 @@ static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatter
         break;
     case OPTYPE_IMMEDIATE: 
         {
-            VXBaseInstructionFormatter_OutputAppendImmediate(ctx, info, operand, true);
+            ZyDisBaseInstructionFormatter_OutputAppendImmediate(ctx, info, operand, true);
         }
         break;
     case OPTYPE_REL_IMMEDIATE: 
         {
             if (operand->size == 8)
             {
-                VXBaseInstructionFormatter_OutputAppend(ctx, "short ");
+                ZyDisBaseInstructionFormatter_OutputAppend(ctx, "short ");
             }
-            VXBaseInstructionFormatter_OutputAppendAddress(ctx, info, 
-                VXCalcAbsoluteTarget(info, operand), true);
+            ZyDisBaseInstructionFormatter_OutputAppendAddress(ctx, info, 
+                ZyDisCalcAbsoluteTarget(info, operand), true);
         }
         break;
     case OPTYPE_CONSTANT: 
-        VXBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2X", operand->lval.udword);
+        ZyDisBaseInstructionFormatter_OutputAppendFormatted(ctx, "%.2X", operand->lval.udword);
         break;
     default: 
         assert(0);
@@ -975,31 +975,31 @@ static void VXIntelInstructionFormatter_FormatOperand(VXBaseInstructionFormatter
     }
 }
 
-static void VXIntelInstructionFormatter_InternalFormatInstruction(
-    VXBaseInstructionFormatterContext *ctx, const VXInstructionInfo *info)
+static void ZyDisIntelInstructionFormatter_InternalFormatInstruction(
+    ZyDisBaseInstructionFormatterContext *ctx, const ZyDisInstructionInfo *info)
 {
     // Append string prefixes
     if (info->flags & IF_PREFIX_LOCK)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, "lock ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "lock ");
     }
 
     if (info->flags & IF_PREFIX_REP)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, "rep ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "rep ");
     } 
     else if (info->flags & IF_PREFIX_REPNE)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, "repne ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, "repne ");
     }
 
     // Append the instruction mnemonic
-    VXBaseInstructionFormatter_OutputAppend(ctx, VXGetInstructionMnemonicString(info->mnemonic));
+    ZyDisBaseInstructionFormatter_OutputAppend(ctx, ZyDisGetInstructionMnemonicString(info->mnemonic));
 
     // Append the first operand
     if (info->operand[0].type != OPTYPE_NONE)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, " ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, " ");
         bool cast = false;
         if (info->operand[0].type == OPTYPE_MEMORY) 
         {
@@ -1031,15 +1031,15 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[0]);
+            ZyDisIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[0]);
         }
-        VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[0]);
+        ZyDisIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[0]);
     }
 
     // Append the second operand
     if (info->operand[1].type != OPTYPE_NONE)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, ", ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, ", ");
         bool cast = false;
         if (info->operand[1].type == OPTYPE_MEMORY &&
             info->operand[0].size != info->operand[1].size &&
@@ -1056,15 +1056,15 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[1]);
+            ZyDisIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[1]);
         }
-        VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[1]);
+        ZyDisIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[1]);
     }
 
     // Append the third operand
     if (info->operand[2].type != OPTYPE_NONE)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, ", ");
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, ", ");
         bool cast = false;
         if (info->operand[2].type == OPTYPE_MEMORY && 
             (info->operand[2].size != info->operand[1].size)) 
@@ -1074,41 +1074,41 @@ static void VXIntelInstructionFormatter_InternalFormatInstruction(
 
         if (cast)
         {
-            VXIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[2]);
+            ZyDisIntelInstructionFormatter_OutputAppendOperandCast(ctx, &info->operand[2]);
         }
 
-        VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[2]);
+        ZyDisIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[2]);
     }
 
     // Append the fourth operand
     if (info->operand[3].type != OPTYPE_NONE)
     {
-        VXBaseInstructionFormatter_OutputAppend(ctx, ", ");
-        VXIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[3]);
+        ZyDisBaseInstructionFormatter_OutputAppend(ctx, ", ");
+        ZyDisIntelInstructionFormatter_FormatOperand(ctx, info, &info->operand[3]);
     }
 }
 
-/* VXCustomInstructionFormatter ---------------------------------------------------------------- */
+/* ZyDisCustomInstructionFormatter ---------------------------------------------------------------- */
 
-static void VXCustomInstructionFormatter_Construct(VXBaseInstructionFormatterContext *ctx,
-    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
+static void ZyDisCustomInstructionFormatter_Construct(ZyDisBaseInstructionFormatterContext *ctx,
+    ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
 {
-    VXBaseInstructionFormatter_Construct(ctx, NULL);
+    ZyDisBaseInstructionFormatter_Construct(ctx, NULL);
 
-    VXCustomInstructionFormatter *thiz = VXCustomInstructionFormatter_thiz(ctx);
+    ZyDisCustomInstructionFormatter *thiz = ZyDisCustomInstructionFormatter_thiz(ctx);
     thiz->super.internalFormat = formatInsnCb;
 }
 
-static void VXCustomInstructionFormatter_Destruct(VXBaseInstructionFormatterContext *ctx)
+static void ZyDisCustomInstructionFormatter_Destruct(ZyDisBaseInstructionFormatterContext *ctx)
 {
-    VXBaseInstructionFormatter_Destruct(ctx);
+    ZyDisBaseInstructionFormatter_Destruct(ctx);
 }
 
-VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create(
-    VXBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
+ZYDIS_EXPORT ZyDisBaseInstructionFormatterContext* ZyDisCustomInstructionFormatter_Create(
+    ZyDisBaseInstructionFormatter_InternalFormatInstructionCallback formatInsnCb)
 {
-    VXCustomInstructionFormatter *thiz = malloc(sizeof(VXCustomInstructionFormatter));
-    VXBaseInstructionFormatterContext *ctx = malloc(sizeof(VXBaseInstructionFormatterContext));
+    ZyDisCustomInstructionFormatter *thiz = malloc(sizeof(ZyDisCustomInstructionFormatter));
+    ZyDisBaseInstructionFormatterContext *ctx = malloc(sizeof(ZyDisBaseInstructionFormatterContext));
 
     if (!thiz || !ctx)
     {
@@ -1127,7 +1127,7 @@ VX_EXPORT VXBaseInstructionFormatterContext* VXCustomInstructionFormatter_Create
     ctx->d.type = TYPE_CUSTOMINSTRUCTIONFORMATTER;
     ctx->d.ptr  = thiz;
 
-    VXCustomInstructionFormatter_Construct(ctx, formatInsnCb);
+    ZyDisCustomInstructionFormatter_Construct(ctx, formatInsnCb);
     return ctx;
 }
 

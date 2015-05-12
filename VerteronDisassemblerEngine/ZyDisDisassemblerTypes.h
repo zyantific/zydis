@@ -30,12 +30,12 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXDISASSEMBLERTYPESC_H_
-#define _VDE_VXDISASSEMBLERTYPESC_H_
+#ifndef _VDE_ZyDisDISASSEMBLERTYPESC_H_
+#define _VDE_ZyDisDISASSEMBLERTYPESC_H_
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "VXOpcodeTable.h"
+#include "ZyDisOpcodeTable.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -45,7 +45,7 @@ extern "C"
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
  */
-typedef enum _VXInstructionFlags /* : uint32_t */
+typedef enum _ZyDisInstructionFlags /* : uint32_t */
 {
     IF_NONE                         = 0x00000000,
     /**
@@ -130,12 +130,12 @@ typedef enum _VXInstructionFlags /* : uint32_t */
     IF_ERROR_OPERAND                = 0x01000000,
 
     IF_FORCE_DWORD                  = 0x7FFFFFFF
-} VXInstructionFlags;
+} ZyDisInstructionFlags;
 
 /**
  * @brief   Values that represent a cpu register.
  */
-typedef enum _VXRegister /* : uint16_t */
+typedef enum _ZyDisRegister /* : uint16_t */
 {
     REG_NONE,
     /* 8 bit general purpose registers */
@@ -192,12 +192,12 @@ typedef enum _VXRegister /* : uint16_t */
     REG_RIP,
 
     REG_FORCE_WORD = 0x7FFF
-} VXRegister;
+} ZyDisRegister;
 
 /**
  * @brief   Values that represent the type of a decoded operand.
  */
-typedef enum _VXOperandType /*: uint8_t*/
+typedef enum _ZyDisOperandType /*: uint8_t*/
 {
     /**
      * @brief   The operand is not used.
@@ -227,12 +227,12 @@ typedef enum _VXOperandType /*: uint8_t*/
      * @brief   The operand is a constant value.
      */
     OPTYPE_CONSTANT
-} VXOperandType;
+} ZyDisOperandType;
 
 /**
  * @brief   Values that represent the operand access mode.
  */
-typedef enum _VXOperandAccessMode /* : uint8_t */
+typedef enum _ZyDisOperandAccessMode /* : uint8_t */
 {
     OPACCESSMODE_NA,
     /**
@@ -247,16 +247,16 @@ typedef enum _VXOperandAccessMode /* : uint8_t */
      * @brief   The operand is accessed in read-write mode.
      */
     OPACCESSMODE_READWRITE
-} VXOperandAccessMode;
+} ZyDisOperandAccessMode;
 
 /**
  * @brief   This struct holds information about a decoded operand.
  */
-typedef struct _VXOperandInfo
+typedef struct _ZyDisOperandInfo
 {
     /**
      * @brief   The type of the operand.
-     * @see     VXOperandType
+     * @see     ZyDisOperandType
      */
     uint8_t type;
     /**
@@ -265,17 +265,17 @@ typedef struct _VXOperandInfo
     uint16_t size;
     /**
      * @brief   The operand access mode.
-     * @see     VXOperandAccessMode
+     * @see     ZyDisOperandAccessMode
      */
     uint8_t access_mode;
     /**
      * @brief   The base register.
-     * @see     VXRegister
+     * @see     ZyDisRegister
      */
     uint16_t base;
     /**
      * @brief   The index register.
-     * @see     VXRegister
+     * @see     ZyDisRegister
      */
     uint16_t index;
     /**
@@ -308,12 +308,12 @@ typedef struct _VXOperandInfo
             uint32_t off;
         } ptr;
     } lval;   
-} VXOperandInfo;
+} ZyDisOperandInfo;
 
 /**
  * @brief   This struct holds information about a decoded instruction.
  */
-typedef struct _VXInstructionInfo
+typedef struct _ZyDisInstructionInfo
 {
     /**
      * @brief   The instruction flags.
@@ -321,7 +321,7 @@ typedef struct _VXInstructionInfo
     uint32_t flags;
     /**
      * @brief   The instruction mnemonic.
-     * @see     VXInstructionMnemonic
+     * @see     ZyDisInstructionMnemonic
      */
     uint16_t mnemonic;
     /**
@@ -351,11 +351,11 @@ typedef struct _VXInstructionInfo
     /**
      * @brief   The decoded operands.
      */
-    VXOperandInfo operand[4];
+    ZyDisOperandInfo operand[4];
     /**
      * @brief   The segment register. This value will default to @c NONE, if no segment register 
      *          prefix is present.
-     * @see     VXRegister
+     * @see     ZyDisRegister
      */
     uint16_t segment;
     /**
@@ -527,7 +527,7 @@ typedef struct _VXInstructionInfo
     /**
      * @brief   The instruction definition.
      */
-    const VXInstructionDefinition *instrDefinition;
+    const ZyDisInstructionDefinition *instrDefinition;
     /**
      * @brief   The instruction address points to the current instruction (relative to the 
      *          initial instruction pointer).
@@ -539,10 +539,10 @@ typedef struct _VXInstructionInfo
      *          This field is used to properly format relative instructions.         
      */
     uint64_t instrPointer;
-} VXInstructionInfo;
+} ZyDisInstructionInfo;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _VDE_VXDISASSEMBLERTYPESC_H_ */
+#endif /* _VDE_ZyDisDISASSEMBLERTYPESC_H_ */

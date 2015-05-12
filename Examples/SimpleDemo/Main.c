@@ -30,7 +30,7 @@
 
 **************************************************************************************************/
 
-#include <VXDisassembler.h>
+#include <ZyDisDisassembler.h>
 
 #include <stdio.h>
 #include <stdint.h>
@@ -64,24 +64,24 @@ int main()
         0x5F, 0x41, 0x5E, 0x41, 0x5D, 0x41, 0x5C, 0x5F, 0xC3    
     };
 
-    VXInstructionInfo info;
-    VXInstructionDecoderContext* decoder = NULL;
-    VXBaseInstructionFormatterContext* formatter = NULL;
-    VXBaseDataSourceContext* input32 = NULL;
-    VXBaseDataSourceContext* input64 = NULL;
+    ZyDisInstructionInfo info;
+    ZyDisInstructionDecoderContext* decoder = NULL;
+    ZyDisBaseInstructionFormatterContext* formatter = NULL;
+    ZyDisBaseDataSourceContext* input32 = NULL;
+    ZyDisBaseDataSourceContext* input64 = NULL;
 
-    decoder = VXInstructionDecoder_Create();
-    formatter = VXIntelInstructionFormatter_Create();
+    decoder = ZyDisInstructionDecoder_Create();
+    formatter = ZyDisIntelInstructionFormatter_Create();
 
-    input32 = VXMemoryDataSource_Create(&data32[0], sizeof(data32));
-    input64 = VXMemoryDataSource_Create(&data64[0], sizeof(data64));
+    input32 = ZyDisMemoryDataSource_Create(&data32[0], sizeof(data32));
+    input64 = ZyDisMemoryDataSource_Create(&data64[0], sizeof(data64));
 
-    VXInstructionDecoder_SetDisassemblerMode(decoder, DM_M32BIT);
-    VXInstructionDecoder_SetDataSource(decoder, input32);
-    VXInstructionDecoder_SetInstructionPointer(decoder, 0x77091852);
+    ZyDisInstructionDecoder_SetDisassemblerMode(decoder, DM_M32BIT);
+    ZyDisInstructionDecoder_SetDataSource(decoder, input32);
+    ZyDisInstructionDecoder_SetInstructionPointer(decoder, 0x77091852);
 
     puts("32 bit test ...\n\n");
-    while (VXInstructionDecoder_DecodeInstruction(decoder, &info))
+    while (ZyDisInstructionDecoder_DecodeInstruction(decoder, &info))
     {
         printf("%08X ", (uint32_t)(info.instrAddress & 0xFFFFFFFF));
         if (info.flags & IF_ERROR_MASK)
@@ -90,17 +90,17 @@ int main()
         } 
         else
         {
-            printf("%s\n", VXBaseInstructionFormatter_FormatInstruction(formatter, &info));
+            printf("%s\n", ZyDisBaseInstructionFormatter_FormatInstruction(formatter, &info));
         }
     }
 
     puts("\n");
 
-    VXInstructionDecoder_SetDisassemblerMode(decoder, DM_M64BIT);
-    VXInstructionDecoder_SetDataSource(decoder, input64);
-    VXInstructionDecoder_SetInstructionPointer(decoder, 0x00007FFA39A81930ull);
+    ZyDisInstructionDecoder_SetDisassemblerMode(decoder, DM_M64BIT);
+    ZyDisInstructionDecoder_SetDataSource(decoder, input64);
+    ZyDisInstructionDecoder_SetInstructionPointer(decoder, 0x00007FFA39A81930ull);
     puts("64 bit test ...\n\n");
-    while (VXInstructionDecoder_DecodeInstruction(decoder, &info))
+    while (ZyDisInstructionDecoder_DecodeInstruction(decoder, &info))
     {
         printf("%016llX ", info.instrAddress); 
         if (info.flags & IF_ERROR_MASK)
@@ -109,14 +109,14 @@ int main()
         } 
         else
         {
-            printf("%s\n", VXBaseInstructionFormatter_FormatInstruction(formatter, &info));
+            printf("%s\n", ZyDisBaseInstructionFormatter_FormatInstruction(formatter, &info));
         }
     }
 
-    VXBaseDataSource_Release(input32);
-    VXBaseDataSource_Release(input64);
-    VXBaseInstructionFormatter_Release(formatter);
-    VXInstructionDecoder_Release(decoder);
+    ZyDisBaseDataSource_Release(input32);
+    ZyDisBaseDataSource_Release(input64);
+    ZyDisBaseInstructionFormatter_Release(formatter);
+    ZyDisInstructionDecoder_Release(decoder);
 
     getchar();
     return 0;

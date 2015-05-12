@@ -34,7 +34,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-#include "VXDisassemblerTypes.hpp"
+#include "ZyDisDisassemblerTypes.hpp"
 
 namespace Verteron
 {
@@ -44,13 +44,13 @@ namespace Verteron
 /**
  * @brief   Base class for all symbol resolver implementations.
  */
-class VXBaseSymbolResolver
+class ZyDisBaseSymbolResolver
 {
 public:
     /**
      * @brief   Destructor.
      */
-    virtual ~VXBaseSymbolResolver();
+    virtual ~ZyDisBaseSymbolResolver();
 public:
     /**
      * @brief   Resolves a symbol.
@@ -60,7 +60,7 @@ public:
      *                      relative to the base address of the symbol.
      * @return  The name of the symbol, if the symbol was found, @c NULL if not.
      */
-    virtual const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    virtual const char* resolveSymbol(const ZyDisInstructionInfo &info, uint64_t address, 
         uint64_t &offset);
 };
 
@@ -69,11 +69,11 @@ public:
 /**
  * @brief   Base class for all instruction formatter implementations.
  */
-class VXBaseInstructionFormatter
+class ZyDisBaseInstructionFormatter
 {
 private:
     static const char    *m_registerStrings[];
-    VXBaseSymbolResolver *m_symbolResolver;
+    ZyDisBaseSymbolResolver *m_symbolResolver;
     std::vector<char>     m_outputBuffer;
     size_t                m_outputStringLen;
     bool                  m_outputUppercase;
@@ -109,7 +109,7 @@ protected:
      * @param   resolveSymbols  If this parameter is true, the method will try to display a
      *                          smybol name instead of the numeric value.
      */
-    void outputAppendAddress(const VXInstructionInfo &info, uint64_t address, 
+    void outputAppendAddress(const ZyDisInstructionInfo &info, uint64_t address, 
         bool resolveSymbols = true);
     /**
      * @brief   Appends a formatted immediate value to the output string buffer.
@@ -118,21 +118,21 @@ protected:
      * @param   resolveSymbols  If this parameter is true, the method will try to display a
      *                          smybol name instead of the numeric value.
      */
-    void outputAppendImmediate(const VXInstructionInfo &info, const VXOperandInfo &operand,
+    void outputAppendImmediate(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand,
         bool resolveSymbols = false);
     /**
      * @brief   Appends a formatted memory displacement value to the output string buffer.
      * @param   info    The instruction info.
      * @param   operand The memory operand.
      */
-    void outputAppendDisplacement(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void outputAppendDisplacement(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand);
 protected:
     /**
      * @brief   Returns the string representation of a given register.
      * @param   reg The register.
      * @return  The string representation of the given register.
      */
-    const char* registerToString(VXRegister reg) const;
+    const char* registerToString(ZyDisRegister reg) const;
     /**
      * @brief   Resolves a symbol.
      * @param   info        The instruction info.
@@ -141,7 +141,7 @@ protected:
      *                      relative to the base address of the symbol.
      * @return  The name of the symbol, if the symbol was found, @c NULL if not.
      */
-    const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    const char* resolveSymbol(const ZyDisInstructionInfo &info, uint64_t address, 
         uint64_t &offset) const;
 protected:
     /**
@@ -150,58 +150,58 @@ protected:
      *          string buffer.
      * @param   info    The instruction info.
      */
-    virtual void internalFormatInstruction(const VXInstructionInfo &info);
+    virtual void internalFormatInstruction(const ZyDisInstructionInfo &info);
     /**
      * @brief   Default constructor.
      */
-    VXBaseInstructionFormatter();
+    ZyDisBaseInstructionFormatter();
     /**
      * @brief   Constructor.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    explicit VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver);
+    explicit ZyDisBaseInstructionFormatter(ZyDisBaseSymbolResolver *symbolResolver);
 public:
     /**
      * @brief   Destructor.
      */
-    virtual ~VXBaseInstructionFormatter();
+    virtual ~ZyDisBaseInstructionFormatter();
 public:
     /**
      * @brief   Formats a decoded instruction.
      * @param   info    The instruction info.
      * @return  Pointer to the formatted instruction string.
      */
-    const char* formatInstruction(const VXInstructionInfo &info);
+    const char* formatInstruction(const ZyDisInstructionInfo &info);
 public:
     /**
      * @brief   Returns a pointer to the current symbol resolver.
      * @return  Pointer to the current symbol resolver or @c NULL, if no symbol resolver is used.
      */
-    VXBaseSymbolResolver* getSymbolResolver() const;
+    ZyDisBaseSymbolResolver* getSymbolResolver() const;
     /**
      * @brief   Sets a new symbol resolver.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    void setSymbolResolver(VXBaseSymbolResolver *symbolResolver);
+    void setSymbolResolver(ZyDisBaseSymbolResolver *symbolResolver);
 };
 
-inline void VXBaseInstructionFormatter::outputSetUppercase(bool uppercase)
+inline void ZyDisBaseInstructionFormatter::outputSetUppercase(bool uppercase)
 {
     m_outputUppercase = uppercase;
 }
 
-inline char const* VXBaseInstructionFormatter::registerToString(VXRegister reg) const
+inline char const* ZyDisBaseInstructionFormatter::registerToString(ZyDisRegister reg) const
 {
-    if (reg == VXRegister::NONE)
+    if (reg == ZyDisRegister::NONE)
     {
         return "error";   
     }
     return m_registerStrings[static_cast<uint16_t>(reg) - 1]; 
 }
 
-inline char const* VXBaseInstructionFormatter::resolveSymbol(const VXInstructionInfo &info, 
+inline char const* ZyDisBaseInstructionFormatter::resolveSymbol(const ZyDisInstructionInfo &info, 
     uint64_t address, uint64_t &offset) const
 {
     if (m_symbolResolver)
@@ -211,12 +211,12 @@ inline char const* VXBaseInstructionFormatter::resolveSymbol(const VXInstruction
     return nullptr;
 }
 
-inline VXBaseSymbolResolver* VXBaseInstructionFormatter::getSymbolResolver() const
+inline ZyDisBaseSymbolResolver* ZyDisBaseInstructionFormatter::getSymbolResolver() const
 {
     return m_symbolResolver;
 }
 
-inline void VXBaseInstructionFormatter::setSymbolResolver(VXBaseSymbolResolver *symbolResolver)
+inline void ZyDisBaseInstructionFormatter::setSymbolResolver(ZyDisBaseSymbolResolver *symbolResolver)
 {
     m_symbolResolver = symbolResolver;
 }
@@ -226,7 +226,7 @@ inline void VXBaseInstructionFormatter::setSymbolResolver(VXBaseSymbolResolver *
 /**
  * @brief   Intel syntax instruction formatter.
  */
-class VXIntelInstructionFormatter : public VXBaseInstructionFormatter
+class ZyDisIntelInstructionFormatter : public ZyDisBaseInstructionFormatter
 {
 private:
     /**
@@ -234,35 +234,35 @@ private:
      * @param   info    The instruction info.
      * @param   operand The operand.
      */
-    void outputAppendOperandCast(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void outputAppendOperandCast(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand);
     /**
      * @brief   Formats the specified operand and appends the resulting string to the output
      *          buffer.
      * @param   info    The instruction info.
      * @param   operand The operand.
      */
-    void formatOperand(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void formatOperand(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand);
 protected:
     /**
      * @brief   Fills the internal string buffer with an intel style formatted instruction string.
      * @param   info    The instruction info.
      */
-    void internalFormatInstruction(const VXInstructionInfo &info) override;
+    void internalFormatInstruction(const ZyDisInstructionInfo &info) override;
 public:
     /**
      * @brief   Default constructor.
      */
-    VXIntelInstructionFormatter();
+    ZyDisIntelInstructionFormatter();
     /**
      * @brief   Constructor.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    explicit VXIntelInstructionFormatter(VXBaseSymbolResolver *symbolResolver);
+    explicit ZyDisIntelInstructionFormatter(ZyDisBaseSymbolResolver *symbolResolver);
     /**
      * @brief   Destructor.
      */
-    ~VXIntelInstructionFormatter() override;
+    ~ZyDisIntelInstructionFormatter() override;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +270,7 @@ public:
 /**
  * @brief   Simple symbol resolver that only matches exact addresses.
  */
-class VXExactSymbolResolver : public VXBaseSymbolResolver
+class ZyDisExactSymbolResolver : public ZyDisBaseSymbolResolver
 {
 private:
     std::unordered_map<uint64_t, std::string> m_symbolMap;
@@ -278,7 +278,7 @@ public:
     /**
      * @brief   Destructor.
      */
-    ~VXExactSymbolResolver() override;
+    ~ZyDisExactSymbolResolver() override;
 public:
     /**
      * @brief   Resolves a symbol.
@@ -288,7 +288,7 @@ public:
      *                      relative to the base address of the symbol.
      * @return  The name of the symbol, if the symbol was found, @c NULL if not.
      */
-    const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+    const char* resolveSymbol(const ZyDisInstructionInfo &info, uint64_t address, 
         uint64_t &offset) override;
 public:
     /**

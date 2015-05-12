@@ -30,9 +30,9 @@
 
 **************************************************************************************************/
 
-#include "VXInstructionDecoder.h"
-#include "VXInternalHelpers.h"
-#include "VXOpcodeTableInternal.h"
+#include "ZyDisInstructionDecoder.h"
+#include "ZyDisInternalHelpers.h"
+#include "ZyDisOpcodeTableInternal.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -40,40 +40,40 @@
 
 /* Internal interface ========================================================================== */
 
-/* VXBaseDataSource ---------------------------------------------------------------------------- */
+/* ZyDisBaseDataSource ---------------------------------------------------------------------------- */
 
-typedef struct _VXBaseDataSource
+typedef struct _ZyDisBaseDataSource
 {
     uint8_t currentInput;
-    VXBaseDataSource_DestructionCallback destruct; // may be NULL
-    VXBaseDataSource_InputCallback internalInputPeek;
-    VXBaseDataSource_InputCallback internalInputNext;
-    VXBaseDataSource_IsEndOfInputCallback isEndOfInput;
-    VXBaseDataSource_GetPositionCallback getPosition;
-    VXBaseDataSource_SetPositionCallback setPosition;
-} VXBaseDataSource;
+    ZyDisBaseDataSource_DestructionCallback destruct; // may be NULL
+    ZyDisBaseDataSource_InputCallback internalInputPeek;
+    ZyDisBaseDataSource_InputCallback internalInputNext;
+    ZyDisBaseDataSource_IsEndOfInputCallback isEndOfInput;
+    ZyDisBaseDataSource_GetPositionCallback getPosition;
+    ZyDisBaseDataSource_SetPositionCallback setPosition;
+} ZyDisBaseDataSource;
 
 /**
  * @brief   Constructor.
  * @param   ctx The context.
  */
-static void VXBaseDataSource_Construct(VXBaseDataSourceContext *ctx);
+static void ZyDisBaseDataSource_Construct(ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXBaseDataSource_Destruct(VXBaseDataSourceContext *ctx);
+static void ZyDisBaseDataSource_Destruct(ZyDisBaseDataSourceContext *ctx);
 
-/* VXMemoryDataSource -------------------------------------------------------------------------- */
+/* ZyDisMemoryDataSource -------------------------------------------------------------------------- */
 
-typedef struct _VXMemoryDataSource
+typedef struct _ZyDisMemoryDataSource
 {
-    VXBaseDataSource super;
+    ZyDisBaseDataSource super;
     const void *inputBuffer;
     uint64_t inputBufferLen;
     uint64_t inputBufferPos;
-} VXMemoryDataSource;
+} ZyDisMemoryDataSource;
 
 /**
  * @brief   Constructor.
@@ -81,14 +81,14 @@ typedef struct _VXMemoryDataSource
  * @param   buffer      The buffer.
  * @param   bufferLen   Length of the buffer.
  */
-static void VXMemoryDataSource_Construct(VXBaseDataSourceContext *ctx, const void* buffer, 
+static void ZyDisMemoryDataSource_Construct(ZyDisBaseDataSourceContext *ctx, const void* buffer, 
     size_t bufferLen);
 
 /**
  * @brief   Destructor.
  * @param   ctx The context.
  */
-static void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx);
+static void ZyDisMemoryDataSource_Destruct(ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Reads the next byte from the data source.
@@ -96,7 +96,7 @@ static void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx);
  * @return  The current input byte.
  * This method increases the current input position by one.  
  */
-static uint8_t VXMemoryDataSource_InternalInputPeek(VXBaseDataSourceContext *ctx);
+static uint8_t ZyDisMemoryDataSource_InternalInputPeek(ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Reads the next byte from the data source.
@@ -104,30 +104,30 @@ static uint8_t VXMemoryDataSource_InternalInputPeek(VXBaseDataSourceContext *ctx
  * @return  The current input byte.
  * This method does NOT increase the current input position.
  */
-static uint8_t VXMemoryDataSource_InternalInputNext(VXBaseDataSourceContext *ctx);
+static uint8_t ZyDisMemoryDataSource_InternalInputNext(ZyDisBaseDataSourceContext *ctx);
 
 /**
- * @copydoc VXBaseDataSource_IsEndOfInput
+ * @copydoc ZyDisBaseDataSource_IsEndOfInput
  */
-static bool VXMemoryDataSource_IsEndOfInput(const VXBaseDataSourceContext *ctx);
+static bool ZyDisMemoryDataSource_IsEndOfInput(const ZyDisBaseDataSourceContext *ctx);
 
 /**
- * @copydoc VXBaseDataSource_GetPosition
+ * @copydoc ZyDisBaseDataSource_GetPosition
  */
-static uint64_t VXMemoryDataSource_GetPosition(const VXBaseDataSourceContext *ctx);
+static uint64_t ZyDisMemoryDataSource_GetPosition(const ZyDisBaseDataSourceContext *ctx);
 
 /**
- * @copydoc VXBaseDataSource_SetPosition
+ * @copydoc ZyDisBaseDataSource_SetPosition
  */
-static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_t position);
+static bool ZyDisMemoryDataSource_SetPosition(ZyDisBaseDataSourceContext *ctx, uint64_t position);
 
-/* VXCustomDataSource -------------------------------------------------------------------------- */
+/* ZyDisCustomDataSource -------------------------------------------------------------------------- */
 
-typedef struct _VXCustomDataSource
+typedef struct _ZyDisCustomDataSource
 {
-    VXBaseDataSource super;
-    VXBaseDataSource_DestructionCallback userDestruct; // may be NULL
-} VXCustomDataSource;
+    ZyDisBaseDataSource super;
+    ZyDisBaseDataSource_DestructionCallback userDestruct; // may be NULL
+} ZyDisCustomDataSource;
 
 /**
  * @brief   Constructor.
@@ -139,31 +139,31 @@ typedef struct _VXCustomDataSource
  * @param   setPositionCb   The callback setting the current input position.
  * @param   destructionCb   The destruction callback. May be @c NULL.
  */
-static void VXCustomDataSource_Construct(VXBaseDataSourceContext *ctx,
-    VXBaseDataSource_InputCallback inputPeekCb,
-    VXBaseDataSource_InputCallback inputNextCb,
-    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
-    VXBaseDataSource_GetPositionCallback getPositionCb,
-    VXBaseDataSource_SetPositionCallback setPositionCb,
-    VXBaseDataSource_DestructionCallback destructionCb);
+static void ZyDisCustomDataSource_Construct(ZyDisBaseDataSourceContext *ctx,
+    ZyDisBaseDataSource_InputCallback inputPeekCb,
+    ZyDisBaseDataSource_InputCallback inputNextCb,
+    ZyDisBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    ZyDisBaseDataSource_GetPositionCallback getPositionCb,
+    ZyDisBaseDataSource_SetPositionCallback setPositionCb,
+    ZyDisBaseDataSource_DestructionCallback destructionCb);
 
 /**
  * @brief   Destructor.
  * @param   The context.
  */
-static void VXCustomDataSource_Destruct(VXBaseDataSourceContext *ctx);
+static void ZyDisCustomDataSource_Destruct(ZyDisBaseDataSourceContext *ctx);
 
-/* VXInstructionDecoder ------------------------------------------------------------------------ */
+/* ZyDisInstructionDecoder ------------------------------------------------------------------------ */
 
-typedef struct _VXInstructionDecoder
+typedef struct _ZyDisInstructionDecoder
 {
-    VXBaseDataSourceContext *dataSource;
-    VXDisassemblerMode      disassemblerMode;
-    VXInstructionSetVendor  preferredVendor;
+    ZyDisBaseDataSourceContext *dataSource;
+    ZyDisDisassemblerMode      disassemblerMode;
+    ZyDisInstructionSetVendor  preferredVendor;
     uint64_t                instructionPointer;
-} VXInstructionDecoder;
+} ZyDisInstructionDecoder;
 
-typedef enum _VXRegisterClass /* : uint8_t */
+typedef enum _ZyDisRegisterClass /* : uint8_t */
 {
     RC_GENERAL_PURPOSE,
     RC_MMX,
@@ -171,7 +171,7 @@ typedef enum _VXRegisterClass /* : uint8_t */
     RC_DEBUG,
     RC_SEGMENT,
     RC_XMM
-} VXRegisterClass;
+} ZyDisRegisterClass;
 
 /**
  * @brief   Reads the next byte from the data source.
@@ -183,8 +183,8 @@ typedef enum _VXRegisterClass /* : uint8_t */
  * This method does NOT increase the current input position or the @c length field of the 
  * @c info parameter. 
  */
-static uint8_t VXInstructionDecoder_InputPeek(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static uint8_t ZyDisInstructionDecoder_InputPeek(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Reads the next byte(s) from the data source.
@@ -197,115 +197,115 @@ static uint8_t VXInstructionDecoder_InputPeek(VXInstructionDecoderContext *ctx,
  * parameter. This method also appends the new byte(s) to to @c data field of the @c info 
  * parameter.
  */
-static uint8_t VXInstructionDecoder_InputNext8(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static uint8_t ZyDisInstructionDecoder_InputNext8(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXInstructionDecoder_InputNext8
+ * @copydoc ZyDisInstructionDecoder_InputNext8
  */
-static uint16_t VXInstructionDecoder_InputNext16(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static uint16_t ZyDisInstructionDecoder_InputNext16(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXInstructionDecoder_InputNext8
+ * @copydoc ZyDisInstructionDecoder_InputNext8
  */
-static uint32_t VXInstructionDecoder_InputNext32(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static uint32_t ZyDisInstructionDecoder_InputNext32(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXInstructionDecoder_InputNext8
+ * @copydoc ZyDisInstructionDecoder_InputNext8
  */
-static uint64_t VXInstructionDecoder_InputNext64(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static uint64_t ZyDisInstructionDecoder_InputNext64(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Returns the current input byte. 
  * @param   ctx     The context.
  * @return  The current input byte.
- * The current input byte is set everytime the @c VXInstructionDecoder_InputPeek or 
- * @c VXInstructionDecoder_InputNextXX function is called.
+ * The current input byte is set everytime the @c ZyDisInstructionDecoder_InputPeek or 
+ * @c ZyDisInstructionDecoder_InputNextXX function is called.
  */
-static uint8_t VXInstructionDecoder_InputCurrent(const VXInstructionDecoderContext *ctx);
+static uint8_t ZyDisInstructionDecoder_InputCurrent(const ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Decodes a register operand.
  * @param   ctx             The context.
  * @param   info            The instruction info.
- * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operand         The @c ZyDisOperandInfo struct that receives the decoded data.
  * @param   registerClass   The register class to use.
  * @param   registerId      The register id.
  * @param   operandSize     The defined size of the operand.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeRegisterOperand(const VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
-    uint8_t registerId, VXDefinedOperandSize operandSize);
+static bool ZyDisInstructionDecoder_DecodeRegisterOperand(const ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisRegisterClass registerClass, 
+    uint8_t registerId, ZyDisDefinedOperandSize operandSize);
 
 /**
  * @brief   Decodes a register/memory operand.
  * @param   ctx             The context.
  * @param   info            The instruction info.
- * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operand         The @c ZyDisOperandInfo struct that receives the decoded data.
  * @param   registerClass   The register class to use.
  * @param   operandSize     The defined size of the operand.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
-    VXDefinedOperandSize operandSize);
+static bool ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisRegisterClass registerClass, 
+    ZyDisDefinedOperandSize operandSize);
 
 /**
  * @brief   Decodes an immediate operand.
  * @param   ctx         The context.
  * @param   info        The instruction info.
- * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operand     The @c ZyDisOperandInfo struct that receives the decoded data.
  * @param   operandSize The defined size of the operand.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandSize operandSize);
+static bool ZyDisInstructionDecoder_DecodeImmediate(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisDefinedOperandSize operandSize);
 
 /**
  * @brief   Decodes a displacement operand.
  * @param   ctx     The context.
  * @param   info    The instruction info.
- * @param   operand The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operand The @c ZyDisOperandInfo struct that receives the decoded data.
  * @param   size    The size of the displacement data.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, uint8_t size);
+static bool ZyDisInstructionDecoder_DecodeDisplacement(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, uint8_t size);
 
 /**
  * @brief   Decodes the ModRM field of the instruction.
  * @param   ctx The context.
- * @param   The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.
  * This method reads an additional input byte.
  */
-static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodeModrm(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Decodes the SIB field of the instruction.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.1
  * This method reads an additional input byte.
  */
-static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodeSIB(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Decodes VEX prefix of the instruction. 
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.
  * This method takes the current input byte to determine the vex prefix type and reads one or 
  * two additional input bytes on demand.
  */
-static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodeVex(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Returns the effective operand size.
@@ -314,90 +314,90 @@ static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx,
  * @param   operandSize The defined operand size.
  * @return  The effective operand size.
  */
-static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(
-    const VXInstructionDecoderContext *ctx, const VXInstructionInfo *info, 
-    VXDefinedOperandSize operandSize);
+static uint16_t ZyDisInstructionDecoder_GetEffectiveOperandSize(
+    const ZyDisInstructionDecoderContext *ctx, const ZyDisInstructionInfo *info, 
+    ZyDisDefinedOperandSize operandSize);
 
 /**
  * @brief   Decodes all instruction operands.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodeOperands(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Decodes the specified instruction operand.
  * @param   ctx         The context.
  * @param   info        The instruction info.
- * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+ * @param   operand     The @c ZyDisOperandInfo struct that receives the decoded data.
  * @param   operandType The defined type of the operand.
  * @param   operandSize The defined size of the operand.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandType operandType, 
-    VXDefinedOperandSize operandSize);
+static bool ZyDisInstructionDecoder_DecodeOperand(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisDefinedOperandType operandType, 
+    ZyDisDefinedOperandSize operandSize);
 
 /**
  * @brief   Resolves the effective operand and address mode of the instruction.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the effective operand and
  *                  address mode.
  * @remarks This function requires a non-null value in the @c instrDefinition field of the 
  *          @c info struct.
  */
-static void VXInstructionDecoder_ResolveOperandAndAddressMode(
-    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+static void ZyDisInstructionDecoder_ResolveOperandAndAddressMode(
+    const ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info);
 
 /**
  * @brief   Calculates the effective REX/VEX.w, r, x, b, l values.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the effective operand and
  *                  address mode.
  * @remarks This method requires a non-null value in the @c instrDefinition field of the 
  *          @c info struct.
  */
-static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
-    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info);
+static void ZyDisInstructionDecoder_CalculateEffectiveRexVexValues(
+    const ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info);
 
 /**
  * @brief   Collects and decodes optional instruction prefixes.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodePrefixes(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Collects and decodes the instruction opcodes using the opcode tree.
  * @param   ctx     The context.
- * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+ * @param   info    The @c ZyDisInstructionInfo struct that receives the decoded data.
  * @return  @c true if it succeeds, @c false if it fails.
  */
-static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+static bool ZyDisInstructionDecoder_DecodeOpcode(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /* Implementation ============================================================================== */
 
-/* VXBaseDataSource ---------------------------------------------------------------------------- */
+/* ZyDisBaseDataSource ---------------------------------------------------------------------------- */
 
-static void VXBaseDataSource_Construct(VXBaseDataSourceContext *ctx)
+static void ZyDisBaseDataSource_Construct(ZyDisBaseDataSourceContext *ctx)
 {
-    VXBaseDataSource *thiz = VXBaseDataSource_thiz(ctx);
+    ZyDisBaseDataSource *thiz = ZyDisBaseDataSource_thiz(ctx);
     memset(thiz, 0, sizeof(*thiz));
 }
 
-static void VXBaseDataSource_Destruct(VXBaseDataSourceContext *ctx)
+static void ZyDisBaseDataSource_Destruct(ZyDisBaseDataSourceContext *ctx)
 {
-    VX_UNUSED(ctx);
+    ZYDIS_UNUSED(ctx);
 }
 
-void VXBaseDataSource_Release(VXBaseDataSourceContext *ctx)
+void ZyDisBaseDataSource_Release(ZyDisBaseDataSourceContext *ctx)
 {
-    VXBaseDataSource *thiz = VXBaseDataSource_thiz(ctx);
+    ZyDisBaseDataSource *thiz = ZyDisBaseDataSource_thiz(ctx);
 
     if (thiz->destruct)
     {
@@ -408,16 +408,16 @@ void VXBaseDataSource_Release(VXBaseDataSourceContext *ctx)
     free(ctx);
 }
 
-uint8_t VXBaseDataSource_InputPeek(VXBaseDataSourceContext *ctx, VXInstructionInfo *info)
+uint8_t ZyDisBaseDataSource_InputPeek(ZyDisBaseDataSourceContext *ctx, ZyDisInstructionInfo *info)
 {
-    VXBaseDataSource *thiz = VXBaseDataSource_thiz(ctx);
+    ZyDisBaseDataSource *thiz = ZyDisBaseDataSource_thiz(ctx);
 
     if (info->length == 15)
     {
         info->flags |= IF_ERROR_LENGTH;
         return 0;
     }
-    if (VXBaseDataSource_IsEndOfInput(ctx))
+    if (ZyDisBaseDataSource_IsEndOfInput(ctx))
     {
         info->flags |= IF_ERROR_END_OF_INPUT;
         return 0;
@@ -427,16 +427,16 @@ uint8_t VXBaseDataSource_InputPeek(VXBaseDataSourceContext *ctx, VXInstructionIn
     return thiz->currentInput;
 }
 
-uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionInfo *info)
+uint8_t ZyDisBaseDataSource_InputNext8(ZyDisBaseDataSourceContext *ctx, ZyDisInstructionInfo *info)
 {
-    VXBaseDataSource *thiz = VXBaseDataSource_thiz(ctx);
+    ZyDisBaseDataSource *thiz = ZyDisBaseDataSource_thiz(ctx);
 
     if (info->length == 15)
     {
         info->flags |= IF_ERROR_LENGTH;
         return 0;
     }
-    if (VXBaseDataSource_IsEndOfInput(ctx))
+    if (ZyDisBaseDataSource_IsEndOfInput(ctx))
     {
         info->flags |= IF_ERROR_END_OF_INPUT;
         return 0;
@@ -447,14 +447,14 @@ uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionI
     return thiz->currentInput;
 }
 
-#define VXBASEDATASOURCE_INPUTNEXT_N(n)                                                           \
-    uint##n##_t VXBaseDataSource_InputNext##n(                                                    \
-        VXBaseDataSourceContext *ctx, VXInstructionInfo *info)                                    \
+#define ZyDisBASEDATASOURCE_INPUTNEXT_N(n)                                                           \
+    uint##n##_t ZyDisBaseDataSource_InputNext##n(                                                    \
+        ZyDisBaseDataSourceContext *ctx, ZyDisInstructionInfo *info)                                    \
     {                                                                                             \
         uint##n##_t result = 0;                                                                   \
         for (unsigned i = 0; i < (sizeof(uint##n##_t) / sizeof(uint8_t)); ++i)                    \
         {                                                                                         \
-            uint##n##_t b = VXBaseDataSource_InputNext8(ctx, info);                               \
+            uint##n##_t b = ZyDisBaseDataSource_InputNext8(ctx, info);                               \
             if (!b && (info->flags & IF_ERROR_MASK))                                              \
             {                                                                                     \
                 return 0;                                                                         \
@@ -464,65 +464,65 @@ uint8_t VXBaseDataSource_InputNext8(VXBaseDataSourceContext *ctx, VXInstructionI
         return result;                                                                            \
     }
 
-VXBASEDATASOURCE_INPUTNEXT_N(16)
-VXBASEDATASOURCE_INPUTNEXT_N(32)
-VXBASEDATASOURCE_INPUTNEXT_N(64)
-#undef VXBASEDATASOURCE_INPUTNEXT_N
+ZyDisBASEDATASOURCE_INPUTNEXT_N(16)
+ZyDisBASEDATASOURCE_INPUTNEXT_N(32)
+ZyDisBASEDATASOURCE_INPUTNEXT_N(64)
+#undef ZyDisBASEDATASOURCE_INPUTNEXT_N
 
-uint8_t VXBaseDataSource_InputCurrent(const VXBaseDataSourceContext *ctx)
+uint8_t ZyDisBaseDataSource_InputCurrent(const ZyDisBaseDataSourceContext *ctx)
 {
-    return VXBaseDataSource_cthiz(ctx)->currentInput;
+    return ZyDisBaseDataSource_cthiz(ctx)->currentInput;
 }
 
-bool VXBaseDataSource_IsEndOfInput(const VXBaseDataSourceContext *ctx)
+bool ZyDisBaseDataSource_IsEndOfInput(const ZyDisBaseDataSourceContext *ctx)
 {
-    assert(VXBaseDataSource_cthiz(ctx)->isEndOfInput);
-    return VXBaseDataSource_cthiz(ctx)->isEndOfInput(ctx);
+    assert(ZyDisBaseDataSource_cthiz(ctx)->isEndOfInput);
+    return ZyDisBaseDataSource_cthiz(ctx)->isEndOfInput(ctx);
 }
 
-uint64_t VXBaseDataSource_GetPosition(const VXBaseDataSourceContext *ctx)
+uint64_t ZyDisBaseDataSource_GetPosition(const ZyDisBaseDataSourceContext *ctx)
 {
-    assert(VXBaseDataSource_cthiz(ctx)->getPosition);
-    return VXBaseDataSource_cthiz(ctx)->getPosition(ctx);
+    assert(ZyDisBaseDataSource_cthiz(ctx)->getPosition);
+    return ZyDisBaseDataSource_cthiz(ctx)->getPosition(ctx);
 }
 
-bool VXBaseDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_t position)
+bool ZyDisBaseDataSource_SetPosition(ZyDisBaseDataSourceContext *ctx, uint64_t position)
 {
-    assert(VXBaseDataSource_thiz(ctx)->setPosition);
-    return VXBaseDataSource_thiz(ctx)->setPosition(ctx, position);
+    assert(ZyDisBaseDataSource_thiz(ctx)->setPosition);
+    return ZyDisBaseDataSource_thiz(ctx)->setPosition(ctx, position);
 }
 
-/* VXMemoryDataSource -------------------------------------------------------------------------- */
+/* ZyDisMemoryDataSource -------------------------------------------------------------------------- */
 
-void VXMemoryDataSource_Construct(
-    VXBaseDataSourceContext *ctx, const void* buffer, size_t bufferLen)
+void ZyDisMemoryDataSource_Construct(
+    ZyDisBaseDataSourceContext *ctx, const void* buffer, size_t bufferLen)
 {
-    VXBaseDataSource_Construct(ctx);
-    VXMemoryDataSource *thiz = VXMemoryDataSource_thiz(ctx);
+    ZyDisBaseDataSource_Construct(ctx);
+    ZyDisMemoryDataSource *thiz = ZyDisMemoryDataSource_thiz(ctx);
 
-    thiz->super.destruct          = &VXMemoryDataSource_Destruct;
-    thiz->super.internalInputPeek = &VXMemoryDataSource_InternalInputPeek;
-    thiz->super.internalInputNext = &VXMemoryDataSource_InternalInputNext;
-    thiz->super.isEndOfInput      = &VXMemoryDataSource_IsEndOfInput;
-    thiz->super.getPosition       = &VXMemoryDataSource_GetPosition;
-    thiz->super.setPosition       = &VXMemoryDataSource_SetPosition;
+    thiz->super.destruct          = &ZyDisMemoryDataSource_Destruct;
+    thiz->super.internalInputPeek = &ZyDisMemoryDataSource_InternalInputPeek;
+    thiz->super.internalInputNext = &ZyDisMemoryDataSource_InternalInputNext;
+    thiz->super.isEndOfInput      = &ZyDisMemoryDataSource_IsEndOfInput;
+    thiz->super.getPosition       = &ZyDisMemoryDataSource_GetPosition;
+    thiz->super.setPosition       = &ZyDisMemoryDataSource_SetPosition;
 
     thiz->inputBuffer    = buffer;
     thiz->inputBufferLen = bufferLen;
     thiz->inputBufferPos = 0;
 }
 
-void VXMemoryDataSource_Destruct(VXBaseDataSourceContext *ctx)
+void ZyDisMemoryDataSource_Destruct(ZyDisBaseDataSourceContext *ctx)
 {
     // Nothing to destruct ourselfes, just call parent destructor
-    VXBaseDataSource_Destruct(ctx);
+    ZyDisBaseDataSource_Destruct(ctx);
 }
 
-VXBaseDataSourceContext* VXMemoryDataSource_Create(
+ZyDisBaseDataSourceContext* ZyDisMemoryDataSource_Create(
     const void* buffer, size_t bufferLen)
 {
-    VXMemoryDataSource      *thiz = malloc(sizeof(VXMemoryDataSource));
-    VXBaseDataSourceContext *ctx  = malloc(sizeof(VXBaseDataSourceContext));
+    ZyDisMemoryDataSource      *thiz = malloc(sizeof(ZyDisMemoryDataSource));
+    ZyDisBaseDataSourceContext *ctx  = malloc(sizeof(ZyDisBaseDataSourceContext));
 
     if (!thiz || !ctx)
     {
@@ -541,56 +541,56 @@ VXBaseDataSourceContext* VXMemoryDataSource_Create(
     ctx->d.type = TYPE_MEMORYDATASOURCE;
     ctx->d.ptr  = thiz;
 
-    VXMemoryDataSource_Construct(ctx, buffer, bufferLen);
+    ZyDisMemoryDataSource_Construct(ctx, buffer, bufferLen);
 
     return ctx;
 }
 
-static uint8_t VXMemoryDataSource_InternalInputPeek(VXBaseDataSourceContext *ctx)
+static uint8_t ZyDisMemoryDataSource_InternalInputPeek(ZyDisBaseDataSourceContext *ctx)
 {
-    VXMemoryDataSource *thiz = VXMemoryDataSource_thiz(ctx);
+    ZyDisMemoryDataSource *thiz = ZyDisMemoryDataSource_thiz(ctx);
     return *((const uint8_t*)thiz->inputBuffer + thiz->inputBufferPos);
 }
 
-static uint8_t VXMemoryDataSource_InternalInputNext(VXBaseDataSourceContext *ctx)
+static uint8_t ZyDisMemoryDataSource_InternalInputNext(ZyDisBaseDataSourceContext *ctx)
 {
-    VXMemoryDataSource *thiz = VXMemoryDataSource_thiz(ctx);
+    ZyDisMemoryDataSource *thiz = ZyDisMemoryDataSource_thiz(ctx);
     ++thiz->inputBufferPos;
     return *((const uint8_t*)thiz->inputBuffer + thiz->inputBufferPos - 1);
 }
 
-static bool VXMemoryDataSource_IsEndOfInput(const VXBaseDataSourceContext *ctx)
+static bool ZyDisMemoryDataSource_IsEndOfInput(const ZyDisBaseDataSourceContext *ctx)
 {
-    const VXMemoryDataSource *thiz = VXMemoryDataSource_cthiz(ctx);
+    const ZyDisMemoryDataSource *thiz = ZyDisMemoryDataSource_cthiz(ctx);
     return (thiz->inputBufferPos >= thiz->inputBufferLen);
 }
 
-static uint64_t VXMemoryDataSource_GetPosition(const VXBaseDataSourceContext *ctx)
+static uint64_t ZyDisMemoryDataSource_GetPosition(const ZyDisBaseDataSourceContext *ctx)
 {
-    return VXMemoryDataSource_cthiz(ctx)->inputBufferPos;
+    return ZyDisMemoryDataSource_cthiz(ctx)->inputBufferPos;
 }
 
-static bool VXMemoryDataSource_SetPosition(VXBaseDataSourceContext *ctx, uint64_t position)
+static bool ZyDisMemoryDataSource_SetPosition(ZyDisBaseDataSourceContext *ctx, uint64_t position)
 {
-    VXMemoryDataSource *thiz = VXMemoryDataSource_thiz(ctx);
+    ZyDisMemoryDataSource *thiz = ZyDisMemoryDataSource_thiz(ctx);
     thiz->inputBufferPos = position;
     return thiz->super.isEndOfInput(ctx);
 }
 
-/* VXCustomDataSource -------------------------------------------------------------------------- */
+/* ZyDisCustomDataSource -------------------------------------------------------------------------- */
 
-static void VXCustomDataSource_Construct(VXBaseDataSourceContext *ctx,
-    VXBaseDataSource_InputCallback inputPeekCb,
-    VXBaseDataSource_InputCallback inputNextCb,
-    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
-    VXBaseDataSource_GetPositionCallback getPositionCb,
-    VXBaseDataSource_SetPositionCallback setPositionCb,
-    VXBaseDataSource_DestructionCallback destructionCb)
+static void ZyDisCustomDataSource_Construct(ZyDisBaseDataSourceContext *ctx,
+    ZyDisBaseDataSource_InputCallback inputPeekCb,
+    ZyDisBaseDataSource_InputCallback inputNextCb,
+    ZyDisBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    ZyDisBaseDataSource_GetPositionCallback getPositionCb,
+    ZyDisBaseDataSource_SetPositionCallback setPositionCb,
+    ZyDisBaseDataSource_DestructionCallback destructionCb)
 {
-    VXBaseDataSource_Construct(ctx);
+    ZyDisBaseDataSource_Construct(ctx);
 
-    VXCustomDataSource *thiz      = VXCustomDataSource_thiz(ctx);
-    thiz->super.destruct          = &VXCustomDataSource_Destruct;
+    ZyDisCustomDataSource *thiz      = ZyDisCustomDataSource_thiz(ctx);
+    thiz->super.destruct          = &ZyDisCustomDataSource_Destruct;
     thiz->super.internalInputPeek = inputPeekCb;
     thiz->super.internalInputNext = inputNextCb;
     thiz->super.isEndOfInput      = isEndOfInputCb;
@@ -600,28 +600,28 @@ static void VXCustomDataSource_Construct(VXBaseDataSourceContext *ctx,
     thiz->userDestruct = destructionCb;
 }
 
-static void VXCustomDataSource_Destruct(VXBaseDataSourceContext *ctx)
+static void ZyDisCustomDataSource_Destruct(ZyDisBaseDataSourceContext *ctx)
 {
-    VXCustomDataSource *thiz = VXCustomDataSource_thiz(ctx);
+    ZyDisCustomDataSource *thiz = ZyDisCustomDataSource_thiz(ctx);
     
     if (thiz->userDestruct)
     {
         thiz->userDestruct(ctx);
     }
 
-    VXBaseDataSource_Destruct(ctx);
+    ZyDisBaseDataSource_Destruct(ctx);
 }
 
-VXBaseDataSourceContext* VXCustomDataSource_Create(
-    VXBaseDataSource_InputCallback inputPeekCb,
-    VXBaseDataSource_InputCallback inputNextCb,
-    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
-    VXBaseDataSource_GetPositionCallback getPositionCb,
-    VXBaseDataSource_SetPositionCallback setPositionCb,
-    VXBaseDataSource_DestructionCallback destructionCb)
+ZyDisBaseDataSourceContext* ZyDisCustomDataSource_Create(
+    ZyDisBaseDataSource_InputCallback inputPeekCb,
+    ZyDisBaseDataSource_InputCallback inputNextCb,
+    ZyDisBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    ZyDisBaseDataSource_GetPositionCallback getPositionCb,
+    ZyDisBaseDataSource_SetPositionCallback setPositionCb,
+    ZyDisBaseDataSource_DestructionCallback destructionCb)
 {
-    VXCustomDataSource *thiz     = malloc(sizeof(VXCustomDataSource));
-    VXBaseDataSourceContext *ctx = malloc(sizeof(VXBaseDataSourceContext));
+    ZyDisCustomDataSource *thiz     = malloc(sizeof(ZyDisCustomDataSource));
+    ZyDisBaseDataSourceContext *ctx = malloc(sizeof(ZyDisBaseDataSourceContext));
 
     if (!thiz || !ctx)
     {
@@ -640,19 +640,19 @@ VXBaseDataSourceContext* VXCustomDataSource_Create(
     ctx->d.type = TYPE_CUSTOMDATASOURCE;
     ctx->d.ptr  = thiz;
 
-    VXCustomDataSource_Construct(ctx, inputPeekCb, inputNextCb, isEndOfInputCb, getPositionCb,
+    ZyDisCustomDataSource_Construct(ctx, inputPeekCb, inputNextCb, isEndOfInputCb, getPositionCb,
         setPositionCb, destructionCb);
 
     return ctx;
 }
 
-/* VXInstructionDecoder ------------------------------------------------------------------------ */
+/* ZyDisInstructionDecoder ------------------------------------------------------------------------ */
 
-void VXInstructionDecoder_Construct(VXInstructionDecoderContext *ctx,
-    VXBaseDataSourceContext *input, VXDisassemblerMode disassemblerMode, 
-    VXInstructionSetVendor preferredVendor, uint64_t instructionPointer)
+void ZyDisInstructionDecoder_Construct(ZyDisInstructionDecoderContext *ctx,
+    ZyDisBaseDataSourceContext *input, ZyDisDisassemblerMode disassemblerMode, 
+    ZyDisInstructionSetVendor preferredVendor, uint64_t instructionPointer)
 {
-    VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     thiz->dataSource            = input;
     thiz->disassemblerMode      = disassemblerMode;
@@ -660,22 +660,22 @@ void VXInstructionDecoder_Construct(VXInstructionDecoderContext *ctx,
     thiz->instructionPointer    = instructionPointer;
 }
 
-void VXInstructionDecoder_Destruct(VXInstructionDecoderContext *ctx)
+void ZyDisInstructionDecoder_Destruct(ZyDisInstructionDecoderContext *ctx)
 {
-    VX_UNUSED(ctx);
+    ZYDIS_UNUSED(ctx);
 }
 
-VXInstructionDecoderContext* VXInstructionDecoder_Create(void)
+ZyDisInstructionDecoderContext* ZyDisInstructionDecoder_Create(void)
 {
-    return VXInstructionDecoder_CreateEx(NULL, DM_M32BIT, ISV_ANY, 0);
+    return ZyDisInstructionDecoder_CreateEx(NULL, DM_M32BIT, ISV_ANY, 0);
 }   
 
-VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(VXBaseDataSourceContext *input, 
-    VXDisassemblerMode disassemblerMode, VXInstructionSetVendor preferredVendor, 
+ZyDisInstructionDecoderContext* ZyDisInstructionDecoder_CreateEx(ZyDisBaseDataSourceContext *input, 
+    ZyDisDisassemblerMode disassemblerMode, ZyDisInstructionSetVendor preferredVendor, 
     uint64_t instructionPointer)
 {
-    VXInstructionDecoder *thiz       = malloc(sizeof(VXInstructionDecoder));
-    VXInstructionDecoderContext *ctx = malloc(sizeof(VXInstructionDecoderContext));
+    ZyDisInstructionDecoder *thiz       = malloc(sizeof(ZyDisInstructionDecoder));
+    ZyDisInstructionDecoderContext *ctx = malloc(sizeof(ZyDisInstructionDecoderContext));
 
     if (!thiz || !ctx)
     {
@@ -694,24 +694,24 @@ VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(VXBaseDataSourceConte
     ctx->d.ptr  = thiz;
     ctx->d.type = TYPE_INSTRUCTIONDECODER;
 
-    VXInstructionDecoder_Construct(ctx, input, disassemblerMode, 
+    ZyDisInstructionDecoder_Construct(ctx, input, disassemblerMode, 
         preferredVendor, instructionPointer);
 
     return ctx;
 }
 
-void VXInstructionDecoder_Release(VXInstructionDecoderContext *ctx)
+void ZyDisInstructionDecoder_Release(ZyDisInstructionDecoderContext *ctx)
 {
-    VXInstructionDecoder_Destruct(ctx);
+    ZyDisInstructionDecoder_Destruct(ctx);
 
     free(ctx->d.ptr);
     free(ctx);
 }
 
-static uint8_t VXInstructionDecoder_InputPeek(
-    VXInstructionDecoderContext *ctx, VXInstructionInfo *info)
+static uint8_t ZyDisInstructionDecoder_InputPeek(
+    ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info)
 {
-    VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     if (!thiz->dataSource)
     {
@@ -719,14 +719,14 @@ static uint8_t VXInstructionDecoder_InputPeek(
         return 0;
     }
 
-    return VXBaseDataSource_InputPeek(thiz->dataSource, info);
+    return ZyDisBaseDataSource_InputPeek(thiz->dataSource, info);
 }
 
-#define VXINSTRUCTIONDECODER_INPUTNEXT_N(n)                                                       \
-    static uint##n##_t VXInstructionDecoder_InputNext##n(                                         \
-        VXInstructionDecoderContext *ctx, VXInstructionInfo *info)                                \
+#define ZyDisINSTRUCTIONDECODER_INPUTNEXT_N(n)                                                       \
+    static uint##n##_t ZyDisInstructionDecoder_InputNext##n(                                         \
+        ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info)                                \
     {                                                                                             \
-        VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);                              \
+        ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);                              \
                                                                                                   \
         if (!thiz->dataSource)                                                                    \
         {                                                                                         \
@@ -734,82 +734,82 @@ static uint8_t VXInstructionDecoder_InputPeek(
             return 0;                                                                             \
         }                                                                                         \
                                                                                                   \
-        return VXBaseDataSource_InputNext##n(thiz->dataSource, info);                             \
+        return ZyDisBaseDataSource_InputNext##n(thiz->dataSource, info);                             \
     }
 
-VXINSTRUCTIONDECODER_INPUTNEXT_N(8)
-VXINSTRUCTIONDECODER_INPUTNEXT_N(16)
-VXINSTRUCTIONDECODER_INPUTNEXT_N(32)
-VXINSTRUCTIONDECODER_INPUTNEXT_N(64)
-#undef VXINSTRUCTIONDECODER_INPUTNEXT_N
+ZyDisINSTRUCTIONDECODER_INPUTNEXT_N(8)
+ZyDisINSTRUCTIONDECODER_INPUTNEXT_N(16)
+ZyDisINSTRUCTIONDECODER_INPUTNEXT_N(32)
+ZyDisINSTRUCTIONDECODER_INPUTNEXT_N(64)
+#undef ZyDisINSTRUCTIONDECODER_INPUTNEXT_N
 
-static uint8_t VXInstructionDecoder_InputCurrent(const VXInstructionDecoderContext *ctx)
+static uint8_t ZyDisInstructionDecoder_InputCurrent(const ZyDisInstructionDecoderContext *ctx)
 {
-    const VXInstructionDecoder *thiz = VXInstructionDecoder_cthiz(ctx);
+    const ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_cthiz(ctx);
 
     if (!thiz->dataSource)
     {
         return 0;
     }
 
-    return VXBaseDataSource_InputCurrent(thiz->dataSource);
+    return ZyDisBaseDataSource_InputCurrent(thiz->dataSource);
 }
 
-VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
-    const VXInstructionDecoderContext *ctx)
+ZyDisBaseDataSourceContext* ZyDisInstructionDecoder_GetDataSource(
+    const ZyDisInstructionDecoderContext *ctx)
 {
-    return VXInstructionDecoder_cthiz(ctx)->dataSource;
+    return ZyDisInstructionDecoder_cthiz(ctx)->dataSource;
 }
 
-void VXInstructionDecoder_SetDataSource(
-    VXInstructionDecoderContext *ctx, VXBaseDataSourceContext *input)
+void ZyDisInstructionDecoder_SetDataSource(
+    ZyDisInstructionDecoderContext *ctx, ZyDisBaseDataSourceContext *input)
 {
-    VXInstructionDecoder_thiz(ctx)->dataSource = input;
+    ZyDisInstructionDecoder_thiz(ctx)->dataSource = input;
 }
 
-VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
-    const VXInstructionDecoderContext *ctx)
+ZyDisDisassemblerMode ZyDisInstructionDecoder_GetDisassemblerMode(
+    const ZyDisInstructionDecoderContext *ctx)
 {
-    return VXInstructionDecoder_cthiz(ctx)->disassemblerMode;
+    return ZyDisInstructionDecoder_cthiz(ctx)->disassemblerMode;
 }
 
-void VXInstructionDecoder_SetDisassemblerMode(VXInstructionDecoderContext *ctx, 
-    VXDisassemblerMode disassemblerMode)
+void ZyDisInstructionDecoder_SetDisassemblerMode(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisDisassemblerMode disassemblerMode)
 {
-    VXInstructionDecoder_thiz(ctx)->disassemblerMode = disassemblerMode;
+    ZyDisInstructionDecoder_thiz(ctx)->disassemblerMode = disassemblerMode;
 }
 
-VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
-    const VXInstructionDecoderContext *ctx)
+ZyDisInstructionSetVendor ZyDisInstructionDecoder_GetPreferredVendor(
+    const ZyDisInstructionDecoderContext *ctx)
 {
-    return VXInstructionDecoder_cthiz(ctx)->preferredVendor;
+    return ZyDisInstructionDecoder_cthiz(ctx)->preferredVendor;
 }
 
-void VXInstructionDecoder_SetPreferredVendor(VXInstructionDecoderContext *ctx, 
-    VXInstructionSetVendor preferredVendor)
+void ZyDisInstructionDecoder_SetPreferredVendor(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionSetVendor preferredVendor)
 {
-    VXInstructionDecoder_thiz(ctx)->preferredVendor = preferredVendor;
+    ZyDisInstructionDecoder_thiz(ctx)->preferredVendor = preferredVendor;
 }
 
-uint64_t VXInstructionDecoder_GetInstructionPointer(
-    const VXInstructionDecoderContext *ctx)
+uint64_t ZyDisInstructionDecoder_GetInstructionPointer(
+    const ZyDisInstructionDecoderContext *ctx)
 {
-    return VXInstructionDecoder_cthiz(ctx)->instructionPointer;
+    return ZyDisInstructionDecoder_cthiz(ctx)->instructionPointer;
 }
 
-void VXInstructionDecoder_SetInstructionPointer(VXInstructionDecoderContext *ctx, 
+void ZyDisInstructionDecoder_SetInstructionPointer(ZyDisInstructionDecoderContext *ctx, 
     uint64_t instructionPointer)
 {
-    VXInstructionDecoder_thiz(ctx)->instructionPointer = instructionPointer;
+    ZyDisInstructionDecoder_thiz(ctx)->instructionPointer = instructionPointer;
 }
 
-static bool VXInstructionDecoder_DecodeRegisterOperand(
-    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info, VXOperandInfo *operand, 
-    VXRegisterClass registerClass, uint8_t registerId, VXDefinedOperandSize operandSize)
+static bool ZyDisInstructionDecoder_DecodeRegisterOperand(
+    const ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, 
+    ZyDisRegisterClass registerClass, uint8_t registerId, ZyDisDefinedOperandSize operandSize)
 {
-    VXRegister reg = REG_NONE;
-    uint16_t size = VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
-    const VXInstructionDecoder *thiz = VXInstructionDecoder_cthiz(ctx);
+    ZyDisRegister reg = REG_NONE;
+    uint16_t size = ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
+    const ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_cthiz(ctx);
 
     switch (registerClass)
     {
@@ -882,11 +882,11 @@ static bool VXInstructionDecoder_DecodeRegisterOperand(
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecoderContext *ctx,
-    VXInstructionInfo *info, VXOperandInfo *operand, VXRegisterClass registerClass, 
-    VXDefinedOperandSize operandSize)
+static bool ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ZyDisInstructionDecoderContext *ctx,
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisRegisterClass registerClass, 
+    ZyDisDefinedOperandSize operandSize)
 {
-    if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+    if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
     {
         return false;
     }
@@ -894,21 +894,21 @@ static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecode
     // Decode register operand
     if (info->modrm_mod == 3)
     {
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, registerClass, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, registerClass, 
             info->modrm_rm_ext, operandSize);
     }
     // Decode memory operand
     uint8_t offset = 0;
     operand->type = OPTYPE_MEMORY;
-    operand->size = VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
+    operand->size = ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
     switch (info->address_mode)
     {
     case 16:
         {
-            static const VXRegister bases[] = { 
+            static const ZyDisRegister bases[] = { 
                 REG_BX, REG_BX, REG_BP, REG_BP, 
                 REG_SI, REG_DI, REG_BP, REG_BX };
-            static const VXRegister indices[] = { 
+            static const ZyDisRegister indices[] = { 
                 REG_SI, REG_DI, REG_SI, REG_DI,
                 REG_NONE, REG_NONE, REG_NONE, REG_NONE };
             operand->base = bases[info->modrm_rm_ext & 0x07];
@@ -946,7 +946,7 @@ static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecode
         }
         if ((info->modrm_rm_ext & 0x07) == 4)
         {
-            if (!VXInstructionDecoder_DecodeSIB(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeSIB(ctx, info))
             { 
                 return false;
             }
@@ -1004,7 +1004,7 @@ static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecode
         }
         if ((info->modrm_rm_ext & 0x07) == 4)
         {
-            if (!VXInstructionDecoder_DecodeSIB(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeSIB(ctx, info))
             {
                 return false;
             }
@@ -1046,7 +1046,7 @@ static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecode
     }
     if (offset)
     {
-        if (!VXInstructionDecoder_DecodeDisplacement(ctx, info, operand, offset))
+        if (!ZyDisInstructionDecoder_DecodeDisplacement(ctx, info, operand, offset))
         {
             return false;
         }
@@ -1057,24 +1057,24 @@ static bool VXInstructionDecoder_DecodeRegisterMemoryOperand(VXInstructionDecode
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ctx,
-    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandSize operandSize)
+static bool ZyDisInstructionDecoder_DecodeImmediate(ZyDisInstructionDecoderContext *ctx,
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisDefinedOperandSize operandSize)
 {
     operand->type = OPTYPE_IMMEDIATE;
-    operand->size = VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
+    operand->size = ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
     switch (operand->size) 
     {
         case 8: 
-            operand->lval.ubyte = VXInstructionDecoder_InputNext8(ctx, info);
+            operand->lval.ubyte = ZyDisInstructionDecoder_InputNext8(ctx, info);
             break;
         case 16: 
-            operand->lval.uword = VXInstructionDecoder_InputNext16(ctx, info);
+            operand->lval.uword = ZyDisInstructionDecoder_InputNext16(ctx, info);
             break;
         case 32: 
-            operand->lval.udword = VXInstructionDecoder_InputNext32(ctx, info);
+            operand->lval.udword = ZyDisInstructionDecoder_InputNext32(ctx, info);
             break;
         case 64: 
-            operand->lval.uqword = VXInstructionDecoder_InputNext64(ctx, info);
+            operand->lval.uqword = ZyDisInstructionDecoder_InputNext64(ctx, info);
             break;
         default: 
             // TODO: Maybe return false instead of assert
@@ -1087,26 +1087,26 @@ static bool VXInstructionDecoder_DecodeImmediate(VXInstructionDecoderContext *ct
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext *ctx,
-    VXInstructionInfo *info, VXOperandInfo *operand, uint8_t size)
+static bool ZyDisInstructionDecoder_DecodeDisplacement(ZyDisInstructionDecoderContext *ctx,
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, uint8_t size)
 {
     switch (size)
     {
     case 8:
         operand->offset = 8;
-        operand->lval.ubyte = VXInstructionDecoder_InputNext8(ctx, info);
+        operand->lval.ubyte = ZyDisInstructionDecoder_InputNext8(ctx, info);
         break;
     case 16:
         operand->offset = 16;
-        operand->lval.uword = VXInstructionDecoder_InputNext16(ctx, info);
+        operand->lval.uword = ZyDisInstructionDecoder_InputNext16(ctx, info);
         break;
     case 32:
         operand->offset = 32;
-        operand->lval.udword = VXInstructionDecoder_InputNext32(ctx, info);
+        operand->lval.udword = ZyDisInstructionDecoder_InputNext32(ctx, info);
         break;
     case 64:
         operand->offset = 64;
-        operand->lval.uqword = VXInstructionDecoder_InputNext64(ctx, info);
+        operand->lval.uqword = ZyDisInstructionDecoder_InputNext64(ctx, info);
         break;
     default:
         // TODO: Maybe return false instead of assert
@@ -1119,12 +1119,12 @@ static bool VXInstructionDecoder_DecodeDisplacement(VXInstructionDecoderContext 
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodeModrm(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
     if (!(info->flags & IF_MODRM))
     {
-        info->modrm = VXInstructionDecoder_InputNext8(ctx, info);
+        info->modrm = ZyDisInstructionDecoder_InputNext8(ctx, info);
         if (!info->modrm && (info->flags & IF_ERROR_MASK))
         {
             return false;
@@ -1144,15 +1144,15 @@ static bool VXInstructionDecoder_DecodeModrm(VXInstructionDecoderContext *ctx,
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodeSIB(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
     assert(info->flags & IF_MODRM);
     assert((info->modrm_rm & 0x7) == 4);
 
     if (!(info->flags & IF_SIB))
     {
-        info->sib = VXInstructionDecoder_InputNext8(ctx, info);
+        info->sib = ZyDisInstructionDecoder_InputNext8(ctx, info);
         if (!info->sib && (info->flags & IF_ERROR_MASK))
         {
             return false;
@@ -1170,22 +1170,22 @@ static bool VXInstructionDecoder_DecodeSIB(VXInstructionDecoderContext *ctx,
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodeVex(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
     if (!(info->flags & IF_PREFIX_VEX))
     {
-        info->vex_op = VXInstructionDecoder_InputCurrent(ctx);
+        info->vex_op = ZyDisInstructionDecoder_InputCurrent(ctx);
         switch (info->vex_op)
         {
         case 0xC4:
-            info->vex_b1 = VXInstructionDecoder_InputNext8(ctx, info);
+            info->vex_b1 = ZyDisInstructionDecoder_InputNext8(ctx, info);
             if (!info->vex_b1 || (info->flags & IF_ERROR_MASK))
             {
                 return false;
             }
 
-            info->vex_b2 = VXInstructionDecoder_InputNext8(ctx, info);
+            info->vex_b2 = ZyDisInstructionDecoder_InputNext8(ctx, info);
             if (!info->vex_b2 || (info->flags & IF_ERROR_MASK))
             {
                 return false;
@@ -1201,7 +1201,7 @@ static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx,
             info->vex_pp     = (info->vex_b2 >> 0) & 0x03;
             break;
         case 0xC5:
-            info->vex_b1 = VXInstructionDecoder_InputNext8(ctx, info);
+            info->vex_b1 = ZyDisInstructionDecoder_InputNext8(ctx, info);
             if (!info->vex_b1 || (info->flags & IF_ERROR_MASK))
             {
                 return false;
@@ -1231,11 +1231,11 @@ static bool VXInstructionDecoder_DecodeVex(VXInstructionDecoderContext *ctx,
     return true;
 }
 
-static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(
-    const VXInstructionDecoderContext *ctx, const VXInstructionInfo *info, 
-    VXDefinedOperandSize operandSize)
+static uint16_t ZyDisInstructionDecoder_GetEffectiveOperandSize(
+    const ZyDisInstructionDecoderContext *ctx, const ZyDisInstructionInfo *info, 
+    ZyDisDefinedOperandSize operandSize)
 {
-    const VXInstructionDecoder *thiz = VXInstructionDecoder_cthiz(ctx);
+    const ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_cthiz(ctx);
 
     switch (operandSize)
     {
@@ -1250,21 +1250,21 @@ static uint16_t VXInstructionDecoder_GetEffectiveOperandSize(
     case DOS_X: 
         assert(info->vex_op != 0);
         return (info->eff_vex_l) ? 
-            VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, DOS_QQ) : 
-            VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, DOS_DQ);
+            ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, DOS_QQ) : 
+            ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, DOS_DQ);
     case DOS_RDQ: 
         return (thiz->disassemblerMode == DM_M64BIT) ? 64 : 32;
     default: 
-        return VXGetSimpleOperandSize(operandSize);
+        return ZyDisGetSimpleOperandSize(operandSize);
     }
 }
 
-static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodeOperands(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
     assert(info->instrDefinition);
     // Always try to decode the first operand
-    if (!VXInstructionDecoder_DecodeOperand(ctx, info, &info->operand[0], 
+    if (!ZyDisInstructionDecoder_DecodeOperand(ctx, info, &info->operand[0], 
         info->instrDefinition->operand[0].type, info->instrDefinition->operand[0].size))
     {
         return false;
@@ -1275,7 +1275,7 @@ static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx
     {
         if (info->operand[i - 1].type != OPTYPE_NONE)
         {
-            if (!VXInstructionDecoder_DecodeOperand(ctx, info, &info->operand[i], 
+            if (!ZyDisInstructionDecoder_DecodeOperand(ctx, info, &info->operand[i], 
                 info->instrDefinition->operand[i].type, info->instrDefinition->operand[i].size))
             {
                 return false;
@@ -1317,11 +1317,11 @@ static bool VXInstructionDecoder_DecodeOperands(VXInstructionDecoderContext *ctx
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info, VXOperandInfo *operand, VXDefinedOperandType operandType, 
-    VXDefinedOperandSize operandSize)
+static bool ZyDisInstructionDecoder_DecodeOperand(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info, ZyDisOperandInfo *operand, ZyDisDefinedOperandType operandType, 
+    ZyDisDefinedOperandSize operandSize)
 {
-    const VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    const ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     operand->type = OPTYPE_NONE;
     switch (operandType)
@@ -1333,14 +1333,14 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
         if (info->operand_mode == 16)
         {
             operand->size = 32;
-            operand->lval.ptr.off = VXInstructionDecoder_InputNext16(ctx, info);
-            operand->lval.ptr.seg = VXInstructionDecoder_InputNext16(ctx, info);
+            operand->lval.ptr.off = ZyDisInstructionDecoder_InputNext16(ctx, info);
+            operand->lval.ptr.seg = ZyDisInstructionDecoder_InputNext16(ctx, info);
         } 
         else 
         {
             operand->size = 48;
-            operand->lval.ptr.off = VXInstructionDecoder_InputNext32(ctx, info);
-            operand->lval.ptr.seg = VXInstructionDecoder_InputNext16(ctx, info);
+            operand->lval.ptr.off = ZyDisInstructionDecoder_InputNext32(ctx, info);
+            operand->lval.ptr.seg = ZyDisInstructionDecoder_InputNext16(ctx, info);
         }
 
         if ((!operand->lval.ptr.off || !operand->lval.ptr.seg) && (info->flags & IF_ERROR_MASK))
@@ -1350,18 +1350,18 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
 
         break;
     case DOT_C: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_CONTROL, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_CONTROL, 
             info->modrm_reg_ext, operandSize);
     case DOT_D: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_DEBUG, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_DEBUG, 
             info->modrm_reg_ext, operandSize);
     case DOT_F: 
         // TODO: FAR flag
@@ -1373,29 +1373,29 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
             return false;
         }
     case DOT_E: 
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
             RC_GENERAL_PURPOSE, operandSize);
     case DOT_G: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
             info->modrm_reg_ext, operandSize);
     case DOT_H: 
         assert(info->vex_op != 0);
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
             (0xF & ~info->vex_vvvv), operandSize);
     case DOT_sI:
         operand->signed_lval = true;
     case DOT_I: 
-        return VXInstructionDecoder_DecodeImmediate(ctx, info, operand, operandSize);
+        return ZyDisInstructionDecoder_DecodeImmediate(ctx, info, operand, operandSize);
     case DOT_I1: 
         operand->type = OPTYPE_CONSTANT;
         operand->lval.udword = 1;
         break;
     case DOT_J: 
-        if (!VXInstructionDecoder_DecodeImmediate(ctx, info, operand, operandSize))
+        if (!ZyDisInstructionDecoder_DecodeImmediate(ctx, info, operand, operandSize))
         {
             return false;
         }
@@ -1406,23 +1406,23 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
     case DOT_L: 
         {
             assert(info->vex_op != 0);
-            uint8_t imm = VXInstructionDecoder_InputNext8(ctx, info);
+            uint8_t imm = ZyDisInstructionDecoder_InputNext8(ctx, info);
             if (!imm && (info->flags & IF_ERROR_MASK))
             {
                 return false;
             }
             uint8_t mask = (thiz->disassemblerMode == DM_M64BIT) ? 0xF : 0x7;
-            return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
+            return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
                 mask & (imm >> 4), operandSize);
         }
     case DOT_MR: 
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
             RC_GENERAL_PURPOSE, info->modrm_mod == 3 ? 
-            VXGetComplexOperandRegSize(operandSize) : VXGetComplexOperandMemSize(operandSize));
+            ZyDisGetComplexOperandRegSize(operandSize) : ZyDisGetComplexOperandMemSize(operandSize));
     case DOT_MU: 
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_XMM, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_XMM, 
             info->modrm_mod == 3 ? 
-            VXGetComplexOperandRegSize(operandSize) : VXGetComplexOperandMemSize(operandSize));
+            ZyDisGetComplexOperandRegSize(operandSize) : ZyDisGetComplexOperandMemSize(operandSize));
     case DOT_N: 
         // ModR/M byte may refer only to memory
         if (info->modrm_mod != 3)
@@ -1431,21 +1431,21 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
             return false;
         }
     case DOT_Q: 
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_MMX, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_MMX, 
             operandSize);
     case DOT_O: 
         operand->type = OPTYPE_MEMORY;
         operand->base = REG_NONE;
         operand->index = REG_NONE;
         operand->scale = 0;
-        operand->size = VXInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
-        return VXInstructionDecoder_DecodeDisplacement(ctx, info, operand, info->address_mode);
+        operand->size = ZyDisInstructionDecoder_GetEffectiveOperandSize(ctx, info, operandSize);
+        return ZyDisInstructionDecoder_DecodeDisplacement(ctx, info, operand, info->address_mode);
     case DOT_P: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_MMX, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_MMX, 
             info->modrm_reg_ext, operandSize);
     case DOT_R: 
         // ModR/M byte may refer only to memory
@@ -1454,14 +1454,14 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
             info->flags |= IF_ERROR_OPERAND;
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, 
             RC_GENERAL_PURPOSE, operandSize);
     case DOT_S: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_SEGMENT, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_SEGMENT, 
             info->modrm_reg_ext, operandSize);
     case DOT_U: 
         // ModR/M byte may refer only to memory
@@ -1471,14 +1471,14 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
             return false;
         }
      case DOT_W: 
-        return VXInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_XMM, 
+        return ZyDisInstructionDecoder_DecodeRegisterMemoryOperand(ctx, info, operand, RC_XMM, 
             operandSize);
     case DOT_V: 
-        if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+        if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
         {
             return false;
         }
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_XMM, 
             info->modrm_reg_ext, operandSize);
     case DOT_R0: 
     case DOT_R1: 
@@ -1488,25 +1488,25 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
     case DOT_R5: 
     case DOT_R6: 
     case DOT_R7: 
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
             (uint8_t)((info->eff_rexvex_b << 3) | operandType - DOT_R0), operandSize);
     case DOT_AL: 
     case DOT_AX: 
     case DOT_EAX: 
     case DOT_RAX: 
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
             0, operandSize);
     case DOT_CL: 
     case DOT_CX: 
     case DOT_ECX: 
     case DOT_RCX: 
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
             1, operandSize);
     case DOT_DL: 
     case DOT_DX: 
     case DOT_EDX: 
     case DOT_RDX: 
-        return VXInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
+        return ZyDisInstructionDecoder_DecodeRegisterOperand(ctx, info, operand, RC_GENERAL_PURPOSE, 
             2, operandSize);
     case DOT_ES: 
     case DOT_CS: 
@@ -1544,10 +1544,10 @@ static bool VXInstructionDecoder_DecodeOperand(VXInstructionDecoderContext *ctx,
     return true;
 }
 
-static void VXInstructionDecoder_ResolveOperandAndAddressMode(
-    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info)
+static void ZyDisInstructionDecoder_ResolveOperandAndAddressMode(
+    const ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info)
 {
-    const VXInstructionDecoder *thiz = VXInstructionDecoder_cthiz(ctx);
+    const ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_cthiz(ctx);
 
     assert(info->instrDefinition);
     switch (thiz->disassemblerMode)
@@ -1581,10 +1581,10 @@ static void VXInstructionDecoder_ResolveOperandAndAddressMode(
     }
 }
 
-static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
-    const VXInstructionDecoderContext *ctx, VXInstructionInfo *info)
+static void ZyDisInstructionDecoder_CalculateEffectiveRexVexValues(
+    const ZyDisInstructionDecoderContext *ctx, ZyDisInstructionInfo *info)
 {
-    VX_UNUSED(ctx);
+    ZYDIS_UNUSED(ctx);
 
     assert(info->instrDefinition);
     uint8_t rex = info->rex;
@@ -1610,15 +1610,15 @@ static void VXInstructionDecoder_CalculateEffectiveRexVexValues(
     info->eff_vex_l    = info->vex_l && (info->instrDefinition->flags & IDF_ACCEPTS_VEXL);
 }
 
-static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodePrefixes(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
-    VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     bool done = false;
     do
     {
-        switch (VXInstructionDecoder_InputPeek(ctx, info))
+        switch (ZyDisInstructionDecoder_InputPeek(ctx, info))
         {
         case 0xF0:
             info->flags |= IF_PREFIX_LOCK;
@@ -1665,10 +1665,10 @@ static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx
             break;
         default:
             if ((thiz->disassemblerMode == DM_M64BIT) && 
-                (VXInstructionDecoder_InputCurrent(ctx) & 0xF0) == 0x40)
+                (ZyDisInstructionDecoder_InputCurrent(ctx) & 0xF0) == 0x40)
             {
                 info->flags |= IF_PREFIX_REX;
-                info->rex = VXInstructionDecoder_InputCurrent(ctx); 
+                info->rex = ZyDisInstructionDecoder_InputCurrent(ctx); 
             } 
             else
             {
@@ -1679,7 +1679,7 @@ static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx
         // Increase the input offset, if a prefix was found
         if (!done)
         {
-            if (!VXInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
+            if (!ZyDisInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
             {
                 return false;
             }
@@ -1697,42 +1697,42 @@ static bool VXInstructionDecoder_DecodePrefixes(VXInstructionDecoderContext *ctx
     return true;
 }
 
-static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+static bool ZyDisInstructionDecoder_DecodeOpcode(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
-    VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     // Read first opcode byte
-    if (!VXInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
+    if (!ZyDisInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
     {
         return false;
     }
 
     // Update instruction info
-    info->opcode[0] = VXInstructionDecoder_InputCurrent(ctx);
+    info->opcode[0] = ZyDisInstructionDecoder_InputCurrent(ctx);
     info->opcode_length = 1;
 
     // Iterate through opcode tree
-    VXOpcodeTreeNode node = VXGetOpcodeTreeChild(VXGetOpcodeTreeRoot(), 
-        VXInstructionDecoder_InputCurrent(ctx));
-    VXOpcodeTreeNodeType nodeType;
+    ZyDisOpcodeTreeNode node = ZyDisGetOpcodeTreeChild(ZyDisGetOpcodeTreeRoot(), 
+        ZyDisInstructionDecoder_InputCurrent(ctx));
+    ZyDisOpcodeTreeNodeType nodeType;
 
     do
     {
         uint16_t index = 0;
-        nodeType = VXGetOpcodeNodeType(node);
+        nodeType = ZyDisGetOpcodeNodeType(node);
         switch (nodeType)
         {
         case OTNT_INSTRUCTION_DEFINITION: 
             {
                 // Check for invalid instruction
-                if (VXGetOpcodeNodeValue(node) == 0)
+                if (ZyDisGetOpcodeNodeValue(node) == 0)
                 {
                     info->flags |= IF_ERROR_INVALID;
                     return false;
                 }
                 // Get instruction definition
-                const VXInstructionDefinition *instrDefinition = VXGetInstructionDefinition(node);
+                const ZyDisInstructionDefinition *instrDefinition = ZyDisGetInstructionDefinition(node);
                 // Check for invalid 64 bit instruction
                 if ((thiz->disassemblerMode == DM_M64BIT) && 
                     (instrDefinition->flags & IDF_INVALID_64))
@@ -1744,11 +1744,11 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
                 info->instrDefinition = instrDefinition;
                 info->mnemonic = instrDefinition->mnemonic;
                 // Update effective REX/VEX values
-                VXInstructionDecoder_CalculateEffectiveRexVexValues(ctx, info);
+                ZyDisInstructionDecoder_CalculateEffectiveRexVexValues(ctx, info);
                 // Resolve operand and address mode
-                VXInstructionDecoder_ResolveOperandAndAddressMode(ctx, info);
+                ZyDisInstructionDecoder_ResolveOperandAndAddressMode(ctx, info);
                 // Decode operands
-                if (!VXInstructionDecoder_DecodeOperands(ctx, info))
+                if (!ZyDisInstructionDecoder_DecodeOperands(ctx, info))
                 {
                     return false;
                 }
@@ -1756,20 +1756,20 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             return true;
         case OTNT_TABLE: 
             // Read next opcode byte
-            if (!VXInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
+            if (!ZyDisInstructionDecoder_InputNext8(ctx, info) && (info->flags & IF_ERROR_MASK))
             {
                 return false;
             }
             // Update instruction info
             assert((info->opcode_length > 0) && (info->opcode_length < 3));
-            info->opcode[info->opcode_length] = VXInstructionDecoder_InputCurrent(ctx);
+            info->opcode[info->opcode_length] = ZyDisInstructionDecoder_InputCurrent(ctx);
             info->opcode_length++;
             // Set child node index for next iteration
-            index = VXInstructionDecoder_InputCurrent(ctx);
+            index = ZyDisInstructionDecoder_InputCurrent(ctx);
             break;
         case OTNT_MODRM_MOD: 
             // Decode modrm byte
-            if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
             {
                 return false;
             }
@@ -1777,7 +1777,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             break;
         case OTNT_MODRM_REG: 
             // Decode modrm byte
-            if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
             {
                 return false;
             }
@@ -1785,7 +1785,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             break;
         case OTNT_MODRM_RM: 
             // Decode modrm byte
-            if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
             {
                 return false;
             }
@@ -1806,12 +1806,12 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
                 index = 3; // 66
             }
 
-            if (VXGetOpcodeTreeChild(node, index) == 0)
+            if (ZyDisGetOpcodeTreeChild(node, index) == 0)
             {
                 index = 0;
             }
 
-            if (index && (VXGetOpcodeTreeChild(node, index) != 0))
+            if (index && (ZyDisGetOpcodeTreeChild(node, index) != 0))
             {
                 // Remove REP and REPNE prefix
                 info->flags &= ~IF_PREFIX_REP;
@@ -1826,7 +1826,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             break;
         case OTNT_X87: 
             // Decode modrm byte
-            if (!VXInstructionDecoder_DecodeModrm(ctx, info))
+            if (!ZyDisInstructionDecoder_DecodeModrm(ctx, info))
             {
                 return false;
             }
@@ -1871,7 +1871,7 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             switch (thiz->preferredVendor)
             {
             case ISV_ANY: 
-                index = (VXGetOpcodeTreeChild(node, 0) != 0) ? 0 : 1;
+                index = (ZyDisGetOpcodeTreeChild(node, 0) != 0) ? 0 : 1;
                 break;
             case ISV_INTEL: 
                 index = 1;
@@ -1887,30 +1887,30 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             {     
                 // As all 3dnow instructions got the same operands and flag definitions, we just
                 // decode a random instruction and determine the specific opcode later->
-                assert(VXGetOpcodeTreeChild(node, 0x0C) != 0);
-                const VXInstructionDefinition *instrDefinition =
-                    VXGetInstructionDefinition(VXGetOpcodeTreeChild(node, 0x0C));
+                assert(ZyDisGetOpcodeTreeChild(node, 0x0C) != 0);
+                const ZyDisInstructionDefinition *instrDefinition =
+                    ZyDisGetInstructionDefinition(ZyDisGetOpcodeTreeChild(node, 0x0C));
                 // Update instruction info
                 info->instrDefinition = instrDefinition;
                 info->mnemonic = instrDefinition->mnemonic;
                 // Update effective REX/VEX values
-                VXInstructionDecoder_CalculateEffectiveRexVexValues(ctx, info);
+                ZyDisInstructionDecoder_CalculateEffectiveRexVexValues(ctx, info);
                 // Resolve operand and address mode
-                VXInstructionDecoder_ResolveOperandAndAddressMode(ctx, info);
+                ZyDisInstructionDecoder_ResolveOperandAndAddressMode(ctx, info);
                 // Decode operands
-                if (!VXInstructionDecoder_DecodeOperands(ctx, info))
+                if (!ZyDisInstructionDecoder_DecodeOperands(ctx, info))
                 {
                     return false;
                 }
                 // Read the actual 3dnow opcode
-                info->opcode[2] = VXInstructionDecoder_InputNext8(ctx, info);
+                info->opcode[2] = ZyDisInstructionDecoder_InputNext8(ctx, info);
                 if (!info->opcode[2] && (info->flags & IF_ERROR_MASK))
                 {
                     return false;
                 }
                 // Update instruction info
                 instrDefinition = 
-                    VXGetInstructionDefinition(VXGetOpcodeTreeChild(node, info->opcode[2]));
+                    ZyDisGetInstructionDefinition(ZyDisGetOpcodeTreeChild(node, info->opcode[2]));
                 if (!instrDefinition || 
                     (instrDefinition->mnemonic == MNEM_INVALID))
                 {
@@ -1954,10 +1954,10 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
             }
         case OTNT_VEX: 
             if ((thiz->disassemblerMode == DM_M64BIT) 
-                || (((VXInstructionDecoder_InputCurrent(ctx) >> 6) & 0x03) == 0x03))
+                || (((ZyDisInstructionDecoder_InputCurrent(ctx) >> 6) & 0x03) == 0x03))
             {
                 // Decode vex prefix
-                if (!VXInstructionDecoder_DecodeVex(ctx, info))
+                if (!ZyDisInstructionDecoder_DecodeVex(ctx, info))
                 {
                     return false;
                 }
@@ -2000,16 +2000,16 @@ static bool VXInstructionDecoder_DecodeOpcode(VXInstructionDecoderContext *ctx,
         default: 
             assert(0);
         }
-        node = VXGetOpcodeTreeChild(node, index);
+        node = ZyDisGetOpcodeTreeChild(node, index);
     } while (nodeType != OTNT_INSTRUCTION_DEFINITION);
 
     return false;
 }
 
-bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info)
+bool ZyDisInstructionDecoder_DecodeInstruction(ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info)
 {
-    VXInstructionDecoder *thiz = VXInstructionDecoder_thiz(ctx);
+    ZyDisInstructionDecoder *thiz = ZyDisInstructionDecoder_thiz(ctx);
 
     // Clear instruction info
     memset(info, 0, sizeof(*info));
@@ -2034,8 +2034,8 @@ bool VXInstructionDecoder_DecodeInstruction(VXInstructionDecoderContext *ctx,
     info->instrAddress = thiz->instructionPointer;
 
     // Decode
-    if (!VXInstructionDecoder_DecodePrefixes(ctx, info) 
-        || !VXInstructionDecoder_DecodeOpcode(ctx, info))
+    if (!ZyDisInstructionDecoder_DecodePrefixes(ctx, info) 
+        || !ZyDisInstructionDecoder_DecodeOpcode(ctx, info))
     {
         goto DecodeError;
     }
@@ -2097,14 +2097,14 @@ DecodeError:
     info->length = length;
     info->data[0] = firstByte;
     info->instrAddress = instrAddress;
-    info->instrDefinition = VXGetInstructionDefinition(0);
+    info->instrDefinition = ZyDisGetInstructionDefinition(0);
 
     // Decrement the input position, if more than one byte was read from the input data 
     // source while decoding the invalid instruction
     if (info->length != 1)
     {
-        VXBaseDataSource_SetPosition(thiz->dataSource, 
-            VXBaseDataSource_GetPosition(thiz->dataSource) - info->length + 1);
+        ZyDisBaseDataSource_SetPosition(thiz->dataSource, 
+            ZyDisBaseDataSource_GetPosition(thiz->dataSource) - info->length + 1);
         info->length = 1;
     }
 

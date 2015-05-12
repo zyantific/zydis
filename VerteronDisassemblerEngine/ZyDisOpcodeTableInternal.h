@@ -30,17 +30,17 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXOPCODETABLEINTERNAL_H_
-#define _VDE_VXOPCODETABLEINTERNAL_H_
+#ifndef _VDE_ZyDisOPCODETABLEINTERNAL_H_
+#define _VDE_ZyDisOPCODETABLEINTERNAL_H_
 
 #include <stdint.h>
-#include "VXOpcodeTable.h"
+#include "ZyDisOpcodeTable.h"
 
 /**
  * @brief   Contains all opcode tables.
  *          Indexed by the numeric value of the opcode.
  */
-extern const VXOpcodeTreeNode vxOptreeTable[][256];
+extern const ZyDisOpcodeTreeNode vxOptreeTable[][256];
 
 /**
  * @brief   Contains all modrm_mod switch tables.
@@ -48,19 +48,19 @@ extern const VXOpcodeTreeNode vxOptreeTable[][256];
  *          0 = [modrm_mod == !11]
  *          1 = [modrm_mod ==  11]
  */
-extern const VXOpcodeTreeNode vxOptreeModrmMod[][2];
+extern const ZyDisOpcodeTreeNode vxOptreeModrmMod[][2];
 
 /**
  * @brief   Contains all modrm_reg switch tables.
  *          Indexed by the numeric value of the modrm_reg field.
  */
-extern const VXOpcodeTreeNode vxOptreeModrmReg[][8];
+extern const ZyDisOpcodeTreeNode vxOptreeModrmReg[][8];
 
 /**
  * @brief   Contains all modrm_rm switch tables.
  *          Indexed by the numeric value of the modrm_rm field.
  */
-extern const VXOpcodeTreeNode vxOptreeModrmRm[][8];
+extern const ZyDisOpcodeTreeNode vxOptreeModrmRm[][8];
 
 /**
  * @brief   Contains all mandatory-prefix switch tables.
@@ -70,14 +70,14 @@ extern const VXOpcodeTreeNode vxOptreeModrmRm[][8];
  *          2 = F3  
  *          3 = 66
  */
-extern const VXOpcodeTreeNode vxOptreeMandatory[][4];
+extern const ZyDisOpcodeTreeNode vxOptreeMandatory[][4];
 
 /**
  * @brief   Contains all x87 opcode tables.
  *          Indexed by the numeric value of the 6 lowest bits of the modrm byte (modrm_mod should
  *          always be 11). 
  */
-extern const VXOpcodeTreeNode vxOptreeX87[][64];
+extern const ZyDisOpcodeTreeNode vxOptreeX87[][64];
 
 /**
  * @brief   Contains all address-size switch tables.
@@ -86,7 +86,7 @@ extern const VXOpcodeTreeNode vxOptreeX87[][64];
  *          1 = 32  
  *          2 = 64
  */
-extern const VXOpcodeTreeNode vxOptreeAddressSize[][3];
+extern const ZyDisOpcodeTreeNode vxOptreeAddressSize[][3];
 
 /**
  * @brief   Contains all operand-size switch tables.
@@ -95,7 +95,7 @@ extern const VXOpcodeTreeNode vxOptreeAddressSize[][3];
  *          1 = 32  
  *          2 = 64
  */
-extern const VXOpcodeTreeNode vxOptreeOperandSize[][3];
+extern const ZyDisOpcodeTreeNode vxOptreeOperandSize[][3];
 
 /**
  * @brief   Contains all cpu-mode switch tables.
@@ -103,7 +103,7 @@ extern const VXOpcodeTreeNode vxOptreeOperandSize[][3];
  *          0 = [!= 64]
  *          1 = 64
  */
-extern const VXOpcodeTreeNode vxOptreeMode[][2];
+extern const ZyDisOpcodeTreeNode vxOptreeMode[][2];
 
 /**
  * @brief   Contains all vendor switch tables. 
@@ -111,13 +111,13 @@ extern const VXOpcodeTreeNode vxOptreeMode[][2];
  *          0 = AMD
  *          1 = Intel  
  */
-extern const VXOpcodeTreeNode vxOptreeVendor[][2];
+extern const ZyDisOpcodeTreeNode vxOptreeVendor[][2];
 
 /**
  * @brief   Contains all 3DNow! switch tables.
  *          Indexed by the numeric value of the 3DNow! opcode.
  */
-extern const VXOpcodeTreeNode vxOptree3dnow[][256];
+extern const ZyDisOpcodeTreeNode vxOptree3dnow[][256];
 
 /**
  * @brief   Contains all vex switch tables.
@@ -139,24 +139,24 @@ extern const VXOpcodeTreeNode vxOptree3dnow[][256];
  *          E = F2_0F38
  *          F = F2_0F3A
  */
-extern const VXOpcodeTreeNode vxOptreeVex[][16];
+extern const ZyDisOpcodeTreeNode vxOptreeVex[][16];
 
 /**
  * @brief   Contains all vex_w switch tables.
  *          Indexed by the numeric value of the vex_w field.
  */
-extern const VXOpcodeTreeNode vxOptreeVexW[][2];
+extern const ZyDisOpcodeTreeNode vxOptreeVexW[][2];
 
 /**
  * @brief   Contains all vex_l switch tables.
  *          Indexed by the numeric value of the vex_l field.
  */
-extern const VXOpcodeTreeNode vxOptreeVexL[][2];
+extern const ZyDisOpcodeTreeNode vxOptreeVexL[][2];
 
 /**
  * @brief   Contains all instruction definitions.
  */
-extern const VXInstructionDefinition vxInstrDefinitions[];
+extern const ZyDisInstructionDefinition vxInstrDefinitions[];
 
 /**
  * @brief   Contains all instruction mnemonic strings.
@@ -168,9 +168,9 @@ extern const char* vxInstrMnemonicStrings[];
  * @param   node    The node.
  * @return  The type of the specified opcode tree node.
  */
-VX_INLINE VXOpcodeTreeNodeType VXGetOpcodeNodeType(VXOpcodeTreeNode node)
+ZYDIS_INLINE ZyDisOpcodeTreeNodeType ZyDisGetOpcodeNodeType(ZyDisOpcodeTreeNode node)
 {
-    return (VXOpcodeTreeNodeType)((node >> 12) & 0x0F);
+    return (ZyDisOpcodeTreeNodeType)((node >> 12) & 0x0F);
 } 
 
 /**
@@ -178,7 +178,7 @@ VX_INLINE VXOpcodeTreeNodeType VXGetOpcodeNodeType(VXOpcodeTreeNode node)
  * @param   node    The node.
  * @return  The value of the specified opcode tree node.
  */
-VX_INLINE uint16_t VXGetOpcodeNodeValue(VXOpcodeTreeNode node)
+ZYDIS_INLINE uint16_t ZyDisGetOpcodeNodeValue(ZyDisOpcodeTreeNode node)
 {
     return (node & 0x0FFF);   
 }
@@ -187,7 +187,7 @@ VX_INLINE uint16_t VXGetOpcodeNodeValue(VXOpcodeTreeNode node)
  * @brief   Returns the root node of the opcode tree.
  * @return  The root node of the opcode tree.
  */
-VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeRoot()
+ZYDIS_INLINE ZyDisOpcodeTreeNode ZyDisGetOpcodeTreeRoot()
 {
     return 0x1000;
 }
@@ -198,10 +198,10 @@ VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeRoot()
  * @param   index   The index of the child node to retrieve.
  * @return  The specified child node.
  */
-VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
+ZYDIS_INLINE ZyDisOpcodeTreeNode ZyDisGetOpcodeTreeChild(ZyDisOpcodeTreeNode parent, uint16_t index)
 {
-    VXOpcodeTreeNodeType nodeType = VXGetOpcodeNodeType(parent);
-    uint16_t tableIndex = VXGetOpcodeNodeValue(parent);
+    ZyDisOpcodeTreeNodeType nodeType = ZyDisGetOpcodeNodeType(parent);
+    uint16_t tableIndex = ZyDisGetOpcodeNodeValue(parent);
     switch (nodeType)
     {
     case OTNT_TABLE:
@@ -257,9 +257,9 @@ VX_INLINE VXOpcodeTreeNode VXGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_
  * @param   node    The instruction definition node.
  * @return  Pointer to the instruction definition.
  */
-VX_INLINE const VXInstructionDefinition* VXGetInstructionDefinition(VXOpcodeTreeNode node)
+ZYDIS_INLINE const ZyDisInstructionDefinition* ZyDisGetInstructionDefinition(ZyDisOpcodeTreeNode node)
 {
-    assert(VXGetOpcodeNodeType(node) == OTNT_INSTRUCTION_DEFINITION);
+    assert(ZyDisGetOpcodeNodeType(node) == OTNT_INSTRUCTION_DEFINITION);
     return &vxInstrDefinitions[node & 0x0FFF];    
 }
 
@@ -268,7 +268,7 @@ VX_INLINE const VXInstructionDefinition* VXGetInstructionDefinition(VXOpcodeTree
  * @param   mnemonic    The mnemonic.
  * @return  The instruction mnemonic string.
  */
-VX_INLINE const char* VXGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
+ZYDIS_INLINE const char* ZyDisGetInstructionMnemonicString(ZyDisInstructionMnemonic mnemonic)
 {
     return vxInstrMnemonicStrings[(uint16_t)mnemonic];
 }
@@ -278,7 +278,7 @@ VX_INLINE const char* VXGetInstructionMnemonicString(VXInstructionMnemonic mnemo
  * @param   operandSize The defined operand size.
  * @return  The the numeric value for the simple operand size definition.
  */
-VX_INLINE uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
+ZYDIS_INLINE uint16_t ZyDisGetSimpleOperandSize(ZyDisDefinedOperandSize operandSize)
 {
     static const uint16_t operandSizes[8] =
     {
@@ -295,9 +295,9 @@ VX_INLINE uint16_t VXGetSimpleOperandSize(VXDefinedOperandSize operandSize)
  * @param   operandSize The defined operand size.
  * @return  The memory-size part of the operand size definition.
  */
-VX_INLINE VXDefinedOperandSize VXGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
+ZYDIS_INLINE ZyDisDefinedOperandSize ZyDisGetComplexOperandMemSize(ZyDisDefinedOperandSize operandSize)
 {
-    return (VXDefinedOperandSize)(operandSize & 0x0F);
+    return (ZyDisDefinedOperandSize)(operandSize & 0x0F);
 }
 
 /**
@@ -305,9 +305,9 @@ VX_INLINE VXDefinedOperandSize VXGetComplexOperandMemSize(VXDefinedOperandSize o
  * @param   operandSize The defined operand size.
  * @return  The register-size part of the operand size definition.
  */
-VX_INLINE VXDefinedOperandSize VXGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
+ZYDIS_INLINE ZyDisDefinedOperandSize ZyDisGetComplexOperandRegSize(ZyDisDefinedOperandSize operandSize)
 {
-    return (VXDefinedOperandSize)((operandSize >> 4) & 0x0F);    
+    return (ZyDisDefinedOperandSize)((operandSize >> 4) & 0x0F);    
 }
 
-#endif // _VDE_VXOPCODETABLEINTERNAL_H_
+#endif // _VDE_ZyDisOPCODETABLEINTERNAL_H_

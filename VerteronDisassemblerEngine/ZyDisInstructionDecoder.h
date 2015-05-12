@@ -30,11 +30,11 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXINSTRUCTIONDECODERC_H_
-#define _VDE_VXINSTRUCTIONDECODERC_H_
+#ifndef _VDE_ZyDisINSTRUCTIONDECODERC_H_
+#define _VDE_ZyDisINSTRUCTIONDECODERC_H_
 
-#include "VXDisassemblerTypes.h"
-#include "VXDisassemblerUtils.h"
+#include "ZyDisDisassemblerTypes.h"
+#include "ZyDisDisassemblerUtils.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -44,24 +44,24 @@ extern "C"
 {
 #endif
 
-/* VXBaseDataSource ============================================================================ */
+/* ZyDisBaseDataSource ============================================================================ */
 
-typedef struct _VXBaseDataSourceContext { VXContextDescriptor d; } VXBaseDataSourceContext;
+typedef struct _ZyDisBaseDataSourceContext { ZyDisContextDescriptor d; } ZyDisBaseDataSourceContext;
 
-typedef void(*VXBaseDataSource_DestructionCallback)(VXBaseDataSourceContext *ctx);
-typedef uint8_t(*VXBaseDataSource_InputCallback)(VXBaseDataSourceContext *ctx);
-typedef bool(*VXBaseDataSource_IsEndOfInputCallback)(const VXBaseDataSourceContext *ctx);
-typedef uint64_t(*VXBaseDataSource_GetPositionCallback)(const VXBaseDataSourceContext *ctx);
-typedef bool(*VXBaseDataSource_SetPositionCallback)(
-    VXBaseDataSourceContext *ctx, uint64_t position);
+typedef void(*ZyDisBaseDataSource_DestructionCallback)(ZyDisBaseDataSourceContext *ctx);
+typedef uint8_t(*ZyDisBaseDataSource_InputCallback)(ZyDisBaseDataSourceContext *ctx);
+typedef bool(*ZyDisBaseDataSource_IsEndOfInputCallback)(const ZyDisBaseDataSourceContext *ctx);
+typedef uint64_t(*ZyDisBaseDataSource_GetPositionCallback)(const ZyDisBaseDataSourceContext *ctx);
+typedef bool(*ZyDisBaseDataSource_SetPositionCallback)(
+    ZyDisBaseDataSourceContext *ctx, uint64_t position);
 
 /**
  * @brief Releases a data source. 
  * @param ctx The context to release.
  * The context may no longer be used after it was released.
  */
-VX_EXPORT void VXBaseDataSource_Release(
-    VXBaseDataSourceContext *ctx);
+ZYDIS_EXPORT void ZyDisBaseDataSource_Release(
+    ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Reads the next byte from the data source without altering the current input position 
@@ -72,9 +72,9 @@ VX_EXPORT void VXBaseDataSource_Release(
  *          field of the @c info parameter for error flags. Possible error values are 
  *          @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
  */
-VX_EXPORT uint8_t VXBaseDataSource_InputPeek(
-    VXBaseDataSourceContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT uint8_t ZyDisBaseDataSource_InputPeek(
+    ZyDisBaseDataSourceContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
   * @brief   Reads the next byte from the data source.
@@ -87,30 +87,30 @@ VX_EXPORT uint8_t VXBaseDataSource_InputPeek(
   * parameter. This function also appends the new byte to to @c data field of the @c info 
   * parameter.
   */
-VX_EXPORT uint8_t VXBaseDataSource_InputNext8(
-    VXBaseDataSourceContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT uint8_t ZyDisBaseDataSource_InputNext8(
+    ZyDisBaseDataSourceContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXBaseDataSource_InputNext8
+ * @copydoc ZyDisBaseDataSource_InputNext8
  */
-VX_EXPORT uint16_t VXBaseDataSource_InputNext16(
-    VXBaseDataSourceContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT uint16_t ZyDisBaseDataSource_InputNext16(
+    ZyDisBaseDataSourceContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXBaseDataSource_InputNext8
+ * @copydoc ZyDisBaseDataSource_InputNext8
  */
-VX_EXPORT uint32_t VXBaseDataSource_InputNext32(
-    VXBaseDataSourceContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT uint32_t ZyDisBaseDataSource_InputNext32(
+    ZyDisBaseDataSourceContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
- * @copydoc VXBaseDataSource_InputNext8
+ * @copydoc ZyDisBaseDataSource_InputNext8
  */
-VX_EXPORT uint64_t VXBaseDataSource_InputNext64(
-    VXBaseDataSourceContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT uint64_t ZyDisBaseDataSource_InputNext64(
+    ZyDisBaseDataSourceContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Returns the current input byte.
@@ -119,24 +119,24 @@ VX_EXPORT uint64_t VXBaseDataSource_InputNext64(
  * The current input byte is set everytime the @c inputPeek or @c inputNext method is called.
  */
 // TODO: check long descr
-VX_EXPORT uint8_t VXBaseDataSource_InputCurrent(
-    const VXBaseDataSourceContext *ctx);
+ZYDIS_EXPORT uint8_t ZyDisBaseDataSource_InputCurrent(
+    const ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Queries if the end of the data source is reached.
  * @param   ctx  The data soruce context.
  * @return  @c true if end of input, @c false if not.
  */
-VX_EXPORT bool VXBaseDataSource_IsEndOfInput(
-    const VXBaseDataSourceContext *ctx);
+ZYDIS_EXPORT bool ZyDisBaseDataSource_IsEndOfInput(
+    const ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Returns the current input position.
  * @param   ctx  The data soruce context.
  * @return  The current input position.
  */
-VX_EXPORT uint64_t VXBaseDataSource_GetPosition(
-    const VXBaseDataSourceContext *ctx);
+ZYDIS_EXPORT uint64_t ZyDisBaseDataSource_GetPosition(
+    const ZyDisBaseDataSourceContext *ctx);
 
 /**
  * @brief   Sets a new input position.
@@ -144,24 +144,24 @@ VX_EXPORT uint64_t VXBaseDataSource_GetPosition(
  * @param   position    The new input position.
  * @return  @c false if the new position exceeds the maximum input length.
  */
-VX_EXPORT bool VXBaseDataSource_SetPosition(
-    VXBaseDataSourceContext *ctx, 
+ZYDIS_EXPORT bool ZyDisBaseDataSource_SetPosition(
+    ZyDisBaseDataSourceContext *ctx, 
     uint64_t position);
 
-/* VXMemoryDataSource ========================================================================== */
+/* ZyDisMemoryDataSource ========================================================================== */
 
 /**
  * @brief   Creates a memory data source.
  * @param   buffer      The input buffer.
  * @param   bufferLen   THe length of the input buffer.
  * @return  @c NULL if it fails, else a data source context.
- * @see     VXBaseDataSource_Release
+ * @see     ZyDisBaseDataSource_Release
  */
-VX_EXPORT VXBaseDataSourceContext* VXMemoryDataSource_Create(
+ZYDIS_EXPORT ZyDisBaseDataSourceContext* ZyDisMemoryDataSource_Create(
     const void* buffer,
     size_t bufferLen);
 
-/* VXCustomDataSource ========================================================================== */
+/* ZyDisCustomDataSource ========================================================================== */
 
 /**
  * @brief   Creates a custom daat source.
@@ -173,52 +173,52 @@ VX_EXPORT VXBaseDataSourceContext* VXMemoryDataSource_Create(
  * @param   setPositionCb   The callback setting the current input position.
  * @param   destructionCb   The destruction callback. May be @c NULL.
  * @return  @c NULL if it fails, else a data source context.
- * @see     VXBaseDataSource_Release
+ * @see     ZyDisBaseDataSource_Release
  */
-VX_EXPORT VXBaseDataSourceContext* VXCustomDataSource_Create(
-    VXBaseDataSource_InputCallback inputPeekCb,
-    VXBaseDataSource_InputCallback inputNextCb,
-    VXBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
-    VXBaseDataSource_GetPositionCallback getPositionCb,
-    VXBaseDataSource_SetPositionCallback setPositionCb,
-    VXBaseDataSource_DestructionCallback destructionCb);
+ZYDIS_EXPORT ZyDisBaseDataSourceContext* ZyDisCustomDataSource_Create(
+    ZyDisBaseDataSource_InputCallback inputPeekCb,
+    ZyDisBaseDataSource_InputCallback inputNextCb,
+    ZyDisBaseDataSource_IsEndOfInputCallback isEndOfInputCb,
+    ZyDisBaseDataSource_GetPositionCallback getPositionCb,
+    ZyDisBaseDataSource_SetPositionCallback setPositionCb,
+    ZyDisBaseDataSource_DestructionCallback destructionCb);
 
 /* Enums ======================================================================================= */
 
 /**
  * @brief   Values that represent a disassembler mode.
  */
-typedef enum _VXDisassemblerMode /* : uint8_t */
+typedef enum _ZyDisDisassemblerMode /* : uint8_t */
 {
     DM_M16BIT,
     DM_M32BIT,
     DM_M64BIT
-} VXDisassemblerMode;
+} ZyDisDisassemblerMode;
 
 /**
  * @brief   Values that represent an instruction-set vendor.
  */
-typedef enum _VXInstructionSetVendor /* : uint8_t */
+typedef enum _ZyDisInstructionSetVendor /* : uint8_t */
 {
     ISV_ANY,
     ISV_INTEL,
     ISV_AMD
-} VXInstructionSetVendor;
+} ZyDisInstructionSetVendor;
 
-/* VXInstructionDecoder ======================================================================== */
+/* ZyDisInstructionDecoder ======================================================================== */
 
-typedef struct _VXInstructionDecoderContext 
+typedef struct _ZyDisInstructionDecoderContext 
 { 
-    VXContextDescriptor d; 
-} VXInstructionDecoderContext;
+    ZyDisContextDescriptor d; 
+} ZyDisInstructionDecoderContext;
 
 /**
  * @brief   Creates an instruction decoder.
  * @return  @c NULL if it fails, else an instruction decoder context.
- * @see     VXInstructionDecoder_Release
+ * @see     ZyDisInstructionDecoder_Release
  */
 // TODO: verify return value
-VX_EXPORT VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
+ZYDIS_EXPORT ZyDisInstructionDecoderContext* ZyDisInstructionDecoder_Create(void);
 
 /**
  * @brief   Creates an instruction decoder.
@@ -227,100 +227,100 @@ VX_EXPORT VXInstructionDecoderContext* VXInstructionDecoder_Create(void);
  * @param   preferredVendor     The preferred instruction-set vendor.
  * @param   instructionPointer  The initial instruction pointer.
  * @return  @c NULL if it fails, else an instruction decoder context.
- * @see     VXInstructionDecoder_Release
+ * @see     ZyDisInstructionDecoder_Release
  */
-VX_EXPORT VXInstructionDecoderContext* VXInstructionDecoder_CreateEx(
-    VXBaseDataSourceContext *input, 
-    VXDisassemblerMode disassemblerMode,
-    VXInstructionSetVendor preferredVendor, 
+ZYDIS_EXPORT ZyDisInstructionDecoderContext* ZyDisInstructionDecoder_CreateEx(
+    ZyDisBaseDataSourceContext *input, 
+    ZyDisDisassemblerMode disassemblerMode,
+    ZyDisInstructionSetVendor preferredVendor, 
     uint64_t instructionPointer);
 
 /**
  * @brief   Releases an instruction decoder.
  * @param   ctx The context of the instruction decoder to release.
  */
-VX_EXPORT void VXInstructionDecoder_Release(
-    VXInstructionDecoderContext *ctx);
+ZYDIS_EXPORT void ZyDisInstructionDecoder_Release(
+    ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Decodes the next instruction from the input data source.
  * @param   ctx  The instruction decoder context.
- * @param   info The @c VXInstructionInfo struct that receives the information about the decoded 
+ * @param   info The @c ZyDisInstructionInfo struct that receives the information about the decoded 
  *               instruction.
  * @return  This function returns @c false if the current position exceeds the maximum input
  *          length. In all other cases (valid and invalid instructions) the return value is 
  *          @c true.
  */
-VX_EXPORT bool VXInstructionDecoder_DecodeInstruction(
-    VXInstructionDecoderContext *ctx, 
-    VXInstructionInfo *info);
+ZYDIS_EXPORT bool ZyDisInstructionDecoder_DecodeInstruction(
+    ZyDisInstructionDecoderContext *ctx, 
+    ZyDisInstructionInfo *info);
 
 /**
  * @brief   Returns a pointer to the current data source.
  * @param   ctx The instruction decoder context.
  * @return  The context of the data source.
  */
-VX_EXPORT VXBaseDataSourceContext* VXInstructionDecoder_GetDataSource(
-    const VXInstructionDecoderContext *ctx);
+ZYDIS_EXPORT ZyDisBaseDataSourceContext* ZyDisInstructionDecoder_GetDataSource(
+    const ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets a new data source.
  * @param   ctx   The instruction decoder context.
  * @param   input The context of the new input data source.
  */
-VX_EXPORT void VXInstructionDecoder_SetDataSource(
-    VXInstructionDecoderContext *ctx, 
-    VXBaseDataSourceContext *input);
+ZYDIS_EXPORT void ZyDisInstructionDecoder_SetDataSource(
+    ZyDisInstructionDecoderContext *ctx, 
+    ZyDisBaseDataSourceContext *input);
 
 /**
  * @brief   Returns the current disassembler mode.
  * @param   ctx The instruction decoder context.
  * @return  The current disassembler mode.
  */
-VX_EXPORT VXDisassemblerMode VXInstructionDecoder_GetDisassemblerMode(
-    const VXInstructionDecoderContext *ctx);
+ZYDIS_EXPORT ZyDisDisassemblerMode ZyDisInstructionDecoder_GetDisassemblerMode(
+    const ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets the current disassembler mode.
  * @param   ctx                 The instruction decoder context.
  * @param   disassemblerMode    The new disassembler mode.
  */
-VX_EXPORT void VXInstructionDecoder_SetDisassemblerMode(
-    VXInstructionDecoderContext *ctx,
-    VXDisassemblerMode disassemblerMode);
+ZYDIS_EXPORT void ZyDisInstructionDecoder_SetDisassemblerMode(
+    ZyDisInstructionDecoderContext *ctx,
+    ZyDisDisassemblerMode disassemblerMode);
 
 /**
  * @brief   Returns the preferred instruction-set vendor.
  * @param   ctx The instruction decoder context.
  * @return  The preferred instruction-set vendor.
  */
-VX_EXPORT VXInstructionSetVendor VXInstructionDecoder_GetPreferredVendor(
-    const VXInstructionDecoderContext *ctx);
+ZYDIS_EXPORT ZyDisInstructionSetVendor ZyDisInstructionDecoder_GetPreferredVendor(
+    const ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets the preferred instruction-set vendor.
  * @param   ctx             The instruction decoder context.
  * @param   preferredVendor The new preferred instruction-set vendor.
  */
-VX_EXPORT void VXInstructionDecoder_SetPreferredVendor(
-    VXInstructionDecoderContext *ctx,
-    VXInstructionSetVendor preferredVendor);
+ZYDIS_EXPORT void ZyDisInstructionDecoder_SetPreferredVendor(
+    ZyDisInstructionDecoderContext *ctx,
+    ZyDisInstructionSetVendor preferredVendor);
 
 /**
  * @brief   Returns the current instruction pointer.
  * @param   ctx The instruction decoder context.
  * @return  The current instruction pointer.
  */
-VX_EXPORT uint64_t VXInstructionDecoder_GetInstructionPointer(
-    const VXInstructionDecoderContext *ctx);
+ZYDIS_EXPORT uint64_t ZyDisInstructionDecoder_GetInstructionPointer(
+    const ZyDisInstructionDecoderContext *ctx);
 
 /**
  * @brief   Sets a new instruction pointer.
  * @param   ctx                 The instruction decoder context.
  * @param   instructionPointer  The new instruction pointer.
  */
-VX_EXPORT void VXInstructionDecoder_SetInstructionPointer(
-    VXInstructionDecoderContext *ctx,
+ZYDIS_EXPORT void ZyDisInstructionDecoder_SetInstructionPointer(
+    ZyDisInstructionDecoderContext *ctx,
     uint64_t instructionPointer);
 
 /* ============================================================================================= */
@@ -329,4 +329,4 @@ VX_EXPORT void VXInstructionDecoder_SetInstructionPointer(
 }
 #endif
 
-#endif /* _VDE_VXINSTRUCTIONDECODERC_H_ */
+#endif /* _VDE_ZyDisINSTRUCTIONDECODERC_H_ */

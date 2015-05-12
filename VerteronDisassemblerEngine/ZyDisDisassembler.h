@@ -5,10 +5,10 @@
 
   Remarks         : Freeware, Copyright must be included
 
-  Original Author : athre0z
-  Modifications   : 
+  Original Author : Florian Bernd
+  Modifications   : athre0z
 
-  Last change     : 16. March 2015
+  Last change     : 04. February 2015
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,23 +28,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
+ **************************************************************************************************/
 
-/*
- * Include CMake generated header defining macros im-/exporting functions statically or 
- * dynamically depending what the user requested from CMake.
- */
-#include "VXExportConfig.h"
+#ifndef _VDE_ZyDisDISASSEMBLERC_H_
+#define _VDE_ZyDisDISASSEMBLERC_H_
 
-#ifndef _VDE_VXINTERNALCONFIG_H_
-#define _VDE_VXINTERNALCONFIG_H_
+#include "ZyDisDisassemblerTypes.h"
+#include "ZyDisInstructionDecoder.h"
+#include "ZyDisInstructionFormatter.h"
+#include "ZyDisDisassemblerUtils.h"
 
-#ifdef _MSC_VER
-#   define VX_INLINE __inline
-#else
-#   define VX_INLINE static inline
-#endif
-
-#define VX_UNUSED(x) ((void)x)
-
-#endif /* _VDE_VXINTERNALCONFIG_H_ */
+#endif /* _VDE_ZyDisDISASSEMBLERC_H_ */

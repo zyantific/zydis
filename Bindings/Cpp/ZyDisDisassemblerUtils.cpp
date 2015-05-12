@@ -29,16 +29,16 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXDisassemblerUtils.hpp"
+#include "ZyDisDisassemblerUtils.hpp"
 #include <cassert>
 
 namespace Verteron
 {
   
-uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInfo &operand)
+uint64_t VDECalcAbsoluteTarget(const ZyDisInstructionInfo &info, const ZyDisOperandInfo &operand)
 {
-    assert((operand.type == VXOperandType::REL_IMMEDIATE) || 
-        ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP)));
+    assert((operand.type == ZyDisOperandType::REL_IMMEDIATE) || 
+        ((operand.type == ZyDisOperandType::MEMORY) && (operand.base == ZyDisRegister::RIP)));
    
     uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
     if (!(info.flags & IF_DISASSEMBLER_MODE_64)) 
@@ -46,7 +46,7 @@ uint64_t VDECalcAbsoluteTarget(const VXInstructionInfo &info, const VXOperandInf
         truncMask >>= (64 - info.operand_mode);
     }
     uint16_t size = operand.size;
-    if ((operand.type == VXOperandType::MEMORY) && (operand.base == VXRegister::RIP))
+    if ((operand.type == ZyDisOperandType::MEMORY) && (operand.base == ZyDisRegister::RIP))
     {
         size = operand.offset;
     }

@@ -30,8 +30,8 @@
 
 **************************************************************************************************/
 
-#ifndef _VDE_VXOPCODETABLEC_H_
-#define _VDE_VXOPCODETABLEC_H_
+#ifndef _VDE_ZyDisOPCODETABLEC_H_
+#define _VDE_ZyDisOPCODETABLEC_H_
 
 #include <stdint.h>
 #include <assert.h>
@@ -44,7 +44,7 @@ extern "C"
 /**
  * @brief   Values that represent an instruction mnemonic.
  */
-typedef enum _VXInstructionMnemonic /* : uint16_t */
+typedef enum _ZyDisInstructionMnemonic /* : uint16_t */
 {
     /* 000 */ MNEM_INVALID,
     /* 001 */ MNEM_AAA,
@@ -926,8 +926,8 @@ typedef enum _VXInstructionMnemonic /* : uint16_t */
     /* 36D */ MNEM_VUNPCKHPS,
     /* 36E */ MNEM_VUNPCKLPD,
     /* 36F */ MNEM_VUNPCKLPS,
-    /* 370 */ MNEM_VXORPD,
-    /* 371 */ MNEM_VXORPS,
+    /* 370 */ MNEM_ZyDisORPD,
+    /* 371 */ MNEM_ZyDisORPS,
     /* 372 */ MNEM_VZEROALL,
     /* 373 */ MNEM_VZEROUPPER,
     /* 374 */ MNEM_WAIT,
@@ -953,18 +953,18 @@ typedef enum _VXInstructionMnemonic /* : uint16_t */
     /* 388 */ MNEM_XSTORE,
 
     MNEM_FORCE_WORD = 0x7FFF
-} VXInstructionMnemonic;
+} ZyDisInstructionMnemonic;
 
 /**
  * @brief   Defines an alias representing an opcode tree node. An opcode tree node is a 16 bit
  *          unsigned integer value with its first 4 bits reserved for the node type.
  */
-typedef uint16_t VXOpcodeTreeNode;
+typedef uint16_t ZyDisOpcodeTreeNode;
 
 /**
  * @brief   Values that represent the type of an opcode tree node.
  */
-typedef enum _VXOpcodeTreeNodeType /* : uint8_t */
+typedef enum _ZyDisOpcodeTreeNodeType /* : uint8_t */
 {
     /**
      * @brief   Reference to a concrete instruction definition.
@@ -1026,12 +1026,12 @@ typedef enum _VXOpcodeTreeNodeType /* : uint8_t */
      * @brief   Reference to a vex_l switch table.
      */
     OTNT_VEXL                    = 14
-} VXOpcodeTreeNodeType;
+} ZyDisOpcodeTreeNodeType;
 
 /**
  * @brief   Values that represent the type of an operand in the instruction definition.
  */
-typedef enum _VXDefinedOperandType /* : uint8_t */
+typedef enum _ZyDisDefinedOperandType /* : uint8_t */
 {
     /*
      * @brief   No operand. 
@@ -1286,13 +1286,13 @@ typedef enum _VXDefinedOperandType /* : uint8_t */
      * @brief   Floating point register 7.
      */
     DOT_ST7
-} VXDefinedOperandType;
+} ZyDisDefinedOperandType;
 
 /**
  * @brief   Values that represent the size of an operand in the instruction definition.
  *          Do not change the order or the values of this enum! 
  */
-typedef enum _VXDefinedOperandSize /* : uint8_t */
+typedef enum _ZyDisDefinedOperandSize /* : uint8_t */
 {
     /**
      * @brief   No operand.
@@ -1386,13 +1386,13 @@ typedef enum _VXDefinedOperandSize /* : uint8_t */
      * @brief   Q sized register or O sized memory operand.
      */
     DOS_QO  = (DOS_Q << 4) | DOS_O,
-} VXDefinedOperandSize;
+} ZyDisDefinedOperandSize;
 
 /**
  * @brief   Values that represent optional flags in the instruction definition.   
  *          Do not change the order or the values of this enum!            
  */
-typedef enum _VXInstructionDefinitionFlags /* : uint16_t */
+typedef enum _ZyDisInstructionDefinitionFlags /* : uint16_t */
 {
     /**
      * @brief   The instruction accepts the rex.b prefix value.
@@ -1456,49 +1456,49 @@ typedef enum _VXInstructionDefinitionFlags /* : uint16_t */
     IDF_OPERAND2_READWRITE              = 0x4000,
 
     IDF_FORCE_WORD                      = 0x7FFF
-} VXInstructionDefinitionFlags;
+} ZyDisInstructionDefinitionFlags;
 
 #pragma pack (push, 1)
 /**
  * @brief   An operand definition.
  */
-typedef struct _VXOperandDefinition
+typedef struct _ZyDisOperandDefinition
 {               
     /**
      * @brief   The defined operand type.
-     * @see     VXDefinedOperandType
+     * @see     ZyDisDefinedOperandType
      */
     uint8_t type;
     /**
      * @brief   The defined operand size.
-     * @see     VXDefinedOperandType
+     * @see     ZyDisDefinedOperandType
      */
     uint8_t size;
-} VXOperandDefinition;
+} ZyDisOperandDefinition;
 
 /**
  * @brief   An instruction definition.
  */
-typedef struct _VXInstructionDefinition
+typedef struct _ZyDisInstructionDefinition
 {
     /**
      * @brief   The instruction mnemonic.
-     * @see     VXInstructionMnemonic
+     * @see     ZyDisInstructionMnemonic
      */
     uint16_t mnemonic;
     /**
      * @brief   The operand definitions for all four possible operands.
      */
-    VXOperandDefinition operand[4];
+    ZyDisOperandDefinition operand[4];
     /**
      * @brief   Additional flags for the instruction definition.
      */
     uint16_t flags;   
-} VXInstructionDefinition;
+} ZyDisInstructionDefinition;
 #pragma pack (pop)
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // _VDE_VXOPCODETABLEC_H_
+#endif // _VDE_ZyDisOPCODETABLEC_H_

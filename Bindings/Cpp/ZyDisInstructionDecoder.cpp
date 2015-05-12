@@ -29,16 +29,16 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXInstructionDecoder.hpp"
+#include "ZyDisInstructionDecoder.hpp"
 #include <cstring>
 
 namespace Verteron
 {
 
-bool VXInstructionDecoder::decodeRegisterOperand(VXInstructionInfo &info, VXOperandInfo &operand, 
-    RegisterClass registerClass, uint8_t registerId, VXDefinedOperandSize operandSize) const
+bool ZyDisInstructionDecoder::decodeRegisterOperand(ZyDisInstructionInfo &info, ZyDisOperandInfo &operand, 
+    RegisterClass registerClass, uint8_t registerId, ZyDisDefinedOperandSize operandSize) const
 {
-    VXRegister reg = VXRegister::NONE;
+    ZyDisRegister reg = ZyDisRegister::NONE;
     uint16_t size = getEffectiveOperandSize(info, operandSize);
     switch (registerClass)
     {
@@ -46,35 +46,35 @@ bool VXInstructionDecoder::decodeRegisterOperand(VXInstructionInfo &info, VXOper
         switch (size) 
         {
         case 64:
-            reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::RAX) + registerId);
+            reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::RAX) + registerId);
             break;
         case 32:
-            reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::EAX) + registerId);
+            reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::EAX) + registerId);
             break;
         case 16:
-            reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::AX) + registerId);
+            reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::AX) + registerId);
             break;
         case 8:
             // TODO: Only REX? Or VEX too?
-            if (m_disassemblerMode == VXDisassemblerMode::M64BIT && (info.flags & IF_PREFIX_REX)) 
+            if (m_disassemblerMode == ZyDisDisassemblerMode::M64BIT && (info.flags & IF_PREFIX_REX)) 
             {
                 if (registerId >= 4)
                 {
-                    reg = static_cast<VXRegister>(
-                        static_cast<uint16_t>(VXRegister::SPL) + (registerId - 4));
+                    reg = static_cast<ZyDisRegister>(
+                        static_cast<uint16_t>(ZyDisRegister::SPL) + (registerId - 4));
                 } else
                 {
-                    reg = static_cast<VXRegister>(
-                        static_cast<uint16_t>(VXRegister::AL) + registerId);
+                    reg = static_cast<ZyDisRegister>(
+                        static_cast<uint16_t>(ZyDisRegister::AL) + registerId);
                 }
             } else 
             {
-                reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::AL) + registerId);
+                reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::AL) + registerId);
             }
             break;
         case 0:
             // TODO: Error?
-            reg = VXRegister::NONE;
+            reg = ZyDisRegister::NONE;
             break;
         default:
             assert(0);
@@ -82,13 +82,13 @@ bool VXInstructionDecoder::decodeRegisterOperand(VXInstructionInfo &info, VXOper
         break;
     case RegisterClass::MMX: 
         reg = 
-            static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::MM0) + (registerId & 0x07));
+            static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::MM0) + (registerId & 0x07));
         break;
     case RegisterClass::CONTROL: 
-        reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::CR0) + registerId);
+        reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::CR0) + registerId);
         break;
     case RegisterClass::DEBUG: 
-        reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::DR0) + registerId);
+        reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::DR0) + registerId);
         break;
     case RegisterClass::SEGMENT: 
         if ((registerId & 7) > 5) 
@@ -96,23 +96,23 @@ bool VXInstructionDecoder::decodeRegisterOperand(VXInstructionInfo &info, VXOper
             info.flags |= IF_ERROR_OPERAND;
             return false;
         }
-        reg = static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::ES) + (registerId & 0x07));
+        reg = static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::ES) + (registerId & 0x07));
         break;
     case RegisterClass::XMM:  
-        reg = static_cast<VXRegister>(registerId + static_cast<uint16_t>(
-            ((size == 256) ? VXRegister::YMM0 : VXRegister::XMM0)));
+        reg = static_cast<ZyDisRegister>(registerId + static_cast<uint16_t>(
+            ((size == 256) ? ZyDisRegister::YMM0 : ZyDisRegister::XMM0)));
         break;
     default: 
         assert(0);
     }
-    operand.type = VXOperandType::REGISTER;
-    operand.base = static_cast<VXRegister>(reg);
+    operand.type = ZyDisOperandType::REGISTER;
+    operand.base = static_cast<ZyDisRegister>(reg);
     operand.size = size;
     return true;
 }
 
-bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info, 
-    VXOperandInfo &operand, RegisterClass registerClass, VXDefinedOperandSize operandSize)
+bool ZyDisInstructionDecoder::decodeRegisterMemoryOperand(ZyDisInstructionInfo &info, 
+    ZyDisOperandInfo &operand, RegisterClass registerClass, ZyDisDefinedOperandSize operandSize)
 {
     if (!decodeModrm(info))
     {
@@ -127,24 +127,24 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
     }
     // Decode memory operand
     uint8_t offset = 0;
-    operand.type = VXOperandType::MEMORY;
+    operand.type = ZyDisOperandType::MEMORY;
     operand.size = getEffectiveOperandSize(info, operandSize);
     switch (info.address_mode)
     {
     case 16:
         {
-            static const VXRegister bases[] = { 
-                VXRegister::BX, VXRegister::BX, VXRegister::BP, VXRegister::BP, 
-                VXRegister::SI, VXRegister::DI, VXRegister::BP, VXRegister::BX };
-            static const VXRegister indices[] = { 
-                VXRegister::SI, VXRegister::DI, VXRegister::SI, VXRegister::DI,
-                VXRegister::NONE, VXRegister::NONE, VXRegister::NONE, VXRegister::NONE };
-            operand.base = static_cast<VXRegister>(bases[info.modrm_rm_ext & 0x07]);
-            operand.index = static_cast<VXRegister>(indices[info.modrm_rm_ext & 0x07]);
+            static const ZyDisRegister bases[] = { 
+                ZyDisRegister::BX, ZyDisRegister::BX, ZyDisRegister::BP, ZyDisRegister::BP, 
+                ZyDisRegister::SI, ZyDisRegister::DI, ZyDisRegister::BP, ZyDisRegister::BX };
+            static const ZyDisRegister indices[] = { 
+                ZyDisRegister::SI, ZyDisRegister::DI, ZyDisRegister::SI, ZyDisRegister::DI,
+                ZyDisRegister::NONE, ZyDisRegister::NONE, ZyDisRegister::NONE, ZyDisRegister::NONE };
+            operand.base = static_cast<ZyDisRegister>(bases[info.modrm_rm_ext & 0x07]);
+            operand.index = static_cast<ZyDisRegister>(indices[info.modrm_rm_ext & 0x07]);
             operand.scale = 0;
             if (info.modrm_mod == 0 && info.modrm_rm_ext == 6) {
                 offset = 16;
-                operand.base = VXRegister::NONE;
+                operand.base = ZyDisRegister::NONE;
             } else if (info.modrm_mod == 1) {
                 offset = 8;
             } else if (info.modrm_mod == 2) {
@@ -154,13 +154,13 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
         break;
     case 32:
         operand.base = 
-            static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::EAX) + info.modrm_rm_ext);
+            static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::EAX) + info.modrm_rm_ext);
         switch (info.modrm_mod)
         {
         case 0:
             if (info.modrm_rm_ext == 5)
             {
-                operand.base = VXRegister::NONE;
+                operand.base = ZyDisRegister::NONE;
                 offset = 32;
             }
             break;
@@ -180,22 +180,22 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
                 return false;
             }
             operand.base = 
-                static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::EAX) + 
+                static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::EAX) + 
                 info.sib_base_ext);
             operand.index = 
-                static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::EAX) + 
+                static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::EAX) + 
                 info.sib_index_ext);
             operand.scale = (1 << info.sib_scale) & ~1;
-            if (operand.index == VXRegister::ESP)  
+            if (operand.index == ZyDisRegister::ESP)  
             {
-                operand.index = VXRegister::NONE;
+                operand.index = ZyDisRegister::NONE;
                 operand.scale = 0;
             } 
-            if (operand.base == VXRegister::EBP)
+            if (operand.base == ZyDisRegister::EBP)
             {
                 if (info.modrm_mod == 0)
                 {
-                    operand.base = VXRegister::NONE;
+                    operand.base = ZyDisRegister::NONE;
                 } 
                 if (info.modrm_mod == 1)
                 {
@@ -207,20 +207,20 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
             }
         } else
         {
-            operand.index = VXRegister::NONE;
+            operand.index = ZyDisRegister::NONE;
             operand.scale = 0;    
         }
         break;
     case 64:
         operand.base = 
-            static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::RAX) + info.modrm_rm_ext);
+            static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::RAX) + info.modrm_rm_ext);
         switch (info.modrm_mod)
         {
         case 0:
             if ((info.modrm_rm_ext & 0x07) == 5)
             {
                 info.flags |= IF_RELATIVE;
-                operand.base = VXRegister::RIP;
+                operand.base = ZyDisRegister::RIP;
                 offset = 32;
             }
             break;
@@ -240,24 +240,24 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
                 return false;
             }
             operand.base = 
-                static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::RAX) + 
+                static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::RAX) + 
                 info.sib_base_ext);
             operand.index = 
-                static_cast<VXRegister>(static_cast<uint16_t>(VXRegister::RAX) + 
+                static_cast<ZyDisRegister>(static_cast<uint16_t>(ZyDisRegister::RAX) + 
                 info.sib_index_ext);
-            if (operand.index == VXRegister::RSP) 
+            if (operand.index == ZyDisRegister::RSP) 
             {
-                operand.index = VXRegister::NONE;
+                operand.index = ZyDisRegister::NONE;
                 operand.scale = 0;
             } else
             {
                 operand.scale = (1 << info.sib_scale) & ~1;
             }
-            if ((operand.base == VXRegister::RBP) || (operand.base == VXRegister::R13))
+            if ((operand.base == ZyDisRegister::RBP) || (operand.base == ZyDisRegister::R13))
             {
                 if (info.modrm_mod == 0)
                 {
-                    operand.base = VXRegister::NONE;
+                    operand.base = ZyDisRegister::NONE;
                 }
                 if (info.modrm_mod == 1)
                 {
@@ -269,7 +269,7 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
             }
         } else
         {
-            operand.index = VXRegister::NONE;
+            operand.index = ZyDisRegister::NONE;
             operand.scale = 0;
         }
         break;
@@ -287,10 +287,10 @@ bool VXInstructionDecoder::decodeRegisterMemoryOperand(VXInstructionInfo &info,
     return true;
 }
 
-bool VXInstructionDecoder::decodeImmediate(VXInstructionInfo &info, VXOperandInfo &operand, 
-    VXDefinedOperandSize operandSize)
+bool ZyDisInstructionDecoder::decodeImmediate(ZyDisInstructionInfo &info, ZyDisOperandInfo &operand, 
+    ZyDisDefinedOperandSize operandSize)
 {
-    operand.type = VXOperandType::IMMEDIATE;
+    operand.type = ZyDisOperandType::IMMEDIATE;
     operand.size = getEffectiveOperandSize(info, operandSize);
     switch (operand.size) 
     {
@@ -317,7 +317,7 @@ bool VXInstructionDecoder::decodeImmediate(VXInstructionInfo &info, VXOperandInf
     return true;
 }
 
-bool VXInstructionDecoder::decodeDisplacement(VXInstructionInfo &info, VXOperandInfo &operand, 
+bool ZyDisInstructionDecoder::decodeDisplacement(ZyDisInstructionInfo &info, ZyDisOperandInfo &operand, 
     uint8_t size)
 {
     switch (size)
@@ -349,7 +349,7 @@ bool VXInstructionDecoder::decodeDisplacement(VXInstructionInfo &info, VXOperand
     return true;
 }
 
-bool VXInstructionDecoder::decodeModrm(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeModrm(ZyDisInstructionInfo &info)
 {
     if (!(info.flags & IF_MODRM))
     {
@@ -372,7 +372,7 @@ bool VXInstructionDecoder::decodeModrm(VXInstructionInfo &info)
     return true;
 }
 
-bool VXInstructionDecoder::decodeSIB(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeSIB(ZyDisInstructionInfo &info)
 {
     assert(info.flags & IF_MODRM);
     assert((info.modrm_rm & 0x7) == 4);
@@ -395,7 +395,7 @@ bool VXInstructionDecoder::decodeSIB(VXInstructionInfo &info)
     return true;
 }
 
-bool VXInstructionDecoder::decodeVex(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeVex(ZyDisInstructionInfo &info)
 {
     if (!(info.flags & IF_PREFIX_VEX))
     {
@@ -451,32 +451,32 @@ bool VXInstructionDecoder::decodeVex(VXInstructionInfo &info)
     return true;
 }
 
-uint16_t VXInstructionDecoder::getEffectiveOperandSize(const VXInstructionInfo &info, 
-    VXDefinedOperandSize operandSize) const
+uint16_t ZyDisInstructionDecoder::getEffectiveOperandSize(const ZyDisInstructionInfo &info, 
+    ZyDisDefinedOperandSize operandSize) const
 {
     switch (operandSize)
     {
-    case VXDefinedOperandSize::NA: 
+    case ZyDisDefinedOperandSize::NA: 
         return 0;
-    case VXDefinedOperandSize::Z: 
+    case ZyDisDefinedOperandSize::Z: 
         return (info.operand_mode == 16) ? 16 : 32;
-    case VXDefinedOperandSize::V: 
+    case ZyDisDefinedOperandSize::V: 
         return info.operand_mode;
-    case VXDefinedOperandSize::Y: 
+    case ZyDisDefinedOperandSize::Y: 
         return (info.operand_mode == 16) ? 32 : info.operand_mode;
-    case VXDefinedOperandSize::X: 
+    case ZyDisDefinedOperandSize::X: 
         assert(info.vex_op != 0);
         return (info.eff_vex_l) ? 
-            getEffectiveOperandSize(info, VXDefinedOperandSize::QQ) : 
-            getEffectiveOperandSize(info, VXDefinedOperandSize::DQ);
-    case VXDefinedOperandSize::RDQ: 
-        return (m_disassemblerMode == VXDisassemblerMode::M64BIT) ? 64 : 32;
+            getEffectiveOperandSize(info, ZyDisDefinedOperandSize::QQ) : 
+            getEffectiveOperandSize(info, ZyDisDefinedOperandSize::DQ);
+    case ZyDisDefinedOperandSize::RDQ: 
+        return (m_disassemblerMode == ZyDisDisassemblerMode::M64BIT) ? 64 : 32;
     default: 
         return Internal::VDEGetSimpleOperandSize(operandSize);
     }
 }
 
-bool VXInstructionDecoder::decodeOperands(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeOperands(ZyDisInstructionInfo &info)
 {
     assert(info.instrDefinition);
     // Always try to decode the first operand
@@ -488,7 +488,7 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo &info)
     // Decode other operands on demand
     for (unsigned int i = 1; i < 4; ++i)
     {
-        if (info.operand[i - 1].type != VXOperandType::NONE)
+        if (info.operand[i - 1].type != ZyDisOperandType::NONE)
         {
             if (!decodeOperand(info, info.operand[i], info.instrDefinition->operand[i].type, 
                 info.instrDefinition->operand[i].size))
@@ -500,26 +500,26 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo &info)
     // Update operand access modes
     for (unsigned int i = 0; i < 4; ++i)
     {
-        if (info.operand[i].type != VXOperandType::NONE)
+        if (info.operand[i].type != ZyDisOperandType::NONE)
         {
-            info.operand[i].access_mode = VXOperandAccessMode::READ;
+            info.operand[i].access_mode = ZyDisOperandAccessMode::READ;
             if (i == 0)
             {
                 if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
                 {
-                    info.operand[0].access_mode = VXOperandAccessMode::WRITE;
+                    info.operand[0].access_mode = ZyDisOperandAccessMode::WRITE;
                 } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
                 {
-                    info.operand[0].access_mode = VXOperandAccessMode::READWRITE;
+                    info.operand[0].access_mode = ZyDisOperandAccessMode::READWRITE;
                 }
             } else if (i == 1)
             {
                 if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
                 {
-                    info.operand[1].access_mode = VXOperandAccessMode::WRITE;
+                    info.operand[1].access_mode = ZyDisOperandAccessMode::WRITE;
                 } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
                 {
-                    info.operand[1].access_mode = VXOperandAccessMode::READWRITE;
+                    info.operand[1].access_mode = ZyDisOperandAccessMode::READWRITE;
                 }    
             }
         }
@@ -527,17 +527,17 @@ bool VXInstructionDecoder::decodeOperands(VXInstructionInfo &info)
     return true;
 }
 
-bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo &operand, 
-    VXDefinedOperandType operandType, VXDefinedOperandSize operandSize)
+bool ZyDisInstructionDecoder::decodeOperand(ZyDisInstructionInfo &info, ZyDisOperandInfo &operand, 
+    ZyDisDefinedOperandType operandType, ZyDisDefinedOperandSize operandSize)
 {
     using namespace Internal;
-    operand.type = VXOperandType::NONE;
+    operand.type = ZyDisOperandType::NONE;
     switch (operandType)
     {
-    case VXDefinedOperandType::NONE:
+    case ZyDisDefinedOperandType::NONE:
         break;
-    case VXDefinedOperandType::A: 
-        operand.type = VXOperandType::POINTER;
+    case ZyDisDefinedOperandType::A: 
+        operand.type = ZyDisOperandType::POINTER;
         if (info.operand_mode == 16)
         {
             operand.size = 32;
@@ -553,61 +553,61 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
             return false;
         }
         break;
-    case VXDefinedOperandType::C: 
+    case ZyDisDefinedOperandType::C: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::CONTROL, info.modrm_reg_ext, 
             operandSize);
-    case VXDefinedOperandType::D: 
+    case ZyDisDefinedOperandType::D: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::DEBUG, info.modrm_reg_ext, 
             operandSize);
-    case VXDefinedOperandType::F: 
+    case ZyDisDefinedOperandType::F: 
         // TODO: FAR flag
-    case VXDefinedOperandType::M: 
+    case ZyDisDefinedOperandType::M: 
         // ModR/M byte may refer only to a register
         if (info.modrm_mod == 3)
         {
             info.flags |= IF_ERROR_OPERAND;
             return false;
         }
-    case VXDefinedOperandType::E: 
+    case ZyDisDefinedOperandType::E: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             operandSize);
-    case VXDefinedOperandType::G: 
+    case ZyDisDefinedOperandType::G: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             info.modrm_reg_ext, operandSize);
-    case VXDefinedOperandType::H: 
+    case ZyDisDefinedOperandType::H: 
         assert(info.vex_op != 0);
         return decodeRegisterOperand(info, operand, RegisterClass::XMM, (0xF & ~info.vex_vvvv), 
             operandSize);
-    case VXDefinedOperandType::sI:
+    case ZyDisDefinedOperandType::sI:
         operand.signed_lval = true;
-    case VXDefinedOperandType::I: 
+    case ZyDisDefinedOperandType::I: 
         return decodeImmediate(info, operand, operandSize);
-    case VXDefinedOperandType::I1: 
-        operand.type = VXOperandType::CONSTANT;
+    case ZyDisDefinedOperandType::I1: 
+        operand.type = ZyDisOperandType::CONSTANT;
         operand.lval.udword = 1;
         break;
-    case VXDefinedOperandType::J: 
+    case ZyDisDefinedOperandType::J: 
         if (!decodeImmediate(info, operand, operandSize))
         {
             return false;
         }
-        operand.type = VXOperandType::REL_IMMEDIATE;
+        operand.type = ZyDisOperandType::REL_IMMEDIATE;
         operand.signed_lval = true;
         info.flags |= IF_RELATIVE;
         break;
-    case VXDefinedOperandType::L: 
+    case ZyDisDefinedOperandType::L: 
         {
             assert(info.vex_op != 0);
             uint8_t imm = inputNext(info);
@@ -615,42 +615,42 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
             {
                 return false;
             }
-            uint8_t mask = (m_disassemblerMode == VXDisassemblerMode::M64BIT) ? 0xF : 0x7;
+            uint8_t mask = (m_disassemblerMode == ZyDisDisassemblerMode::M64BIT) ? 0xF : 0x7;
             return decodeRegisterOperand(info, operand, RegisterClass::XMM, mask & (imm >> 4), 
                 operandSize);
         }
-    case VXDefinedOperandType::MR: 
+    case ZyDisDefinedOperandType::MR: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             info.modrm_mod == 3 ? 
             VDEGetComplexOperandRegSize(operandSize) : VDEGetComplexOperandMemSize(operandSize));
-    case VXDefinedOperandType::MU: 
+    case ZyDisDefinedOperandType::MU: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::XMM, 
             info.modrm_mod == 3 ? 
             VDEGetComplexOperandRegSize(operandSize) : VDEGetComplexOperandMemSize(operandSize));
-    case VXDefinedOperandType::N: 
+    case ZyDisDefinedOperandType::N: 
         // ModR/M byte may refer only to memory
         if (info.modrm_mod != 3)
         {
             info.flags |= IF_ERROR_OPERAND;
             return false;
         }
-    case VXDefinedOperandType::Q: 
+    case ZyDisDefinedOperandType::Q: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::MMX, operandSize);
-    case VXDefinedOperandType::O: 
-        operand.type = VXOperandType::MEMORY;
-        operand.base = VXRegister::NONE;
-        operand.index = VXRegister::NONE;
+    case ZyDisDefinedOperandType::O: 
+        operand.type = ZyDisOperandType::MEMORY;
+        operand.base = ZyDisRegister::NONE;
+        operand.index = ZyDisRegister::NONE;
         operand.scale = 0;
         operand.size = getEffectiveOperandSize(info, operandSize);
         return decodeDisplacement(info, operand, info.address_mode);
-    case VXDefinedOperandType::P: 
+    case ZyDisDefinedOperandType::P: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::MMX, info.modrm_reg_ext, 
             operandSize);
-    case VXDefinedOperandType::R: 
+    case ZyDisDefinedOperandType::R: 
         // ModR/M byte may refer only to memory
         if (info.modrm_mod != 3)
         {
@@ -659,91 +659,91 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
         }
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             operandSize);
-    case VXDefinedOperandType::S: 
+    case ZyDisDefinedOperandType::S: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::SEGMENT, info.modrm_reg_ext, 
             operandSize);
-    case VXDefinedOperandType::U: 
+    case ZyDisDefinedOperandType::U: 
         // ModR/M byte may refer only to memory
         if (info.modrm_mod != 3)
         {
             info.flags |= IF_ERROR_OPERAND;
             return false;
         }
-     case VXDefinedOperandType::W: 
+     case ZyDisDefinedOperandType::W: 
         return decodeRegisterMemoryOperand(info, operand, RegisterClass::XMM, operandSize);
-    case VXDefinedOperandType::V: 
+    case ZyDisDefinedOperandType::V: 
         if (!decodeModrm(info))
         {
             return false;
         }
         return decodeRegisterOperand(info, operand, RegisterClass::XMM, info.modrm_reg_ext, 
             operandSize);
-    case VXDefinedOperandType::R0: 
-    case VXDefinedOperandType::R1: 
-    case VXDefinedOperandType::R2: 
-    case VXDefinedOperandType::R3: 
-    case VXDefinedOperandType::R4: 
-    case VXDefinedOperandType::R5: 
-    case VXDefinedOperandType::R6: 
-    case VXDefinedOperandType::R7: 
+    case ZyDisDefinedOperandType::R0: 
+    case ZyDisDefinedOperandType::R1: 
+    case ZyDisDefinedOperandType::R2: 
+    case ZyDisDefinedOperandType::R3: 
+    case ZyDisDefinedOperandType::R4: 
+    case ZyDisDefinedOperandType::R5: 
+    case ZyDisDefinedOperandType::R6: 
+    case ZyDisDefinedOperandType::R7: 
         return decodeRegisterOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 
             ((info.eff_rexvex_b << 3) | (static_cast<uint16_t>(operandType) - 
-            static_cast<uint16_t>(VXDefinedOperandType::R0))), operandSize);
-    case VXDefinedOperandType::AL: 
-    case VXDefinedOperandType::AX: 
-    case VXDefinedOperandType::EAX: 
-    case VXDefinedOperandType::RAX: 
+            static_cast<uint16_t>(ZyDisDefinedOperandType::R0))), operandSize);
+    case ZyDisDefinedOperandType::AL: 
+    case ZyDisDefinedOperandType::AX: 
+    case ZyDisDefinedOperandType::EAX: 
+    case ZyDisDefinedOperandType::RAX: 
         return decodeRegisterOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 0, 
             operandSize);
-    case VXDefinedOperandType::CL: 
-    case VXDefinedOperandType::CX: 
-    case VXDefinedOperandType::ECX: 
-    case VXDefinedOperandType::RCX: 
+    case ZyDisDefinedOperandType::CL: 
+    case ZyDisDefinedOperandType::CX: 
+    case ZyDisDefinedOperandType::ECX: 
+    case ZyDisDefinedOperandType::RCX: 
         return decodeRegisterOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 1, 
             operandSize);
-    case VXDefinedOperandType::DL: 
-    case VXDefinedOperandType::DX: 
-    case VXDefinedOperandType::EDX: 
-    case VXDefinedOperandType::RDX: 
+    case ZyDisDefinedOperandType::DL: 
+    case ZyDisDefinedOperandType::DX: 
+    case ZyDisDefinedOperandType::EDX: 
+    case ZyDisDefinedOperandType::RDX: 
         return decodeRegisterOperand(info, operand, RegisterClass::GENERAL_PURPOSE, 2, 
             operandSize);
-    case VXDefinedOperandType::ES: 
-    case VXDefinedOperandType::CS: 
-    case VXDefinedOperandType::SS: 
-    case VXDefinedOperandType::DS: 
-    case VXDefinedOperandType::FS: 
-    case VXDefinedOperandType::GS: 
-        if (m_disassemblerMode == VXDisassemblerMode::M64BIT)
+    case ZyDisDefinedOperandType::ES: 
+    case ZyDisDefinedOperandType::CS: 
+    case ZyDisDefinedOperandType::SS: 
+    case ZyDisDefinedOperandType::DS: 
+    case ZyDisDefinedOperandType::FS: 
+    case ZyDisDefinedOperandType::GS: 
+        if (m_disassemblerMode == ZyDisDisassemblerMode::M64BIT)
         {
-            if ((operandType != VXDefinedOperandType::FS) && 
-                (operandType != VXDefinedOperandType::GS))
+            if ((operandType != ZyDisDefinedOperandType::FS) && 
+                (operandType != ZyDisDefinedOperandType::GS))
             {
                 info.flags |= IF_ERROR_OPERAND;
                 return false;
             }
         }
-        operand.type = VXOperandType::REGISTER;
-        operand.base = static_cast<VXRegister>((static_cast<uint16_t>(operandType) - 
-            static_cast<uint16_t>(VXDefinedOperandType::ES)) + 
-            static_cast<uint16_t>(VXRegister::ES));
+        operand.type = ZyDisOperandType::REGISTER;
+        operand.base = static_cast<ZyDisRegister>((static_cast<uint16_t>(operandType) - 
+            static_cast<uint16_t>(ZyDisDefinedOperandType::ES)) + 
+            static_cast<uint16_t>(ZyDisRegister::ES));
         operand.size = 16;
         break;
-    case VXDefinedOperandType::ST0: 
-    case VXDefinedOperandType::ST1: 
-    case VXDefinedOperandType::ST2: 
-    case VXDefinedOperandType::ST3: 
-    case VXDefinedOperandType::ST4: 
-    case VXDefinedOperandType::ST5: 
-    case VXDefinedOperandType::ST6: 
-    case VXDefinedOperandType::ST7: 
-        operand.type = VXOperandType::REGISTER;
-        operand.base = static_cast<VXRegister>((static_cast<uint16_t>(operandType) - 
-            static_cast<uint16_t>(VXDefinedOperandType::ST0)) + 
-            static_cast<uint16_t>(VXRegister::ST0));
+    case ZyDisDefinedOperandType::ST0: 
+    case ZyDisDefinedOperandType::ST1: 
+    case ZyDisDefinedOperandType::ST2: 
+    case ZyDisDefinedOperandType::ST3: 
+    case ZyDisDefinedOperandType::ST4: 
+    case ZyDisDefinedOperandType::ST5: 
+    case ZyDisDefinedOperandType::ST6: 
+    case ZyDisDefinedOperandType::ST7: 
+        operand.type = ZyDisOperandType::REGISTER;
+        operand.base = static_cast<ZyDisRegister>((static_cast<uint16_t>(operandType) - 
+            static_cast<uint16_t>(ZyDisDefinedOperandType::ST0)) + 
+            static_cast<uint16_t>(ZyDisRegister::ST0));
         operand.size = 80;
         break;
     default: 
@@ -752,20 +752,20 @@ bool VXInstructionDecoder::decodeOperand(VXInstructionInfo &info, VXOperandInfo 
     return true;
 }
 
-void VXInstructionDecoder::resolveOperandAndAddressMode(VXInstructionInfo &info) const
+void ZyDisInstructionDecoder::resolveOperandAndAddressMode(ZyDisInstructionInfo &info) const
 {
     assert(info.instrDefinition);
     switch (m_disassemblerMode)
     {
-    case VXDisassemblerMode::M16BIT:
+    case ZyDisDisassemblerMode::M16BIT:
         info.operand_mode = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 32 : 16;
         info.address_mode = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 32 : 16;
         break;
-    case VXDisassemblerMode::M32BIT:
+    case ZyDisDisassemblerMode::M32BIT:
         info.operand_mode = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 16 : 32;
         info.address_mode = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 16 : 32;
         break;
-    case VXDisassemblerMode::M64BIT:
+    case ZyDisDisassemblerMode::M64BIT:
         if (info.eff_rexvex_w)
         {
             info.operand_mode = 64;
@@ -783,7 +783,7 @@ void VXInstructionDecoder::resolveOperandAndAddressMode(VXInstructionInfo &info)
     }
 }
 
-void VXInstructionDecoder::calculateEffectiveRexVexValues(VXInstructionInfo &info) const
+void ZyDisInstructionDecoder::calculateEffectiveRexVexValues(ZyDisInstructionInfo &info) const
 {
     assert(info.instrDefinition);
     uint8_t rex = info.rex;
@@ -809,7 +809,7 @@ void VXInstructionDecoder::calculateEffectiveRexVexValues(VXInstructionInfo &inf
     info.eff_vex_l    = info.vex_l && (info.instrDefinition->flags & IDF_ACCEPTS_VEXL);
 }
 
-bool VXInstructionDecoder::decodePrefixes(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodePrefixes(ZyDisInstructionInfo &info)
 {
     bool done = false;
     do
@@ -831,27 +831,27 @@ bool VXInstructionDecoder::decodePrefixes(VXInstructionInfo &info)
             break;
         case 0x2E: 
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::CS;
+            info.segment = ZyDisRegister::CS;
             break;
         case 0x36:
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::SS;
+            info.segment = ZyDisRegister::SS;
             break;
         case 0x3E: 
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::DS;
+            info.segment = ZyDisRegister::DS;
             break;
         case 0x26: 
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::ES;
+            info.segment = ZyDisRegister::ES;
             break;
         case 0x64:
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::FS;
+            info.segment = ZyDisRegister::FS;
             break;
         case 0x65: 
             info.flags |= IF_PREFIX_SEGMENT;
-            info.segment = VXRegister::GS;
+            info.segment = ZyDisRegister::GS;
             break;
         case 0x66:
             info.flags |= IF_PREFIX_OPERAND_SIZE;
@@ -860,7 +860,7 @@ bool VXInstructionDecoder::decodePrefixes(VXInstructionInfo &info)
             info.flags |= IF_PREFIX_ADDRESS_SIZE;
             break;
         default:
-            if ((m_disassemblerMode == VXDisassemblerMode::M64BIT) && 
+            if ((m_disassemblerMode == ZyDisDisassemblerMode::M64BIT) && 
                 (inputCurrent() & 0xF0) == 0x40)
             {
                 info.flags |= IF_PREFIX_REX;
@@ -892,7 +892,7 @@ bool VXInstructionDecoder::decodePrefixes(VXInstructionInfo &info)
     return true;
 }
 
-bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeOpcode(ZyDisInstructionInfo &info)
 {
     using namespace Internal;
     // Read first opcode byte
@@ -904,15 +904,15 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
     info.opcode[0] = inputCurrent();
     info.opcode_length = 1;
     // Iterate through opcode tree
-    VXOpcodeTreeNode node = VDEGetOpcodeTreeChild(VDEGetOpcodeTreeRoot(), inputCurrent());
-    VXOpcodeTreeNodeType nodeType;
+    ZyDisOpcodeTreeNode node = VDEGetOpcodeTreeChild(VDEGetOpcodeTreeRoot(), inputCurrent());
+    ZyDisOpcodeTreeNodeType nodeType;
     do
     {
         uint16_t index = 0;
         nodeType = VDEGetOpcodeNodeType(node);
         switch (nodeType)
         {
-        case VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION: 
+        case ZyDisOpcodeTreeNodeType::INSTRUCTION_DEFINITION: 
             {
                 // Check for invalid instruction
                 if (VDEGetOpcodeNodeValue(node) == 0)
@@ -921,9 +921,9 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                     return false;
                 }
                 // Get instruction definition
-                const VXInstructionDefinition *instrDefinition = VDEGetInstructionDefinition(node);
+                const ZyDisInstructionDefinition *instrDefinition = VDEGetInstructionDefinition(node);
                 // Check for invalid 64 bit instruction
-                if ((m_disassemblerMode == VXDisassemblerMode::M64BIT) && 
+                if ((m_disassemblerMode == ZyDisDisassemblerMode::M64BIT) && 
                     (instrDefinition->flags & IDF_INVALID_64))
                 {
                     info.flags |= IF_ERROR_INVALID_64;
@@ -943,7 +943,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 }
             }  
             return true;
-        case VXOpcodeTreeNodeType::TABLE: 
+        case ZyDisOpcodeTreeNodeType::TABLE: 
             // Read next opcode byte
             if (!inputNext(info) && (info.flags & IF_ERROR_MASK))
             {
@@ -956,7 +956,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             // Set child node index for next iteration
             index = inputCurrent();
             break;
-        case VXOpcodeTreeNodeType::MODRM_MOD: 
+        case ZyDisOpcodeTreeNodeType::MODRM_MOD: 
             // Decode modrm byte
             if (!decodeModrm(info))
             {
@@ -964,7 +964,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             }
             index = (info.modrm_mod == 0x3) ? 1 : 0;
             break;
-        case VXOpcodeTreeNodeType::MODRM_REG: 
+        case ZyDisOpcodeTreeNodeType::MODRM_REG: 
             // Decode modrm byte
             if (!decodeModrm(info))
             {
@@ -972,7 +972,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             }
             index = info.modrm_reg;
             break;
-        case VXOpcodeTreeNodeType::MODRM_RM: 
+        case ZyDisOpcodeTreeNodeType::MODRM_RM: 
             // Decode modrm byte
             if (!decodeModrm(info))
             {
@@ -980,7 +980,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             }
             index = info.modrm_rm;
             break;
-        case VXOpcodeTreeNodeType::MANDATORY: 
+        case ZyDisOpcodeTreeNodeType::MANDATORY: 
             // Check if there are any prefixes present
             if (info.flags & IF_PREFIX_REP)
             {
@@ -1009,7 +1009,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 }
             }
             break;
-        case VXOpcodeTreeNodeType::X87: 
+        case ZyDisOpcodeTreeNodeType::X87: 
             // Decode modrm byte
             if (!decodeModrm(info))
             {
@@ -1017,63 +1017,63 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             }
             index = info.modrm - 0xC0;
             break;
-        case VXOpcodeTreeNodeType::ADDRESS_SIZE: 
+        case ZyDisOpcodeTreeNodeType::ADDRESS_SIZE: 
             switch (m_disassemblerMode)
             {
-            case VXDisassemblerMode::M16BIT:
+            case ZyDisDisassemblerMode::M16BIT:
                 index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 1 : 0;
                 break;
-            case VXDisassemblerMode::M32BIT:
+            case ZyDisDisassemblerMode::M32BIT:
                 index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 0 : 1;
                 break;
-            case VXDisassemblerMode::M64BIT:
+            case ZyDisDisassemblerMode::M64BIT:
                 index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 1 : 2;
                 break;
             default:
                 assert(0);
             }
             break;
-        case VXOpcodeTreeNodeType::OPERAND_SIZE: 
+        case ZyDisOpcodeTreeNodeType::OPERAND_SIZE: 
             switch (m_disassemblerMode)
             {
-            case VXDisassemblerMode::M16BIT:
+            case ZyDisDisassemblerMode::M16BIT:
                 index = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 1 : 0;
                 break;
-            case VXDisassemblerMode::M32BIT:
+            case ZyDisDisassemblerMode::M32BIT:
                 index = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 0 : 1;
                 break;
-            case VXDisassemblerMode::M64BIT:
+            case ZyDisDisassemblerMode::M64BIT:
                 index = (info.rex_w) ? 2 : ((info.flags & IF_PREFIX_OPERAND_SIZE) ? 0 : 1);
                 break;
             default:
                 assert(0);
             }
             break;
-        case VXOpcodeTreeNodeType::MODE: 
-            index = (m_disassemblerMode != VXDisassemblerMode::M64BIT) ? 0 : 1;
+        case ZyDisOpcodeTreeNodeType::MODE: 
+            index = (m_disassemblerMode != ZyDisDisassemblerMode::M64BIT) ? 0 : 1;
             break;
-        case VXOpcodeTreeNodeType::VENDOR:
+        case ZyDisOpcodeTreeNodeType::VENDOR:
             switch (m_preferredVendor)
             {
-            case VXInstructionSetVendor::ANY: 
+            case ZyDisInstructionSetVendor::ANY: 
                 index = (VDEGetOpcodeTreeChild(node, 0) != 0) ? 0 : 1;
                 break;
-            case VXInstructionSetVendor::INTEL: 
+            case ZyDisInstructionSetVendor::INTEL: 
                 index = 1;
                 break;
-            case VXInstructionSetVendor::AMD: 
+            case ZyDisInstructionSetVendor::AMD: 
                 index = 0;
                 break;
             default: 
                 assert(0);
             }
             break;
-        case VXOpcodeTreeNodeType::AMD3DNOW: 
+        case ZyDisOpcodeTreeNodeType::AMD3DNOW: 
             {     
                 // As all 3dnow instructions got the same operands and flag definitions, we just
                 // decode a random instruction and determine the specific opcode later.
                 assert(VDEGetOpcodeTreeChild(node, 0x0C) != 0);
-                const VXInstructionDefinition *instrDefinition =
+                const ZyDisInstructionDefinition *instrDefinition =
                     VDEGetInstructionDefinition(VDEGetOpcodeTreeChild(node, 0x0C));
                 // Update instruction info
                 info.instrDefinition = instrDefinition;
@@ -1097,7 +1097,7 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 instrDefinition = 
                     VDEGetInstructionDefinition(VDEGetOpcodeTreeChild(node, info.opcode[2]));
                 if (!instrDefinition || 
-                    (instrDefinition->mnemonic == VXInstructionMnemonic::INVALID))
+                    (instrDefinition->mnemonic == ZyDisInstructionMnemonic::INVALID))
                 {
                     info.flags |= IF_ERROR_INVALID;
                     return false;
@@ -1107,36 +1107,36 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 // Update operand access modes
                 for (unsigned int i = 0; i < 4; ++i)
                 {
-                    if (info.operand[i].type != VXOperandType::NONE)
+                    if (info.operand[i].type != ZyDisOperandType::NONE)
                     {
-                        info.operand[i - 1].access_mode = VXOperandAccessMode::READ;
+                        info.operand[i - 1].access_mode = ZyDisOperandAccessMode::READ;
                     }    
                 }
-                if (info.operand[0].type != VXOperandType::NONE)
+                if (info.operand[0].type != ZyDisOperandType::NONE)
                 {
                     if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
                     {
-                        info.operand[0].access_mode = VXOperandAccessMode::WRITE;
+                        info.operand[0].access_mode = ZyDisOperandAccessMode::WRITE;
                     } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
                     {
-                        info.operand[0].access_mode = VXOperandAccessMode::READWRITE;
+                        info.operand[0].access_mode = ZyDisOperandAccessMode::READWRITE;
                     }
                 }
-                if (info.operand[1].type != VXOperandType::NONE)
+                if (info.operand[1].type != ZyDisOperandType::NONE)
                 {
                     if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
                     {
-                        info.operand[1].access_mode = VXOperandAccessMode::WRITE;
+                        info.operand[1].access_mode = ZyDisOperandAccessMode::WRITE;
                     } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
                     {
-                        info.operand[1].access_mode = VXOperandAccessMode::READWRITE;
+                        info.operand[1].access_mode = ZyDisOperandAccessMode::READWRITE;
                     }
                 }
                 // Terminate loop
                 return true;
             }
-        case VXOpcodeTreeNodeType::VEX: 
-            if ((m_disassemblerMode == VXDisassemblerMode::M64BIT) ||
+        case ZyDisOpcodeTreeNodeType::VEX: 
+            if ((m_disassemblerMode == ZyDisDisassemblerMode::M64BIT) ||
                 (((inputCurrent() >> 6) & 0x03) == 0x03))
             {
                 // Decode vex prefix
@@ -1169,11 +1169,11 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
                 index = 0;
             }
             break;
-        case VXOpcodeTreeNodeType::VEXW: 
+        case ZyDisOpcodeTreeNodeType::VEXW: 
             assert(info.flags & IF_PREFIX_VEX);
             index = info.vex_w;
             break;
-        case VXOpcodeTreeNodeType::VEXL: 
+        case ZyDisOpcodeTreeNodeType::VEXL: 
             assert(info.flags & IF_PREFIX_VEX);
             index = info.vex_l;
             break;
@@ -1181,21 +1181,21 @@ bool VXInstructionDecoder::decodeOpcode(VXInstructionInfo &info)
             assert(0);
         }
         node = VDEGetOpcodeTreeChild(node, index);
-    } while (nodeType != VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
+    } while (nodeType != ZyDisOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
     return false;
 }
 
-VXInstructionDecoder::VXInstructionDecoder()
+ZyDisInstructionDecoder::ZyDisInstructionDecoder()
     : m_dataSource(nullptr)
-    , m_disassemblerMode(VXDisassemblerMode::M32BIT)
-    , m_preferredVendor(VXInstructionSetVendor::ANY) 
+    , m_disassemblerMode(ZyDisDisassemblerMode::M32BIT)
+    , m_preferredVendor(ZyDisInstructionSetVendor::ANY) 
     , m_instructionPointer(0)
 {
 
 }    
 
-VXInstructionDecoder::VXInstructionDecoder(VXBaseDataSource *input, 
-    VXDisassemblerMode disassemblerMode, VXInstructionSetVendor preferredVendor,
+ZyDisInstructionDecoder::ZyDisInstructionDecoder(ZyDisBaseDataSource *input, 
+    ZyDisDisassemblerMode disassemblerMode, ZyDisInstructionSetVendor preferredVendor,
     uint64_t instructionPointer)
     : m_dataSource(input)
     , m_disassemblerMode(disassemblerMode)
@@ -1205,20 +1205,20 @@ VXInstructionDecoder::VXInstructionDecoder(VXBaseDataSource *input,
 
 }
 
-bool VXInstructionDecoder::decodeInstruction(VXInstructionInfo &info)
+bool ZyDisInstructionDecoder::decodeInstruction(ZyDisInstructionInfo &info)
 {
     // Clear instruction info
     memset(&info, 0, sizeof(info));
     // Set disassembler mode flags
     switch (m_disassemblerMode)
     {
-    case VXDisassemblerMode::M16BIT: 
+    case ZyDisDisassemblerMode::M16BIT: 
         info.flags |= IF_DISASSEMBLER_MODE_16;
         break;
-    case VXDisassemblerMode::M32BIT: 
+    case ZyDisDisassemblerMode::M32BIT: 
         info.flags |= IF_DISASSEMBLER_MODE_32;
         break;
-    case VXDisassemblerMode::M64BIT: 
+    case ZyDisDisassemblerMode::M64BIT: 
         info.flags |= IF_DISASSEMBLER_MODE_64;
         break;
     default: 
@@ -1232,34 +1232,34 @@ bool VXInstructionDecoder::decodeInstruction(VXInstructionInfo &info)
         goto DecodeError;
     }
     // SWAPGS is only valid in 64 bit mode
-    if ((info.mnemonic == VXInstructionMnemonic::SWAPGS) && 
-        (m_disassemblerMode != VXDisassemblerMode::M64BIT))
+    if ((info.mnemonic == ZyDisInstructionMnemonic::SWAPGS) && 
+        (m_disassemblerMode != ZyDisDisassemblerMode::M64BIT))
     {
         info.flags &= IF_ERROR_INVALID;
         goto DecodeError;
     }
     // Handle aliases
-    if (info.mnemonic == VXInstructionMnemonic::XCHG)
+    if (info.mnemonic == ZyDisInstructionMnemonic::XCHG)
     {
-        if ((info.operand[0].type == VXOperandType::REGISTER && 
-            info.operand[0].base == VXRegister::AX &&
-            info.operand[1].type == VXOperandType::REGISTER && 
-            info.operand[1].base == VXRegister::AX) || 
-            (info.operand[0].type == VXOperandType::REGISTER && 
-            info.operand[0].base == VXRegister::EAX &&
-            info.operand[1].type == VXOperandType::REGISTER && 
-            info.operand[1].base == VXRegister::EAX))
+        if ((info.operand[0].type == ZyDisOperandType::REGISTER && 
+            info.operand[0].base == ZyDisRegister::AX &&
+            info.operand[1].type == ZyDisOperandType::REGISTER && 
+            info.operand[1].base == ZyDisRegister::AX) || 
+            (info.operand[0].type == ZyDisOperandType::REGISTER && 
+            info.operand[0].base == ZyDisRegister::EAX &&
+            info.operand[1].type == ZyDisOperandType::REGISTER && 
+            info.operand[1].base == ZyDisRegister::EAX))
         {
-            info.mnemonic = VXInstructionMnemonic::NOP;
-            info.operand[0].type = VXOperandType::NONE;    
-            info.operand[1].type = VXOperandType::NONE; 
-            info.operand[0].access_mode = VXOperandAccessMode::NA;
-            info.operand[1].access_mode = VXOperandAccessMode::NA;
+            info.mnemonic = ZyDisInstructionMnemonic::NOP;
+            info.operand[0].type = ZyDisOperandType::NONE;    
+            info.operand[1].type = ZyDisOperandType::NONE; 
+            info.operand[0].access_mode = ZyDisOperandAccessMode::NA;
+            info.operand[1].access_mode = ZyDisOperandAccessMode::NA;
         }
     }
-    if ((info.mnemonic == VXInstructionMnemonic::NOP) && (info.flags & IF_PREFIX_REP))
+    if ((info.mnemonic == ZyDisInstructionMnemonic::NOP) && (info.flags & IF_PREFIX_REP))
     {
-        info.mnemonic = VXInstructionMnemonic::PAUSE;
+        info.mnemonic = ZyDisInstructionMnemonic::PAUSE;
         info.flags &= ~IF_PREFIX_REP;
     }
     // Increment instruction pointer

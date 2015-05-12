@@ -29,8 +29,8 @@
  * SOFTWARE.
 
 **************************************************************************************************/
-#include "VXInstructionFormatter.hpp"
-#include "VXDisassemblerUtils.hpp"
+#include "ZyDisInstructionFormatter.hpp"
+#include "ZyDisDisassemblerUtils.hpp"
 #include <cstdarg>
 #include <cctype>
 #include <cstring>
@@ -42,12 +42,12 @@ namespace Verteron
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-VXBaseSymbolResolver::~VXBaseSymbolResolver()
+ZyDisBaseSymbolResolver::~ZyDisBaseSymbolResolver()
 {
 
 }
 
-const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+const char* ZyDisBaseSymbolResolver::resolveSymbol(const ZyDisInstructionInfo &info, uint64_t address, 
     uint64_t &offset)
 {
     return nullptr;
@@ -55,7 +55,7 @@ const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, u
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-const char* VXBaseInstructionFormatter::m_registerStrings[] =
+const char* ZyDisBaseInstructionFormatter::m_registerStrings[] =
 {
     /* 8 bit general purpose registers */
     "al",       "cl",       "dl",       "bl",
@@ -111,12 +111,12 @@ const char* VXBaseInstructionFormatter::m_registerStrings[] =
     "rip"
 };
 
-void VXBaseInstructionFormatter::internalFormatInstruction(const VXInstructionInfo &info)
+void ZyDisBaseInstructionFormatter::internalFormatInstruction(const ZyDisInstructionInfo &info)
 {
     // Nothing to do here
 }
 
-VXBaseInstructionFormatter::VXBaseInstructionFormatter()
+ZyDisBaseInstructionFormatter::ZyDisBaseInstructionFormatter()
     : m_symbolResolver(nullptr)
     , m_outputStringLen(0)
     , m_outputUppercase(false)
@@ -124,7 +124,7 @@ VXBaseInstructionFormatter::VXBaseInstructionFormatter()
 
 }
 
-VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver)
+ZyDisBaseInstructionFormatter::ZyDisBaseInstructionFormatter(ZyDisBaseSymbolResolver *symbolResolver)
     : m_symbolResolver(symbolResolver)
     , m_outputStringLen(0)
     , m_outputUppercase(false)
@@ -132,7 +132,7 @@ VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *sym
 
 }
 
-const char* VXBaseInstructionFormatter::formatInstruction(const VXInstructionInfo &info)
+const char* ZyDisBaseInstructionFormatter::formatInstruction(const ZyDisInstructionInfo &info)
 {
     // Clears the internal string buffer
     outputClear();
@@ -147,22 +147,22 @@ const char* VXBaseInstructionFormatter::formatInstruction(const VXInstructionInf
     return outputString();
 }
 
-VXBaseInstructionFormatter::~VXBaseInstructionFormatter()
+ZyDisBaseInstructionFormatter::~ZyDisBaseInstructionFormatter()
 {
 
 }
 
-void VXBaseInstructionFormatter::outputClear()
+void ZyDisBaseInstructionFormatter::outputClear()
 {
     m_outputStringLen = 0;
 }
 
-char const* VXBaseInstructionFormatter::outputString()
+char const* ZyDisBaseInstructionFormatter::outputString()
 {
     return &m_outputBuffer[0];
 }
 
- void VXBaseInstructionFormatter::outputAppend(char const *text)
+ void ZyDisBaseInstructionFormatter::outputAppend(char const *text)
  {
     // Get the string length including the null-terminator char
     size_t strLen = strlen(text) + 1;
@@ -191,7 +191,7 @@ char const* VXBaseInstructionFormatter::outputString()
     }
  }
 
- void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
+ void ZyDisBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
  {
     va_list arguments;
     va_start(arguments, format);
@@ -233,7 +233,7 @@ char const* VXBaseInstructionFormatter::outputString()
     va_end(arguments);
 }
 
-void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &info, 
+void ZyDisBaseInstructionFormatter::outputAppendAddress(const ZyDisInstructionInfo &info, 
     uint64_t address, bool resolveSymbols)
 {
     uint64_t offset = 0;
@@ -269,10 +269,10 @@ void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &in
     }
 }
 
-void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand, bool resolveSymbols)
+void ZyDisBaseInstructionFormatter::outputAppendImmediate(const ZyDisInstructionInfo &info, 
+    const ZyDisOperandInfo &operand, bool resolveSymbols)
 {
-    assert(operand.type == VXOperandType::IMMEDIATE);
+    assert(operand.type == ZyDisOperandType::IMMEDIATE);
     uint64_t value = 0;
     if (operand.signed_lval && (operand.size != info.operand_mode)) 
     {
@@ -329,11 +329,11 @@ void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &
     }
 }
 
-void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void ZyDisBaseInstructionFormatter::outputAppendDisplacement(const ZyDisInstructionInfo &info, 
+    const ZyDisOperandInfo &operand)
 {
     assert(operand.offset > 0);
-    if ((operand.base == VXRegister::NONE) && (operand.index == VXRegister::NONE))
+    if ((operand.base == ZyDisRegister::NONE) && (operand.index == ZyDisRegister::NONE))
     {
         // Assume the displacement value is unsigned
         assert(operand.scale == 0);
@@ -378,16 +378,16 @@ void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInf
             outputAppendFormatted("-%.2lX", -value);
         } else
         {
-            outputAppendFormatted("%s%.2lX", (operand.base != VXRegister::NONE || 
-                operand.index != VXRegister::NONE) ? "+" : "", value);
+            outputAppendFormatted("%s%.2lX", (operand.base != ZyDisRegister::NONE || 
+                operand.index != ZyDisRegister::NONE) ? "+" : "", value);
         }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VXIntelInstructionFormatter::outputAppendOperandCast(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void ZyDisIntelInstructionFormatter::outputAppendOperandCast(const ZyDisInstructionInfo &info, 
+    const ZyDisOperandInfo &operand)
 {
     switch(operand.size) 
     {
@@ -417,33 +417,33 @@ void VXIntelInstructionFormatter::outputAppendOperandCast(const VXInstructionInf
     }
 }
 
-void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void ZyDisIntelInstructionFormatter::formatOperand(const ZyDisInstructionInfo &info, 
+    const ZyDisOperandInfo &operand)
 {
     switch (operand.type)
     {
-    case VXOperandType::REGISTER: 
+    case ZyDisOperandType::REGISTER: 
         outputAppend(registerToString(operand.base));
         break;
-    case VXOperandType::MEMORY: 
+    case ZyDisOperandType::MEMORY: 
         if (info.flags & IF_PREFIX_SEGMENT)
         {
             outputAppendFormatted("%s:", registerToString(info.segment));    
         }
         outputAppend("[");
-        if (operand.base == VXRegister::RIP)
+        if (operand.base == ZyDisRegister::RIP)
         {
             // TODO: Add option
             outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);   
         } else
         {
-            if (operand.base != VXRegister::NONE)
+            if (operand.base != ZyDisRegister::NONE)
             {
                 outputAppend(registerToString(operand.base)); 
             }
-            if (operand.index != VXRegister::NONE) 
+            if (operand.index != ZyDisRegister::NONE) 
             {
-                outputAppendFormatted("%s%s", operand.base != VXRegister::NONE ? "+" : "",
+                outputAppendFormatted("%s%s", operand.base != ZyDisRegister::NONE ? "+" : "",
                     registerToString(operand.index));
                 if (operand.scale) 
                 {
@@ -457,7 +457,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
         }
         outputAppend("]");
         break;
-    case VXOperandType::POINTER:
+    case ZyDisOperandType::POINTER:
         // TODO: resolve symbols
         switch (operand.size)
         {
@@ -472,12 +472,12 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             assert(0);
         }
         break;
-    case VXOperandType::IMMEDIATE: 
+    case ZyDisOperandType::IMMEDIATE: 
         {
             outputAppendImmediate(info, operand, true);
         }
         break;
-    case VXOperandType::REL_IMMEDIATE: 
+    case ZyDisOperandType::REL_IMMEDIATE: 
         {
             if (operand.size == 8)
             {
@@ -486,7 +486,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);
         }
         break;
-    case VXOperandType::CONSTANT: 
+    case ZyDisOperandType::CONSTANT: 
         outputAppendFormatted("%.2X", operand.lval.udword);
         break;
     default: 
@@ -495,7 +495,7 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
     }
 }
 
-void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionInfo &info)
+void ZyDisIntelInstructionFormatter::internalFormatInstruction(const ZyDisInstructionInfo &info)
 {
     // Append string prefixes
     if (info.flags & IF_PREFIX_LOCK)
@@ -512,30 +512,30 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
     // Append the instruction mnemonic
     outputAppend(Internal::VDEGetInstructionMnemonicString(info.mnemonic));
     // Append the first operand
-    if (info.operand[0].type != VXOperandType::NONE)
+    if (info.operand[0].type != ZyDisOperandType::NONE)
     {
         outputAppend(" ");
         bool cast = false;
-        if (info.operand[0].type == VXOperandType::MEMORY) 
+        if (info.operand[0].type == ZyDisOperandType::MEMORY) 
         {
-            if (info.operand[1].type == VXOperandType::IMMEDIATE ||
-                info.operand[1].type == VXOperandType::CONSTANT ||
-                info.operand[1].type == VXOperandType::NONE ||
+            if (info.operand[1].type == ZyDisOperandType::IMMEDIATE ||
+                info.operand[1].type == ZyDisOperandType::CONSTANT ||
+                info.operand[1].type == ZyDisOperandType::NONE ||
                 (info.operand[0].size != info.operand[1].size)) 
             {
                 cast = true;
-            } else if (info.operand[1].type == VXOperandType::REGISTER &&
-                info.operand[1].base == VXRegister::CL) 
+            } else if (info.operand[1].type == ZyDisOperandType::REGISTER &&
+                info.operand[1].base == ZyDisRegister::CL) 
             {
                 switch (info.mnemonic) 
                 {
-                case VXInstructionMnemonic::RCL:
-                case VXInstructionMnemonic::ROL:
-                case VXInstructionMnemonic::ROR:
-                case VXInstructionMnemonic::RCR:
-                case VXInstructionMnemonic::SHL:
-                case VXInstructionMnemonic::SHR:
-                case VXInstructionMnemonic::SAR:
+                case ZyDisInstructionMnemonic::RCL:
+                case ZyDisInstructionMnemonic::ROL:
+                case ZyDisInstructionMnemonic::ROR:
+                case ZyDisInstructionMnemonic::RCR:
+                case ZyDisInstructionMnemonic::SHL:
+                case ZyDisInstructionMnemonic::SHR:
+                case ZyDisInstructionMnemonic::SAR:
                     cast = true;
                     break;
                 default: 
@@ -550,19 +550,19 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
         formatOperand(info, info.operand[0]);
     }
     // Append the second operand
-    if (info.operand[1].type != VXOperandType::NONE)
+    if (info.operand[1].type != ZyDisOperandType::NONE)
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[1].type == VXOperandType::MEMORY &&
+        if (info.operand[1].type == ZyDisOperandType::MEMORY &&
             info.operand[0].size != info.operand[1].size &&
-            ((info.operand[0].type != VXOperandType::REGISTER) ||
-             ((info.operand[0].base != VXRegister::ES) && 
-             (info.operand[0].base != VXRegister::CS) &&
-             (info.operand[0].base != VXRegister::SS) &&
-             (info.operand[0].base != VXRegister::DS) &&
-             (info.operand[0].base != VXRegister::FS) &&
-             (info.operand[0].base != VXRegister::GS)))) 
+            ((info.operand[0].type != ZyDisOperandType::REGISTER) ||
+             ((info.operand[0].base != ZyDisRegister::ES) && 
+             (info.operand[0].base != ZyDisRegister::CS) &&
+             (info.operand[0].base != ZyDisRegister::SS) &&
+             (info.operand[0].base != ZyDisRegister::DS) &&
+             (info.operand[0].base != ZyDisRegister::FS) &&
+             (info.operand[0].base != ZyDisRegister::GS)))) 
         {
             cast = true;
         }
@@ -573,11 +573,11 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
         formatOperand(info, info.operand[1]);
     }
     // Append the third operand
-    if (info.operand[2].type != VXOperandType::NONE)
+    if (info.operand[2].type != ZyDisOperandType::NONE)
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[2].type == VXOperandType::MEMORY && 
+        if (info.operand[2].type == ZyDisOperandType::MEMORY && 
             (info.operand[2].size != info.operand[1].size)) 
         {
             cast = true;
@@ -589,38 +589,38 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
         formatOperand(info, info.operand[2]);
     }
     // Append the fourth operand
-    if (info.operand[3].type != VXOperandType::NONE)
+    if (info.operand[3].type != ZyDisOperandType::NONE)
     {
         outputAppend(", ");
         formatOperand(info, info.operand[3]);
     }
 }
 
-VXIntelInstructionFormatter::VXIntelInstructionFormatter()
-    : VXBaseInstructionFormatter()
+ZyDisIntelInstructionFormatter::ZyDisIntelInstructionFormatter()
+    : ZyDisBaseInstructionFormatter()
 {
 
 }
 
-VXIntelInstructionFormatter::VXIntelInstructionFormatter(VXBaseSymbolResolver* symbolResolver)
-    : VXBaseInstructionFormatter(symbolResolver)
+ZyDisIntelInstructionFormatter::ZyDisIntelInstructionFormatter(ZyDisBaseSymbolResolver* symbolResolver)
+    : ZyDisBaseInstructionFormatter(symbolResolver)
 {
 
 }
 
-VXIntelInstructionFormatter::~VXIntelInstructionFormatter()
+ZyDisIntelInstructionFormatter::~ZyDisIntelInstructionFormatter()
 {
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-VXExactSymbolResolver::~VXExactSymbolResolver()
+ZyDisExactSymbolResolver::~ZyDisExactSymbolResolver()
 {
 
 }
 
-const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
+const char* ZyDisExactSymbolResolver::resolveSymbol(const ZyDisInstructionInfo &info, uint64_t address, 
     uint64_t &offset)
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
@@ -632,23 +632,23 @@ const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, 
     return nullptr;
 }
 
-bool VXExactSymbolResolver::containsSymbol(uint64_t address) const
+bool ZyDisExactSymbolResolver::containsSymbol(uint64_t address) const
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
     return (iterator != m_symbolMap.end());
 }
 
-void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
+void ZyDisExactSymbolResolver::setSymbol(uint64_t address, const char* name)
 {
     m_symbolMap[address].assign(name);
 }
 
-void VXExactSymbolResolver::removeSymbol(uint64_t address)
+void ZyDisExactSymbolResolver::removeSymbol(uint64_t address)
 {
     m_symbolMap.erase(address);
 }
 
-void VXExactSymbolResolver::clear()
+void ZyDisExactSymbolResolver::clear()
 {
     m_symbolMap.clear();
 }

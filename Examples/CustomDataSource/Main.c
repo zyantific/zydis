@@ -30,11 +30,11 @@
 
 **************************************************************************************************/
 
-#include <VXDisassembler.h>
+#include <ZyDisDisassembler.h>
 
 int main(int argc, char* argv[])
 {
-    VX_UNUSED(argc); VX_UNUSED(argv);
+    ZYDIS_UNUSED(argc); ZYDIS_UNUSED(argv);
 
     // TODO:
     return 0;
