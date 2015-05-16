@@ -1,4 +1,4 @@
-Verteron Disassembler Engine (VDE)
+Zyan Disassembler Engine (Zydis)
 ==================================
 
 Fast and lightweight x86/x86-64 disassembler library.
@@ -18,15 +18,15 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Quick Example ##
 
-The following example program uses VDE to disassemble a given memory buffer and prints the output to the console.
+The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
 ```C++
 #include <tchar.h>
 #include <iostream>
 #include <stdint.h>
-#include "VXDisassembler.h"
+#include "Zydis.hpp"
 
-using namespace Verteron;
+using namespace Zydis;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -34,13 +34,13 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         0x90, 0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3
     };
-    VXMemoryDataSource input(&data[0], sizeof(data));
-    VXInstructionInfo info;
-    VXInstructionDecoder decoder;
-    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+    MemoryInput input(&data[0], sizeof(data));
+    InstructionInfo info;
+    InstructionDecoder decoder;
+    decoder.setDisassemblerMode(ZydisMode::M32BIT);
     decoder.setDataSource(&input);
     decoder.setInstructionPointer(0);
-    VXIntelInstructionFormatter formatter;
+    IntelInstructionFormatter formatter;
     while (decoder.decodeInstruction(info))
     {
         std::cout << formatter.formatInstruction(info) << std::endl;
@@ -50,8 +50,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 ## Compilation ##
  
-- While VDE supports other compilers in theory, compilation has not been tested with any compiler other than MSVC12 (Visual Studio 2013)
+- While Zydis supports other compilers in theory, compilation has not been tested with any compiler other than MSVC12 (Visual Studio 2013)
 - Multi-compiler support might be added in the future
  
 ## License ##
-Verteron Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.
+Zyan Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.

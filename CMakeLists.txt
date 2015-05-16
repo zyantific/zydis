@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 include(GenerateExportHeader)
 
-project(VerteronDisassemblerEngine)
+project(ZyanDisassemblerEngine)
 
 option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
 option(FORCE_SHARED_CRT 
