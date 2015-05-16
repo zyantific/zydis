@@ -26,21 +26,19 @@ The following example program uses Zydis to disassemble a given memory buffer an
 #include <stdint.h>
 #include "Zydis.hpp"
 
-using namespace Zydis;
-
 int _tmain(int argc, _TCHAR* argv[])
 {
     uint8_t data[] =
     {
         0x90, 0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3
     };
-    MemoryInput input(&data[0], sizeof(data));
-    InstructionInfo info;
-    InstructionDecoder decoder;
-    decoder.setDisassemblerMode(ZydisMode::M32BIT);
+    Zydis::MemoryInput input(&data[0], sizeof(data));
+    Zydis::InstructionInfo info;
+    Zydis::InstructionDecoder decoder;
+    decoder.setDisassemblerMode(Zydis::ZydisMode::M32BIT);
     decoder.setDataSource(&input);
     decoder.setInstructionPointer(0);
-    IntelInstructionFormatter formatter;
+    Zydis::IntelInstructionFormatter formatter;
     while (decoder.decodeInstruction(info))
     {
         std::cout << formatter.formatInstruction(info) << std::endl;
