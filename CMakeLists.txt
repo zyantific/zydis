@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.12)
 include(GenerateExportHeader)
 
-project(ZyanDisassemblerEngine)
+project(Zydis)
 
 option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
 option(FORCE_SHARED_CRT 
     "Forces shared linkage against the CRT even when building a static library" 
     FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
-option(BUILD_CPP_BINDINGS "Build C++ bindings" TRUE)
+option(BUILD_C_BINDINGS "Build C bindings" TRUE)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
@@ -43,72 +43,55 @@ if (MSVC AND NOT BUILD_SHARED_LIBS AND NOT FORCE_SHARED_CRT)
 endif ()
 
 # Library
-set(vde_headers
-    "VerteronDisassemblerEngine/ZyDisDisassembler.h"
-    "VerteronDisassemblerEngine/ZyDisDisassemblerTypes.h"
-    "VerteronDisassemblerEngine/ZyDisDisassemblerUtils.h"
-    "VerteronDisassemblerEngine/ZyDisInstructionDecoder.h"
-    "VerteronDisassemblerEngine/ZyDisInstructionFormatter.h"
-    "VerteronDisassemblerEngine/ZyDisOpcodeTable.h"
-    "VerteronDisassemblerEngine/ZyDisOpcodeTableInternal.h"
-    "VerteronDisassemblerEngine/ZyDisInternalHelpers.h"
-    "VerteronDisassemblerEngine/ZyDisInternalConfig.h")
-set(vde_sources
-    "VerteronDisassemblerEngine/ZyDisDisassemblerUtils.c"
-    "VerteronDisassemblerEngine/ZyDisInstructionFormatter.c"
-    "VerteronDisassemblerEngine/ZyDisOpcodeTable.c"
-    "VerteronDisassemblerEngine/ZyDisInstructionDecoder.c")
+set(headers
+    "ZyDis/ZydisSymbolResolver.hpp"
+    "ZyDis/ZydisOpcodeTable.hpp"
+    "ZyDis/ZydisInstructionDecoder.hpp"
+    "ZyDis/ZydisInstructionFormatter.hpp"
+    "ZyDis/ZydisTypes.hpp"
+    "ZyDis/ZydisUtils.hpp"
+    "ZyDis/Zydis.hpp")
+set(sources
+    "ZyDis/ZydisInstructionDecoder.cpp"
+    "ZyDis/ZydisInstructionFormatter.cpp"
+    "ZyDis/ZydisOpcodeTable.cpp"
+    "ZyDis/ZydisSymbolResolver.cpp"
+    "ZyDis/ZydisUtils.cpp")
 
-add_library("VerteronDisassemblerEngine" ${vde_headers} ${vde_sources})
+add_library("Zydis" ${headers} ${sources})
 generate_export_header(
-    "VerteronDisassemblerEngine" 
-    BASE_NAME "ZyDis"
-    EXPORT_FILE_NAME "ZyDisExportConfig.h")
+    "Zydis" 
+    BASE_NAME "Zydis"
+    EXPORT_FILE_NAME "ZydisExportConfig.h")
 include_directories(${PROJECT_BINARY_DIR})
 
-# C++ bindings
-if (BUILD_CPP_BINDINGS)
-    set(vdecpp_headers
-        "Bindings/Cpp/ZyDisDisassembler.hpp"
-        "Bindings/Cpp/ZyDisDisassemblerTypes.hpp"
-        "Bindings/Cpp/ZyDisDisassemblerUtils.hpp"
-        "Bindings/Cpp/ZyDisInstructionDecoder.hpp"
-        "Bindings/Cpp/ZyDisInstructionFormatter.hpp"
-        "Bindings/Cpp/ZyDisOpcodeTable.hpp")
-    set(vdecpp_sources
-        "Bindings/Cpp/ZyDisDisassemblerUtils.cpp"
-        "Bindings/Cpp/ZyDisInstructionFormatter.cpp"
-        "Bindings/Cpp/ZyDisOpcodeTable.cpp"
-        "Bindings/Cpp/ZyDisInstructionDecoder.cpp")
-    add_library("VerteronDisassemblerEngineCpp" ${vdecpp_headers} ${vdecpp_sources})
-    target_link_libraries("VerteronDisassemblerEngineCpp" "VerteronDisassemblerEngine")
+# C bindings
+if (BUILD_C_BINDINGS)
+    set(c_headers
+        "Bindings/C/Zydis.h"
+        "Bindings/C/ZydisInstructionDecoder.h"
+        "Bindings/C/ZydisTypes.h"
+        "Bindings/C/ZydisInstructionFormatter.h"
+        "Bindings/C/ZydisUtils.h"
+        "Bindings/C/ZydisSymbolResolver.h"
+        "Bindings/C/ZydisOpcodeTable.h")
+    set(c_sources
+        "Bindings/C/ZydisSymbolResolver.cpp"
+        "Bindings/C/ZydisOpcodeTable.cpp"
+        "Bindings/C/ZydisInstructionFormatter.cpp"
+        "Bindings/C/ZydisInstructionDecoder.cpp"
+        "Bindings/C/ZydisUtils.cpp")
+    add_library("ZydisC" ${c_headers} ${c_sources})
+    include_directories("Zydis")
+    target_link_libraries("ZydisC" "Zydis")
 endif ()
 
 # Examples
 if (BUILD_EXAMPLES)
-    include_directories("VerteronDisassemblerEngine")
+    include_directories("Bindings/C")
 
-    add_executable("CustomDataSource" "Examples/CustomDataSource/Main.c")
-    target_link_libraries("CustomDataSource" "VerteronDisassemblerEngine")
-
-    add_executable("PerformanceTest" "Examples/PerformanceTest/Main.c")
-    target_link_libraries("PerformanceTest" "VerteronDisassemblerEngine")
-
-    add_executable("SimpleDemo" "Examples/SimpleDemo/Main.c")
-    target_link_libraries("SimpleDemo" "VerteronDisassemblerEngine")
-
-    if (BUILD_CPP_BINDINGS)
-        add_executable("CppBindingsTest" "Examples/CppBindings/Main.cpp")
-        include_directories("Bindings/Cpp")
-        target_link_libraries("CppBindingsTest" "VerteronDisassemblerEngineCpp")
-    endif ()
-
-    if (WIN32)
-        add_executable("SymbolResolver" "Examples/SymbolResolver/Main.c")
-        target_link_libraries("SymbolResolver" "VerteronDisassemblerEngine")
-    else ()
-        message(STATUS "Example 'SymbolResolver' not compatible with platform, ignoring.")
-    endif ()
+    add_executable("C_SimpleDemo" "Examples/C/SimpleDemo/SimpleDemo.c")
+    target_link_libraries("C_SimpleDemo" "ZydisC")
 endif ()
 
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL "CMake has configured at least once.")

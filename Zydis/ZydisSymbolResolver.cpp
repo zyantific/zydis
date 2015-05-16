@@ -40,8 +40,8 @@ BaseSymbolResolver::~BaseSymbolResolver()
 
 }
 
-const char *BaseSymbolResolver::resolveSymbol(const InstructionInfo& info, 
-    uint64_t address, uint64_t& offset)
+const char *BaseSymbolResolver::resolveSymbol(const InstructionInfo& /*info*/, 
+    uint64_t /*address*/, uint64_t& /*offset*/)
 {
     return nullptr;
 }
@@ -53,7 +53,7 @@ ExactSymbolResolver::~ExactSymbolResolver()
 
 }
 
-const char *ExactSymbolResolver::resolveSymbol(const InstructionInfo& info, 
+const char *ExactSymbolResolver::resolveSymbol(const InstructionInfo& /*info*/, 
     uint64_t address, uint64_t& offset)
 {
     std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);

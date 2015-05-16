@@ -171,7 +171,7 @@ char const *BaseInstructionFormatter::outputString()
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
-            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+            m_outputBuffer[i] = static_cast<char>(toupper(m_outputBuffer[i]));
         }
     }
  }
@@ -212,7 +212,7 @@ char const *BaseInstructionFormatter::outputString()
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
-            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+            m_outputBuffer[i] = static_cast<char>(toupper(m_outputBuffer[i]));
         }
     }
     va_end(arguments);
