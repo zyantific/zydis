@@ -145,7 +145,7 @@ public:
      * @param   info    The instruction info.
      * @return  Pointer to the formatted instruction string.
      */
-    const char *formatInstruction(const InstructionInfo& info);
+    const char* formatInstruction(const InstructionInfo& info);
 public:
     /**
      * @brief   Returns a pointer to the current symbol resolver.
@@ -165,7 +165,7 @@ inline void BaseInstructionFormatter::outputSetUppercase(bool uppercase)
     m_outputUppercase = uppercase;
 }
 
-inline char const *BaseInstructionFormatter::registerToString(Register reg) const
+inline char const* BaseInstructionFormatter::registerToString(Register reg) const
 {
     if (reg == Register::NONE)
     {

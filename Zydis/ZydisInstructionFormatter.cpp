@@ -147,7 +147,7 @@ char const *BaseInstructionFormatter::outputString()
     return& m_outputBuffer[0];
 }
 
- void BaseInstructionFormatter::outputAppend(char const *text)
+ void BaseInstructionFormatter::outputAppend(char const* text)
  {
     // Get the string length including the null-terminator char
     size_t strLen = strlen(text) + 1;
@@ -176,7 +176,7 @@ char const *BaseInstructionFormatter::outputString()
     }
  }
 
- void BaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
+ void BaseInstructionFormatter::outputAppendFormatted(char const* format, ...)
  {
     va_list arguments;
     va_start(arguments, format);
