@@ -28,17 +28,21 @@
 
 ***************************************************************************************************/
 
-#ifndef _ZYDIS_TYPES_H_
-#define _ZYDIS_TYPES_H_
+#ifndef _ZYDIS_API_H_
+#define _ZYDIS_API_H_
 
+#define Zydis_EXPORTS
+
+#include <cstdbool>
 #include <stdint.h>
-#include <stdbool.h>
-#include "ZydisOpcodeTable.h"
+#include "ZydisExportConfig.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+/* Types ======================================================================================== */
 
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
@@ -539,8 +543,168 @@ typedef struct _ZydisInstructionInfo
     uint64_t instrPointer;
 } ZydisInstructionInfo;
 
+/* Context Types ================================================================================ */
+
+typedef enum _ZydisContextType
+{
+    ZYDIS_CONTEXT_INPUT                         = 0x0080,
+    ZYDIS_CONTEXT_INPUT_CUSTOM                  = 0x0001,
+    ZYDIS_CONTEXT_INPUT_MEMORY                  = 0x0002,
+    ZYDIS_CONTEXT_INSTRUCTIONDECODER            = 0x0040,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER          = 0x0020,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_CUSTOM   = 0x0001,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_INTEL   = 0x0002,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER                = 0x0010,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER_CUSTOM         = 0x0001,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT          = 0x0002
+} ZydisContextType;
+
+typedef struct _ZydisInputContext 
+{ 
+    uint8_t type; 
+    void* object; 
+} ZydisInputContext;
+
+typedef struct _ZydisInstructionDecoderContext 
+{ 
+    uint8_t type; 
+    void* object; 
+} ZydisInstructionDecoderContext;
+
+typedef struct _ZydisInstructionFormatterContext 
+{ 
+    uint8_t type; 
+    void* object; 
+} ZydisInstructionFormatterContext;
+
+typedef struct _ZydisSymbolResolverContext 
+{ 
+    uint8_t type; 
+    void* object; 
+} ZydisSymbolResolverContext;
+
+/* Error Handling =============================================================================== */
+
+typedef enum _ZydisErrorCode /* : uint8_t */
+{
+    ZYDIS_ERROR_SUCCESS,
+    ZYDIS_ERROR_UNKNOWN,
+    ZYDIS_ERROR_NOT_ENOUGH_MEMORY,
+    ZYDIS_ERROR_INVALID_PARAMETER
+} ZydisErrorCode;
+
+ZYDIS_EXPORT uint32_t ZydisGetLastError();
+
+/* Input ======================================================================================== */
+
+ZYDIS_EXPORT ZydisInputContext* ZydisCreateCustomInput(/* TODO */);
+
+ZYDIS_EXPORT ZydisInputContext* ZydisCreateMemoryInput(const void* buffer, size_t bufferLen);
+
+ZYDIS_EXPORT bool ZydisIsEndOfInput(const ZydisInputContext* input, bool* isEndOfInput);
+
+ZYDIS_EXPORT bool ZydisGetInputPosition(const ZydisInputContext* input, uint64_t* position);
+
+ZYDIS_EXPORT bool ZydisSetInputPosition(const ZydisInputContext* input, uint64_t position);
+
+ZYDIS_EXPORT bool ZydisFreeInput(const ZydisInputContext* input);
+
+/* InstructionDecoder =========================================================================== */
+
+/**
+ * @brief   Values that represent a disassembler mode.
+ */
+typedef enum _ZydisDisassemblerMode /* : uint8_t */
+{
+    ZYDIS_DM_M16BIT,
+    ZYDIS_DM_M32BIT,
+    ZYDIS_DM_M64BIT
+} ZydisDisassemblerMode;
+
+/**
+ * @brief   Values that represent an instruction-set vendor.
+ */
+typedef enum _ZydisInstructionSetVendor /* : uint8_t */
+{
+    ZYDIS_ISV_ANY,
+    ZYDIS_ISV_INTEL,
+    ZYDIS_ISV_AMD
+} ZydisInstructionSetVendor;
+
+ZYDIS_EXPORT ZydisInstructionDecoderContext* ZydisCreateInstructionDecoder();
+
+ZYDIS_EXPORT bool ZydisDecodeInstruction(const ZydisInstructionDecoderContext* decoder, 
+    ZydisInstructionInfo* info);
+
+ZYDIS_EXPORT bool ZydisGetDataSource(const ZydisInstructionDecoderContext* decoder,
+    ZydisInputContext** input);
+
+ZYDIS_EXPORT bool ZydisSetDataSource(const ZydisInstructionDecoderContext* decoder,
+    ZydisInputContext* input);
+
+ZYDIS_EXPORT bool ZydisGetDisassemblerMode(const ZydisInstructionDecoderContext* decoder,
+    ZydisDisassemblerMode* disassemblerMode);
+
+ZYDIS_EXPORT bool ZydisSetDisassemblerMode(const ZydisInstructionDecoderContext* decoder,
+    ZydisDisassemblerMode disassemblerMode);
+
+ZYDIS_EXPORT bool ZydisGetPreferredVendor(const ZydisInstructionDecoderContext* decoder,
+    ZydisInstructionSetVendor* preferredVendor);
+
+ZYDIS_EXPORT bool ZydisSetPreferredVendor(const ZydisInstructionDecoderContext* decoder,
+    ZydisInstructionSetVendor preferredVendor);
+
+ ZYDIS_EXPORT bool ZydisGetInstructionPointer(const ZydisInstructionDecoderContext* decoder,
+    uint64_t* instructionPointer);
+
+ZYDIS_EXPORT bool ZydisSetInstructionPointer(const ZydisInstructionDecoderContext* decoder,
+    uint64_t instructionPointer);
+
+ZYDIS_EXPORT bool ZydisFreeInstructionDecoder(const ZydisInstructionDecoderContext* decoder);
+
+/* InstructionFormatter ========================================================================= */
+
+ZYDIS_EXPORT ZydisInstructionFormatterContext* ZydisCreateCustomInstructionFormatter(/*TODO*/);
+
+ZYDIS_EXPORT ZydisInstructionFormatterContext* ZydisCreateIntelInstructionFormatter();
+
+ZYDIS_EXPORT bool ZydisFormatInstruction(const ZydisInstructionFormatterContext* formatter,
+    const ZydisInstructionInfo* info, const char** instructionText);
+
+ZYDIS_EXPORT bool ZydisGetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
+    ZydisSymbolResolverContext** resolver);
+
+ZYDIS_EXPORT bool ZydisSetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
+    ZydisSymbolResolverContext* resolver);
+
+ZYDIS_EXPORT bool ZydisFreeInstructionFormatter(const ZydisInstructionFormatterContext* formatter);
+
+/* SymbolResolver =============================================================================== */
+
+ZYDIS_EXPORT ZydisSymbolResolverContext* ZydisCreateCustomSymbolResolver(/*TODO*/);
+
+ZYDIS_EXPORT ZydisSymbolResolverContext* ZydisCreateExactSymbolResolver();
+
+ZYDIS_EXPORT bool ZydisResolveSymbol(const ZydisSymbolResolverContext* resolver, 
+    const ZydisInstructionInfo* info, uint64_t address, const char** symbol, uint64_t* offset);
+
+ZYDIS_EXPORT bool ZydisExactSymbolResolverContainsSymbol(
+    const ZydisSymbolResolverContext* resolver, uint64_t address, bool* containsSymbol);
+
+ZYDIS_EXPORT bool ZydisExactSymbolResolverSetSymbol(const ZydisSymbolResolverContext* resolver, 
+    uint64_t address, const char** symbol);
+
+ZYDIS_EXPORT bool ZydisExactSymbolResolverRemoveSymbol(const ZydisSymbolResolverContext* resolver, 
+    uint64_t address);
+
+ZYDIS_EXPORT bool ZydisExactSymbolResolverClear(const ZydisSymbolResolverContext* resolver);
+
+ZYDIS_EXPORT bool ZydisFreeSymbolResolver(const ZydisSymbolResolverContext* resolver);
+
+/* ============================================================================================== */
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _ZYDIS_TYPES_H_ */
+#endif /* _ZYDIS_API_H_ */

@@ -1,7 +1,57 @@
-#include <Zydis.h>
+/***************************************************************************************************
+
+  Zyan Disassembler Engine
+  Version 1.0
+
+  Remarks         : Freeware, Copyright must be included
+
+  Original Author : Florian Bernd
+  Modifications   : Joel Höner
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+
+***************************************************************************************************/
+
+#include <ZydisAPI.h>
 
 #include <stdio.h>
 #include <stdint.h>
+
+void PrintZydisError()
+{
+    puts("Zydis error: ");
+    switch (ZydisGetLastError())
+    {
+    case ZYDIS_ERROR_SUCCESS:
+        puts("success");
+        break;
+    case ZYDIS_ERROR_UNKNOWN:
+        puts("unknown error");
+        break;
+    case ZYDIS_ERROR_NOT_ENOUGH_MEMORY:
+        puts("not enough memory");
+        break;
+    case ZYDIS_ERROR_INVALID_PARAMETER:
+        puts("invalid parameter");
+        break;
+    }
+}
 
 int main()
 {
@@ -34,22 +84,42 @@ int main()
 
     ZydisInstructionInfo info;
     ZydisInstructionDecoderContext* decoder = NULL;
-    ZydisBaseInstructionFormatterContext* formatter = NULL;
-    ZydisBaseInputContext* input32 = NULL;
-    ZydisBaseInputContext* input64 = NULL;
+    ZydisInstructionFormatterContext* formatter = NULL;
+    ZydisInputContext* input32 = NULL;
+    ZydisInputContext* input64 = NULL;
 
-    decoder = ZydisInstructionDecoder_Create();
-    formatter = ZydisIntelInstructionFormatter_Create();
+    // Create decoder and formatter instances
+    decoder = ZydisCreateInstructionDecoder();
+    if (!decoder)
+    {
+        goto FreeZydisDecoder;
+    }
+    formatter = ZydisCreateIntelInstructionFormatter();
+    if (!formatter)
+    {
+        goto FreeZydisFormatter;
+    }
 
-    input32 = ZydisMemoryInput_Create(&data32[0], sizeof(data32));
-    input64 = ZydisMemoryInput_Create(&data64[0], sizeof(data64));
+    // Create memory data sources
+    input32 = ZydisCreateMemoryInput(&data32[0], sizeof(data32));
+    if (!input32)
+    {
+        goto FreeZydisInput32;
+    }
+    input64 = ZydisCreateMemoryInput(&data64[0], sizeof(data64));
+    if (!input64)
+    {
+        goto FreeZydisInput64;
+    }
 
-    ZydisInstructionDecoder_SetDisassemblerMode(decoder, DM_M32BIT);
-    ZydisInstructionDecoder_SetDataSource(decoder, input32);
-    ZydisInstructionDecoder_SetInstructionPointer(decoder, 0x77091852);
+    // Set decoder properties
+    ZydisSetDisassemblerMode(decoder, ZYDIS_DM_M32BIT);
+    ZydisSetDataSource(decoder, input32);
+    ZydisSetInstructionPointer(decoder, 0x77091852);
 
+    // Decode and format all instructions
     puts("32 bit test ...\n\n");
-    while (ZydisInstructionDecoder_DecodeInstruction(decoder, &info))
+    while (ZydisDecodeInstruction(decoder, &info))
     {
         printf("%08X ", (uint32_t)(info.instrAddress & 0xFFFFFFFF));
         if (info.flags & ZYDIS_IF_ERROR_MASK)
@@ -58,17 +128,28 @@ int main()
         } 
         else
         {
-            printf("%s\n", ZydisBaseInstructionFormatter_FormatInstruction(formatter, &info));
+            const char* instructionText;
+            if (!ZydisFormatInstruction(formatter, &info, &instructionText))
+            {
+                goto FreeZydisInput64;
+            }
+            printf("%s\n", instructionText);
         }
+    }
+    // Check if an error occured in ZydisDecodeInstruction or the end of the input was reached.
+    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
+    {
+        goto FreeZydisInput64;
     }
 
     puts("\n");
 
-    ZydisInstructionDecoder_SetDisassemblerMode(decoder, DM_M64BIT);
-    ZydisInstructionDecoder_SetDataSource(decoder, input64);
-    ZydisInstructionDecoder_SetInstructionPointer(decoder, 0x00007FFA39A81930ull);
+    // Set decoder properties
+    ZydisSetDisassemblerMode(decoder, ZYDIS_DM_M64BIT);
+    ZydisSetDataSource(decoder, input64);
+    ZydisSetInstructionPointer(decoder, 0x00007FFA39A81930ull);
     puts("64 bit test ...\n\n");
-    while (ZydisInstructionDecoder_DecodeInstruction(decoder, &info))
+    while (ZydisDecodeInstruction(decoder, &info))
     {
         printf("%016llX ", info.instrAddress); 
         if (info.flags & ZYDIS_IF_ERROR_MASK)
@@ -77,10 +158,38 @@ int main()
         } 
         else
         {
-            printf("%s\n", ZydisBaseInstructionFormatter_FormatInstruction(formatter, &info));
+            const char* instructionText;
+            if (!ZydisFormatInstruction(formatter, &info, &instructionText))
+            {
+                goto FreeZydisInput64;
+            }
+            printf("%s\n", instructionText);
         }
+    } 
+    // Check if an error occured in ZydisDecodeInstruction or the end of the input was reached.
+    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
+    {
+        goto FreeZydisInput64;
+    }
+
+    // Cleanup code
+FreeZydisInput64:
+    ZydisFreeInput(input64);
+FreeZydisInput32:
+    ZydisFreeInput(input32);
+FreeZydisFormatter:
+    ZydisFreeInstructionFormatter(formatter);
+FreeZydisDecoder:
+    ZydisFreeInstructionDecoder(decoder);
+
+    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
+    {
+        PrintZydisError();
+        getchar();
+        return 1;
     }
 
     getchar();
+    
     return 0;
 }

@@ -58,7 +58,7 @@ public:
      *                      relative to the base address of the symbol.
      * @return  The name of the symbol, if the symbol was found, @c NULL if not.
      */
-    virtual const char *resolveSymbol(const InstructionInfo& info, uint64_t address, 
+    virtual const char* resolveSymbol(const InstructionInfo& info, uint64_t address, 
         uint64_t& offset);
 };
 
@@ -99,7 +99,7 @@ public:
      * @param   address The address.
      * @param   name    The symbol name.
      */
-    void setSymbol(uint64_t address, const char *name);
+    void setSymbol(uint64_t address, const char* name);
     /**
      * @brief   Removes the symbol described by address. This will invalidate all char pointers 
      *          to the specific symbol name.

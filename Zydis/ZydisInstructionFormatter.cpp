@@ -117,7 +117,7 @@ BaseInstructionFormatter::BaseInstructionFormatter(
 
 }
 
-const char *BaseInstructionFormatter::formatInstruction(const InstructionInfo& info)
+const char* BaseInstructionFormatter::formatInstruction(const InstructionInfo& info)
 {
     // Clears the internal string buffer
     outputClear();
@@ -202,8 +202,7 @@ char const *BaseInstructionFormatter::outputString()
         }
         // Write the formatted text to the output buffer
         assert((bufLen - offset) > 0);
-        strLen =
-            vsnprintf_s(&m_outputBuffer[offset], bufLen - offset, _TRUNCATE, format, arguments);
+        strLen = std::vsnprintf(&m_outputBuffer[offset], bufLen - offset, format, arguments);
     } while (strLen < 0);
     // Increase the string length
     m_outputStringLen = offset + strLen + 1;

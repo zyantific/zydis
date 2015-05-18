@@ -44,54 +44,40 @@ endif ()
 
 # Library
 set(headers
-    "ZyDis/ZydisSymbolResolver.hpp"
-    "ZyDis/ZydisOpcodeTable.hpp"
-    "ZyDis/ZydisInstructionDecoder.hpp"
-    "ZyDis/ZydisInstructionFormatter.hpp"
-    "ZyDis/ZydisTypes.hpp"
-    "ZyDis/ZydisUtils.hpp"
-    "ZyDis/Zydis.hpp")
+	"Zydis/Zydis.hpp"
+	"Zydis/ZydisInstructionDecoder.hpp"
+    "Zydis/ZydisInstructionFormatter.hpp"
+	"Zydis/ZydisOpcodeTable.hpp"
+    "Zydis/ZydisSymbolResolver.hpp"
+    "Zydis/ZydisTypes.hpp"
+    "Zydis/ZydisUtils.hpp")
 set(sources
-    "ZyDis/ZydisInstructionDecoder.cpp"
-    "ZyDis/ZydisInstructionFormatter.cpp"
-    "ZyDis/ZydisOpcodeTable.cpp"
-    "ZyDis/ZydisSymbolResolver.cpp"
-    "ZyDis/ZydisUtils.cpp")
+    "Zydis/ZydisInstructionDecoder.cpp"
+    "Zydis/ZydisInstructionFormatter.cpp"
+    "Zydis/ZydisOpcodeTable.cpp"
+    "Zydis/ZydisSymbolResolver.cpp"
+    "Zydis/ZydisUtils.cpp")
+	
+if (BUILD_C_BINDINGS)
+	set(headers ${headers}
+		"Zydis/ZydisAPI.h")
+	set(sources ${sources}
+		"Zydis/ZydisAPI.cpp")
+endif ()
 
 add_library("Zydis" ${headers} ${sources})
 generate_export_header(
     "Zydis" 
-    BASE_NAME "Zydis"
+    BASE_NAME "ZYDIS"
     EXPORT_FILE_NAME "ZydisExportConfig.h")
 include_directories(${PROJECT_BINARY_DIR})
 
-# C bindings
-if (BUILD_C_BINDINGS)
-    set(c_headers
-        "Bindings/C/Zydis.h"
-        "Bindings/C/ZydisInstructionDecoder.h"
-        "Bindings/C/ZydisTypes.h"
-        "Bindings/C/ZydisInstructionFormatter.h"
-        "Bindings/C/ZydisUtils.h"
-        "Bindings/C/ZydisSymbolResolver.h"
-        "Bindings/C/ZydisOpcodeTable.h")
-    set(c_sources
-        "Bindings/C/ZydisSymbolResolver.cpp"
-        "Bindings/C/ZydisOpcodeTable.cpp"
-        "Bindings/C/ZydisInstructionFormatter.cpp"
-        "Bindings/C/ZydisInstructionDecoder.cpp"
-        "Bindings/C/ZydisUtils.cpp")
-    add_library("ZydisC" ${c_headers} ${c_sources})
-    include_directories("Zydis")
-    target_link_libraries("ZydisC" "Zydis")
-endif ()
-
 # Examples
 if (BUILD_EXAMPLES)
-    include_directories("Bindings/C")
+    include_directories("Zydis")
 
     add_executable("C_SimpleDemo" "Examples/C/SimpleDemo/SimpleDemo.c")
-    target_link_libraries("C_SimpleDemo" "ZydisC")
+    target_link_libraries("C_SimpleDemo" "Zydis")
 endif ()
 
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL "CMake has configured at least once.")
