@@ -398,24 +398,91 @@ bool ZydisFreeInstructionFormatter(const ZydisInstructionFormatterContext* forma
 
 /* SymbolResolver =============================================================================== */
 
-ZYDIS_EXPORT ZydisSymbolResolverContext* ZydisCreateCustomSymbolResolver(/*TODO*/);
+ZydisSymbolResolverContext* ZydisCreateCustomSymbolResolver(/*TODO*/)
+{
+    return nullptr;
+}
 
-ZYDIS_EXPORT ZydisSymbolResolverContext* ZydisCreateExactSymbolResolver();
+ZydisSymbolResolverContext* ZydisCreateExactSymbolResolver()
+{
+    return ZydisCreateContextInplace<ZydisSymbolResolverContext, Zydis::ExactSymbolResolver>(
+        ZYDIS_CONTEXT_SYMBOLRESOLVER | ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+}
 
-ZYDIS_EXPORT bool ZydisResolveSymbol(const ZydisSymbolResolverContext* resolver, 
-    const ZydisInstructionInfo* info, uint64_t address, const char** symbol, uint64_t* offset);
+bool ZydisResolveSymbol(const ZydisSymbolResolverContext* resolver, 
+    const ZydisInstructionInfo* info, uint64_t address, const char** symbol, uint64_t* offset)
+{
+    Zydis::BaseSymbolResolver* instance = 
+        ZydisCast<ZydisSymbolResolverContext, 
+        Zydis::BaseSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER);
+    if (!instance)
+    {
+        return false;
+    }    
+    *symbol = instance->resolveSymbol(*reinterpret_cast<const Zydis::InstructionInfo*>(info), 
+        address, *offset);
+    return true;
+}
 
-ZYDIS_EXPORT bool ZydisExactSymbolResolverContainsSymbol(
-    const ZydisSymbolResolverContext* resolver, uint64_t address, bool* containsSymbol);
+bool ZydisExactSymbolResolverContainsSymbol(
+    const ZydisSymbolResolverContext* resolver, uint64_t address, bool* containsSymbol)
+{
+    Zydis::ExactSymbolResolver* instance = 
+        ZydisCast<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+    if (!instance)
+    {
+        return false;
+    }   
+    *containsSymbol = instance->containsSymbol(address);
+    return true;
+}
 
-ZYDIS_EXPORT bool ZydisExactSymbolResolverSetSymbol(const ZydisSymbolResolverContext* resolver, 
-    uint64_t address, const char* symbol);
+bool ZydisExactSymbolResolverSetSymbol(const ZydisSymbolResolverContext* resolver, 
+    uint64_t address, const char* name)
+{
+    Zydis::ExactSymbolResolver* instance = 
+        ZydisCast<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+    if (!instance)
+    {
+        return false;
+    }   
+    instance->setSymbol(address, name);
+    return true;
+}
 
-ZYDIS_EXPORT bool ZydisExactSymbolResolverRemoveSymbol(const ZydisSymbolResolverContext* resolver, 
-    uint64_t address);
+bool ZydisExactSymbolResolverRemoveSymbol(const ZydisSymbolResolverContext* resolver, 
+    uint64_t address)
+{
+    Zydis::ExactSymbolResolver* instance = 
+        ZydisCast<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+    if (!instance)
+    {
+        return false;
+    }   
+    instance->removeSymbol(address);
+    return true;    
+}
 
-ZYDIS_EXPORT bool ZydisExactSymbolResolverClear(const ZydisSymbolResolverContext* resolver);
+bool ZydisExactSymbolResolverClear(const ZydisSymbolResolverContext* resolver)
+{
+    Zydis::ExactSymbolResolver* instance = 
+        ZydisCast<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+    if (!instance)
+    {
+        return false;
+    }   
+    instance->clear();
+    return true;
+}
 
-ZYDIS_EXPORT bool ZydisFreeSymbolResolver(const ZydisSymbolResolverContext* resolver);
+bool ZydisFreeSymbolResolver(const ZydisSymbolResolverContext* resolver)
+{
+    return ZydisFreeContext<ZydisSymbolResolverContext, Zydis::BaseSymbolResolver>(
+        resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER);
+}
 
 /* ============================================================================================== */
