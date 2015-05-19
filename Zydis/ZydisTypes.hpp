@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 22. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,14 +26,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#pragma once
+***************************************************************************************************/
+
+#ifndef _ZYDIS_TYPES_HPP_
+#define _ZYDIS_TYPES_HPP_
 
 #include <stdint.h>
-#include "VXOpcodeTable.h"
+#include "ZydisOpcodeTable.hpp"
 
-namespace Verteron
+namespace Zydis
 {
+
+/* InstructionFlags ============================================================================= */
 
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
@@ -125,10 +127,12 @@ enum InstructionFlags : uint32_t
     IF_ERROR_OPERAND                = 0x01000000
 };
 
+/* Register ===================================================================================== */
+
 /**
  * @brief   Values that represent a cpu register.
  */
-enum class VXRegister : uint16_t
+enum class Register : uint16_t
 {
     NONE,
     /* 8 bit general purpose registers */
@@ -185,10 +189,12 @@ enum class VXRegister : uint16_t
     RIP
 };
 
+/* OperandType ================================================================================== */
+
 /**
  * @brief   Values that represent the type of a decoded operand.
  */
-enum class VXOperandType
+enum class OperandType : uint8_t
 {
     /**
      * @brief   The operand is not used.
@@ -220,10 +226,12 @@ enum class VXOperandType
     CONSTANT
 };
 
+/* ZydisOperandAccessMode ============================================================================ */
+
 /**
  * @brief   Values that represent the operand access mode.
  */
-enum class VXOperandAccessMode
+enum class OperandAccessMode : uint8_t
 {
     NA,
     /**
@@ -240,15 +248,17 @@ enum class VXOperandAccessMode
     READWRITE
 };
 
+/* OperandInfo ================================================================================== */
+
 /**
  * @brief   This struct holds information about a decoded operand.
  */
-struct VXOperandInfo
+struct OperandInfo
 {
     /**
      * @brief   The type of the operand.
      */
-    VXOperandType type;
+    OperandType type;
     /**
      * @brief   The size of the operand.
      */
@@ -256,15 +266,15 @@ struct VXOperandInfo
     /**
      * @brief   The operand access mode.
      */
-    VXOperandAccessMode access_mode;
+    OperandAccessMode access_mode;
     /**
      * @brief   The base register.
      */
-    VXRegister base;
+    Register base;
     /**
      * @brief   The index register.
      */
-    VXRegister index;
+    Register index;
     /**
      * @brief   The scale factor.
      */
@@ -297,10 +307,12 @@ struct VXOperandInfo
     } lval;   
 };
 
+/* InstructionInfo ============================================================================== */
+
 /**
  * @brief   This struct holds information about a decoded instruction.
  */
-struct VXInstructionInfo
+struct InstructionInfo
 {
     /**
      * @brief   The instruction flags.
@@ -309,7 +321,7 @@ struct VXInstructionInfo
     /**
      * @brief   The instruction mnemonic.
      */
-    VXInstructionMnemonic mnemonic;
+    InstructionMnemonic mnemonic;
     /**
      * @brief   The total length of the instruction.
      */
@@ -337,12 +349,12 @@ struct VXInstructionInfo
     /**
      * @brief   The decoded operands.
      */
-    VXOperandInfo operand[4];
+    OperandInfo operand[4];
     /**
      * @brief   The segment register. This value will default to @c NONE, if no segment register 
      *          prefix is present.
      */
-    VXRegister segment;
+    Register segment;
     /**
      * @brief   The rex prefix byte.
      */
@@ -512,7 +524,7 @@ struct VXInstructionInfo
     /**
      * @brief   The instruction definition.
      */
-    const VXInstructionDefinition *instrDefinition;
+    const InstructionDefinition* instrDefinition;
     /**
      * @brief   The instruction address points to the current instruction (relative to the 
      *          initial instruction pointer).
@@ -527,3 +539,5 @@ struct VXInstructionInfo
 };
 
 }
+
+#endif /* _ZYDIS_TYPES_HPP_ */

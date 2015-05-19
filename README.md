@@ -1,4 +1,4 @@
-Verteron Disassembler Engine (VDE)
+Zyan Disassembler Engine (Zydis)
 ==================================
 
 Fast and lightweight x86/x86-64 disassembler library.
@@ -18,15 +18,13 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Quick Example ##
 
-The following example program uses VDE to disassemble a given memory buffer and prints the output to the console.
+The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
 ```C++
 #include <tchar.h>
 #include <iostream>
 #include <stdint.h>
-#include "VXDisassembler.h"
-
-using namespace Verteron;
+#include "Zydis.hpp"
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -34,13 +32,13 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         0x90, 0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3
     };
-    VXMemoryDataSource input(&data[0], sizeof(data));
-    VXInstructionInfo info;
-    VXInstructionDecoder decoder;
-    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+    Zydis::MemoryInput input(&data[0], sizeof(data));
+    Zydis::InstructionInfo info;
+    Zydis::InstructionDecoder decoder;
+    decoder.setDisassemblerMode(Zydis::ZydisMode::M32BIT);
     decoder.setDataSource(&input);
     decoder.setInstructionPointer(0);
-    VXIntelInstructionFormatter formatter;
+    Zydis::IntelInstructionFormatter formatter;
     while (decoder.decodeInstruction(info))
     {
         std::cout << formatter.formatInstruction(info) << std::endl;
@@ -50,8 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 ## Compilation ##
  
-- While VDE supports other compilers in theory, compilation has not been tested with any compiler other than MSVC12 (Visual Studio 2013)
-- Multi-compiler support might be added in the future
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C++14 compiler.
  
 ## License ##
-Verteron Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.
+Zyan Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.

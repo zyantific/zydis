@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 29. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,16 +26,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#include <tchar.h>
+***************************************************************************************************/
+
 #include <stdint.h>
 #include <iostream>
 #include <iomanip>
-#include "VXDisassembler.h"
+#include <Zydis.hpp>
 
-using namespace Verteron;
-
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
     uint8_t data32[] =
     {
@@ -66,13 +62,13 @@ int _tmain(int argc, _TCHAR* argv[])
         0x5F, 0x41, 0x5E, 0x41, 0x5D, 0x41, 0x5C, 0x5F, 0xC3    
     };
 
-    VXInstructionInfo info;
-    VXInstructionDecoder decoder;
-    VXIntelInstructionFormatter formatter;
-    VXMemoryDataSource input32(&data32[0], sizeof(data32));
-    VXMemoryDataSource input64(&data64[0], sizeof(data64));
+    Zydis::InstructionInfo info;
+    Zydis::InstructionDecoder decoder;
+    Zydis::IntelInstructionFormatter formatter;
+    Zydis::MemoryInput input32(&data32[0], sizeof(data32));
+    Zydis::MemoryInput input64(&data64[0], sizeof(data64));
 
-    decoder.setDisassemblerMode(VXDisassemblerMode::M32BIT);
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
     decoder.setDataSource(&input32);
     decoder.setInstructionPointer(0x77091852);
     std::cout << "32 bit test ..." << std::endl << std::endl;
@@ -80,7 +76,7 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         std::cout << std::hex << std::setw(8) << std::setfill('0') << std::uppercase 
                   << info.instrAddress << " "; 
-        if (info.flags & IF_ERROR_MASK)
+        if (info.flags & Zydis::IF_ERROR_MASK)
         {
             std::cout << "db " << std::setw(2) << info.data[0];    
         } else
@@ -91,7 +87,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     std::cout << std::endl;
 
-    decoder.setDisassemblerMode(VXDisassemblerMode::M64BIT);
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M64BIT);
     decoder.setDataSource(&input64);
     decoder.setInstructionPointer(0x00007FFA39A81930ull);
     std::cout << "64 bit test ..." << std::endl << std::endl;
@@ -99,7 +95,7 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         std::cout << std::hex << std::setw(16) << std::setfill('0') << std::uppercase 
                   << info.instrAddress << " "; 
-        if (info.flags & IF_ERROR_MASK)
+        if (info.flags & Zydis::IF_ERROR_MASK)
         {
             std::cout << "db " << std::setw(2) << info.data[0];    
         } else

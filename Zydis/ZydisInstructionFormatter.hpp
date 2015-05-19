@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 22. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,54 +26,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#pragma once
+***************************************************************************************************/
+
+#ifndef _ZYDIS_INSTRUCTIONFORMATTER_HPP_
+#define _ZYDIS_INSTRUCTIONFORMATTER_HPP_
 
 #include <vector>
-#include <unordered_map>
-#include "VXDisassemblerTypes.h"
+#include "ZydisTypes.hpp"
+#include "ZydisSymbolResolver.hpp"
 
-namespace Verteron
+namespace Zydis
 {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @brief   Base class for all symbol resolver implementations.
- */
-class VXBaseSymbolResolver
-{
-public:
-    /**
-     * @brief   Destructor.
-     */
-    virtual ~VXBaseSymbolResolver();
-public:
-    /**
-     * @brief   Resolves a symbol.
-     * @param   info        The instruction info.
-     * @param   address     The address.
-     * @param   offset      Reference to an unsigned 64 bit integer that receives an offset 
-     *                      relative to the base address of the symbol.
-     * @return  The name of the symbol, if the symbol was found, @c NULL if not.
-     */
-    virtual const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-        uint64_t &offset);
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* BaseInstructionFormatter ===================================================================== */
 
 /**
  * @brief   Base class for all instruction formatter implementations.
  */
-class VXBaseInstructionFormatter
+class BaseInstructionFormatter
 {
 private:
-    static const char    *m_registerStrings[];
-    VXBaseSymbolResolver *m_symbolResolver;
-    std::vector<char>     m_outputBuffer;
-    size_t                m_outputStringLen;
-    bool                  m_outputUppercase;
+    static const char*  m_registerStrings[];
+    BaseSymbolResolver* m_symbolResolver;
+    std::vector<char>   m_outputBuffer;
+    size_t              m_outputStringLen;
+    bool                m_outputUppercase;
 protected:
     /**
      * @brief   Clears the output string buffer.
@@ -90,12 +65,12 @@ protected:
      * @brief   Appends text to the ouput string buffer.
      * @param   text    The text.
      */
-    void outputAppend(const char *text);
+    void outputAppend(const char* text);
     /**
      * @brief   Appends formatted text to the output string buffer.
      * @param   format  The format string.
      */
-    void outputAppendFormatted(const char *format, ...);
+    void outputAppendFormatted(const char* format, ...);
     /**
      * @brief   Changes automatic conversion of characters to uppercase.
      * @param   uppercase   Set true to enable automatic uppercase conversion.
@@ -108,7 +83,7 @@ protected:
      * @param   resolveSymbols  If this parameter is true, the method will try to display a
      *                          smybol name instead of the numeric value.
      */
-    void outputAppendAddress(const VXInstructionInfo &info, uint64_t address, 
+    void outputAppendAddress(const InstructionInfo& info, uint64_t address, 
         bool resolveSymbols = true);
     /**
      * @brief   Appends a formatted immediate value to the output string buffer.
@@ -117,21 +92,20 @@ protected:
      * @param   resolveSymbols  If this parameter is true, the method will try to display a
      *                          smybol name instead of the numeric value.
      */
-    void outputAppendImmediate(const VXInstructionInfo &info, const VXOperandInfo &operand,
+    void outputAppendImmediate(const InstructionInfo& info, const OperandInfo& operand,
         bool resolveSymbols = false);
     /**
      * @brief   Appends a formatted memory displacement value to the output string buffer.
-     * @param   info    The instruction info.
      * @param   operand The memory operand.
      */
-    void outputAppendDisplacement(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void outputAppendDisplacement(const OperandInfo& operand);
 protected:
     /**
      * @brief   Returns the string representation of a given register.
      * @param   reg The register.
      * @return  The string representation of the given register.
      */
-    const char* registerToString(VXRegister reg) const;
+    const char *registerToString(Register reg) const;
     /**
      * @brief   Resolves a symbol.
      * @param   info        The instruction info.
@@ -140,8 +114,8 @@ protected:
      *                      relative to the base address of the symbol.
      * @return  The name of the symbol, if the symbol was found, @c NULL if not.
      */
-    const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-        uint64_t &offset) const;
+    const char* resolveSymbol(const InstructionInfo& info, uint64_t address, 
+        uint64_t& offset) const;
 protected:
     /**
      * @brief   Override this method to implement a custom disassembly syntax. Use the 
@@ -149,59 +123,59 @@ protected:
      *          string buffer.
      * @param   info    The instruction info.
      */
-    virtual void internalFormatInstruction(const VXInstructionInfo &info);
+    virtual void internalFormatInstruction(const InstructionInfo& info);
     /**
      * @brief   Default constructor.
      */
-    VXBaseInstructionFormatter();
+    BaseInstructionFormatter();
     /**
      * @brief   Constructor.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    explicit VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver);
+    explicit BaseInstructionFormatter(BaseSymbolResolver* symbolResolver);
 public:
     /**
      * @brief   Destructor.
      */
-    virtual ~VXBaseInstructionFormatter();
+    virtual ~BaseInstructionFormatter();
 public:
     /**
      * @brief   Formats a decoded instruction.
      * @param   info    The instruction info.
      * @return  Pointer to the formatted instruction string.
      */
-    const char* formatInstruction(const VXInstructionInfo &info);
+    const char* formatInstruction(const InstructionInfo& info);
 public:
     /**
      * @brief   Returns a pointer to the current symbol resolver.
      * @return  Pointer to the current symbol resolver or @c NULL, if no symbol resolver is used.
      */
-    VXBaseSymbolResolver* getSymbolResolver() const;
+    BaseSymbolResolver* getSymbolResolver() const;
     /**
      * @brief   Sets a new symbol resolver.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    void setSymbolResolver(VXBaseSymbolResolver *symbolResolver);
+    void setSymbolResolver(BaseSymbolResolver* symbolResolver);
 };
 
-inline void VXBaseInstructionFormatter::outputSetUppercase(bool uppercase)
+inline void BaseInstructionFormatter::outputSetUppercase(bool uppercase)
 {
     m_outputUppercase = uppercase;
 }
 
-inline char const* VXBaseInstructionFormatter::registerToString(VXRegister reg) const
+inline char const* BaseInstructionFormatter::registerToString(Register reg) const
 {
-    if (reg == VXRegister::NONE)
+    if (reg == Register::NONE)
     {
         return "error";   
     }
     return m_registerStrings[static_cast<uint16_t>(reg) - 1]; 
 }
 
-inline char const* VXBaseInstructionFormatter::resolveSymbol(const VXInstructionInfo &info, 
-    uint64_t address, uint64_t &offset) const
+inline char const* BaseInstructionFormatter::resolveSymbol(const InstructionInfo& info, 
+    uint64_t address, uint64_t& offset) const
 {
     if (m_symbolResolver)
     {
@@ -210,110 +184,62 @@ inline char const* VXBaseInstructionFormatter::resolveSymbol(const VXInstruction
     return nullptr;
 }
 
-inline VXBaseSymbolResolver* VXBaseInstructionFormatter::getSymbolResolver() const
+inline BaseSymbolResolver* BaseInstructionFormatter::getSymbolResolver() const
 {
     return m_symbolResolver;
 }
 
-inline void VXBaseInstructionFormatter::setSymbolResolver(VXBaseSymbolResolver *symbolResolver)
+inline void BaseInstructionFormatter::setSymbolResolver(
+    BaseSymbolResolver* symbolResolver)
 {
     m_symbolResolver = symbolResolver;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* IntelInstructionFormatter ==================================================================== */
 
 /**
  * @brief   Intel syntax instruction formatter.
  */
-class VXIntelInstructionFormatter : public VXBaseInstructionFormatter
+class IntelInstructionFormatter : public BaseInstructionFormatter
 {
 private:
     /**
      * @brief   Appends an operand cast to the output string buffer.
-     * @param   info    The instruction info.
      * @param   operand The operand.
      */
-    void outputAppendOperandCast(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void outputAppendOperandCast(const OperandInfo& operand);
     /**
      * @brief   Formats the specified operand and appends the resulting string to the output
      *          buffer.
      * @param   info    The instruction info.
      * @param   operand The operand.
      */
-    void formatOperand(const VXInstructionInfo &info, const VXOperandInfo &operand);
+    void formatOperand(const InstructionInfo& info, const OperandInfo& operand);
 protected:
     /**
      * @brief   Fills the internal string buffer with an intel style formatted instruction string.
      * @param   info    The instruction info.
      */
-    void internalFormatInstruction(const VXInstructionInfo &info) override;
+    void internalFormatInstruction(const InstructionInfo& info) override;
 public:
     /**
      * @brief   Default constructor.
      */
-    VXIntelInstructionFormatter();
+    IntelInstructionFormatter();
     /**
      * @brief   Constructor.
      * @param   symbolResolver  Pointer to a symbol resolver instance or @c NULL, if no smybol
      *                          resolver should be used.
      */
-    explicit VXIntelInstructionFormatter(VXBaseSymbolResolver *symbolResolver);
+    explicit IntelInstructionFormatter(BaseSymbolResolver* symbolResolver);
     /**
      * @brief   Destructor.
      */
-    ~VXIntelInstructionFormatter() override;
+    ~IntelInstructionFormatter() override;
 };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @brief   Simple symbol resolver that only matches exact addresses.
- */
-class VXExactSymbolResolver : public VXBaseSymbolResolver
-{
-private:
-    std::unordered_map<uint64_t, std::string> m_symbolMap;
-public:
-    /**
-     * @brief   Destructor.
-     */
-    ~VXExactSymbolResolver() override;
-public:
-    /**
-     * @brief   Resolves a symbol.
-     * @param   info        The instruction info.
-     * @param   address     The address.
-     * @param   offset      Reference to an unsigned 64 bit integer that receives an offset 
-     *                      relative to the base address of the symbol.
-     * @return  The name of the symbol, if the symbol was found, @c NULL if not.
-     */
-    const char* resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-        uint64_t &offset) override;
-public:
-    /**
-     * @brief   Query if the given address is a known symbol.
-     * @param   address The address.
-     * @return  True if the address is known, false if not.
-     */
-    bool containsSymbol(uint64_t address) const;
-    /**
-     * @brief   Adds or changes a symbol.
-     * @param   address The address.
-     * @param   name    The symbol name.
-     */
-    void setSymbol(uint64_t address, const char* name);
-    /**
-     * @brief   Removes the symbol described by address. This will invalidate all char pointers 
-     *          to the specific symbol name.
-     * @param   address The address.
-     */
-    void removeSymbol(uint64_t address);
-    /**
-     * @brief   Clears the symbol tree.
-     */
-    void clear();
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* ============================================================================================== */
 
 }
+
+#endif /* _ZYDIS_INSTRUCTIONFORMATTER_HPP_ */

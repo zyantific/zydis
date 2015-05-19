@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 22. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,31 +26,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#include "VXInstructionFormatter.h"
-#include "VXDisassemblerUtils.h"
+***************************************************************************************************/
+
+#include "ZydisInstructionFormatter.hpp"
+#include "ZydisUtils.hpp"
 #include <cstdarg>
 #include <cctype>
+#include <cstdio>
 
-namespace Verteron
+namespace Zydis
 {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* BaseInstructionFormatter ================================================================ */
 
-VXBaseSymbolResolver::~VXBaseSymbolResolver()
-{
-
-}
-
-const char* VXBaseSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    return nullptr;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-const char* VXBaseInstructionFormatter::m_registerStrings[] =
+const char *BaseInstructionFormatter::m_registerStrings[] =
 {
     /* 8 bit general purpose registers */
     "al",       "cl",       "dl",       "bl",
@@ -108,12 +95,12 @@ const char* VXBaseInstructionFormatter::m_registerStrings[] =
     "rip"
 };
 
-void VXBaseInstructionFormatter::internalFormatInstruction(const VXInstructionInfo &info)
+void BaseInstructionFormatter::internalFormatInstruction(const InstructionInfo& /*info*/)
 {
     // Nothing to do here
 }
 
-VXBaseInstructionFormatter::VXBaseInstructionFormatter()
+BaseInstructionFormatter::BaseInstructionFormatter()
     : m_symbolResolver(nullptr)
     , m_outputStringLen(0)
     , m_outputUppercase(false)
@@ -121,7 +108,8 @@ VXBaseInstructionFormatter::VXBaseInstructionFormatter()
 
 }
 
-VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *symbolResolver)
+BaseInstructionFormatter::BaseInstructionFormatter(
+    BaseSymbolResolver *symbolResolver)
     : m_symbolResolver(symbolResolver)
     , m_outputStringLen(0)
     , m_outputUppercase(false)
@@ -129,7 +117,7 @@ VXBaseInstructionFormatter::VXBaseInstructionFormatter(VXBaseSymbolResolver *sym
 
 }
 
-const char* VXBaseInstructionFormatter::formatInstruction(const VXInstructionInfo &info)
+const char* BaseInstructionFormatter::formatInstruction(const InstructionInfo& info)
 {
     // Clears the internal string buffer
     outputClear();
@@ -138,28 +126,28 @@ const char* VXBaseInstructionFormatter::formatInstruction(const VXInstructionInf
     if (m_outputBuffer.size() == 0)
     {
         // The basic instruction formatter only returns the instruction menmonic.
-        return Internal::VDEGetInstructionMnemonicString(info.mnemonic);
+        return Internal::GetInstructionMnemonicString(info.mnemonic);
     } 
     // Return the formatted instruction string
     return outputString();
 }
 
-VXBaseInstructionFormatter::~VXBaseInstructionFormatter()
+BaseInstructionFormatter::~BaseInstructionFormatter()
 {
 
 }
 
-void VXBaseInstructionFormatter::outputClear()
+void BaseInstructionFormatter::outputClear()
 {
     m_outputStringLen = 0;
 }
 
-char const* VXBaseInstructionFormatter::outputString()
+char const *BaseInstructionFormatter::outputString()
 {
-    return &m_outputBuffer[0];
+    return& m_outputBuffer[0];
 }
 
- void VXBaseInstructionFormatter::outputAppend(char const *text)
+ void BaseInstructionFormatter::outputAppend(char const* text)
  {
     // Get the string length including the null-terminator char
     size_t strLen = strlen(text) + 1;
@@ -183,12 +171,12 @@ char const* VXBaseInstructionFormatter::outputString()
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
-            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+            m_outputBuffer[i] = static_cast<char>(toupper(m_outputBuffer[i]));
         }
     }
  }
 
- void VXBaseInstructionFormatter::outputAppendFormatted(char const *format, ...)
+ void BaseInstructionFormatter::outputAppendFormatted(char const* format, ...)
  {
     va_list arguments;
     va_start(arguments, format);
@@ -214,8 +202,7 @@ char const* VXBaseInstructionFormatter::outputString()
         }
         // Write the formatted text to the output buffer
         assert((bufLen - offset) > 0);
-        strLen =
-            vsnprintf_s(&m_outputBuffer[offset], bufLen - offset, _TRUNCATE, format, arguments);
+        strLen = std::vsnprintf(&m_outputBuffer[offset], bufLen - offset, format, arguments);
     } while (strLen < 0);
     // Increase the string length
     m_outputStringLen = offset + strLen + 1;
@@ -224,17 +211,17 @@ char const* VXBaseInstructionFormatter::outputString()
     {
         for (size_t i = offset; i < m_outputStringLen - 1; ++i)
         {
-            m_outputBuffer[i] = toupper(m_outputBuffer[i]);
+            m_outputBuffer[i] = static_cast<char>(toupper(m_outputBuffer[i]));
         }
     }
     va_end(arguments);
 }
 
-void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &info, 
+void BaseInstructionFormatter::outputAppendAddress(const InstructionInfo& info, 
     uint64_t address, bool resolveSymbols)
 {
     uint64_t offset = 0;
-    const char* name = nullptr;
+    const char *name = nullptr;
     if (resolveSymbols)
     {
         name = resolveSymbol(info, address, offset);
@@ -250,13 +237,13 @@ void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &in
         }
     } else
     {
-        if (info.flags & IF_DISASSEMBLER_MODE_16)
+        if (info.flags&  IF_DISASSEMBLER_MODE_16)
         {
             outputAppendFormatted("%.4X", address);
-        } else if (info.flags & IF_DISASSEMBLER_MODE_32)
+        } else if (info.flags&  IF_DISASSEMBLER_MODE_32)
         {
             outputAppendFormatted("%.8lX", address);
-        } else if (info.flags & IF_DISASSEMBLER_MODE_64)
+        } else if (info.flags&  IF_DISASSEMBLER_MODE_64)
         {
             outputAppendFormatted("%.16llX", address);
         } else
@@ -266,12 +253,12 @@ void VXBaseInstructionFormatter::outputAppendAddress(const VXInstructionInfo &in
     }
 }
 
-void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand, bool resolveSymbols)
+void BaseInstructionFormatter::outputAppendImmediate(const InstructionInfo& info, 
+    const OperandInfo& operand, bool resolveSymbols)
 {
-    assert(operand.type == VXOperandType::IMMEDIATE);
+    assert(operand.type == OperandType::IMMEDIATE);
     uint64_t value = 0;
-    if (operand.signed_lval && (operand.size != info.operand_mode)) 
+    if (operand.signed_lval&& (operand.size != info.operand_mode)) 
     {
         if (operand.size == 8) 
         {
@@ -283,7 +270,7 @@ void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &
         }
         if (info.operand_mode < 64) 
         {
-            value = value & ((1ull << info.operand_mode) - 1ull);
+            value = value&  ((1ull << info.operand_mode) - 1ull);
         }
     } else 
     {
@@ -306,7 +293,7 @@ void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &
         }
     }
     uint64_t offset = 0;
-    const char* name = nullptr;
+    const char *name = nullptr;
     if (resolveSymbols)
     {
         name = resolveSymbol(info, value, offset);
@@ -326,11 +313,10 @@ void VXBaseInstructionFormatter::outputAppendImmediate(const VXInstructionInfo &
     }
 }
 
-void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void BaseInstructionFormatter::outputAppendDisplacement(const OperandInfo& operand)
 {
     assert(operand.offset > 0);
-    if ((operand.base == VXRegister::NONE) && (operand.index == VXRegister::NONE))
+    if ((operand.base == Register::NONE)&& (operand.index == Register::NONE))
     {
         // Assume the displacement value is unsigned
         assert(operand.scale == 0);
@@ -375,16 +361,15 @@ void VXBaseInstructionFormatter::outputAppendDisplacement(const VXInstructionInf
             outputAppendFormatted("-%.2lX", -value);
         } else
         {
-            outputAppendFormatted("%s%.2lX", (operand.base != VXRegister::NONE || 
-                operand.index != VXRegister::NONE) ? "+" : "", value);
+            outputAppendFormatted("%s%.2lX", (operand.base != Register::NONE || 
+                operand.index != Register::NONE) ? "+" : "", value);
         }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* IntelInstructionFormatter =============================================================== */
 
-void VXIntelInstructionFormatter::outputAppendOperandCast(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void IntelInstructionFormatter::outputAppendOperandCast(const OperandInfo& operand)
 {
     switch(operand.size) 
     {
@@ -414,33 +399,33 @@ void VXIntelInstructionFormatter::outputAppendOperandCast(const VXInstructionInf
     }
 }
 
-void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info, 
-    const VXOperandInfo &operand)
+void IntelInstructionFormatter::formatOperand(const InstructionInfo& info, 
+    const OperandInfo& operand)
 {
     switch (operand.type)
     {
-    case VXOperandType::REGISTER: 
+    case OperandType::REGISTER: 
         outputAppend(registerToString(operand.base));
         break;
-    case VXOperandType::MEMORY: 
-        if (info.flags & IF_PREFIX_SEGMENT)
+    case OperandType::MEMORY: 
+        if (info.flags&  IF_PREFIX_SEGMENT)
         {
             outputAppendFormatted("%s:", registerToString(info.segment));    
         }
         outputAppend("[");
-        if (operand.base == VXRegister::RIP)
+        if (operand.base == Register::RIP)
         {
             // TODO: Add option
-            outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);   
+            outputAppendAddress(info, CalcAbsoluteTarget(info, operand), true);   
         } else
         {
-            if (operand.base != VXRegister::NONE)
+            if (operand.base != Register::NONE)
             {
                 outputAppend(registerToString(operand.base)); 
             }
-            if (operand.index != VXRegister::NONE) 
+            if (operand.index != Register::NONE) 
             {
-                outputAppendFormatted("%s%s", operand.base != VXRegister::NONE ? "+" : "",
+                outputAppendFormatted("%s%s", operand.base != Register::NONE ? "+" : "",
                     registerToString(operand.index));
                 if (operand.scale) 
                 {
@@ -449,18 +434,18 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             }
             if (operand.offset) 
             {
-                outputAppendDisplacement(info, operand);
+                outputAppendDisplacement(operand);
             }
         }
         outputAppend("]");
         break;
-    case VXOperandType::POINTER:
+    case OperandType::POINTER:
         // TODO: resolve symbols
         switch (operand.size)
         {
         case 32:
             outputAppendFormatted("word %.4X:%.4X", operand.lval.ptr.seg, 
-                operand.lval.ptr.off & 0xFFFF);
+                operand.lval.ptr.off&  0xFFFF);
             break;
         case 48:
             outputAppendFormatted("dword %.4X:%.8lX", operand.lval.ptr.seg, operand.lval.ptr.off);
@@ -469,21 +454,21 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
             assert(0);
         }
         break;
-    case VXOperandType::IMMEDIATE: 
+    case OperandType::IMMEDIATE: 
         {
             outputAppendImmediate(info, operand, true);
         }
         break;
-    case VXOperandType::REL_IMMEDIATE: 
+    case OperandType::REL_IMMEDIATE: 
         {
             if (operand.size == 8)
             {
                 outputAppend("short ");
             }
-            outputAppendAddress(info, VDECalcAbsoluteTarget(info, operand), true);
+            outputAppendAddress(info, CalcAbsoluteTarget(info, operand), true);
         }
         break;
-    case VXOperandType::CONSTANT: 
+    case OperandType::CONSTANT: 
         outputAppendFormatted("%.2X", operand.lval.udword);
         break;
     default: 
@@ -492,47 +477,47 @@ void VXIntelInstructionFormatter::formatOperand(const VXInstructionInfo &info,
     }
 }
 
-void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionInfo &info)
+void IntelInstructionFormatter::internalFormatInstruction(const InstructionInfo& info)
 {
     // Append string prefixes
-    if (info.flags & IF_PREFIX_LOCK)
+    if (info.flags&  IF_PREFIX_LOCK)
     {
         outputAppend("lock ");
     }
-    if (info.flags & IF_PREFIX_REP)
+    if (info.flags&  IF_PREFIX_REP)
     {
         outputAppend("rep ");
-    } else if (info.flags & IF_PREFIX_REPNE)
+    } else if (info.flags&  IF_PREFIX_REPNE)
     {
         outputAppend("repne ");
     }
     // Append the instruction mnemonic
-    outputAppend(Internal::VDEGetInstructionMnemonicString(info.mnemonic));
+    outputAppend(Internal::GetInstructionMnemonicString(info.mnemonic));
     // Append the first operand
-    if (info.operand[0].type != VXOperandType::NONE)
+    if (info.operand[0].type != OperandType::NONE)
     {
         outputAppend(" ");
         bool cast = false;
-        if (info.operand[0].type == VXOperandType::MEMORY) 
+        if (info.operand[0].type == OperandType::MEMORY) 
         {
-            if (info.operand[1].type == VXOperandType::IMMEDIATE ||
-                info.operand[1].type == VXOperandType::CONSTANT ||
-                info.operand[1].type == VXOperandType::NONE ||
+            if (info.operand[1].type == OperandType::IMMEDIATE ||
+                info.operand[1].type == OperandType::CONSTANT ||
+                info.operand[1].type == OperandType::NONE ||
                 (info.operand[0].size != info.operand[1].size)) 
             {
                 cast = true;
-            } else if (info.operand[1].type == VXOperandType::REGISTER &&
-                info.operand[1].base == VXRegister::CL) 
+            } else if (info.operand[1].type == OperandType::REGISTER&&
+                info.operand[1].base == Register::CL) 
             {
                 switch (info.mnemonic) 
                 {
-                case VXInstructionMnemonic::RCL:
-                case VXInstructionMnemonic::ROL:
-                case VXInstructionMnemonic::ROR:
-                case VXInstructionMnemonic::RCR:
-                case VXInstructionMnemonic::SHL:
-                case VXInstructionMnemonic::SHR:
-                case VXInstructionMnemonic::SAR:
+                case InstructionMnemonic::RCL:
+                case InstructionMnemonic::ROL:
+                case InstructionMnemonic::ROR:
+                case InstructionMnemonic::RCR:
+                case InstructionMnemonic::SHL:
+                case InstructionMnemonic::SHR:
+                case InstructionMnemonic::SAR:
                     cast = true;
                     break;
                 default: 
@@ -542,114 +527,75 @@ void VXIntelInstructionFormatter::internalFormatInstruction(const VXInstructionI
         }
         if (cast)
         {
-            outputAppendOperandCast(info, info.operand[0]);
+            outputAppendOperandCast(info.operand[0]);
         }
         formatOperand(info, info.operand[0]);
     }
     // Append the second operand
-    if (info.operand[1].type != VXOperandType::NONE)
+    if (info.operand[1].type != OperandType::NONE)
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[1].type == VXOperandType::MEMORY &&
-            info.operand[0].size != info.operand[1].size &&
-            ((info.operand[0].type != VXOperandType::REGISTER) ||
-             ((info.operand[0].base != VXRegister::ES) && 
-             (info.operand[0].base != VXRegister::CS) &&
-             (info.operand[0].base != VXRegister::SS) &&
-             (info.operand[0].base != VXRegister::DS) &&
-             (info.operand[0].base != VXRegister::FS) &&
-             (info.operand[0].base != VXRegister::GS)))) 
+        if (info.operand[1].type == OperandType::MEMORY&&
+            info.operand[0].size != info.operand[1].size&&
+            ((info.operand[0].type != OperandType::REGISTER) ||
+             ((info.operand[0].base != Register::ES)&& 
+             (info.operand[0].base != Register::CS)&&
+             (info.operand[0].base != Register::SS)&&
+             (info.operand[0].base != Register::DS)&&
+             (info.operand[0].base != Register::FS)&&
+             (info.operand[0].base != Register::GS)))) 
         {
             cast = true;
         }
         if (cast)
         {
-            outputAppendOperandCast(info, info.operand[1]);
+            outputAppendOperandCast(info.operand[1]);
         }
         formatOperand(info, info.operand[1]);
     }
     // Append the third operand
-    if (info.operand[2].type != VXOperandType::NONE)
+    if (info.operand[2].type != OperandType::NONE)
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[2].type == VXOperandType::MEMORY && 
+        if (info.operand[2].type == OperandType::MEMORY&& 
             (info.operand[2].size != info.operand[1].size)) 
         {
             cast = true;
         }
         if (cast)
         {
-            outputAppendOperandCast(info, info.operand[2]);
+            outputAppendOperandCast(info.operand[2]);
         }
         formatOperand(info, info.operand[2]);
     }
     // Append the fourth operand
-    if (info.operand[3].type != VXOperandType::NONE)
+    if (info.operand[3].type != OperandType::NONE)
     {
         outputAppend(", ");
         formatOperand(info, info.operand[3]);
     }
 }
 
-VXIntelInstructionFormatter::VXIntelInstructionFormatter()
-    : VXBaseInstructionFormatter()
+IntelInstructionFormatter::IntelInstructionFormatter()
+    : BaseInstructionFormatter()
 {
 
 }
 
-VXIntelInstructionFormatter::VXIntelInstructionFormatter(VXBaseSymbolResolver* symbolResolver)
-    : VXBaseInstructionFormatter(symbolResolver)
+IntelInstructionFormatter::IntelInstructionFormatter(
+    BaseSymbolResolver *symbolResolver)
+    : BaseInstructionFormatter(symbolResolver)
 {
 
 }
 
-VXIntelInstructionFormatter::~VXIntelInstructionFormatter()
+IntelInstructionFormatter::~IntelInstructionFormatter()
 {
 
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-VXExactSymbolResolver::~VXExactSymbolResolver()
-{
-
-}
-
-const char* VXExactSymbolResolver::resolveSymbol(const VXInstructionInfo &info, uint64_t address, 
-    uint64_t &offset)
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    if (iterator != m_symbolMap.end())
-    {
-        offset = 0;
-        return iterator->second.c_str();
-    }
-    return nullptr;
-}
-
-bool VXExactSymbolResolver::containsSymbol(uint64_t address) const
-{
-    std::unordered_map<uint64_t, std::string>::const_iterator iterator = m_symbolMap.find(address);
-    return (iterator != m_symbolMap.end());
-}
-
-void VXExactSymbolResolver::setSymbol(uint64_t address, const char* name)
-{
-    m_symbolMap[address].assign(name);
-}
-
-void VXExactSymbolResolver::removeSymbol(uint64_t address)
-{
-    m_symbolMap.erase(address);
-}
-
-void VXExactSymbolResolver::clear()
-{
-    m_symbolMap.clear();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* ============================================================================================== */
 
 }

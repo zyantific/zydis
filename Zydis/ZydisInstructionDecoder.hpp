@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 29. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,22 +26,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#pragma once
+***************************************************************************************************/
+
+#ifndef _ZYDIS_INSTRUCTIONDECODER_HPP_
+#define _ZYDIS_INSTRUCTIONDECODER_HPP_
 
 #include <type_traits>
 #include <istream>
-#include "VXDisassemblerTypes.h"
+#include "ZydisTypes.hpp"
 
-namespace Verteron
+namespace Zydis
 {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* BaseInput ==================================================================================== */
 
 /**
  * @brief   The base class for all data-source implementations.
  */
-class VXBaseDataSource 
+class BaseInput 
 {
 private:
     uint8_t m_currentInput;
@@ -66,12 +66,12 @@ protected:
     /**
      * @brief   Default constructor.
      */
-    VXBaseDataSource() { };
+    BaseInput() { };
 public:
     /**
      * @brief   Destructor.
      */
-    virtual ~VXBaseDataSource() { };
+    virtual ~BaseInput() { };
 public:
     /**
      * @brief   Reads the next byte from the data source. This method does NOT increase the 
@@ -81,7 +81,7 @@ public:
      *          @c flags field of the @c info parameter for error flags.
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
-    uint8_t inputPeek(VXInstructionInfo &info);
+    uint8_t inputPeek(InstructionInfo& info);
     /**
      * @brief   Reads the next byte from the data source. This method increases the current
      *          input position and the @c length field of the @c info parameter. 
@@ -92,7 +92,7 @@ public:
      *          @c flags field of the @c info parameter for error flags.
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
-    uint8_t inputNext(VXInstructionInfo &info);
+    uint8_t inputNext(InstructionInfo& info);
     /**
      * @brief   Reads the next byte(s) from the data source. This method increases the current
      *          input position and the @c length field of the @c info parameter. 
@@ -104,7 +104,7 @@ public:
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
     template <typename T>
-    T inputNext(VXInstructionInfo &info);
+    T inputNext(InstructionInfo& info);
     /**
      * @brief   Returns the current input byte. The current input byte is set everytime the 
      *          @c inputPeek or @c inputNext method is called.
@@ -133,7 +133,7 @@ public:
     virtual bool setPosition(uint64_t position) = 0;
 };
 
-inline uint8_t VXBaseDataSource::inputPeek(VXInstructionInfo &info)
+inline uint8_t BaseInput::inputPeek(InstructionInfo& info)
 {
     if (info.length == 15)
     {
@@ -149,7 +149,7 @@ inline uint8_t VXBaseDataSource::inputPeek(VXInstructionInfo &info)
     return m_currentInput;
 }
 
-inline uint8_t VXBaseDataSource::inputNext(VXInstructionInfo &info)
+inline uint8_t BaseInput::inputNext(InstructionInfo& info)
 {
     if (info.length == 15)
     {
@@ -168,14 +168,14 @@ inline uint8_t VXBaseDataSource::inputNext(VXInstructionInfo &info)
 }
 
 template <typename T>
-inline T VXBaseDataSource::inputNext(VXInstructionInfo &info)
+inline T BaseInput::inputNext(InstructionInfo& info)
 {
     static_assert(std::is_integral<T>::value, "integral type required");
     T result = 0;
     for (unsigned i = 0; i < (sizeof(T) / sizeof(uint8_t)); ++i)
     {
         T b = inputNext(info);
-        if (!b && (info.flags & IF_ERROR_MASK))
+        if (!b&& (info.flags&  IF_ERROR_MASK))
         {
             return 0;
         }
@@ -184,20 +184,20 @@ inline T VXBaseDataSource::inputNext(VXInstructionInfo &info)
     return result;
 }
 
-inline uint8_t VXBaseDataSource::inputCurrent() const
+inline uint8_t BaseInput::inputCurrent() const
 {
     return m_currentInput;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* MemoryInput ================================================================================== */
 
 /**
- * @brief   A memory-buffer based data source for the @c VXInstructionDecoder class.
+ * @brief   A memory-buffer based data source for the @c InstructionDecoder class.
  */
-class VXMemoryDataSource : public VXBaseDataSource
+class MemoryInput : public BaseInput
 {
 private:
-    const void *m_inputBuffer;
+    const void* m_inputBuffer;
     uint64_t    m_inputBufferLen;
     uint64_t    m_inputBufferPos;
 protected:
@@ -219,7 +219,7 @@ public:
      * @param   buffer      The input buffer.
      * @param   bufferLen   The length of the input buffer.
      */
-    VXMemoryDataSource(const void* buffer, size_t bufferLen)
+    MemoryInput(const void* buffer, size_t bufferLen)
         : m_inputBuffer(buffer)
         , m_inputBufferLen(bufferLen)
         , m_inputBufferPos(0) { };
@@ -242,42 +242,42 @@ public:
     bool setPosition(uint64_t position) override;
 };
 
-inline uint8_t VXMemoryDataSource::internalInputPeek()
+inline uint8_t MemoryInput::internalInputPeek()
 {
     return *(static_cast<const uint8_t*>(m_inputBuffer) + m_inputBufferPos);
 }
 
-inline uint8_t VXMemoryDataSource::internalInputNext()
+inline uint8_t MemoryInput::internalInputNext()
 {
     ++m_inputBufferPos;
     return *(static_cast<const uint8_t*>(m_inputBuffer) + m_inputBufferPos - 1);
 }
 
-inline bool VXMemoryDataSource::isEndOfInput() const
+inline bool MemoryInput::isEndOfInput() const
 {
     return (m_inputBufferPos >= m_inputBufferLen);
 }
 
-inline uint64_t VXMemoryDataSource::getPosition() const
+inline uint64_t MemoryInput::getPosition() const
 {
     return m_inputBufferPos;
 }
 
-inline bool VXMemoryDataSource::setPosition(uint64_t position)
+inline bool MemoryInput::setPosition(uint64_t position)
 {
     m_inputBufferPos = position;
     return isEndOfInput();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* StreamInput ================================================================================== */
 
 /**
- * @brief   A stream based data source for the @c VXInstructionDecoder class.
+ * @brief   A stream based data source for the @c InstructionDecoder class.
  */
-class VXStreamDataSource : public VXBaseDataSource
+class StreamInput : public BaseInput
 {
 private:
-    std::istream *m_inputStream;
+    std::istream* m_inputStream;
 protected:
     /**
      * @brief   Reads the next byte from the data source. This method increases the current
@@ -296,7 +296,7 @@ public:
      * @brief   Constructor.
      * @param   stream  The input stream.
      */
-    explicit VXStreamDataSource(std::istream *stream)
+    explicit StreamInput(std::istream* stream)
         : m_inputStream(stream) { };
 public:
     /**
@@ -317,25 +317,25 @@ public:
     bool setPosition(uint64_t position) override;
 };
 
-inline uint8_t VXStreamDataSource::internalInputPeek()
+inline uint8_t StreamInput::internalInputPeek()
 {
     if (!m_inputStream)
     {
         return 0;
     }
-    return m_inputStream->peek();
+    return static_cast<uint8_t>(m_inputStream->peek());
 }
 
-inline uint8_t VXStreamDataSource::internalInputNext()
+inline uint8_t StreamInput::internalInputNext()
 {
     if (!m_inputStream)
     {
         return 0;
     }
-    return m_inputStream->get();
+    return static_cast<uint8_t>(m_inputStream->get());
 }
 
-inline bool VXStreamDataSource::isEndOfInput() const
+inline bool StreamInput::isEndOfInput() const
 {
     if (!m_inputStream)
     {
@@ -346,7 +346,7 @@ inline bool VXStreamDataSource::isEndOfInput() const
     return !m_inputStream->good();
 }
 
-inline uint64_t VXStreamDataSource::getPosition() const
+inline uint64_t StreamInput::getPosition() const
 {
     if (!m_inputStream)
     {
@@ -355,7 +355,7 @@ inline uint64_t VXStreamDataSource::getPosition() const
     return m_inputStream->tellg();
 }
 
-inline bool VXStreamDataSource::setPosition(uint64_t position)
+inline bool StreamInput::setPosition(uint64_t position)
 {
     if (!m_inputStream)
     {
@@ -365,12 +365,12 @@ inline bool VXStreamDataSource::setPosition(uint64_t position)
     return isEndOfInput();
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* Enums ======================================================================================== */
 
 /**
  * @brief   Values that represent a disassembler mode.
  */
-enum class VXDisassemblerMode
+enum class DisassemblerMode : uint8_t
 {
     M16BIT,
     M32BIT,
@@ -380,21 +380,23 @@ enum class VXDisassemblerMode
 /**
  * @brief   Values that represent an instruction-set vendor.
  */
-enum class VXInstructionSetVendor
+enum class InstructionSetVendor : uint8_t
 {
     ANY,
     INTEL,
     AMD
 };
 
+/* InstructionDecoder =========================================================================== */
+
 /**
- * @brief   The @c VXInstructionDecoder class decodes x86/x86-64 assembly instructions from a 
+ * @brief   The @c InstructionDecoder class decodes x86/x86-64 assembly instructions from a 
  *          given data source.
  */
-class VXInstructionDecoder
+class InstructionDecoder
 {
 private:
-    enum class RegisterClass
+    enum class RegisterClass : uint8_t
     {
         GENERAL_PURPOSE,
         MMX,
@@ -404,10 +406,10 @@ private:
         XMM
     };
 private:
-    VXBaseDataSource      *m_dataSource;
-    VXDisassemblerMode     m_disassemblerMode;
-    VXInstructionSetVendor m_preferredVendor;
-    uint64_t               m_instructionPointer;
+    BaseInput*           m_input;
+    DisassemblerMode     m_disassemblerMode;
+    InstructionSetVendor m_preferredVendor;
+    uint64_t             m_instructionPointer;
 private:
     /**
      * @brief   Reads the next byte from the data source. This method does NOT increase the 
@@ -417,7 +419,7 @@ private:
      *          @c flags field of the @c info parameter for error flags.
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
-    uint8_t inputPeek(VXInstructionInfo &info);
+    uint8_t inputPeek(InstructionInfo& info);
     /**
      * @brief   Reads the next byte from the data source. This method increases the current
      *          input position and the @c length field of the @info parameter. 
@@ -428,7 +430,7 @@ private:
      *          @c flags field of the @c info parameter for error flags.
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
-    uint8_t inputNext(VXInstructionInfo &info);
+    uint8_t inputNext(InstructionInfo& info);
     /**
      * @brief   Reads the next byte(s) from the data source. This method increases the current
      *          input position and the @c length field of the @info parameter. 
@@ -440,7 +442,7 @@ private:
      *          Possible error values are @c IF_ERROR_END_OF_INPUT or @c IF_ERROR_LENGTH.
      */
     template <typename T>
-    T inputNext(VXInstructionInfo &info);
+    T inputNext(InstructionInfo& info);
     /**
      * @brief   Returns the current input byte. The current input byte is set everytime the 
      *          @c inputPeek or @c inputNext method is called.
@@ -451,64 +453,64 @@ private:
     /**
      * @brief   Decodes a register operand.
      * @param   info            The instruction info.
-     * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+     * @param   operand         The @c OperandInfo struct that receives the decoded data.
      * @param   registerClass   The register class to use.
      * @param   registerId      The register id.
      * @param   operandSize     The defined size of the operand.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeRegisterOperand(VXInstructionInfo &info, VXOperandInfo &operand, 
-        RegisterClass registerClass, uint8_t registerId, VXDefinedOperandSize operandSize) const;
+    bool decodeRegisterOperand(InstructionInfo& info, OperandInfo& operand, 
+        RegisterClass registerClass, uint8_t registerId, DefinedOperandSize operandSize) const;
     /**
      * @brief   Decodes a register/memory operand.
      * @param   info            The instruction info.
-     * @param   operand         The @c VXOperandInfo struct that receives the decoded data.
+     * @param   operand         The @c OperandInfo struct that receives the decoded data.
      * @param   registerClass   The register class to use.
      * @param   operandSize     The defined size of the operand.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeRegisterMemoryOperand(VXInstructionInfo &info, VXOperandInfo &operand,
-        RegisterClass registerClass, VXDefinedOperandSize operandSize);
+    bool decodeRegisterMemoryOperand(InstructionInfo& info, OperandInfo& operand,
+        RegisterClass registerClass, DefinedOperandSize operandSize);
     /**
      * @brief   Decodes an immediate operand.
      * @param   info        The instruction info.
-     * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+     * @param   operand     The @c OperandInfo struct that receives the decoded data.
      * @param   operandSize The defined size of the operand.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeImmediate(VXInstructionInfo &info, VXOperandInfo &operand, 
-        VXDefinedOperandSize operandSize);
+    bool decodeImmediate(InstructionInfo& info, OperandInfo& operand, 
+        DefinedOperandSize operandSize);
     /**
      * @brief   Decodes a displacement operand.
      * @param   info    The instruction info.
-     * @param   operand The @c VXOperandInfo struct that receives the decoded data.
+     * @param   operand The @c OperandInfo struct that receives the decoded data.
      * @param   size    The size of the displacement data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeDisplacement(VXInstructionInfo &info, VXOperandInfo &operand, uint8_t size);
+    bool decodeDisplacement(InstructionInfo& info, OperandInfo& operand, uint8_t size);
 private:
     /**
      * @brief   Decodes the modrm field of the instruction. This method reads an additional 
      *          input byte.
-     * @param   The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeModrm(VXInstructionInfo &info);
+    bool decodeModrm(InstructionInfo& info);
     /**
      * @brief   Decodes the sib field of the instruction. This method reads an additional 
      *          input byte.
-     * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   info    The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeSIB(VXInstructionInfo &info);
+    bool decodeSIB(InstructionInfo& info);
     /**
      * @brief   Decodes vex prefix of the instruction. This method takes the current input byte
      *          to determine the vex prefix type and reads one or two additional input bytes
      *          on demand.
-     * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   info    The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeVex(VXInstructionInfo &info);
+    bool decodeVex(InstructionInfo& info);
 private:
     /**
      * @brief   Returns the effective operand size.
@@ -516,59 +518,59 @@ private:
      * @param   operandSize The defined operand size.
      * @return  The effective operand size.
      */
-    uint16_t getEffectiveOperandSize(const VXInstructionInfo &info, 
-        VXDefinedOperandSize operandSize) const;
+    uint16_t getEffectiveOperandSize(const InstructionInfo& info, 
+        DefinedOperandSize operandSize) const;
     /**
      * @brief   Decodes all instruction operands.
-     * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   info    The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeOperands(VXInstructionInfo &info);
+    bool decodeOperands(InstructionInfo& info);
     /**
      * @brief   Decodes the specified instruction operand.
      * @param   info        The instruction info.
-     * @param   operand     The @c VXOperandInfo struct that receives the decoded data.
+     * @param   operand     The @c OperandInfo struct that receives the decoded data.
      * @param   operandType The defined type of the operand.
      * @param   operandSize The defined size of the operand.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeOperand(VXInstructionInfo &info, VXOperandInfo &operand, 
-        VXDefinedOperandType operandType, VXDefinedOperandSize operandSize);
+    bool decodeOperand(InstructionInfo& info, OperandInfo& operand, 
+        DefinedOperandType operandType, DefinedOperandSize operandSize);
 private:
     /**
      * @brief   Resolves the effective operand and address mode of the instruction.
      *          This method requires a non-null value in the @c instrDefinition field of the 
      *          @c info struct.
-     * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+     * @param   info    The @c InstructionInfo struct that receives the effective operand and
      *                  address mode.
      */
-    void resolveOperandAndAddressMode(VXInstructionInfo &info) const;
+    void resolveOperandAndAddressMode(InstructionInfo& info) const;
     /**
      * @brief   Calculates the effective REX/VEX.w, r, x, b, l values.
      *          This method requires a non-null value in the @c instrDefinition field of the 
      *          @c info struct.
-     * @param   info    The @c VXInstructionInfo struct that receives the effective operand and
+     * @param   info    The @c InstructionInfo struct that receives the effective operand and
      *                  address mode.
      */
-    void calculateEffectiveRexVexValues(VXInstructionInfo &info) const;
+    void calculateEffectiveRexVexValues(InstructionInfo& info) const;
 private:
     /**
      * @brief   Collects and decodes optional instruction prefixes.
-     * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   info    The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodePrefixes(VXInstructionInfo &info);
+    bool decodePrefixes(InstructionInfo& info);
     /**
      * @brief   Collects and decodes the instruction opcodes using the opcode tree.
-     * @param   info    The @c VXInstructionInfo struct that receives the decoded data.
+     * @param   info    The @c InstructionInfo struct that receives the decoded data.
      * @return  True if it succeeds, false if it fails.
      */
-    bool decodeOpcode(VXInstructionInfo &info);
+    bool decodeOpcode(InstructionInfo& info);
 public:
     /**
      * @brief   Default constructor.
      */
-    VXInstructionDecoder();
+    InstructionDecoder();
     /**
      * @brief   Constructor.
      * @param   input               A reference to the input data source.
@@ -576,51 +578,51 @@ public:
      * @param   preferredVendor     The preferred instruction-set vendor.
      * @param   instructionPointer  The initial instruction pointer.                            
      */
-    explicit VXInstructionDecoder(VXBaseDataSource *input, 
-        VXDisassemblerMode disassemblerMode = VXDisassemblerMode::M32BIT,
-        VXInstructionSetVendor preferredVendor = VXInstructionSetVendor::ANY, 
+    explicit InstructionDecoder(BaseInput* input, 
+        DisassemblerMode disassemblerMode = DisassemblerMode::M32BIT,
+        InstructionSetVendor preferredVendor = InstructionSetVendor::ANY, 
         uint64_t instructionPointer = 0);
 public:
     /**
      * @brief   Decodes the next instruction from the input data source.
-     * @param   info    The @c VXInstructionInfo struct that receives the information about the
+     * @param   info    The @c InstructionInfo struct that receives the information about the
      *                  decoded instruction.
      * @return  This method returns false, if the current position has exceeded the maximum input 
      *          length.
      *          In all other cases (valid and invalid instructions) the return value is true.
      */
-    bool decodeInstruction(VXInstructionInfo &info);
+    bool decodeInstruction(InstructionInfo& info);
 public:
     /**
      * @brief   Returns a pointer to the current data source.
      * @return  A pointer to the current data source.
      */
-    VXBaseDataSource* getDataSource() const;
+    BaseInput* getDataSource() const;
     /**
      * @brief   Sets a new data source.
      * @param   input   A reference to the new input data source.
      */
-    void setDataSource(VXBaseDataSource *input);
+    void setDataSource(BaseInput* input);
     /**
      * @brief   Returns the current disassembler mode.
      * @return  The current disassembler mode.
      */
-    VXDisassemblerMode getDisassemblerMode() const;
+    DisassemblerMode getDisassemblerMode() const;
     /**
      * @brief   Sets the current disassembler mode.
      * @param   disassemblerMode    The new disassembler mode.
      */
-    void setDisassemblerMode(VXDisassemblerMode disassemblerMode);
+    void setDisassemblerMode(DisassemblerMode disassemblerMode);
     /**
      * @brief   Returns the preferred instruction-set vendor.
      * @return  The preferred instruction-set vendor.
      */
-    VXInstructionSetVendor getPreferredVendor() const;
+    InstructionSetVendor getPreferredVendor() const;
     /**
      * @brief   Sets the preferred instruction-set vendor.
      * @param   preferredVendor The new preferred instruction-set vendor.
      */
-    void setPreferredVendor(VXInstructionSetVendor preferredVendor);
+    void setPreferredVendor(InstructionSetVendor preferredVendor);
     /**
      * @brief   Returns the current instruction pointer.
      * @return  The current instruction pointer.
@@ -633,86 +635,88 @@ public:
     void setInstructionPointer(uint64_t instructionPointer);
 };
 
-inline uint8_t VXInstructionDecoder::inputPeek(VXInstructionInfo &info)
+inline uint8_t InstructionDecoder::inputPeek(InstructionInfo& info)
 {
-    if (!m_dataSource)
+    if (!m_input)
     {
         info.flags |= IF_ERROR_END_OF_INPUT;
         return 0;
     }
-    return m_dataSource->inputPeek(info);
+    return m_input->inputPeek(info);
 }
 
-inline uint8_t VXInstructionDecoder::inputNext(VXInstructionInfo &info)
+inline uint8_t InstructionDecoder::inputNext(InstructionInfo& info)
 {
-    if (!m_dataSource)
+    if (!m_input)
     {
         info.flags |= IF_ERROR_END_OF_INPUT;
         return 0;
     }
-    return m_dataSource->inputNext(info);
+    return m_input->inputNext(info);
 }
 
 template <typename T>
-inline T VXInstructionDecoder::inputNext(VXInstructionInfo &info)
+inline T InstructionDecoder::inputNext(InstructionInfo& info)
 {
-    if (!m_dataSource)
+    if (!m_input)
     {
         info.flags |= IF_ERROR_END_OF_INPUT;
         return 0;
     }
-    return m_dataSource->inputNext<T>(info);
+    return m_input->inputNext<T>(info);
 }
 
-inline uint8_t VXInstructionDecoder::inputCurrent() const
+inline uint8_t InstructionDecoder::inputCurrent() const
 {
-    if (!m_dataSource)
+    if (!m_input)
     {
         return 0;
     }
-    return m_dataSource->inputCurrent();
+    return m_input->inputCurrent();
 }
 
-inline VXBaseDataSource* VXInstructionDecoder::getDataSource() const
+inline BaseInput *InstructionDecoder::getDataSource() const
 {
-    return m_dataSource;
+    return m_input;
 }
 
-inline void VXInstructionDecoder::setDataSource(VXBaseDataSource *input)
+inline void InstructionDecoder::setDataSource(BaseInput* input)
 {
-    m_dataSource = input;
+    m_input = input;
 }
 
-inline VXDisassemblerMode VXInstructionDecoder::getDisassemblerMode() const
+inline DisassemblerMode InstructionDecoder::getDisassemblerMode() const
 {
     return m_disassemblerMode;
 }
 
-inline void VXInstructionDecoder::setDisassemblerMode(VXDisassemblerMode disassemblerMode)
+inline void InstructionDecoder::setDisassemblerMode(DisassemblerMode disassemblerMode)
 {
     m_disassemblerMode = disassemblerMode;
 }
 
-inline VXInstructionSetVendor VXInstructionDecoder::getPreferredVendor() const
+inline InstructionSetVendor InstructionDecoder::getPreferredVendor() const
 {
     return m_preferredVendor;
 }
 
-inline void VXInstructionDecoder::setPreferredVendor(VXInstructionSetVendor preferredVendor)
+inline void InstructionDecoder::setPreferredVendor(InstructionSetVendor preferredVendor)
 {
     m_preferredVendor = preferredVendor;
 }
 
-inline uint64_t VXInstructionDecoder::getInstructionPointer() const
+inline uint64_t InstructionDecoder::getInstructionPointer() const
 {
     return m_instructionPointer;
 }
 
-inline void VXInstructionDecoder::setInstructionPointer(uint64_t instructionPointer)
+inline void InstructionDecoder::setInstructionPointer(uint64_t instructionPointer)
 {
     m_instructionPointer = instructionPointer;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/* ============================================================================================== */
 
 }
+
+#endif /* _ZYDIS_INSTRUCTIONDECODER_HPP_ */

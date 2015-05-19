@@ -1,14 +1,12 @@
-/**************************************************************************************************
+/***************************************************************************************************
 
-  Verteron Disassembler Engine
+  Zyan Disassembler Engine
   Version 1.0
 
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   :
-
-  Last change     : 29. October 2014
+  Modifications   : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -16,10 +14,10 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,19 +26,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 
-**************************************************************************************************/
-#pragma once
+***************************************************************************************************/
 
-#include "stdint.h"
-#include "assert.h"
+#ifndef _ZYDIS_OPCODETABLE_HPP_
+#define _ZYDIS_OPCODETABLE_HPP_
 
-namespace Verteron
+#include <stdint.h>
+#include <cassert>
+
+namespace Zydis
 {
 
 /**
  * @brief   Values that represent an instruction mnemonic.
  */
-enum class VXInstructionMnemonic : uint16_t
+enum class InstructionMnemonic : uint16_t
 {
     /* 000 */ INVALID,
     /* 001 */ AAA,
@@ -953,12 +953,12 @@ enum class VXInstructionMnemonic : uint16_t
  * @brief   Defines an alias representing an opcode tree node. An opcode tree node is a 16 bit
  *          unsigned integer value with its first 4 bits reserved for the node type.
  */
-typedef uint16_t VXOpcodeTreeNode;
+typedef uint16_t OpcodeTreeNode;
 
 /**
  * @brief   Values that represent the type of an opcode tree node.
  */
-enum class VXOpcodeTreeNodeType : uint8_t
+enum class OpcodeTreeNodeType : uint8_t
 {
     /**
      * @brief   Reference to a concrete instruction definition.
@@ -1025,7 +1025,7 @@ enum class VXOpcodeTreeNodeType : uint8_t
 /**
  * @brief   Values that represent the type of an operand in the instruction definition.
  */
-enum class VXDefinedOperandType : uint8_t
+enum class DefinedOperandType : uint8_t
 {
     /*
      * @brief   No operand. 
@@ -1286,7 +1286,7 @@ enum class VXDefinedOperandType : uint8_t
  * @brief   Values that represent the size of an operand in the instruction definition.
  *          Do not change the order or the values of this enum! 
  */
-enum class VXDefinedOperandSize : uint8_t
+enum class DefinedOperandSize : uint8_t
 {
     /**
      * @brief   No operand.
@@ -1386,7 +1386,7 @@ enum class VXDefinedOperandSize : uint8_t
  * @brief   Values that represent optional flags in the instruction definition.   
  *          Do not change the order or the values of this enum!            
  */
-enum VXInstructionDefinitionFlags : uint16_t
+enum InstructionDefinitionFlags : uint16_t
 {
     /**
      * @brief   The instruction accepts the rex.b prefix value.
@@ -1454,30 +1454,30 @@ enum VXInstructionDefinitionFlags : uint16_t
 /**
  * @brief   An operand definition.
  */
-struct VXOperandDefinition     
+struct OperandDefinition     
 {               
     /**
      * @brief   The defined operand type.
      */
-    VXDefinedOperandType type;
+    DefinedOperandType type;
     /**
      * @brief   The defined operand size.
      */
-    VXDefinedOperandSize size;
+    DefinedOperandSize size;
 };
 /**
  * @brief   An instruction definition.
  */
-struct VXInstructionDefinition
+struct InstructionDefinition
 {
     /**
      * @brief   The instruction mnemonic.
      */
-    VXInstructionMnemonic mnemonic;
+    InstructionMnemonic mnemonic;
     /**
      * @brief   The operand definitions for all four possible operands.
      */
-    VXOperandDefinition operand[4];
+    OperandDefinition operand[4];
     /**
      * @brief   Additional flags for the instruction definition.
      */
@@ -1492,24 +1492,24 @@ namespace Internal
  * @brief   Contains all opcode tables.
  *          Indexed by the numeric value of the opcode.
  */
-extern const VXOpcodeTreeNode optreeTable[][256];
+extern const OpcodeTreeNode optreeTable[][256];
 /**
  * @brief   Contains all modrm_mod switch tables.
  *          Index values:
  *          0 = [modrm_mod == !11]
  *          1 = [modrm_mod ==  11]
  */
-extern const VXOpcodeTreeNode optreeModrmMod[][2];
+extern const OpcodeTreeNode optreeModrmMod[][2];
 /**
  * @brief   Contains all modrm_reg switch tables.
  *          Indexed by the numeric value of the modrm_reg field.
  */
-extern const VXOpcodeTreeNode optreeModrmReg[][8];
+extern const OpcodeTreeNode optreeModrmReg[][8];
 /**
  * @brief   Contains all modrm_rm switch tables.
  *          Indexed by the numeric value of the modrm_rm field.
  */
-extern const VXOpcodeTreeNode optreeModrmRm[][8];
+extern const OpcodeTreeNode optreeModrmRm[][8];
 /**
  * @brief   Contains all mandatory-prefix switch tables.
  *          Index values:
@@ -1518,13 +1518,13 @@ extern const VXOpcodeTreeNode optreeModrmRm[][8];
  *          2 = F3  
  *          3 = 66
  */
-extern const VXOpcodeTreeNode optreeMandatory[][4];
+extern const OpcodeTreeNode optreeMandatory[][4];
 /**
  * @brief   Contains all x87 opcode tables.
  *          Indexed by the numeric value of the 6 lowest bits of the modrm byte (modrm_mod should
  *          always be 11). 
  */
-extern const VXOpcodeTreeNode optreeX87[][64];
+extern const OpcodeTreeNode optreeX87[][64];
 /**
  * @brief   Contains all address-size switch tables.
  *          Index values:
@@ -1532,7 +1532,7 @@ extern const VXOpcodeTreeNode optreeX87[][64];
  *          1 = 32  
  *          2 = 64
  */
-extern const VXOpcodeTreeNode optreeAddressSize[][3];
+extern const OpcodeTreeNode optreeAddressSize[][3];
 /**
  * @brief   Contains all operand-size switch tables.
  *          Index values:
@@ -1540,26 +1540,26 @@ extern const VXOpcodeTreeNode optreeAddressSize[][3];
  *          1 = 32  
  *          2 = 64
  */
-extern const VXOpcodeTreeNode optreeOperandSize[][3];
+extern const OpcodeTreeNode optreeOperandSize[][3];
 /**
  * @brief   Contains all cpu-mode switch tables.
  *          Index values:
  *          0 = [!= 64]
  *          1 = 64
  */
-extern const VXOpcodeTreeNode optreeMode[][2];
+extern const OpcodeTreeNode optreeMode[][2];
 /**
  * @brief   Contains all vendor switch tables. 
  *          Index values:
  *          0 = AMD
  *          1 = Intel  
  */
-extern const VXOpcodeTreeNode optreeVendor[][2];
+extern const OpcodeTreeNode optreeVendor[][2];
 /**
  * @brief   Contains all 3dnow! switch tables.
  *          Indexed by the numeric value of the 3dnow! opcode.
  */
-extern const VXOpcodeTreeNode optree3dnow[][256];
+extern const OpcodeTreeNode optree3dnow[][256];
 /**
  * @brief   Contains all vex switch tables.
  *          Index values:
@@ -1580,21 +1580,21 @@ extern const VXOpcodeTreeNode optree3dnow[][256];
  *          E = F2_0F38
  *          F = F2_0F3A
  */
-extern const VXOpcodeTreeNode optreeVex[][16];
+extern const OpcodeTreeNode optreeVex[][16];
 /**
  * @brief   Contains all vex_w switch tables.
  *          Indexed by the numeric value of the vex_w field.
  */
-extern const VXOpcodeTreeNode optreeVexW[][2];
+extern const OpcodeTreeNode optreeVexW[][2];
 /**
  * @brief   Contains all vex_l switch tables.
  *          Indexed by the numeric value of the vex_l field.
  */
-extern const VXOpcodeTreeNode optreeVexL[][2];
+extern const OpcodeTreeNode optreeVexL[][2];
 /**
  * @brief   Contains all instruction definitions.
  */
-extern const VXInstructionDefinition instrDefinitions[];
+extern const InstructionDefinition instrDefinitions[];
 /**
  * @brief   Contains all instruction mnemonic strings.
  */
@@ -1605,9 +1605,9 @@ extern const char* instrMnemonicStrings[];
  * @param   node    The node.
  * @return  The type of the specified opcode tree node.
  */
-inline VXOpcodeTreeNodeType VDEGetOpcodeNodeType(VXOpcodeTreeNode node)
+inline OpcodeTreeNodeType GetOpcodeNodeType(OpcodeTreeNode node)
 {
-    return static_cast<VXOpcodeTreeNodeType>((node >> 12) & 0x0F);
+    return static_cast<OpcodeTreeNodeType>((node >> 12)&  0x0F);
 } 
 
 /**
@@ -1615,16 +1615,16 @@ inline VXOpcodeTreeNodeType VDEGetOpcodeNodeType(VXOpcodeTreeNode node)
  * @param   node    The node.
  * @return  The value of the specified opcode tree node.
  */
-inline uint16_t VDEGetOpcodeNodeValue(VXOpcodeTreeNode node)
+inline uint16_t GetOpcodeNodeValue(OpcodeTreeNode node)
 {
-    return (node & 0x0FFF);   
+    return (node&  0x0FFF);   
 }
 
 /**
  * @brief   Returns the root node of the opcode tree.
  * @return  The root node of the opcode tree.
  */
-inline VXOpcodeTreeNode VDEGetOpcodeTreeRoot()
+inline OpcodeTreeNode GetOpcodeTreeRoot()
 {
     return 0x1000;
 }
@@ -1635,53 +1635,53 @@ inline VXOpcodeTreeNode VDEGetOpcodeTreeRoot()
  * @param   index   The index of the child node to retrieve.
  * @return  The specified child node.
  */
-inline VXOpcodeTreeNode VDEGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t index)
+inline OpcodeTreeNode GetOpcodeTreeChild(OpcodeTreeNode parent, uint16_t index)
 {
     using namespace Internal;
-    VXOpcodeTreeNodeType nodeType = VDEGetOpcodeNodeType(parent);
-    uint16_t tableIndex = VDEGetOpcodeNodeValue(parent);
+    OpcodeTreeNodeType nodeType = GetOpcodeNodeType(parent);
+    uint16_t tableIndex = GetOpcodeNodeValue(parent);
     switch (nodeType)
     {
-    case VXOpcodeTreeNodeType::TABLE:
+    case OpcodeTreeNodeType::TABLE:
         assert(index < 256);
         return optreeTable[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_MOD:
+    case OpcodeTreeNodeType::MODRM_MOD:
         assert(index < 2);
         return optreeModrmMod[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_REG:
+    case OpcodeTreeNodeType::MODRM_REG:
         assert(index < 8);
         return optreeModrmReg[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODRM_RM:
+    case OpcodeTreeNodeType::MODRM_RM:
         assert(index < 8);
         return optreeModrmRm[tableIndex][index];
-    case VXOpcodeTreeNodeType::MANDATORY:
+    case OpcodeTreeNodeType::MANDATORY:
         assert(index < 4);
         return optreeMandatory[tableIndex][index];
-    case VXOpcodeTreeNodeType::X87:
+    case OpcodeTreeNodeType::X87:
         assert(index < 64);
         return optreeX87[tableIndex][index];
-    case VXOpcodeTreeNodeType::ADDRESS_SIZE:
+    case OpcodeTreeNodeType::ADDRESS_SIZE:
         assert(index < 3);
         return optreeAddressSize[tableIndex][index];
-    case VXOpcodeTreeNodeType::OPERAND_SIZE:
+    case OpcodeTreeNodeType::OPERAND_SIZE:
         assert(index < 3);
         return optreeOperandSize[tableIndex][index];
-    case VXOpcodeTreeNodeType::MODE:
+    case OpcodeTreeNodeType::MODE:
         assert(index < 2);
         return optreeMode[tableIndex][index];
-    case VXOpcodeTreeNodeType::VENDOR:
+    case OpcodeTreeNodeType::VENDOR:
         assert(index < 3);
         return optreeVendor[tableIndex][index];
-    case VXOpcodeTreeNodeType::AMD3DNOW:
+    case OpcodeTreeNodeType::AMD3DNOW:
         assert(index < 256);
         return optree3dnow[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEX:
+    case OpcodeTreeNodeType::VEX:
         assert(index < 16);
         return optreeVex[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEXW:
+    case OpcodeTreeNodeType::VEXW:
         assert(index < 2);
         return optreeVexW[tableIndex][index];
-    case VXOpcodeTreeNodeType::VEXL:
+    case OpcodeTreeNodeType::VEXL:
         assert(index < 2);
         return optreeVexL[tableIndex][index];
     default:
@@ -1695,10 +1695,10 @@ inline VXOpcodeTreeNode VDEGetOpcodeTreeChild(VXOpcodeTreeNode parent, uint16_t 
  * @param   node    The instruction definition node.
  * @return  Pointer to the instruction definition.
  */
-inline const VXInstructionDefinition* VDEGetInstructionDefinition(VXOpcodeTreeNode node)
+inline const InstructionDefinition* GetInstructionDefinition(OpcodeTreeNode node)
 {
-    assert(VDEGetOpcodeNodeType(node) == VXOpcodeTreeNodeType::INSTRUCTION_DEFINITION);
-    return &instrDefinitions[node & 0x0FFF];    
+    assert(GetOpcodeNodeType(node) == OpcodeTreeNodeType::INSTRUCTION_DEFINITION);
+    return& instrDefinitions[node&  0x0FFF];    
 }
 
 /**
@@ -1706,7 +1706,7 @@ inline const VXInstructionDefinition* VDEGetInstructionDefinition(VXOpcodeTreeNo
  * @param   mnemonic    The mnemonic.
  * @return  The instruction mnemonic string.
  */
-inline const char* VDEGetInstructionMnemonicString(VXInstructionMnemonic mnemonic)
+inline const char* GetInstructionMnemonicString(InstructionMnemonic mnemonic)
 {
     return instrMnemonicStrings[static_cast<uint16_t>(mnemonic)];
 }
@@ -1716,14 +1716,14 @@ inline const char* VDEGetInstructionMnemonicString(VXInstructionMnemonic mnemoni
  * @param   operandSize The defined operand size.
  * @return  The the numeric value for the simple operand size definition.
  */
-inline uint16_t VDEGetSimpleOperandSize(VXDefinedOperandSize operandSize)
+inline uint16_t GetSimpleOperandSize(DefinedOperandSize operandSize)
 {
     static uint16_t operandSizes[8] =
     {
         8, 16, 32, 64, 80, 12, 128, 256
     };
     uint16_t index = 
-        static_cast<uint8_t>(operandSize) - static_cast<uint8_t>(VXDefinedOperandSize::B);
+        static_cast<uint8_t>(operandSize) - static_cast<uint8_t>(DefinedOperandSize::B);
     assert(index < 8);
     return operandSizes[index];
 }
@@ -1733,9 +1733,9 @@ inline uint16_t VDEGetSimpleOperandSize(VXDefinedOperandSize operandSize)
  * @param   operandSize The defined operand size.
  * @return  The memory-size part of the operand size definition.
  */
-inline VXDefinedOperandSize VDEGetComplexOperandMemSize(VXDefinedOperandSize operandSize)
+inline DefinedOperandSize GetComplexOperandMemSize(DefinedOperandSize operandSize)
 {
-    return static_cast<VXDefinedOperandSize>(static_cast<uint8_t>(operandSize) & 0x0F);
+    return static_cast<DefinedOperandSize>(static_cast<uint8_t>(operandSize)&  0x0F);
 }
 
 /**
@@ -1743,11 +1743,13 @@ inline VXDefinedOperandSize VDEGetComplexOperandMemSize(VXDefinedOperandSize ope
  * @param   operandSize The defined operand size.
  * @return  The register-size part of the operand size definition.
  */
-inline VXDefinedOperandSize VDEGetComplexOperandRegSize(VXDefinedOperandSize operandSize)
+inline DefinedOperandSize GetComplexOperandRegSize(DefinedOperandSize operandSize)
 {
-    return static_cast<VXDefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4) & 0x0F);    
+    return static_cast<DefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4)&  0x0F);    
 }
 
 }
 
 }
+
+#endif /* _ZYDIS_OPCODETABLE_HPP_ */
