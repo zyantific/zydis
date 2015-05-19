@@ -33,8 +33,9 @@
 
 #define Zydis_EXPORTS
 
-#include <cstdbool>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "ZydisExportConfig.h"
 
 #ifdef __cplusplus

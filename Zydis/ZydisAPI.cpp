@@ -126,7 +126,7 @@ public:
     static FullClassT* fromInstance(ZydisClassT* instance)
     {
         return reinterpret_cast<FullClassT*>(
-            reinterpret_cast<uintptr_t>(instance) - offsetof(FullClassT, instance));
+            reinterpret_cast<uintptr_t>(instance) - sizeof(std::declval<FullClassT>().type));
     }
 };
 #pragma pack(pop)
