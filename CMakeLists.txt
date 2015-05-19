@@ -44,10 +44,10 @@ endif ()
 
 # Library
 set(headers
-	"Zydis/Zydis.hpp"
-	"Zydis/ZydisInstructionDecoder.hpp"
+    "Zydis/Zydis.hpp"
+    "Zydis/ZydisInstructionDecoder.hpp"
     "Zydis/ZydisInstructionFormatter.hpp"
-	"Zydis/ZydisOpcodeTable.hpp"
+    "Zydis/ZydisOpcodeTable.hpp"
     "Zydis/ZydisSymbolResolver.hpp"
     "Zydis/ZydisTypes.hpp"
     "Zydis/ZydisUtils.hpp")
@@ -57,12 +57,12 @@ set(sources
     "Zydis/ZydisOpcodeTable.cpp"
     "Zydis/ZydisSymbolResolver.cpp"
     "Zydis/ZydisUtils.cpp")
-	
+
 if (BUILD_C_BINDINGS)
-	set(headers ${headers}
-		"Zydis/ZydisAPI.h")
-	set(sources ${sources}
-		"Zydis/ZydisAPI.cpp")
+    set(headers ${headers}
+        "Zydis/ZydisAPI.h")
+    set(sources ${sources}
+        "Zydis/ZydisAPI.cpp")
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
@@ -76,8 +76,13 @@ include_directories(${PROJECT_BINARY_DIR})
 if (BUILD_EXAMPLES)
     include_directories("Zydis")
 
-    add_executable("C_SimpleDemo" "Examples/C/SimpleDemo/SimpleDemo.c")
-    target_link_libraries("C_SimpleDemo" "Zydis")
+    add_executable("SimpleDemo_CPP" "Examples/CPP/SimpleDemo/SimpleDemo.cpp")
+    target_link_libraries("SimpleDemo_CPP" "Zydis")
+
+    if (BUILD_C_BINDINGS)
+        add_executable("SimpleDemo_C" "Examples/C/SimpleDemo/SimpleDemo.c")
+        target_link_libraries("SimpleDemo_C" "Zydis")
+    endif ()
 endif ()
 
 set(CONFIGURED_ONCE TRUE CACHE INTERNAL "CMake has configured at least once.")

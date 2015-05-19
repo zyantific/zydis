@@ -48,8 +48,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 ## Compilation ##
  
-- While Zydis supports other compilers in theory, compilation has not been tested with any compiler other than MSVC12 (Visual Studio 2013)
-- Multi-compiler support might be added in the future
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C++14 compiler.
  
 ## License ##
 Zyan Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.

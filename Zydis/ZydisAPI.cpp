@@ -32,6 +32,8 @@
 #include "ZydisInstructionDecoder.hpp"
 #include "ZydisInstructionFormatter.hpp"
 
+/* Static Checks ================================================================================ */
+
 static_assert(
     sizeof(ZydisOperandInfo)     == sizeof(Zydis::OperandInfo),
     "struct size mismatch");
@@ -56,81 +58,229 @@ void ZydisSetLastError(uint32_t errorCode)
 
 /* Conversion Helper ============================================================================ */
 
-template <typename ContextT, typename InstanceT, typename... InstanceCtorArgsT>
-ContextT* ZydisCreateContextInplace(uint8_t contextType, InstanceCtorArgsT... args)
+typedef enum _ZydisClassType
 {
-    ContextT* context = new (std::nothrow) ContextT;
-    if (!context)
+    ZYDIS_CONTEXT_INPUT                         = 0x00000080,
+    ZYDIS_CONTEXT_INPUT_CUSTOM                  = ZYDIS_CONTEXT_INPUT                | 0x00000001,
+    ZYDIS_CONTEXT_INPUT_MEMORY                  = ZYDIS_CONTEXT_INPUT                | 0x00000002,
+    ZYDIS_CONTEXT_INSTRUCTIONDECODER            = 0x00000040,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER          = 0x00000020,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_CUSTOM   = ZYDIS_CONTEXT_INSTRUCTIONFORMATTER | 0x00000001,
+    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_INTEL    = ZYDIS_CONTEXT_INSTRUCTIONFORMATTER | 0x00000002,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER                = 0x00000010,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER_CUSTOM         = ZYDIS_CONTEXT_SYMBOLRESOLVER       | 0x00000001,
+    ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT          = ZYDIS_CONTEXT_SYMBOLRESOLVER       | 0x00000002
+} ZydisClassType;
+
+/**
+ * @brief   This helper class extends a zydis class with a type field. It is used by the C-bindings 
+ *          to check type correctness for input parameters.
+ * @param   ZydisClassT The zydis class type.
+ */
+#pragma pack(push, 1)    
+template <typename ZydisClassT>
+class ZydisClassEx final
+{
+private:
+    using FullClassT = ZydisClassEx<ZydisClassT>;
+public:
+    uint32_t type;
+    std::conditional_t<std::is_abstract<ZydisClassT>::value, char, ZydisClassT> instance;
+public:
+    /**
+     * @brief   Constructor
+     * @param   InstanceCtorArgsT   The argument types for the constructor of the zydis class. 
+     * @param   classType           The type of the zydis class.
+     * @param   args...             The arguments for the constructor of the zydis class.
+     */
+    template<
+        typename ZydisClassTT=ZydisClassT, 
+        std::enable_if_t<!std::is_abstract<ZydisClassTT>::value, int> = 0, 
+        typename... InstanceCtorArgsT>
+    ZydisClassEx(uint32_t classType, InstanceCtorArgsT... args) 
+        : type(classType)
+        , instance(args...) { };
+public:
+    /**
+     * @brief   Returns the class type.
+     * @return  The assigned class type.
+     */
+    uint32_t getClassType() const
+    {
+        return type;
+    }
+    /**
+     * @brief   Returns the zydis class instance.
+     * @return  Pointer to the zydis class instance.
+     */
+    ZydisClassT* getInstance()
+    {
+        return reinterpret_cast<ZydisClassT*>(&instance);
+    }
+public:
+    /**
+     * @brief   Casts the given instance to @c ZydisClassEx. 
+     * @param   instance    The zydis class instance.   
+     * @return  Pointer to the @c ZydisClassEx instance.
+     */
+    static FullClassT* fromInstance(ZydisClassT* instance)
+    {
+        return reinterpret_cast<FullClassT*>(
+            reinterpret_cast<uintptr_t>(instance) - offsetof(FullClassT, instance));
+    }
+};
+#pragma pack(pop)
+
+/**
+ * @brief   Creates a context by constructing a new wrapped zydis class instance.
+ * @param   ContextClassT       The context class.
+ * @param   ZydisClassT         The zydis class type.
+ * @param   ZydisClassCtorArgsT The argument types for the constructor of the zydis class.
+ * @param   classType           The type of the zydis class.
+ * @param   args...             The arguments for the constructor of the zydis class.
+ */
+template <typename ContextClassT, typename ZydisClassT, typename... ZydisClassCtorArgsT>
+ContextClassT* ZydisCreateContext(uint32_t classType, ZydisClassCtorArgsT... args)
+{
+    auto instanceEx = new (std::nothrow) ZydisClassEx<ZydisClassT>(classType, args...);
+    if (!instanceEx)
     {
         ZydisSetLastError(ZYDIS_ERROR_NOT_ENOUGH_MEMORY);
         return nullptr;
     }
-    context->type = contextType;
-    context->object = new (std::nothrow) InstanceT(args...);
-    if (!context->object)
-    {
-        delete context;
-        ZydisSetLastError(ZYDIS_ERROR_NOT_ENOUGH_MEMORY);
-        return nullptr;   
-    }
-    return context;        
+    // Return the original instance as context.
+    return reinterpret_cast<ContextClassT*>(instanceEx->getInstance());
 }
 
-template <typename ContextT, typename InstanceT>
-ContextT* ZydisCreateContext(uint8_t contextType, InstanceT* instance)
+/**
+ * @brief   Retrieves the zydis class instance of the given context.
+ * @param   ContextClassT       The context class.
+ * @param   ZydisClassT         The zydis class type.
+ * @param   expectedType        The expected type of the zydis class.
+ */
+template <typename ContextClassT, typename ZydisClassT>
+ZydisClassT* ZydisRetrieveInstance(uint32_t expectedType, const ContextClassT* context)
 {
-    ContextT* context = new (std::nothrow) ContextT;
-    if (!context)
-    {
-        ZydisSetLastError(ZYDIS_ERROR_NOT_ENOUGH_MEMORY);
-        return nullptr;
-    }
-    context->type = contextType;
-    context->object = instance;
-    return context;        
-}
-
-template <typename ContextT, typename InstanceT>
-bool ZydisFreeContext(const ContextT* context, uint8_t expectedType)
-{
-    InstanceT* instance = ZydisCast<ContextT, InstanceT>(context, expectedType);   
-    if (!instance)
-    {
-        return false;
-    }
-    delete instance;
-    delete context;
-    return true; 
-}
-
-template <typename ContextT, typename InstanceT>
-InstanceT* ZydisCast(const ContextT* input, uint8_t expectedType)
-{
-    if (!input || !input->object || ((input->type & expectedType) != expectedType))
+    auto instanceEx = ZydisClassEx<ZydisClassT>::fromInstance(
+        reinterpret_cast<ZydisClassT*>(const_cast<ContextClassT*>(context)));
+    if ((instanceEx->getClassType() & expectedType) != expectedType)
     {
         ZydisSetLastError(ZYDIS_ERROR_INVALID_PARAMETER);
         return nullptr;
     }
-    return reinterpret_cast<InstanceT*>(input->object);
+    // The context points to the same address as the instance. We just need to cast it.
+    return reinterpret_cast<ZydisClassT*>(const_cast<ContextClassT*>(context));
+}
+
+/**
+ * @brief   Creates a context by constructing a new wrapped zydis instance.
+ * @param   ContextClassT       The context class.
+ * @param   ZydisClassT         The zydis class type.
+ * @param   expectedType        The expected type of the zydis class.
+ */
+template <typename ContextClassT, typename ZydisClassT>
+bool ZydisFreeContext(uint32_t expectedType, const ContextClassT* context)
+{
+    auto instanceEx = ZydisClassEx<ZydisClassT>::fromInstance(
+        reinterpret_cast<ZydisClassT*>(const_cast<ContextClassT*>(context)));
+    if ((instanceEx->getClassType() & expectedType) != expectedType)
+    {
+        ZydisSetLastError(ZYDIS_ERROR_INVALID_PARAMETER);
+        return false;
+    }
+    delete instanceEx;
+    return true;
 }
 
 /* Input ======================================================================================== */
 
-ZydisInputContext* ZydisCreateCustomInput(/* TODO */)
+/**
+ * @brief   Helper class for custom input implementations.
+ */
+class ZydisCustomInput : public Zydis::BaseInput
 {
-    return nullptr;
+private:
+    void*                           m_userData;
+    ZydisCustomDestructorT          m_cbDestructor;
+    ZydisCustomInputPeekT           m_cbPeek;
+    ZydisCustomInputNextT           m_cbNext;
+    ZydisCustomInputIsEndOfInputT   m_cbIsEndOfInput;
+    ZydisCustomInputGetPositionT    m_cbGetPosition;
+    ZydisCustomInputSetPositionT    m_cbSetPosition;
+protected:
+    uint8_t internalInputPeek() override
+    {
+        return m_cbPeek(m_userData);
+    }
+
+    uint8_t internalInputNext() override
+    {
+        return m_cbNext(m_userData);
+    }
+public:
+    ZydisCustomInput(void* userData, 
+        ZydisCustomInputPeekT cbPeek, ZydisCustomInputNextT cbNext, 
+        ZydisCustomInputIsEndOfInputT cbIsEndOfInput, ZydisCustomInputGetPositionT cbGetPosition,
+        ZydisCustomInputSetPositionT cbSetPosition, ZydisCustomDestructorT cbDestructor)
+        : m_userData(userData)
+        , m_cbDestructor(cbDestructor)
+        , m_cbPeek(cbPeek)
+        , m_cbNext(cbNext)
+        , m_cbIsEndOfInput(cbIsEndOfInput)
+        , m_cbGetPosition(cbGetPosition)
+        , m_cbSetPosition(cbSetPosition)
+    {
+        
+    }
+
+    ~ZydisCustomInput() override
+    {
+        if (m_cbDestructor)
+        {
+            m_cbDestructor(m_userData);
+        }
+    }
+public:
+    bool isEndOfInput() const override
+    {
+        return m_cbIsEndOfInput(m_userData);
+    }
+
+    uint64_t getPosition() const override
+    {
+        return m_cbGetPosition(m_userData);
+    }
+
+    bool setPosition(uint64_t position) override
+    {
+        return m_cbSetPosition(m_userData, position);
+    }
+};
+
+ZydisInputContext* ZydisCreateCustomInput(void* userData, 
+    ZydisCustomInputPeekT cbPeek, ZydisCustomInputNextT cbNext, 
+    ZydisCustomInputIsEndOfInputT cbIsEndOfInput, ZydisCustomInputGetPositionT cbGetPosition,
+    ZydisCustomInputSetPositionT cbSetPosition, ZydisCustomDestructorT cbDestructor)
+{
+    if (!cbPeek || !cbNext || !cbIsEndOfInput || !cbGetPosition || !cbSetPosition)
+    {
+        ZydisSetLastError(ZYDIS_ERROR_INVALID_PARAMETER);
+        return nullptr;
+    }
+    return ZydisCreateContext<ZydisInputContext, ZydisCustomInput>(ZYDIS_CONTEXT_INPUT_CUSTOM, 
+        userData, cbPeek, cbNext, cbIsEndOfInput, cbGetPosition, cbSetPosition, cbDestructor);
 }
 
 ZydisInputContext* ZydisCreateMemoryInput(const void* buffer, size_t bufferLen)
 {
-    return ZydisCreateContextInplace<ZydisInputContext, Zydis::MemoryInput>(
-        ZYDIS_CONTEXT_INPUT | ZYDIS_CONTEXT_INPUT_MEMORY, buffer, bufferLen);
+    return ZydisCreateContext<ZydisInputContext, Zydis::MemoryInput>(
+        ZYDIS_CONTEXT_INPUT_MEMORY, buffer, bufferLen);
 }
 
 bool ZydisIsEndOfInput(const ZydisInputContext* input, bool* isEndOfInput)
 {
     Zydis::BaseInput* instance = 
-        ZydisCast<ZydisInputContext, Zydis::BaseInput>(input, ZYDIS_CONTEXT_INPUT);
+        ZydisRetrieveInstance<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
     if (!instance)
     {
         return false;
@@ -142,7 +292,7 @@ bool ZydisIsEndOfInput(const ZydisInputContext* input, bool* isEndOfInput)
 bool ZydisGetInputPosition(const ZydisInputContext* input, uint64_t* position)
 {
     Zydis::BaseInput* instance = 
-        ZydisCast<ZydisInputContext, Zydis::BaseInput>(input, ZYDIS_CONTEXT_INPUT);
+        ZydisRetrieveInstance<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
     if (!instance)
     {
         return false;
@@ -154,7 +304,7 @@ bool ZydisGetInputPosition(const ZydisInputContext* input, uint64_t* position)
 bool ZydisSetInputPosition(const ZydisInputContext* input, uint64_t position)
 {
     Zydis::BaseInput* instance = 
-        ZydisCast<ZydisInputContext, Zydis::BaseInput>(input, ZYDIS_CONTEXT_INPUT);
+        ZydisRetrieveInstance<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
     if (!instance)
     {
         return false;
@@ -165,23 +315,39 @@ bool ZydisSetInputPosition(const ZydisInputContext* input, uint64_t position)
 
 bool ZydisFreeInput(const ZydisInputContext* input)
 {
-    return ZydisFreeContext<ZydisInputContext, Zydis::BaseInput>(input, ZYDIS_CONTEXT_INPUT);
+    return ZydisFreeContext<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
 }
 
 /* InstructionDecoder =========================================================================== */
 
 ZydisInstructionDecoderContext* ZydisCreateInstructionDecoder()
 {
-    return ZydisCreateContextInplace<ZydisInstructionDecoderContext, Zydis::InstructionDecoder>(
+    return ZydisCreateContext<ZydisInstructionDecoderContext, Zydis::InstructionDecoder>(
         ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+}
+
+ZydisInstructionDecoderContext* ZydisCreateInstructionDecoderEx(
+    const ZydisInputContext* input, ZydisDisassemblerMode disassemblerMode,
+    ZydisInstructionSetVendor preferredVendor, uint64_t instructionPointer)
+{
+    Zydis::BaseInput* object = 
+        ZydisRetrieveInstance<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
+    if (!object)
+    {
+        return nullptr;
+    }
+    return ZydisCreateContext<ZydisInstructionDecoderContext, Zydis::InstructionDecoder>(
+        ZYDIS_CONTEXT_INSTRUCTIONDECODER, object, 
+        static_cast<Zydis::DisassemblerMode>(disassemblerMode), 
+        static_cast<Zydis::InstructionSetVendor>(preferredVendor), instructionPointer);
 }
 
 bool ZydisDecodeInstruction(const ZydisInstructionDecoderContext* decoder, 
     ZydisInstructionInfo* info)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -194,14 +360,13 @@ bool ZydisGetDataSource(const ZydisInstructionDecoderContext* decoder,
     ZydisInputContext** input)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
     }
-    *input = ZydisCreateContext<ZydisInputContext, 
-        Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, instance->getDataSource());
+    *input = reinterpret_cast<ZydisInputContext*>(instance->getDataSource());
     if (!input)
     {
         return false;
@@ -213,14 +378,14 @@ bool ZydisSetDataSource(const ZydisInstructionDecoderContext* decoder,
     ZydisInputContext* input)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
     }
     Zydis::BaseInput* object = 
-        ZydisCast<ZydisInputContext, Zydis::BaseInput>(input, ZYDIS_CONTEXT_INPUT);
+        ZydisRetrieveInstance<ZydisInputContext, Zydis::BaseInput>(ZYDIS_CONTEXT_INPUT, input);
     if (!object)
     {
         return false;
@@ -233,8 +398,8 @@ bool ZydisGetDisassemblerMode(const ZydisInstructionDecoderContext* decoder,
     ZydisDisassemblerMode* disassemblerMode)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -247,8 +412,8 @@ bool ZydisSetDisassemblerMode(const ZydisInstructionDecoderContext* decoder,
     ZydisDisassemblerMode disassemblerMode)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -261,8 +426,8 @@ bool ZydisGetPreferredVendor(const ZydisInstructionDecoderContext* decoder,
     ZydisInstructionSetVendor* preferredVendor)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -275,8 +440,8 @@ bool ZydisSetPreferredVendor(const ZydisInstructionDecoderContext* decoder,
     ZydisInstructionSetVendor preferredVendor)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -289,8 +454,8 @@ bool ZydisSetPreferredVendor(const ZydisInstructionDecoderContext* decoder,
     uint64_t* instructionPointer)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -303,8 +468,8 @@ bool ZydisSetInstructionPointer(const ZydisInstructionDecoderContext* decoder,
     uint64_t instructionPointer)
 {
     Zydis::InstructionDecoder* instance = 
-        ZydisCast<ZydisInstructionDecoderContext, 
-        Zydis::InstructionDecoder>(decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);
+        ZydisRetrieveInstance<ZydisInstructionDecoderContext, 
+        Zydis::InstructionDecoder>(ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);
     if (!instance)
     {
         return false;
@@ -315,9 +480,8 @@ bool ZydisSetInstructionPointer(const ZydisInstructionDecoderContext* decoder,
 
 bool ZydisFreeInstructionDecoder(const ZydisInstructionDecoderContext* decoder)
 {
-    return ZydisFreeContext<
-        ZydisInstructionDecoderContext, Zydis::InstructionDecoder>(
-        decoder, ZYDIS_CONTEXT_INSTRUCTIONDECODER);  
+    return ZydisFreeContext<ZydisInstructionDecoderContext, Zydis::InstructionDecoder>(
+        ZYDIS_CONTEXT_INSTRUCTIONDECODER, decoder);  
 }
 
 /* InstructionFormatter ========================================================================= */
@@ -329,17 +493,16 @@ ZydisInstructionFormatterContext* ZydisCreateCustomInstructionFormatter(/* TODO 
 
 ZydisInstructionFormatterContext* ZydisCreateIntelInstructionFormatter()
 {
-    return ZydisCreateContextInplace<ZydisInstructionFormatterContext, 
-        Zydis::IntelInstructionFormatter>(
-        ZYDIS_CONTEXT_INSTRUCTIONFORMATTER | ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_INTEL);    
+    return ZydisCreateContext<ZydisInstructionFormatterContext, 
+        Zydis::IntelInstructionFormatter>(ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_INTEL);    
 }
 
 bool ZydisFormatInstruction(const ZydisInstructionFormatterContext* formatter,
     const ZydisInstructionInfo* info, const char** instructionText)
 {
-    Zydis::IntelInstructionFormatter* instance = 
-        ZydisCast<ZydisInstructionFormatterContext, 
-        Zydis::IntelInstructionFormatter>(formatter, ZYDIS_CONTEXT_INSTRUCTIONFORMATTER);
+    Zydis::BaseInstructionFormatter* instance = 
+        ZydisRetrieveInstance<ZydisInstructionFormatterContext, 
+        Zydis::BaseInstructionFormatter>(ZYDIS_CONTEXT_INSTRUCTIONFORMATTER, formatter);
     if (!instance)
     {
         return false;
@@ -352,15 +515,14 @@ bool ZydisFormatInstruction(const ZydisInstructionFormatterContext* formatter,
 bool ZydisGetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
     ZydisSymbolResolverContext** resolver)
 {
-    Zydis::IntelInstructionFormatter* instance = 
-        ZydisCast<ZydisInstructionFormatterContext, 
-        Zydis::IntelInstructionFormatter>(formatter, ZYDIS_CONTEXT_INSTRUCTIONFORMATTER);
+    Zydis::BaseInstructionFormatter* instance = 
+        ZydisRetrieveInstance<ZydisInstructionFormatterContext, 
+        Zydis::BaseInstructionFormatter>(ZYDIS_CONTEXT_INSTRUCTIONFORMATTER, formatter);
     if (!instance)
     {
         return false;
     } 
-    *resolver = ZydisCreateContext<ZydisSymbolResolverContext, 
-        Zydis::BaseSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER, instance->getSymbolResolver());
+    *resolver = reinterpret_cast<ZydisSymbolResolverContext*>(instance->getSymbolResolver());
     if (!resolver)
     {
         return false;
@@ -371,16 +533,16 @@ bool ZydisGetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
 bool ZydisSetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
     ZydisSymbolResolverContext* resolver)
 {
-    Zydis::IntelInstructionFormatter* instance = 
-        ZydisCast<ZydisInstructionFormatterContext, 
-        Zydis::IntelInstructionFormatter>(formatter, ZYDIS_CONTEXT_INSTRUCTIONFORMATTER);
+    Zydis::BaseInstructionFormatter* instance = 
+        ZydisRetrieveInstance<ZydisInstructionFormatterContext, 
+        Zydis::BaseInstructionFormatter>(ZYDIS_CONTEXT_INSTRUCTIONFORMATTER, formatter);
     if (!instance)
     {
         return false;
     } 
     Zydis::BaseSymbolResolver* object = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::BaseSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::BaseSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER, resolver);
     if (!object)
     {
         return false;
@@ -391,9 +553,8 @@ bool ZydisSetSymbolResolver(const ZydisInstructionFormatterContext* formatter,
 
 bool ZydisFreeInstructionFormatter(const ZydisInstructionFormatterContext* formatter)
 {
-    return ZydisFreeContext<
-        ZydisInstructionFormatterContext, Zydis::BaseInstructionFormatter>(
-        formatter, ZYDIS_CONTEXT_INSTRUCTIONFORMATTER);
+    return ZydisFreeContext<ZydisInstructionFormatterContext, Zydis::BaseInstructionFormatter>(
+        ZYDIS_CONTEXT_INSTRUCTIONFORMATTER, formatter);
 }
 
 /* SymbolResolver =============================================================================== */
@@ -405,16 +566,16 @@ ZydisSymbolResolverContext* ZydisCreateCustomSymbolResolver(/*TODO*/)
 
 ZydisSymbolResolverContext* ZydisCreateExactSymbolResolver()
 {
-    return ZydisCreateContextInplace<ZydisSymbolResolverContext, Zydis::ExactSymbolResolver>(
-        ZYDIS_CONTEXT_SYMBOLRESOLVER | ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+    return ZydisCreateContext<ZydisSymbolResolverContext, Zydis::ExactSymbolResolver>(
+        ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
 }
 
 bool ZydisResolveSymbol(const ZydisSymbolResolverContext* resolver, 
     const ZydisInstructionInfo* info, uint64_t address, const char** symbol, uint64_t* offset)
 {
     Zydis::BaseSymbolResolver* instance = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::BaseSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::BaseSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER, resolver);
     if (!instance)
     {
         return false;
@@ -428,8 +589,8 @@ bool ZydisExactSymbolResolverContainsSymbol(
     const ZydisSymbolResolverContext* resolver, uint64_t address, bool* containsSymbol)
 {
     Zydis::ExactSymbolResolver* instance = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT, resolver);
     if (!instance)
     {
         return false;
@@ -442,8 +603,8 @@ bool ZydisExactSymbolResolverSetSymbol(const ZydisSymbolResolverContext* resolve
     uint64_t address, const char* name)
 {
     Zydis::ExactSymbolResolver* instance = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT, resolver);
     if (!instance)
     {
         return false;
@@ -456,8 +617,8 @@ bool ZydisExactSymbolResolverRemoveSymbol(const ZydisSymbolResolverContext* reso
     uint64_t address)
 {
     Zydis::ExactSymbolResolver* instance = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT, resolver);
     if (!instance)
     {
         return false;
@@ -469,8 +630,8 @@ bool ZydisExactSymbolResolverRemoveSymbol(const ZydisSymbolResolverContext* reso
 bool ZydisExactSymbolResolverClear(const ZydisSymbolResolverContext* resolver)
 {
     Zydis::ExactSymbolResolver* instance = 
-        ZydisCast<ZydisSymbolResolverContext, 
-        Zydis::ExactSymbolResolver>(resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT);
+        ZydisRetrieveInstance<ZydisSymbolResolverContext, 
+        Zydis::ExactSymbolResolver>(ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT, resolver);
     if (!instance)
     {
         return false;
@@ -482,7 +643,7 @@ bool ZydisExactSymbolResolverClear(const ZydisSymbolResolverContext* resolver)
 bool ZydisFreeSymbolResolver(const ZydisSymbolResolverContext* resolver)
 {
     return ZydisFreeContext<ZydisSymbolResolverContext, Zydis::BaseSymbolResolver>(
-        resolver, ZYDIS_CONTEXT_SYMBOLRESOLVER);
+        ZYDIS_CONTEXT_SYMBOLRESOLVER, resolver);
 }
 
 /* ============================================================================================== */

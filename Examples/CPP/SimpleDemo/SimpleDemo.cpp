@@ -28,30 +28,10 @@
 
 ***************************************************************************************************/
 
-#include <ZydisAPI.h>
-
-#include <stdio.h>
 #include <stdint.h>
-
-void PrintZydisError()
-{
-    puts("Zydis error: ");
-    switch (ZydisGetLastError())
-    {
-    case ZYDIS_ERROR_SUCCESS:
-        puts("success");
-        break;
-    case ZYDIS_ERROR_UNKNOWN:
-        puts("unknown error");
-        break;
-    case ZYDIS_ERROR_NOT_ENOUGH_MEMORY:
-        puts("not enough memory");
-        break;
-    case ZYDIS_ERROR_INVALID_PARAMETER:
-        puts("invalid parameter");
-        break;
-    }
-}
+#include <iostream>
+#include <iomanip>
+#include <Zydis.hpp>
 
 int main()
 {
@@ -82,117 +62,48 @@ int main()
         0x5F, 0x41, 0x5E, 0x41, 0x5D, 0x41, 0x5C, 0x5F, 0xC3    
     };
 
-    ZydisInstructionInfo info;
-    ZydisInstructionDecoderContext* decoder = NULL;
-    ZydisInstructionFormatterContext* formatter = NULL;
-    ZydisInputContext* input32 = NULL;
-    ZydisInputContext* input64 = NULL;
+    Zydis::InstructionInfo info;
+    Zydis::InstructionDecoder decoder;
+    Zydis::IntelInstructionFormatter formatter;
+    Zydis::MemoryInput input32(&data32[0], sizeof(data32));
+    Zydis::MemoryInput input64(&data64[0], sizeof(data64));
 
-    // Create decoder and formatter instances
-    decoder = ZydisCreateInstructionDecoder();
-    if (!decoder)
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
+    decoder.setDataSource(&input32);
+    decoder.setInstructionPointer(0x77091852);
+    std::cout << "32 bit test ..." << std::endl << std::endl;
+    while (decoder.decodeInstruction(info))
     {
-        goto ZydisError;
-    }
-    formatter = ZydisCreateIntelInstructionFormatter();
-    if (!formatter)
-    {
-        goto FreeZydisDecoder;
-    }
-
-    // Create memory data sources
-    input32 = ZydisCreateMemoryInput(&data32[0], sizeof(data32));
-    if (!input32)
-    {
-        goto FreeZydisFormatter;
-    }
-    input64 = ZydisCreateMemoryInput(&data64[0], sizeof(data64));
-    if (!input64)
-    {
-        goto FreeZydisInput32;
-    }
-
-    // Set decoder properties
-    ZydisSetDisassemblerMode(decoder, ZYDIS_DM_M32BIT);
-    ZydisSetDataSource(decoder, input32);
-    ZydisSetInstructionPointer(decoder, 0x77091852);
-
-    // Decode and format all instructions
-    puts("32 bit test ...\n\n");
-    while (ZydisDecodeInstruction(decoder, &info))
-    {
-        printf("%08X ", (uint32_t)(info.instrAddress & 0xFFFFFFFF));
-        if (info.flags & ZYDIS_IF_ERROR_MASK)
+        std::cout << std::hex << std::setw(8) << std::setfill('0') << std::uppercase 
+                  << info.instrAddress << " "; 
+        if (info.flags & Zydis::IF_ERROR_MASK)
         {
-            printf("db %02X\n", info.data[0]);
-        } 
-        else
+            std::cout << "db " << std::setw(2) << info.data[0];    
+        } else
         {
-            const char* instructionText;
-            if (!ZydisFormatInstruction(formatter, &info, &instructionText))
-            {
-                goto FreeZydisInput64;
-            }
-            printf("%s\n", instructionText);
+            std::cout << formatter.formatInstruction(info) << std::endl;
         }
     }
-    // Check if an error occured in ZydisDecodeInstruction or the end of the input was reached.
-    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
+
+    std::cout << std::endl;
+
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M64BIT);
+    decoder.setDataSource(&input64);
+    decoder.setInstructionPointer(0x00007FFA39A81930ull);
+    std::cout << "64 bit test ..." << std::endl << std::endl;
+    while (decoder.decodeInstruction(info))
     {
-        goto FreeZydisInput64;
-    }
-
-    puts("\n");
-
-    // Set decoder properties
-    ZydisSetDisassemblerMode(decoder, ZYDIS_DM_M64BIT);
-    ZydisSetDataSource(decoder, input64);
-    ZydisSetInstructionPointer(decoder, 0x00007FFA39A81930ull);
-
-    // Decode and format all instructions
-    puts("64 bit test ...\n\n");
-    while (ZydisDecodeInstruction(decoder, &info))
-    {
-        printf("%016llX ", info.instrAddress); 
-        if (info.flags & ZYDIS_IF_ERROR_MASK)
+        std::cout << std::hex << std::setw(16) << std::setfill('0') << std::uppercase 
+                  << info.instrAddress << " "; 
+        if (info.flags & Zydis::IF_ERROR_MASK)
         {
-            printf("db %02X", info.data[0]);
-        } 
-        else
+            std::cout << "db " << std::setw(2) << info.data[0];    
+        } else
         {
-            const char* instructionText;
-            if (!ZydisFormatInstruction(formatter, &info, &instructionText))
-            {
-                goto FreeZydisInput64;
-            }
-            printf("%s\n", instructionText);
+            std::cout << formatter.formatInstruction(info) << std::endl;
         }
-    } 
-    // Check if an error occured in ZydisDecodeInstruction or the end of the input was reached.
-    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
-    {
-        goto FreeZydisInput64;
     }
 
-    // Cleanup code
-FreeZydisInput64:
-    ZydisFreeInput(input64);
-FreeZydisInput32:
-    ZydisFreeInput(input32);
-FreeZydisFormatter:
-    ZydisFreeInstructionFormatter(formatter);
-FreeZydisDecoder:
-    ZydisFreeInstructionDecoder(decoder);
-ZydisError:
-
-    if (ZydisGetLastError() != ZYDIS_ERROR_SUCCESS)
-    {
-        PrintZydisError();
-        getchar();
-        return 1;
-    }
-
-    getchar();
-    
+    std::cin.get();
     return 0;
 }

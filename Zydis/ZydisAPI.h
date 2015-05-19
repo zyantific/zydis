@@ -42,7 +42,7 @@ extern "C"
 {
 #endif
 
-/* Types ======================================================================================== */
+/* Zydis Types ================================================================================== */
 
 /**
  * @brief   Values that represent additional flags of a decoded instruction.
@@ -543,45 +543,37 @@ typedef struct _ZydisInstructionInfo
     uint64_t instrPointer;
 } ZydisInstructionInfo;
 
-/* Context Types ================================================================================ */
+/* Context Declarations ========================================================================= */
 
-typedef enum _ZydisContextType
-{
-    ZYDIS_CONTEXT_INPUT                         = 0x0080,
-    ZYDIS_CONTEXT_INPUT_CUSTOM                  = ZYDIS_CONTEXT_INPUT                   | 0x0001,
-    ZYDIS_CONTEXT_INPUT_MEMORY                  = ZYDIS_CONTEXT_INPUT                   | 0x0002,
-    ZYDIS_CONTEXT_INSTRUCTIONDECODER            = 0x0040,
-    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER          = 0x0020,
-    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_CUSTOM   = ZYDIS_CONTEXT_INSTRUCTIONFORMATTER    | 0x0001,
-    ZYDIS_CONTEXT_INSTRUCTIONFORMATTER_INTEL    = ZYDIS_CONTEXT_INSTRUCTIONFORMATTER    | 0x0002,
-    ZYDIS_CONTEXT_SYMBOLRESOLVER                = 0x0010,
-    ZYDIS_CONTEXT_SYMBOLRESOLVER_CUSTOM         = ZYDIS_CONTEXT_SYMBOLRESOLVER          | 0x0001,
-    ZYDIS_CONTEXT_SYMBOLRESOLVER_EXACT          = ZYDIS_CONTEXT_SYMBOLRESOLVER          | 0x0002
-} ZydisContextType;
+typedef struct _ZydisInputContext { int dummy; } ZydisInputContext;
 
-typedef struct _ZydisInputContext 
-{ 
-    uint8_t type; 
-    void* object; 
-} ZydisInputContext;
+typedef struct _ZydisInstructionDecoderContext { int dummy; } ZydisInstructionDecoderContext;
 
-typedef struct _ZydisInstructionDecoderContext 
-{ 
-    uint8_t type; 
-    void* object; 
-} ZydisInstructionDecoderContext;
+typedef struct _ZydisInstructionFormatterContext { int dummy; } ZydisInstructionFormatterContext;
 
-typedef struct _ZydisInstructionFormatterContext 
-{ 
-    uint8_t type; 
-    void* object; 
-} ZydisInstructionFormatterContext;
+typedef struct _ZydisSymbolResolverContext { int dummy; } ZydisSymbolResolverContext;
 
-typedef struct _ZydisSymbolResolverContext 
-{ 
-    uint8_t type; 
-    void* object; 
-} ZydisSymbolResolverContext;
+/* Callback Declarations ======================================================================== */
+
+/* General -------------------------------------------------------------------------------------- */
+
+typedef void (*ZydisCustomDestructorT)(void* userData);
+
+/* Input ---------------------------------------------------------------------------------------- */
+
+typedef uint8_t (*ZydisCustomInputPeekT)(void* userData);  
+typedef uint8_t (*ZydisCustomInputNextT)(void* userData); 
+typedef bool (*ZydisCustomInputIsEndOfInputT)(void* userData); 
+typedef uint64_t (*ZydisCustomInputGetPositionT)(void* userData); 
+typedef bool (*ZydisCustomInputSetPositionT)(void* userData, uint64_t position); 
+
+/* InstructionFormatter ------------------------------------------------------------------------- */
+
+// TODO:
+
+/* SymbolResolver ------------------------------------------------------------------------------- */
+
+// TODO:
 
 /* Error Handling =============================================================================== */
 
@@ -597,7 +589,10 @@ ZYDIS_EXPORT uint32_t ZydisGetLastError();
 
 /* Input ======================================================================================== */
 
-ZYDIS_EXPORT ZydisInputContext* ZydisCreateCustomInput(/* TODO */);
+ZYDIS_EXPORT ZydisInputContext* ZydisCreateCustomInput(void* userData, 
+    ZydisCustomInputPeekT cbPeek, ZydisCustomInputNextT cbNext, 
+    ZydisCustomInputIsEndOfInputT cbIsEndOfInput, ZydisCustomInputGetPositionT cbGetPosition,
+    ZydisCustomInputSetPositionT cbSetPosition, ZydisCustomDestructorT cbDestructor);
 
 ZYDIS_EXPORT ZydisInputContext* ZydisCreateMemoryInput(const void* buffer, size_t bufferLen);
 
@@ -632,6 +627,10 @@ typedef enum _ZydisInstructionSetVendor /* : uint8_t */
 } ZydisInstructionSetVendor;
 
 ZYDIS_EXPORT ZydisInstructionDecoderContext* ZydisCreateInstructionDecoder();
+
+ZYDIS_EXPORT ZydisInstructionDecoderContext* ZydisCreateInstructionDecoderEx(
+    const ZydisInputContext* input, ZydisDisassemblerMode disassemblerMode,
+    ZydisInstructionSetVendor preferredVendor, uint64_t instructionPointer);
 
 ZYDIS_EXPORT bool ZydisDecodeInstruction(const ZydisInstructionDecoderContext* decoder, 
     ZydisInstructionInfo* info);
