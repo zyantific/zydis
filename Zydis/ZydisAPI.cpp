@@ -85,6 +85,7 @@ private:
     using FullClassT = ZydisClassEx<ZydisClassT>;
 public:
     uint32_t type;
+    uint32_t align;
     std::conditional_t<std::is_abstract<ZydisClassT>::value, char, ZydisClassT> instance;
 public:
     /**
@@ -99,6 +100,7 @@ public:
         typename... InstanceCtorArgsT>
     ZydisClassEx(uint32_t classType, InstanceCtorArgsT... args) 
         : type(classType)
+        , align(0)
         , instance(args...) { };
 public:
     /**
@@ -126,7 +128,9 @@ public:
     static FullClassT* fromInstance(ZydisClassT* instance)
     {
         return reinterpret_cast<FullClassT*>(
-            reinterpret_cast<uintptr_t>(instance) - sizeof(std::declval<FullClassT>().type));
+            reinterpret_cast<uintptr_t>(instance) 
+                - sizeof(std::declval<FullClassT>().type)
+                - sizeof(std::declval<FullClassT>().align));
     }
 };
 #pragma pack(pop)

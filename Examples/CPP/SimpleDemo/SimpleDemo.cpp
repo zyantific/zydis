@@ -78,7 +78,7 @@ int main()
                   << info.instrAddress << " "; 
         if (info.flags & Zydis::IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.data[0];    
+            std::cout << "db " << std::setw(2) << static_cast<int>(info.data[0]) << std::endl;    
         } else
         {
             std::cout << formatter.formatInstruction(info) << std::endl;
@@ -97,7 +97,7 @@ int main()
                   << info.instrAddress << " "; 
         if (info.flags & Zydis::IF_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) << info.data[0];    
+            std::cout << "db " << std::setw(2) << static_cast<int>(info.data[0]) << std::endl;    
         } else
         {
             std::cout << formatter.formatInstruction(info) << std::endl;

@@ -31,8 +31,6 @@
 #ifndef _ZYDIS_API_H_
 #define _ZYDIS_API_H_
 
-#define Zydis_EXPORTS
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>

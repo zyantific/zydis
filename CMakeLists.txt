@@ -16,7 +16,7 @@ if (NOT CONFIGURED_ONCE)
         set(compiler_specific "-Werror")
         set(compiler_specific_cxx "-std=c++14")
     elseif (MSVC)
-        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS")
+        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /GR-")
     endif ()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
@@ -27,7 +27,7 @@ endif ()
 
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
 # to generate with a statically linked CRT when we build as a static library.
-if (MSVC AND NOT BUILD_SHARED_LIBS AND NOT FORCE_SHARED_CRT)
+if (MSVC AND NOT FORCE_SHARED_CRT)
     set(manipulated_vars
         CMAKE_CXX_FLAGS_DEBUG
         CMAKE_CXX_FLAGS_MINSIZEREL
@@ -58,6 +58,11 @@ set(sources
     "Zydis/ZydisSymbolResolver.cpp"
     "Zydis/ZydisUtils.cpp")
 
+    if (BUILD_SHARED_LIBS AND WIN32)
+        set(sources ${sources}
+            "Zydis/Zydis.rc")
+    endif ()
+
 if (BUILD_C_BINDINGS)
     set(headers ${headers}
         "Zydis/ZydisAPI.h")
@@ -66,6 +71,7 @@ if (BUILD_C_BINDINGS)
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
+set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "Zydis_EXPORTS")
 generate_export_header(
     "Zydis" 
     BASE_NAME "ZYDIS"
@@ -78,6 +84,8 @@ if (BUILD_EXAMPLES)
 
     add_executable("SimpleDemo_CPP" "Examples/CPP/SimpleDemo/SimpleDemo.cpp")
     target_link_libraries("SimpleDemo_CPP" "Zydis")
+    add_executable("CustomDataSource_CPP" "Examples/CPP/CustomDataSource/CustomDataSource.cpp")
+    target_link_libraries("CustomDataSource_CPP" "Zydis")
 
     if (BUILD_C_BINDINGS)
         add_executable("SimpleDemo_C" "Examples/C/SimpleDemo/SimpleDemo.c")
