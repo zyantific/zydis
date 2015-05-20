@@ -31,6 +31,7 @@
 #ifndef _ZYDIS_SYMBOLRESOLVER_HPP_
 #define _ZYDIS_SYMBOLRESOLVER_HPP_
 
+#include <string>
 #include <unordered_map>
 #include "ZydisTypes.hpp"
 

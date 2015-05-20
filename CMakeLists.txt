@@ -14,7 +14,7 @@ if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         set(compiler_specific "-Werror")
-        set(compiler_specific_cxx "-std=c++0x")
+        set(compiler_specific_cxx "-std=c++14")
     elseif (MSVC)
         set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS")
     endif ()
