@@ -1,0 +1,28 @@
+language: cpp
+compiler: clang
+
+script: make
+
+branches:
+  only:
+    - master
+
+before_install:
+  # Install clang 3.6
+  - echo "yes" | sudo add-apt-repository 'deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu precise main'
+  - echo "yes" | sudo add-apt-repository 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.6 main'
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -;
+  - sudo apt-get update
+  - sudo apt-get install -qq --allow-unauthenticated llvm-3.6 llvm-3.6-dev clang-3.6 libstdc++-4.8-dev lib32stdc++6
+  # Install cmake 3.2
+  - wget http://www.cmake.org/files/v3.2/cmake-3.2.2-Linux-i386.sh
+  - chmod a+x cmake-3.2.2-Linux-i386.sh
+  - sudo ./cmake-3.2.2-Linux-i386.sh --skip-license --prefix=/usr
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - make
