@@ -154,7 +154,7 @@ int main()
     puts("64 bit test ...\n\n");
     while (ZydisDecodeInstruction(decoder, &info))
     {
-        printf("%016"PRIu64"X ", info.instrAddress); 
+        printf("%016"PRIX64" ", info.instrAddress); 
         if (info.flags & ZYDIS_IF_ERROR_MASK)
         {
             printf("db %02X", info.data[0]);
