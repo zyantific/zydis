@@ -58,10 +58,10 @@ set(sources
     "Zydis/ZydisSymbolResolver.cpp"
     "Zydis/ZydisUtils.cpp")
 
-    if (BUILD_SHARED_LIBS AND WIN32)
-        set(sources ${sources}
-            "Zydis/Zydis.rc")
-    endif ()
+if (BUILD_SHARED_LIBS AND WIN32)
+    set(sources ${sources}
+        "Zydis/VersionInfo.rc")
+endif ()
 
 if (BUILD_C_BINDINGS)
     set(headers ${headers}
