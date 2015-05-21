@@ -33,6 +33,7 @@
 #include <cstdarg>
 #include <cctype>
 #include <cstdio>
+#include <cstring>
 
 namespace Zydis
 {
