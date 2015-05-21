@@ -35,7 +35,7 @@ int _tmain(int argc, _TCHAR* argv[])
     Zydis::MemoryInput input(&data[0], sizeof(data));
     Zydis::InstructionInfo info;
     Zydis::InstructionDecoder decoder;
-    decoder.setDisassemblerMode(Zydis::ZydisMode::M32BIT);
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
     decoder.setDataSource(&input);
     decoder.setInstructionPointer(0);
     Zydis::IntelInstructionFormatter formatter;
