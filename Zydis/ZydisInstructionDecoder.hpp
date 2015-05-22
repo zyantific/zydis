@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief Instruction decoder classes.
+ */
+
 #ifndef _ZYDIS_INSTRUCTIONDECODER_HPP_
 #define _ZYDIS_INSTRUCTIONDECODER_HPP_
 

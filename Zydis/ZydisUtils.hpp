@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief Utility functions.
+ */
+
 #ifndef _ZYDIS_UTILS_HPP_
 #define _ZYDIS_UTILS_HPP_
 

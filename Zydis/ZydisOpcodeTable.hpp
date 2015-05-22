@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief The opcode table definition, mostly internal stuff.
+ */
+
 #ifndef _ZYDIS_OPCODETABLE_HPP_
 #define _ZYDIS_OPCODETABLE_HPP_
 

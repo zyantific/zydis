@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief Classes for symbol resolving in the disassembly.
+ */
+
 #ifndef _ZYDIS_SYMBOLRESOLVER_HPP_
 #define _ZYDIS_SYMBOLRESOLVER_HPP_
 
