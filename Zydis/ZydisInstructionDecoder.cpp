@@ -61,7 +61,7 @@ bool InstructionDecoder::decodeRegisterOperand(InstructionInfo& info,
             break;
         case 8:
             // TODO: Only REX? Or VEX too?
-            if (m_disassemblerMode == DisassemblerMode::M64BIT&& (info.flags&  IF_PREFIX_REX)) 
+            if (m_disassemblerMode == DisassemblerMode::M64BIT && (info.flags & IF_PREFIX_REX)) 
             {
                 if (registerId >= 4)
                 {
@@ -88,7 +88,7 @@ bool InstructionDecoder::decodeRegisterOperand(InstructionInfo& info,
         break;
     case RegisterClass::MMX: 
         reg = static_cast<Register>(
-            static_cast<uint16_t>(Register::MM0) + (registerId&  0x07));
+            static_cast<uint16_t>(Register::MM0) + (registerId & 0x07));
         break;
     case RegisterClass::CONTROL: 
         reg = static_cast<Register>(static_cast<uint16_t>(Register::CR0) + registerId);
@@ -97,13 +97,13 @@ bool InstructionDecoder::decodeRegisterOperand(InstructionInfo& info,
         reg = static_cast<Register>(static_cast<uint16_t>(Register::DR0) + registerId);
         break;
     case RegisterClass::SEGMENT: 
-        if ((registerId&  7) > 5) 
+        if ((registerId & 7) > 5) 
         {
             info.flags |= IF_ERROR_OPERAND;
             return false;
         }
         reg = static_cast<Register>(
-            static_cast<uint16_t>(Register::ES) + (registerId&  0x07));
+            static_cast<uint16_t>(Register::ES) + (registerId & 0x07));
         break;
     case RegisterClass::XMM:  
         reg = static_cast<Register>(registerId + static_cast<uint16_t>(
@@ -125,7 +125,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
     {
         return false;
     }
-    assert(info.flags&  IF_MODRM);
+    assert(info.flags & IF_MODRM);
     // Decode register operand
     if (info.modrm_mod == 3)
     {
@@ -147,10 +147,10 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
                 Register::SI, Register::DI, Register::SI, Register::DI,
                 Register::NONE, Register::NONE, Register::NONE, 
                 Register::NONE };
-            operand.base = static_cast<Register>(bases[info.modrm_rm_ext&  0x07]);
-            operand.index = static_cast<Register>(indices[info.modrm_rm_ext&  0x07]);
+            operand.base = static_cast<Register>(bases[info.modrm_rm_ext & 0x07]);
+            operand.index = static_cast<Register>(indices[info.modrm_rm_ext & 0x07]);
             operand.scale = 0;
-            if (info.modrm_mod == 0&& info.modrm_rm_ext == 6) {
+            if (info.modrm_mod == 0 && info.modrm_rm_ext == 6) {
                 offset = 16;
                 operand.base = Register::NONE;
             } else if (info.modrm_mod == 1) {
@@ -181,7 +181,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
         default:
             assert(0);
         }
-        if ((info.modrm_rm_ext&  0x07) == 4)
+        if ((info.modrm_rm_ext & 0x07) == 4)
         {
             if (!decodeSIB(info))
             {
@@ -193,7 +193,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
             operand.index = 
                 static_cast<Register>(static_cast<uint16_t>(Register::EAX) + 
                 info.sib_index_ext);
-            operand.scale = (1 << info.sib_scale)&  ~1;
+            operand.scale = (1 << info.sib_scale) & ~1;
             if (operand.index == Register::ESP)  
             {
                 operand.index = Register::NONE;
@@ -225,7 +225,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
         switch (info.modrm_mod)
         {
         case 0:
-            if ((info.modrm_rm_ext&  0x07) == 5)
+            if ((info.modrm_rm_ext & 0x07) == 5)
             {
                 info.flags |= IF_RELATIVE;
                 operand.base = Register::RIP;
@@ -241,7 +241,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
         default:
             assert(0);
         }
-        if ((info.modrm_rm_ext&  0x07) == 4)
+        if ((info.modrm_rm_ext & 0x07) == 4)
         {
             if (!decodeSIB(info))
             {
@@ -259,7 +259,7 @@ bool InstructionDecoder::decodeRegisterMemoryOperand(InstructionInfo& info,
                 operand.scale = 0;
             } else
             {
-                operand.scale = (1 << info.sib_scale)&  ~1;
+                operand.scale = (1 << info.sib_scale) & ~1;
             }
             if ((operand.base == Register::RBP) || (operand.base == Register::R13))
             {
@@ -318,7 +318,7 @@ bool InstructionDecoder::decodeImmediate(InstructionInfo& info, OperandInfo& ope
             // TODO: Maybe return false instead of assert
             assert(0);
     }
-    if (!operand.lval.uqword&& (info.flags&  IF_ERROR_MASK))
+    if (!operand.lval.uqword && (info.flags & IF_ERROR_MASK))
     {
         return false;
     }
@@ -350,7 +350,7 @@ bool InstructionDecoder::decodeDisplacement(InstructionInfo& info,
         // TODO: Maybe return false instead of assert
         assert(0);
     }
-    if (!operand.lval.uqword&& (info.flags&  IF_ERROR_MASK))
+    if (!operand.lval.uqword && (info.flags & IF_ERROR_MASK))
     {
         return false;
     }
@@ -359,17 +359,17 @@ bool InstructionDecoder::decodeDisplacement(InstructionInfo& info,
 
 bool InstructionDecoder::decodeModrm(InstructionInfo& info)
 {
-    if (!(info.flags&  IF_MODRM))
+    if (!(info.flags & IF_MODRM))
     {
         info.modrm = inputNext(info);
-        if (!info.modrm&& (info.flags&  IF_ERROR_MASK))
+        if (!info.modrm && (info.flags & IF_ERROR_MASK))
         {
             return false;
         }
         info.flags |= IF_MODRM;
-        info.modrm_mod = (info.modrm >> 6)&  0x03;
-        info.modrm_reg = (info.modrm >> 3)&  0x07;
-        info.modrm_rm  = (info.modrm >> 0)&  0x07;
+        info.modrm_mod = (info.modrm >> 6) & 0x03;
+        info.modrm_reg = (info.modrm >> 3) & 0x07;
+        info.modrm_rm  = (info.modrm >> 0) & 0x07;
     }
     // The @c decodeModrm method might get called multiple times during the opcode- and the
     // operand decoding, but the effective REX/VEX fields are not initialized before the end of  
@@ -382,19 +382,19 @@ bool InstructionDecoder::decodeModrm(InstructionInfo& info)
 
 bool InstructionDecoder::decodeSIB(InstructionInfo& info)
 {
-    assert(info.flags&  IF_MODRM);
-    assert((info.modrm_rm&  0x7) == 4);
-    if (!(info.flags&  IF_SIB))
+    assert(info.flags & IF_MODRM);
+    assert((info.modrm_rm & 0x7) == 4);
+    if (!(info.flags & IF_SIB))
     {
         info.sib = inputNext(info);
-        if (!info.sib&& (info.flags&  IF_ERROR_MASK))
+        if (!info.sib && (info.flags & IF_ERROR_MASK))
         {
             return false;
         }
         info.flags |= IF_SIB;
-        info.sib_scale  = (info.sib >> 6)&  0x03;
-        info.sib_index  = (info.sib >> 3)&  0x07;
-        info.sib_base   = (info.sib >> 0)&  0x07;
+        info.sib_scale  = (info.sib >> 6) & 0x03;
+        info.sib_index  = (info.sib >> 3) & 0x07;
+        info.sib_base   = (info.sib >> 0) & 0x07;
         // The @c decodeSib method is only called during the operand decoding, so updating the
         // extended values at this point should be safe.
         info.sib_index_ext = (info.eff_rexvex_x << 3) | info.sib_index;
@@ -405,45 +405,45 @@ bool InstructionDecoder::decodeSIB(InstructionInfo& info)
 
 bool InstructionDecoder::decodeVex(InstructionInfo& info)
 {
-    if (!(info.flags&  IF_PREFIX_VEX))
+    if (!(info.flags & IF_PREFIX_VEX))
     {
         info.vex_op = inputCurrent();
         switch (info.vex_op)
         {
         case 0xC4:
             info.vex_b1 = inputNext(info);
-            if (!info.vex_b1 || (info.flags&  IF_ERROR_MASK))
+            if (!info.vex_b1 || (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
             info.vex_b2 = inputNext(info);
-            if (!info.vex_b2 || (info.flags&  IF_ERROR_MASK))
+            if (!info.vex_b2 || (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
-            info.vex_r      = (info.vex_b1 >> 7)&  0x01;
-            info.vex_x      = (info.vex_b1 >> 6)&  0x01;
-            info.vex_b      = (info.vex_b1 >> 5)&  0x01;
-            info.vex_m_mmmm = (info.vex_b1 >> 0)&  0x1F;
-            info.vex_w      = (info.vex_b2 >> 7)&  0x01;
-            info.vex_vvvv   = (info.vex_b2 >> 3)&  0x0F;
-            info.vex_l      = (info.vex_b2 >> 2)&  0x01;
-            info.vex_pp     = (info.vex_b2 >> 0)&  0x03;
+            info.vex_r      = (info.vex_b1 >> 7) & 0x01;
+            info.vex_x      = (info.vex_b1 >> 6) & 0x01;
+            info.vex_b      = (info.vex_b1 >> 5) & 0x01;
+            info.vex_m_mmmm = (info.vex_b1 >> 0) & 0x1F;
+            info.vex_w      = (info.vex_b2 >> 7) & 0x01;
+            info.vex_vvvv   = (info.vex_b2 >> 3) & 0x0F;
+            info.vex_l      = (info.vex_b2 >> 2) & 0x01;
+            info.vex_pp     = (info.vex_b2 >> 0) & 0x03;
             break;
         case 0xC5:
             info.vex_b1 = inputNext(info);
-            if (!info.vex_b1 || (info.flags&  IF_ERROR_MASK))
+            if (!info.vex_b1 || (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
-            info.vex_r      = (info.vex_b1 >> 7)&  0x01;
+            info.vex_r      = (info.vex_b1 >> 7) & 0x01;
             info.vex_x      = 1;
             info.vex_b      = 1;
             info.vex_m_mmmm = 1;
             info.vex_w      = 0;
-            info.vex_vvvv   = (info.vex_b1 >> 3)&  0x0F;
-            info.vex_l      = (info.vex_b1 >> 2)&  0x01;
-            info.vex_pp     = (info.vex_b1 >> 0)&  0x03;
+            info.vex_vvvv   = (info.vex_b1 >> 3) & 0x0F;
+            info.vex_l      = (info.vex_b1 >> 2) & 0x01;
+            info.vex_pp     = (info.vex_b1 >> 0) & 0x03;
             break;
         default:
             assert(0);
@@ -513,19 +513,19 @@ bool InstructionDecoder::decodeOperands(InstructionInfo& info)
             info.operand[i].access_mode = OperandAccessMode::READ;
             if (i == 0)
             {
-                if (info.instrDefinition->flags&  IDF_OPERAND1_WRITE)
+                if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
                 {
                     info.operand[0].access_mode = OperandAccessMode::WRITE;
-                } else if (info.instrDefinition->flags&  IDF_OPERAND1_READWRITE)
+                } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
                 {
                     info.operand[0].access_mode = OperandAccessMode::READWRITE;
                 }
             } else if (i == 1)
             {
-                if (info.instrDefinition->flags&  IDF_OPERAND2_WRITE)
+                if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
                 {
                     info.operand[1].access_mode = OperandAccessMode::WRITE;
-                } else if (info.instrDefinition->flags&  IDF_OPERAND2_READWRITE)
+                } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
                 {
                     info.operand[1].access_mode = OperandAccessMode::READWRITE;
                 }    
@@ -556,7 +556,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
             operand.lval.ptr.off = inputNext<uint32_t>(info);
             operand.lval.ptr.seg = inputNext<uint16_t>(info);
         }
-        if ((!operand.lval.ptr.off || !operand.lval.ptr.seg)&& (info.flags&  IF_ERROR_MASK))
+        if ((!operand.lval.ptr.off || !operand.lval.ptr.seg) && (info.flags & IF_ERROR_MASK))
         {
             return false;
         }
@@ -596,7 +596,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
             info.modrm_reg_ext, operandSize);
     case DefinedOperandType::H: 
         assert(info.vex_op != 0);
-        return decodeRegisterOperand(info, operand, RegisterClass::XMM, (0xF&  ~info.vex_vvvv), 
+        return decodeRegisterOperand(info, operand, RegisterClass::XMM, (0xF & ~info.vex_vvvv), 
             operandSize);
     case DefinedOperandType::sI:
         operand.signed_lval = true;
@@ -619,12 +619,12 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
         {
             assert(info.vex_op != 0);
             uint8_t imm = inputNext(info);
-            if (!imm&& (info.flags&  IF_ERROR_MASK))
+            if (!imm && (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
             uint8_t mask = (m_disassemblerMode == DisassemblerMode::M64BIT) ? 0xF : 0x7;
-            return decodeRegisterOperand(info, operand, RegisterClass::XMM, mask&  (imm >> 4), 
+            return decodeRegisterOperand(info, operand, RegisterClass::XMM, mask & (imm >> 4), 
                 operandSize);
         }
     case DefinedOperandType::MR: 
@@ -729,7 +729,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
     case DefinedOperandType::GS: 
         if (m_disassemblerMode == DisassemblerMode::M64BIT)
         {
-            if ((operandType != DefinedOperandType::FS)&& 
+            if ((operandType != DefinedOperandType::FS) && 
                 (operandType != DefinedOperandType::GS))
             {
                 info.flags |= IF_ERROR_OPERAND;
@@ -768,25 +768,25 @@ void InstructionDecoder::resolveOperandAndAddressMode(InstructionInfo& info) con
     switch (m_disassemblerMode)
     {
     case DisassemblerMode::M16BIT:
-        info.operand_mode = (info.flags&  IF_PREFIX_OPERAND_SIZE) ? 32 : 16;
-        info.address_mode = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 32 : 16;
+        info.operand_mode = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 32 : 16;
+        info.address_mode = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 32 : 16;
         break;
     case DisassemblerMode::M32BIT:
-        info.operand_mode = (info.flags&  IF_PREFIX_OPERAND_SIZE) ? 16 : 32;
-        info.address_mode = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 16 : 32;
+        info.operand_mode = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 16 : 32;
+        info.address_mode = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 16 : 32;
         break;
     case DisassemblerMode::M64BIT:
         if (info.eff_rexvex_w)
         {
             info.operand_mode = 64;
-        } else if ((info.flags&  IF_PREFIX_OPERAND_SIZE))
+        } else if ((info.flags & IF_PREFIX_OPERAND_SIZE))
         {
             info.operand_mode = 16;
         } else
         {
-            info.operand_mode = (info.instrDefinition->flags&  IDF_DEFAULT_64) ? 64 : 32;
+            info.operand_mode = (info.instrDefinition->flags & IDF_DEFAULT_64) ? 64 : 32;
         }
-        info.address_mode = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 32 : 64;
+        info.address_mode = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 32 : 64;
         break;
     default: 
         assert(0);
@@ -797,26 +797,26 @@ void InstructionDecoder::calculateEffectiveRexVexValues(InstructionInfo& info) c
 {
     assert(info.instrDefinition);
     uint8_t rex = info.rex;
-    if (info.flags&  IF_PREFIX_VEX)
+    if (info.flags & IF_PREFIX_VEX)
     {
         switch (info.vex_op)
         {
         case 0xC4:
-            rex = ((~(info.vex_b1 >> 5)&  0x07) | ((info.vex_b2 >> 4)&  0x08));
+            rex = ((~(info.vex_b1 >> 5) & 0x07) | ((info.vex_b2 >> 4) & 0x08));
             break;
         case 0xC5:
-            rex = (~(info.vex_b1 >> 5))&  4;
+            rex = (~(info.vex_b1 >> 5)) & 4;
             break;
         default:
             assert(0);
         }    
     }
-    rex &= (info.instrDefinition->flags&  0x000F);
-    info.eff_rexvex_w = (rex >> 3)&  0x01;
-    info.eff_rexvex_r = (rex >> 2)&  0x01;
-    info.eff_rexvex_x = (rex >> 1)&  0x01;
-    info.eff_rexvex_b = (rex >> 0)&  0x01;
-    info.eff_vex_l    = info.vex_l&& (info.instrDefinition->flags&  IDF_ACCEPTS_VEXL);
+    rex &= (info.instrDefinition->flags & 0x000F);
+    info.eff_rexvex_w = (rex >> 3) & 0x01;
+    info.eff_rexvex_r = (rex >> 2) & 0x01;
+    info.eff_rexvex_x = (rex >> 1) & 0x01;
+    info.eff_rexvex_b = (rex >> 0) & 0x01;
+    info.eff_vex_l    = info.vex_l && (info.instrDefinition->flags & IDF_ACCEPTS_VEXL);
 }
 
 bool InstructionDecoder::decodePrefixes(InstructionInfo& info)
@@ -870,8 +870,8 @@ bool InstructionDecoder::decodePrefixes(InstructionInfo& info)
             info.flags |= IF_PREFIX_ADDRESS_SIZE;
             break;
         default:
-            if ((m_disassemblerMode == DisassemblerMode::M64BIT)&& 
-                (inputCurrent()&  0xF0) == 0x40)
+            if ((m_disassemblerMode == DisassemblerMode::M64BIT) && 
+                (inputCurrent() & 0xF0) == 0x40)
             {
                 info.flags |= IF_PREFIX_REX;
                 info.rex = inputCurrent(); 
@@ -884,7 +884,7 @@ bool InstructionDecoder::decodePrefixes(InstructionInfo& info)
         // Increase the input offset, if a prefix was found
         if (!done)
         {
-            if (!inputNext(info)&& (info.flags&  IF_ERROR_MASK))
+            if (!inputNext(info) && (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
@@ -892,12 +892,12 @@ bool InstructionDecoder::decodePrefixes(InstructionInfo& info)
     } while (!done);
     // TODO: Check for multiple prefixes of the same group
     // Parse REX Prefix
-    if (info.flags&  IF_PREFIX_REX)
+    if (info.flags & IF_PREFIX_REX)
     {
-        info.rex_w = (info.rex >> 3)&  0x01;
-        info.rex_r = (info.rex >> 2)&  0x01;
-        info.rex_x = (info.rex >> 1)&  0x01;
-        info.rex_b = (info.rex >> 0)&  0x01;
+        info.rex_w = (info.rex >> 3) & 0x01;
+        info.rex_r = (info.rex >> 2) & 0x01;
+        info.rex_x = (info.rex >> 1) & 0x01;
+        info.rex_b = (info.rex >> 0) & 0x01;
     }
     return true;
 }
@@ -906,7 +906,7 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
 {
     using namespace Internal;
     // Read first opcode byte
-    if (!inputNext(info)&& (info.flags&  IF_ERROR_MASK))
+    if (!inputNext(info) && (info.flags & IF_ERROR_MASK))
     {
         return false;
     }
@@ -934,8 +934,8 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
                 const InstructionDefinition *instrDefinition = 
                     GetInstructionDefinition(node);
                 // Check for invalid 64 bit instruction
-                if ((m_disassemblerMode == DisassemblerMode::M64BIT)&& 
-                    (instrDefinition->flags&  IDF_INVALID_64))
+                if ((m_disassemblerMode == DisassemblerMode::M64BIT) && 
+                    (instrDefinition->flags & IDF_INVALID_64))
                 {
                     info.flags |= IF_ERROR_INVALID_64;
                     return false;
@@ -956,12 +956,12 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             return true;
         case OpcodeTreeNodeType::TABLE: 
             // Read next opcode byte
-            if (!inputNext(info)&& (info.flags&  IF_ERROR_MASK))
+            if (!inputNext(info) && (info.flags & IF_ERROR_MASK))
             {
                 return false;
             }
             // Update instruction info
-            assert((info.opcode_length > 0)&& (info.opcode_length < 3));
+            assert((info.opcode_length > 0) && (info.opcode_length < 3));
             info.opcode[info.opcode_length] = inputCurrent();
             info.opcode_length++;
             // Set child node index for next iteration
@@ -993,13 +993,13 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             break;
         case OpcodeTreeNodeType::MANDATORY: 
             // Check if there are any prefixes present
-            if (info.flags&  IF_PREFIX_REP)
+            if (info.flags & IF_PREFIX_REP)
             {
                 index = 1; // F2
-            } else if (info.flags&  IF_PREFIX_REPNE)
+            } else if (info.flags & IF_PREFIX_REPNE)
             {
                 index = 2; // F3
-            } else if (info.flags&  IF_PREFIX_OPERAND_SIZE)
+            } else if (info.flags & IF_PREFIX_OPERAND_SIZE)
             {
                 index = 3; // 66
             }
@@ -1007,7 +1007,7 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             {
                 index = 0;
             }
-            if (index&& (GetOpcodeTreeChild(node, index) != 0))
+            if (index && (GetOpcodeTreeChild(node, index) != 0))
             {
                 // Remove REP and REPNE prefix
                 info.flags &= ~IF_PREFIX_REP;
@@ -1032,13 +1032,13 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             switch (m_disassemblerMode)
             {
             case DisassemblerMode::M16BIT:
-                index = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 1 : 0;
+                index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 1 : 0;
                 break;
             case DisassemblerMode::M32BIT:
-                index = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 0 : 1;
+                index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 0 : 1;
                 break;
             case DisassemblerMode::M64BIT:
-                index = (info.flags&  IF_PREFIX_ADDRESS_SIZE) ? 1 : 2;
+                index = (info.flags & IF_PREFIX_ADDRESS_SIZE) ? 1 : 2;
                 break;
             default:
                 assert(0);
@@ -1048,13 +1048,13 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             switch (m_disassemblerMode)
             {
             case DisassemblerMode::M16BIT:
-                index = (info.flags&  IF_PREFIX_OPERAND_SIZE) ? 1 : 0;
+                index = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 1 : 0;
                 break;
             case DisassemblerMode::M32BIT:
-                index = (info.flags&  IF_PREFIX_OPERAND_SIZE) ? 0 : 1;
+                index = (info.flags & IF_PREFIX_OPERAND_SIZE) ? 0 : 1;
                 break;
             case DisassemblerMode::M64BIT:
-                index = (info.rex_w) ? 2 : ((info.flags&  IF_PREFIX_OPERAND_SIZE) ? 0 : 1);
+                index = (info.rex_w) ? 2 : ((info.flags & IF_PREFIX_OPERAND_SIZE) ? 0 : 1);
                 break;
             default:
                 assert(0);
@@ -1100,7 +1100,7 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
                 }
                 // Read the actual 3dnow opcode
                 info.opcode[2] = inputNext(info);
-                if (!info.opcode[2]&& (info.flags&  IF_ERROR_MASK))
+                if (!info.opcode[2] && (info.flags & IF_ERROR_MASK))
                 {
                     return false;
                 }
@@ -1125,20 +1125,20 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
                 }
                 if (info.operand[0].type != OperandType::NONE)
                 {
-                    if (info.instrDefinition->flags&  IDF_OPERAND1_WRITE)
+                    if (info.instrDefinition->flags & IDF_OPERAND1_WRITE)
                     {
                         info.operand[0].access_mode = OperandAccessMode::WRITE;
-                    } else if (info.instrDefinition->flags&  IDF_OPERAND1_READWRITE)
+                    } else if (info.instrDefinition->flags & IDF_OPERAND1_READWRITE)
                     {
                         info.operand[0].access_mode = OperandAccessMode::READWRITE;
                     }
                 }
                 if (info.operand[1].type != OperandType::NONE)
                 {
-                    if (info.instrDefinition->flags&  IDF_OPERAND2_WRITE)
+                    if (info.instrDefinition->flags & IDF_OPERAND2_WRITE)
                     {
                         info.operand[1].access_mode = OperandAccessMode::WRITE;
-                    } else if (info.instrDefinition->flags&  IDF_OPERAND2_READWRITE)
+                    } else if (info.instrDefinition->flags & IDF_OPERAND2_READWRITE)
                     {
                         info.operand[1].access_mode = OperandAccessMode::READWRITE;
                     }
@@ -1148,7 +1148,7 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             }
         case OpcodeTreeNodeType::VEX: 
             if ((m_disassemblerMode == DisassemblerMode::M64BIT) ||
-                (((inputCurrent() >> 6)&  0x03) == 0x03))
+                (((inputCurrent() >> 6) & 0x03) == 0x03))
             {
                 // Decode vex prefix
                 if (!decodeVex(info))
@@ -1181,11 +1181,11 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
             }
             break;
         case OpcodeTreeNodeType::VEXW: 
-            assert(info.flags&  IF_PREFIX_VEX);
+            assert(info.flags & IF_PREFIX_VEX);
             index = info.vex_w;
             break;
         case OpcodeTreeNodeType::VEXL: 
-            assert(info.flags&  IF_PREFIX_VEX);
+            assert(info.flags & IF_PREFIX_VEX);
             index = info.vex_l;
             break;
         default: 
@@ -1243,7 +1243,7 @@ bool InstructionDecoder::decodeInstruction(InstructionInfo& info)
         goto DecodeError;
     }
     // SWAPGS is only valid in 64 bit mode
-    if ((info.mnemonic == InstructionMnemonic::SWAPGS)&& 
+    if ((info.mnemonic == InstructionMnemonic::SWAPGS) && 
         (m_disassemblerMode != DisassemblerMode::M64BIT))
     {
         info.flags &= IF_ERROR_INVALID;
@@ -1252,13 +1252,13 @@ bool InstructionDecoder::decodeInstruction(InstructionInfo& info)
     // Handle aliases
     if (info.mnemonic == InstructionMnemonic::XCHG)
     {
-        if ((info.operand[0].type == OperandType::REGISTER&& 
-            info.operand[0].base == Register::AX&&
-            info.operand[1].type == OperandType::REGISTER&& 
+        if ((info.operand[0].type == OperandType::REGISTER && 
+            info.operand[0].base == Register::AX &&
+            info.operand[1].type == OperandType::REGISTER && 
             info.operand[1].base == Register::AX) || 
-            (info.operand[0].type == OperandType::REGISTER&& 
-            info.operand[0].base == Register::EAX&&
-            info.operand[1].type == OperandType::REGISTER&& 
+            (info.operand[0].type == OperandType::REGISTER && 
+            info.operand[0].base == Register::EAX &&
+            info.operand[1].type == OperandType::REGISTER && 
             info.operand[1].base == Register::EAX))
         {
             info.mnemonic = InstructionMnemonic::NOP;
@@ -1268,7 +1268,7 @@ bool InstructionDecoder::decodeInstruction(InstructionInfo& info)
             info.operand[1].access_mode = OperandAccessMode::NA;
         }
     }
-    if ((info.mnemonic == InstructionMnemonic::NOP)&& (info.flags&  IF_PREFIX_REP))
+    if ((info.mnemonic == InstructionMnemonic::NOP) && (info.flags & IF_PREFIX_REP))
     {
         info.mnemonic = InstructionMnemonic::PAUSE;
         info.flags &= ~IF_PREFIX_REP;
@@ -1282,7 +1282,7 @@ DecodeError:
     // Increment instruction pointer. 
     m_instructionPointer += 1;
     // Backup all error flags, the instruction length and the instruction address
-    uint32_t flags = info.flags&  (IF_ERROR_MASK | 0x00000007);
+    uint32_t flags = info.flags & (IF_ERROR_MASK | 0x00000007);
     uint8_t length = info.length;
     uint8_t firstByte = info.data[0];
     uint64_t instrAddress = info.instrAddress;
@@ -1303,7 +1303,7 @@ DecodeError:
     }
     // Return with error, if the end of the input source was reached while decoding the 
     // invalid instruction
-    if (info.flags&  IF_ERROR_END_OF_INPUT)
+    if (info.flags & IF_ERROR_END_OF_INPUT)
     {
         info.length = 0;
         return false;

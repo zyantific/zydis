@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief Instruction decoder classes.
+ */
+
 #ifndef _ZYDIS_INSTRUCTIONDECODER_HPP_
 #define _ZYDIS_INSTRUCTIONDECODER_HPP_
 
@@ -45,34 +50,10 @@ namespace Zydis
  */
 class BaseInput 
 {
+friend class InstructionDecoder;
 private:
     uint8_t m_currentInput;
-protected:
-    /**
-     * @brief   Override this method in your custom data source implementations.
-     *          Reads the next byte from the data source. This method increases the current
-     *          input position by one.  
-     * @return  The current input byte.
-     */
-    virtual uint8_t internalInputPeek() = 0;
-    /**
-     * @brief   Override this method in your custom data source implementations.
-     *          Reads the next byte from the data source. This method does NOT increase the 
-     *          current input position.
-     * @return  The current input byte.
-     */
-    virtual uint8_t internalInputNext() = 0;
-protected:
-    /**
-     * @brief   Default constructor.
-     */
-    BaseInput() { };
-public:
-    /**
-     * @brief   Destructor.
-     */
-    virtual ~BaseInput() { };
-public:
+private:
     /**
      * @brief   Reads the next byte from the data source. This method does NOT increase the 
      *          current input position or the @c length field of the @c info parameter. 
@@ -111,6 +92,31 @@ public:
      * @return  The current input byte.
      */
     uint8_t inputCurrent() const;
+protected:
+    /**
+     * @brief   Override this method in your custom data source implementations.
+     *          Reads the next byte from the data source. This method increases the current
+     *          input position by one.  
+     * @return  The current input byte.
+     */
+    virtual uint8_t internalInputPeek() = 0;
+    /**
+     * @brief   Override this method in your custom data source implementations.
+     *          Reads the next byte from the data source. This method does NOT increase the 
+     *          current input position.
+     * @return  The current input byte.
+     */
+    virtual uint8_t internalInputNext() = 0;
+protected:
+    /**
+     * @brief   Default constructor.
+     */
+    BaseInput() { };
+public:
+    /**
+     * @brief   Destructor.
+     */
+    virtual ~BaseInput() { };
 public:
     /**
      * @brief   Override this method in your custom data source implementations.
@@ -175,7 +181,7 @@ inline T BaseInput::inputNext(InstructionInfo& info)
     for (unsigned i = 0; i < (sizeof(T) / sizeof(uint8_t)); ++i)
     {
         T b = inputNext(info);
-        if (!b&& (info.flags&  IF_ERROR_MASK))
+        if (!b && (info.flags & IF_ERROR_MASK))
         {
             return 0;
         }

@@ -40,7 +40,7 @@ namespace Zydis
 
 /* BaseInstructionFormatter ================================================================ */
 
-const char *BaseInstructionFormatter::m_registerStrings[] =
+const char* BaseInstructionFormatter::m_registerStrings[] =
 {
     /* 8 bit general purpose registers */
     "al",       "cl",       "dl",       "bl",
@@ -238,13 +238,13 @@ void BaseInstructionFormatter::outputAppendAddress(const InstructionInfo& info,
         }
     } else
     {
-        if (info.flags&  IF_DISASSEMBLER_MODE_16)
+        if (info.flags & IF_DISASSEMBLER_MODE_16)
         {
             outputAppendFormatted("%.4X", address);
-        } else if (info.flags&  IF_DISASSEMBLER_MODE_32)
+        } else if (info.flags & IF_DISASSEMBLER_MODE_32)
         {
             outputAppendFormatted("%.8lX", address);
-        } else if (info.flags&  IF_DISASSEMBLER_MODE_64)
+        } else if (info.flags & IF_DISASSEMBLER_MODE_64)
         {
             outputAppendFormatted("%.16llX", address);
         } else
@@ -294,7 +294,7 @@ void BaseInstructionFormatter::outputAppendImmediate(const InstructionInfo& info
         }
     }
     uint64_t offset = 0;
-    const char *name = nullptr;
+    const char* name = nullptr;
     if (resolveSymbols)
     {
         name = resolveSymbol(info, value, offset);
@@ -317,7 +317,7 @@ void BaseInstructionFormatter::outputAppendImmediate(const InstructionInfo& info
 void BaseInstructionFormatter::outputAppendDisplacement(const OperandInfo& operand)
 {
     assert(operand.offset > 0);
-    if ((operand.base == Register::NONE)&& (operand.index == Register::NONE))
+    if ((operand.base == Register::NONE) && (operand.index == Register::NONE))
     {
         // Assume the displacement value is unsigned
         assert(operand.scale == 0);
@@ -409,7 +409,7 @@ void IntelInstructionFormatter::formatOperand(const InstructionInfo& info,
         outputAppend(registerToString(operand.base));
         break;
     case OperandType::MEMORY: 
-        if (info.flags&  IF_PREFIX_SEGMENT)
+        if (info.flags & IF_PREFIX_SEGMENT)
         {
             outputAppendFormatted("%s:", registerToString(info.segment));    
         }
@@ -481,14 +481,14 @@ void IntelInstructionFormatter::formatOperand(const InstructionInfo& info,
 void IntelInstructionFormatter::internalFormatInstruction(const InstructionInfo& info)
 {
     // Append string prefixes
-    if (info.flags&  IF_PREFIX_LOCK)
+    if (info.flags & IF_PREFIX_LOCK)
     {
         outputAppend("lock ");
     }
-    if (info.flags&  IF_PREFIX_REP)
+    if (info.flags & IF_PREFIX_REP)
     {
         outputAppend("rep ");
-    } else if (info.flags&  IF_PREFIX_REPNE)
+    } else if (info.flags & IF_PREFIX_REPNE)
     {
         outputAppend("repne ");
     }
@@ -507,7 +507,7 @@ void IntelInstructionFormatter::internalFormatInstruction(const InstructionInfo&
                 (info.operand[0].size != info.operand[1].size)) 
             {
                 cast = true;
-            } else if (info.operand[1].type == OperandType::REGISTER&&
+            } else if (info.operand[1].type == OperandType::REGISTER &&
                 info.operand[1].base == Register::CL) 
             {
                 switch (info.mnemonic) 
@@ -537,14 +537,14 @@ void IntelInstructionFormatter::internalFormatInstruction(const InstructionInfo&
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[1].type == OperandType::MEMORY&&
-            info.operand[0].size != info.operand[1].size&&
+        if (info.operand[1].type == OperandType::MEMORY &&
+            info.operand[0].size != info.operand[1].size &&
             ((info.operand[0].type != OperandType::REGISTER) ||
-             ((info.operand[0].base != Register::ES)&& 
-             (info.operand[0].base != Register::CS)&&
-             (info.operand[0].base != Register::SS)&&
-             (info.operand[0].base != Register::DS)&&
-             (info.operand[0].base != Register::FS)&&
+             ((info.operand[0].base != Register::ES) && 
+             (info.operand[0].base != Register::CS) &&
+             (info.operand[0].base != Register::SS) &&
+             (info.operand[0].base != Register::DS) &&
+             (info.operand[0].base != Register::FS) &&
              (info.operand[0].base != Register::GS)))) 
         {
             cast = true;
@@ -560,7 +560,7 @@ void IntelInstructionFormatter::internalFormatInstruction(const InstructionInfo&
     {
         outputAppend(", ");
         bool cast = false;
-        if (info.operand[2].type == OperandType::MEMORY&& 
+        if (info.operand[2].type == OperandType::MEMORY && 
             (info.operand[2].size != info.operand[1].size)) 
         {
             cast = true;

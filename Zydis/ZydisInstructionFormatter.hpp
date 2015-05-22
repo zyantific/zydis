@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief Instruction formatting classes.
+ */
+
 #ifndef _ZYDIS_INSTRUCTIONFORMATTER_HPP_
 #define _ZYDIS_INSTRUCTIONFORMATTER_HPP_
 

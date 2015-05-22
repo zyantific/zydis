@@ -1,5 +1,5 @@
-Zyan Disassembler Engine (Zydis)
-==================================
+Zyan Disassembler Engine (Zydis) [![Build Status](https://travis-ci.org/zyantific/zyan-disassembler-engine.svg?branch=master)](https://travis-ci.org/zyantific/zyan-disassembler-engine)
+================================
 
 Fast and lightweight x86/x86-64 disassembler library.
 
@@ -20,7 +20,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
-```C++
+```c++
 #include <tchar.h>
 #include <iostream>
 #include <stdint.h>
@@ -35,7 +35,7 @@ int _tmain(int argc, _TCHAR* argv[])
     Zydis::MemoryInput input(&data[0], sizeof(data));
     Zydis::InstructionInfo info;
     Zydis::InstructionDecoder decoder;
-    decoder.setDisassemblerMode(Zydis::ZydisMode::M32BIT);
+    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
     decoder.setDataSource(&input);
     decoder.setInstructionPointer(0);
     Zydis::IntelInstructionFormatter formatter;
@@ -47,8 +47,13 @@ int _tmain(int argc, _TCHAR* argv[])
 ```
 
 ## Compilation ##
- 
+
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C++14 compiler.
- 
+
+## Documentation ##
+
+[The HTML Doxygen documentation](https://www.zyantific.com/doc/zydis/index.html) is automatically built from master every 12 hours.
+
 ## License ##
+
 Zyan Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.

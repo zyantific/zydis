@@ -37,33 +37,33 @@ namespace Zydis
 uint64_t CalcAbsoluteTarget(const InstructionInfo& info, const OperandInfo& operand)
 {
     assert((operand.type == OperandType::REL_IMMEDIATE) || 
-        ((operand.type == OperandType::MEMORY)&& (operand.base == Register::RIP)));
+        ((operand.type == OperandType::MEMORY) && (operand.base == Register::RIP)));
    
     uint64_t truncMask = 0xFFFFFFFFFFFFFFFFull;
-    if (!(info.flags&  IF_DISASSEMBLER_MODE_64)) 
+    if (!(info.flags & IF_DISASSEMBLER_MODE_64)) 
     {
         truncMask >>= (64 - info.operand_mode);
     }
     uint16_t size = operand.size;
-    if ((operand.type == OperandType::MEMORY)&& (operand.base == Register::RIP))
+    if ((operand.type == OperandType::MEMORY) && (operand.base == Register::RIP))
     {
         size = operand.offset;
     }
     switch (size)
     {
     case 8:
-        return (info.instrPointer + operand.lval.sbyte)&  truncMask;
+        return (info.instrPointer + operand.lval.sbyte) & truncMask;
     case 16:
         {
-            uint32_t delta = operand.lval.sword&  truncMask;
+            uint32_t delta = operand.lval.sword & truncMask;
             if ((info.instrPointer + delta) > 0xFFFF)
             {
-                return (info.instrPointer&  0xF0000) + ((info.instrPointer + delta)&  0xFFFF);    
+                return (info.instrPointer&  0xF0000) + ((info.instrPointer + delta) & 0xFFFF);    
             }
             return info.instrPointer + delta;
         }
     case 32:
-        return (info.instrPointer + operand.lval.sdword)&  truncMask;
+        return (info.instrPointer + operand.lval.sdword) & truncMask;
     default:
         assert(0);
     }

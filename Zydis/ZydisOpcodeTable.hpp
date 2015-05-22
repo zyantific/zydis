@@ -28,6 +28,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief The opcode table definition, mostly internal stuff.
+ */
+
 #ifndef _ZYDIS_OPCODETABLE_HPP_
 #define _ZYDIS_OPCODETABLE_HPP_
 
@@ -1607,7 +1612,7 @@ extern const char* instrMnemonicStrings[];
  */
 inline OpcodeTreeNodeType GetOpcodeNodeType(OpcodeTreeNode node)
 {
-    return static_cast<OpcodeTreeNodeType>((node >> 12)&  0x0F);
+    return static_cast<OpcodeTreeNodeType>((node >> 12) & 0x0F);
 } 
 
 /**
@@ -1617,7 +1622,7 @@ inline OpcodeTreeNodeType GetOpcodeNodeType(OpcodeTreeNode node)
  */
 inline uint16_t GetOpcodeNodeValue(OpcodeTreeNode node)
 {
-    return (node&  0x0FFF);   
+    return (node & 0x0FFF);   
 }
 
 /**
@@ -1698,7 +1703,7 @@ inline OpcodeTreeNode GetOpcodeTreeChild(OpcodeTreeNode parent, uint16_t index)
 inline const InstructionDefinition* GetInstructionDefinition(OpcodeTreeNode node)
 {
     assert(GetOpcodeNodeType(node) == OpcodeTreeNodeType::INSTRUCTION_DEFINITION);
-    return& instrDefinitions[node&  0x0FFF];    
+    return& instrDefinitions[node & 0x0FFF];    
 }
 
 /**
@@ -1735,7 +1740,7 @@ inline uint16_t GetSimpleOperandSize(DefinedOperandSize operandSize)
  */
 inline DefinedOperandSize GetComplexOperandMemSize(DefinedOperandSize operandSize)
 {
-    return static_cast<DefinedOperandSize>(static_cast<uint8_t>(operandSize)&  0x0F);
+    return static_cast<DefinedOperandSize>(static_cast<uint8_t>(operandSize) & 0x0F);
 }
 
 /**
@@ -1745,7 +1750,7 @@ inline DefinedOperandSize GetComplexOperandMemSize(DefinedOperandSize operandSiz
  */
 inline DefinedOperandSize GetComplexOperandRegSize(DefinedOperandSize operandSize)
 {
-    return static_cast<DefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4)&  0x0F);    
+    return static_cast<DefinedOperandSize>((static_cast<uint8_t>(operandSize) >> 4) & 0x0F);    
 }
 
 }
