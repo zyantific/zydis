@@ -6,7 +6,7 @@
   Remarks         : Freeware, Copyright must be included
 
   Original Author : Florian Bernd
-  Modifications   : Joel Höner
+  Modifications   : Joel HÃ¶ner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1120,7 +1120,7 @@ bool InstructionDecoder::decodeOpcode(InstructionInfo& info)
                 {
                     if (info.operand[i].type != OperandType::NONE)
                     {
-                        info.operand[i - 1].access_mode = OperandAccessMode::READ;
+                        info.operand[i].access_mode = OperandAccessMode::READ;
                     }    
                 }
                 if (info.operand[0].type != OperandType::NONE)
