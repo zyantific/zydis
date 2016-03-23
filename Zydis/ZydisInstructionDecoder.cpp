@@ -578,7 +578,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
     case DefinedOperandType::F: 
         // TODO: FAR flag
     case DefinedOperandType::M: 
-        // ModR/M byte may refer only to a register
+        // ModR/M byte may refer only to memory
         if (info.modrm_mod == 3)
         {
             info.flags |= IF_ERROR_OPERAND;
@@ -638,7 +638,7 @@ bool InstructionDecoder::decodeOperand(InstructionInfo& info, OperandInfo& opera
             GetComplexOperandRegSize(operandSize) : 
             GetComplexOperandMemSize(operandSize));
     case DefinedOperandType::N: 
-        // ModR/M byte may refer only to memory
+        // ModR/M byte may refer only to a register
         if (info.modrm_mod != 3)
         {
             info.flags |= IF_ERROR_OPERAND;
