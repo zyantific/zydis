@@ -46,6 +46,16 @@ int _tmain(int argc, _TCHAR* argv[])
 }
 ```
 
+## Sample Output ##
+
+The above example program generates the following output:
+
+```
+nop
+jmp 00000006
+ret
+```
+
 ## Compilation ##
 
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C++14 compiler.
