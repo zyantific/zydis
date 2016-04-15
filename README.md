@@ -21,27 +21,43 @@ Fast and lightweight x86/x86-64 disassembler library.
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
 ```c++
-#include <tchar.h>
 #include <iostream>
+#include <iomanip>
 #include <stdint.h>
-#include "Zydis.hpp"
+#include <Zydis.hpp>
 
-int _tmain(int argc, _TCHAR* argv[])
+int main()
 {
     uint8_t data[] =
     {
-        0x90, 0xE9, 0x00, 0x00, 0x00, 0x00, 0xC3
+        0x51, 0x8D, 0x45, 0xFF, 0x50, 0xFF, 0x75, 0x0C, 0xFF, 0x75, 
+        0x08, 0xFF, 0x15, 0xA0, 0xA5, 0x48, 0x76, 0x85, 0xC0, 0x0F, 
+        0x88, 0xFC, 0xDA, 0x02, 0x00
     };
+
     Zydis::MemoryInput input(&data[0], sizeof(data));
     Zydis::InstructionInfo info;
     Zydis::InstructionDecoder decoder;
     decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
     decoder.setDataSource(&input);
-    decoder.setInstructionPointer(0);
+    decoder.setInstructionPointer(0x00400000);
     Zydis::IntelInstructionFormatter formatter;
+
     while (decoder.decodeInstruction(info))
     {
-        std::cout << formatter.formatInstruction(info) << std::endl;
+        std::cout << std::hex << std::setw(8) << std::setfill('0') 
+                  << std::uppercase << info.instrAddress << " "; 
+
+        if (info.flags & Zydis::IF_ERROR_MASK)
+        {
+            std::cout << "db " << std::setw(2) 
+                      << static_cast<int>(info.data[0]) 
+                      << std::endl;    
+        } 
+        else
+        {
+            std::cout << formatter.formatInstruction(info) << std::endl;
+        }
     }
 }
 ```
@@ -51,9 +67,14 @@ int _tmain(int argc, _TCHAR* argv[])
 The above example program generates the following output:
 
 ```
-nop
-jmp 00000006
-ret
+00400000 push ecx
+00400001 lea eax, [ebp-01]
+00400004 push eax
+00400005 push dword ptr [ebp+0C]
+00400008 push dword ptr [ebp+08]
+0040000B call dword ptr [7648A5A0]
+00400011 test eax, eax
+00400013 js 0042DB15
 ```
 
 ## Compilation ##
