@@ -2,21 +2,21 @@ cmake_minimum_required(VERSION 2.8.12)
 include(GenerateExportHeader)
 
 project(Zydis)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
 option(FORCE_SHARED_CRT 
     "Forces shared linkage against the CRT even when building a static library" 
     FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
-option(BUILD_C_BINDINGS "Build C bindings" TRUE)
+option(BUILD_TOOLS "Build tools")
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(compiler_specific "-Werror")
-        set(compiler_specific_cxx "-std=c++14")
+        set(compiler_specific "-std=c99 -pedantic -Wextra -Werror")
     elseif (MSVC)
-        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /GR-")
+        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /TC")
     endif ()
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
@@ -28,46 +28,41 @@ endif ()
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
 # to generate with a statically linked CRT when we build as a static library.
 if (MSVC AND NOT FORCE_SHARED_CRT)
-    set(manipulated_vars
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_MINSIZEREL
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_CXX_FLAGS_RELWITHDEBINFO
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_MINSIZEREL
-        CMAKE_C_FLAGS_RELEASE
-        CMAKE_C_FLAGS_RELWITHDEBINFO)
-    foreach (cur_var ${manipulated_vars})
-        string(REPLACE "/MD" "/MT" ${cur_var} "${${cur_var}}")
-    endforeach ()
+    foreach(flag_var
+            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+        if(${flag_var} MATCHES "/MD")
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endif(${flag_var} MATCHES "/MD")
+    endforeach(flag_var)
 endif ()
 
 # Library
 set(headers
-    "Zydis/Zydis.hpp"
-    "Zydis/ZydisInstructionDecoder.hpp"
-    "Zydis/ZydisInstructionFormatter.hpp"
-    "Zydis/ZydisOpcodeTable.hpp"
-    "Zydis/ZydisSymbolResolver.hpp"
-    "Zydis/ZydisTypes.hpp"
-    "Zydis/ZydisUtils.hpp")
+    "include/Zydis/Decoder.h"
+    "include/Zydis/Defines.h"
+    "include/Zydis/Formatter.h"
+    "include/Zydis/Input.h"
+    "include/Zydis/InstructionInfo.h"
+    "include/Zydis/Mnemonic.h"
+    "include/Zydis/Register.h"
+    "include/Zydis/Status.h"
+    "include/Zydis/SymbolResolver.h"
+    "include/Zydis/Utils.h"
+    "include/Zydis/Zydis.h"
+    "include/Zydis/Internal/InstructionTable.h")
 set(sources
-    "Zydis/ZydisInstructionDecoder.cpp"
-    "Zydis/ZydisInstructionFormatter.cpp"
-    "Zydis/ZydisOpcodeTable.cpp"
-    "Zydis/ZydisSymbolResolver.cpp"
-    "Zydis/ZydisUtils.cpp")
+    "src/Decoder.c"
+    "src/Formatter.c"
+    "src/Input.c"
+    "src/InstructionTable.c"
+    "src/Mnemonic.c"
+    "src/Register.c"
+    "src/Utils.c"
+    "src/Zydis.c")
 
 if (BUILD_SHARED_LIBS AND WIN32)
-    set(sources ${sources}
-        "Zydis/VersionInfo.rc")
-endif ()
-
-if (BUILD_C_BINDINGS)
-    set(headers ${headers}
-        "Zydis/ZydisAPI.h")
-    set(sources ${sources}
-        "Zydis/ZydisAPI.cpp")
+    set(sources ${sources} "src/VersionInfo.rc")
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
@@ -80,17 +75,25 @@ include_directories(${PROJECT_BINARY_DIR})
 
 # Examples
 if (BUILD_EXAMPLES)
-    include_directories("Zydis")
-
-    add_executable("SimpleDemo_CPP" "Examples/CPP/SimpleDemo/SimpleDemo.cpp")
-    target_link_libraries("SimpleDemo_CPP" "Zydis")
-    add_executable("CustomDataSource_CPP" "Examples/CPP/CustomDataSource/CustomDataSource.cpp")
-    target_link_libraries("CustomDataSource_CPP" "Zydis")
-
-    if (BUILD_C_BINDINGS)
-        add_executable("SimpleDemo_C" "Examples/C/SimpleDemo/SimpleDemo.c")
-        target_link_libraries("SimpleDemo_C" "Zydis")
-    endif ()
+    include_directories("include")
+    add_executable("ZydisTest" "examples/ZydisTest.c")
+    target_link_libraries("ZydisTest" "Zydis")
+    set_target_properties ("ZydisTest" PROPERTIES
+        FOLDER "Examples"
+    )
+    add_executable("ZydisPE" "examples/ZydisPE.c")
+    target_link_libraries("ZydisPE" "Zydis")
+    set_target_properties ("ZydisPE" PROPERTIES
+        FOLDER "Examples"
+    )
 endif ()
 
-set(CONFIGURED_ONCE TRUE CACHE INTERNAL "CMake has configured at least once.")
+# Tools
+if (BUILD_TOOLS)
+    include_directories("include")
+    add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+    target_link_libraries("ZydisDisasm" "Zydis")
+    set_target_properties ("ZydisDisasm" PROPERTIES
+        FOLDER "Tools"
+    )
+endif ()

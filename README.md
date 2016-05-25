@@ -1,30 +1,28 @@
-Zyan Disassembler Engine (Zydis) [![Build Status](https://travis-ci.org/zyantific/zyan-disassembler-engine.svg?branch=master)](https://travis-ci.org/zyantific/zyan-disassembler-engine)
+Zyan Disassembler Engine (Zydis)
 ================================
 
 Fast and lightweight x86/x86-64 disassembler library.
 
 ## Features ##
 
-- Supports all x86 and x86-64 (AMD64) General purpose and System instructions.
+- Supports all x86 and x86-64 (AMD64) general-purpose and system instructions.
 - Supported ISA extensions:
- - MMX, FPU (x87), AMD 3DNow
- - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, AES,
- - AMD-V, INTEL-VMX, SMX
+ - FPU (x87), MMX
+ - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
+ - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
+ - ADX, BMI1, BMI2, FMA, FMA4
+ - ..
 - Optimized for high performance
-- Very small overhead compared to other common disassembler libraries (about 60KiB)
-- Abstract formatter and symbol-resolver classes for custom syntax implementations.
- - Intel syntax is implemented by default
+- Very small overhead compared to other common disassembler libraries
 - Complete doxygen documentation
 
 ## Quick Example ##
 
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
-```c++
-#include <iostream>
-#include <iomanip>
-#include <stdint.h>
-#include <Zydis.hpp>
+```C
+#include <stdio.h>
+#include <Zydis/Zydis.h>
 
 int main()
 {
@@ -35,29 +33,30 @@ int main()
         0x88, 0xFC, 0xDA, 0x02, 0x00
     };
 
-    Zydis::MemoryInput input(&data[0], sizeof(data));
-    Zydis::InstructionInfo info;
-    Zydis::InstructionDecoder decoder;
-    decoder.setDisassemblerMode(Zydis::DisassemblerMode::M32BIT);
-    decoder.setDataSource(&input);
-    decoder.setInstructionPointer(0x00400000);
-    Zydis::IntelInstructionFormatter formatter;
+    ZydisMemoryInput input;
+    ZydisInputInitMemoryInput(&input, &data, sizeof(data));
 
-    while (decoder.decodeInstruction(info))
+    ZydisInstructionDecoder decoder;
+    ZydisDecoderInitInstructionDecoderEx(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT, 
+        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA); 
+    ZydisDecoderSetInstructionPointer(&decoder, 0x007FFFFFFF400000);
+
+    ZydisInstructionFormatter formatter;
+    ZydisFormatterInitInstructionFormatterEx(&formatter, 
+        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT);
+  
+    ZydisInstructionInfo info;
+    char buffer[256];
+    while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
-        std::cout << std::hex << std::setw(8) << std::setfill('0') 
-                  << std::uppercase << info.instrAddress << " "; 
-
-        if (info.flags & Zydis::IF_ERROR_MASK)
+        printf("%016llX  ", info.instrAddress);
+        if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
         {
-            std::cout << "db " << std::setw(2) 
-                      << static_cast<int>(info.data[0]) 
-                      << std::endl;    
-        } 
-        else
-        {
-            std::cout << formatter.formatInstruction(info) << std::endl;
+            printf(" db %02x\n", info.data[0]);    
+            continue;
         }
+        ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], sizeof(buffer));  
+        printf(" %s\n", &buffer[0]);
     }
 }
 ```
@@ -67,23 +66,19 @@ int main()
 The above example program generates the following output:
 
 ```
-00400000 push ecx
-00400001 lea eax, [ebp-01]
-00400004 push eax
-00400005 push dword ptr [ebp+0C]
-00400008 push dword ptr [ebp+08]
-0040000B call dword ptr [7648A5A0]
-00400011 test eax, eax
-00400013 js 0042DB15
+007FFFFFFF400000   push rcx
+007FFFFFFF400001   lea eax, dword ptr ss:[rbp-0x01]
+007FFFFFFF400004   push rax
+007FFFFFFF400005   push qword ptr ss:[rbp+0x0C]
+007FFFFFFF400008   push qword ptr ss:[rbp+0x08]
+007FFFFFFF40000B   call qword ptr ds:[0x008000007588A5B1]
+007FFFFFFF400011   test eax, eax
+007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
 ## Compilation ##
 
-Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C++14 compiler.
-
-## Documentation ##
-
-[The HTML Doxygen documentation](https://www.zyantific.com/doc/zydis/index.html) is automatically built from master every 12 hours.
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
 ## License ##
 
