@@ -194,7 +194,7 @@ enum ZydisRegisterSizes
  *
  * @return  The register specified by the @c registerClass and the @c id.
  */
-ZYDIS_DLLEXTERN ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id);
 
 /**
  * @brief   Returns the specified register string.
@@ -203,7 +203,7 @@ ZYDIS_DLLEXTERN ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerCl
  *
  * @return  The register string or @c NULL, if an invalid register was passed.
  */
-ZYDIS_DLLEXTERN const char* ZydisRegisterGetString(ZydisRegister reg);
+ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
 
 /**
  * @brief   Returns the register-class of the specified register.
@@ -212,7 +212,7 @@ ZYDIS_DLLEXTERN const char* ZydisRegisterGetString(ZydisRegister reg);
  *
  * @return  The register-class of the specified register.
  */
-ZYDIS_DLLEXTERN ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
+ZYDIS_EXPORT ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
 
 /**
  * @brief   Returns the size of the specified register.
@@ -221,7 +221,7 @@ ZYDIS_DLLEXTERN ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
  *
  * @return  The size of the specified register.
  */
-ZYDIS_DLLEXTERN ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg);
+ZYDIS_EXPORT ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a general purpose register.
@@ -230,7 +230,7 @@ ZYDIS_DLLEXTERN ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg);
  *
  * @return  True, if the specified register is a general purpose register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsGPR(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 8-bit general purpose register.
@@ -239,7 +239,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 8-bit general purpose register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR8(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsGPR8(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 16-bit general purpose register.
@@ -248,7 +248,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR8(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 16-bit general purpose register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR16(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsGPR16(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 32-bit general purpose register.
@@ -257,7 +257,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR16(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 32-bit general purpose register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR32(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsGPR32(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 64-bit general purpose register.
@@ -266,7 +266,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR32(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 64-bit general purpose register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR64(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsGPR64(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a legacy floating-point register.
@@ -275,7 +275,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsGPR64(ZydisRegister reg);
  *
  * @return  True, if the specified register is a legacy floating-point register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsFPRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsFPRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a multi-media register.
@@ -284,7 +284,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsFPRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a multi-media register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsMMRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsMMRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a vector register.
@@ -293,7 +293,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsMMRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a vector register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsVR(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsVR(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 128-bit vector register.
@@ -302,7 +302,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsVR(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 128-bit vector register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsVR128(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsVR128(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 256-bit vector register.
@@ -311,7 +311,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsVR128(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 256-bit vector register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsVR256(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsVR256(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a 512-bit vector register.
@@ -320,7 +320,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsVR256(ZydisRegister reg);
  *
  * @return  True, if the specified register is a 512-bit vector register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsVR512(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsVR512(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a flags register.
@@ -329,7 +329,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsVR512(ZydisRegister reg);
  *
  * @return  True, if the specified register is a flags register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsFlagsRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsFlagsRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is an instruction-pointer register.
@@ -338,7 +338,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsFlagsRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a instruction-pointer register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsIPRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsIPRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a segment register.
@@ -347,7 +347,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsIPRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a segment register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsSegmentRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsSegmentRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a control register.
@@ -356,7 +356,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsSegmentRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a control register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsCR(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsCR(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a debug register.
@@ -365,7 +365,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsCR(ZydisRegister reg);
  *
  * @return  True, if the specified register is a debug register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsDR(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsDR(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a mask register.
@@ -374,7 +374,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsDR(ZydisRegister reg);
  *
  * @return  True, if the specified register is a mask register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsMaskRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsMaskRegister(ZydisRegister reg);
 
 /**
  * @brief   Checks if the specified register is a bound register.
@@ -383,7 +383,7 @@ ZYDIS_DLLEXTERN bool ZydisRegisterIsMaskRegister(ZydisRegister reg);
  *
  * @return  True, if the specified register is a bound register.
  */
-ZYDIS_DLLEXTERN bool ZydisRegisterIsBoundsRegister(ZydisRegister reg);
+ZYDIS_EXPORT bool ZydisRegisterIsBoundsRegister(ZydisRegister reg);
 
 /* ============================================================================================== */
 

@@ -116,7 +116,7 @@ typedef struct ZydisMemoryInput_
  *                  
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffer, 
+ZYDIS_EXPORT ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffer, 
     uint64_t length);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -159,7 +159,7 @@ typedef struct ZydisFileInput_
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisInputInitFileInput(ZydisFileInput* input, FILE* file);
+ZYDIS_EXPORT ZydisStatus ZydisInputInitFileInput(ZydisFileInput* input, FILE* file);
 
 /* ---------------------------------------------------------------------------------------------- */
 

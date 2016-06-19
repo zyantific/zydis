@@ -99,7 +99,7 @@ extern "C" {
  * Use the macros provided in this file to extract the major, minor, patch and build part from the 
  * returned version value.
  */
-ZYDIS_DLLEXTERN uint64_t ZydisGetVersion();
+ZYDIS_EXPORT uint64_t ZydisGetVersion();
 
 /* ============================================================================================== */
 

@@ -48,6 +48,7 @@ extern "C" {
  *          
  * This function should return the name of the symbol found at the given @c address and an 
  * optional @c offset.
+ * If no symbol was found at the given @c address, the return value should be @c NULL.
  */
 typedef const char* (*ZydisResolverResolveSymbolFunc)(void* context, 
     const ZydisInstructionInfo* info, const ZydisOperandInfo* operand, uint64_t address, 

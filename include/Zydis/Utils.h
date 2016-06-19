@@ -53,7 +53,7 @@ extern "C" {
  *
  * @return  A zydis status code
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info,
+ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info,
     const ZydisOperandInfo* operand, uint64_t* address);
 
 /* ---------------------------------------------------------------------------------------------- */

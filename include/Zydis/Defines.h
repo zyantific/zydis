@@ -27,6 +27,8 @@
 #ifndef ZYDIS_DEFINES_H
 #define ZYDIS_DEFINES_H
 
+#include <ZydisExportConfig.h>
+
 /* ============================================================================================== */
 /* Compiler detection                                                                             */
 /* ============================================================================================== */
@@ -108,20 +110,6 @@
 #   define ZYDIS_INLINE __inline 
 #else
 #   define ZYDIS_INLINE static inline
-#endif
-
-/* ============================================================================================== */
-/* Dynamic linkage macros                                                                         */
-/* ============================================================================================== */
-
-#if defined(ZYDIS_MSVC) && defined(ZYDIS_DYNAMIC)
-#   ifdef ZYDIS_EXPORTS
-#       define ZYDIS_DLLEXTERN __declspec(dllexport)
-#   else
-#       define ZYDIS_DLLEXTERN __declspec(dllimport)
-#   endif
-#else
-#   define ZYDIS_DLLEXTERN 
 #endif
 
 /* ============================================================================================== */

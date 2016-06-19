@@ -192,7 +192,7 @@ typedef struct ZydisInstructionFormatter_
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterInitInstructionFormatter(
+ZYDIS_EXPORT ZydisStatus ZydisFormatterInitInstructionFormatter(
     ZydisInstructionFormatter* formatter, ZydisFormatterStyle style);
 
 /**
@@ -204,7 +204,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterInitInstructionFormatter(
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterInitInstructionFormatterEx(
+ZYDIS_EXPORT ZydisStatus ZydisFormatterInitInstructionFormatterEx(
     ZydisInstructionFormatter* formatter, ZydisFormatterStyle style, ZydisFormatterFlags flags);
 
 /**
@@ -216,7 +216,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterInitInstructionFormatterEx(
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterGetSymbolResolver(
+ZYDIS_EXPORT ZydisStatus ZydisFormatterGetSymbolResolver(
     const ZydisInstructionFormatter* formatter, ZydisCustomSymbolResolver** symbolResolver);
 
 /**
@@ -227,7 +227,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterGetSymbolResolver(
  *
  * @return  The ZydisStatus.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterSetSymbolResolver(
+ZYDIS_EXPORT ZydisStatus ZydisFormatterSetSymbolResolver(
     ZydisInstructionFormatter* formatter, ZydisCustomSymbolResolver* symbolResolver);
 
 /**
@@ -240,7 +240,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterSetSymbolResolver(
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisFormatterFormatInstruction(
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(
     ZydisInstructionFormatter* formatter, const ZydisInstructionInfo* info, char* buffer,
     size_t bufferLen);
 

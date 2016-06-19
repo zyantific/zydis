@@ -104,7 +104,7 @@ typedef struct ZydisInstructionDecoder_
  *                  
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
     ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input);
 
 /**
@@ -117,7 +117,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionD
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder,
     ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input, ZydisDecoderFlags flags);
 
 /**
@@ -129,7 +129,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructio
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDisassemblerMode(const ZydisInstructionDecoder* decoder, 
+ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDisassemblerMode(const ZydisInstructionDecoder* decoder, 
     ZydisDisassemblerMode* disassemblerMode);
 
 /**
@@ -140,7 +140,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDisassemblerMode(const ZydisInstructi
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDecoder* decoder, 
+ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDecoder* decoder, 
     ZydisDisassemblerMode disassemblerMode);
 
 /**
@@ -152,7 +152,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDeco
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecoder* decoder,
     ZydisCustomInput** input);
 
 /**
@@ -163,7 +163,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDe
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
     ZydisCustomInput* input);
 
 /**
@@ -174,7 +174,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder*
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDecoderFlags(const ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderFlags(const ZydisInstructionDecoder* decoder,
     ZydisDecoderFlags* flags);
 
 /**
@@ -185,7 +185,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetDecoderFlags(const ZydisInstructionDe
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDecoderFlags(ZydisInstructionDecoder* decoder, 
+ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDecoderFlags(ZydisInstructionDecoder* decoder, 
     ZydisDecoderFlags flags);
 
 /**
@@ -198,7 +198,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetDecoderFlags(ZydisInstructionDecoder*
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetInstructionPointer(
+ZYDIS_EXPORT ZydisStatus ZydisDecoderGetInstructionPointer(
     const ZydisInstructionDecoder* decoder, uint64_t* instructionPointer);
 
 /**
@@ -209,7 +209,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderGetInstructionPointer(
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecoder* decoder, 
+ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecoder* decoder, 
     uint64_t instructionPointer);
 
 /**
@@ -221,7 +221,7 @@ ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDe
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     ZydisInstructionInfo* info);
 
 /* ============================================================================================== */

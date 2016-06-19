@@ -13,7 +13,11 @@ Fast and lightweight x86/x86-64 disassembler library.
  - ADX, BMI1, BMI2, FMA, FMA4
  - ..
 - Optimized for high performance
-- Very small overhead compared to other common disassembler libraries
+- No dynamic memory allocation
+ - Perfect for kernel-mode drivers and embedded devices
+- Very small file-size overhead compared to other common disassembler libraries
+- Language bindings
+ - C++, Delphi, Python, ..
 - Complete doxygen documentation
 
 ## Quick Example ##

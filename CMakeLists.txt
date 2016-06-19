@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.12)
+cmake_policy(SET CMP0054 NEW)
 include(GenerateExportHeader)
 
 project(Zydis)
@@ -12,28 +13,25 @@ option(BUILD_EXAMPLES "Build examples" TRUE)
 option(BUILD_TOOLS "Build tools")
 
 if (NOT CONFIGURED_ONCE)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
         set(compiler_specific "-std=c99 -pedantic -Wextra -Werror")
     elseif (MSVC)
         set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /TC")
     endif ()
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_specific} ${compiler_specific_cxx}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif ()
 
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
 # to generate with a statically linked CRT when we build as a static library.
-if (MSVC AND NOT FORCE_SHARED_CRT)
+if (("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND NOT FORCE_SHARED_CRT)
     foreach(flag_var
-            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
         if(${flag_var} MATCHES "/MD")
             string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-        endif(${flag_var} MATCHES "/MD")
+        endif ()
     endforeach(flag_var)
 endif ()
 
@@ -66,7 +64,7 @@ if (BUILD_SHARED_LIBS AND WIN32)
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
-set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "Zydis_EXPORTS")
+set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "ZYDIS_EXPORTS")
 generate_export_header(
     "Zydis" 
     BASE_NAME "ZYDIS"

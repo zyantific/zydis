@@ -63,7 +63,7 @@ enum ZydisInstructionMnemonics
  *                      
  * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
  */
-ZYDIS_DLLEXTERN const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic);
+ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic);
 
 /**
  * @brief   Replaces the string representation of the given mnemonic with a new value.
@@ -73,7 +73,7 @@ ZYDIS_DLLEXTERN const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnem
  *
  * @return  A zydis status code.
  */
-ZYDIS_DLLEXTERN ZydisStatus ZydisMnemonicReplaceString(ZydisInstructionMnemonic mnemonic, 
+ZYDIS_EXPORT ZydisStatus ZydisMnemonicReplaceString(ZydisInstructionMnemonic mnemonic, 
     const char* mnemonicString);
 
 /* ============================================================================================== */
