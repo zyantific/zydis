@@ -37,26 +37,20 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
-/* Operand utils                                                                                  */
+/* Utils                                                                                          */
 /* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Exported functions                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Calculates the absolute target-address of an relative instruction operand.
  *
  * @param   info    A pointer to the instruction-info struct.
  * @param   operand A pointer to the operand-info struct.
- * @param   address A pointer to the memory address that receives the absolute target-address.
+ * @param   address A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zydis status code
  */
 ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info,
     const ZydisOperandInfo* operand, uint64_t* address);
-
-/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 

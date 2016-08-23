@@ -88,6 +88,25 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+/* Enums and types                                                                                */
+/* ============================================================================================== */
+
+/**
+ * @brief   Defines the zydis feature datatype.
+ */
+typedef uint8_t ZydisFeature;
+
+/**
+ * @brief   Values that represent zydis features.
+ */
+enum ZydisFeatures
+{
+    ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS,
+    ZYDIS_FEATURE_AFFECTED_FLAGS,
+    ZYDIS_FEATURE_CPUID
+};
+
+/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
@@ -100,6 +119,15 @@ extern "C" {
  * returned version value.
  */
 ZYDIS_EXPORT uint64_t ZydisGetVersion();
+
+/**
+ * @brief   Checks, if the specified feature is enabled in the current zydis library instance.
+ *
+ * @param   feature The feature.
+ *
+ * @return  @c True if the feature is enabled, @c false if not.
+ */
+ZYDIS_EXPORT bool ZydisIsFeatureEnabled(ZydisFeature feature);
 
 /* ============================================================================================== */
 

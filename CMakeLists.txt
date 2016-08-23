@@ -5,12 +5,23 @@ include(GenerateExportHeader)
 project(Zydis)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(BUILD_SHARED_LIBS "Build shared libraries rather than static ones" FALSE)
+option(BUILD_SHARED_LIBS 
+    "Build shared libraries rather than static ones" 
+    FALSE)
 option(FORCE_SHARED_CRT 
     "Forces shared linkage against the CRT even when building a static library" 
     FALSE)
+option(FEATURE_IMPLICITLY_USED_REGISTERS 
+    "Include information about implicitly used registers" 
+    TRUE)
+option(FEATURE_AFFECTED_FLAGS 
+    "Include information about affected flags"
+    TRUE)
+option(FEATURE_CPUID 
+    "Include information about CPUID feature-flags"
+    FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
-option(BUILD_TOOLS "Build tools")
+option(BUILD_TOOLS "Build tools" TRUE)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
@@ -32,7 +43,7 @@ if (("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND NOT FORCE_SHARED_CRT)
         if(${flag_var} MATCHES "/MD")
             string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
         endif ()
-    endforeach(flag_var)
+    endforeach ()
 endif ()
 
 # Library
@@ -41,6 +52,7 @@ set(headers
     "include/Zydis/Defines.h"
     "include/Zydis/Formatter.h"
     "include/Zydis/Input.h"
+    "include/Zydis/InstructionDetails.h"
     "include/Zydis/InstructionInfo.h"
     "include/Zydis/Mnemonic.h"
     "include/Zydis/Register.h"
@@ -53,6 +65,7 @@ set(sources
     "src/Decoder.c"
     "src/Formatter.c"
     "src/Input.c"
+    "src/InstructionDetails.c"
     "src/InstructionTable.c"
     "src/Mnemonic.c"
     "src/Register.c"
