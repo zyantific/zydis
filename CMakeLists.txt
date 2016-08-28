@@ -10,7 +10,7 @@ option(FORCE_SHARED_CRT
     "Forces shared linkage against the CRT even when building a static library" 
     FALSE)
 option(BUILD_EXAMPLES "Build examples" TRUE)
-option(BUILD_TOOLS "Build tools")
+option(BUILD_TOOLS "Build tools" TRUE)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
@@ -74,24 +74,23 @@ include_directories(${PROJECT_BINARY_DIR})
 # Examples
 if (BUILD_EXAMPLES)
     include_directories("include")
-    add_executable("ZydisTest" "examples/ZydisTest.c")
-    target_link_libraries("ZydisTest" "Zydis")
-    set_target_properties ("ZydisTest" PROPERTIES
-        FOLDER "Examples"
-    )
-    add_executable("ZydisPE" "examples/ZydisPE.c")
-    target_link_libraries("ZydisPE" "Zydis")
-    set_target_properties ("ZydisPE" PROPERTIES
-        FOLDER "Examples"
-    )
+
+    if (WIN32)
+        add_executable("ZydisPE" "examples/ZydisPE.c")
+        target_link_libraries("ZydisPE" "Zydis")
+        set_target_properties ("ZydisPE" PROPERTIES FOLDER "Examples")
+    endif ()
 endif ()
 
 # Tools
 if (BUILD_TOOLS)
     include_directories("include")
+
     add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
     target_link_libraries("ZydisDisasm" "Zydis")
-    set_target_properties ("ZydisDisasm" PROPERTIES
-        FOLDER "Tools"
-    )
+    set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
+
+    add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
+    target_link_libraries("ZydisFuzzIn" "Zydis")
+    set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")
 endif ()

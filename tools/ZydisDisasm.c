@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         }
 
         ZydisFormatterFormatInstruction(&formatter, &info, buffer, sizeof(buffer));
-        printf("%s\n", &buffer[0]);
+        puts(buffer);
     }
 }
 
