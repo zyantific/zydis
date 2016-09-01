@@ -24,6 +24,12 @@
 
 ***************************************************************************************************/
 
+/*
+ * This file implements a tool that is supposed to be fed as input for fuzzers like AFL,
+ * reading a control block from stdin, allowing the fuzzer to reach every possible
+ * code-path, testing any possible combination of disassembler configurations.
+ */
+
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,6 +42,7 @@ typedef struct ZydisFuzzControlBlock_ {
     int decoderFlags;  
     int formatterStyle;
     int formatterFlags;
+    uint8_t bufSize;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -75,6 +82,7 @@ int main()
     }
 
     ZydisInstructionInfo info;
+    char *outBuf = malloc(controlBlock.bufSize);
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
         if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
@@ -83,10 +91,12 @@ int main()
             continue;
         }
 
-        char outBuf[256];
-        ZydisFormatterFormatInstruction(&formatter, &info, outBuf, sizeof(outBuf));
+        ZydisFormatterFormatInstruction(&formatter, &info, outBuf, controlBlock.bufSize);
         puts(outBuf);
     }
+
+    free(outBuf);
+    return 0;
 }
 
 /* ============================================================================================== */
