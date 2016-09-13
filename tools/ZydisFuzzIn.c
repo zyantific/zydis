@@ -2,7 +2,7 @@
 
   Zyan Disassembler Engine (Zydis)
 
-  Original Author : Florian Bernd, Joel Höner
+  Original Author : Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,58 +24,65 @@
 
 ***************************************************************************************************/
 
+/*
+ * This file implements a tool that is supposed to be fed as input for fuzzers like AFL,
+ * reading a control block from stdin, allowing the fuzzer to reach every possible
+ * code-path, testing any possible combination of disassembler configurations.
+ */
+
 #include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <Zydis/Zydis.h>
+
+typedef struct ZydisFuzzControlBlock_ {
+    int disasMode;
+    int decoderFlags;  
+    int formatterStyle;
+    int formatterFlags;
+    uint8_t bufSize;
+} ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-int main(int argc, char** argv)
+int main()
 {
-    if (argc != 2)
+    ZydisFuzzControlBlock controlBlock;
+    if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
     {
-        fprintf(stderr, "Usage: %s <input file>\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
-        return EXIT_FAILURE;
-    }
-
-    FILE* file = fopen(argv[1], "rb");
-    if (!file)
-    {
-        fprintf(stderr, "Can not open file: %s\n", strerror(errno));
+        fputs("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
 
     ZydisFileInput input;
-    if (!ZYDIS_SUCCESS(ZydisInputInitFileInput(&input, file)))
+    if (!ZYDIS_SUCCESS(ZydisInputInitFileInput(&input, stdin)))
     {
-        fputs("Failed to initialize file-input\n", stderr);
+        fputs("failed to initialize file-input\n", stderr);
         return EXIT_FAILURE;
     }
 
     ZydisInstructionFormatter formatter;
     if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter, 
-        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT)))
+        controlBlock.formatterStyle, controlBlock.formatterFlags)))
     {
-        fputs("Failed to initialized instruction-formatter\n", stderr);
+        fputs("failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;
     }
 
     ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT, 
-        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA)))
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(&decoder, controlBlock.disasMode, 
+        (ZydisCustomInput*)&input, controlBlock.decoderFlags)))
     {
         fputs("Failed to initialize instruction-decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
-    char buffer[256];
     ZydisInstructionInfo info;
+    char *outBuf = malloc(controlBlock.bufSize);
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
         if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
@@ -84,9 +91,13 @@ int main(int argc, char** argv)
             continue;
         }
 
-        ZydisFormatterFormatInstruction(&formatter, &info, buffer, sizeof(buffer));
-        puts(buffer);
+        ZydisFormatterFormatInstruction(&formatter, &info, outBuf, controlBlock.bufSize);
+        puts(outBuf);
     }
+
+    free(outBuf);
+    return 0;
 }
 
 /* ============================================================================================== */
+
