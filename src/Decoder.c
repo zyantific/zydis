@@ -568,6 +568,7 @@ static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* d
         // in the lo and hi part of the immediate.
         if (info->details.internal.imm8initialized)
         {
+            // TODO: Implement clean solution
             operand->imm.value.ubyte = info->details.internal.imm8;        
         } else
         {
@@ -861,6 +862,7 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
     if (displacementSize)
     {
         ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, displacementSize, true));
+        info->details.internal.imm8initialized = false;
         operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
         operand->mem.disp.size = displacementSize;
         operand->mem.disp.value.sqword = operand->imm.value.sqword;

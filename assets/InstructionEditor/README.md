@@ -13,7 +13,7 @@ The Zydis Instruction Editor was created to easily edit the Zydis instruction da
 
 ## Screenshot ##
 
-![Zydis Instruction Editor](/screenshot.png?raw=true "Zydis Instruction Editor")
+![Zydis Instruction Editor](/assets/InstructionEditor/screenshot.png?raw=true "Zydis Instruction Editor")
 
 ## Compilation ##
 
