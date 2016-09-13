@@ -134,8 +134,8 @@
             <Form>frmMain</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="untInstructionEditor.pas"/>
-        <DCCReference Include="untInstructionFilters.pas"/>
+        <DCCReference Include="Zydis.InstructionEditor.pas"/>
+        <DCCReference Include="Zydis.InstructionFilters.pas"/>
         <DCCReference Include="untHelperClasses.pas"/>
         <DCCReference Include="Forms\Editors\formEditorCPUIDFeatureFlags.pas">
             <Form>frmEditorCPUIDFeatureFlags</Form>
@@ -146,7 +146,6 @@
             <Form>frmCreateDefinition</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="untPropertyEditors.pas"/>
         <DCCReference Include="Forms\Editors\formEditorX86Registers.pas">
             <Form>frmEditorX86Registers</Form>
             <FormType>dfm</FormType>
@@ -155,10 +154,8 @@
             <Form>frmGenerator</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="Forms\Editors\formEditorInstructionOperands.pas">
-            <Form>frmEditorInstructionOperands</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
+        <DCCReference Include="Zydis.CodeGenerator.pas"/>
+        <DCCReference Include="untPropertyEditors.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -2,8 +2,8 @@ object frmMain: TfrmMain
   Left = 0
   Top = 0
   Caption = 'InstructionEditor'
-  ClientHeight = 761
-  ClientWidth = 1084
+  ClientHeight = 961
+  ClientWidth = 1384
   Color = clBtnFace
   Constraints.MinHeight = 800
   Constraints.MinWidth = 1100
@@ -23,7 +23,7 @@ object frmMain: TfrmMain
   object Ribbon: TdxRibbon
     Left = 0
     Top = 0
-    Width = 1084
+    Width = 1384
     Height = 127
     BarManager = BarManager
     Style = rs2010
@@ -58,8 +58,8 @@ object frmMain: TfrmMain
   end
   object StatusBar: TdxRibbonStatusBar
     Left = 0
-    Top = 736
-    Width = 1084
+    Top = 936
+    Width = 1384
     Height = 25
     Panels = <
       item
@@ -100,13 +100,13 @@ object frmMain: TfrmMain
     Left = 364
     Top = 127
     Width = 3
-    Height = 609
+    Height = 809
   end
   object pnlInspector: TPanel
     Left = 0
     Top = 127
     Width = 364
-    Height = 609
+    Height = 809
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 3
@@ -114,16 +114,16 @@ object frmMain: TfrmMain
       Left = 0
       Top = 0
       Width = 364
-      Height = 609
+      Height = 809
       Align = alClient
       DockingType = 5
       OriginalWidth = 364
-      OriginalHeight = 609
+      OriginalHeight = 809
       object LayoutDockSite: TdxLayoutDockSite
         Left = 0
         Top = 0
         Width = 364
-        Height = 609
+        Height = 809
         DockingType = 0
         OriginalWidth = 300
         OriginalHeight = 200
@@ -132,7 +132,7 @@ object frmMain: TfrmMain
         Left = 0
         Top = 0
         Width = 364
-        Height = 609
+        Height = 809
         ActiveChildIndex = -1
         AllowFloating = False
         AutoHide = False
@@ -146,7 +146,7 @@ object frmMain: TfrmMain
           Left = 0
           Top = 0
           Width = 364
-          Height = 431
+          Height = 531
           AllowFloating = False
           AutoHide = False
           Caption = 'Property Inspector'
@@ -157,12 +157,12 @@ object frmMain: TfrmMain
           TabsProperties.CustomButtons.Buttons = <>
           DockingType = 2
           OriginalWidth = 350
-          OriginalHeight = 431
+          OriginalHeight = 531
           object Inspector: TcxRTTIInspector
             Left = 0
             Top = 0
             Width = 350
-            Height = 396
+            Height = 496
             Align = alClient
             Constraints.MinWidth = 350
             LookAndFeel.NativeStyle = False
@@ -176,30 +176,12 @@ object frmMain: TfrmMain
             OnItemChanged = InspectorItemChanged
             Version = 1
           end
-          object Button1: TButton
-            Left = 279
-            Top = -5
-            Width = 75
-            Height = 25
-            Caption = 'Button1'
-            TabOrder = 1
-            OnClick = Button1Click
-          end
-          object Button2: TButton
-            Left = 136
-            Top = 104
-            Width = 75
-            Height = 25
-            Caption = 'Button2'
-            TabOrder = 2
-            OnClick = Button2Click
-          end
         end
         object pnlPropertyInformation: TdxDockPanel
           Left = 0
-          Top = 431
+          Top = 531
           Width = 364
-          Height = 178
+          Height = 278
           AllowFloating = False
           AutoHide = False
           Caption = 'Property Information'
@@ -210,13 +192,13 @@ object frmMain: TfrmMain
           TabsProperties.CustomButtons.Buttons = <>
           DockingType = 2
           OriginalWidth = 185
-          OriginalHeight = 178
+          OriginalHeight = 278
           object lblPropertyInfo: TLabel
             AlignWithMargins = True
             Left = 3
             Top = 3
             Width = 344
-            Height = 137
+            Height = 237
             Align = alClient
             Caption = 'No info text available'
             Constraints.MinHeight = 120
@@ -237,8 +219,8 @@ object frmMain: TfrmMain
   object EditorTree: TVirtualStringTree
     Left = 367
     Top = 127
-    Width = 717
-    Height = 609
+    Width = 1017
+    Height = 809
     Align = alClient
     Header.AutoSizeIndex = 0
     Header.Font.Charset = DEFAULT_CHARSET
@@ -264,7 +246,7 @@ object frmMain: TfrmMain
     Columns = <
       item
         Position = 0
-        Width = 10
+        Width = 83
         WideText = 'Index'
       end
       item
@@ -300,6 +282,11 @@ object frmMain: TfrmMain
       end
       item
         Position = 7
+        Width = 90
+        WideText = 'OP E'
+      end
+      item
+        Position = 8
         Width = 150
         WideText = 'Comment'
       end>
@@ -579,9 +566,9 @@ object frmMain: TfrmMain
       OnClick = bbDeleteDefinitionClick
     end
     object lbGenerate: TdxBarLargeButton
-      Caption = 'Generate C++ Files'
+      Caption = 'Code Generator'
       Category = 0
-      Hint = 'Generate C++ Files'
+      Hint = 'Code Generator'
       Visible = ivAlways
       LargeImageIndex = 5
       OnClick = lbGenerateClick

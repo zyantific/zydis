@@ -470,7 +470,7 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
         (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), mnemonic));
 
     uint16_t typecast = 0;
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         if (info->operand[i].type == ZYDIS_OPERAND_TYPE_UNUSED)
         {

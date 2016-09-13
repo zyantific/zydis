@@ -10,7 +10,7 @@ uses
   dxRibbonCustomizationForm, dxRibbonSkins, cxStyles, cxEdit, cxInplaceContainer, dxSkinsForm,
   dxStatusBar, dxRibbonStatusBar, cxClasses, dxRibbon, dxBar, dxRibbonForm, cxSplitter, cxPC,
   dxBarExtItems, dxSkinsdxDockControlPainter, dxDockControl, dxSkinsdxRibbonPainter,
-  dxGDIPlusClasses, VirtualTrees, untInstructionEditor;
+  dxGDIPlusClasses, VirtualTrees, Zydis.InstructionEditor;
 
 // TODO: Add support for multi node selection and allow copy / paste / cut / delete of mutiple
 //       definitions
@@ -69,8 +69,6 @@ type
     dxBarSeparator4: TdxBarSeparator;
     bbExpandLeaf: TdxBarButton;
     bbCollapseLeaf: TdxBarButton;
-    Button1: TButton;
-    Button2: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -104,11 +102,9 @@ type
       Y: Integer);
     procedure bbExpandLeafClick(Sender: TObject);
     procedure bbCollapseLeafClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure EditorTreeGetImageIndex(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-      var Ghosted: Boolean; var ImageIndex: TImageIndex);
+      var Ghosted: Boolean; var ImageIndex: System.UITypes.TImageIndex);
   strict private
     FEditor: TInstructionEditor;
     FUpdating: Boolean;
@@ -788,7 +784,7 @@ end;
 
 procedure TfrmMain.EditorTreeGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
-  var Ghosted: Boolean; var ImageIndex: TImageIndex);
+  var Ghosted: Boolean; var ImageIndex: System.UITypes.TImageIndex);
 var
   NodeData: PEditorNodeData;
 begin
@@ -889,7 +885,8 @@ begin
             4: CellText := NodeData^.Definition.Operands.OperandB.GetDescription(true);
             5: CellText := NodeData^.Definition.Operands.OperandC.GetDescription(true);
             6: CellText := NodeData^.Definition.Operands.OperandD.GetDescription(true);
-            7: CellText := NodeData^.Definition.Comment;
+            7: CellText := NodeData^.Definition.Operands.OperandE.GetDescription(true);
+            8: CellText := NodeData^.Definition.Comment;
           end;
         end;
     end;
@@ -909,15 +906,9 @@ begin
   if (Assigned(NodeData) and (NodeData^.NodeType = ntInstructionDefinition)) then
   begin
     S := '';
-    for I := 0 to 3 do
+    for I := 0 to NodeData^.Definition.Operands.OperandCount - 1 do
     begin
-      O := nil;
-      case I of
-        0: O := NodeData^.Definition.Operands.OperandA;
-        1: O := NodeData^.Definition.Operands.OperandB;
-        2: O := NodeData^.Definition.Operands.OperandC;
-        3: O := NodeData^.Definition.Operands.OperandD;
-      end;
+      O := NodeData^.Definition.Operands.Operands[I];
       S := S + IntToStr(Integer(O.OperandType)) + ',' + IntToStr(Integer(O.Encoding)) + ',' +
         IntToStr(Integer(O.AccessMode)) + ',';
     end;
@@ -936,24 +927,23 @@ begin
   if (Assigned(NodeData) and (NodeData^.NodeType = ntInstructionDefinition)) then
   begin
     A := Clipboard.AsText.Split([',']);
-    if (Length(A) >= 12) then
+    if (Length(A) >= 15) then
     begin
       I := 0;
       J := 0;
-      while (J < 4) do
-      begin
-        O := nil;
-        case J of
-          0: O := NodeData^.Definition.Operands.OperandA;
-          1: O := NodeData^.Definition.Operands.OperandB;
-          2: O := NodeData^.Definition.Operands.OperandC;
-          3: O := NodeData^.Definition.Operands.OperandD;
+      NodeData^.Definition.BeginUpdate;
+      try
+        while (J < 5) do
+        begin
+          O := NodeData^.Definition.Operands.Operands[J];
+          O.OperandType := TOperandType(StrToInt(A[I]));
+          O.Encoding := TOperandEncoding(StrToInt(A[I + 1]));
+          O.AccessMode := TOperandAccessMode(StrToInt(A[I + 2]));
+          Inc(I, 3);
+          Inc(J);
         end;
-        O.OperandType := TOperandType(StrToInt(A[I]));
-        O.Encoding := TOperandEncoding(StrToInt(A[I + 1]));
-        O.AccessMode := TOperandAccessMode(StrToInt(A[I + 2]));
-        Inc(I, 3);
-        Inc(J);
+      finally
+        NodeData^.Definition.EndUpdate;
       end;
     end;
   end;
@@ -1068,355 +1058,6 @@ end;
 procedure TfrmMain.bbExpandNodesClick(Sender: TObject);
 begin
   ExpandAllNodes(true);
-end;
-
-procedure TfrmMain.Button1Click(Sender: TObject);
-
-procedure DeleteDuplicates(T: TInstructionFilter);
-var
-  L: TList<TInstructionDefinition>;
-  D: TInstructionDefinition;
-  I, J: Integer;
-  B: Boolean;
-begin
-  if (T is TDefinitionContainer) then
-  begin
-    L := TList<TInstructionDefinition>.Create;
-    try
-      for I := (T as TDefinitionContainer).DefinitionCount - 1 downto 0 do
-      begin
-        D := (T as TDefinitionContainer).Definitions[I];
-        B := true;
-        for J := 0 to L.Count - 1 do
-        begin
-          if ((D.Mnemonic = L[J].Mnemonic) and D.Operands.Equals(L[J].Operands) and
-            D.CPUID.Equals(L[J].CPUID) and (D.EVEXCD8Scale = L[J].EVEXCD8Scale)) then
-          begin
-            L[J].Flags := L[J].Flags + D.Flags;
-            D.Free;
-            B := false;
-            Break;
-          end;
-        end;
-        if (B) then L.Add(D);
-      end;
-    finally
-      L.Free;
-    end;
-  end else
-  begin
-    for I := 0 to T.Capacity - 1 do
-    begin
-      if Assigned(T.Items[I]) then
-      begin
-        DeleteDuplicates(T.Items[I]);
-      end;
-    end;
-  end;
-end;
-
-var
-  I, J, K, RegCount, MemIndex: Integer;
-  S: String;
-  A: TArray<String>;
-  D: TInstructionDefinition;
-  O: TInstructionOperand;
-begin
-  FEditor.BeginUpdate;
-
-  for I := 0 to FEditor.DefinitionCount - 1 do
-  begin
-    D := FEditor.Definitions[I];
-    if (D.Encoding <> ieEVEX) then Continue;
-    S := D.Comment;
-    J := 1;
-    while (J < Length(S)) and (S[J] <> ' ') do Inc(J);
-    Delete(S, 1, J);
-    A := S.Split([',']);
-    for J := Low(A) to High(A) do
-    begin
-      A[J] := Trim(A[J]);
-    end;
-    S := A[High(A)];
-    J := 1;
-    while (J < Length(S)) and (S[J] <> ' ') do Inc(J);
-    Delete(S, J, Length(S));
-    A[High(A)] := S;
-    if (A[High(A)][1] = '(') then SetLength(A, Length(A) - 1);
-
-    RegCount := 0;
-    MemIndex := -1;
-    D.BeginUpdate;
-    for J := Low(A) to High(A) do
-    begin
-      O := nil;
-      case J of
-        0: O := D.Operands.OperandA;
-        1: O := D.Operands.OperandB;
-        2: O := D.Operands.OperandC;
-        3: O := D.Operands.OperandD;
-      end;
-
-      if (Pos('{1to', A[J]) > 0) then D.Flags := D.Flags + [ifHasEVEXBC];
-      if (Pos('{sae}', A[J]) > 0) then D.Flags := D.Flags + [ifHasEVEXSAE];
-
-      if (Pos('VK1', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK2', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK4', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK8', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK16', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK32', A[J]) > 0) then O.OperandType := optMSKR;
-      if (Pos('VK64', A[J]) > 0) then O.OperandType := optMSKR;
-
-      if (Pos('GR8', A[J]) > 0) then O.OperandType := optGPR8;
-      if (Pos('GR16', A[J]) > 0) then O.OperandType := optGPR16;
-      if (Pos('GR32', A[J]) > 0) then O.OperandType := optGPR32;
-      if (Pos('GR64', A[J]) > 0) then O.OperandType := optGPR64;
-      if (Pos('8mem', A[J]) > 0) then O.OperandType := optMem8;
-      if (Pos('16mem', A[J]) > 0) then O.OperandType := optMem16;
-      if (Pos('32mem', A[J]) > 0) then
-      begin
-        if (Pos('{1to2}', A[J]) > 0) then O.OperandType := optMem32Bcst2 else
-        if (Pos('{1to4}', A[J]) > 0) then O.OperandType := optMem32Bcst4 else
-        if (Pos('{1to8}', A[J]) > 0) then O.OperandType := optMem32Bcst8 else
-        if (Pos('{1to16}', A[J]) > 0) then O.OperandType := optMem32Bcst16 else
-        O.OperandType := optMem32;
-      end;
-      if (Pos('64mem', A[J]) > 0) then
-      begin
-        if (Pos('{1to2}', A[J]) > 0) then O.OperandType := optMem64Bcst2 else
-        if (Pos('{1to4}', A[J]) > 0) then O.OperandType := optMem64Bcst4 else
-        if (Pos('{1to8}', A[J]) > 0) then O.OperandType := optMem64Bcst8 else
-        if (Pos('{1to16}', A[J]) > 0) then O.OperandType := optMem64Bcst16 else
-        O.OperandType := optMem64;
-      end;
-
-      if (Pos('VR128', A[J]) > 0) then O.OperandType := optVR128;
-      if (Pos('VR256', A[J]) > 0) then O.OperandType := optVR256;
-      if (Pos('VR512', A[J]) > 0) then O.OperandType := optVR512;
-      if (Pos('128mem', A[J]) > 0) then O.OperandType := optMem128;
-      if (Pos('256mem', A[J]) > 0) then O.OperandType := optMem256;
-      if (Pos('512mem', A[J]) > 0) then O.OperandType := optMem512;
-
-      if (Pos('vx32', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vx64', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vx128', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vx256', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vx512', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vy32', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vy64', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vy128', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vy256', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vy512', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vz32', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vz64', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vz128', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vz256', A[J]) > 0) then O.Encoding := opeNone;
-      if (Pos('vz512', A[J]) > 0) then O.Encoding := opeNone;
-
-      if (Pos('imm8', A[J]) > 0) then O.OperandType := optImm8;
-      if (Pos('imm8u', A[J]) > 0) then O.OperandType := optImm8U;
-      if (Pos('u8imm', A[J]) > 0) then O.OperandType := optImm8U;
-
-      if (O.Encoding = opeModrmRm) then
-      begin
-        MemIndex := J;
-        if (D.EVEXCD8Scale <> 0) then
-        begin
-          case D.EvexCD8Scale of
-            1:  O.Encoding := opeModrmRmCD1;
-            2:  O.Encoding := opeModrmRmCD2;
-            4:  O.Encoding := opeModrmRmCD4;
-            8:  O.Encoding := opeModrmRmCD8;
-            16: O.Encoding := opeModrmRmCD16;
-            32: O.Encoding := opeModrmRmCD32;
-            64: O.Encoding := opeModrmRmCD64;
-          end;
-        end;
-      end;
-
-      if (O.Encoding = opeModrmReg) then Inc(RegCount);
-    end;
-    D.Operands.OperandA.AccessMode := opaWrite;
-    if (RegCount = 3) or ((RegCount = 2) and (MemIndex > -1) and (MemIndex <> 1)) then
-    begin
-      D.Operands.OperandB.Encoding := opeVexVVVV;
-    end;
-    D.EndUpdate;
-
-  end;
-  DeleteDuplicates(FEditor.RootTable.Items[$62]);
-  FEditor.EndUpdate;
-end;
-
-procedure TfrmMain.Button2Click(Sender: TObject);
-
-function BitsNeeded(N: Integer): Integer;
-begin
-  Result := Floor(log2(n) + 1);
-end;
-
-var
-  Mnemonics: TDictionary<String, Boolean>;
-  Node: PVirtualNode;
-  NodeData: PEditorNodeData;
-  LOPS: TList<TPair<TInstructionOperands, Integer>>;
-  LCPUID: TList<TPair<TCPUIDFeatureFlagSet, Integer>>;
-  LEFLAGS: TList<TPair<TX86Flags, Integer>>;
-  LREGS: TList<TPair<TX86RegisterSet, Integer>>;
-  I, J, Bits: Integer;
-  B: Boolean;
-  POPS: TPair<TInstructionOperands, Integer>;
-  PCPUID: TPair<TCPUIDFeatureFlagSet, Integer>;
-  PEFLAGS: TPair<TX86Flags, Integer>;
-  PREGS: TPair<TX86RegisterSet, Integer>;
-begin
-  Bits := 4; // EVEX Info
-
-  Mnemonics := TDictionary<String, Boolean>.Create;
-  try
-    Node := EditorTree.GetFirst;
-    while Assigned(Node) do
-    begin
-      NodeData := EditorTree.GetNodeData(Node);
-      if (NodeData^.NodeType = ntInstructionDefinition) then
-      begin
-        if (not Mnemonics.ContainsKey(NodeData^.Definition.Mnemonic)) then
-        begin
-          Mnemonics.Add(NodeData^.Definition.Mnemonic, true);
-        end;
-      end;
-      Node := EditorTree.GetNext(Node);
-    end;
-    ShowMessage('Mnemonics: ' + IntToStr(Mnemonics.Count) + ' (' + IntToStr(BitsNeeded(Mnemonics.Count)) + ' bit)');
-    Inc(Bits, BitsNeeded(Mnemonics.Count));
-  finally
-    Mnemonics.Free;
-  end;
-
-  LOPS := TList<TPair<TInstructionOperands, Integer>>.Create;
-  for I := 0 to FEditor.DefinitionCount - 1 do
-  begin
-    B := false;
-    for J := 0 to LOPS.Count - 1 do
-    begin
-      if (LOPS[J].Key.Equals(FEditor.Definitions[I].Operands)) then
-      begin
-        POPS := LOPS[J];
-        Inc(POPS.Value);
-        LOPS[J] := POPS;
-        B := true;
-        Break;
-      end;
-    end;
-    if (not B) then
-    begin
-      POPS.Key := FEditor.Definitions[I].Operands;
-      POPS.Value := 1;
-      LOPS.Add(POPS);
-    end;
-  end;
-  ShowMessage('OPS: ' + IntToStr(LOPS.Count) + ' (' + IntToStr(BitsNeeded(LOPS.Count)) + ' bit)');
-  Inc(Bits, BitsNeeded(LOPS.Count));
-  LOPS.Free;
-
-  LCPUID := TList<TPair<TCPUIDFeatureFlagSet, Integer>>.Create;
-  for I := 0 to FEditor.DefinitionCount - 1 do
-  begin
-    B := false;
-    for J := 0 to LOPS.Count - 1 do
-    begin
-      if (LCPUID[J].Key = FEditor.Definitions[I].CPUID.FeatureFlags) then
-      begin
-        PCPUID := LCPUID[J];
-        Inc(PCPUID.Value);
-        LCPUID[J] := PCPUID;
-        B := true;
-        Break;
-      end;
-    end;
-    if (not B) then
-    begin
-      PCPUID.Key := FEditor.Definitions[I].CPUID.FeatureFlags;
-      PCPUID.Value := 1;
-      LCPUID.Add(PCPUID);
-    end;
-  end;
-  ShowMessage('CPUID: ' + IntToStr(LCPUID.Count) + ' (' + IntToStr(BitsNeeded(LCPUID.Count)) + ' bit)');
-  Inc(Bits, BitsNeeded(LCPUID.Count));
-  LCPUID.Free;
-
-  LEFLAGS := TList<TPair<TX86Flags, Integer>>.Create;
-  for I := 0 to FEditor.DefinitionCount - 1 do
-  begin
-    B := false;
-    for J := 0 to LOPS.Count - 1 do
-    begin
-      if (LEFLAGS[J].Key.Equals(FEditor.Definitions[I].X86Flags)) then
-      begin
-        PEFLAGS := LEFLAGS[J];
-        Inc(PEFLAGS.Value);
-        LEFLAGS[J] := PEFLAGS;
-        B := true;
-        Break;
-      end;
-    end;
-    if (not B) then
-    begin
-      PEFLAGS.Key := FEditor.Definitions[I].X86Flags;
-      PEFLAGS.Value := 1;
-      LEFLAGS.Add(PEFLAGS);
-    end;
-  end;
-  ShowMessage('EFLAGS: ' + IntToStr(LEFLAGS.Count) + ' (' + IntToStr(BitsNeeded(LEFLAGS.Count)) + ' bit)');
-  Inc(Bits, BitsNeeded(LEFLAGS.Count));
-  LEFLAGS.Free;
-
-  LREGS := TList<TPair<TX86RegisterSet, Integer>>.Create;
-  for I := 0 to FEditor.DefinitionCount - 1 do
-  begin
-    B := false;
-    for J := 0 to LOPS.Count - 1 do
-    begin
-      if (LREGS[J].Key = FEditor.Definitions[I].ImplicitRead.Registers) then
-      begin
-        PREGS := LREGS[J];
-        Inc(PREGS.Value);
-        LREGS[J] := PREGS;
-        B := true;
-        Break;
-      end;
-    end;
-    if (not B) then
-    begin
-      PREGS.Key := FEditor.Definitions[I].ImplicitRead.Registers;
-      PREGS.Value := 1;
-      LREGS.Add(PREGS);
-    end;
-    B := false;
-    for J := 0 to LOPS.Count - 1 do
-    begin
-      if (LREGS[J].Key = FEditor.Definitions[I].ImplicitWrite.Registers) then
-      begin
-        PREGS := LREGS[J];
-        Inc(PREGS.Value);
-        LREGS[J] := PREGS;
-        B := true;
-        Break;
-      end;
-    end;
-    if (not B) then
-    begin
-      PREGS.Key := FEditor.Definitions[I].ImplicitWrite.Registers;
-      PREGS.Value := 1;
-      LREGS.Add(PREGS);
-    end;
-  end;
-  ShowMessage('REGS: ' + IntToStr(LREGS.Count) + ' (' + IntToStr(BitsNeeded(LREGS.Count)) + ' bit)');
-  Inc(Bits, BitsNeeded(LREGS.Count));
-  LEFLAGS.Free;
-
-  ShowMessage('BytesNeeded: ' + IntToStr(Ceil(Bits / 8)) + ' (' + IntToStr(Bits) + ' bits)');
 end;
 
 procedure TfrmMain.bbCollapseLeafClick(Sender: TObject);

@@ -3,9 +3,9 @@ unit formEditorCPUIDFeatureFlags;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, untInstructionEditor, cxOI, Vcl.StdCtrls, System.ImageList,
-  Vcl.ImgList, cxGraphics, VirtualTrees;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.UITypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, cxOI, Vcl.StdCtrls, System.ImageList,
+  Vcl.ImgList, cxGraphics, VirtualTrees, Zydis.InstructionEditor;
 
 type
   TfrmEditorCPUIDFeatureFlags = class(TForm)
@@ -23,7 +23,8 @@ type
       var Allowed: Boolean);
     procedure VirtualTreeViewFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VirtualTreeViewGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean; var ImageIndex: Integer);
+      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
+      var ImageIndex: System.UITypes.TImageIndex);
     procedure VirtualTreeViewGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
   strict private
@@ -161,7 +162,7 @@ end;
 
 procedure TfrmEditorCPUIDFeatureFlags.VirtualTreeViewGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
-  var ImageIndex: Integer);
+  var ImageIndex: System.UITypes.TImageIndex);
 begin
   ImageIndex := -1;
   if (Kind in [ikNormal, ikSelected]) then

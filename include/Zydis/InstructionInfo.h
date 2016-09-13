@@ -384,6 +384,8 @@ enum ZydisOperandEncodings
     ZYDIS_OPERAND_ENCODING_OPCODE,
     ZYDIS_OPERAND_ENCODING_VVVV,
     ZYDIS_OPERAND_ENCODING_AAA,
+    ZYDIS_OPERAND_ENCODING_IMM8_LO,
+    ZYDIS_OPERAND_ENCODING_IMM8_HI,
     ZYDIS_OPERAND_ENCODING_IMM8,
     ZYDIS_OPERAND_ENCODING_IMM16,
     ZYDIS_OPERAND_ENCODING_IMM32,
@@ -908,6 +910,9 @@ typedef struct ZydisInstructionInfo_
          */
         struct
         {
+            // TODO: Move from this struct to the decoder instance
+            bool imm8initialized;
+            uint8_t imm8;
             uint8_t w;
             uint8_t r;
             uint8_t x;

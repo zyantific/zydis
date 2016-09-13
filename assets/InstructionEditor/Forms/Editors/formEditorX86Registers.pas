@@ -3,9 +3,9 @@ unit formEditorX86Registers;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, untInstructionEditor, System.ImageList, Vcl.ImgList,
-  cxGraphics, Vcl.StdCtrls, VirtualTrees;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  System.UITypes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Zydis.InstructionEditor,
+  System.ImageList, Vcl.ImgList, cxGraphics, Vcl.StdCtrls, VirtualTrees;
 
 type
   TfrmEditorX86Registers = class(TForm)
@@ -20,7 +20,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure VirtualTreeViewFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VirtualTreeViewGetImageIndex(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean; var ImageIndex: Integer);
+      Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
+      var ImageIndex: System.UITypes.TImageIndex);
     procedure VirtualTreeViewGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure VirtualTreeViewCollapsing(Sender: TBaseVirtualTree; Node: PVirtualNode;
@@ -199,7 +200,7 @@ end;
 
 procedure TfrmEditorX86Registers.VirtualTreeViewGetImageIndex(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex; var Ghosted: Boolean;
-  var ImageIndex: Integer);
+  var ImageIndex: System.UITypes.TImageIndex);
 var
   NodeData: PNodeData;
 begin
@@ -220,8 +221,8 @@ begin
   end;
 end;
 
-procedure TfrmEditorX86Registers.VirtualTreeViewGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-  Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+procedure TfrmEditorX86Registers.VirtualTreeViewGetText(Sender: TBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
 var
   NodeData: PNodeData;
 begin

@@ -564,14 +564,24 @@ static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* d
     {
     case 8:
     {
-        uint8_t immediate;
-        ZYDIS_CHECK(ZydisInputNext(decoder, info, &immediate));
-        if (isSigned)
+        // We have to store a copy of the imm8 value for instructions that encode different operands
+        // in the lo and hi part of the immediate.
+        if (info->details.internal.imm8initialized)
         {
-            operand->imm.value.sqword = (int8_t)immediate;
+            operand->imm.value.ubyte = info->details.internal.imm8;        
         } else
         {
-            operand->imm.value.uqword = immediate;       
+            uint8_t immediate;
+            ZYDIS_CHECK(ZydisInputNext(decoder, info, &immediate));
+            if (isSigned)
+            {
+                operand->imm.value.sqword = (int8_t)immediate;
+            } else
+            {
+                operand->imm.value.uqword = immediate;       
+            }
+            info->details.internal.imm8initialized = true;
+            info->details.internal.imm8 = operand->imm.value.ubyte;   
         }
         break;
     }
@@ -1059,7 +1069,7 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
                 ZYDIS_UNREACHABLE;
             }        
             break;
-        case ZYDIS_OPERAND_ENCODING_IMM8:
+        case ZYDIS_OPERAND_ENCODING_IMM8_HI:
             ZYDIS_ASSERT((info->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX) ||
                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_XOP));
@@ -1308,6 +1318,11 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     case ZYDIS_SEM_OPERAND_TYPE_IMM64:
         switch (encoding)
         {
+        case ZYDIS_OPERAND_ENCODING_IMM8_LO:
+            ZYDIS_CHECK(
+                ZydisDecodeOperandImmediate(decoder, info, operand, 8, operand->imm.isSigned));
+            operand->imm.value.ubyte &= 0x0F;
+            break;
         case ZYDIS_OPERAND_ENCODING_IMM8:
             return ZydisDecodeOperandImmediate(decoder, info, operand, 8, operand->imm.isSigned);
         case ZYDIS_OPERAND_ENCODING_IMM16:
@@ -1474,20 +1489,19 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(definition);
 
-    const ZydisInstructionOperands* operands = ZydisInstructionDefinitionGetOperands(definition);
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < definition->operandCount; ++i)
     {
-        ZydisSemanticOperandType type = ZydisOperandDefinitionGetType(operands->operands[i]);
+        ZydisSemanticOperandType type = definition->operands[i].type;
         if (type == ZYDIS_SEM_OPERAND_TYPE_UNUSED)
         {
             break;
         }
         ++info->operandCount;
-        ZydisInstructionEncoding encoding = ZydisOperandDefinitionGetEncoding(operands->operands[i]);
+        ZydisInstructionEncoding encoding = definition->operands[i].encoding;
         ZydisDecoderStatus status = 
             ZydisDecodeOperand(decoder, info, &info->operand[i], type, encoding);
         info->operand[i].encoding = encoding;
-        info->operand[i].access = ZydisOperandDefinitionGetAccessMode(operands->operands[i]);
+        info->operand[i].access = definition->operands[i].access;
         if (status != ZYDIS_STATUS_DECODER_SUCCESS)
         {
             info->flags |= ZYDIS_IFLAG_ERROR_OPERANDS;
@@ -2178,11 +2192,16 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             info->flags |= ZYDIS_IFLAG_ERROR_INVALID;
             return ZYDIS_STATUS_DECODER_INVALID_INSTRUCTION;
         }
-        case ZYDIS_NODETYPE_DEFINITION:
+        case ZYDIS_NODETYPE_DEFINITION_0OP:
+        case ZYDIS_NODETYPE_DEFINITION_1OP:
+        case ZYDIS_NODETYPE_DEFINITION_2OP:
+        case ZYDIS_NODETYPE_DEFINITION_3OP:
+        case ZYDIS_NODETYPE_DEFINITION_4OP:
+        case ZYDIS_NODETYPE_DEFINITION_5OP:
         {   
-            const ZydisInstructionDefinition* definition = ZydisInstructionDefinitionByNode(node);
-            ZYDIS_ASSERT(definition);
-            info->mnemonic = ZydisInstructionDefinitionGetMnemonic(definition);
+            const ZydisInstructionDefinition definition = ZydisInstructionDefinitionByNode(node);
+            //ZYDIS_ASSERT(definition); // TODO: Pointer?
+            info->mnemonic = definition.mnemonic;
 
             // TODO: Check for (un)accepted prefixes
 
@@ -2219,7 +2238,7 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                 // Save input-buffer state and decode dummy operands
                 uint8_t bufferPosRead = decoder->buffer.posRead;
                 uint8_t length = info->length;
-                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, definition));
+                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition)); // TODO: Reference?
                 // Read actual 3dnow opcode
                 ZYDIS_CHECK(ZydisInputNext(decoder, info, &info->opcode));
                 // Restore input-buffer state
@@ -2245,35 +2264,31 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                 node = ZydisInstructionTableGetChildNode(node, 
                     (info->details.modrm.mod == 0x3) ? 1 : 0);
                 // Decode actual operands and fix the instruction-info               
-                definition = ZydisInstructionDefinitionByNode(node);
-                ZYDIS_ASSERT(definition);
-                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, definition));
-                info->mnemonic = ZydisInstructionDefinitionGetMnemonic(definition);
+                ZydisInstructionDefinition definition2 = ZydisInstructionDefinitionByNode(node);
+                //ZYDIS_ASSERT(definition);  // TODO: Pointer
+                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition2)); // TODO: Reference
+                info->mnemonic = definition2.mnemonic;
                 ZydisFinalizeInstructionInfo(info);  
                 return ZydisInputNext(decoder, info, &info->opcode);
             }
 
-            ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, definition));
+            ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition)); // TODO: Reference
             ZydisFinalizeInstructionInfo(info);
 
             if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
             {
-                if (ZydisInstructionDefinitionHasEvexAAA(definition))
+                if (definition.hasEvexAAA && info->details.evex.aaa)
                 {
-                    if (!info->details.evex.aaa)
-                    {
-                        // TODO: Fatal error?
-                    }
                     info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa; 
                 }
-                if (ZydisInstructionDefinitionHasEvexZ(definition) && info->details.evex.z)
+                if (definition.hasEvexZ && info->details.evex.z)
                 {
                     info->avx.maskMode = ZYDIS_AVX_MASKMODE_ZERO;
                 } else
                 {
                     info->avx.maskMode = ZYDIS_AVX_MASKMODE_MERGE;
                 }
-                switch (ZydisInstructionDefinitionGetEvexBFunctionality(definition))
+                switch (definition.evexBFunctionality)
                 {
                 case ZYDIS_EVEXB_FUNCTIONALITY_BC:
                     break;
@@ -2286,7 +2301,6 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                     info->avx.broadcast = ZYDIS_AVX_BCSTMODE_INVALID;
                 }
             }
-
             return ZYDIS_STATUS_DECODER_SUCCESS;
         }
         case ZYDIS_NODETYPE_FILTER_OPCODE:
@@ -2336,7 +2350,13 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
         }
         ZYDIS_CHECK(status);
         node = ZydisInstructionTableGetChildNode(node, index);
-    } while((nodeType != ZYDIS_NODETYPE_INVALID) && (nodeType != ZYDIS_NODETYPE_DEFINITION));
+    } while((nodeType != ZYDIS_NODETYPE_INVALID) && 
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_0OP) &&
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_1OP) && 
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_2OP) && 
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_3OP) && 
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_4OP) && 
+        (nodeType != ZYDIS_NODETYPE_DEFINITION_5OP));
     return ZYDIS_STATUS_DECODER_SUCCESS;
 }
 

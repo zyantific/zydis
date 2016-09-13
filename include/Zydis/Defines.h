@@ -27,6 +27,7 @@
 #ifndef ZYDIS_DEFINES_H
 #define ZYDIS_DEFINES_H
 
+#include <assert.h>
 #include <ZydisExportConfig.h>
 
 /* ============================================================================================== */

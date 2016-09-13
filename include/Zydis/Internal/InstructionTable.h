@@ -28,7 +28,6 @@
 #define ZYDIS_INSTRUCTIONTABLE_H
 
 #include <stdint.h>
-#include <assert.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/InstructionInfo.h>
@@ -46,6 +45,13 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisInstructionTableNode datatype.
+ */
+typedef void* ZydisInstructionTableNode;
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisInstructionTableNodeType datatype.
  */
 typedef uint8_t ZydisInstructionTableNodeType;
@@ -57,88 +63,94 @@ enum ZydisInstructionTableNodeTypes
 {
     ZYDIS_NODETYPE_INVALID                  = 0x00,
     /**
-     * @brief   Reference to a concrete instruction definition.
+     * @brief   Reference to an instruction-definition with 0 operands.
      */
-    ZYDIS_NODETYPE_DEFINITION               = 0x01,
+    ZYDIS_NODETYPE_DEFINITION_0OP           = 0x01,
+    /**
+     * @brief   Reference to an instruction-definition with 1 operands.
+     */
+    ZYDIS_NODETYPE_DEFINITION_1OP           = 0x02,
+    /**
+     * @brief   Reference to an instruction-definition with 2 operands.
+     */
+    ZYDIS_NODETYPE_DEFINITION_2OP           = 0x03,
+    /**
+     * @brief   Reference to an instruction-definition with 3 operands.
+     */
+    ZYDIS_NODETYPE_DEFINITION_3OP           = 0x04,
+    /**
+     * @brief   Reference to an instruction-definition with 4 operands.
+     */
+    ZYDIS_NODETYPE_DEFINITION_4OP           = 0x05,
+    /**
+     * @brief   Reference to an instruction-definition with 5 operands.
+     */
+    ZYDIS_NODETYPE_DEFINITION_5OP           = 0x06,
     /**
      * @brief   Reference to an opcode filter.
      */
-    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x02,
+    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x07,
     /**
      * @brief   Reference to an vex-map filter.
      */
-    ZYDIS_NODETYPE_FILTER_VEX               = 0x03,
+    ZYDIS_NODETYPE_FILTER_VEX               = 0x08,
     /**
      * @brief   Reference to an xop-map filter.
      */
-    ZYDIS_NODETYPE_FILTER_XOP               = 0x04,
+    ZYDIS_NODETYPE_FILTER_XOP               = 0x09,
     /**
      * @brief   Reference to an instruction-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE              = 0x05,
+    ZYDIS_NODETYPE_FILTER_MODE              = 0x0A,
     /**
      * @brief   Reference to a mandatory-prefix filter.
      */
-    ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX   = 0x06,
+    ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX   = 0x0B,
     /**
      * @brief   Reference to a modrm.mod filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRMMOD          = 0x07,
+    ZYDIS_NODETYPE_FILTER_MODRMMOD          = 0x0C,
     /**
      * @brief   Reference to a modrm.reg filter.
      */                                                                                      
-    ZYDIS_NODETYPE_FILTER_MODRMREG          = 0x08,
+    ZYDIS_NODETYPE_FILTER_MODRMREG          = 0x0D,
     /**
      * @brief   Reference to a modrm.rm filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRMRM           = 0x09,  
+    ZYDIS_NODETYPE_FILTER_MODRMRM           = 0x0E,  
     /**
      * @brief   Reference to an operand-size filter.
      */
-    ZYDIS_NODETYPE_FILTER_OPERANDSIZE       = 0x0A,
+    ZYDIS_NODETYPE_FILTER_OPERANDSIZE       = 0x0F,
     /**
      * @brief   Reference to an address-size filter.
      */
-    ZYDIS_NODETYPE_FILTER_ADDRESSSIZE       = 0x0B,
+    ZYDIS_NODETYPE_FILTER_ADDRESSSIZE       = 0x10,
     /**
      * @brief   Reference to an rex/vex/evex.w filter.
      */
-    ZYDIS_NODETYPE_FILTER_REXW              = 0x0C,
+    ZYDIS_NODETYPE_FILTER_REXW              = 0x11,
     /**
      * @brief   Reference to an vex/evex.l filter.
      */
-    ZYDIS_NODETYPE_FILTER_VEXL              = 0x0D,
+    ZYDIS_NODETYPE_FILTER_VEXL              = 0x12,
     /**
      * @brief   Reference to an evex.l' filter.
      */
-    ZYDIS_NODETYPE_FILTER_EVEXL2            = 0x0E,
+    ZYDIS_NODETYPE_FILTER_EVEXL2            = 0x13,
     /**
      * @brief   Reference to an evex.b filter.
      */
-    ZYDIS_NODETYPE_FILTER_EVEXB             = 0x0F
+    ZYDIS_NODETYPE_FILTER_EVEXB             = 0x14
 };
 
-/* ---------------------------------------------------------------------------------------------- */
-
-#pragma pack (push, 1)
 /**
- * @brief   Defines the @c ZydisInstructionTableNode struct.
+ * @brief   Defines the @c ZydisInstructionTableNodeValue datatype.
  */
-typedef struct ZydisInstructionTableNode_
-{
-    /**
-     * @brief   The instruction table node type.
-     */
-    ZydisInstructionTableNodeType type;
-    /**
-     * @brief   The instruction table node value.
-     */
-    uint16_t value;
-} ZydisInstructionTableNode;
-#pragma pack (pop)
+typedef uint16_t ZydisInstructionTableNodeValue;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction definition                                                                         */
+/* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -233,6 +245,27 @@ enum ZydisSemanticOperandTypes
     ZYDIS_SEM_OPERAND_TYPE_ST0
 };
 
+/**
+ * @brief   Defines the @c ZydisOperandDefinition struct.
+ */
+typedef struct ZydisOperandDefinition_
+{
+    /**
+     * @brief   The semantic operand type.
+     */
+    ZydisSemanticOperandType type;
+    /**
+     * @brief   The operand encoding.
+     */
+    ZydisOperandEncoding encoding;
+    /**
+     * @brief   The operand access-mode.
+     */
+    ZydisOperandAccess access;
+} ZydisOperandDefinition;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -251,25 +284,8 @@ enum ZydisEvexBFunctionalities
     ZYDIS_EVEXB_FUNCTIONALITY_SAE
 };
 
-/* ---------------------------------------------------------------------------------------------- */
-
 /**
- * @brief   Defines the zydis operand definition datatype.
- */
-typedef uint16_t ZydisOperandDefinition;
-
-#pragma pack (push, 1)
-
-/**
- * @brief   Defines the zydis operands definition datatype.
- */
-typedef struct ZydisInstructionOperands_
-{
-    ZydisOperandDefinition operands[4];
-} ZydisInstructionOperands;
-
-/**
- * @brief   Defines the zydis instruction definition struct.
+ * @brief   Defines the @c ZydisInstructionDefinition struct.
  */
 typedef struct ZydisInstructionDefinition_
 {
@@ -278,159 +294,23 @@ typedef struct ZydisInstructionDefinition_
      */
     ZydisInstructionMnemonic mnemonic;
     /**
-     * @brief   The instruction operand.
+     * @brief   The number of used operands.
      */
-    uint16_t operands;
-    //ZydisOperandDefinition operands[4];
+    uint8_t operandCount;
+    /**
+     * @brief   The operand-definitions.
+     */
+    ZydisOperandDefinition operands[5];
+    /**
+     * @brief   The evex.b functionality.
+     */
+    ZydisEvexBFunctionality evexBFunctionality;
+
+    bool hasEvexAAA;
+    bool hasEvexZ;
 } ZydisInstructionDefinition;
-#pragma pack (pop)
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/* ============================================================================================== */
-/* Data tables                                                                                    */
-/* ============================================================================================== */
-
-/**
- * @brief   Contains all opcode filters.
- *          
- *          Indexed by the numeric value of the opcode.
- */
-extern const ZydisInstructionTableNode filterOpcode[][256];
-
-/**
- * @brief   Contains all vex-map filters.
- *          
- *          Index values:
- *          0 = LES, LDS or BOUND instruction (default encoding)
- *          1 = 0F  
- *          2 = 0F38  
- *          3 = 0F3A  
- *          4 = 66  
- *          5 = 66_0F  
- *          6 = 66_0F38  
- *          7 = 66_0F3A  
- *          8 = F3  
- *          9 = F3_0F
- *          A = F3_0F38
- *          B = F3_0F3A
- *          C = F2
- *          D = F2_0F
- *          E = F2_0F38
- *          F = F2_0F3A
- */
-extern const ZydisInstructionTableNode filterVEX[][16];
-
-/**
- * @brief   Contains all xop-map filters.
- *          
- *          Index values:
- *          0 = POP instruction (default encoding)
- *          1 = xop8
- *          2 = xop9
- *          3 = xopA
- */
-extern const ZydisInstructionTableNode filterXOP[][4];
-
-/**
- * @brief   Contains all instruction-mode filters.
- *          
- *          Index values:
- *          0 = 64 bit mode required
- *          1 = 64 bit mode excluded
- */
-extern const ZydisInstructionTableNode filterMode[][2];
-
-/**
- * @brief   Contains all mandatory-prefix switch tables.
- *          
- *          Index values:
- *          0 = none
- *          1 = 66  
- *          2 = F3  
- *          3 = F2
- */
-extern const ZydisInstructionTableNode filterMandatoryPrefix[][4];
-
-/**
- * @brief   Contains all modrm.mod filters.
- *          
- *          Index values:
- *          0 = [modrm_mod == !11] = memory
- *          1 = [modrm_mod ==  11] = register
- */
-extern const ZydisInstructionTableNode filterModrmMod[][2];
-
-/**
- * @brief   Contains all modrm.reg filters.
- *          
- *          Indexed by the numeric value of the modrm_reg field.
- */
-extern const ZydisInstructionTableNode filterModrmReg[][8];
-
-/**
- * @brief   Contains all modrm.rm filters.
- *          
- *          Indexed by the numeric value of the modrm_rm field.
- */
-extern const ZydisInstructionTableNode filterModrmRm[][8];
-
-/**
- * @brief   Contains all operand-size filters.
- *          
- *          Index values:
- *          0 = 16bit = 0x66 prefix in 32 bit mode
- *          1 = 32bit = 0x66 prefix in 16 bit mode  
- */
-extern const ZydisInstructionTableNode filterOperandSize[][2];
-
-/**
- * @brief   Contains all address-size filters.
- *          
- *          Index values:
- *          0 = 16
- *          1 = 32  
- *          2 = 64
- */
-extern const ZydisInstructionTableNode filterAddressSize[][3];
-
-/**
- * @brief   Contains all rex/vex/evex.w filters.
- *          
- *          Indexed by the numeric value of the rex/vex/evex.w field.
- */
-extern const ZydisInstructionTableNode filterREXW[][2];
-
-/**
- * @brief   Contains all vex.l filters.
- *          
- *          Indexed by the numeric value of the vex/evex.l field.
- */
-extern const ZydisInstructionTableNode filterVEXL[][2];
-
-/**
- * @brief   Contains all evex.l' filters.
- *          
- *          Indexed by the numeric value of the evex.l' field.
- */
-extern const ZydisInstructionTableNode filterEVEXL2[][2];
-
-/**
- * @brief   Contains all evex.b filters.
- *          
- *          Indexed by the numeric value of the evex.b field.
- */
-extern const ZydisInstructionTableNode filterEVEXB[][2];
-
-/**
- * @brief   Contains all instruction-definitions.
- */
-extern const ZydisInstructionDefinition instructionDefinitions[];
-
-/**
- * @brief   Contains all instruction-operand-definitions.
- */
-extern const ZydisInstructionOperands instructionOperands[];
 
 /* ============================================================================================== */
 /* Functions                                                                                      */
@@ -443,11 +323,8 @@ extern const ZydisInstructionOperands instructionOperands[];
  *                  
  * @return  The type of the specified instruction table node.
  */
-ZYDIS_INLINE ZydisInstructionTableNodeType ZydisInstructionTableGetNodeType(
-    ZydisInstructionTableNode node)
-{
-    return node.type;
-} 
+ZYDIS_NO_EXPORT ZydisInstructionTableNodeType ZydisInstructionTableGetNodeType(
+    const ZydisInstructionTableNode node);
 
 /**
  * @brief   Returns the value of the specified instruction table node.
@@ -456,10 +333,8 @@ ZYDIS_INLINE ZydisInstructionTableNodeType ZydisInstructionTableGetNodeType(
  *                  
  * @return  The value of the specified instruction table node.
  */
-ZYDIS_INLINE uint16_t ZydisInstructionTableGetNodeValue(ZydisInstructionTableNode node)
-{
-    return node.value;   
-}
+ZYDIS_NO_EXPORT ZydisInstructionTableNodeValue ZydisInstructionTableGetNodeValue(
+    const ZydisInstructionTableNode* node);
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -468,11 +343,7 @@ ZYDIS_INLINE uint16_t ZydisInstructionTableGetNodeValue(ZydisInstructionTableNod
  *
  * @return  The root node of the instruction table.
  */
-ZYDIS_INLINE ZydisInstructionTableNode ZydisInstructionTableGetRootNode()
-{
-    ZydisInstructionTableNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };
-    return root;
-}
+ZYDIS_NO_EXPORT ZydisInstructionTableNode ZydisInstructionTableGetRootNode();
 
 /**
  * @brief   Returns the child node of @c parent specified by @c index.
@@ -482,61 +353,8 @@ ZYDIS_INLINE ZydisInstructionTableNode ZydisInstructionTableGetRootNode()
  *                  
  * @return  The specified child node.
  */
-ZYDIS_INLINE ZydisInstructionTableNode ZydisInstructionTableGetChildNode(
-    ZydisInstructionTableNode parent, uint16_t index)
-{
-    ZydisInstructionTableNodeType nodeType = ZydisInstructionTableGetNodeType(parent);
-    uint16_t tableIndex = ZydisInstructionTableGetNodeValue(parent);
-    switch (nodeType)
-    {
-    case ZYDIS_NODETYPE_FILTER_OPCODE:
-        ZYDIS_ASSERT(index < 256);
-        return filterOpcode[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_VEX:
-        ZYDIS_ASSERT(index <  16);
-        return filterVEX[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_XOP:
-        ZYDIS_ASSERT(index <   4);
-        return filterXOP[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_MODE:
-        ZYDIS_ASSERT(index <   3);
-        return filterMode[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX:
-        ZYDIS_ASSERT(index <   4);
-        return filterMandatoryPrefix[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMMOD:
-        ZYDIS_ASSERT(index <   2);
-        return filterModrmMod[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMREG:
-        ZYDIS_ASSERT(index <   8);
-        return filterModrmReg[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMRM:
-        ZYDIS_ASSERT(index <   8);
-        return filterModrmRm[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_OPERANDSIZE:
-        ZYDIS_ASSERT(index <   2);
-        return filterOperandSize[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_ADDRESSSIZE:
-        ZYDIS_ASSERT(index <   3);
-        return filterAddressSize[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_REXW:
-        ZYDIS_ASSERT(index <   2);
-        return filterREXW[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_VEXL:
-        ZYDIS_ASSERT(index <   2);
-        return filterVEXL[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_EVEXL2:
-        ZYDIS_ASSERT(index <   2);
-        return filterEVEXL2[tableIndex][index];
-    case ZYDIS_NODETYPE_FILTER_EVEXB:
-        ZYDIS_ASSERT(index <   2);
-        return filterEVEXB[tableIndex][index];
-    default:
-        ZYDIS_UNREACHABLE;
-    }
-    ZydisInstructionTableNode node = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
-    return node;
-}
+ZYDIS_NO_EXPORT ZydisInstructionTableNode ZydisInstructionTableGetChildNode(
+    const ZydisInstructionTableNode parent, uint16_t index);
 
 /**
  * @brief   Returns the instruction definition that is linked to the given @c node.
@@ -545,85 +363,8 @@ ZYDIS_INLINE ZydisInstructionTableNode ZydisInstructionTableGetChildNode(
  *                  
  * @return  Pointer to the instruction definition.
  */
-ZYDIS_INLINE const ZydisInstructionDefinition* ZydisInstructionDefinitionByNode(
-    ZydisInstructionTableNode node)
-{
-    ZYDIS_ASSERT(ZydisInstructionTableGetNodeType(node) == ZYDIS_NODETYPE_DEFINITION);
-    return &instructionDefinitions[ZydisInstructionTableGetNodeValue(node)];    
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-
-ZYDIS_INLINE ZydisInstructionMnemonic ZydisInstructionDefinitionGetMnemonic(
-    const ZydisInstructionDefinition* definition)
-{
-    return (definition->mnemonic >> 4) & 0xFFF;
-}
-
-ZYDIS_INLINE const ZydisInstructionOperands* ZydisInstructionDefinitionGetOperands(
-    const ZydisInstructionDefinition* definition)
-{
-    return &instructionOperands[definition->operands];
-}
-
-ZYDIS_INLINE ZydisEvexBFunctionality ZydisInstructionDefinitionGetEvexBFunctionality(
-    const ZydisInstructionDefinition* definition)
-{
-    return (definition->mnemonic >> 2) & 0x03;
-}
-
-ZYDIS_INLINE bool ZydisInstructionDefinitionHasEvexAAA(const ZydisInstructionDefinition* definition)
-{
-    return (definition->mnemonic >> 1) & 0x01;
-}
-
-ZYDIS_INLINE bool ZydisInstructionDefinitionHasEvexZ(const ZydisInstructionDefinition* definition)
-{
-    return definition->mnemonic & 0x01;
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Returns the defined operand-type of the specified operand-definition.
- *
- * @param   definition  The operand definition.
- *
- * @return  The defined operand-type of the specified operand-definition.
- */
-ZYDIS_INLINE ZydisSemanticOperandType ZydisOperandDefinitionGetType(
-    ZydisOperandDefinition definition)
-{
-    return ((definition >> 8) & 0xFF);   
-}
-
-/**
- * @brief   Returns the operand-encoding of the specified operand-definition.
- *
- * @param   definition  The operand definition.
- *
- * @return  The operand-encoding of the specified operand-definition.
- */
-ZYDIS_INLINE ZydisOperandEncoding ZydisOperandDefinitionGetEncoding(
-    ZydisOperandDefinition definition)
-{
-    return ((definition >> 2) & 0x3F);    
-}
-
-/**
- * @brief   Returns the access-mode of the specified operand-definition.
- *
- * @param   definition  The operand definition.
- *
- * @return  The access-mode of the specified operand-definition.
- */
-ZYDIS_INLINE ZydisOperandAccess ZydisOperandDefinitionGetAccessMode(
-    ZydisOperandDefinition definition)
-{
-    return ((definition >> 0) & 0x03);   
-}
-
-/* ---------------------------------------------------------------------------------------------- */
+ZYDIS_NO_EXPORT ZydisInstructionDefinition ZydisInstructionDefinitionByNode(
+    const ZydisInstructionTableNode node);
 
 /* ============================================================================================== */
 

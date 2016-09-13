@@ -49,7 +49,7 @@ typedef uint16_t ZydisInstructionMnemonic;
  */
 enum ZydisInstructionMnemonics
 {
-#include <Zydis/Internal/Mnemonics.inc>    
+#include <Zydis/Internal/MnemonicEnum.inc>    
 };
 
 /* ============================================================================================== */

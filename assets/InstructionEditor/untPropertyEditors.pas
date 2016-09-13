@@ -38,18 +38,11 @@ type
     function IsDefaultValue: Boolean; override;
   end;
 
-  TInstructionOperandsProperty = class(TcxClassProperty)
-  public
-    procedure Edit; override;
-    function GetAttributes: TcxPropertyAttributes; override;
-  end;
-
 implementation
 
 uses
-  System.SysUtils, System.TypInfo, System.Classes, Vcl.Forms, untInstructionEditor,
-  untHelperClasses, formEditorCPUIDFeatureFlags, formEditorX86Registers,
-  formEditorInstructionOperands, cxButtonEdit;
+  System.SysUtils, System.TypInfo, System.Classes, Vcl.Forms, Zydis.InstructionEditor,
+  untHelperClasses, formEditorCPUIDFeatureFlags, formEditorX86Registers, cxButtonEdit;
 
 { TOpcodeByteProperty }
 
@@ -339,40 +332,12 @@ begin
   end;
 end;
 
-{ TInstructionOperandsProperty }
-
-procedure TInstructionOperandsProperty.Edit;
-var
-  Form: TfrmEditorInstructionOperands;
-begin
-  Form := TfrmEditorInstructionOperands.Create(Application);
-  try
-    Form.Caption := GetComponent(0).GetNamePath + '.' + GetName;
-    Form.Operands := TInstructionOperands(GetOrdValue);
-    Form.ShowModal;
-    if (Form.ApplyChanges) then
-    begin
-      TInstructionOperands(GetOrdValue).Assign(Form.Operands);
-      PostChangedNotification;
-    end;
-  finally
-    Form.Free;
-  end;
-end;
-
-function TInstructionOperandsProperty.GetAttributes: TcxPropertyAttributes;
-begin
-  Result := [ipaDialog, ipaSubProperties];
-end;
-
 initialization
   // Register custom property editor for hexadecimal display of TOpcodeByte values
   cxRegisterPropertyEditor(TypeInfo(TOpcodeByte), nil, '', TOpcodeByteProperty);
 
   // Register custom property editors for easy modification of the instruction-operands
   cxRegisterPropertyEditor(TypeInfo(TInstructionOperand), nil, '', TInstructionOperandProperty);
-  cxRegisterPropertyEditor(TypeInfo(TInstructionOperands), nil, '', TInstructionOperandsProperty);
-  cxRegisterEditPropertiesClass(TInstructionOperandsProperty, TcxButtonEditProperties);
 
   // Delphi does not allow sets > 4 bytes as published values, so we have to use a wrapper class
   // and a custom editor
