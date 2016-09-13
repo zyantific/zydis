@@ -775,7 +775,7 @@ begin
       for I := Low(MnemonicList) to High(MnemonicList) do
       begin
         Buffer.Append(
-          Format('  /* %.4x */ ZYDIS_MNEMONIC_%s', [I, AnsiUpperCase(MnemonicList[I])]));
+          Format('  /*%.4x*/ ZYDIS_MNEMONIC_%s', [I, AnsiUpperCase(MnemonicList[I])]));
         if (I = High(MnemonicList)) then
         begin
           Buffer.AppendLn('');
@@ -796,7 +796,7 @@ begin
     try
       for I := Low(MnemonicList) to High(MnemonicList) do
       begin
-        Buffer.Append(Format('  /* %.4x */ "%s"', [I, AnsiLowerCase(MnemonicList[I])]));
+        Buffer.Append(Format('  /*%.4x*/ "%s"', [I, AnsiLowerCase(MnemonicList[I])]));
         if (I = High(MnemonicList)) then
         begin
           Buffer.AppendLn('');

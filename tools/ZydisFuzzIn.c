@@ -38,10 +38,10 @@
 #include <Zydis/Zydis.h>
 
 typedef struct ZydisFuzzControlBlock_ {
-    int disasMode;
-    int decoderFlags;  
-    int formatterStyle;
-    int formatterFlags;
+    ZydisDisassemblerMode disasMode;
+    ZydisDecoderFlags decoderFlags;  
+    ZydisFormatterStyle formatterStyle;
+    ZydisFormatterFlags formatterFlags;
     uint8_t bufSize;
 } ZydisFuzzControlBlock;
 
