@@ -146,6 +146,7 @@ type
     cfMMX,
     cfMOVBE,
     cfMPX,
+    cfMWAITX,
     cfPCLMUL,
     cfPOPCNT,
     cfPREFETCHW,
@@ -563,6 +564,7 @@ type
     ifAcceptsXRELEASE,
     ifAcceptsEVEXAAA,
     ifAcceptsEVEXZ,
+    ifIsPrivileged,
     ifHasEVEXBC,
     ifHasEVEXRC,
     ifHasEVEXSAE
@@ -613,7 +615,8 @@ type
     procedure Update; inline;
     procedure EndUpdate; inline;
   public
-    function Equals(const Value: TInstructionDefinition): Boolean; reintroduce;
+    function Equals(const Value: TInstructionDefinition;
+      const CheckComment: Boolean = false): Boolean; reintroduce;
   public
     procedure LoadFromJSON(JSON: PJSONVariantData);
     procedure SaveToJSON(JSON: PJSONVariantData);
@@ -952,6 +955,7 @@ const
     'mmx',
     'movbe',
     'mpx',
+    'mwaitx',
     'pclmul',
     'popcnt',
     'prefetchw',
@@ -1189,6 +1193,7 @@ const
     'accepts_xrelease',
     'accepts_evex_aaa',
     'accepts_evex_z',
+    'privileged',
     'has_evex_bc',
     'has_evex_rc',
     'has_evex_sae'
@@ -2559,6 +2564,7 @@ begin
       D.FImplicitRead.Assign(FImplicitRead);
       D.FImplicitWrite.Assign(FImplicitWrite);
       D.FX86Flags.Assign(FX86Flags);
+      D.FEVEXCD8Scale := FEVEXCD8Scale;
       D.FComment := FComment;
       D.Update;
     finally
@@ -2631,16 +2637,18 @@ begin
   end;
 end;
 
-function TInstructionDefinition.Equals(const Value: TInstructionDefinition): Boolean;
+function TInstructionDefinition.Equals(const Value: TInstructionDefinition;
+  const CheckComment: Boolean): Boolean;
 begin
-  // Comment is excluded from the equality check
   Result :=
     (Value.FMnemonic = FMnemonic) and (Value.FEncoding = FEncoding) and
     (Value.FOpcodeMap = FOpcodeMap) and (Value.FOpcode = FOpcode) and
     (Value.FExtensions.Equals(FExtensions)) and (Value.FCPUID.Equals(FCPUID)) and
     (Value.FOperands.Equals(FOperands)) and (Value.FFlags = FFlags) and
+    (Value.FEVEXCD8Scale = FEVEXCD8Scale) and
     (Value.FImplicitRead.Equals(FImplicitRead)) and
-    (Value.FImplicitWrite.Equals(FImplicitWrite)) and (Value.FX86Flags.Equals(FX86Flags));
+    (Value.FImplicitWrite.Equals(FImplicitWrite)) and (Value.FX86Flags.Equals(FX86Flags)) and
+    ((not CheckComment) or (Value.FComment = FComment));
 end;
 
 function TInstructionDefinition.GetConflictState: Boolean;
@@ -2784,14 +2792,25 @@ begin
 end;
 
 procedure TInstructionDefinition.SetMnemonic(const Value: String);
+var
+  S: String;
+  C: Char;
 begin
-  if (Value = '') then
+  S := '';
+  for C in Value do
+  begin
+    if (CharInSet(C, ['a'..'z', 'A'..'Z', '0'..'9'])) then
+    begin
+      S := S + C;
+    end;
+  end;
+  if (S = '') then
   begin
     raise Exception.Create('Mnemonic can not be empty.');
   end;
-  if (FMnemonic <> Value) then
+  if (FMnemonic <> S) then
   begin
-    FMnemonic := LowerCase(Value);
+    FMnemonic := LowerCase(S);
     UpdateValues;
   end;
 end;

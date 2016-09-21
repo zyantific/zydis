@@ -1,4 +1,4 @@
-unit formGenerator;
+unit formCodeGenerator;
 
 interface
 
@@ -8,7 +8,7 @@ uses
   Vcl.ComCtrls, Zydis.InstructionEditor;
 
 type
-  TfrmGenerator = class(TForm)
+  TfrmCodeGenerator = class(TForm)
     GroupBox: TGroupBox;
     btnClose: TButton;
     btnGenerate: TButton;
@@ -35,7 +35,7 @@ type
   end;
 
 var
-  frmGenerator: TfrmGenerator;
+  frmCodeGenerator: TfrmCodeGenerator;
 
 implementation
 
@@ -46,12 +46,12 @@ uses
 
 { TfrmGenerator }
 
-procedure TfrmGenerator.btnCloseClick(Sender: TObject);
+procedure TfrmCodeGenerator.btnCloseClick(Sender: TObject);
 begin
   Close;
 end;
 
-procedure TfrmGenerator.btnGenerateClick(Sender: TObject);
+procedure TfrmCodeGenerator.btnGenerateClick(Sender: TObject);
 var
   Generator: TCodeGenerator;
   Statistics: TCodeGeneratorStatistics;
@@ -72,7 +72,7 @@ begin
   end;
 end;
 
-procedure TfrmGenerator.GeneratorWork(Sender: TObject; WorkCount: Integer);
+procedure TfrmCodeGenerator.GeneratorWork(Sender: TObject; WorkCount: Integer);
 begin
   pbTotalProgress.Position := pbTotalProgress.Max - pbCurrentOperation.Max + WorkCount;
   pbCurrentOperation.Position := WorkCount;
@@ -82,7 +82,7 @@ begin
   end;
 end;
 
-procedure TfrmGenerator.GeneratorWorkEnd(Sender: TObject);
+procedure TfrmCodeGenerator.GeneratorWorkEnd(Sender: TObject);
 begin
   lblOperationName.Caption := '';
   pbTotalProgress.Position := pbTotalProgress.Max;
@@ -90,7 +90,7 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TfrmGenerator.GeneratorWorkStart(Sender: TObject; const OperationName: String;
+procedure TfrmCodeGenerator.GeneratorWorkStart(Sender: TObject; const OperationName: String;
   OperationCount, OperationNumber: Integer; MinWorkCount, MaxWorkCount: Integer);
 begin
   lblOperationName.Caption := OperationName;

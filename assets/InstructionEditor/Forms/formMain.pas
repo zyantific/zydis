@@ -38,8 +38,8 @@ type
     Splitter: TcxSplitter;
     bbDuplicateDefinition: TdxBarButton;
     bbDeleteDefinition: TdxBarButton;
-    barGenerator: TdxBar;
-    lbGenerate: TdxBarLargeButton;
+    barTools: TdxBar;
+    lbCodeGenerator: TdxBarLargeButton;
     pnlInspector: TPanel;
     DockingManager: TdxDockingManager;
     imgMisc: TcxImageList;
@@ -69,6 +69,7 @@ type
     dxBarSeparator4: TdxBarSeparator;
     bbExpandLeaf: TdxBarButton;
     bbCollapseLeaf: TdxBarButton;
+    lbDiffingMode: TdxBarLargeButton;
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -85,7 +86,7 @@ type
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure lbCreateDefinitionClick(Sender: TObject);
-    procedure lbGenerateClick(Sender: TObject);
+    procedure lbCodeGeneratorClick(Sender: TObject);
     procedure bbDeleteDefinitionClick(Sender: TObject);
     procedure InspectorItemChanged(Sender: TObject; AOldRow: TcxCustomRow; AOldCellIndex: Integer);
     procedure bbDuplicateDefinitionClick(Sender: TObject);
@@ -105,7 +106,9 @@ type
     procedure EditorTreeGetImageIndex(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
       var Ghosted: Boolean; var ImageIndex: System.UITypes.TImageIndex);
+    procedure lbDiffingModeClick(Sender: TObject);
   strict private
+    FFilename: String;
     FEditor: TInstructionEditor;
     FUpdating: Boolean;
     FHasUnsavedChanges: Boolean;
@@ -162,20 +165,28 @@ var
 implementation
 
 uses
-  System.IniFiles, Vcl.Clipbrd, SynCrossPlatformJSON, formCreateDefinition, formGenerator,
-  untHelperClasses, untPropertyHints,
-
-  System.Math;
+  System.IniFiles, Vcl.Clipbrd, SynCrossPlatformJSON, formCreateDefinition, formCodeGenerator,
+  untHelperClasses, untPropertyHints;
 
 {$R *.dfm}
 
 type
-  TEditorNodeType = (ntFilterTable, ntInstructionDefinition);
+  TEditorNodeType = (
+    ntFilterTable,
+    ntInstructionDefinition
+  );
+
+  TDiffingState = (
+    dsDefault,
+    dsAdded,
+    dsRemoved
+  );
 
   PEditorNodeData = ^TEditorNodeData;
   TEditorNodeData = record
   public
     NodeType: TEditorNodeType;
+    DiffingState: TDiffingState;
     case Integer of
       0: (DataClass: TPersistent);
       1: (Filter: TInstructionFilter);
@@ -777,6 +788,10 @@ begin
         begin
           Assert(NodeDataB^.NodeType = ntInstructionDefinition);
           Result := CompareStr(NodeDataA^.Definition.Mnemonic, NodeDataB^.Definition.Mnemonic);
+          if (Result = 0) then
+          begin
+            Result := Ord(NodeDataA^.DiffingState) - Ord(NodeDataB^.DiffingState);
+          end;
         end;
     end;
   end;
@@ -806,7 +821,11 @@ begin
         end;
       ntInstructionDefinition:
         begin
-          ImageIndex := 2;
+          case NodeData^.DiffingState of
+            dsDefault: ImageIndex := 2;
+            dsAdded  : ImageIndex := 3;
+            dsRemoved: ImageIndex := 4;
+          end;
         end;
     end;
   end;
@@ -1092,69 +1111,147 @@ begin
   DefinitionCreate;
 end;
 
-procedure TfrmMain.lbGenerateClick(Sender: TObject);
-
-procedure DeleteDuplicates(T: TInstructionFilter);
+procedure TfrmMain.lbCodeGeneratorClick(Sender: TObject);
 var
-  L: TList<TInstructionDefinition>;
-  D: TInstructionDefinition;
-  I, J: Integer;
-  B: Boolean;
+  frmGenerator: TfrmCodeGenerator;
 begin
-  if (T is TDefinitionContainer) then
-  begin
-    L := TList<TInstructionDefinition>.Create;
-    try
-      for I := (T as TDefinitionContainer).DefinitionCount - 1 downto 0 do
-      begin
-        D := (T as TDefinitionContainer).Definitions[I];
-        B := true;
-        for J := 0 to L.Count - 1 do
-        begin
-          if (D.Equals(L[J])) then
-          begin
-            D.Free;
-            B := false;
-            Break;
-          end;
-        end;
-        if (B) then L.Add(D);
-      end;
-    finally
-      L.Free;
-    end;
-  end else
-  begin
-    for I := 0 to T.Capacity - 1 do
-    begin
-      if Assigned(T.Items[I]) then
-      begin
-        DeleteDuplicates(T.Items[I]);
-      end;
-    end;
-  end;
-end;
-
-var
-  frmGenerator: TfrmGenerator;
-begin
-  frmGenerator := TfrmGenerator.Create(Application);
+  frmGenerator := TfrmCodeGenerator.Create(Application);
   try
     frmGenerator.Editor := FEditor;
     frmGenerator.ShowModal;
   finally
     frmGenerator.Free;
   end;
+end;
 
-  Exit;
-  FEditor.BeginUpdate;
-  DeleteDuplicates(FEditor.RootTable);
-  FEditor.EndUpdate;
+procedure TfrmMain.lbDiffingModeClick(Sender: TObject);
+var
+  OpenDialog: TOpenDialog;
+  Node: PVirtualNode;
+  NodeData: PEditorNodeData;
+  Editor: TInstructionEditor;
+  I, J: Integer;
+  B: Boolean;
+  D: TInstructionDefinition;
+begin
+  if (lbDiffingMode.Down) then
+  begin
+    OpenDialog := TOpenDialog.Create(Application);
+    try
+      OpenDialog.Title := 'Open second instruction database';
+      OpenDialog.Filter := 'Instruction Database Files (*.json)|*.json';
+      OpenDialog.DefaultExt := 'json';
+      OpenDialog.InitialDir := ExtractFilePath(ParamStr(0));
+      if (not OpenDialog.Execute(WindowHandle)) then
+      begin
+        lbDiffingMode.Down := false;
+        Exit;
+      end;
+
+      EditorTree.BeginUpdate;
+      try
+        for I := 0 to FEditor.DefinitionCount - 1 do
+        begin
+          Node := GetTreeNode(FEditor.Definitions[I]);
+          NodeData := EditorTree.GetNodeData(Node);
+          NodeData^.DiffingState := dsRemoved;
+        end;
+
+        Editor := TInstructionEditor.Create;
+        try
+          Editor.OnWorkStart := EditorWorkStart;
+          Editor.OnWork := EditorWork;
+          Editor.OnWorkEnd := EditorWorkEnd;
+          try
+            Editor.LoadFromFile(OpenDialog.Filename);
+            {if (lbMnemonicFilter.Down) then
+            begin
+              SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
+            end;}
+            FEditing := false;
+            FEditor.BeginUpdate;
+            try
+              EditorWorkStart(Editor, 0, Editor.DefinitionCount);
+              for I := 0 to Editor.DefinitionCount - 1 do
+              begin
+                B := false;
+                for J := 0 to FEditor.DefinitionCount - 1 do
+                begin
+                  if (Editor.Definitions[I].Equals(FEditor.Definitions[J])) then
+                  begin
+                    B := true;
+                    Node := GetTreeNode(FEditor.Definitions[J]);
+                    NodeData := EditorTree.GetNodeData(Node);
+                    NodeData^.DiffingState := dsDefault;
+                    Break;
+                  end;
+                end;
+                if (not B) then
+                begin
+                  D := FEditor.CreateDefinition(Editor.Definitions[I].Mnemonic);
+                  D.Assign(Editor.Definitions[I]);
+                  Node := GetTreeNode(D);
+                  NodeData := EditorTree.GetNodeData(Node);
+                  NodeData^.DiffingState := dsAdded;
+                end;
+                EditorWork(Editor, I + 1);
+              end;
+              EditorWorkEnd(Editor);
+            finally
+              FEditor.EndUpdate;
+              FEditing := true;
+            end;
+          except
+            on E: Exception do
+            begin
+              Application.MessageBox(PChar(E.Message), 'Error', MB_ICONERROR);
+            end;
+          end;
+        finally
+          Editor.Free;
+        end;
+      finally
+        EditorTree.EndUpdate;
+      end;
+    finally
+      OpenDialog.Free;
+    end;
+  end else
+  begin
+    EditorTree.BeginUpdate;
+    try
+      FEditing := false;
+      FEditor.BeginUpdate;
+      try
+        EditorWorkStart(FEditor, 0, FEditor.DefinitionCount);
+        J := 0;
+        for I := FEditor.DefinitionCount - 1 downto 0 do
+        begin
+          Node := GetTreeNode(FEditor.Definitions[I]);
+          NodeData := EditorTree.GetNodeData(Node);
+          case NodeData^.DiffingState of
+            dsAdded  : NodeData^.Definition.Free;
+            dsRemoved: NodeData^.DiffingState := dsDefault;
+          end;
+          Inc(J);
+          EditorWork(FEditor, J);
+        end;
+        EditorWorkEnd(FEditor);
+      finally
+        FEditor.EndUpdate;
+        FEditing := true;
+      end;
+    finally
+      EditorTree.EndUpdate;
+    end;
+  end;
+  UpdateControls;
 end;
 
 procedure TfrmMain.lbLoadDatabaseClick(Sender: TObject);
 var
   ID: Integer;
+  OpenDialog: TOpenDialog;
 begin
   if (FHasUnsavedChanges) then
   begin
@@ -1165,10 +1262,23 @@ begin
       Exit;
     end;
   end;
+  OpenDialog := TOpenDialog.Create(Application);
+  try
+    OpenDialog.Filter := 'Instruction Database Files (*.json)|*.json';
+    OpenDialog.DefaultExt := 'json';
+    OpenDialog.InitialDir := ExtractFilePath(ParamStr(0));
+    if (not OpenDialog.Execute(WindowHandle)) then
+    begin
+      Exit;
+    end;
+    FFilename := OpenDialog.FileName;
+  finally
+    OpenDialog.Free;
+  end;
   FEditing := false;
   try
     ExpandAllNodes(false);
-    FEditor.LoadFromFile(ExtractFilePath(ParamStr(0)) + 'instructions.json');
+    FEditor.LoadFromFile(FFilename);
     if (lbMnemonicFilter.Down) then
     begin
       SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
@@ -1176,6 +1286,7 @@ begin
   except
     on E: Exception do
     begin
+      FFilename := '';
       Application.MessageBox(PChar(E.Message), 'Error', MB_ICONERROR);
     end;
   end;
@@ -1199,8 +1310,26 @@ begin
 end;
 
 procedure TfrmMain.lbSaveDatabaseClick(Sender: TObject);
+var
+  SaveDialog: TSaveDialog;
 begin
-  FEditor.SaveToFile(ExtractFilePath(ParamStr(0)) + 'instructions.json');
+  if (FFilename = '') then
+  begin
+    SaveDialog := TSaveDialog.Create(Application);
+    try
+      SaveDialog.Filter := 'Instruction Database Files (*.json)|*.json';
+      SaveDialog.DefaultExt := 'json';
+      SaveDialog.InitialDir := ExtractFilePath(ParamStr(0));
+      if (not SaveDialog.Execute(WindowHandle)) then
+      begin
+        Exit;
+      end;
+      FFilename := SaveDialog.FileName;
+    finally
+      SaveDialog.Free;
+    end;
+  end;
+  FEditor.SaveToFile(FFilename);
   FHasUnsavedChanges := false;
   UpdateControls;
 end;
@@ -1351,15 +1480,15 @@ procedure TfrmMain.UpdateControls;
 var
   NodeData: PEditorNodeData;
 begin
-  lbSaveDatabase.Enabled := FHasUnsavedChanges;
+  lbLoadDatabase.Enabled := (not lbDiffingMode.Down);
+  lbSaveDatabase.Enabled := FHasUnsavedChanges and (not lbDiffingMode.Down);
 
   NodeData := EditorTree.GetNodeData(EditorTree.FocusedNode);
   bbDuplicateDefinition.Enabled :=
     Assigned(NodeData) and (NodeData^.NodeType = ntInstructionDefinition);
   bbDeleteDefinition.Enabled :=
     Assigned(NodeData) and (NodeData^.NodeType = ntInstructionDefinition);
-  bbClipboardCopy.Enabled :=
-    Assigned(NodeData) {and (NodeData^.NodeType = ntInstructionDefinition)};
+  bbClipboardCopy.Enabled := Assigned(NodeData);
   bbClipboardCut.Enabled :=
     Assigned(NodeData) and (NodeData^.NodeType = ntInstructionDefinition);
   bbExpandLeaf.Enabled :=

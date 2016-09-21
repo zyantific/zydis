@@ -12,9 +12,10 @@ uses
   untPropertyHints in 'untPropertyHints.pas',
   formCreateDefinition in 'Forms\formCreateDefinition.pas' {frmCreateDefinition},
   formEditorX86Registers in 'Forms\Editors\formEditorX86Registers.pas' {frmEditorX86Registers},
-  formGenerator in 'Forms\formGenerator.pas' {frmGenerator},
+  formCodeGenerator in 'Forms\formCodeGenerator.pas' {frmCodeGenerator},
   Zydis.CodeGenerator in 'Zydis.CodeGenerator.pas',
-  untPropertyEditors in 'untPropertyEditors.pas';
+  untPropertyEditors in 'untPropertyEditors.pas',
+  formCompareDatabases in 'Forms\formCompareDatabases.pas' {frmCompareDatabases};
 
 {$R *.res}
 

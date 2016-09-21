@@ -532,7 +532,7 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
             case 1:
             case 2:
                 typecast = (info->operand[i - 1].size != info->operand[i].size) ? 
-                    info->operand[i - 1].size : 0;
+                    info->operand[i].size : 0;
                 break;
             }
         }

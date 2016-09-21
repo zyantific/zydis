@@ -194,15 +194,13 @@ static ZydisDecoderStatus ZydisInputNext(ZydisInstructionDecoder* decoder,
 /* Decoder functions                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
-// TODO: Make ZydisInstructionInfo the first parameter
-
 /**
  * @brief   Decodes the rex-prefix.
  *
  * @param   rexByte The rex byte.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  */
-static void ZydisDecodeRexPrefix(uint8_t rexByte, ZydisInstructionInfo* info)
+static void ZydisDecodeRexPrefix(ZydisInstructionInfo* info, uint8_t rexByte)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT((rexByte & 0xF0) == 0x40);
@@ -513,7 +511,7 @@ static ZydisDecoderStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* 
 
     if (info->prefixFlags & ZYDIS_PREFIX_REX)
     {
-        ZydisDecodeRexPrefix(info->details.rex.data[0], info);
+        ZydisDecodeRexPrefix(info, info->details.rex.data[0]);
     }
 
     if (groups[0] > 1)
@@ -680,6 +678,8 @@ static ZydisDecoderStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
     {
         operand->reg = ZydisRegisterGetById(registerClass, registerId);
     }
+
+    // TODO: Return critical error, if an invalid register was found
 
     return ZYDIS_STATUS_DECODER_SUCCESS;
 }
@@ -1246,13 +1246,14 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     {
         if (info->details.modrm.rm != 0x04)
         {
-            //info->flags |= ZYDIS_IFLAG_ERROR_INVALID_VSIB;  // TODO: Fatal error?  
+            info->flags |= ZYDIS_IFLAG_ERROR_INVALID_VSIB;
+            return ZYDIS_STATUS_DECODER_INVALID_VSIB;
         }
         switch (info->addressMode)
         {
         case 16:
-            //info->flags |= ZYDIS_IFLAG_ERROR_INVALID_VSIB;  // TODO: Fatal error?
-            break;
+            info->flags |= ZYDIS_IFLAG_ERROR_INVALID_VSIB;
+            return ZYDIS_STATUS_DECODER_INVALID_VSIB;
         case 32:
             operand->mem.index = operand->mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister;
             break;
@@ -1490,7 +1491,9 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(definition);
+    ZYDIS_ASSERT(definition->operandCount <= 6);
 
+    info->operandCount = definition->operandCount;
     for (int i = 0; i < definition->operandCount; ++i)
     {
         ZydisSemanticOperandType type = definition->operands[i].type;
@@ -1498,7 +1501,6 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
         {
             break;
         }
-        ++info->operandCount;
         ZydisInstructionEncoding encoding = definition->operands[i].encoding;
         ZydisDecoderStatus status = 
             ZydisDecodeOperand(decoder, info, &info->operand[i], type, encoding);
@@ -2494,11 +2496,22 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
     
+    void* userData[6];
+    for (int i = 0; i < 5; ++i)
+    {
+        userData[i] = info->operand[i].userData;
+    }
+    userData[5] = info->userData;
     memset(info, 0, sizeof(*info));   
     info->mode = decoder->disassemblerMode;
     info->operandMode = (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_16BIT) ? 16 : 32;
     info->addressMode = decoder->disassemblerMode;
     info->instrAddress = decoder->instructionPointer;
+    for (int i = 0; i < 5; ++i)
+    {
+        info->operand[i].userData = userData[i];
+    }
+    info->userData = userData[5];
 
     uint8_t bufferPosRead = decoder->buffer.posRead;
 

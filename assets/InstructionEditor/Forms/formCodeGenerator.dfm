@@ -1,4 +1,4 @@
-object frmGenerator: TfrmGenerator
+object frmCodeGenerator: TfrmCodeGenerator
   Left = 0
   Top = 0
   BorderStyle = bsDialog
