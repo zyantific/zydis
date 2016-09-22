@@ -14,8 +14,7 @@ uses
   formEditorX86Registers in 'Forms\Editors\formEditorX86Registers.pas' {frmEditorX86Registers},
   formCodeGenerator in 'Forms\formCodeGenerator.pas' {frmCodeGenerator},
   Zydis.CodeGenerator in 'Zydis.CodeGenerator.pas',
-  untPropertyEditors in 'untPropertyEditors.pas',
-  formCompareDatabases in 'Forms\formCompareDatabases.pas' {frmCompareDatabases};
+  untPropertyEditors in 'untPropertyEditors.pas';
 
 {$R *.res}
 

@@ -154,7 +154,7 @@ type
     procedure DefinitionDelete(Node: PVirtualNode);
     procedure ExpandAllNodes(Expanded: Boolean);
     procedure ExpandLeaf(Node: PVirtualNode; Expanded: Boolean);
-    procedure SetMnemonicFilter(const Filter: String; ExactMatch: Boolean);
+    procedure SetMnemonicFilter(const Filter: String; ExactMatch: Boolean; DiffingMode: Boolean);
   public
     { Public-Deklarationen }
   end;
@@ -525,7 +525,7 @@ begin
   begin
     if (not (csDestroying in ComponentState)) and (lbMnemonicFilter.Down) then
     begin
-      SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
+      SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down, lbDiffingMode.Down);
     end;
     FHasUnsavedChanges := true;
     UpdateControls;
@@ -1066,7 +1066,7 @@ end;
 
 procedure TfrmMain.bbExactMatchClick(Sender: TObject);
 begin
-  SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
+  SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down, lbDiffingMode.Down);
 end;
 
 procedure TfrmMain.bbExpandLeafClick(Sender: TObject);
@@ -1098,7 +1098,7 @@ procedure TfrmMain.edtMnemonicFilterCurChange(Sender: TObject);
 begin
   // TODO: Filter is offsync, if the user leaves the edit by pressing ESC or focusing an other
   //       control
-  SetMnemonicFilter(edtMnemonicFilter.CurText, bbExactMatch.Down);
+  SetMnemonicFilter(edtMnemonicFilter.CurText, bbExactMatch.Down, lbDiffingMode.Down);
 end;
 
 procedure TfrmMain.lbClipboardPasteClick(Sender: TObject);
@@ -1281,7 +1281,7 @@ begin
     FEditor.LoadFromFile(FFilename);
     if (lbMnemonicFilter.Down) then
     begin
-      SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
+      SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down, lbDiffingMode.Down);
     end;
   except
     on E: Exception do
@@ -1301,11 +1301,11 @@ begin
   piStatusBarProgress.Width := barStatusBarProgress.Control.ClientWidth;
   if (lbMnemonicFilter.Down) then
   begin
-    SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down);
+    SetMnemonicFilter(edtMnemonicFilter.Text, bbExactMatch.Down, lbDiffingMode.Down);
     edtMnemonicFilter.SetFocus;
   end else
   begin
-    SetMnemonicFilter('', false);
+    SetMnemonicFilter('', false, false);
   end;
 end;
 
@@ -1414,7 +1414,8 @@ begin
   SetBounds(R.Left + 50, R.Top + 50, R.Width - 100, R.Height - 100);
 end;
 
-procedure TfrmMain.SetMnemonicFilter(const Filter: String; ExactMatch: Boolean);
+procedure TfrmMain.SetMnemonicFilter(const Filter: String; ExactMatch: Boolean;
+  DiffingMode: Boolean);
 
 procedure ApplyMnemonicFilter(Filter: TInstructionFilter; out IsVisible: Boolean;
   const FilterText: String; FilterLength: Integer);
@@ -1423,8 +1424,9 @@ var
   C: TDefinitionContainer;
   I: Integer;
   B: Boolean;
+  NodeData: PEditorNodeData;
 begin
-  IsVisible := (FilterLength = 0);
+  IsVisible := (FilterLength = 0) and (not DiffingMode);
   if (iffIsDefinitionContainer in Filter.FilterFlags) then
   begin
     C := (Filter as TDefinitionContainer);
@@ -1444,6 +1446,11 @@ begin
             B := (CompareStr(FilterText, AnsiLowerCase(Copy(D.Mnemonic, 1, FilterLength))) = 0);
           end;
         end;
+      end;
+      if (DiffingMode) then
+      begin
+        NodeData := EditorTree.GetNodeData(GetTreeNode(D));
+        B := B and (NodeData^.DiffingState <> dsDefault);
       end;
       EditorTree.IsVisible[GetTreeNode(D)] := B;
       IsVisible := IsVisible or B;
