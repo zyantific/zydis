@@ -57,6 +57,8 @@ bool ZydisIsFeatureEnabled(ZydisFeature feature)
 #else
         return false;
 #endif
+    default:
+        break;
     }
     return false;    
 }

@@ -243,8 +243,6 @@ object frmMain: TfrmMain
     OnGetImageIndex = EditorTreeGetImageIndex
     OnKeyDown = EditorTreeKeyDown
     OnMouseUp = EditorTreeMouseUp
-    ExplicitLeft = 370
-    ExplicitTop = 133
     Columns = <
       item
         Position = 0

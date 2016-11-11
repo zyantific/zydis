@@ -16,7 +16,9 @@ uses
 //       definitions
 //       http://www.delphipraxis.net/136601-virtual-treeview-multiselect-onchange-event-problem.html
 
-// TODO: Update inspector after inspected object changed
+// TODO: [ ] Update inspector after inspected object changed
+//       [ ] Create seperated class for persistent settings
+//       [ ] Seperate view from business logic
 
 type
   TfrmMain = class(TdxRibbonForm)
@@ -803,7 +805,7 @@ procedure TfrmMain.EditorTreeGetImageIndex(Sender: TBaseVirtualTree;
 var
   NodeData: PEditorNodeData;
 begin
-  if (Column <> 0) or (Kind = ikOverlay) then
+  if (Column <> 0) or (not (Kind in [ikNormal, ikSelected])) then
   begin
     Exit;
   end;

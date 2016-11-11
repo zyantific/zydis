@@ -154,7 +154,7 @@ const
   SIZEOF_OPERANDDEFINITION        =  2;
   DIRECTORY_INCLUDE_INTERNAL      = 'include\Zydis\Internal';
   FILENAME_INSTRUCTIONFILTERS     = 'InstructionFilters.inc';
-  FILENAME_MNEMONICENUM           = 'MnemonicEnum.inc';
+  FILENAME_MNEMONICDEFINES        = 'MnemonicDefines.inc';
   FILENAME_MNEMONICSTRINGS        = 'MnemonicStrings.inc';
   FILENAME_INSTRUCTIONDEFINITIONS = 'InstructionDefinitions.inc';
   FILENAME_OPERANDDEFINITIONS     = 'OperandDefinitions.inc';
@@ -769,24 +769,18 @@ var
 begin
   List := TStringList.Create;
   try
-    WorkStart('Generating mnemonic enum', Low(MnemonicList), High(MnemonicList));
+    WorkStart('Generating mnemonic defines', Low(MnemonicList), High(MnemonicList));
     Buffer := TStringBuffer.Create;
     try
       for I := Low(MnemonicList) to High(MnemonicList) do
       begin
-        Buffer.Append(
-          Format('  /*%.4x*/ ZYDIS_MNEMONIC_%s', [I, AnsiUpperCase(MnemonicList[I])]));
-        if (I = High(MnemonicList)) then
-        begin
-          Buffer.AppendLn('');
-        end else
-        begin
-          Buffer.AppendLn(',');
-        end;
+        Buffer.Append(Format('#define /*%.4x*/ ZYDIS_MNEMONIC_%s 0x%.4x', [
+          I, AnsiUpperCase(MnemonicList[I]), I]));
+        Buffer.AppendLn('');
         Work(I);
       end;
       List.Text := Buffer.Value;
-      List.SaveToFile(IncludeTrailingPathDelimiter(OutputDirectory) + FILENAME_MNEMONICENUM);
+      List.SaveToFile(IncludeTrailingPathDelimiter(OutputDirectory) + FILENAME_MNEMONICDEFINES);
     finally
       Buffer.Free;
     end;

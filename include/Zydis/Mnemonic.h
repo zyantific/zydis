@@ -44,13 +44,7 @@ extern "C" {
  */
 typedef uint16_t ZydisInstructionMnemonic;
 
-/**
- * @brief   Values that represent zydis instruction-mnemonics.
- */
-enum ZydisInstructionMnemonics
-{
-#include <Zydis/Internal/MnemonicEnum.inc>    
-};
+#include <Zydis/Internal/MnemonicDefines.inc>    
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

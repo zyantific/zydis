@@ -158,6 +158,8 @@ enum ZydisRegisterClasses
     ZYDIS_REGISTERCLASS_BOUNDS
 };
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Defines the @c ZydisRegisterSize datatype.
  */

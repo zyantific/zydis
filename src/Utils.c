@@ -45,7 +45,7 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        if (operand->mem.disp.size == 0)
+        if (operand->mem.disp.dataSize == 0)
         {
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
@@ -75,9 +75,13 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
                     *address = (uint32_t)*address;
                 }
                 break;
+            default:
+                break;
             }
             return ZYDIS_STATUS_SUCCESS;     
         }
+        break;
+    default:
         break;
     }
     return ZYDIS_STATUS_INVALID_PARAMETER;

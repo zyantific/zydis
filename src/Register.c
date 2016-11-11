@@ -121,92 +121,80 @@ ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id)
     switch (registerClass)
     {
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8:
-        if (id > 19)
+        if (id <= 19)
         {
-            return ZYDIS_REGISTER_NONE;
+            return ZYDIS_REGISTER_AL + id;
         }
-        return ZYDIS_REGISTER_AL + id;
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16:
-        if (id > 15)
+        if (id <= 15)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_AX + id;
+            return ZYDIS_REGISTER_AX + id;
+        }    
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32:
-        if (id > 15)
+        if (id <= 15)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_EAX + id;
+            return ZYDIS_REGISTER_EAX + id;
+        }      
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64:
-        if (id > 15)
+        if (id <= 15)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_RAX + id;
+            return ZYDIS_REGISTER_RAX + id;
+        }     
     case ZYDIS_REGISTERCLASS_FLOATING_POINT:
-        if (id > 7)
+        if (id <= 7)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_ST0 + id;
+            return ZYDIS_REGISTER_ST0 + id;
+        }    
     case ZYDIS_REGISTERCLASS_MULTIMEDIA:
-        if (id > 7)
+        if (id <= 7)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_MM0 + id;
+            return ZYDIS_REGISTER_MM0 + id;
+        }     
     case ZYDIS_REGISTERCLASS_VECTOR128:
-        if (id > 31)
+        if (id <= 31)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_XMM0 + id;
+            return ZYDIS_REGISTER_XMM0 + id;
+        }    
     case ZYDIS_REGISTERCLASS_VECTOR256:
-        if (id > 31)
+        if (id <= 31)
         {
-            return ZYDIS_REGISTER_NONE;
+            return ZYDIS_REGISTER_YMM0 + id;
         }
-        return ZYDIS_REGISTER_YMM0 + id;
     case ZYDIS_REGISTERCLASS_VECTOR512:
-        if (id > 31)
+        if (id <= 31)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_ZMM0 + id;
+            return ZYDIS_REGISTER_ZMM0 + id;
+        }    
     case ZYDIS_REGISTERCLASS_SEGMENT:
-        if (id > 5)
+        if (id <= 5)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_ES + id;
+            return ZYDIS_REGISTER_ES + id;
+        }   
     case ZYDIS_REGISTERCLASS_CONTROL:
-        if (id > 15)
+        if (id <= 15)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_CR0 + id;
+            return ZYDIS_REGISTER_CR0 + id;
+        }   
     case ZYDIS_REGISTERCLASS_DEBUG:
-        if (id > 15)
+        if (id <= 15)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_DR0 + id;
+            return ZYDIS_REGISTER_DR0 + id;
+        }       
     case ZYDIS_REGISTERCLASS_MASK:
-        if (id > 7)
+        if (id <= 7)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_K0 + id;
+            return ZYDIS_REGISTER_K0 + id;
+        }    
     case ZYDIS_REGISTERCLASS_BOUNDS:
-        if (id > 3)
+        if (id <= 3)
         {
-            return ZYDIS_REGISTER_NONE;
-        }
-        return ZYDIS_REGISTER_BND0 + id;
+            return ZYDIS_REGISTER_BND0 + id;
+        }      
     case ZYDIS_REGISTERCLASS_FLAGS:
     case ZYDIS_REGISTERCLASS_IP:
         // These registers are unique
+        break;
+    default:
         break;
     }
     return ZYDIS_REGISTER_NONE;
@@ -323,6 +311,8 @@ ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg)
         return ZYDIS_REGISTERSIZE_64;
     case ZYDIS_REGISTERCLASS_BOUNDS:
         return ZYDIS_REGISTERSIZE_128;
+    default:
+        break;
     }
     return ZYDIS_REGISTERSIZE_INVALID;
 }
@@ -336,6 +326,8 @@ bool ZydisRegisterIsGPR(ZydisRegister reg)
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16:
     case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8:
         return true;
+    default:
+        break;
     }
     return false;
 }
@@ -378,6 +370,8 @@ bool ZydisRegisterIsVR(ZydisRegister reg)
     case ZYDIS_REGISTERCLASS_VECTOR256:
     case ZYDIS_REGISTERCLASS_VECTOR128:
         return true;
+    default:
+        break;
     }
     return false;
 }

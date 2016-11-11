@@ -45,6 +45,96 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisRegisterAccessFlags datatype.
+ */
+typedef uint8_t ZydisRegisterAccessFlags;
+
+/**
+ * @brief   The instruction reads from this register.
+ */
+#define ZYDIS_REGISTER_ACCESS_READ                      0x01
+/**
+ * @brief   The instruction writes to this register.
+ */
+#define ZYDIS_REGISTER_ACCESS_WRITE                     0x02
+/**
+ * @brief   The instruction implicitly reads from this register.
+ */
+#define ZYDIS_REGISTER_ACCESS_IMPLICIT_READ             0x04
+/**
+ * @brief   The instruction implicitly writes to this register.
+ */
+#define ZYDIS_REGISTER_ACCESS_IMPLICIT_WRITE            0x08
+/**
+ * @brief   The instruction indirectly reads from this register.
+ * 
+ * For example: 
+ * [1] If the instruction accesses the RAX register, it indirectly accesses the 
+ *     EAX/AX/AL/AH registers as well.
+ * [2] If the instruction accesses the AL register, it indirectly accesses the
+ *     AX/EAX/RAX registers as well.
+ */
+#define ZYDIS_REGISTER_ACCESS_INDIRECT_READ             0x10
+/**
+ * @brief   The instruction indirectly writes to this register.
+ * 
+ * For example: 
+ * [1] If the instruction accesses the RAX register, it indirectly accesses the 
+ *     EAX/AX/AL/AH registers as well.
+ * [2] If the instruction accesses the AL register, it indirectly accesses the
+ *     AX/EAX/RAX registers as well.
+ */
+#define ZYDIS_REGISTER_ACCESS_INDIRECT_WRITE            0x20
+/**
+ * @brief   The instruction indirectly and implicitly reads from this register.
+ * 
+ * For example: 
+ * [1] If the instruction accesses the RAX register, it indirectly accesses the 
+ *     EAX/AX/AL/AH registers as well.
+ * [2] If the instruction accesses the AL register, it indirectly accesses the
+ *     AX/EAX/RAX registers as well.
+ */
+#define ZYDIS_REGISTER_ACCESS_INDIRECT_IMPLICIT_READ    0x40
+/**
+ * @brief   The instruction indirectly and implicitly  writes to this register.
+ * 
+ * For example: 
+ * [1] If the instruction accesses the RAX register, it indirectly accesses the 
+ *     EAX/AX/AL/AH registers as well.
+ * [2] If the instruction accesses the AL register, it indirectly accesses the
+ *     AX/EAX/RAX registers as well.
+ */
+#define ZYDIS_REGISTER_ACCESS_INDIRECT_IMPLICIT_WRITE   0x80
+
+/**
+ * @brief   Defines the @c ZydisRegisterInfo struct.
+ */
+typedef struct ZydisRegisterInfo_
+{
+    /**
+     * @brief   The number of items in the @c reg array.
+     */
+    uint8_t count;
+    /**
+     * @brief   Array with advanced information about every register used by the current 
+     *          instruction.
+     */
+    struct
+    {
+        /**
+         * @brief   The register id.
+         */
+        ZydisRegister id;
+        /**
+         * @brief   The register access-flags.
+         */
+        ZydisRegisterAccessFlags access;
+    } reg[255];
+} ZydisRegisterInfo;
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the zydis cpuid-feature-flag datatype.
  */
 typedef uint8_t ZydisCPUIDFeatureFlag;

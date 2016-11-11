@@ -47,12 +47,48 @@ extern "C" {
 typedef uint32_t ZydisDecoderFlags;
 
 /**
- * @brief   Values that represent zydis decoder-flags.
+ * @brief   Set this flag if you do not want @c ZydisDecoderDecodeNextInstruction to fail with
+ *          @c ZYDIS_STATUS_INVALID_INSTRUCTION, if an invalid instruction was found.
+ *          
+ * If this flag is set, @c ZydisDecoderDecodeNextInstruction just skips one byte and
+ * returns @c ZYDIS_STATUS_SUCCESS. The returned @c ZydisInstructionInfo struct will
+ * have one of the @c ZYDIS_IFLAG_ERROR_MASK flags set. 
  */
-enum ZydisDecoderFlag
-{
-    ZYDIS_DECODER_FLAG_SKIP_DATA = 0x00000001    
-};
+#define ZYDIS_DECODER_FLAG_SKIP_DATA                0x00000001
+/**
+ * @brief   Includes information about all registers implicitly used by the instruction.
+ *          
+ * If the @c ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS feature is not available,
+ * @c ZydisDecoderDecodeNextInstruction will fail with 
+ * @c ZYDIS_STATUS_INVALID_OPERATION.
+ */
+#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_IMPLICIT  0x00000002
+/**
+ * @brief   Includes information about all registers explicitly used by the instruction.
+ */
+#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_EXPLICIT  0x00000004
+/**
+ * @brief   Includes information about all registers indicrectly used by the instruction.
+ *          
+ * For example: 
+ * [1] If the instruction accesses the RAX register, it indirectly accesses the EAX/AX/AL/AH 
+ *     registers as well.
+ * [2] If the instruction accesses the AL register, it indirectly accesses the AX/EAX/RAX 
+ *     registers as well.
+ * 
+ * This flag only works if either the @c ZYDIS_DECODER_FLAG_REGISTER_USAGE_IMPLICIT and/or the 
+ * @c ZYDIS_DECODER_FLAG_REGISTER_USAGE_EXPLICIT flag is set.
+ */
+#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_INDIRECT  0x00000008
+/**
+ * @brief   Includes information about bits of the FLAGS/EFLAGS/RFLAGS register that are 
+ *          affected by the instruction.
+ */
+#define ZYDIS_DECODER_FLAG_AFFECTED_REGISTERS       0x00000010
+/**
+ * @brief   Includes information about the CPUID feature flags of the the instruction.
+ */
+#define ZYDIS_DECODER_FLAG_CPUID                    0x00000020
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -77,6 +113,15 @@ typedef struct ZydisInstructionDecoder_
      * @brief   The current instruction-pointer value.
      */
     uint64_t instructionPointer;
+    /**
+     * @brief   Internal field. @c TRUE, if the @c imm8 value is already initialized.
+     */
+    bool imm8initialized;
+    /**
+     * @brief   Internal field. We have to store a copy of the imm8 value for instructions that 
+     *          encode different operands in the lo and hi part of the immediate.
+     */
+    uint8_t imm8;
     /**
      * @brief   Internal buffer.
      */

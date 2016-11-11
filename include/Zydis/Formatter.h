@@ -66,17 +66,11 @@ enum ZydisFormatterStyles
  */
 typedef uint8_t ZydisFormatterFlags;
 
-/**
- * @brief   Values that represent formatter-flags.
- */
-enum ZydisFormatterFlag
-{
-    ZYDIS_FORMATTER_FLAG_UPPERCASE                      = 0x01,
-    ZYDIS_FORMATTER_FLAG_TAB_AFTER_MNEMONIC             = 0x02,
-    ZYDIS_FORMATTER_FLAG_NO_SPACE_BETWEEN_OPERANDS      = 0x04,
-    ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SIZE     = 0x08,
-    ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT  = 0x10
-};
+#define ZYDIS_FORMATTER_FLAG_UPPERCASE                      0x01
+#define ZYDIS_FORMATTER_FLAG_TAB_AFTER_MNEMONIC             0x02
+#define ZYDIS_FORMATTER_FLAG_NO_SPACE_BETWEEN_OPERANDS      0x04
+#define ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SIZE     0x08
+#define ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT  0x10
 
 /**
  * @brief   Defines the zydis address-format datatype.

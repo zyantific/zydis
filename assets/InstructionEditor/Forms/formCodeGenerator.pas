@@ -64,8 +64,7 @@ begin
     Generator.OnWorkStart := GeneratorWorkStart;
     Generator.OnWork := GeneratorWork;
     Generator.OnWorkEnd := GeneratorWorkEnd;
-    Generator.GenerateCode(
-      FEditor, 'D:\Verteron Development\GitHub\zyan-disassembler-engine\', Statistics);
+    Generator.GenerateCode(FEditor, 'F:\Development\GitHub\zyan-disassembler-engine\', Statistics);
     // TODO: Display statistics
   finally
     Generator.Free;

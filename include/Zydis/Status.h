@@ -73,10 +73,6 @@ enum ZydisStatusCode
      * @brief   A buffer passed to a function was too small to complete the requested operation.
      */
     ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE   = 0x00000008,
-    /**
-     * @brief   The start range of user defined status-codes.
-     */
-    ZYDIS_STATUS_USER                       = 0x10000000    // TODO: Remove
 };
 
 /* ============================================================================================== */

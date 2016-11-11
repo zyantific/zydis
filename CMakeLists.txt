@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8.12)
-cmake_policy(SET CMP0054 NEW)
 include(GenerateExportHeader)
 
 project(Zydis)
@@ -83,6 +82,16 @@ generate_export_header(
     BASE_NAME "ZYDIS"
     EXPORT_FILE_NAME "ZydisExportConfig.h")
 include_directories(${PROJECT_BINARY_DIR})
+
+if (FEATURE_IMPLICITLY_USED_REGISTERS)
+    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS)
+endif ()
+if (FEATURE_AFFECTED_FLAGS)
+    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS)
+endif ()
+if (FEATURE_CPUID)
+    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_CPUID)
+endif ()
 
 # Examples
 if (BUILD_EXAMPLES)

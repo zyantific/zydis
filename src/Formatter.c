@@ -153,7 +153,7 @@ static ZydisStatus ZydisBufferAppendAbsoluteAddress(const ZydisInstructionFormat
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        ZYDIS_ASSERT(operand->mem.disp.size != 0);
+        ZYDIS_ASSERT(operand->mem.disp.dataSize != 0);
         if ((operand->mem.base == ZYDIS_REGISTER_EIP) || (operand->mem.base == ZYDIS_REGISTER_RIP))
         {
             ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(info, operand, &address));    
@@ -167,6 +167,8 @@ static ZydisStatus ZydisBufferAppendAbsoluteAddress(const ZydisInstructionFormat
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(info, operand, &address));
+        break;
+    default:
         break;
     }
 
@@ -323,6 +325,8 @@ static ZydisStatus ZydisBufferAppendOperandIntelMemory(const ZydisInstructionFor
         case 512:
             str = "zmmword ptr ";
             break;
+        default:
+            break;
         }
         ZYDIS_CHECK(ZydisBufferAppend(
             buffer, bufferLen, offset, (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), str));
@@ -342,7 +346,7 @@ static ZydisStatus ZydisBufferAppendOperandIntelMemory(const ZydisInstructionFor
     }
     ZYDIS_CHECK(ZydisBufferAppend(
         buffer, bufferLen, offset, (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "["));
-    if ((operand->mem.disp.size != 0) && ((operand->mem.base == ZYDIS_REGISTER_NONE) ||
+    if ((operand->mem.disp.dataSize != 0) && ((operand->mem.base == ZYDIS_REGISTER_NONE) ||
         (operand->mem.base == ZYDIS_REGISTER_EIP) || (operand->mem.base == ZYDIS_REGISTER_RIP)) &&
         (operand->mem.index == ZYDIS_REGISTER_NONE) && (operand->mem.scale == 0))
     {
@@ -369,7 +373,7 @@ static ZydisStatus ZydisBufferAppendOperandIntelMemory(const ZydisInstructionFor
                     operand->mem.scale));    
             }
         }
-        if ((operand->mem.disp.size) && ((operand->mem.disp.value.sqword) || 
+        if ((operand->mem.disp.dataSize) && ((operand->mem.disp.value.sqword) || 
             ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
             (operand->mem.index == ZYDIS_REGISTER_NONE))))
         {
@@ -426,6 +430,8 @@ static ZydisStatus ZydisBufferAppendOperandIntel(const ZydisInstructionFormatter
             operand->ptr.segment, operand->ptr.offset);
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         return ZydisBufferAppendImmediate(formatter, buffer, bufferLen, offset, info, operand); 
+    default:
+        break;
     }
     return ZYDIS_STATUS_INVALID_PARAMETER;
 }
@@ -526,6 +532,8 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
                     case ZYDIS_MNEMONIC_SHR:
                     case ZYDIS_MNEMONIC_SAR:
                         typecast = info->operand[0].size;
+                    default:
+                        break;
                     }
                 }
                 break;
@@ -533,6 +541,8 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
             case 2:
                 typecast = (info->operand[i - 1].size != info->operand[i].size) ? 
                     info->operand[i].size : 0;
+                break;
+            default:
                 break;
             }
         }
@@ -574,6 +584,8 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
                     case ZYDIS_AVX_BCSTMODE_16:
                         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
                             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), " {1to16}"));
+                        break;
+                    default:
                         break;
                     }
                 }

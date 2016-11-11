@@ -74,54 +74,58 @@ enum ZydisDisassemblerModes
 typedef uint32_t ZydisInstructionFlags;
 
 /**
- * @brief   The instruction has one or more operand with position-relative offsets.
- */
-#define ZYDIS_IFLAG_RELATIVE                    0x00000001
-/**
  * @brief   The instruction has the modrm byte.
  */
-#define ZYDIS_IFLAG_HAS_MODRM                   0x00000002
+#define ZYDIS_INSTRUCTION_HAS_MODRM                 0x00000001
 /**
  * @brief   The instruction has the sib byte.
  */
-#define ZYDIS_IFLAG_HAS_SIB                     0x00000004
+#define ZYDIS_INSTRUCTION_HAS_SIB                   0x00000002
+/**
+ * @brief   The instruction has one or more operands with position-relative offsets.
+ */
+#define ZYDIS_INSTRUCTION_RELATIVE                  0x00000004
+/**
+ * @brief   The instruction is privileged and may only be executed in kernel-mode (ring0).
+ */
+#define ZYDIS_INSTRUCTION_PRIVILEGED                0x00000008
 /**
  * @brief   An error occured while decoding the current instruction. 
  */
-#define ZYDIS_IFLAG_ERROR_MASK                  0x7F000000
+#define ZYDIS_INSTRUCTION_ERROR_MASK                0x7F000000
 /**
  * @brief   The instruction is invalid.  
  */
-#define ZYDIS_IFLAG_ERROR_INVALID               0x01000000
+#define ZYDIS_INSTRUCTION_ERROR_INVALID             0x01000000
 /**
  * @brief   The instruction length has exceeded the maximum of 15 bytes.  
  */
-#define ZYDIS_IFLAG_ERROR_INSTRUCTION_LENGTH    0x02000000
+#define ZYDIS_INSTRUCTION_ERROR_INSTRUCTION_LENGTH  0x02000000
 /**
  * @brief   An error occured while decoding the vex-prefix.  
  */
-#define ZYDIS_IFLAG_ERROR_MALFORMED_VEX         0x04000000
+#define ZYDIS_INSTRUCTION_ERROR_MALFORMED_VEX       0x04000000
 /**
  * @brief   An error occured while decoding the evex-prefix.  
  */
-#define ZYDIS_IFLAG_ERROR_MALFORMED_EVEX        0x08000000
+#define ZYDIS_INSTRUCTION_ERROR_MALFORMED_EVEX      0x08000000
 /**
  * @brief   An error occured while decoding the xop-prefix.  
  */
-#define ZYDIS_IFLAG_ERROR_MALFORMED_XOP         0x10000000
+#define ZYDIS_INSTRUCTION_ERROR_MALFORMED_XOP       0x10000000
 /**
  * @brief   A rex-prefix was found while decoding a vex/evex/xop instruction. 
  */
-#define ZYDIS_IFLAG_ERROR_ILLEGAL_REX           0x20000000
+#define ZYDIS_INSTRUCTION_ERROR_ILLEGAL_REX         0x20000000
 /**
  * @brief   An invalid constellation was found while decoding an instruction that uses the VSIB
  *          addressing mode.
  */
-#define ZYDIS_IFLAG_ERROR_INVALID_VSIB          0x40000000
+#define ZYDIS_INSTRUCTION_ERROR_INVALID_VSIB        0x40000000
 /**
  * @brief   An error occured while decoding the instruction-operands.  
  */
-#define ZYDIS_IFLAG_ERROR_OPERANDS              0x40000000
+#define ZYDIS_INSTRUCTION_ERROR_OPERANDS            0x40000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Prefix flags                                                                                   */
@@ -385,7 +389,7 @@ enum ZydisOperandEncodings
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines an alias representing an operand-access mode.
+ * @brief   Defines the @c ZydisOperandAccess datatype.
  */
 typedef uint8_t ZydisOperandAccess;
 
@@ -555,10 +559,6 @@ typedef struct ZydisOperandInfo_
         struct
         {
             /**
-             * @brief   The physical displacement size.
-             */
-            uint8_t size;
-            /**
              * @brief   The displacement value
              */
             union
@@ -568,6 +568,10 @@ typedef struct ZydisOperandInfo_
                 int32_t sdword;
                 int64_t sqword;
             } value;
+            /**
+             * @brief   The physical displacement size.
+             */
+            uint8_t dataSize;
             /**
              * @brief   The offset of the displacement data, relative to the beginning of the 
              *          instruction.
@@ -597,10 +601,6 @@ typedef struct ZydisOperandInfo_
          */
         bool isRelative;
         /**
-         * @brief   The physical immediate size.
-         */
-        uint8_t size;
-        /**
          * @brief   The immediate value.
          */
         union 
@@ -614,6 +614,10 @@ typedef struct ZydisOperandInfo_
             int64_t sqword;
             uint64_t uqword;
         } value;
+        /**
+         * @brief   The physical immediate size.
+         */
+        uint8_t dataSize;
         /**
          * @brief   The offset of the immediate data, relative to the beginning of the instruction.
          */
@@ -708,7 +712,7 @@ typedef struct ZydisInstructionInfo_
          */
         ZydisAVXRoundingMode roundingMode;
         /**
-         * @brief   The AVX suppress-all-exceptions flag.
+         * @brief   @c TRUE, if the AVX suppress-all-exceptions flag is set.
          */
         bool sae;
     } avx;
@@ -721,7 +725,7 @@ typedef struct ZydisInstructionInfo_
      * @brief   The instruction pointer points at the address of the next instruction (relative
      *          to the initial instruction pointer). 
      *          
-     *          This field is used to properly format relative instructions.         
+     * This field is used to properly format relative instructions.
      */
     uint64_t instrPointer;
     /**
@@ -902,9 +906,6 @@ typedef struct ZydisInstructionInfo_
          */
         struct
         {
-            // TODO: Move from this struct to the decoder instance
-            bool imm8initialized;
-            uint8_t imm8;
             uint8_t w;
             uint8_t r;
             uint8_t x;
