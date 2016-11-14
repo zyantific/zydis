@@ -845,6 +845,7 @@ begin
     optVR128      : OperandType := 'VR128';
     optVR256      : OperandType := 'VR256';
     optVR512      : OperandType := 'VR512';
+    optTR         : OperandType := 'TR';
     optCR         : OperandType := 'CR';
     optDR         : OperandType := 'DR';
     optMSKR       : OperandType := 'MSKR';

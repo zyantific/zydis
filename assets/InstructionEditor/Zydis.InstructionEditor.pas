@@ -368,6 +368,7 @@ type
     optVR128,
     optVR256,
     optVR512,
+    optTR,
     optCR,
     optDR,
     optSREG,
@@ -1081,6 +1082,7 @@ const
     'vr128',
     'vr256',
     'vr512',
+    'tr',
     'cr',
     'dr',
     'sreg',
@@ -1975,6 +1977,7 @@ begin
       Result := not (FEncoding in [opeModrmReg, opeModrmRm, opeVexVVVV, opeImm8Hi, opeModrmRmCD1,
         opeModrmRmCD2, opeModrmRmCD4, opeModrmRmCD8, opeModrmRmCD16, opeModrmRmCD32,
         opeModrmRmCD64]);
+    optTR,
     optCR,
     optDR,
     optSREG:
@@ -2093,6 +2096,7 @@ begin
       optVR512     : Result := 'ZMM512';
       optMSKR      : Result := 'MASK';
       optBNDR      : Result := 'BND';
+      optTR        : Result := 'TR';
       optCR        : Result := 'CR';
       optDR        : Result := 'DR';
       optMem       : Result := 'mem';
@@ -2241,8 +2245,10 @@ begin
       optVR512: ;
       optFPR:
         FEncoding := opeModrmRm;
-      optCR: ;
-      optDR: ;
+      optTR,
+      optCR,
+      optDR:
+        FEncoding := opeModrmReg;
       optSREG: ;
       optMSKR: ;
       optBNDR: ;

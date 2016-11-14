@@ -999,6 +999,10 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         operand->size = 64;
         registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64;
         break;
+    case ZYDIS_SEM_OPERAND_TYPE_TR:
+        operand->size = 32; // TODO: ?
+        registerClass = ZYDIS_REGISTERCLASS_TEST;
+        break;
     case ZYDIS_SEM_OPERAND_TYPE_CR:
         operand->size = (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 64 : 32;
         registerClass = ZYDIS_REGISTERCLASS_CONTROL;
