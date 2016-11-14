@@ -172,8 +172,9 @@ procedure TCodeGenerator.CreateInstructionDefinitionList(Editor: TInstructionEdi
   var DefinitionList: TIndexedInstructionDefinitionList; var InstructionDefinitionCount: Integer;
   var InstructionDefinitionSize: Cardinal);
 var
-  I: Integer;
   List: TList<TInstructionDefinition>;
+  I, J: Integer;
+  B: Boolean;
   Comparison: TComparison<TInstructionDefinition>;
 begin
   List := TList<TInstructionDefinition>.Create;
@@ -181,7 +182,19 @@ begin
     WorkStart('Indexing instruction definitions', 0, Editor.DefinitionCount * 2);
     for I := 0 to Editor.DefinitionCount - 1 do
     begin
-      List.Add(Editor.Definitions[I]);
+      B := false;
+      for J := 0 to List.Count - 1 do
+      begin
+        if (Editor.Definitions[I].Equals(List[J], false, false)) then
+        begin
+          B := true;
+          Break;
+        end;
+      end;
+      if (not B) then
+      begin
+        List.Add(Editor.Definitions[I]);
+      end;
       Work(I + 1);
     end;
     Comparison :=

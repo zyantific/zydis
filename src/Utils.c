@@ -64,19 +64,23 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
         if (operand->imm.isSigned || operand->imm.isRelative)
         {
             *address = (uint64_t)((int64_t)info->instrPointer + operand->imm.value.sqword);
-            switch (info->operandMode)
+            switch (operand->size)
             {
             case 16:
                 *address = (uint16_t)*address;
                 break;
             case 32:
+                assert((info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)); // TODO: Remove after fuzzing
                 if (info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)
                 {
                     *address = (uint32_t)*address;
                 }
                 break;
-            default:
+            case 64:
+                assert((info->mode == ZYDIS_DISASSEMBLER_MODE_64BIT)); // TODO: Remove after fuzzing
                 break;
+            default:
+                return ZYDIS_STATUS_INVALID_PARAMETER;
             }
             return ZYDIS_STATUS_SUCCESS;     
         }

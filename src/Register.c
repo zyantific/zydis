@@ -90,11 +90,16 @@ const char* registerStrings[] =
     "xmm24",  "xmm25",  "xmm26", "xmm27",  
     "xmm28",  "xmm29",  "xmm30", "xmm31",
     // Special registers
-    "rflags", "eflags", "flags", "rip",    
-    "eip",    "ip",
+    "rflags", "eflags", "flags", "rip",   
+    "eip",    "ip",     "mxcsr",
     // Segment registers
     "es",     "ss",     "cs",    "ds",     
     "fs",     "gs",
+    // Table registers
+    "gdtr",   "ldtr",   "idtr",  "tr",
+    // Test registers
+    "tr0",    "tr1",    "tr2",   "tr3",
+    "tr4",    "tr5",    "tr6",   "tr7",
     // Control registers
     "cr0",    "cr1",    "cr2",   "cr3",    
     "cr4",    "cr5",    "cr6",   "cr7",
@@ -109,7 +114,8 @@ const char* registerStrings[] =
     "k0",     "k1",     "k2",    "k3",     
     "k4",     "k5",     "k6",   "k7",
     // Bounds registers
-    "bnd0",   "bnd1",   "bnd2",  "bnd3"
+    "bnd0",   "bnd1",   "bnd2",  "bnd3",
+    "bndcfg", "bndstatus"
 };
 
 /* ============================================================================================== */
@@ -170,6 +176,11 @@ ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id)
         {
             return ZYDIS_REGISTER_ES + id;
         }   
+    case ZYDIS_REGISTERCLASS_TEST:
+        if (id <= 7)
+        {
+            return ZYDIS_REGISTER_TR0 + id;
+        } 
     case ZYDIS_REGISTERCLASS_CONTROL:
         if (id <= 15)
         {
@@ -190,11 +201,8 @@ ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id)
         {
             return ZYDIS_REGISTER_BND0 + id;
         }      
-    case ZYDIS_REGISTERCLASS_FLAGS:
-    case ZYDIS_REGISTERCLASS_IP:
-        // These registers are unique
-        break;
     default:
+        // The registers of the missing register-classes can not be encoded by the register-id.
         break;
     }
     return ZYDIS_REGISTER_NONE;
@@ -255,6 +263,14 @@ ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
     {
         return ZYDIS_REGISTERCLASS_SEGMENT;
     }
+    if ((reg >= ZYDIS_REGISTER_GDTR) && (reg <= ZYDIS_REGISTER_TR))
+    {
+        return ZYDIS_REGISTERCLASS_TABLE;
+    }
+    if ((reg >= ZYDIS_REGISTER_TR0) && (reg <= ZYDIS_REGISTER_TR7))
+    {
+        return ZYDIS_REGISTERCLASS_TEST;
+    }
     if ((reg >= ZYDIS_REGISTER_CR0) && (reg <= ZYDIS_REGISTER_CR15))
     {
         return ZYDIS_REGISTERCLASS_CONTROL;
@@ -267,11 +283,11 @@ ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
     {
         return ZYDIS_REGISTERCLASS_MASK;
     }
-    if ((reg >= ZYDIS_REGISTER_BND0) && (reg <= ZYDIS_REGISTER_BND3))
+    if ((reg >= ZYDIS_REGISTER_BND0) && (reg <= ZYDIS_REGISTER_BNDSTATUS))
     {
         return ZYDIS_REGISTERCLASS_BOUNDS;
     }
-    return ZYDIS_REGISTERCLASS_INVALID;
+    return ZYDIS_REGISTERCLASS_NONE;
 }
 
 ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg)
@@ -303,6 +319,10 @@ ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg)
         return ZYDIS_REGISTERSIZE_DYNAMIC;
     case ZYDIS_REGISTERCLASS_SEGMENT:
         return ZYDIS_REGISTERSIZE_16;
+    case ZYDIS_REGISTERCLASS_TABLE:
+        return ZYDIS_REGISTERSIZE_DYNAMIC;
+    case ZYDIS_REGISTERCLASS_TEST:
+        return ZYDIS_REGISTERSIZE_INVALID; // TODO:
     case ZYDIS_REGISTERCLASS_CONTROL:
         return ZYDIS_REGISTERSIZE_DYNAMIC;
     case ZYDIS_REGISTERCLASS_DEBUG:
@@ -315,115 +335,6 @@ ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg)
         break;
     }
     return ZYDIS_REGISTERSIZE_INVALID;
-}
-
-bool ZydisRegisterIsGPR(ZydisRegister reg)
-{
-    switch (ZydisRegisterGetClass(reg))
-    {
-    case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64:
-    case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32:
-    case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16:
-    case ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8:
-        return true;
-    default:
-        break;
-    }
-    return false;
-}
-
-bool ZydisRegisterIsGPR8(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8);
-}
-
-bool ZydisRegisterIsGPR16(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16);
-}
-
-bool ZydisRegisterIsGPR32(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32);
-}
-
-bool ZydisRegisterIsGPR64(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64);
-}
-
-bool ZydisRegisterIsFPRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLOATING_POINT);
-}
-
-bool ZydisRegisterIsMMRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MULTIMEDIA);
-}
-
-bool ZydisRegisterIsVR(ZydisRegister reg)
-{
-    switch (ZydisRegisterGetClass(reg))
-    {
-    case ZYDIS_REGISTERCLASS_VECTOR512:
-    case ZYDIS_REGISTERCLASS_VECTOR256:
-    case ZYDIS_REGISTERCLASS_VECTOR128:
-        return true;
-    default:
-        break;
-    }
-    return false;
-}
-
-bool ZydisRegisterIsVR128(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR128);
-}
-
-bool ZydisRegisterIsVR256(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR256);
-}
-
-bool ZydisRegisterIsVR512(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR512);
-}
-
-bool ZydisRegisterIsFlagsRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLAGS);
-}
-
-bool ZydisRegisterIsIPRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_IP);
-}
-
-bool ZydisRegisterIsSegmentRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_SEGMENT);
-}
-
-bool ZydisRegisterIsCR(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_CONTROL);
-}
-
-bool ZydisRegisterIsDR(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_DEBUG);
-}
-
-bool ZydisRegisterIsMaskRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MASK);
-}
-
-bool ZydisRegisterIsBoundsRegister(ZydisRegister reg)
-{
-    return (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_BOUNDS);
 }
 
 /* ============================================================================================== */

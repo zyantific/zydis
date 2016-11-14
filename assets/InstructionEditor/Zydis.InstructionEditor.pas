@@ -201,51 +201,55 @@ type
   TX86Register = (
     regNone,
     // General purpose registers 64-bit
-    regRAX,    regRCX,    regRDX,   regRBX,    regRSP,   regRBP,   regRSI,   regRDI,
-    regR8,     regR9,     regR10,   regR11,    regR12,   regR13,   regR14,   regR15,
+    regRAX,    regRCX,    regRDX,   regRBX,    regRSP,     regRBP,       regRSI,   regRDI,
+    regR8,     regR9,     regR10,   regR11,    regR12,     regR13,       regR14,   regR15,
     // General purpose registers 32-bit
-    regEAX,    regECX,    regEDX,   regEBX,    regESP,   regEBP,   regESI,   regEDI,
-    regR8D,    regr9D,    regR10D,  regR11D,   regR12D,  regR13D,  regR14D,  regR15D,
+    regEAX,    regECX,    regEDX,   regEBX,    regESP,     regEBP,       regESI,   regEDI,
+    regR8D,    regr9D,    regR10D,  regR11D,   regR12D,    regR13D,      regR14D,  regR15D,
     // General purpose registers 16-bit
-    regAX,     regCX,     regDX,    regBX,     regSP,    regBP,    regSI,    regDI,
-    regR8W,    regR9W,    regR10W,  regR11W,   regR12W,  regR13W,  regR14W,  regR15W,
+    regAX,     regCX,     regDX,    regBX,     regSP,      regBP,        regSI,    regDI,
+    regR8W,    regR9W,    regR10W,  regR11W,   regR12W,    regR13W,      regR14W,  regR15W,
     // General purpose registers  8-bit
-    regAL,     regCL,     regDL,    regBL,     regAH,    regCH,    regDH,    regBH,
+    regAL,     regCL,     regDL,    regBL,     regAH,      regCH,        regDH,    regBH,
     regSPL,    regBPL,    regSIL,   regDIL,
-    regR8B,    regR9B,    regR10B,  regR11B,   regR12B,  regR13B,  regR14B,  regR15B,
+    regR8B,    regR9B,    regR10B,  regR11B,   regR12B,    regR13B,      regR14B,  regR15B,
     // Floating point legacy registers
-    regST0,    regST1,    regST2,   regST3,    regST4,   regST5,   regST6,   regST7,
+    regST0,    regST1,    regST2,   regST3,    regST4,     regST5,       regST6,   regST7,
     // Floating point multimedia registers
-    regMM0,    regMM1,    regMM2,   regMM3,    regMM4,   regMM5,   regMM6,   regMM7,
+    regMM0,    regMM1,    regMM2,   regMM3,    regMM4,     regMM5,       regMM6,   regMM7,
     // Floating point vector registers 512-bit
-    regZMM0,   regZMM1,   regZMM2,  regZMM3,   regZMM4,  regZMM5,  regZMM6,  regZMM7,
-    regZMM8,   regZMM9,   regZMM10, regZMM11,  regZMM12, regZMM13, regZMM14, regZMM15,
-    regZMM16,  regZMM17,  regZMM18, regZMM19,  regZMM20, regZMM21, regZMM22, regZMM23,
-    regZMM24,  regZMM25,  regZMM26, regZMM27,  regZMM28, regZMM29, regZMM30, regZMM31,
+    regZMM0,   regZMM1,   regZMM2,  regZMM3,   regZMM4,    regZMM5,      regZMM6,  regZMM7,
+    regZMM8,   regZMM9,   regZMM10, regZMM11,  regZMM12,   regZMM13,     regZMM14, regZMM15,
+    regZMM16,  regZMM17,  regZMM18, regZMM19,  regZMM20,   regZMM21,     regZMM22, regZMM23,
+    regZMM24,  regZMM25,  regZMM26, regZMM27,  regZMM28,   regZMM29,     regZMM30, regZMM31,
     // Floating point vector registers 256-bit
-    regYMM0,   regYMM1,   regYMM2,  regYMM3,   regYMM4,  regYMM5,  regYMM6,  regYMM7,
-    regYMM8,   regYMM9,   regYMM10, regYMM11,  regYMM12, regYMM13, regYMM14, regYMM15,
-    regYMM16,  regYMM17,  regYMM18, regYMM19,  regYMM20, regYMM21, regYMM22, regYMM23,
-    regYMM24,  regYMM25,  regYMM26, regYMM27,  regYMM28, regYMM29, regYMM30, regYMM31,
+    regYMM0,   regYMM1,   regYMM2,  regYMM3,   regYMM4,    regYMM5,      regYMM6,  regYMM7,
+    regYMM8,   regYMM9,   regYMM10, regYMM11,  regYMM12,   regYMM13,     regYMM14, regYMM15,
+    regYMM16,  regYMM17,  regYMM18, regYMM19,  regYMM20,   regYMM21,     regYMM22, regYMM23,
+    regYMM24,  regYMM25,  regYMM26, regYMM27,  regYMM28,   regYMM29,     regYMM30, regYMM31,
     // Floating point vector registers 128-bit
-    regXMM0,   regXMM1,   regXMM2,  regXMM3,   regXMM4,  regXMM5,  regXMM6,  regXMM7,
-    regXMM8,   regXMM9,   regXMM10, regXMM11,  regXMM12, regXMM13, regXMM14, regXMM15,
-    regXMM16,  regXMM17,  regXMM18, regXMM19,  regXMM20, regXMM21, regXMM22, regXMM23,
-    regXMM24,  regXMM25,  regXMM26, regXMM27,  regXMM28, regXMM29, regXMM30, regXMM31,
+    regXMM0,   regXMM1,   regXMM2,  regXMM3,   regXMM4,    regXMM5,      regXMM6,  regXMM7,
+    regXMM8,   regXMM9,   regXMM10, regXMM11,  regXMM12,   regXMM13,     regXMM14, regXMM15,
+    regXMM16,  regXMM17,  regXMM18, regXMM19,  regXMM20,   regXMM21,     regXMM22, regXMM23,
+    regXMM24,  regXMM25,  regXMM26, regXMM27,  regXMM28,   regXMM29,     regXMM30, regXMM31,
     // Special registers
-    regRFLAGS, regEFLAGS, regFLAGS, regRIP,    regEIP,   regIP,
+    regRFLAGS, regEFLAGS, regFLAGS, regRIP,    regEIP,     regIP,        regMXCSR,
     // Segment registers
-    regES,     regCS,     regSS,    regDS,     regGS,    regFS,
+    regES,     regCS,     regSS,    regDS,     regGS,      regFS,
+    // Table registers
+    regGDTR,   regLDTR,   regIDTR,  regTR,
+    // Test registers
+    regTR0,    regTR1,    regTR2,   regTR3,    regTR4,     regTR5,       regTR6,   regTR7,
     // Control registers
-    regCR0,    regCR1,    regCR2,   regCR3,    regCR4,   regCR5,   regCR6,   regCR7,
-    regCR8,    regCR9,    regCR10,  regCR11,   regCR12,  regCR13,  regCR14,  regCR15,
+    regCR0,    regCR1,    regCR2,   regCR3,    regCR4,     regCR5,       regCR6,   regCR7,
+    regCR8,    regCR9,    regCR10,  regCR11,   regCR12,    regCR13,      regCR14,  regCR15,
     // Debug registers
-    regDR0,    regDR1,    regDR2,   regDR3,    regDR4,   regDR5,   regDR6,   regDR7,
-    regDR8,    regDR9,    regDR10,  regDR11,   regDR12,  regDR13,  regDR14,  regDR15,
+    regDR0,    regDR1,    regDR2,   regDR3,    regDR4,     regDR5,       regDR6,   regDR7,
+    regDR8,    regDR9,    regDR10,  regDR11,   regDR12,    regDR13,      regDR14,  regDR15,
     // Mask registers
-    regK0,     regK1,     regK2,    regK3,     regK4,    regK5,    regK6,    regK7,
+    regK0,     regK1,     regK2,    regK3,     regK4,      regK5,        regK6,    regK7,
     // Bounds registers
-    regBND0,   regBND1,   regBND2,  regBND3
+    regBND0,   regBND1,   regBND2,  regBND3,   regBNDCFG,  regBNDSTATUS
   );
 
   TX86RegisterSet = set of TX86Register;
@@ -318,7 +322,9 @@ type
     procedure SetID(const Value: TX86FlagValue); inline;
   strict private
     procedure Changed; inline;
-  private
+  strict private
+    function GetConflictState: Boolean;
+  public // TODO: Make private again
     procedure LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
     procedure SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
   protected
@@ -327,6 +333,8 @@ type
     constructor Create(Definition: TInstructionDefinition);
   public
     function Equals(const Value: TX86Flags): Boolean; reintroduce;
+  public
+    property HasConflicts: Boolean read GetConflictState;
   published
     { FLAGS }
     property FlagCF: TX86FlagValue read FCF write SetCF default fvUnused;
@@ -532,7 +540,10 @@ type
     // This conflict is enforced by the user
     idcForcedConflict,
     // The instruction-operands configuration is invalid
-    idcOperands
+    idcOperands,
+    // The FLAGS/EFLAGS/RFLAGS registers in the ImplicitRead or ImplicitWrite property do not
+    // match the given X86Flags configuration
+    idcX86Flags
   );
   TInstructionDefinitionConflicts = set of TInstructionDefinitionConflict;
 
@@ -562,6 +573,7 @@ type
     ifAcceptsREP,
     ifAcceptsXACQUIRE,
     ifAcceptsXRELEASE,
+    ifAcceptsBranchHints,
     ifAcceptsEVEXAAA,
     ifAcceptsEVEXZ,
     ifIsPrivileged,
@@ -616,7 +628,8 @@ type
     procedure EndUpdate; inline;
   public
     function Equals(const Value: TInstructionDefinition;
-      const CheckComment: Boolean = false): Boolean; reintroduce;
+      CheckComment: Boolean = false;
+      CheckFilterRelatedAttributes: Boolean = true): Boolean; reintroduce;
   public
     procedure LoadFromJSON(JSON: PJSONVariantData);
     procedure SaveToJSON(JSON: PJSONVariantData);
@@ -1022,9 +1035,13 @@ const
     'xmm16',  'xmm17',  'xmm18', 'xmm19',  'xmm20', 'xmm21', 'xmm22', 'xmm23',
     'xmm24',  'xmm25',  'xmm26', 'xmm27',  'xmm28', 'xmm29', 'xmm30', 'xmm31',
     // Special registers
-    'rflags', 'eflags', 'flags', 'rip',    'eip',   'ip',
+    'rflags', 'eflags', 'flags', 'rip',    'eip',   'ip',    'mxcsr',
     // Segment registers
     'es',     'cs',     'ss',    'ds',     'gs',    'fs',
+    // Table registers
+    'gdtr',   'ldtr',   'idtr',  'tr',
+    // Test registers
+    'tr0',    'tr1',    'tr2',   'tr3',    'tr4',   'tr5',   'tr6',   'tr7',
     // Control registers
     'cr0',    'cr1',    'cr2',   'cr3',    'cr4',   'cr5',   'cr6',   'cr7',
     'cr8',    'cr9',    'cr10',  'cr11',   'cr12',  'cr13',  'cr14',  'cr15',
@@ -1034,7 +1051,7 @@ const
     // Mask registers
     'k0',     'k1',     'k2',    'k3',     'k4',    'k5',     'k6',   'k7',
     // Bounds registers
-    'bnd0',   'bnd1',   'bnd2',  'bnd3'
+    'bnd0',   'bnd1',   'bnd2',  'bnd3', 'bndcfg', 'bndstatus'
   );
 {$ENDREGION}
 
@@ -1191,6 +1208,7 @@ const
     'accepts_rep',
     'accepts_xacquire',
     'accepts_xrelease',
+    'accepts_branch_hints',
     'accepts_evex_aaa',
     'accepts_evex_z',
     'privileged',
@@ -1648,6 +1666,9 @@ constructor TX86Flags.Create(Definition: TInstructionDefinition);
 begin
   inherited Create;
   FDefinition := Definition;
+  // NOTE: Some instructions clear all flags in the FLAGS/EFLAGS/RFLAGS register except some.
+  //       If you add a new flag field to this struct, you have to set it to fvReset for all these
+  //       instructions
 end;
 
 function TX86Flags.Equals(const Value: TX86Flags): Boolean;
@@ -1656,6 +1677,58 @@ begin
     (Value.FZF = FZF) and (Value.FSF = FSF) and (Value.FTF = FTF) and (Value.FIF = FIF) and
     (Value.FDF = FDF) and (Value.FOF = FOF) and (Value.FRF = FRF) and (Value.FVM = FVM) and
     (Value.FAC = FAC) and (Value.FVIF = FVIF) and (Value.FVIP = FVIP) and (Value.FID = FID);
+end;
+
+function TX86Flags.GetConflictState: Boolean;
+var
+  F: array[0..14] of ^TX86FlagValue;
+  I: Integer;
+  RegsRead,
+  RegsWrite: TX86RegisterSet;
+  R: TX86Register;
+begin
+  Exit(false); // TODO: Remove
+  Result := false;
+  F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
+  F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;
+  F[10] := @FVM;  F[11] := @FAC;  F[12] := @FVIF; F[13] := @FVIP; F[14] := @FID;
+  RegsRead := [];
+  RegsWrite := [];
+  for I := Low(F) to High(F) do
+  begin
+    if (F[I]^ in [fvTested]) then
+    begin
+      if (I < 9) then
+      begin
+        // These flags are in the FLAGS register
+        Include(RegsRead, regFLAGS);
+      end else
+      begin
+        // These flags are in the EFLAGS register
+        Include(RegsRead, regEFLAGS);
+      end;
+    end;
+    if (F[I]^ in [fvModified, fvReset, fvSet, fvUndefined, fvPriorValue]) then
+    begin
+      if (I < 9) then
+      begin
+        // These flags are in the FLAGS register
+        Include(RegsWrite, regFLAGS);
+      end else
+      begin
+        // These flags are in the EFLAGS register
+        Include(RegsWrite, regEFLAGS);
+      end;
+    end;
+  end;
+  for R := regRFLAGS to regFLAGS do
+  begin
+    if ((R in RegsRead) xor (R in FDefinition.ImplicitRead.Registers)) or
+      ((R in RegsWrite) xor (R in FDefinition.ImplicitWrite.Registers)) then
+    begin
+      Exit(true);
+    end;
+  end;
 end;
 
 procedure TX86Flags.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
@@ -1961,11 +2034,11 @@ begin
     optRel8:
       Result := not (FEncoding in [opeImm8]);
     optRel16:
-      Result := not (FEncoding in [opeImm16]);
+      Result := not (FEncoding in [opeImm8, opeImm16]);
     optRel32:
-      Result := not (FEncoding in [opeImm32]);
+      Result := not (FEncoding in [opeImm8, opeImm32]);
     optRel64:
-      Result := not (FEncoding in [opeImm64]);
+      Result := not (FEncoding in [opeImm8, opeImm32, opeImm64]);
     optPtr1616,
     optPtr1632,
     optPtr1664,
@@ -2379,36 +2452,7 @@ begin
 end;
 
 procedure TInstructionOperands.Changed;
-{var
-  A: array[0..3] of TInstructionOperand;
-  I, J: Integer;
 begin
-  FHasConflicts := false;
-
-  // Check for invalid operand order
-  A[0] := FOperandA; A[1] := FOperandB; A[2] := FOperandC; A[3] := FOperandD;
-  for I := High(A) downto Low(A) do
-  begin
-    if (A[I].OperandType <> otUnused) then
-    begin
-      for J := I downto Low(A) do
-      begin
-        if (A[J].OperandType = otUnused) then
-        begin
-          FHasConflicts := true;
-          Break;
-        end;
-      end;
-    end;
-    if (FHasConflicts) then
-    begin
-      Break;
-    end;
-  end; }
-begin
-
-  // TODO: Determine Encoding
-
   FDefinition.UpdateValues;
 end;
 
@@ -2451,6 +2495,32 @@ var
   I: Integer;
   EncReg, EncRm, EncVVVV, EncAAA: Integer;
 begin
+  {var
+  A: array[0..3] of TInstructionOperand;
+  I, J: Integer;
+begin
+  FHasConflicts := false;
+
+  // Check for invalid operand order
+  A[0] := FOperandA; A[1] := FOperandB; A[2] := FOperandC; A[3] := FOperandD;
+  for I := High(A) downto Low(A) do
+  begin
+    if (A[I].OperandType <> otUnused) then
+    begin
+      for J := I downto Low(A) do
+      begin
+        if (A[J].OperandType = otUnused) then
+        begin
+          FHasConflicts := true;
+          Break;
+        end;
+      end;
+    end;
+    if (FHasConflicts) then
+    begin
+      Break;
+    end;
+  end; }
   Result := false;
   for I := Low(FOperands) to High(FOperands) do
   begin
@@ -2638,14 +2708,14 @@ begin
 end;
 
 function TInstructionDefinition.Equals(const Value: TInstructionDefinition;
-  const CheckComment: Boolean): Boolean;
+  CheckComment: Boolean; CheckFilterRelatedAttributes: Boolean): Boolean;
 begin
   Result :=
-    (Value.FMnemonic = FMnemonic) and (Value.FEncoding = FEncoding) and
-    (Value.FOpcodeMap = FOpcodeMap) and (Value.FOpcode = FOpcode) and
-    (Value.FExtensions.Equals(FExtensions)) and (Value.FCPUID.Equals(FCPUID)) and
-    (Value.FOperands.Equals(FOperands)) and (Value.FFlags = FFlags) and
-    (Value.FEVEXCD8Scale = FEVEXCD8Scale) and
+    (Value.FMnemonic = FMnemonic) and ((not CheckFilterRelatedAttributes) or
+    ((Value.FEncoding = FEncoding) and (Value.FOpcodeMap = FOpcodeMap) and
+    (Value.FOpcode = FOpcode) and (Value.FExtensions.Equals(FExtensions)))) and
+    (Value.FCPUID.Equals(FCPUID)) and (Value.FOperands.Equals(FOperands)) and
+    (Value.FFlags = FFlags) and (Value.FEVEXCD8Scale = FEVEXCD8Scale) and
     (Value.FImplicitRead.Equals(FImplicitRead)) and
     (Value.FImplicitWrite.Equals(FImplicitWrite)) and (Value.FX86Flags.Equals(FX86Flags)) and
     ((not CheckComment) or (Value.FComment = FComment));
@@ -2889,8 +2959,10 @@ begin
   begin
     Include(Conflicts, idcOperands);
   end;
-  // TODO: Check for X86Flag conflicts
-  //       [ ] EFLAGS in ImplicitRead / ImplicitWrite required or forbidden
+  if (FX86Flags.HasConflicts) then
+  begin
+    Include(Conflicts, idcX86Flags);
+  end;
   // TODO: Check for more conflicts
   if (FConflicts <> Conflicts) then
   begin
@@ -3239,20 +3311,20 @@ begin
   FilterOrderDef[ 0]  := TModrmModFilter;
   FilterOrderDef[ 1]  := TModrmRegFilter;
   FilterOrderDef[ 2]  := TModrmRmFilter;
-  FilterOrderDef[ 3]  := TRexWFilter;
-  FilterOrderDef[ 4]  := TOperandSizeFilter;
-  FilterOrderDef[ 5]  := TAddressSizeFilter;
-  FilterOrderDef[ 6]  := TMandatoryPrefixFilter;
-  FilterOrderDef[ 7]  := TModeFilter;
+  FilterOrderDef[ 3]  := TModeFilter;
+  FilterOrderDef[ 4]  := TRexWFilter;
+  FilterOrderDef[ 5]  := TOperandSizeFilter;
+  FilterOrderDef[ 6]  := TAddressSizeFilter;
+  FilterOrderDef[ 7]  := TMandatoryPrefixFilter;
   // Specialized filter order for XOP instruction encoding
   SetLength(FilterOrderXOP, 8);
   FilterOrderXOP[ 0]  := TModrmModFilter;
   FilterOrderXOP[ 1]  := TModrmRegFilter;
   FilterOrderXOP[ 2]  := TModrmRmFilter;
-  FilterOrderXOP[ 3]  := TRexWFilter;
-  FilterOrderXOP[ 4]  := TOperandSizeFilter;
-  FilterOrderXOP[ 5]  := TAddressSizeFilter;
-  FilterOrderXOP[ 6]  := TModeFilter;
+  FilterOrderXOP[ 3]  := TModeFilter;
+  FilterOrderXOP[ 4]  := TRexWFilter;
+  FilterOrderXOP[ 5]  := TOperandSizeFilter;
+  FilterOrderXOP[ 6]  := TAddressSizeFilter;
   FilterOrderXOP[ 7]  := TVexLFilter;
   // Specialized filter order for VEX instruction encoding
   SetLength(FilterOrderVEX, 9);
@@ -3260,10 +3332,10 @@ begin
   FilterOrderVEX[ 1]  := TModrmModFilter;
   FilterOrderVEX[ 2]  := TModrmRegFilter;
   FilterOrderVEX[ 3]  := TModrmRmFilter;
-  FilterOrderVEX[ 4]  := TRexWFilter;
-  FilterOrderVEX[ 5]  := TOperandSizeFilter;
-  FilterOrderVEX[ 6]  := TAddressSizeFilter;
-  FilterOrderVEX[ 7]  := TModeFilter;
+  FilterOrderVEX[ 4]  := TModeFilter;
+  FilterOrderVEX[ 5]  := TRexWFilter;
+  FilterOrderVEX[ 6]  := TOperandSizeFilter;
+  FilterOrderVEX[ 7]  := TAddressSizeFilter;
   FilterOrderVEX[ 8]  := TVexLFilter;
   // Specialized filter order for EVEX instruction encoding
   SetLength(FilterOrderEVEX, 11);
@@ -3271,10 +3343,10 @@ begin
   FilterOrderEVEX[ 1] := TModrmModFilter;
   FilterOrderEVEX[ 2] := TModrmRegFilter;
   FilterOrderEVEX[ 3] := TModrmRmFilter;
-  FilterOrderEVEX[ 4] := TRexWFilter;
-  FilterOrderEVEX[ 5] := TOperandSizeFilter;
-  FilterOrderEVEX[ 6] := TAddressSizeFilter;
-  FilterOrderEVEX[ 7] := TModeFilter;
+  FilterOrderEVEX[ 4] := TModeFilter;
+  FilterOrderEVEX[ 5] := TRexWFilter;
+  FilterOrderEVEX[ 6] := TOperandSizeFilter;
+  FilterOrderEVEX[ 7] := TAddressSizeFilter;
   FilterOrderEVEX[ 8] := TEvexBFilter;
   FilterOrderEVEX[ 9] := TVexLFilter;
   FilterOrderEVEX[10] := TEvexL2Filter;
