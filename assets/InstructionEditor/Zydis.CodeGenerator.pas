@@ -182,7 +182,7 @@ begin
     WorkStart('Indexing instruction definitions', 0, Editor.DefinitionCount * 2);
     for I := 0 to Editor.DefinitionCount - 1 do
     begin
-      B := false;
+      {B := false;
       for J := 0 to List.Count - 1 do
       begin
         if (Editor.Definitions[I].Equals(List[J], false, false)) then
@@ -192,9 +192,9 @@ begin
         end;
       end;
       if (not B) then
-      begin
+      begin}
         List.Add(Editor.Definitions[I]);
-      end;
+      //end;
       Work(I + 1);
     end;
     Comparison :=
