@@ -48,11 +48,11 @@ typedef uint32_t ZydisDecoderFlags;
 
 /**
  * @brief   Set this flag if you do not want @c ZydisDecoderDecodeNextInstruction to fail with
- *          @c ZYDIS_STATUS_INVALID_INSTRUCTION, if an invalid instruction was found.
+ *          @c ZYDIS_STATUS_DECODING_ERROR, if an invalid instruction was found.
  *          
  * If this flag is set, @c ZydisDecoderDecodeNextInstruction just skips one byte and
  * returns @c ZYDIS_STATUS_SUCCESS. The returned @c ZydisInstructionInfo struct will
- * have one of the @c ZYDIS_IFLAG_ERROR_MASK flags set. 
+ * have one of the @c ZYDIS_INSTRFLAG_ERROR_MASK flags set. 
  */
 #define ZYDIS_DECODER_FLAG_SKIP_DATA                0x00000001
 /**

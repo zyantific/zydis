@@ -51,21 +51,32 @@ typedef struct ZydisInternalInstructionTableNode_
 #define ZYDIS_GET_INSTRUCTIONTABLENODE_VALUE(node) \
     node.value
 
-typedef struct ZydisInternalOperandDefinition_
-{
-    unsigned int type : 8;
-    unsigned int encoding : 8;
-    unsigned int access : 2;
-} ZydisInternalOperandDefinition;
+//typedef struct ZydisInternalOperandDefinition_
+//{
+//    unsigned int type : 8;
+//    unsigned int encoding : 8;
+//    unsigned int access : 2;
+//} ZydisInternalOperandDefinition;
+//
+//#define ZYDIS_MAKE_OPERANDDEFINITION(type, encoding, access) \
+//    { type, encoding, access }
+//#define ZYDIS_GET_OPERANDDEFINITION_TYPE(def) \
+//    (ZydisSemanticOperandType)def.type
+//#define ZYDIS_GET_OPERANDDEFINITION_ENCODING(def) \
+//    (ZydisOperandEncoding)def.encoding
+//#define ZYDIS_GET_OPERANDDEFINITION_ACCESS(def) \
+//    (ZydisOperandAccess)def.access
+
+typedef uint8_t ZydisInternalOperandDefinition[2];
 
 #define ZYDIS_MAKE_OPERANDDEFINITION(type, encoding, access) \
-    { type, encoding, access }
+    { type, ((encoding & 0x3F) << 2) | (access & 0x03) }
 #define ZYDIS_GET_OPERANDDEFINITION_TYPE(def) \
-    (ZydisSemanticOperandType)def.type
+    def[0]
 #define ZYDIS_GET_OPERANDDEFINITION_ENCODING(def) \
-    (ZydisOperandEncoding)def.encoding
+    ((def[1] >> 2) & 0x3F)
 #define ZYDIS_GET_OPERANDDEFINITION_ACCESS(def) \
-    (ZydisOperandAccess)def.access
+    (def[1] & 0x03)
 
 typedef struct ZydisInternalInstructionDefinition_
 {

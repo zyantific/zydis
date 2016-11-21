@@ -65,10 +65,10 @@ enum ZydisStatusCode
      */
     ZYDIS_STATUS_NO_MORE_DATA               = 0x00000003,
     /**
-     * @brief   An error occured while decoding the current instruction. Check the @c flags field
-     *          of the @c ZydisInstructionInfo struct for further details.
+     * @brief   An error occured while decoding the current instruction. Check the @c instrFlags 
+     *          field of the @c ZydisInstructionInfo struct for further details.
      */
-    ZYDIS_STATUS_INVALID_INSTRUCTION        = 0x00000004,   // TODO: Rename
+    ZYDIS_STATUS_DECODING_ERROR             = 0x00000004, 
     /**
      * @brief   A buffer passed to a function was too small to complete the requested operation.
      */

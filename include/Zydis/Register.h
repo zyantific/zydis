@@ -190,8 +190,6 @@ enum ZydisRegisterSizes
     ZYDIS_REGISTERSIZE_512      = 512
 };
 
-/* ---------------------------------------------------------------------------------------------- */
-
 /* ============================================================================================== */
 /* Macros                                                                                         */
 /* ============================================================================================== */
@@ -201,7 +199,7 @@ enum ZydisRegisterSizes
  * 
  * @param   reg The register.
  */
-#define ZYDIS_REGISTER_IS_GPR (reg) \
+#define ZYDIS_REGISTER_IS_GPR(reg) \
     ((ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8) ||) \
     (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16) || \
     (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32))
@@ -211,7 +209,7 @@ enum ZydisRegisterSizes
  * 
  * @param   reg The register.
  */
-#define ZYDIS_REGISTER_IS_GPR8 (reg) \
+#define ZYDIS_REGISTER_IS_GPR8(reg) \
     (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8)
 
 /**
@@ -219,7 +217,7 @@ enum ZydisRegisterSizes
  * 
  * @param   reg The register.
  */
-#define ZYDIS_REGISTER_IS_GPR16 (reg) \
+#define ZYDIS_REGISTER_IS_GPR16(reg) \
     (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16)
 
 /**
@@ -227,10 +225,130 @@ enum ZydisRegisterSizes
  * 
  * @param   reg The register.
  */
-#define ZYDIS_REGISTER_IS_GPR32 (reg) \
+#define ZYDIS_REGISTER_IS_GPR32(reg) \
     (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32)
 
-// TODO: Add macros for all register-classes
+/**
+ * @brief   Checks, if the given register is a legacy floating-point register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_FLOATING_POINT(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLOATING_POINT)
+
+/**
+ * @brief   Checks, if the given register is a multimedia floating-point register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_MLUTIMEDIA(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MULTIMEDIA)
+
+/**
+ * @brief   Checks, if the given register is a vector register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_VECTOR(reg) \
+    ((ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR128) ||) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR256) || \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR512))
+
+/**
+ * @brief   Checks, if the given register is a 128-bit vector register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_VECTOR128(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR128)
+
+/**
+ * @brief   Checks, if the given register is a 256-bit vector register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_VECTOR256(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR256)
+
+/**
+ * @brief   Checks, if the given register is a 512-bit vector register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_VECTOR512(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR512)
+
+/**
+ * @brief   Checks, if the given register is a flags register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_FLAGS(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLAGS)
+
+/**
+ * @brief   Checks, if the given register is an instruction-pointer register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_IP(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_IP)
+
+/**
+ * @brief   Checks, if the given register is a segment register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_SEGMENT(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_SEGMENT)
+
+/**
+ * @brief   Checks, if the given register is a table register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_TABLE(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_TABLE)
+
+/**
+ * @brief   Checks, if the given register is a test register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_TEST(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_TEST)
+
+/**
+ * @brief   Checks, if the given register is a control register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_CONTROL(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_CONTROL)
+
+/**
+ * @brief   Checks, if the given register is a debug register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_DEBUG(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_DEBUG)
+
+/**
+ * @brief   Checks, if the given register is a mask register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_MASK(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MASK)
+
+/**
+ * @brief   Checks, if the given register is a bounds register.
+ * 
+ * @param   reg The register.
+ */
+#define ZYDIS_REGISTER_IS_BOUNDS(reg) \
+    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_BOUNDS)
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

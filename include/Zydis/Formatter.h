@@ -38,15 +38,11 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
-/* Instruction formatter                                                                          */
+/* Enums and types                                                                                */
 /* ============================================================================================== */
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Enums and types                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
 /**
- * @brief   Defines the zydis formatter-style datatype.
+ * @brief   Defines the @c ZydisFormatterStyle datatype.
  */
 typedef uint8_t ZydisFormatterStyle;
 
@@ -62,7 +58,7 @@ enum ZydisFormatterStyles
 };
 
 /**
- * @brief   Defines the zydis formatter-flags datatype.
+ * @brief   Defines the @c ZydisFormatterFlags datatype.
  */
 typedef uint8_t ZydisFormatterFlags;
 
@@ -73,7 +69,7 @@ typedef uint8_t ZydisFormatterFlags;
 #define ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT  0x10
 
 /**
- * @brief   Defines the zydis address-format datatype.
+ * @brief   Defines the @c ZydisFormatterAddressFormat datatype.
  */
 typedef uint8_t ZydisFormatterAddressFormat;
 
@@ -82,10 +78,11 @@ typedef uint8_t ZydisFormatterAddressFormat;
  */
 enum ZydisFormatterAddressFormat
 {   
+    ZYDIS_FORMATTER_ADDR_DEFAULT,
     /**
      * @brief   Displays absolute addresses instead of relative ones.
      */
-    ZYDIS_FORMATTER_ADDRESS_ABSOLUTE,
+    ZYDIS_FORMATTER_ADDR_ABSOLUTE,
     /**
      * @brief   Uses signed hexadecimal values to display relative addresses.
      *          
@@ -93,7 +90,7 @@ enum ZydisFormatterAddressFormat
      * "JMP  0x20"
      * "JMP -0x20"
      */
-    ZYDIS_FORMATTER_ADDRESS_RELATIVE_SIGNED,
+    ZYDIS_FORMATTER_ADDR_RELATIVE_SIGNED,
     /**
      * @brief   Uses unsigned hexadecimal values to display relative addresses.
      *          
@@ -101,11 +98,11 @@ enum ZydisFormatterAddressFormat
      * "JMP 0x20"
      * "JMP 0xE0"
      */
-    ZYDIS_FORMATTER_ADDRESS_RELATIVE_UNSIGNED,
+    ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED,
 };
 
 /**
- * @brief   Defines the zydis displacement-format datatype.
+ * @brief   Defines the @c ZydisFormatterDisplacementFormat datatype.
  */
 typedef uint8_t ZydisFormatterDisplacementFormat;
 
@@ -114,6 +111,7 @@ typedef uint8_t ZydisFormatterDisplacementFormat;
  */
 enum ZydisFormatterDisplacementFormats
 {
+    ZYDIS_FORMATTER_DISP_DEFAULT,
     /**
      * @brief   Formats displacements as signed hexadecimal values.
      *          
@@ -133,7 +131,7 @@ enum ZydisFormatterDisplacementFormats
 };
 
 /**
- * @brief   Defines the zydis formatter immediate-format datatype.
+ * @brief   Defines the @c ZydisFormatterImmediateFormat datatype.
  */
 typedef uint8_t ZydisFormatterImmediateFormat;
 
@@ -142,6 +140,7 @@ typedef uint8_t ZydisFormatterImmediateFormat;
  */
 enum ZydisFormatterImmediateFormats
 {
+    ZYDIS_FORMATTER_IMM_DEFAULT,
     /**
      * @brief   Formats immediates as signed hexadecimal values.
      *          
@@ -161,7 +160,38 @@ enum ZydisFormatterImmediateFormats
 };
 
 /**
- * @brief   Defines the zydis instruction-formatter struct.
+ * @brief   Defines the @c ZydisFormatterHookType datatype.
+ */
+typedef uint8_t ZydisFormatterHookType;
+
+/**
+ * @brief   Values that represent formatter hook-types.
+ */
+enum ZydisFormatterHookTypes
+{
+    /**
+     * @brief   This hook is called right 
+    */
+    ZYDIS_FORMATTER_HOOK_PRE,
+    ZYDIS_FORMATTER_HOOK_POST,
+    ZYDIS_FORMATTER_HOOK_FORMAT_MNEMONIC,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR,
+    ZYDIS_FORMATTER_HOOK_FORMAT_ADDRESS_ABS,
+    ZYDIS_FORMATTER_HOOK_FORMAT_ADDRESS_REL,
+    ZYDIS_FORMATTER_HOOK_FORMAT_DISPLACEMENT,
+    ZYDIS_FORMATTER_HOOK_FORMAT_IMMEDIATE
+};
+
+typedef const char* (*ZydisFormatterHookFormatMnemonicFunc)(void* context, 
+    const ZydisInstructionInfo* info, const ZydisOperandInfo* operand, uint64_t address, 
+    int64_t* offset);
+
+/**
+ * @brief   Defines the @c ZydisInstructionFormatter struct.
  */
 typedef struct ZydisInstructionFormatter_
 {
@@ -174,8 +204,12 @@ typedef struct ZydisInstructionFormatter_
 
 } ZydisInstructionFormatter;
 
-/* ---------------------------------------------------------------------------------------------- */
+/* ============================================================================================== */
 /* Exported functions                                                                             */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Basic functions                                                                                */  
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -224,6 +258,9 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterGetSymbolResolver(
 ZYDIS_EXPORT ZydisStatus ZydisFormatterSetSymbolResolver(
     ZydisInstructionFormatter* formatter, ZydisCustomSymbolResolver* symbolResolver);
 
+ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisInstructionFormatter* formatter, 
+    ZydisFormatterHookType hook, const void* callback);
+
 /**
  * @brief   Formats the given instruction and writes it into the output buffer.
  *
@@ -237,6 +274,18 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterSetSymbolResolver(
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(
     ZydisInstructionFormatter* formatter, const ZydisInstructionInfo* info, char* buffer,
     size_t bufferLen);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Formatting functions for custom implementations                                                */  
+/* ---------------------------------------------------------------------------------------------- */
+
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatOperandIntel(
+    const ZydisInstructionFormatter* formatter, char* buffer, size_t bufferLen, size_t* offset, 
+    const ZydisInstructionInfo* info, const ZydisOperandInfo* operand, uint16_t typecast);
+
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatOperandMemIntel(
+    const ZydisInstructionFormatter* formatter, char* buffer, size_t bufferLen, size_t* offset, 
+    const ZydisInstructionInfo* info, const ZydisOperandInfo* operand, uint16_t typecast);
 
 /* ---------------------------------------------------------------------------------------------- */
 

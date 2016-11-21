@@ -223,7 +223,7 @@ static ZydisStatus ZydisBufferAppendImport(char* buffer, size_t bufferLen, size_
             ++descriptor;
         }
     }
-    return ZYDIS_STATUS_USER + 1000;
+    return 1337 + 1000;
 }
 
 /**
@@ -387,13 +387,13 @@ int main(int argc, char** argv)
             switch (info.mode)
             {
             case ZYDIS_DISASSEMBLER_MODE_16BIT:
-                printf("%04llX  ", info.instrAddress);
-                break;
             case ZYDIS_DISASSEMBLER_MODE_32BIT:
                 printf("%08llX  ", info.instrAddress);
                 break;
             case ZYDIS_DISASSEMBLER_MODE_64BIT:
                 printf("%016llX  ", info.instrAddress);
+                break;
+            default:
                 break;
             }
             for (int j = 0; j < info.length; ++j)
@@ -404,7 +404,7 @@ int main(int argc, char** argv)
             {
                 printf("   ");    
             }
-            if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
+            if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
             {
                 printf(" db %02x\n", info.data[0]);    
                 continue;

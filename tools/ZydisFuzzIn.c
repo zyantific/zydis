@@ -24,7 +24,9 @@
 
 ***************************************************************************************************/
 
-/*
+/**
+ * @file
+ * 
  * This file implements a tool that is supposed to be fed as input for fuzzers like AFL,
  * reading a control block from stdin, allowing the fuzzer to reach every possible
  * code-path, testing any possible combination of disassembler configurations.
@@ -85,7 +87,7 @@ int main()
     char *outBuf = malloc(controlBlock.bufSize);
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
-        if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
+        if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
         {
             printf("db %02X\n", info.data[0]);
             continue;

@@ -58,14 +58,14 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Inserts the @c text into the @c buffer at the given @c offset and increases the 
- *          @c offset by the length of the text.
+ * @brief   Appends the @c text to the @c buffer at the given @c offset and increases the 
+ *          @c offset by the length of the @c text.
  *
  * @param   buffer      A pointer to the target buffer.
  * @param   bufferLen   The length of the buffer.
  * @param   offset      A pointer to the buffer-offset.
- * @param   text        The text to insert.
  * @param   uppercase   Set true, to convert to uppercase characters.
+ * @param   text        The text to append.
  *
  * @return  A zydis status code.
  */
@@ -95,12 +95,13 @@ static ZydisStatus ZydisBufferAppend(char* buffer, size_t bufferLen, size_t* off
 }
 
 /**
- * @brief   Inserts formatted text into the @c buffer at the given @c offset and increases the 
- *          @c offset by the length of the text.
+ * @brief   Appends formatted to into the @c buffer at the given @c offset and increases the 
+ *          @c offset by the length of the @c text.
  *
  * @param   buffer      A pointer to the target buffer.
  * @param   bufferLen   The length of the buffer.
  * @param   offset      A pointer to the buffer-offset.
+ * @param   uppercase   Set true, to convert to uppercase characters.
  * @param   format      The format string.
  *
  * @return  A zydis status code.
@@ -199,24 +200,17 @@ static ZydisStatus ZydisBufferAppendAbsoluteAddress(const ZydisInstructionFormat
     switch (info->mode)
     {
     case ZYDIS_DISASSEMBLER_MODE_16BIT:
-        return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
-            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%04X", address);
     case ZYDIS_DISASSEMBLER_MODE_32BIT:
-    case ZYDIS_DISASSEMBLER_MODE_64BIT:
-        switch (operand->size)
+        if (operand->size == 16)
         {
-        case 16:
             return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
-                (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%04X", address);     
-        case 32:
-            return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
-                (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%08lX", address);
-        case 64:
-            return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
-                (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%016llX", address);
-        default:
-            return ZYDIS_STATUS_INVALID_PARAMETER;
-        }     
+                (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%04X", address);
+        }
+        return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
+            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%08lX", address);
+    case ZYDIS_DISASSEMBLER_MODE_64BIT:
+        return ZydisBufferAppendFormat(buffer, bufferLen, offset, 
+            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "0x%016llX", address);   
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -233,7 +227,7 @@ static ZydisStatus ZydisBufferAppendImmediate(const ZydisInstructionFormatter* f
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
 
-    if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDRESS_ABSOLUTE) && 
+    if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE) && 
         (operand->imm.isRelative))
     {
         return ZydisBufferAppendAbsoluteAddress(formatter, buffer, bufferLen, offset, info, 
@@ -241,7 +235,7 @@ static ZydisStatus ZydisBufferAppendImmediate(const ZydisInstructionFormatter* f
     }
 
     bool useSignedHex = ((operand->imm.isSigned && 
-        (formatter->addressFormat == ZYDIS_FORMATTER_ADDRESS_RELATIVE_SIGNED)) || 
+        (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_RELATIVE_SIGNED)) || 
         (!operand->imm.isSigned && (formatter->immediateFormat == ZYDIS_FORMATTER_IMM_HEX_SIGNED)));
 
     if (useSignedHex && (operand->imm.value.sqword < 0))
@@ -340,9 +334,9 @@ static ZydisStatus ZydisBufferAppendOperandIntelMemory(const ZydisInstructionFor
     {
         if ((formatter->flags & ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT) || 
             (((operand->mem.segment != ZYDIS_REGISTER_DS) || 
-            (info->prefixes & ZYDIS_PREFIX_SEGMENT_DS)) && 
+            (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS)) && 
             ((operand->mem.segment != ZYDIS_REGISTER_SS) || 
-            (info->prefixes & ZYDIS_PREFIX_SEGMENT_SS))))
+            (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_SS))))
         {
             ZYDIS_CHECK(ZydisBufferAppendFormat(buffer, bufferLen, offset, 
                 (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "%s:", 
@@ -446,27 +440,27 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
 {
     size_t offset = 0;
 
-    if ((info->prefixes & ZYDIS_PREFIX_ACCEPTS_REPNE) && 
-        (info->prefixes & ZYDIS_PREFIX_REPNE))
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REPNE) && 
+        (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE))
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "repne "));
     }
-    if ((info->prefixes & ZYDIS_PREFIX_ACCEPTS_REP) && (info->prefixes & ZYDIS_PREFIX_REP))
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REP) && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP))
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "rep "));
     }
-    if ((info->prefixes & ZYDIS_PREFIX_ACCEPTS_LOCK) && (info->prefixes & ZYDIS_PREFIX_LOCK))
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_LOCK) && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK))
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "lock "));
     }
-    if (info->prefixes & ZYDIS_PREFIX_XACQUIRE)
+    if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_XACQUIRE)
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "xacquire "));
-    } else if (info->prefixes & ZYDIS_PREFIX_XRELEASE)
+    } else if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_XRELEASE)
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "xrelease "));
@@ -652,7 +646,7 @@ ZydisStatus ZydisFormatterInitInstructionFormatterEx(
     }
     formatter->style = style;
     formatter->flags = flags;
-    formatter->addressFormat = ZYDIS_FORMATTER_ADDRESS_ABSOLUTE;
+    formatter->addressFormat = ZYDIS_FORMATTER_ADDR_ABSOLUTE;
     formatter->displacementFormat = ZYDIS_FORMATTER_DISP_HEX_SIGNED;
     formatter->immediateFormat = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED;
     formatter->symbolResolver = NULL;

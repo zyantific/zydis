@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     ZydisInstructionInfo info;
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
-        if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
+        if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
         {
             printf("db %02X\n", info.data[0]);
             continue;
