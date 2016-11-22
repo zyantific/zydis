@@ -355,6 +355,38 @@ type
     property FlagID: TX86FlagValue read FID write SetID default fvUnused;
   end;
 
+  {TEVEXEncodingContext = (
+    ecNone,
+    ecBroadcast,
+    ecRoundingControl,
+    ecSuppressAllExceptions
+  );
+
+  TEVEXInformation = class(TPersistent)
+  strict private
+    FDefinition: TInstructionDefinition;
+  strict private
+    procedure Changed; inline;
+  strict private
+    function GetConflictState: Boolean;
+  private
+    procedure LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
+    procedure SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
+  protected
+    procedure AssignTo(Dest: TPersistent); override;
+  protected
+    constructor Create(Definition: TInstructionDefinition);
+  public
+    function Equals(const Value: TX86Flags): Boolean; reintroduce;
+  public
+    property HasConflicts: Boolean read GetConflictState;
+  published
+    property EncodingContext: TEVEXEncodingContext;
+    property HasEvexAAA: Boolean;
+    property HasEvexZ: Boolean;
+    property CD8Scale: Cardinal;
+  end;}
+
   TInstructionOperands = class;
 
   TOperandType = (
@@ -542,6 +574,8 @@ type
     idcForcedConflict,
     // The instruction-operands configuration is invalid
     idcOperands,
+    // The prefix-flags are invalid
+    idcPrefixFlags,
     // The FLAGS/EFLAGS/RFLAGS registers in the ImplicitRead or ImplicitWrite property do not
     // match the given X86Flags configuration
     idcX86Flags
@@ -568,13 +602,19 @@ type
 
   TOpcodeByte = type Byte;
 
+  TPrefixFlag = (
+    pfAcceptsLock,
+    pfAcceptsREP,
+    pfAcceptsREPEREPNE,
+    pfAcceptsXACQUIRE,
+    pfAcceptsXRELEASE,
+    pfAcceptsHLEWithoutLock,
+    pfAcceptsBranchHints
+  );
+  TPrefixFlags = set of TPrefixFlag;
+
   TInstructionDefinitionFlag = (
     ifForceConflict,
-    ifAcceptsLock,
-    ifAcceptsREP,
-    ifAcceptsXACQUIRE,
-    ifAcceptsXRELEASE,
-    ifAcceptsBranchHints,
     ifAcceptsEVEXAAA,
     ifAcceptsEVEXZ,
     ifIsPrivileged,
@@ -601,6 +641,7 @@ type
     FExtensions: TOpcodeExtensions;
     FCPUID: TCPUIDFeatureFlags;
     FOperands: TInstructionOperands;
+    FPrefixFlags: TPrefixFlags;
     FFlags: TInstructionDefinitionFlags;
     FImplicitRead: TX86Registers;
     FImplicitWrite: TX86Registers;
@@ -613,6 +654,7 @@ type
     procedure SetEncoding(const Value: TInstructionEncoding); inline;
     procedure SetOpcodeMap(const Value: TOpcodeMap); inline;
     procedure SetOpcode(const Value: TOpcodeByte); inline;
+    procedure SetPrefixFlags(const Value: TPrefixFlags); inline;
     procedure SetFlags(const Value: TInstructionDefinitionFlags); inline;
     procedure SetComment(const Value: String); inline;
   strict private
@@ -650,7 +692,8 @@ type
     property OpcodeExtensions: TOpcodeExtensions read FExtensions;
     property CPUID: TCPUIDFeatureFlags read FCPUID;
     property Operands: TInstructionOperands read FOperands;
-    property Flags: TInstructionDefinitionFlags read FFlags write SetFlags;
+    property PrefixFlags: TPrefixFlags read FPrefixFlags write SetPrefixFlags default [];
+    property Flags: TInstructionDefinitionFlags read FFlags write SetFlags default [];
     property ImplicitRead: TX86Registers read FImplicitRead;
     property ImplicitWrite: TX86Registers read FImplicitWrite;
     property X86Flags: TX86Flags read FX86Flags;
@@ -1204,13 +1247,18 @@ const
     'xopa'
   );
 
-  SInstructionDefinitionFlag: array[TInstructionDefinitionFlag] of String = (
-    'conflict',
+  SPrefixFlag: array[TPrefixFlag] of String = (
     'accepts_lock',
     'accepts_rep',
+    'accepts_reperepne',
     'accepts_xacquire',
     'accepts_xrelease',
-    'accepts_branch_hints',
+    'accepts_hle_without_lock',
+    'accepts_branch_hints'
+  );
+
+  SInstructionDefinitionFlag: array[TInstructionDefinitionFlag] of String = (
+    'conflict',
     'accepts_evex_aaa',
     'accepts_evex_z',
     'privileged',
@@ -1223,7 +1271,7 @@ const
 {$REGION 'Class: TJSONEnumHelper'}
 type
   TJSONEnumHelper = record
-  private
+  strict private
     class function ReadString(JSON: PJSONVariantData; const Name, Default: String;
       const LowerCase: Boolean = true): String; static; inline;
   public
@@ -1255,6 +1303,116 @@ begin
   if (LowerCase) then
   begin
     TStringHelper.AnsiLowerCase(Result);
+  end;
+end;
+{$ENDREGION}
+
+{$REGION 'Class: TJSONSetHelper'}
+type
+  TJSONSetHelper<TSet> = record
+  strict private
+    class procedure GetEnumBounds(var MinValue, MaxValue: Integer); static; inline;
+  public
+    class function ReadValue(JSON: PJSONVariantData; const Name: String;
+      const ElementStrings: array of String): TSet; static;
+    class procedure WriteValue(JSON: PJSONVariantData; const Name: String;
+      const ElementStrings: array of String; Value: TSet); static;
+  end;
+
+class procedure TJSONSetHelper<TSet>.GetEnumBounds(var MinValue, MaxValue: Integer);
+var
+  TypInfo: PTypeInfo;
+  TypData: PTypeData;
+begin
+  TypInfo := TypeInfo(TSet);
+  {$IFDEF DEBUG}
+  if (TypInfo^.Kind <> tkSet) then
+  begin
+    raise Exception.Create('Invalid generic type.');
+  end;
+  {$ENDIF}
+  TypData := GetTypeData(GetTypeData(TypInfo)^.CompType^);
+  {$IFDEF DEBUG}
+  if (TypData^.MinValue <> 0) then
+  begin
+    raise Exception.Create('The enum-type needs to be zero-based.');
+  end;
+  if (TypData^.MaxValue > 255) then
+  begin
+    raise Exception.Create('The enum-type''s maximum value needs the be lower than 256.');
+  end;
+  {$ENDIF}
+  MinValue := TypData^.MinValue;
+  MaxValue := TypData^.MaxValue;
+end;
+
+class function TJSONSetHelper<TSet>.ReadValue(JSON: PJSONVariantData; const Name: String;
+  const ElementStrings: array of String): TSet;
+type
+  TSetType = set of 0..255;
+var
+  A: PJSONVariantData;
+  MinValue,
+  MaxValue: Integer;
+  I, J: Integer;
+begin
+  GetEnumBounds(MinValue, MaxValue);
+  {$IFDEF DEBUG}
+  if (MaxValue <> High(ElementStrings)) then
+  begin
+    raise Exception.Create('The size of the string-array does not match the size of the enum-type');
+  end;
+  {$ENDIF}
+  FillChar(Pointer(@Result)^, SizeOf(TSet), #0);
+  A := JSON^.Data(Name);
+  if (Assigned(A)) then
+  begin
+    if (A^.Kind <> jvArray) then
+    begin
+      raise Exception.CreateFmt('The "%s" field is not a valid JSON array.', [Name]);
+    end;
+    for I := 0 to A^.Count - 1 do
+    begin
+      for J := MinValue to MaxValue do
+      begin
+        if (LowerCase(A^.Item[I]) = ElementStrings[J]) then
+        begin
+          Include(TSetType(Pointer(@Result)^), J);
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
+class procedure TJSONSetHelper<TSet>.WriteValue(JSON: PJSONVariantData; const Name: String;
+  const ElementStrings: array of String; Value: TSet);
+type
+  TSetType = set of 0..255;
+var
+  A: TJSONVariantData;
+  MinValue,
+  MaxValue: Integer;
+  I: Integer;
+begin
+  GetEnumBounds(MinValue, MaxValue);
+  {$IFDEF DEBUG}
+  if (MaxValue <> High(ElementStrings)) then
+  begin
+    raise Exception.Create('The size of the string-array does not match the size of the enum-type');
+  end;
+  {$ENDIF}
+  A.Init;
+  for I := MinValue to MaxValue do
+  begin
+    if (I in TSetType(Pointer(@Value)^)) then
+    begin
+      A.AddValue(ElementStrings[I]);
+    end;
+  end;
+  if (A.Count > 0) then
+  begin
+    JSON^.AddNameValue(Name, Variant(A));
   end;
 end;
 {$ENDREGION}
@@ -1301,10 +1459,8 @@ end;
 
 procedure TOpcodeExtensions.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
 var
-  V, A: PJSONVariantData;
+  V: PJSONVariantData;
   I: Integer;
-  F: TExtBitFilter;
-  BitFilters: TExtBitFilters;
 begin
   V := JSON.Data(FieldName);
   if (Assigned(V)) then
@@ -1327,34 +1483,13 @@ begin
     SetOperandSize(TExtOperandSize(I));
     I := TJSONEnumHelper.ReadEnumValueFromString(V, 'adsize',    SExtAddressSize);
     SetAddressSize(TExtAddressSize(I));
-    A := V^.Data('bitfilters');
-    if (Assigned(A)) then
-    begin
-      if (A^.Kind <> jvArray) then
-      begin
-        raise Exception.Create('The "prefix_flags" field is not a valid JSON array.');
-      end;
-      BitFilters := [];
-      for I := 0 to A^.Count - 1 do
-      begin
-        for F := Low(SExtBitFilter) to High(SExtBitFilter) do
-        begin
-          if (LowerCase(A^.Item[I]) = SExtBitFilter[F]) then
-          begin
-            BitFilters := BitFilters + [F];
-            Break;
-          end;
-        end;
-      end;
-      SetBitFilters(BitFilters);
-    end;
+    SetBitFilters(TJSONSetHelper<TExtBitFilters>.ReadValue(V, 'bitfilters', SExtBitFilter));
   end;
 end;
 
 procedure TOpcodeExtensions.SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
 var
-  V, A: TJSONVariantData;
-  F: TExtBitFilter;
+  V: TJSONVariantData;
 begin
   V.Init;
   if (FMode <> imNeutral) then
@@ -1371,15 +1506,7 @@ begin
     V.AddNameValue('opsize', SExtOperandSize[FOperandSize]);
   if (FAddressSize <> asNeutral) then
     V.AddNameValue('adsize', SExtAddressSize[FAddressSize]);
-  A.Init;
-  for F in FBitFilters do
-  begin
-    A.AddValue(SExtBitFilter[F]);
-  end;
-  if (A.Count > 0) then
-  begin
-    V.AddNameValue('bitfilters', Variant(A));
-  end;
+  TJSONSetHelper<TExtBitFilters>.WriteValue(@V, 'bitfilters', SExtBitFilter, FBitFilters);
   if (V.Count > 0) then
   begin
     JSON^.AddNameValue(FieldName, Variant(V));
@@ -1493,49 +1620,15 @@ begin
 end;
 
 procedure TCPUIDFeatureFlags.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
-var
-  A: PJSONVariantData;
-  I: Integer;
-  C: TCPUIDFeatureFlag;
-  Value: TCPUIDFeatureFlagSet;
 begin
-  A := JSON.Data(FieldName);
-  if (Assigned(A)) then
-  begin
-    if (A^.Kind <> jvArray) then
-    begin
-      raise Exception.CreateFmt('The "%s" field is not a valid JSON array.', [FieldName]);
-    end;
-    Value := [];
-    for I := 0 to A^.Count - 1 do
-    begin
-      for C := Low(SCPUIDFeatureFlag) to High(SCPUIDFeatureFlag) do
-      begin
-        if (LowerCase(A^.Item[I]) = SCPUIDFeatureFlag[C]) then
-        begin
-          Value := Value + [C];
-          Break;
-        end;
-      end;
-    end;
-    SetFeatureFlags(Value);
-  end;
+  SetFeatureFlags(
+    TJSONSetHelper<TCPUIDFeatureFlagSet>.ReadValue(JSON, FieldName, SCPUIDFeatureFlag));
 end;
 
 procedure TCPUIDFeatureFlags.SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
-var
-  A: TJSONVariantData;
-  C: TCPUIDFeatureFlag;
 begin
-  A.Init;
-  for C in FFeatureFlags do
-  begin
-    A.AddValue(SCPUIDFeatureFlag[C]);
-  end;
-  if (A.Count > 0) then
-  begin
-    JSON.AddNameValue(FieldName, Variant(A));
-  end;
+  TJSONSetHelper<TCPUIDFeatureFlagSet>.WriteValue(
+    JSON, FieldName, SCPUIDFeatureFlag, FFeatureFlags);
 end;
 
 procedure TCPUIDFeatureFlags.SetFeatureFlags(const Value: TCPUIDFeatureFlagSet);
@@ -1577,49 +1670,13 @@ begin
 end;
 
 procedure TX86Registers.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
-var
-  A: PJSONVariantData;
-  I: Integer;
-  R: TX86Register;
-  Value: TX86RegisterSet;
 begin
-  A := JSON^.Data(FieldName);
-  if (Assigned(A)) then
-  begin
-    if (A^.Kind <> jvArray) then
-    begin
-      raise Exception.CreateFmt('The "%s" field is not a valid JSON array.', [FieldName]);
-    end;
-    Value := [];
-    for I := 0 to A^.Count - 1 do
-    begin
-      for R := Low(SX86Register) to High(SX86Register) do
-      begin
-        if (LowerCase(A^.Item[I]) = SX86Register[R]) then
-        begin
-          Value := Value + [R];
-          Break;
-        end;
-      end;
-    end;
-    SetRegisters(Value);
-  end;
+  SetRegisters(TJSONSetHelper<TX86RegisterSet>.ReadValue(JSON, FieldName, SX86Register));
 end;
 
 procedure TX86Registers.SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
-var
-  A: TJSONVariantData;
-  R: TX86Register;
 begin
-  A.Init;
-  for R in FRegisters do
-  begin
-    A.AddValue(SX86Register[R]);
-  end;
-  if (A.Count > 0) then
-  begin
-    JSON.AddNameValue(FieldName, Variant(A));
-  end;
+  TJSONSetHelper<TX86RegisterSet>.WriteValue(JSON, FieldName, SX86Register, FRegisters);
 end;
 
 procedure TX86Registers.SetRegisters(const Value: TX86RegisterSet);
@@ -2480,7 +2537,7 @@ var
 begin
   for I := Low(FOperands) to High(FOperands) do
   begin
-    if (Assigned(FOperands[I])) then FOperands[I].Free;
+    FOperands[I].Free;
   end;
   inherited;
 end;
@@ -2683,12 +2740,12 @@ begin
   end;
   // Remove definition from the definition list
   FEditor.UnregisterDefinition(Self);
-  if (Assigned(FExtensions))    then FExtensions.Free;
-  if (Assigned(FCPUID))         then FCPUID.Free;
-  if (Assigned(FOperands))      then FOperands.Free;
-  if (Assigned(FImplicitRead))  then FImplicitRead.Free;
-  if (Assigned(FImplicitWrite)) then FImplicitWrite.Free;
-  if (Assigned(FX86Flags))      then FX86Flags.Free;
+  FExtensions.Free;
+  FCPUID.Free;
+  FOperands.Free;
+  FImplicitRead.Free;
+  FImplicitWrite.Free;
+  FX86Flags.Free;
   inherited;
 end;
 
@@ -2735,9 +2792,6 @@ end;
 procedure TInstructionDefinition.LoadFromJSON(JSON: PJSONVariantData);
 var
   I: Integer;
-  A: PJSONVariantData;
-  F: TInstructionDefinitionFlag;
-  Flags: TInstructionDefinitionFlags;
 begin
   BeginUpdate;
   try
@@ -2764,27 +2818,9 @@ begin
     FOperands.LoadFromJSON(JSON, 'operands');
     FImplicitRead.LoadFromJSON(JSON, 'implicit_read');
     FImplicitWrite.LoadFromJSON(JSON, 'implicit_write');
-    A := JSON.Data('flags');
-    if (Assigned(A)) then
-    begin
-      if (A^.Kind <> jvArray) then
-      begin
-        raise Exception.Create('The "flags" field is not a valid JSON array.');
-      end;
-      Flags := [];
-      for I := 0 to A^.Count - 1 do
-      begin
-        for F := Low(SInstructionDefinitionFlag) to High(SInstructionDefinitionFlag) do
-        begin
-          if (LowerCase(A^.Item[I]) = SInstructionDefinitionFlag[F]) then
-          begin
-            Flags := Flags + [F];
-            Break;
-          end;
-        end;
-      end;
-      SetFlags(Flags);
-    end;
+    SetFlags(TJSONSetHelper<TInstructionDefinitionFlags>.ReadValue(
+      JSON, 'flags', SInstructionDefinitionFlag));
+    SetPrefixFlags(TJSONSetHelper<TPrefixFlags>.ReadValue(JSON, 'prefix_flags', SPrefixFlag));
     FX86Flags.LoadFromJSON(JSON, 'x86flags');
     FComment := JSON^.Value['comment'];
   finally
@@ -2793,9 +2829,6 @@ begin
 end;
 
 procedure TInstructionDefinition.SaveToJSON(JSON: PJSONVariantData);
-var
-  A: TJSONVariantData;
-  F: TInstructionDefinitionFlag;
 begin
   JSON^.AddNameValue('mnemonic', FMnemonic);
   JSON^.AddNameValue('opcode', LowerCase(IntToHex(FOpcode, 2)));
@@ -2806,15 +2839,9 @@ begin
   FOperands.SaveToJSON(JSON, 'operands');
   FImplicitRead.SaveToJSON(JSON, 'implicit_read');
   FImplicitWrite.SaveToJSON(JSON, 'implicit_write');
-  A.Init;
-  for F in FFlags do
-  begin
-    A.AddValue(SInstructionDefinitionFlag[F]);
-  end;
-  if (A.Count > 0) then
-  begin
-    JSON^.AddNameValue('flags', Variant(A));
-  end;
+  TJSONSetHelper<TInstructionDefinitionFlags>.WriteValue(JSON, 'flags',
+    SInstructionDefinitionFlag, FFlags);
+  TJSONSetHelper<TPrefixFlags>.WriteValue(JSON, 'prefix_flags', SPrefixFlag, FPrefixFlags);
   FX86Flags.SaveToJSON(JSON, 'x86flags');
   if (FComment <> '') then
   begin
@@ -2946,6 +2973,15 @@ begin
   end;
 end;
 
+procedure TInstructionDefinition.SetPrefixFlags(const Value: TPrefixFlags);
+begin
+  if (FPrefixFlags <> Value) then
+  begin
+    FPrefixFlags := Value;
+    UpdateValues;
+  end;
+end;
+
 procedure TInstructionDefinition.Update;
 begin
   UpdatePosition;
@@ -2965,6 +3001,33 @@ begin
   begin
     Include(Conflicts, idcOperands);
   end;
+
+  if ((pfAcceptsXACQUIRE in FPrefixFlags) or (pfAcceptsXRELEASE in FPrefixFlags)) and
+    (not ((pfAcceptsLock in FPrefixFlags) or (pfAcceptsHLEWithoutLock in FPrefixFlags))) then
+  begin
+    Include(Conflicts, idcPrefixFlags);
+  end;
+  if ((pfAcceptsXACQUIRE in FPrefixFlags) or (pfAcceptsXRELEASE in FPrefixFlags)) and
+    ((pfAcceptsREP in FPrefixFlags) or (pfAcceptsREPEREPNE in FPrefixFlags)) then
+  begin
+    Include(Conflicts, idcPrefixFlags);
+  end;
+  if ((pfAcceptsLock in FPrefixFlags) or (pfAcceptsXACQUIRE in FPrefixFlags) or
+    (pfAcceptsXRELEASE in FPrefixFlags)) and (not (FOperands.Operands[0].OperandType in [
+    optMem8, optMem16, optMem32, optMem64, optMem128])) then
+  begin
+    Include(Conflicts, idcPrefixFlags);
+  end;
+  if ((pfAcceptsREP in FPrefixFlags) and (pfAcceptsREPEREPNE in FPrefixFlags)) then
+  begin
+    Include(Conflicts, idcPrefixFlags);
+  end;
+  if (pfAcceptsBranchHints in FPrefixFlags) and (not (FOperands.Operands[0].OperandType in [
+    optRel8, optRel16, optRel32, optRel64])) then
+  begin
+    Include(Conflicts, idcPrefixFlags);
+  end;
+
   if (FX86Flags.HasConflicts) then
   begin
     Include(Conflicts, idcX86Flags);
@@ -3071,7 +3134,7 @@ end;
 destructor TInstructionFilter.Destroy;
 begin
   Assert((FItemCount = 0) and (FParent = nil));
-  if Assigned(FDefinitions) then
+  if (Assigned(FDefinitions)) then
   begin
     Assert(FDefinitions.Count = 0);
     FDefinitions.Free;
@@ -3865,11 +3928,23 @@ var
   I: Integer;
   JSONDefinitionList, JSONDefinition: TJSONVariantData;
 begin
-  // Sort definitions by mnemonic
+  // Sort definitions
   Comparison :=
     function(const Left, Right: TInstructionDefinition): Integer
     begin
       Result := CompareStr(Left.Mnemonic, Right.Mnemonic);
+      if (Result = 0) then
+      begin
+        Result := Ord(Left.Encoding) - Ord(Right.Encoding);
+      end;
+      if (Result = 0) then
+      begin
+        Result := Ord(Left.OpcodeMap) - Ord(Right.OpcodeMap);
+      end;
+      if (Result = 0) then
+      begin
+        Result := Left.Opcode - Right.Opcode;
+      end;
     end;
   FDefinitions.Sort(TComparer<TInstructionDefinition>.Construct(Comparison));
   // Save to JSON

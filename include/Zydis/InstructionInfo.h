@@ -247,36 +247,36 @@ typedef uint32_t ZydisPrefixFlags;
 /**
  * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPE           0x00400000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPE           0x00800000
 /**
  * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPZ           0x00400000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPZ           0x00800000
 /**
  * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNE          0x00400000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNE          0x01000000
 /**
  * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNZ          0x00400000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNZ          0x01000000
 /**
  * @brief   The instruction has multiple prefixes of the first prefix-group (0x0F, 0xF3, 0xF2).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP1          0x00800000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP1          0x02000000
 /**
  * @brief   The instruction has multiple prefixes of the second prefix-group (0x2E, 0x36, 
  *          0x3E, 0x26, 0x64, 0x65).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP2          0x01000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP2          0x04000000
 /**
  * @brief   The instruction has multiple prefixes of the third prefix-group (0x66).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP3          0x02000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP3          0x08000000
 /**
  * @brief   The instruction has multiple prefixes of the fourth prefix-group (0x67).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP4          0x04000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP4          0x10000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction encoding                                                                           */

@@ -41,20 +41,68 @@ extern "C" {
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction table                                                                              */
+/* Generated types                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-/**
- * @brief   Defines the @c ZydisInstructionTableNode datatype.
- */
-typedef void* ZydisInstructionTableNode;
+// MSVC does not like types other than (un-)signed int for bitfields
+#ifdef ZYDIS_MSVC
+#   pragma warning(push)
+#   pragma warning(disable:4214)
+#endif
 
-/* ---------------------------------------------------------------------------------------------- */
+#pragma pack(push, 1)
 
 /**
  * @brief   Defines the @c ZydisInstructionTableNodeType datatype.
  */
 typedef uint8_t ZydisInstructionTableNodeType;
+
+/**
+ * @brief   Defines the @c ZydisInstructionTableNodeValue datatype.
+ */
+typedef uint16_t ZydisInstructionTableNodeValue;
+
+/**
+ * @brief   Defines the @c ZydisInstructionTableNode struct.
+ * 
+ * This struct is static for now, because its size is sufficient to encode up to 65535
+ * instruction filters (what is about 10 times more than we currently need).
+ */
+typedef struct ZydisInstructionTableNode_
+{
+    ZydisInstructionTableNodeType type;
+    ZydisInstructionTableNodeValue value;
+} ZydisInstructionTableNode;
+
+/**
+ * @brief   Defines the @c ZydisSemanticOperandType datatype.
+ */
+typedef uint8_t ZydisSemanticOperandType;
+
+/**
+ * @brief   Defines the @c ZydisOperandDefinition struct.
+ * 
+ * This struct is static for now, because adding more operand-types oder encodings requires 
+ * code changes anyways.
+ */
+typedef struct ZydisOperandDefinition_
+{
+    ZydisSemanticOperandType type : 7;
+    ZydisOperandEncoding encoding : 5;
+    ZydisOperandAccess access : 2;
+} ZydisOperandDefinition;
+
+#include <Zydis/Internal/GeneratedTypes.inc>
+
+#pragma pack(pop)
+
+#ifdef ZYDIS_MSVC
+#   pragma warning(pop)
+#endif
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction Table                                                                              */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Values that represent zydis instruction table node types.
@@ -144,19 +192,9 @@ enum ZydisInstructionTableNodeTypes
     ZYDIS_NODETYPE_FILTER_EVEXB             = 0x14
 };
 
-/**
- * @brief   Defines the @c ZydisInstructionTableNodeValue datatype.
- */
-typedef uint16_t ZydisInstructionTableNodeValue;
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisSemanticOperandType datatype.
- */
-typedef uint8_t ZydisSemanticOperandType;
 
 /**
  * @brief   Values that represent semantic operand types.
@@ -246,33 +284,9 @@ enum ZydisSemanticOperandTypes
     ZYDIS_SEM_OPERAND_TYPE_ST0
 };
 
-/**
- * @brief   Defines the @c ZydisOperandDefinition struct.
- */
-typedef struct ZydisOperandDefinition_
-{
-    /**
-     * @brief   The semantic operand type.
-     */
-    ZydisSemanticOperandType type;
-    /**
-     * @brief   The operand encoding.
-     */
-    ZydisOperandEncoding encoding;
-    /**
-     * @brief   The operand access-mode.
-     */
-    ZydisOperandAccess access;
-} ZydisOperandDefinition;
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisEvexBFunctionality datatype .
- */
-typedef uint8_t ZydisEvexBFunctionality;
 
 /**
  * @brief   Values that represent zydis evex.b-functionalities.
@@ -285,32 +299,6 @@ enum ZydisEvexBFunctionalities
     ZYDIS_EVEXB_FUNCTIONALITY_SAE
 };
 
-/**
- * @brief   Defines the @c ZydisInstructionDefinition struct.
- */
-typedef struct ZydisInstructionDefinition_
-{
-    /**
-     * @brief   The instruction mnemonic.
-     */
-    ZydisInstructionMnemonic mnemonic;
-    /**
-     * @brief   The number of used operands.
-     */
-    uint8_t operandCount;
-    /**
-     * @brief   The operand-definitions.
-     */
-    ZydisOperandDefinition operands[5];
-    /**
-     * @brief   The evex.b functionality.
-     */
-    ZydisEvexBFunctionality evexBFunctionality;
-
-    bool hasEvexAAA;
-    bool hasEvexZ;
-} ZydisInstructionDefinition;
-
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -318,33 +306,11 @@ typedef struct ZydisInstructionDefinition_
 /* ============================================================================================== */
 
 /**
- * @brief   Returns the type of the specified instruction table node.
- *
- * @param   node    The node.
- *                  
- * @return  The type of the specified instruction table node.
- */
-ZYDIS_NO_EXPORT ZydisInstructionTableNodeType ZydisInstructionTableGetNodeType(
-    const ZydisInstructionTableNode node);
-
-/**
- * @brief   Returns the value of the specified instruction table node.
- *
- * @param   node    The node.
- *                  
- * @return  The value of the specified instruction table node.
- */
-ZYDIS_NO_EXPORT ZydisInstructionTableNodeValue ZydisInstructionTableGetNodeValue(
-    const ZydisInstructionTableNode* node);
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
  * @brief   Returns the root node of the instruction table.
  *
  * @return  The root node of the instruction table.
  */
-ZYDIS_NO_EXPORT ZydisInstructionTableNode ZydisInstructionTableGetRootNode();
+ZYDIS_NO_EXPORT const ZydisInstructionTableNode* ZydisInstructionTableGetRootNode();
 
 /**
  * @brief   Returns the child node of @c parent specified by @c index.
@@ -354,18 +320,25 @@ ZYDIS_NO_EXPORT ZydisInstructionTableNode ZydisInstructionTableGetRootNode();
  *                  
  * @return  The specified child node.
  */
-ZYDIS_NO_EXPORT ZydisInstructionTableNode ZydisInstructionTableGetChildNode(
-    const ZydisInstructionTableNode parent, uint16_t index);
+ZYDIS_NO_EXPORT const ZydisInstructionTableNode* ZydisInstructionTableGetChildNode(
+    const ZydisInstructionTableNode* parent, uint16_t index);
 
 /**
- * @brief   Returns the instruction definition that is linked to the given @c node.
+ * @brief   Returns the instruction- and operand-definition that is linked to the given @c node.
  *
- * @param   node    The instruction definition node.
+ * @param   node            The instruction definition node.
+ * @param   definition      A pointer to a variable that receives a pointer to the 
+ *                          instruction-definition.
+ * @param   operands        A pointer to a variable that receives a pointer to the first 
+ *                          operand-definition of the instruction.
+ * @param   operandCount    A pointer to a variable that receives the number of operand-definitions
+ *                          for the instruction. 
  *                  
- * @return  Pointer to the instruction definition.
+ * @return  @c TRUE, if @c node contained a valid instruction-definition, @c FALSE if not.
  */
-ZYDIS_NO_EXPORT ZydisInstructionDefinition ZydisInstructionDefinitionByNode(
-    const ZydisInstructionTableNode node);
+ZYDIS_NO_EXPORT bool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
+    const ZydisInstructionDefinition** definition, const ZydisOperandDefinition** operands, 
+        uint8_t* operandCount);
 
 /* ============================================================================================== */
 

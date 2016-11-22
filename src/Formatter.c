@@ -440,18 +440,26 @@ static ZydisStatus ZydisFormatterFormatInstructionIntel(ZydisInstructionFormatte
 {
     size_t offset = 0;
 
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REP) && 
+        (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP))
+    {
+        ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
+            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "rep "));
+    }
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REPE) && 
+        (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPE))
+    {
+        ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
+            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "repe "));
+    }
     if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REPNE) && 
         (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE))
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "repne "));
-    }
-    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_REP) && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP))
-    {
-        ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
-            (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "rep "));
-    }
-    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_LOCK) && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK))
+    }  
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_LOCK) && 
+        (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK))
     {
         ZYDIS_CHECK(ZydisBufferAppend(buffer, bufferLen, &offset, 
             (formatter->flags & ZYDIS_FORMATTER_FLAG_UPPERCASE), "lock "));

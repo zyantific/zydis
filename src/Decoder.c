@@ -1527,33 +1527,34 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
 /**
  * @brief   Decodes all instruction-operands.
  *
- * @param   decoder     A pointer to the @c ZydisInstructionDecoder decoder instance.
- * @param   info        A pointer to the @c ZydisInstructionInfo struct.
- * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
+ * @param   decoder         A pointer to the @c ZydisInstructionDecoder decoder instance.
+ * @param   info            A pointer to the @c ZydisInstructionInfo struct.
+ * @param   operands        A pointer to the first operand-definition of the instruction.
+ * @param   operandCount    The number of operands.
  *
  * @return  A zydis decoder status code.
  */
 static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
-    ZydisInstructionInfo* info, const ZydisInstructionDefinition* definition)
+    ZydisInstructionInfo* info, const ZydisOperandDefinition* operands, uint8_t operandCount)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
-    ZYDIS_ASSERT(definition);
-    ZYDIS_ASSERT(definition->operandCount <= 6);
+    ZYDIS_ASSERT(operands);
+    ZYDIS_ASSERT(operandCount < 6);
 
-    info->operandCount = definition->operandCount;
-    for (int i = 0; i < definition->operandCount; ++i)
+    info->operandCount = operandCount;
+    for (int i = 0; i < operandCount; ++i)
     {
-        ZydisSemanticOperandType type = definition->operands[i].type;
+        ZydisSemanticOperandType type = operands[i].type;
         if (type == ZYDIS_SEM_OPERAND_TYPE_UNUSED)
         {
             break;
         }
-        ZydisInstructionEncoding encoding = definition->operands[i].encoding;
+        ZydisInstructionEncoding encoding = operands[i].encoding;
         ZydisDecoderStatus status = 
             ZydisDecodeOperand(decoder, info, &info->operand[i], type, encoding);
         info->operand[i].encoding = encoding;
-        info->operand[i].access = definition->operands[i].access;
+        info->operand[i].access = operands[i].access;
         if (status != ZYDIS_STATUS_DECODER_SUCCESS)
         {
             info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_OPERANDS;
@@ -1607,129 +1608,86 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info)
+/**
+ * @brief   Finalizes the @c ZydisInstructionInfo struct by adding additional information.
+ * 
+ * @param   info        A pointer to the @c ZydisInstructionInfo struct.
+ * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
+ */
+static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info, 
+    const ZydisInstructionDefinition* definition)
 {
     ZYDIS_ASSERT(info);
+    ZYDIS_ASSERT(definition);
 
-    // TODO: Encode all these things in the instruction definition
-
-    // Adjust prefix flags
-    switch (info->mnemonic)
+    // Set prefix-flags
+    if (definition->acceptsLock)
     {
-    case ZYDIS_MNEMONIC_ADD:
-    case ZYDIS_MNEMONIC_ADC:
-    case ZYDIS_MNEMONIC_AND:
-    case ZYDIS_MNEMONIC_BTC:
-    case ZYDIS_MNEMONIC_BTR:
-    case ZYDIS_MNEMONIC_BTS:
-    case ZYDIS_MNEMONIC_CMPXCHG:
-    case ZYDIS_MNEMONIC_CMPXCHG8B:
-    case ZYDIS_MNEMONIC_CMPXCHG16B:
-    case ZYDIS_MNEMONIC_DEC:
-    case ZYDIS_MNEMONIC_INC:
-    case ZYDIS_MNEMONIC_NEG:
-    case ZYDIS_MNEMONIC_NOT:
-    case ZYDIS_MNEMONIC_OR:
-    case ZYDIS_MNEMONIC_SBB:
-    case ZYDIS_MNEMONIC_SUB:
-    case ZYDIS_MNEMONIC_XOR:
-    case ZYDIS_MNEMONIC_XADD:
-    case ZYDIS_MNEMONIC_XCHG:
-        if (info->operand[0].type == ZYDIS_OPERAND_TYPE_MEMORY)
+        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_LOCK;
+    }
+    if (definition->acceptsREP)
+    {
+        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_REP;
+    } else if (definition->acceptsREPEREPNE)
+    {
+        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_REPE | ZYDIS_PREFIXFLAG_ACCEPTS_REPNE;
+    }
+    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK) || (definition->acceptsHLEWithoutLock))
+    {
+        if (definition->acceptsXACQUIRE && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPE))
         {
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_LOCK;
+            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XACQUIRE; 
+            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPE;
+        } 
+        if (definition->acceptsXRELEASE && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE))
+        {
+            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XRELEASE;
+            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPNE;
         }
-        break;
-    case ZYDIS_MNEMONIC_MOVSB:
-    case ZYDIS_MNEMONIC_MOVSW:
-    case ZYDIS_MNEMONIC_MOVSD:
-    case ZYDIS_MNEMONIC_MOVSQ:
-    case ZYDIS_MNEMONIC_CMPS: // TODO: Only the string-instruction! We will use flags later.
-    case ZYDIS_MNEMONIC_SCASB:
-    case ZYDIS_MNEMONIC_SCASW:
-    case ZYDIS_MNEMONIC_SCASD:
-    case ZYDIS_MNEMONIC_SCASQ:
-    case ZYDIS_MNEMONIC_LODSB:
-    case ZYDIS_MNEMONIC_LODSW:
-    case ZYDIS_MNEMONIC_LODSD:
-    case ZYDIS_MNEMONIC_LODSQ:
-    case ZYDIS_MNEMONIC_STOSB:
-    case ZYDIS_MNEMONIC_STOSW:
-    case ZYDIS_MNEMONIC_STOSD:
-    case ZYDIS_MNEMONIC_STOSQ:
-    case ZYDIS_MNEMONIC_INSB:
-    case ZYDIS_MNEMONIC_INSW:
-    case ZYDIS_MNEMONIC_INSD:
-    case ZYDIS_MNEMONIC_OUTSB:
-    case ZYDIS_MNEMONIC_OUTSW:
-    case ZYDIS_MNEMONIC_OUTSD:
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_REP | ZYDIS_PREFIXFLAG_ACCEPTS_REPNE;
-        break;  
-    case ZYDIS_MNEMONIC_JO:
-    case ZYDIS_MNEMONIC_JNO:
-    case ZYDIS_MNEMONIC_JS:
-    case ZYDIS_MNEMONIC_JNS:
-    case ZYDIS_MNEMONIC_JE:
-    case ZYDIS_MNEMONIC_JNE:
-    case ZYDIS_MNEMONIC_JB:
-    case ZYDIS_MNEMONIC_JAE:
-    case ZYDIS_MNEMONIC_JBE:
-    case ZYDIS_MNEMONIC_JA:
-    case ZYDIS_MNEMONIC_JL:
-    case ZYDIS_MNEMONIC_JGE:
-    case ZYDIS_MNEMONIC_JLE:
-    case ZYDIS_MNEMONIC_JG:
-    case ZYDIS_MNEMONIC_JP:
-    case ZYDIS_MNEMONIC_JNP:
-    case ZYDIS_MNEMONIC_JCXZ:
-    case ZYDIS_MNEMONIC_JECXZ:
-    case ZYDIS_MNEMONIC_JRCXZ:
+    }
+    if (definition->acceptsBranchHints)
+    {
         if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS)
         {
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS;
             info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_BRANCH_NOT_TAKEN;
-        } else
+            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS;
+        }
         if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS)
         {
+            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_BRANCH_TAKEN;
             info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS;
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_BRANCH_TAKEN;    
         }
-        break;
-    default:
-        break;
     }
-    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_ACCEPTS_LOCK) && 
-        ((info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP) || 
-            (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE)))
+    
+    // Set AVX-512 info
+     if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
     {
-        if (info->mnemonic != ZYDIS_MNEMONIC_CMPXCHG16B)
+        if (definition->hasEvexAAA && info->details.evex.aaa)
         {
-            if ((info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK) || 
-                (info->mnemonic == ZYDIS_MNEMONIC_XCHG))
-            {
-                if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE)
-                {
-                    info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPNE;
-                    info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XACQUIRE;    
-                } 
-                {
-                    info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REP;
-                    info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XRELEASE;    
-                }    
-            } else
-            if ((info->mnemonic == ZYDIS_MNEMONIC_MOV) && ((info->opcode == 0x88) || 
-                (info->opcode == 0x89) || (info->opcode == 0xC6) || (info->opcode == 0xC7)))
-            {
-                if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP)
-                {
-                    info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REP;
-                    info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XRELEASE;    
-                }   
-            }
+            info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa; 
+        }
+        if (definition->hasEvexZ && info->details.evex.z)
+        {
+            info->avx.maskMode = ZYDIS_AVX_MASKMODE_ZERO;
+        } else
+        {
+            info->avx.maskMode = ZYDIS_AVX_MASKMODE_MERGE;
+        }
+        switch (definition->evexBFunctionality)
+        {
+        case ZYDIS_EVEXB_FUNCTIONALITY_BC:
+            break;
+        case ZYDIS_EVEXB_FUNCTIONALITY_RC:
+            info->avx.roundingMode = 
+                (((info->details.evex.l2 & 0x01) << 1) | info->details.evex.l) + 1; 
+        case ZYDIS_EVEXB_FUNCTIONALITY_SAE:
+            info->avx.sae = true;
+        default:
+            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_INVALID;
         }
     }
 
-    // Adjust instruction mnemonics
+    // Replace XCHG rAX, rAX with NOP alias
     if (info->mnemonic == ZYDIS_MNEMONIC_XCHG)
     {
         if (((info->operand[0].reg == ZYDIS_REGISTER_RAX) && 
@@ -2199,11 +2157,11 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
     ZYDIS_ASSERT(info);
 
     // Iterate through the instruction table
-    ZydisInstructionTableNode node = ZydisInstructionTableGetRootNode();
+    const ZydisInstructionTableNode* node = ZydisInstructionTableGetRootNode();
     ZydisInstructionTableNodeType nodeType;
     do
     {
-        nodeType = ZydisInstructionTableGetNodeType(node);
+        nodeType = node->type;
         uint16_t index = 0;
         ZydisDecoderStatus status = 0;
         switch (nodeType)
@@ -2220,16 +2178,22 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
         case ZYDIS_NODETYPE_DEFINITION_4OP:
         case ZYDIS_NODETYPE_DEFINITION_5OP:
         {   
-            const ZydisInstructionDefinition definition = ZydisInstructionDefinitionByNode(node);
-            //ZYDIS_ASSERT(definition); // TODO: Pointer?
-            info->mnemonic = definition.mnemonic;
+            const ZydisInstructionDefinition* definition = NULL;
+            const ZydisOperandDefinition* operands = NULL;
+            uint8_t operandCount;
+            ZydisInstructionTableGetDefinition(node, &definition, &operands, &operandCount);
+
+            ZYDIS_ASSERT(definition);
+            ZYDIS_ASSERT(operands);
+
+            info->mnemonic = (ZydisInstructionMnemonic)definition->mnemonic;
 
             if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
             {
                 // Save input-buffer state and decode dummy operands
                 uint8_t bufferPosRead = decoder->buffer.posRead;
                 uint8_t length = info->length;
-                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition)); // TODO: Reference?
+                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
                 // Read actual 3dnow opcode
                 ZYDIS_CHECK(ZydisInputNext(decoder, info, &info->opcode));
                 // Restore input-buffer state
@@ -2247,7 +2211,7 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                 node = ZydisInstructionTableGetChildNode(node, 0x0F);
                 node = ZydisInstructionTableGetChildNode(node, 0x0F);
                 node = ZydisInstructionTableGetChildNode(node, info->opcode);
-                if (ZydisInstructionTableGetNodeType(node) == ZYDIS_NODETYPE_INVALID)
+                if (node->type == ZYDIS_NODETYPE_INVALID)
                 {
                     info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_UNDEFINED;
                     return ZYDIS_STATUS_DECODER_UNDEFINED_INSTRUCTION;        
@@ -2255,43 +2219,18 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                 node = ZydisInstructionTableGetChildNode(node, 
                     (info->details.modrm.mod == 0x3) ? 1 : 0);
                 // Decode actual operands and fix the instruction-info               
-                ZydisInstructionDefinition definition2 = ZydisInstructionDefinitionByNode(node);
-                //ZYDIS_ASSERT(definition);  // TODO: Pointer
-                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition2)); // TODO: Reference
-                info->mnemonic = definition2.mnemonic;
-                ZydisFinalizeInstructionInfo(info);  
+                ZydisInstructionTableGetDefinition(node, &definition, &operands, &operandCount);
+                ZYDIS_ASSERT(definition);
+                ZYDIS_ASSERT(operands);
+                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
+                info->mnemonic = (ZydisInstructionMnemonic)definition->mnemonic;
+                ZydisFinalizeInstructionInfo(info, definition);  
                 return ZydisInputNext(decoder, info, &info->opcode);
             }
 
-            ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, &definition)); // TODO: Reference
-            ZydisFinalizeInstructionInfo(info);
+            ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
+            ZydisFinalizeInstructionInfo(info, definition);
 
-            if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
-            {
-                if (definition.hasEvexAAA && info->details.evex.aaa)
-                {
-                    info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa; 
-                }
-                if (definition.hasEvexZ && info->details.evex.z)
-                {
-                    info->avx.maskMode = ZYDIS_AVX_MASKMODE_ZERO;
-                } else
-                {
-                    info->avx.maskMode = ZYDIS_AVX_MASKMODE_MERGE;
-                }
-                switch (definition.evexBFunctionality)
-                {
-                case ZYDIS_EVEXB_FUNCTIONALITY_BC:
-                    break;
-                case ZYDIS_EVEXB_FUNCTIONALITY_RC:
-                    info->avx.roundingMode = 
-                        (((info->details.evex.l2 & 0x01) << 1) | info->details.evex.l) + 1; 
-                case ZYDIS_EVEXB_FUNCTIONALITY_SAE:
-                    info->avx.sae = true;
-                default:
-                    info->avx.broadcast = ZYDIS_AVX_BCSTMODE_INVALID;
-                }
-            }
             return ZYDIS_STATUS_DECODER_SUCCESS;
         }
         case ZYDIS_NODETYPE_FILTER_OPCODE:

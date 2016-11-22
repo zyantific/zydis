@@ -158,7 +158,7 @@ const
   FILENAME_MNEMONICSTRINGS        = 'MnemonicStrings.inc';
   FILENAME_INSTRUCTIONDEFINITIONS = 'InstructionDefinitions.inc';
   FILENAME_OPERANDDEFINITIONS     = 'OperandDefinitions.inc';
-  FILENAME_INTERNALSTRUCTS        = 'InternalStructs.inc';
+  FILENAME_GENERATEDTYPES         = 'GeneratedTypes.inc';
 
 { TCodeGenerator }
 
@@ -562,8 +562,15 @@ begin
   if (ifHasEvexSAE     in Definition.Flags) then U := 'ZYDIS_EVEXB_FUNCTIONALITY_SAE';
 
   Buffer.Append(Format('    /*%.4x*/ ', [Index]));
-  Buffer.Append(Format('ZYDIS_MAKE_INSTRUCTIONDEFINITION(ZYDIS_MNEMONIC_%s, 0x%.4x, %s, %s, %s)', [
-    AnsiUpperCase(Definition.Mnemonic), O, U, S, T]));
+  Buffer.Append(Format('{ ZYDIS_MNEMONIC_%s, 0x%.4x, %s, %s, %s, %d, %d, %d, %d, %d, %d, %d }', [
+    AnsiUpperCase(Definition.Mnemonic), O, U, S, T,
+    Byte(pfAcceptsLock in Definition.PrefixFlags),
+    Byte(pfAcceptsREP in Definition.PrefixFlags),
+    Byte(pfAcceptsREPEREPNE in Definition.PrefixFlags),
+    Byte(pfAcceptsXACQUIRE in Definition.PrefixFlags),
+    Byte(pfAcceptsXRELEASE in Definition.PrefixFlags),
+    Byte(pfAcceptsHLEWithoutLock in Definition.PrefixFlags),
+    Byte(pfAcceptsBranchHints in Definition.PrefixFlags)]));
 end;
 
 var
@@ -573,7 +580,7 @@ var
 begin
   Buffer := TStringBuffer.Create;
   try
-    Buffer.AppendLn('const ZydisInternalInstructionDefinition instructionDefinitions[] =');
+    Buffer.AppendLn('const ZydisInstructionDefinition instructionDefinitions[] =');
     Buffer.AppendLn('{');
     WorkStart('Generating instruction definitions', 0, Length(DefinitionList));
     for I := Low(DefinitionList) to High(DefinitionList) do
@@ -637,7 +644,7 @@ begin
       end;
 
       // Open the filter-array
-      Buffer.AppendLn(Format('const ZydisInternalInstructionTableNode filter%s[][%d] = ', [
+      Buffer.AppendLn(Format('const ZydisInstructionTableNode filter%s[][%d] = ', [
         InstructionFilterClasses[I].GetDescription,
         Integer(InstructionFilterClasses[I].GetCapacity) - IndexShift]));
       Buffer.AppendLn('{');
@@ -943,7 +950,7 @@ begin
     opaWrite      : OperandAccessMode := 'WRITE';
     opaReadWrite  : OperandAccessMode := 'READWRITE';
   end;
-  Buffer.Append(Format('ZYDIS_MAKE_OPERANDDEFINITION(ZYDIS_SEM_OPERAND_TYPE_%s, ' +
+  Buffer.Append(Format('ZYDIS_OPERAND_DEFINITION(ZYDIS_SEM_OPERAND_TYPE_%s, ' +
     'ZYDIS_OPERAND_ENCODING_%s, ZYDIS_OPERAND_ACCESS_%s)', [
     OperandType, OperandEncoding, OperandAccessMode]));
 end;
@@ -966,7 +973,7 @@ begin
     // Generate operand-definition tables
     for I := Low(OperandMapping) to High(OperandMapping) do
     begin
-      Buffer.AppendLn(Format('const ZydisInternalOperandDefinition operandDefinitions%d[][%d] =',
+      Buffer.AppendLn(Format('const ZydisOperandDefinition operandDefinitions%d[][%d] =',
         [I, I]));
       Buffer.AppendLn('{');
       for J := Low(OperandMapping[I]) to High(OperandMapping[I]) do
@@ -996,7 +1003,7 @@ begin
         Buffer.Append(Format('    /*%.4x*/ { ', [0]));
         for K := 1 to I do
         begin
-          Buffer.Append('ZYDIS_MAKE_OPERANDDEFINITION(ZYDIS_SEM_OPERAND_TYPE_UNUSED, ' +
+          Buffer.Append('ZYDIS_OPERAND_DEFINITION(ZYDIS_SEM_OPERAND_TYPE_UNUSED, ' +
             'ZYDIS_OPERAND_ENCODING_NONE, ZYDIS_OPERAND_ACCESS_READ)');
           if (K <> I) then
           begin
