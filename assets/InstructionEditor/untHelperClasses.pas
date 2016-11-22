@@ -3,7 +3,7 @@ unit untHelperClasses;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, SynCrossPlatformJSON;
+  System.Classes, System.Generics.Collections, System.Generics.Defaults, SynCrossPlatformJSON;
 
 type
   TSizeFormatter = record
@@ -28,6 +28,11 @@ type
      * @param S A reference to the target string.
      *}
     class procedure AnsiLowerCase(var S: String); static;
+  end;
+
+  TListHelper<T> = record
+  public
+    class procedure BubbleSort(var List: TList<T>; Comparer: IComparer<T>); static;
   end;
 
   TJSONHelper = record
@@ -129,6 +134,29 @@ begin
       S[I] := Lower[Ord(S[I]) - Ord('A')];
     end;
   end;
+end;
+
+{ TListHelper<T> }
+
+class procedure TListHelper<T>.BubbleSort(var List: TList<T>; Comparer: IComparer<T>);
+var
+  I: Integer;
+  Temp: T;
+  Done: Boolean;
+begin
+  repeat
+    Done := true;
+    for I := 0 to List.Count - 2 do
+    begin
+      if (Comparer.Compare(List[I], List[I + 1]) > 0) then
+      begin
+        Temp := List[I];
+        List[I] := List[I + 1];
+        List[I + 1] := Temp;
+        Done := false;
+      end;
+    end;
+  until Done;
 end;
 
 { TJSONHelper }

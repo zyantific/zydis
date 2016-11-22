@@ -107,7 +107,6 @@ type
   protected
     constructor Create(Definition: TInstructionDefinition);
   public
-    function CompareTo(const Other: TOpcodeExtensions): Integer;
     function Equals(const Value: TOpcodeExtensions): Boolean; reintroduce;
   published
     property Mode: TExtInstructionMode read FMode write SetMode default imNeutral;
@@ -333,7 +332,6 @@ type
   protected
     constructor Create(Definition: TInstructionDefinition);
   public
-    function CompareTo(const Other: TX86Flags): Integer;
     function Equals(const Value: TX86Flags): Boolean; reintroduce;
   public
     property HasConflicts: Boolean read GetConflictState;
@@ -555,7 +553,6 @@ type
   protected
     constructor Create(Definition: TInstructionDefinition);
   public
-    function CompareTo(const Other: TInstructionOperands): Integer;
     function Equals(const Value: TInstructionOperands): Boolean; reintroduce;
   public
     destructor Destroy; override;
@@ -653,6 +650,7 @@ type
     FComment: String;
   strict private
     function GetConflictState: Boolean; inline;
+  strict private
     procedure SetMnemonic(const Value: String); inline;
     procedure SetEncoding(const Value: TInstructionEncoding); inline;
     procedure SetOpcodeMap(const Value: TOpcodeMap); inline;
@@ -673,7 +671,6 @@ type
     procedure Update; inline;
     procedure EndUpdate; inline;
   public
-    function CompareTo(const Other: TInstructionDefinition): Integer;
     function Equals(const Value: TInstructionDefinition;
       CheckComment: Boolean = false;
       CheckFilterRelatedAttributes: Boolean = true): Boolean; reintroduce;
@@ -1446,28 +1443,6 @@ begin
   FDefinition.UpdatePosition;
 end;
 
-function TOpcodeExtensions.CompareTo(const Other: TOpcodeExtensions): Integer;
-var
-  I, A, B: Integer;
-begin
-  Result := Ord(FMode) - Ord(Other.FMode);
-  if (Result = 0) then Result := Ord(FMandatoryPrefix) - Ord(Other.FMandatoryPrefix);
-  if (Result = 0) then Result := Ord(FModrmMod)        - Ord(Other.FModrmMod);
-  if (Result = 0) then Result := Ord(FModrmReg)        - Ord(Other.FModrmReg);
-  if (Result = 0) then Result := Ord(FModrmRm)         - Ord(Other.FModrmRm);
-  if (Result = 0) then Result := Ord(FOperandSize)     - Ord(Other.FOperandSize);
-  if (Result = 0) then Result := Ord(FAddressSize)     - Ord(Other.FAddressSize);
-  if (Result = 0) then
-  begin
-    for I := 0 to SizeOf(TExtBitFilters) - 1 do
-    begin
-      A := PByte(PByte(@FBitFilters) + I)^;
-      B := PByte(PByte(@Other.FBitFilters) + I)^;
-    end;
-    Result := A - B;
-  end;
-end;
-
 constructor TOpcodeExtensions.Create(Definition: TInstructionDefinition);
 begin
   inherited Create;
@@ -1745,27 +1720,6 @@ end;
 procedure TX86Flags.Changed;
 begin
   FDefinition.UpdateValues;
-end;
-
-function TX86Flags.CompareTo(const Other: TX86Flags): Integer;
-var
-  F, O: array[0..14] of ^TX86FlagValue;
-  I: Integer;
-begin
-  Result := 0;
-  F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
-  F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;
-  F[10] := @FVM;  F[11] := @FAC;  F[12] := @FVIF; F[13] := @FVIP; F[14] := @FID;
-  O[ 0] := @Other.FCF;  O[ 1] := @Other.FPF;  O[ 2] := @Other.FAF;  O[ 3] := @Other.FZF;
-  O[ 4] := @Other.FSF;  O[ 5] := @Other.FTF;  O[ 6] := @Other.FIF;  O[ 7] := @Other.FDF;
-  O[ 8] := @Other.FOF;  O[ 9] := @Other.FRF;  O[10] := @Other.FVM;  O[11] := @Other.FAC;
-  O[12] := @Other.FVIF; O[13] := @Other.FVIP; O[14] := @Other.FID;
-  I := 0;
-  while (Result = 0) and (I < Length(F)) do
-  begin
-    Result := Ord(F[I]^) - Ord(O[I]^);
-    Inc(I);
-  end;
 end;
 
 constructor TX86Flags.Create(Definition: TInstructionDefinition);
@@ -2566,22 +2520,6 @@ begin
   FDefinition.UpdateValues;
 end;
 
-function TInstructionOperands.CompareTo(const Other: TInstructionOperands): Integer;
-var
-  I: Integer;
-begin
-  Result := 0;
-  I := 0;
-  while (Result = 0) and (I < Length(FOperands)) do
-  begin
-    Result := Ord(FOperands[I].OperandType) - Ord(Other.FOperands[I].OperandType);
-    if (Result = 0) then Result := Ord(FOperands[I].Encoding) - Ord(Other.FOperands[I].Encoding);
-    if (Result = 0) then
-      Result := Ord(FOperands[I].AccessMode) - Ord(Other.FOperands[I].AccessMode);
-    Inc(I);
-  end;
-end;
-
 constructor TInstructionOperands.Create(Definition: TInstructionDefinition);
 var
   I: Integer;
@@ -2772,57 +2710,6 @@ end;
 procedure TInstructionDefinition.BeginUpdate;
 begin
   Inc(FUpdateCount);
-end;
-
-function TInstructionDefinition.CompareTo(const Other: TInstructionDefinition): Integer;
-var
-  I, A, B: Integer;
-begin
-  Result := CompareStr(FMnemonic, Other.FMnemonic);
-  if (Result = 0) then Result := Ord(FEncoding)  - Ord(Other.FEncoding);
-  if (Result = 0) then Result := Ord(FOpcodeMap) - Ord(Other.FOpcodeMap);
-  if (Result = 0) then Result := FOpcode         - Other.FOpcode;
-  if (Result = 0) then Result := FExtensions.CompareTo(Other.FExtensions);
-  if (Result = 0) then Result := FOperands.CompareTo(Other.FOperands);
-  if (Result = 0) then
-  begin
-    for I := 0 to SizeOf(TCPUIDFeatureFlagSet) - 1 do
-    begin
-      A := PByte(PByte(@FCPUID.FeatureFlags) + I)^;
-      B := PByte(PByte(@Other.FCPUID.FeatureFlags) + I)^;
-    end;
-    Result := A - B;
-  end;
-  if (Result = 0) then
-  begin
-    for I := 0 to SizeOf(TInstructionDefinitionFlags) - 1 do
-    begin
-      A := PByte(PByte(@FFlags) + I)^;
-      B := PByte(PByte(@Other.FFlags) + I)^;
-    end;
-    Result := A - B;
-  end;
-  if (Result = 0) then
-  begin
-    for I := 0 to SizeOf(TX86RegisterSet) - 1 do
-    begin
-      A := PByte(PByte(@FImplicitRead) + I)^;
-      B := PByte(PByte(@Other.FImplicitRead) + I)^;
-    end;
-    Result := A - B;
-  end;
-  if (Result = 0) then
-  begin
-    for I := 0 to SizeOf(TX86RegisterSet) - 1 do
-    begin
-      A := PByte(PByte(@FImplicitWrite) + I)^;
-      B := PByte(PByte(@Other.FImplicitWrite) + I)^;
-    end;
-    Result := A - B;
-  end;
-  if (Result = 0) then Result := FX86Flags.CompareTo(Other.FX86Flags);
-  if (Result = 0) then Result := FEVEXCD8Scale - Other.FEVEXCD8Scale;
-  if (Result = 0) then Result := CompareStr(FComment, Other.FComment);
 end;
 
 constructor TInstructionDefinition.Create(Editor: TInstructionEditor; const Mnemonic: String);
@@ -4038,17 +3925,19 @@ end;
 
 procedure TInstructionEditor.SaveToJSON(JSON: PJSONVariantData);
 var
-  Comparison: TComparison<TInstructionDefinition>;
   I: Integer;
   JSONDefinitionList, JSONDefinition: TJSONVariantData;
 begin
-  // Sort definitions
-  Comparison :=
-    function(const Left, Right: TInstructionDefinition): Integer
-    begin
-      Result := Left.CompareTo(Right);
-    end;
-  FDefinitions.Sort(TComparer<TInstructionDefinition>.Construct(Comparison));
+  // Sort definitions with a stable algorithm to ensure deterministic output
+  TListHelper<TInstructionDefinition>.BubbleSort(
+    FDefinitions, TComparer<TInstructionDefinition>.Construct(
+      function(const Left, Right: TInstructionDefinition): Integer
+      begin
+        Result := CompareStr(Left.Mnemonic, Right.Mnemonic);
+        if (Result = 0) then Result := Ord(Left.Encoding)  - Ord(Right.Encoding);
+        if (Result = 0) then Result := Ord(Left.OpcodeMap) - Ord(Right.OpcodeMap);
+        if (Result = 0) then Result := Ord(Left.Opcode)    - Ord(Right.Opcode);
+      end));
   // Save to JSON
   if (Assigned(FOnWorkStart)) then
   begin
