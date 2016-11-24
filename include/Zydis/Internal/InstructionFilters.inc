@@ -6563,8 +6563,8 @@ const ZydisInstructionTableNode filterMode[][2] =
         /*0002*/ ZYDIS_DEFINITION_1OP(0x1170)
     },
     {
-        /*0001*/ ZYDIS_DEFINITION_1OP(0x0333),
-        /*0002*/ ZYDIS_DEFINITION_1OP(0x0332)
+        /*0001*/ ZYDIS_DEFINITION_2OP(0x0333),
+        /*0002*/ ZYDIS_DEFINITION_2OP(0x0332)
     },
     {
         /*0001*/ ZYDIS_DEFINITION_0OP(0x08F8),

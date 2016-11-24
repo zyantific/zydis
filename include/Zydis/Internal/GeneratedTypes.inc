@@ -12,4 +12,13 @@ typedef struct ZydisInstructionDefinition_
     uint32_t acceptsXRELEASE : 1;
     uint32_t acceptsHLEWithoutLock : 1;
     uint32_t acceptsBranchHints : 1;
+#ifdef ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS
+    uint8_t implicitRegistersId : 8;
+#endif
+#ifdef ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS
+    uint8_t affectedFlagsId : 8;
+#endif;
+#ifdef ZYDIS_ENABLE_FEATURE_CPUID
+    uint8_t cpuidId : 8;
+#endif
 } ZydisInstructionDefinition;

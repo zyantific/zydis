@@ -32,7 +32,7 @@ type
 
   TListHelper<T> = record
   public
-    class procedure BubbleSort(var List: TList<T>; Comparer: IComparer<T>); static;
+    class procedure BubbleSort(var List: TList<T>; const Comparer: IComparer<T>); static;
   end;
 
   TJSONHelper = record
@@ -45,17 +45,16 @@ type
     FBuffer: array of Char;
     FPosition: Integer;
     FCapacity: Integer;
-    FChunkSize: Integer;
+    FChunkSize: Cardinal;
   strict private
     function GetValue: String; inline;
   public
     procedure Append(const S: String);
     procedure AppendLn(const S: String);
   public
-    constructor Create;
+    constructor Create(ChunkSize: Cardinal = 1024 * 16);
   public
     property Value: String read GetValue;
-    property ChunkSize: Integer read FChunkSize write FChunkSize;
   end;
 
 implementation
@@ -138,10 +137,9 @@ end;
 
 { TListHelper<T> }
 
-class procedure TListHelper<T>.BubbleSort(var List: TList<T>; Comparer: IComparer<T>);
+class procedure TListHelper<T>.BubbleSort(var List: TList<T>; const Comparer: IComparer<T>);
 var
   I: Integer;
-  Temp: T;
   Done: Boolean;
 begin
   repeat
@@ -150,9 +148,7 @@ begin
     begin
       if (Comparer.Compare(List[I], List[I + 1]) > 0) then
       begin
-        Temp := List[I];
-        List[I] := List[I + 1];
-        List[I + 1] := Temp;
+        List.Exchange(I, I + 1);
         Done := false;
       end;
     end;
@@ -289,10 +285,10 @@ begin
   Append(sLineBreak);
 end;
 
-constructor TStringBuffer.Create;
+constructor TStringBuffer.Create(ChunkSize: Cardinal);
 begin
   inherited Create;
-  FChunkSize := 1024 * 16;
+  FChunkSize := ChunkSize;
   FCapacity := FChunkSize;
   SetLength(FBuffer, FChunkSize);
 end;

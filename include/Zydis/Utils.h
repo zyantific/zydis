@@ -43,8 +43,8 @@ extern "C" {
 /**
  * @brief   Calculates the absolute target-address of an relative instruction operand.
  *
- * @param   info    A pointer to the instruction-info struct.
- * @param   operand A pointer to the operand-info struct.
+ * @param   info    A pointer to the @c ZydisInstructionInfo struct.
+ * @param   operand A pointer to the @c ZydisOperandInfo struct.
  * @param   address A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zydis status code

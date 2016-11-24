@@ -84,7 +84,7 @@ typedef uint32_t ZydisDecoderFlags;
  * @brief   Includes information about bits of the FLAGS/EFLAGS/RFLAGS register that are 
  *          affected by the instruction.
  */
-#define ZYDIS_DECODER_FLAG_AFFECTED_REGISTERS       0x00000010
+#define ZYDIS_DECODER_FLAG_AFFECTED_FLAGS           0x00000010
 /**
  * @brief   Includes information about the CPUID feature flags of the the instruction.
  */

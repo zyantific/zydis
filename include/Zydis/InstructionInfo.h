@@ -134,149 +134,170 @@ typedef uint32_t ZydisInstructionFlags;
 /**
  * @brief   Defines the @c ZydisPrefixFlags datatype.
  */
-typedef uint32_t ZydisPrefixFlags;
+typedef uint64_t ZydisPrefixFlags;
 
 /**
  * @brief   The instruction has the rex-prefix (0x40 - 0x4F).
  */
-#define ZYDIS_PREFIXFLAG_HAS_REX                0x00000001
+#define ZYDIS_PREFIXFLAG_HAS_REX                    0x0000000000000001
 /**
  * @brief   The instruction has the xop-prefix (0x8F).  
  */
-#define ZYDIS_PREFIXFLAG_HAS_XOP                0x00000002
+#define ZYDIS_PREFIXFLAG_HAS_XOP                    0x0000000000000002
 /**
  * @brief   The instruction has the vex-prefix (0xC4 or 0xC5).  
  */
-#define ZYDIS_PREFIXFLAG_HAS_VEX                0x00000004
+#define ZYDIS_PREFIXFLAG_HAS_VEX                    0x0000000000000004
 /**
  * @brief   The instruction has the evex-prefix (0x62).  
  */
-#define ZYDIS_PREFIXFLAG_HAS_EVEX               0x00000008
-/**
- * @brief   The instruction has the lock-prefix (0x0F)
- */
-#define ZYDIS_PREFIXFLAG_HAS_LOCK               0x00000010
-/**
- * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
- */
-#define ZYDIS_PREFIXFLAG_HAS_REP                0x00000020
-/**
- * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
- */
-#define ZYDIS_PREFIXFLAG_HAS_REPE               0x00000020
-/**
- * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
- */
-#define ZYDIS_PREFIXFLAGG_HAS_REPZ              0x00000020
-/**
- * @brief   The instruction has the repne/repnz-prefix (0xF2)
- */
-#define ZYDIS_PREFIXFLAG_HAS_REPNE              0x00000040
-/**
- * @brief   The instruction has the repne/repnz-prefix (0xF2)
- */
-#define ZYDIS_PREFIXFLAG_HAS_REPNZ              0x00000040
+#define ZYDIS_PREFIXFLAG_HAS_EVEX                   0x0000000000000008
+
 /**
  * @brief   The instruction has a segment-override prefix.
  */
-#define ZYDIS_PREFIXFLAG_SEGMENT_MASK           0x00001F80
+#define ZYDIS_PREFIXFLAG_SEGMENT_MASK               0x00000000000003F0
 /**
  * @brief   The instruction has the cs segment-override prefix (0x2E).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS         0x00000080
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS             0x0000000000000010
 /**
  * @brief   The instruction has the ss segment-override prefix (0x36).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_SS         0x00000100
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_SS             0x0000000000000020
 /**
  * @brief   The instruction has the ds segment-override prefix (0x3E).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS         0x00000200
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS             0x0000000000000040
 /**
  * @brief   The instruction has the es segment-override prefix (0x26).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_ES         0x00000400
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_ES             0x0000000000000080
 /**
  * @brief   The instruction has the fs segment-override prefix (0x64).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_FS         0x00000800
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_FS             0x0000000000000100
 /**
  * @brief   The instruction has the gs segment-override prefix (0x65).
  */
-#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_GS         0x00001000
+#define ZYDIS_PREFIXFLAG_HAS_SEGMENT_GS             0x0000000000000200
+
+/**
+ * @brief   The instruction has the lock-prefix (0x0F)
+ */
+#define ZYDIS_PREFIXFLAG_HAS_LOCK                   0x0000000000000400
+/**
+ * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
+ */
+#define ZYDIS_PREFIXFLAG_HAS_REP                    0x0000000000000800
+/**
+ * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
+ */
+#define ZYDIS_PREFIXFLAG_HAS_REPE                   0x0000000000000800
+/**
+ * @brief   The instruction has the rep/repe/repz-prefix (0xF3)
+ */
+#define ZYDIS_PREFIXFLAGG_HAS_REPZ                  0x0000000000000800
+/**
+ * @brief   The instruction has the repne/repnz-prefix (0xF2)
+ */
+#define ZYDIS_PREFIXFLAG_HAS_REPNE                  0x0000000000001000
+/**
+ * @brief   The instruction has the repne/repnz-prefix (0xF2)
+ */
+#define ZYDIS_PREFIXFLAG_HAS_REPNZ                  0x0000000000001000
 /**
  * @brief   The instruction has the operand-size-override prefix (0x66).
  */
-#define ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE        0x00002000
+#define ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE            0x0000000000002000
 /**
  * @brief   The instruction has the address-size-override prefix (0x67).
  */
-#define ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE        0x00004000
+#define ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE            0x0000000000004000
 /**
  * @brief   The instruction has the xacquire prefix (0xF2).
  */
-#define ZYDIS_PREFIXFLAG_HAS_XACQUIRE           0x00008000
+#define ZYDIS_PREFIXFLAG_HAS_XACQUIRE               0x0000000000008000
 /**
  * @brief   The instruction has the xrelease prefix (0xF3).
  */
-#define ZYDIS_PREFIXFLAG_HAS_XRELEASE           0x00010000
+#define ZYDIS_PREFIXFLAG_HAS_XRELEASE               0x0000000000010000
 /**
  * @brief   The instruction has the branch-not-taken hint (0x2E).
  */
-#define ZYDIS_PREFIXFLAG_HAS_BRANCH_NOT_TAKEN   0x00020000
+#define ZYDIS_PREFIXFLAG_HAS_BRANCH_NOT_TAKEN       0x0000000000020000
 /**
  * @brief   The instruction has the branch-taken hint (0x3E).
  */
-#define ZYDIS_PREFIXFLAG_HAS_BRANCH_TAKEN       0x00040000
-/**
- * @brief   The instruction accepts the operand-size override prefix (0x66)
- */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_OPERANDSIZE    0x00080000
-/**
- * @brief   The instruction accepts the adress-size override prefix (0x67)
- */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_ADDRESSSIZE    0x00100000
+#define ZYDIS_PREFIXFLAG_HAS_BRANCH_TAKEN           0x0000000000040000
+
 /**
  * @brief   The instruction accepts the lock-prefix.
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_LOCK           0x00200000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_LOCK               0x0000000000080000
 /**
- * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
+ * @brief   The instruction accepts the rep-prefix (0xF3).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REP            0x00400000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REP                0x0000000000100000
 /**
- * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
+ * @brief   The instruction accepts the repe/repz prefix (0xF3).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPE           0x00800000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPE               0x0000000000200000
 /**
- * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
+ * @brief   The instruction accepts the repe/repz prefix (0xF3).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPZ           0x00800000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPZ               0x0000000000200000
 /**
- * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
+ * @brief   The instruction accepts the repne/repnz prefix (0xF2).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNE          0x01000000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNE              0x0000000000400000
 /**
- * @brief   The instruction accepts the string prefixes (rep/repe/repz/repne/repnz).
+ * @brief   The instruction accepts the repne/repnz prefix (0xF2).
  */
-#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNZ          0x01000000
+#define ZYDIS_PREFIXFLAG_ACCEPTS_REPNZ              0x0000000000400000
+/**
+ * @brief   The instruction accepts the operand-size override prefix (0x66)
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_OPERANDSIZE        0x0000000000800000
+/**
+ * @brief   The instruction accepts the adress-size override prefix (0x67)
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_ADDRESSSIZE        0x0000000001000000
+/**
+ * @brief   The instruction accepts the xacquire prefix (0xF2).
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_XACQUIRE           0x0000000002000000
+/**
+ * @brief   The instruction accepts the xrelease prefix (0xF3).
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_XRELEASE           0x0000000004000000
+/**
+ * @brief   The instruction accepts the xqcquire/xrelease prefixes (0xF2, 0xF3) without the
+ *          lock-prefix (0x0F).
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_HLE_WITHOUT_LOCK   0x0000000008000000
+/**
+ * @brief   The instruction accepts branch hints (0x2E, 0x3E).
+ */
+#define ZYDIS_PREFIXFLAG_ACCEPTS_BRANCH_HINTS       0x0000000010000000
+
 /**
  * @brief   The instruction has multiple prefixes of the first prefix-group (0x0F, 0xF3, 0xF2).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP1          0x02000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP1              0x0000000020000000
 /**
  * @brief   The instruction has multiple prefixes of the second prefix-group (0x2E, 0x36, 
  *          0x3E, 0x26, 0x64, 0x65).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP2          0x04000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP2              0x0000000040000000
 /**
  * @brief   The instruction has multiple prefixes of the third prefix-group (0x66).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP3          0x08000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP3              0x0000000080000000
 /**
  * @brief   The instruction has multiple prefixes of the fourth prefix-group (0x67).
  */
-#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP4          0x10000000
+#define ZYDIS_PREFIXFLAG_MULTIPLE_GRP4              0x0000000100000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction encoding                                                                           */
@@ -373,22 +394,73 @@ typedef uint8_t ZydisOperandEncoding;
 enum ZydisOperandEncodings
 {
     ZYDIS_OPERAND_ENCODING_NONE,
+    /**
+     * @brief   The operand is encoded in the modrm.reg field.
+     */
     ZYDIS_OPERAND_ENCODING_REG,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field.
+     */
     ZYDIS_OPERAND_ENCODING_RM,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD2,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD4,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD8,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD16,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD32,
+    /**
+     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     */
     ZYDIS_OPERAND_ENCODING_RM_CD64,
+    /**
+     * @brief   The operand is encoded in the lower 4 bits of the opcode (register only).
+     */
     ZYDIS_OPERAND_ENCODING_OPCODE,
+    /**
+     * @brief   The operand is encoded in the vex/evex.vvvv field.
+     */
     ZYDIS_OPERAND_ENCODING_VVVV,
+    /**
+     * @brief   The operand is encoded in the evex.aaa field.
+     */
     ZYDIS_OPERAND_ENCODING_AAA,
+    /**
+     * @brief   The operand is encoded in the low-part of an 8-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM8_LO,
+    /**
+     * @brief   The operand is encoded in the high-part of an 8-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM8_HI,
+    /**
+     * @brief   The operand is encoded as an 8-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM8,
+    /**
+     * @brief   The operand is encoded as an 16-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM16,
+    /**
+     * @brief   The operand is encoded as an 32-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM32,
+    /**
+     * @brief   The operand is encoded as an 64-bit immediate value.
+     */
     ZYDIS_OPERAND_ENCODING_IMM64
 };
 
@@ -659,10 +731,6 @@ typedef struct ZydisInstructionInfo_
      */
     ZydisInstructionFlags instrFlags;
     /**
-     * @brief   Prefix flags.
-     */
-    ZydisPrefixFlags prefixFlags;
-    /**
      * @brief   The instruction-mnemonic.
      */
     ZydisInstructionMnemonic mnemonic;  
@@ -695,6 +763,22 @@ typedef struct ZydisInstructionInfo_
      */
     ZydisOperandInfo operand[5];
     /**
+     * @brief   Prefix flags.
+     */
+    ZydisPrefixFlags prefixFlags;
+    /**
+     * @brief   The instruction address points at the current instruction (relative to the 
+     *          initial instruction pointer).
+     */
+    uint64_t instrAddress;
+    /**
+     * @brief   The instruction pointer points at the address of the next instruction (relative
+     *          to the initial instruction pointer). 
+     *          
+     * This field is used to properly format relative instructions.
+     */
+    uint64_t instrPointer;
+    /**
      * @brief   Extended info for avx-related instructions.
      */
     struct
@@ -719,19 +803,7 @@ typedef struct ZydisInstructionInfo_
          * @brief   @c TRUE, if the AVX suppress-all-exceptions flag is set.
          */
         bool sae;
-    } avx;
-    /**
-     * @brief   The instruction address points at the current instruction (relative to the 
-     *          initial instruction pointer).
-     */
-    uint64_t instrAddress;
-    /**
-     * @brief   The instruction pointer points at the address of the next instruction (relative
-     *          to the initial instruction pointer). 
-     *          
-     * This field is used to properly format relative instructions.
-     */
-    uint64_t instrPointer;
+    } avx;    
     /**
      * @brief   Extended info about different instruction-parts like modrm, sib or 
      *          encoding-prefixes.
@@ -910,6 +982,7 @@ typedef struct ZydisInstructionInfo_
          */
         struct
         {
+            const void* definition;
             uint8_t w;
             uint8_t r;
             uint8_t x;

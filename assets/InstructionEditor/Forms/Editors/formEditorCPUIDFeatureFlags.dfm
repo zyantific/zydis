@@ -3,8 +3,8 @@ object frmEditorCPUIDFeatureFlags: TfrmEditorCPUIDFeatureFlags
   Top = 0
   BorderStyle = bsDialog
   Caption = 'frmEditorCPUIDFeatureFlags'
-  ClientHeight = 321
-  ClientWidth = 494
+  ClientHeight = 371
+  ClientWidth = 544
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,17 +19,19 @@ object frmEditorCPUIDFeatureFlags: TfrmEditorCPUIDFeatureFlags
   object GroupBox: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 279
-    Width = 488
+    Top = 329
+    Width = 538
     Height = 39
     Margins.Top = 0
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 279
+    ExplicitWidth = 488
     DesignSize = (
-      488
+      538
       39)
     object btnCancel: TButton
-      Left = 368
+      Left = 418
       Top = 7
       Width = 112
       Height = 25
@@ -41,9 +43,10 @@ object frmEditorCPUIDFeatureFlags: TfrmEditorCPUIDFeatureFlags
       Images = imgIcons16
       TabOrder = 1
       OnClick = btnCancelClick
+      ExplicitLeft = 368
     end
     object btnApply: TButton
-      Left = 250
+      Left = 300
       Top = 7
       Width = 112
       Height = 25
@@ -55,14 +58,15 @@ object frmEditorCPUIDFeatureFlags: TfrmEditorCPUIDFeatureFlags
       Images = imgIcons16
       TabOrder = 0
       OnClick = btnApplyClick
+      ExplicitLeft = 250
     end
   end
   object VirtualTreeView: TVirtualStringTree
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 488
-    Height = 273
+    Width = 538
+    Height = 323
     Align = alClient
     Header.AutoSizeIndex = -1
     Header.Font.Charset = DEFAULT_CHARSET
@@ -81,6 +85,8 @@ object frmEditorCPUIDFeatureFlags: TfrmEditorCPUIDFeatureFlags
     OnFreeNode = VirtualTreeViewFreeNode
     OnGetText = VirtualTreeViewGetText
     OnGetImageIndex = VirtualTreeViewGetImageIndex
+    ExplicitWidth = 488
+    ExplicitHeight = 273
     Columns = <>
   end
   object imgIcons16: TcxImageList

@@ -30,6 +30,10 @@ type
   TOperandList                      = TArray<TInstructionOperands>;
   TOperandMapping                   = array[1..5] of TOperandList;
 
+  TRegisterList                     = TArray<TX86Registers>;
+  TFlagsList                        = TArray<TX86Flags>;
+  TCPUIDList                        = TArray<TCPUIDFeatureFlags>;
+
   TCodeGeneratorStatistics = record
   public
     MnemonicCount: Integer;
@@ -76,14 +80,24 @@ type
       const DefinitionList: TIndexedInstructionDefinitionList;
       var FilterList: TIndexedInstructionFilterList; var InstructionFilterCount: Integer;
       var InstructionFilterSize: Cardinal);
+
+    procedure CreateRegisterList(const DefinitionList: TIndexedInstructionDefinitionList;
+      var RegisterList: TRegisterList);
+    procedure CreateFlagsList(const DefinitionList: TIndexedInstructionDefinitionList;
+      var FlagsList: TFlagsList);
+    procedure CreateCPUIDList(const DefinitionList: TIndexedInstructionDefinitionList;
+      var CPUIDList: TCPUIDList);
+
     procedure CreateSnapshot(Editor: TInstructionEditor; var Statistics: TCodeGeneratorStatistics;
       var MnemonicList: TMnemonicList;
       var DefinitionList: TIndexedInstructionDefinitionList; var OperandMapping: TOperandMapping;
-      var FilterList: TIndexedInstructionFilterList);
+      var FilterList: TIndexedInstructionFilterList;
+      var RegisterList: TRegisterList; var FlagsList: TFlagsList; var CPUIDList: TCPUIDList);
   strict private
     procedure GenerateInternalStructs(const OutputDirectory: String;
       const MnemonicList: TMnemonicList; const DefinitionList: TIndexedInstructionDefinitionList;
-      const OperandMapping: TOperandMapping; const FilterList: TIndexedInstructionFilterList);
+      const OperandMapping: TOperandMapping; const FilterList: TIndexedInstructionFilterList;
+      const RegisterList: TRegisterList; const FlagsList: TFlagsList; const CPUIDList: TCPUIDList);
     procedure GenerateMnemonicIncludes(const OutputDirectory: String;
       const MnemonicList: TMnemonicList);
     procedure GenerateInstructionDefinitions(const OutputDirectory: String;
@@ -166,6 +180,74 @@ constructor TCodeGenerator.Create;
 begin
   inherited Create;
 
+end;
+
+procedure TCodeGenerator.CreateCPUIDList(const DefinitionList: TIndexedInstructionDefinitionList;
+  var CPUIDList: TCPUIDList);
+var
+  List: TList<TCPUIDFeatureFlags>;
+  I, J: Integer;
+  B: Boolean;
+begin
+  WorkStart('Creating CPUID list', 0, Length(DefinitionList));
+  List := TList<TCPUIDFeatureFlags>.Create;
+  try
+    for I := Low(DefinitionList) to High(DefinitionList) do
+    begin
+      B := false;
+      for J := 0 to List.Count - 1 do
+      begin
+        if (DefinitionList[I].Definition.CPUID.Equals(List.List[J])) then
+        begin
+          B := true;
+          Break;
+        end;
+      end;
+      if (not B) then
+      begin
+        List.Add(DefinitionList[I].Definition.CPUID);
+      end;
+      Work(I + 1);
+    end;
+    CPUIDList := List.ToArray;
+  finally
+    List.Free;
+  end;
+  WorkEnd;
+end;
+
+procedure TCodeGenerator.CreateFlagsList(const DefinitionList: TIndexedInstructionDefinitionList;
+  var FlagsList: TFlagsList);
+var
+  List: TList<TX86Flags>;
+  I, J: Integer;
+  B: Boolean;
+begin
+  WorkStart('Creating flags list', 0, Length(DefinitionList));
+  List := TList<TX86Flags>.Create;
+  try
+    for I := Low(DefinitionList) to High(DefinitionList) do
+    begin
+      B := false;
+      for J := 0 to List.Count - 1 do
+      begin
+        if (DefinitionList[I].Definition.X86Flags.Equals(List.List[J])) then
+        begin
+          B := true;
+          Break;
+        end;
+      end;
+      if (not B) then
+      begin
+        List.Add(DefinitionList[I].Definition.X86Flags);
+      end;
+      Work(I + 1);
+    end;
+    FlagsList := List.ToArray;
+  finally
+    List.Free;
+  end;
+  WorkEnd;
 end;
 
 procedure TCodeGenerator.CreateInstructionDefinitionList(Editor: TInstructionEditor;
@@ -463,6 +545,55 @@ begin
   end;
 end;
 
+procedure TCodeGenerator.CreateRegisterList(const DefinitionList: TIndexedInstructionDefinitionList;
+  var RegisterList: TRegisterList);
+var
+  List: TList<TX86Registers>;
+  I, J: Integer;
+  B: Boolean;
+begin
+  WorkStart('Creating register list', 0, Length(DefinitionList));
+  List := TList<TX86Registers>.Create;
+  try
+    for I := Low(DefinitionList) to High(DefinitionList) do
+    begin
+      // ImplicitRead
+      B := false;
+      for J := 0 to List.Count - 1 do
+      begin
+        if (DefinitionList[I].Definition.ImplicitRead.Equals(List.List[J])) then
+        begin
+          B := true;
+          Break;
+        end;
+      end;
+      if (not B) then
+      begin
+        List.Add(DefinitionList[I].Definition.ImplicitRead);
+      end;
+      // ImplicitWrite
+      B := false;
+      for J := 0 to List.Count - 1 do
+      begin
+        if (DefinitionList[I].Definition.ImplicitWrite.Equals(List.List[J])) then
+        begin
+          B := true;
+          Break;
+        end;
+      end;
+      if (not B) then
+      begin
+        List.Add(DefinitionList[I].Definition.ImplicitWrite);
+      end;
+      Work(I + 1);
+    end;
+    RegisterList := List.ToArray;
+  finally
+    List.Free;
+  end;
+  WorkEnd;
+end;
+
 class constructor TCodeGenerator.Create;
 begin
   FLanguageBindings := TList<TLanguageBindingClass>.Create;
@@ -471,7 +602,8 @@ end;
 procedure TCodeGenerator.CreateSnapshot(Editor: TInstructionEditor;
   var Statistics: TCodeGeneratorStatistics; var MnemonicList: TMnemonicList;
   var DefinitionList: TIndexedInstructionDefinitionList; var OperandMapping: TOperandMapping;
-  var FilterList: TIndexedInstructionFilterList);
+  var FilterList: TIndexedInstructionFilterList;
+  var RegisterList: TRegisterList; var FlagsList: TFlagsList; var CPUIDList: TCPUIDList);
 begin
   // Create sorted mnemonic list with all aliases
   CreateMnemonicList(Editor, MnemonicList, Statistics.MnemonicCount, Statistics.MnemonicSize);
@@ -487,6 +619,13 @@ begin
   // Create indexed instruction-filter list
   CreateInstructionFilterList(Editor, DefinitionList, FilterList, Statistics.InstructionFilterCount,
     Statistics.InstructionFilterSize);
+
+  // Create implicitly-used registers list
+  CreateRegisterList(DefinitionList, RegisterList); // TODO: Add statistics
+  // Create FLAGS/EFLAGS/RFLAGS list
+  CreateFlagsList(DefinitionList, FlagsList); // TODO: Add statistics
+  // Create CPUID list
+  CreateCPUIDList(DefinitionList, CPUIDList); // TODO: Add statistics
 
   Statistics.TotalSize := Statistics.MnemonicSize + Statistics.InstructionDefinitionSize +
     Statistics.OperandDefinitionSize + Statistics.InstructionFilterSize;
@@ -504,6 +643,9 @@ var
   DefinitionList: TIndexedInstructionDefinitionList;
   OperandMapping: TOperandMapping;
   MnemonicList: TMnemonicList;
+  RegisterList: TRegisterList;
+  FlagsList: TFlagsList;
+  CPUIDList: TCPUIDList;
   Directory: String;
 begin
   // Check error cases
@@ -519,7 +661,8 @@ begin
   FCurrentOperationNumber := 0;
   FillChar(Statistics, SizeOf(Statistics), #0);
 
-  CreateSnapshot(Editor, Statistics, MnemonicList, DefinitionList, OperandMapping, FilterList);
+  CreateSnapshot(Editor, Statistics, MnemonicList, DefinitionList, OperandMapping, FilterList,
+    RegisterList, FlagsList, CPUIDList);
 
   Directory := IncludeTrailingPathDelimiter(OutputDirectory) + DIRECTORY_INCLUDE_INTERNAL;
   ForceDirectories(Directory);
@@ -527,7 +670,8 @@ begin
   GenerateInstructionDefinitions(Directory, DefinitionList, OperandMapping);
   GenerateOperandDefinitions(Directory, OperandMapping);
   GenerateInstructionFilters(Directory, FilterList);
-  GenerateInternalStructs(Directory, MnemonicList, DefinitionList, OperandMapping, FilterList);
+  GenerateInternalStructs(Directory, MnemonicList, DefinitionList, OperandMapping, FilterList,
+    RegisterList, FlagsList, CPUIDList);
 end;
 
 procedure TCodeGenerator.GenerateInstructionDefinitions(const OutputDirectory: String;
@@ -752,12 +896,16 @@ end;
 
 procedure TCodeGenerator.GenerateInternalStructs(const OutputDirectory: String;
   const MnemonicList: TMnemonicList; const DefinitionList: TIndexedInstructionDefinitionList;
-  const OperandMapping: TOperandMapping; const FilterList: TIndexedInstructionFilterList);
-var
+  const OperandMapping: TOperandMapping; const FilterList: TIndexedInstructionFilterList;
+  const RegisterList: TRegisterList; const FlagsList: TFlagsList; const CPUIDList: TCPUIDList);
+{var
   HighestMnemonicId,
   HighestInstructionDefinitionId,
   HighestOperandDefinitionId,
-  HighestInstructionFilterId: Integer;
+  HighestInstructionFilterId,
+  HighestRegistersId,
+  HighestFlagsId,
+  HighestCPUIDId: Integer;
   I: Integer;
 begin
   HighestMnemonicId := High(MnemonicList);
@@ -778,6 +926,10 @@ begin
       HighestInstructionFilterId := High(FilterList[I].Value);
     end;
   end;
+  HighestRegistersId := High(RegisterList);
+  HighestFlagsId := High(FlagsList);
+  HighestCPUIDId := High(CPUIDList);}
+begin
   // TODO:
 end;
 
@@ -915,6 +1067,7 @@ begin
     optFixedAX    : OperandType := 'AX';
     optFixedDX    : OperandType := 'DX';
     optFixedEAX   : OperandType := 'EAX';
+    optFixedECX   : OperandType := 'ECX';
     optFixedRAX   : OperandType := 'RAX';
     optFixedES    : OperandType := 'ES';
     optFixedCS    : OperandType := 'CS';

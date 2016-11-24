@@ -463,6 +463,7 @@ type
     optFixedAX,
     optFixedDX,
     optFixedEAX,
+    optFixedECX,
     optFixedRAX,
     optFixedST0,
     optFixedES,
@@ -1189,6 +1190,7 @@ const
     'ax',
     'dx',
     'eax',
+    'ecx',
     'rax',
     'st0',
     'es',
@@ -1271,27 +1273,37 @@ const
 
 {$REGION 'Class: TJSONEnumHelper'}
 type
-  TJSONEnumHelper = record
+  TJSONEnumHelper<TEnum> = record
   strict private
     class function ReadString(JSON: PJSONVariantData; const Name, Default: String;
       const LowerCase: Boolean = true): String; static; inline;
   public
-    class function ReadEnumValueFromString(JSON: PJSONVariantData; const Name: String;
-      const Values: array of String): Integer; static;
+    class function ReadValue(JSON: PJSONVariantData; const Name: String;
+      const ElementStrings: array of String): TEnum; static;
   end;
 
-class function TJSONEnumHelper.ReadEnumValueFromString(JSON: PJSONVariantData; const Name: String;
-  const Values: array of String): Integer;
+class function TJSONEnumHelper<TEnum>.ReadValue(JSON: PJSONVariantData; const Name: String;
+  const ElementStrings: array of String): TEnum;
+var
+  V: Integer;
 begin
-  Result := TStringHelper.IndexStr(ReadString(JSON, Name, Values[0]), Values);
-  if (Result < 0) then
+  {$IFDEF DEBUG}
+  if (PTypeInfo(TypeInfo(TEnum))^.Kind <> tkEnumeration) then
   begin
+    raise Exception.Create('Invalid generic type.');
+  end;
+  {$ENDIF}
+  V := TStringHelper.IndexStr(ReadString(JSON, Name, ElementStrings[0]), ElementStrings);
+  if (V < 0) then
+  begin
+    // TODO: Maybe make this a warning instead of an exception
     raise Exception.CreateFmt('The "%s" field contains an invalid enum value.', [Name]);
   end;
+  Result := TEnum(Pointer(@V)^);
 end;
 
-class function TJSONEnumHelper.ReadString(JSON: PJSONVariantData; const Name, Default: String;
-  const LowerCase: Boolean): String;
+class function TJSONEnumHelper<TEnum>.ReadString(JSON: PJSONVariantData;
+  const Name, Default: String; const LowerCase: Boolean): String;
 var
   V: Variant;
 begin
@@ -1382,6 +1394,7 @@ begin
           Break;
         end;
       end;
+      // TODO: Show exception (or warning), if an invalid element was found
     end;
   end;
 end;
@@ -1461,7 +1474,6 @@ end;
 procedure TOpcodeExtensions.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
 var
   V: PJSONVariantData;
-  I: Integer;
 begin
   V := JSON.Data(FieldName);
   if (Assigned(V)) then
@@ -1470,21 +1482,22 @@ begin
     begin
       raise Exception.CreateFmt('The "%s" field is not a valid JSON object.', [FieldName]);
     end;
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'mode',      SExtInstructionMode);
-    SetMode(TExtInstructionMode(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'prefix',    SExtMandatoryPrefix);
-    SetPrefix(TExtMandatoryPrefix(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'modrm_mod', SExtModrmMod);
-    SetModrmMod(TExtModrmMod(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'modrm_reg', SExtModrmReg);
-    SetModrmReg(TExtModrmReg(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'modrm_rm',  SExtModrmRm);
-    SetModrmRm(TExtModrmRm(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'opsize',    SExtOperandSize);
-    SetOperandSize(TExtOperandSize(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'adsize',    SExtAddressSize);
-    SetAddressSize(TExtAddressSize(I));
-    SetBitFilters(TJSONSetHelper<TExtBitFilters>.ReadValue(V, 'bitfilters', SExtBitFilter));
+    SetMode(TJSONEnumHelper<TExtInstructionMode>.ReadValue(
+      V, 'mode', SExtInstructionMode));
+    SetPrefix(TJSONEnumHelper<TExtMandatoryPrefix>.ReadValue(
+      V, 'prefix', SExtMandatoryPrefix));
+    SetModrmMod(TJSONEnumHelper<TExtModrmMod>.ReadValue(
+      V, 'modrm_mod', SExtModrmMod));
+    SetModrmReg(TJSONEnumHelper<TExtModrmReg>.ReadValue(
+      V, 'modrm_reg', SExtModrmReg));
+    SetModrmRm(TJSONEnumHelper<TExtModrmRm>.ReadValue(
+      V, 'modrm_rm', SExtModrmRm));
+    SetOperandSize(TJSONEnumHelper<TExtOperandSize>.ReadValue(
+      V, 'opsize', SExtOperandSize));
+    SetAddressSize(TJSONEnumHelper<TExtAddressSize>.ReadValue(
+      V, 'adsize', SExtAddressSize));
+    SetBitFilters(TJSONSetHelper<TExtBitFilters>.ReadValue(
+      V, 'bitfilters', SExtBitFilter));
   end;
 end;
 
@@ -1796,7 +1809,7 @@ var
   C: PJSONVariantData;
   F: array[0..14] of ^TX86FlagValue;
   N: array[0..14] of String;
-  I, J: Integer;
+  I: Integer;
 begin
   C := JSON.Data(FieldName);
   if (Assigned(C)) then
@@ -1813,8 +1826,7 @@ begin
     N[10] := 'vm';  N[11] := 'ac';  N[12] := 'vif'; N[13] := 'vip'; N[14] := 'id';
     for I := Low(N) to High(N) do
     begin
-      J := TJSONEnumHelper.ReadEnumValueFromString(C, N[I], SX86FlagValue);
-      F[I]^ := TX86FlagValue(J);
+      F[I]^ := TJSONEnumHelper<TX86FlagValue>.ReadValue(C, N[I], SX86FlagValue);
     end;
     Changed;
   end;
@@ -2215,6 +2227,7 @@ begin
       optFixedAX   : Result := 'AX';
       optFixedDX   : Result := 'DX';
       optFixedEAX  : Result := 'EAX';
+      optFixedECX  : Result := 'ECX';
       optFixedRAX  : Result := 'RAX';
       optFixedES   : Result := 'ES';
       optFixedCS   : Result := 'CS';
@@ -2238,7 +2251,6 @@ end;
 procedure TInstructionOperand.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
 var
   V: PJSONVariantData;
-  I: Integer;
 begin
   V := JSON^.Data(FieldName);
   if Assigned(V) then
@@ -2247,12 +2259,12 @@ begin
     begin
       raise Exception.CreateFmt('The "%s" field is not a valid JSON object.', [FieldName]);
     end;
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'type',       SOperandType);
-    SetType(TOperandType(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'encoding',   SOperandEncoding);
-    SetEncoding(TOperandEncoding(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(V, 'accessmode', SOperandAccessMode);
-    SetAccessMode(TOperandAccessMode(I));
+    SetType(TJSONEnumHelper<TOperandType>.ReadValue(
+      V, 'type', SOperandType));
+    SetEncoding(TJSONEnumHelper<TOperandEncoding>.ReadValue(
+      V, 'encoding', SOperandEncoding));
+    SetAccessMode(TJSONEnumHelper<TOperandAccessMode>.ReadValue(
+      V, 'accessmode', SOperandAccessMode));
   end;
 end;
 
@@ -2367,6 +2379,7 @@ begin
       optFixedAX: ;
       optFixedDX: ;
       optFixedEAX: ;
+      optFixedECX: ;
       optFixedRAX: ;
       optFixedST0: ;
       optFixedES: ;
@@ -2801,10 +2814,10 @@ begin
       raise Exception.Create('The "mnemonic" field can not be empty.');
     end;
     SetMnemonic(JSON^.Value['mnemonic']);
-    I := TJSONEnumHelper.ReadEnumValueFromString(JSON, 'encoding', SInstructionEncoding);
-    SetEncoding(TInstructionEncoding(I));
-    I := TJSONEnumHelper.ReadEnumValueFromString(JSON, 'map',      SOpcodeMap);
-    SetOpcodeMap(TOpcodeMap(I));
+    SetEncoding(TJSONEnumHelper<TInstructionEncoding>.ReadValue(
+      JSON, 'encoding', SInstructionEncoding));
+    SetOpcodeMap(TJSONEnumHelper<TOpcodeMap>.ReadValue(
+      JSON, 'map', SOpcodeMap));
     if (VarIsClear(JSON^.Value['opcode']) or
       (not TryStrToInt('$' + JSON^.Value['opcode'], I))) or (I < 0) or (I >= 256) then
     begin
@@ -2821,7 +2834,8 @@ begin
     FImplicitWrite.LoadFromJSON(JSON, 'implicit_write');
     SetFlags(TJSONSetHelper<TInstructionDefinitionFlags>.ReadValue(
       JSON, 'flags', SInstructionDefinitionFlag));
-    SetPrefixFlags(TJSONSetHelper<TPrefixFlags>.ReadValue(JSON, 'prefix_flags', SPrefixFlag));
+    SetPrefixFlags(TJSONSetHelper<TPrefixFlags>.ReadValue(
+      JSON, 'prefix_flags', SPrefixFlag));
     FX86Flags.LoadFromJSON(JSON, 'x86flags');
     FComment := JSON^.Value['comment'];
   finally

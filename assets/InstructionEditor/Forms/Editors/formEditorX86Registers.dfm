@@ -3,8 +3,8 @@ object frmEditorX86Registers: TfrmEditorX86Registers
   Top = 0
   BorderStyle = bsDialog
   Caption = 'frmEditorX86Registers'
-  ClientHeight = 421
-  ClientWidth = 594
+  ClientHeight = 471
+  ClientWidth = 694
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,17 +19,19 @@ object frmEditorX86Registers: TfrmEditorX86Registers
   object GroupBox: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 379
-    Width = 588
+    Top = 429
+    Width = 688
     Height = 39
     Margins.Top = 0
     Align = alBottom
     TabOrder = 1
+    ExplicitTop = 379
+    ExplicitWidth = 588
     DesignSize = (
-      588
+      688
       39)
     object btnCancel: TButton
-      Left = 468
+      Left = 568
       Top = 7
       Width = 112
       Height = 25
@@ -41,9 +43,10 @@ object frmEditorX86Registers: TfrmEditorX86Registers
       Images = imgIcons16
       TabOrder = 1
       OnClick = btnCancelClick
+      ExplicitLeft = 468
     end
     object btnApply: TButton
-      Left = 350
+      Left = 450
       Top = 7
       Width = 112
       Height = 25
@@ -55,14 +58,15 @@ object frmEditorX86Registers: TfrmEditorX86Registers
       Images = imgIcons16
       TabOrder = 0
       OnClick = btnApplyClick
+      ExplicitLeft = 350
     end
   end
   object VirtualTreeView: TVirtualStringTree
     AlignWithMargins = True
     Left = 3
     Top = 3
-    Width = 588
-    Height = 373
+    Width = 688
+    Height = 423
     Align = alClient
     Header.AutoSizeIndex = -1
     Header.Font.Charset = DEFAULT_CHARSET
@@ -81,6 +85,8 @@ object frmEditorX86Registers: TfrmEditorX86Registers
     OnFreeNode = VirtualTreeViewFreeNode
     OnGetText = VirtualTreeViewGetText
     OnGetImageIndex = VirtualTreeViewGetImageIndex
+    ExplicitWidth = 588
+    ExplicitHeight = 373
     Columns = <>
   end
   object imgIcons16: TcxImageList
