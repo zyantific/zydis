@@ -246,12 +246,17 @@ enum ZydisFormatterHookTypes
      * Replacing this function might indirectly disable some specific calls to the 
      * @c ZYDIS_FORMATTER_PRINT_ADDRESS function.
      */
-    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,
+    ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,  
     /**
      * @brief   This function is called right before formatting an memory operand to print the 
      *          optional size-specifier.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE,
+    /**
+     * @brief   This function is called right before formatting an memory operand to print the 
+     *          optional segment-register.
+     */
+    ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT,
     /**
      * @brief   This function is called right after formatting an operand to print the optional 
      *          avx-512 operand decorator.
@@ -279,7 +284,7 @@ typedef struct ZydisInstructionFormatter_  ZydisInstructionFormatter;
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRE and
  * @c ZYDIS_FORMATTER_HOOK_POST hook-types.
  */
-typedef ZydisStatus (*ZydisFormatterNotifyFunc)(ZydisInstructionFormatter* fornatter, 
+typedef ZydisStatus (*ZydisFormatterNotifyFunc)(ZydisInstructionFormatter* formatter, 
     ZydisInstructionInfo* info);
 
 /**
@@ -299,7 +304,7 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(ZydisInstructionFormatter* forna
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_INSTRUCTION, 
  * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
-typedef ZydisStatus (*ZydisFormatterFormatFunc)(ZydisInstructionFormatter* fornatter, 
+typedef ZydisStatus (*ZydisFormatterFormatFunc)(ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info);
 
 /**
@@ -321,18 +326,19 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(ZydisInstructionFormatter* forna
  * without increasing the buffer-pointer is valid and will cause the formatter to omit the current 
  * operand.
  * 
- * Returning @c ZYDIS_STATUS_SUCCESS in @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE or
- * @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR without increasing the buffer-pointer is valid and
- * signals that no operand-size or decorator should be printed for the current operand.
+ * Returning @c ZYDIS_STATUS_SUCCESS in @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE, 
+ * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT or @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR without 
+ * increasing the buffer-pointer is valid and signals that the corresponding element should not be 
+ * printed for the current operand.
  * 
  * Not increasing the buffer-pointer for any other hook-type will cause unexpected behavior.
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG,
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM, @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR, 
- * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE and
- * @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-types.
+ * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE,
+ * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT and @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-types.
  */
-typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(ZydisInstructionFormatter* fornatter, 
+typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand);
 
  /**
@@ -353,7 +359,7 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(ZydisInstructionFormatter
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
-typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(ZydisInstructionFormatter* fornatter, 
+typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand, 
     uint64_t address);
 
@@ -376,6 +382,7 @@ typedef struct ZydisInstructionFormatter_
     ZydisFormatterFormatOperandFunc funcFormatOperandPtr;
     ZydisFormatterFormatOperandFunc funcFormatOperandImm;
     ZydisFormatterFormatOperandFunc funcPrintOperandSize;
+    ZydisFormatterFormatOperandFunc funcPrintSegment;
     ZydisFormatterFormatOperandFunc funcPrintDecorator;
     ZydisFormatterFormatAddressFunc funcPrintAddress;
     const char* prefixHEX;
