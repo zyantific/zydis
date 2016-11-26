@@ -45,16 +45,22 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
+typedef struct ZydisCustomInput_ ZydisCustomInput;
+
 /**
  * @brief   Defines the @c ZydisInputNextFunc function pointer used in the @c ZydisCustomInput
  *          struct.
  *          
+ * @param   input   The @c ZydisCustomInput instance.
+ * @param   data    A pointer to the memory that receives the input byte.
+ *
+ * @return  Return @c TRUE, fi the function succeeded or @c FALSE, if the input data-source has no 
+ *          more data available
+ *          
  * This function should return the byte at the current input-position and increase the position
- * by one. If the input data-source has no more data available, return @c FALSE. 
+ * by one. 
  */
-typedef bool (*ZydisInputNextFunc)(void* context, uint8_t* data);
-
-/* ---------------------------------------------------------------------------------------------- */
+typedef bool (*ZydisInputNextFunc)(ZydisCustomInput* input, uint8_t* data);
 
 /**
  * @brief   Defines the zydis custom input struct.
@@ -64,7 +70,7 @@ typedef struct ZydisCustomInput_
     /**
      * @brief   The @c ZydisInputNextFunc callback.
      */
-    ZydisInputNextFunc  inputNext;
+    ZydisInputNextFunc inputNext;
 } ZydisCustomInput;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -90,11 +96,11 @@ typedef struct ZydisMemoryInput_
      */
     ZydisCustomInput input;
     /**
-     * @brief   A pointer to the mem buffer. 
+     * @brief   A pointer to the memory buffer. 
      */
     const uint8_t* inputBuffer;
     /**
-     * @brief   The length of the mem buffer. 
+     * @brief   The length of the memory buffer. 
      */
     uint64_t inputBufferLen;
     /**
@@ -111,8 +117,8 @@ typedef struct ZydisMemoryInput_
  * @brief   Initializes the given @c ZydisMemoryInput instance.
  *
  * @param   input   A pointer to the input data-source instance.
- * @param   buffer  The mem buffer to use.
- * @param   length  The length of the mem buffer.
+ * @param   buffer  The memory buffer to use.
+ * @param   length  The length of the memory buffer.
  *                  
  * @return  A zydis status code.
  */

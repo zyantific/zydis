@@ -35,7 +35,6 @@
 #include <Zydis/Input.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
-#include <Zydis/SymbolResolver.h>
 
 #ifdef __cplusplus
 extern "C" {

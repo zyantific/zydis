@@ -593,6 +593,10 @@ enum ZydisAVXRoundingModes                // TODO: Mirror "real" values from doc
 typedef struct ZydisOperandInfo_
 {
     /**
+     * @brief   The operand-id.
+     */
+    uint8_t id;
+    /**
      * @brief   The type of the operand.
      */
     ZydisOperandType type;

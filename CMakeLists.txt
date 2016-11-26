@@ -56,7 +56,6 @@ set(headers
     "include/Zydis/Mnemonic.h"
     "include/Zydis/Register.h"
     "include/Zydis/Status.h"
-    "include/Zydis/SymbolResolver.h"
     "include/Zydis/Utils.h"
     "include/Zydis/Zydis.h"
     "include/Zydis/Internal/InstructionTable.h")
@@ -97,11 +96,11 @@ endif ()
 if (BUILD_EXAMPLES)
     include_directories("include")
 
-    if (WIN32)
-        add_executable("ZydisPE" "examples/ZydisPE.c")
-        target_link_libraries("ZydisPE" "Zydis")
-        set_target_properties ("ZydisPE" PROPERTIES FOLDER "Examples")
-    endif ()
+    add_executable("FormatterHooks" 
+        "examples/FormatterHooks.c"
+        "examples/FormatHelper.h")
+    target_link_libraries("FormatterHooks" "Zydis")
+    set_target_properties ("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
 endif ()
 
 # Tools

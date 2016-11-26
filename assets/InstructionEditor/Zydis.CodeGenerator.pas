@@ -257,7 +257,6 @@ var
   List: TList<TInstructionDefinition>;
   I, J: Integer;
   B: Boolean;
-  Comparison: TComparison<TInstructionDefinition>;
 begin
   List := TList<TInstructionDefinition>.Create;
   try
@@ -279,12 +278,16 @@ begin
       end;
       Work(I + 1);
     end;
-    Comparison :=
+    // Sort definitions with a stable algorithm to ensure deterministic output
+    TListHelper<TInstructionDefinition>.BubbleSort(
+      List, TComparer<TInstructionDefinition>.Construct(
       function(const Left, Right: TInstructionDefinition): Integer
       begin
         Result := CompareStr(Left.Mnemonic, Right.Mnemonic);
-      end;
-    List.Sort(TComparer<TInstructionDefinition>.Construct(Comparison));
+        if (Result = 0) then Result := Ord(Left.Encoding)  - Ord(Right.Encoding);
+        if (Result = 0) then Result := Ord(Left.OpcodeMap) - Ord(Right.OpcodeMap);
+        if (Result = 0) then Result := Ord(Left.Opcode)    - Ord(Right.Opcode);
+      end));
     SetLength(DefinitionList, List.Count);
     for I := 0 to List.Count - 1 do
     begin

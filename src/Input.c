@@ -36,13 +36,13 @@
 /* Internal functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-static bool ZydisMemoryInputNext(ZydisMemoryInput* context, uint8_t* data)
+static bool ZydisMemoryInputNext(ZydisMemoryInput* input, uint8_t* data)
 {
-    if (context->inputBufferPos >= context->inputBufferLen)
+    if (input->inputBufferPos >= input->inputBufferLen)
     {
         return false;
     }
-    *data = context->inputBuffer[context->inputBufferPos++]; 
+    *data = input->inputBuffer[input->inputBufferPos++]; 
     return true; 
 }
 
@@ -73,9 +73,9 @@ ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffe
 /* Internal functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-static bool ZydisFileInputNext(ZydisFileInput* context, uint8_t* data)
+static bool ZydisFileInputNext(ZydisFileInput* input, uint8_t* data)
 {
-    int c = fgetc(context->file);
+    int c = fgetc(input->file);
     *data = (uint8_t)c;
     return (c != EOF);
 }

@@ -207,6 +207,8 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecod
  * @param   input   A pointer to the new input data-source.
  *
  * @return  A zydis status code.
+ * 
+ * This function flushes the internal input-buffer.
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
     ZydisCustomInput* input);
@@ -264,7 +266,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecod
  * @param   info    A pointer to the @c ZydisInstructionInfo struct, that receives the details
  *                  about the decoded instruction.
  *
- * @return  A zydis status code.
+ * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     ZydisInstructionInfo* info);

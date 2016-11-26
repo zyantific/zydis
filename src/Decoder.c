@@ -1551,8 +1551,9 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
     ZYDIS_ASSERT((operandCount > 0) && (operandCount < 6));
 
     info->operandCount = operandCount;
-    for (int i = 0; i < operandCount; ++i)
+    for (uint8_t i = 0; i < operandCount; ++i)
     {
+        info->operand[i].id = i;
         ZydisSemanticOperandType type = operands[i].type;
         if (type == ZYDIS_SEM_OPERAND_TYPE_UNUSED)
         {
