@@ -291,6 +291,8 @@ type
 
   TX86Flags = class(TPersistent)
   strict private
+    type PX86FlagValue = ^TX86FlagValue;
+  strict private
     FDefinition: TInstructionDefinition;
   strict private
     FCF: TX86FlagValue;
@@ -302,6 +304,8 @@ type
     FIF: TX86FlagValue;
     FDF: TX86FlagValue;
     FOF: TX86FlagValue;
+    FIOPL: TX86FlagValue;
+    FNT: TX86FlagValue;
     FRF: TX86FlagValue;
     FVM: TX86FlagValue;
     FAC: TX86FlagValue;
@@ -309,25 +313,16 @@ type
     FVIP: TX86FlagValue;
     FID: TX86FlagValue;
   strict private
-    procedure SetCF(const Value: TX86FlagValue); inline;
-    procedure SetPF(const Value: TX86FlagValue); inline;
-    procedure SetAF(const Value: TX86FlagValue); inline;
-    procedure SetZF(const Value: TX86FlagValue); inline;
-    procedure SetSF(const Value: TX86FlagValue); inline;
-    procedure SetTF(const Value: TX86FlagValue); inline;
-    procedure SetIF(const Value: TX86FlagValue); inline;
-    procedure SetDF(const Value: TX86FlagValue); inline;
-    procedure SetOF(const Value: TX86FlagValue); inline;
-    procedure SetRF(const Value: TX86FlagValue); inline;
-    procedure SetVM(const Value: TX86FlagValue); inline;
-    procedure SetAC(const Value: TX86FlagValue); inline;
-    procedure SetVIF(const Value: TX86FlagValue); inline;
-    procedure SetVIP(const Value: TX86FlagValue); inline;
-    procedure SetID(const Value: TX86FlagValue); inline;
+    function GetFlagValue(Index: Integer): TX86FlagValue; inline;
+  strict private
+    procedure SetFlagValue(Index: Integer; const Value: TX86FlagValue); inline;
   strict private
     procedure Changed; inline;
   strict private
     function GetConflictState: Boolean;
+  strict private
+    function GetFlagCount: Integer; inline;
+    function GetFlagById(Id: Integer): PX86FlagValue; inline;
   public // TODO: Make private again
     procedure LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
     procedure SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
@@ -341,22 +336,24 @@ type
     property HasConflicts: Boolean read GetConflictState;
   published
     { FLAGS }
-    property FlagCF: TX86FlagValue read FCF write SetCF default fvUnused;
-    property FlagPF: TX86FlagValue read FPF write SetPF default fvUnused;
-    property FlagAF: TX86FlagValue read FAF write SetAF default fvUnused;
-    property FlagZF: TX86FlagValue read FZF write SetZF default fvUnused;
-    property FlagSF: TX86FlagValue read FSF write SetSF default fvUnused;
-    property FlagTF: TX86FlagValue read FTF write SetTF default fvUnused;
-    property FlagIF: TX86FlagValue read FIF write SetIF default fvUnused;
-    property FlagDF: TX86FlagValue read FDF write SetDF default fvUnused;
-    property FlagOF: TX86FlagValue read FOF write SetOF default fvUnused;
+    property FlagCF: TX86FlagValue index 0 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagPF: TX86FlagValue index 1 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagAF: TX86FlagValue index 2 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagZF: TX86FlagValue index 3 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagSF: TX86FlagValue index 4 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagTF: TX86FlagValue index 5 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagIF: TX86FlagValue index 6 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagDF: TX86FlagValue index 7 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagOF: TX86FlagValue index 8 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagIOPL: TX86FlagValue index 9 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagNT: TX86FlagValue index 10 read GetFlagValue write SetFlagValue default fvUnused;
     { EFLAGS }
-    property FlagRF: TX86FlagValue read FRF write SetRF default fvUnused;
-    property FlagVM: TX86FlagValue read FVM write SetVM default fvUnused;
-    property FlagAC: TX86FlagValue read FAC write SetAC default fvUnused;
-    property FlagVIF: TX86FlagValue read FVIF write SetVIF default fvUnused;
-    property FlagVIP: TX86FlagValue read FVIP write SetVIP default fvUnused;
-    property FlagID: TX86FlagValue read FID write SetID default fvUnused;
+    property FlagRF: TX86FlagValue index 11 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagVM: TX86FlagValue index 12 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagAC: TX86FlagValue index 13 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagVIF: TX86FlagValue index 14 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagVIP: TX86FlagValue index 15 read GetFlagValue write SetFlagValue default fvUnused;
+    property FlagID: TX86FlagValue index 16 read GetFlagValue write SetFlagValue default fvUnused;
   end;
 
   {TEVEXEncodingContext = (
@@ -1762,22 +1759,19 @@ end;
 
 function TX86Flags.GetConflictState: Boolean;
 var
-  F: array[0..14] of ^TX86FlagValue;
   I: Integer;
+  F: TX86FlagValue;
   RegsRead,
   RegsWrite: TX86RegisterSet;
   R: TX86Register;
 begin
-  //Exit(false); // TODO: Remove
   Result := false;
-  F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
-  F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;
-  F[10] := @FVM;  F[11] := @FAC;  F[12] := @FVIF; F[13] := @FVIP; F[14] := @FID;
   RegsRead := [];
   RegsWrite := [];
-  for I := Low(F) to High(F) do
+  for I := 0 to GetFlagCount - 1 do
   begin
-    if (F[I]^ in [fvTested]) then
+    F := GetFlagValue(I);
+    if (F in [fvTested]) then
     begin
       if (I < 9) then
       begin
@@ -1789,7 +1783,7 @@ begin
         Include(RegsRead, regEFLAGS);
       end;
     end;
-    if (F[I]^ in [fvModified, fvReset, fvSet, fvUndefined, fvPriorValue]) then
+    if (F in [fvModified, fvReset, fvSet, fvUndefined, fvPriorValue]) then
     begin
       if (I < 9) then
       begin
@@ -1812,11 +1806,44 @@ begin
   end;
 end;
 
+function TX86Flags.GetFlagCount: Integer;
+begin
+  Result := 17;
+end;
+
+function TX86Flags.GetFlagValue(Index: Integer): TX86FlagValue;
+begin
+  Result := GetFlagById(Index)^;
+end;
+
+function TX86Flags.GetFlagById(Id: Integer): PX86FlagValue;
+begin
+  Result := nil;
+  case Id of
+     0: Result := @FCF;
+     1: Result := @FPF;
+     2: Result := @FAF;
+     3: Result := @FZF;
+     4: Result := @FSF;
+     5: Result := @FTF;
+     6: Result := @FIF;
+     7: Result := @FDF;
+     8: Result := @FOF;
+     9: Result := @FIOPL;
+    10: Result := @FNT;
+    11: Result := @FRF;
+    12: Result := @FVM;
+    13: Result := @FAC;
+    14: Result := @FVIF;
+    15: Result := @FVIP;
+    16: Result := @FID;
+  end;
+end;
+
 procedure TX86Flags.LoadFromJSON(JSON: PJSONVariantData; const FieldName: String);
 var
   C: PJSONVariantData;
-  F: array[0..14] of ^TX86FlagValue;
-  N: array[0..14] of String;
+  N: array[0..16] of String;
   I: Integer;
 begin
   C := JSON.Data(FieldName);
@@ -1826,15 +1853,13 @@ begin
     begin
       raise Exception.CreateFmt('The "%s" field is not a valid JSON object.', [FieldName]);
     end;
-    F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
-    F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;
-    F[10] := @FVM;  F[11] := @FAC;  F[12] := @FVIF; F[13] := @FVIP; F[14] := @FID;
     N[ 0] := 'cf';  N[ 1] := 'pf';  N[ 2] := 'af';  N[ 3] := 'zf';  N[ 4] := 'sf';
-    N[ 5] := 'tf';  N[ 6] := 'if';  N[ 7] := 'df';  N[ 8] := 'of';  N[ 9] := 'rf';
-    N[10] := 'vm';  N[11] := 'ac';  N[12] := 'vif'; N[13] := 'vip'; N[14] := 'id';
-    for I := Low(N) to High(N) do
+    N[ 5] := 'tf';  N[ 6] := 'if';  N[ 7] := 'df';  N[ 8] := 'of';  N[ 9] := 'iopl';
+    N[10] := 'nt';  N[11] := 'rf';  N[12] := 'vm';  N[13] := 'ac';  N[14] := 'vif';
+    N[15] := 'vip'; N[16] := 'id';
+    for I := 0 to GetFlagCount - 1 do
     begin
-      F[I]^ := TJSONEnumHelper<TX86FlagValue>.ReadValue(C, N[I], SX86FlagValue);
+      GetFlagById(I)^ := TJSONEnumHelper<TX86FlagValue>.ReadValue(C, N[I], SX86FlagValue);
     end;
     Changed;
   end;
@@ -1842,23 +1867,22 @@ end;
 
 procedure TX86Flags.SaveToJSON(JSON: PJSONVariantData; const FieldName: String);
 var
-  F: array[0..14] of ^TX86FlagValue;
-  N: array[0..14] of String;
+  N: array[0..16] of String;
+  F: TX86FlagValue;
   J: TJSONVariantData;
   I: Integer;
 begin
-  F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
-  F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;
-  F[10] := @FVM;  F[11] := @FAC;  F[12] := @FVIF; F[13] := @FVIP; F[14] := @FID;
   N[ 0] := 'cf';  N[ 1] := 'pf';  N[ 2] := 'af';  N[ 3] := 'zf';  N[ 4] := 'sf';
-  N[ 5] := 'tf';  N[ 6] := 'if';  N[ 7] := 'df';  N[ 8] := 'of';  N[ 9] := 'rf';
-  N[10] := 'vm';  N[11] := 'ac';  N[12] := 'vif'; N[13] := 'vip'; N[14] := 'id';
+  N[ 5] := 'tf';  N[ 6] := 'if';  N[ 7] := 'df';  N[ 8] := 'of';  N[ 9] := 'iopl';
+  N[10] := 'nt';  N[11] := 'rf';  N[12] := 'vm';  N[13] := 'ac';  N[14] := 'vif';
+  N[15] := 'vip'; N[16] := 'id';
   J.Init;
-  for I := Low(N) to High(N) do
+  for I := 0 to GetFlagCount - 1 do
   begin
-    if (F[I]^ <> fvUnused) then
+    F := GetFlagValue(I);
+    if (F <> fvUnused) then
     begin
-      J.AddNameValue(N[I], SX86FlagValue[F[I]^]);
+      J.AddNameValue(N[I], SX86FlagValue[F]);
     end;
   end;
   if (J.Count > 0) then
@@ -1867,137 +1891,14 @@ begin
   end;
 end;
 
-procedure TX86Flags.SetAC(const Value: TX86FlagValue);
+procedure TX86Flags.SetFlagValue(Index: Integer; const Value: TX86FlagValue);
+var
+  Flag: PX86FlagValue;
 begin
-  if (FAC <> Value) then
+  Flag := GetFlagById(Index);
+  if (Flag^ <> Value) then
   begin
-    FAC := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetAF(const Value: TX86FlagValue);
-begin
-  if (FAF <> Value) then
-  begin
-    FAF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetCF(const Value: TX86FlagValue);
-begin
-  if (FCF <> Value) then
-  begin
-    FCF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetDF(const Value: TX86FlagValue);
-begin
-  if (FDF <> Value) then
-  begin
-    FDF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetID(const Value: TX86FlagValue);
-begin
-  if (FID <> Value) then
-  begin
-    FID := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetIF(const Value: TX86FlagValue);
-begin
-  if (FIF <> Value) then
-  begin
-    FIF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetOF(const Value: TX86FlagValue);
-begin
-  if (FOF <> Value) then
-  begin
-    FOF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetPF(const Value: TX86FlagValue);
-begin
-  if (FPF <> Value) then
-  begin
-    FPF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetRF(const Value: TX86FlagValue);
-begin
-  if (FRF <> Value) then
-  begin
-    FRF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetSF(const Value: TX86FlagValue);
-begin
-  if (FSF <> Value) then
-  begin
-    FSF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetTF(const Value: TX86FlagValue);
-begin
-  if (FTF <> Value) then
-  begin
-    FTF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetVIF(const Value: TX86FlagValue);
-begin
-  if (FVIF <> Value) then
-  begin
-    FVIF := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetVIP(const Value: TX86FlagValue);
-begin
-  if (FVIP <> Value) then
-  begin
-    FVIP := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetVM(const Value: TX86FlagValue);
-begin
-  if (FVM <> Value) then
-  begin
-    FVM := Value;
-    Changed;
-  end;
-end;
-
-procedure TX86Flags.SetZF(const Value: TX86FlagValue);
-begin
-  if (FZF <> Value) then
-  begin
-    FZF := Value;
+    Flag^ := Value;
     Changed;
   end;
 end;
