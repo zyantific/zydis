@@ -172,7 +172,10 @@ type
     cfXSAVEOPT,
     cfMFENCE,
     cfVBMI,
-    cfIFMA
+    cfIFMA,
+    cfVMX,
+    cfSMX,
+    cfOSPKE
   );
 
   TCPUIDFeatureFlagSet = set of TCPUIDFeatureFlag;
@@ -233,7 +236,8 @@ type
     regXMM16,  regXMM17,  regXMM18, regXMM19,  regXMM20,   regXMM21,     regXMM22, regXMM23,
     regXMM24,  regXMM25,  regXMM26, regXMM27,  regXMM28,   regXMM29,     regXMM30, regXMM31,
     // Special registers
-    regRFLAGS, regEFLAGS, regFLAGS, regRIP,    regEIP,     regIP,        regMXCSR,
+    regRFLAGS, regEFLAGS, regFLAGS, regRIP,    regEIP,     regIP,        regMXCSR, regPKRU,
+    regXCR0,
     // Segment registers
     regES,     regCS,     regSS,    regDS,     regGS,      regFS,
     // Table registers
@@ -1040,7 +1044,10 @@ const
     'xsaveopt',
     'mfence',
     'vbmi',
-    'ifma'
+    'ifma',
+    'vmx',
+    'smx',
+    'ospke'
   );
 {$ENDREGION}
 
@@ -1081,7 +1088,8 @@ const
     'xmm16',  'xmm17',  'xmm18', 'xmm19',  'xmm20', 'xmm21', 'xmm22', 'xmm23',
     'xmm24',  'xmm25',  'xmm26', 'xmm27',  'xmm28', 'xmm29', 'xmm30', 'xmm31',
     // Special registers
-    'rflags', 'eflags', 'flags', 'rip',    'eip',   'ip',    'mxcsr',
+    'rflags', 'eflags', 'flags', 'rip',    'eip',   'ip',    'mxcsr',  'pkru',
+    'xcr0',
     // Segment registers
     'es',     'cs',     'ss',    'ds',     'gs',    'fs',
     // Table registers
@@ -1760,7 +1768,7 @@ var
   RegsWrite: TX86RegisterSet;
   R: TX86Register;
 begin
-  Exit(false); // TODO: Remove
+  //Exit(false); // TODO: Remove
   Result := false;
   F[ 0] := @FCF;  F[ 1] := @FPF;  F[ 2] := @FAF;  F[ 3] := @FZF;  F[ 4] := @FSF;
   F[ 5] := @FTF;  F[ 6] := @FIF;  F[ 7] := @FDF;  F[ 8] := @FOF;  F[ 9] := @FRF;

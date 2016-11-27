@@ -25,8 +25,6 @@ object frmEditorX86Registers: TfrmEditorX86Registers
     Margins.Top = 0
     Align = alBottom
     TabOrder = 1
-    ExplicitTop = 379
-    ExplicitWidth = 588
     DesignSize = (
       688
       39)
@@ -43,7 +41,6 @@ object frmEditorX86Registers: TfrmEditorX86Registers
       Images = imgIcons16
       TabOrder = 1
       OnClick = btnCancelClick
-      ExplicitLeft = 468
     end
     object btnApply: TButton
       Left = 450
@@ -58,7 +55,6 @@ object frmEditorX86Registers: TfrmEditorX86Registers
       Images = imgIcons16
       TabOrder = 0
       OnClick = btnApplyClick
-      ExplicitLeft = 350
     end
   end
   object VirtualTreeView: TVirtualStringTree
@@ -85,8 +81,6 @@ object frmEditorX86Registers: TfrmEditorX86Registers
     OnFreeNode = VirtualTreeViewFreeNode
     OnGetText = VirtualTreeViewGetText
     OnGetImageIndex = VirtualTreeViewGetImageIndex
-    ExplicitWidth = 588
-    ExplicitHeight = 373
     Columns = <>
   end
   object imgIcons16: TcxImageList

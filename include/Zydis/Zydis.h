@@ -36,6 +36,8 @@
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
 
+// TODO: Replace "bool" with a custom - compiler-unspecific sized - zype
+
 #ifdef __cplusplus
 extern "C" {
 #endif

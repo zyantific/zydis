@@ -166,29 +166,6 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDe
     ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input, ZydisDecoderFlags flags);
 
 /**
- * @brief   Returns the current disassembler-mode of the given @c ZydisInstructionDecoder
- *          instance.
- *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   disassemblerMode    A pointer to the memory that receives the current disassembler-mode. 
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDisassemblerMode(const ZydisInstructionDecoder* decoder, 
-    ZydisDisassemblerMode* disassemblerMode);
-
-/**
- * @brief   Changes the disassembler-mode of the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   disassemblerMode    The new disassembler-mode.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDecoder* decoder, 
-    ZydisDisassemblerMode disassemblerMode);
-
-/**
  * @brief   Returns the current input data-source of the given @c ZydisInstructionDecoder
  *          instance.
  *
@@ -197,7 +174,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDecoder
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderGetInput(const ZydisInstructionDecoder* decoder,
     ZydisCustomInput** input);
 
 /**
@@ -210,30 +187,8 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecod
  * 
  * This function flushes the internal input-buffer.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInput(ZydisInstructionDecoder* decoder,
     ZydisCustomInput* input);
-
-/**
- * @brief   Returns the current decoder-flags of the given @c ZydisInstructionDecoder instance.
- *          
- * @param   decoder A pointer to the @c ZydisInstructionDecoder instance.
- * @param   flags   A pointer to the memory that receives the current decoder-flags.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderGetDecoderFlags(const ZydisInstructionDecoder* decoder,
-    ZydisDecoderFlags* flags);
-
-/**
- * @brief   Changes the decoder-flags of the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder A pointer to the @c ZydisInstructionDecoder instance.
- * @param   flags   The new decoder-flags.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderSetDecoderFlags(ZydisInstructionDecoder* decoder, 
-    ZydisDecoderFlags flags);
 
 /**
  * @brief   Returns the current instruction-pointer of the given @c ZydisInstructionDecoder

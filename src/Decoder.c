@@ -2350,32 +2350,7 @@ ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decode
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisDecoderGetDisassemblerMode(const ZydisInstructionDecoder* decoder, 
-    ZydisDisassemblerMode* disassemblerMode)
-{
-    if (!decoder || !disassemblerMode)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    *disassemblerMode = decoder->disassemblerMode;
-    return ZYDIS_STATUS_SUCCESS;
-}
-
-ZydisStatus ZydisDecoderSetDisassemblerMode(ZydisInstructionDecoder* decoder, 
-    ZydisDisassemblerMode disassemblerMode)
-{
-    if (!decoder ||
-        ((disassemblerMode != ZYDIS_DISASSEMBLER_MODE_16BIT) && 
-         (disassemblerMode != ZYDIS_DISASSEMBLER_MODE_32BIT) && 
-         (disassemblerMode != ZYDIS_DISASSEMBLER_MODE_64BIT)))
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    decoder->disassemblerMode = disassemblerMode;
-    return ZYDIS_STATUS_SUCCESS;    
-}
-
-ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecoder* decoder,
+ZydisStatus ZydisDecoderGetInput(const ZydisInstructionDecoder* decoder,
     ZydisCustomInput** input)
 {
     if (!decoder || !input)
@@ -2386,7 +2361,7 @@ ZydisStatus ZydisDecoderGetDecoderInput(const ZydisInstructionDecoder* decoder,
     return ZYDIS_STATUS_SUCCESS;    
 }
 
-ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
+ZydisStatus ZydisDecoderSetInput(ZydisInstructionDecoder* decoder,
     ZydisCustomInput* input)
 {
     if (!decoder)
@@ -2398,28 +2373,6 @@ ZydisStatus ZydisDecoderSetDecoderInput(ZydisInstructionDecoder* decoder,
     decoder->buffer.posRead = 0; 
     decoder->buffer.posWrite = 0;
     return ZYDIS_STATUS_SUCCESS;      
-}
-
-ZydisStatus ZydisDecoderGetDecoderFlags(const ZydisInstructionDecoder* decoder,
-    ZydisDecoderFlags* flags)
-{
-    if (!decoder || !flags)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    *flags = decoder->flags;
-    return ZYDIS_STATUS_SUCCESS;    
-}
-
-ZydisStatus ZydisDecoderSetDecoderFlags(ZydisInstructionDecoder* decoder, 
-    ZydisDecoderFlags flags)
-{
-    if (!decoder)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    decoder->flags = flags;
-    return ZYDIS_STATUS_SUCCESS;     
 }
 
 ZydisStatus ZydisDecoderGetInstructionPointer(const ZydisInstructionDecoder* decoder,

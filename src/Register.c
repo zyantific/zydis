@@ -91,7 +91,8 @@ const char* registerStrings[] =
     "xmm28",  "xmm29",  "xmm30", "xmm31",
     // Special registers
     "rflags", "eflags", "flags", "rip",   
-    "eip",    "ip",     "mxcsr",
+    "eip",    "ip",     "mxcsr", "pkru",
+    "xcr0",
     // Segment registers
     "es",     "ss",     "cs",    "ds",     
     "fs",     "gs",

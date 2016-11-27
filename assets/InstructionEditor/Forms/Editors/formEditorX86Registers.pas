@@ -142,7 +142,7 @@ begin
     VirtualTreeView.Expanded[N1] := true;
 
     N1 := AddCategory(Root, 'Special Registers');
-    AddRegisterRange(N1, regRFLAGS, regMXCSR);
+    AddRegisterRange(N1, regRFLAGS, regXCR0);
 
     N1 := AddCategory(Root, 'Segment Registers');
     AddRegisterRange(N1, regES, regFS);
