@@ -376,7 +376,7 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(ZydisInstructionFormatter
 /**
  * @brief   Defines the @c ZydisInstructionFormatter struct.
  */
-typedef struct ZydisInstructionFormatter_
+struct ZydisInstructionFormatter_
 {
     ZydisFormatFlags flags;
     ZydisFormatterAddressFormat addressFormat;
@@ -402,7 +402,7 @@ typedef struct ZydisInstructionFormatter_
     const char* delimMnemonic;
     const char* delimOperands;
     const char* fmtDecorator;   // TODO:
-} ZydisInstructionFormatter;
+};
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

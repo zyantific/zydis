@@ -65,13 +65,13 @@ typedef bool (*ZydisInputNextFunc)(ZydisCustomInput* input, uint8_t* data);
 /**
  * @brief   Defines the zydis custom input struct.
  */
-typedef struct ZydisCustomInput_
+struct ZydisCustomInput_
 {
     /**
      * @brief   The @c ZydisInputNextFunc callback.
      */
     ZydisInputNextFunc inputNext;
-} ZydisCustomInput;
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 

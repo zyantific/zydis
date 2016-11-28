@@ -43,7 +43,10 @@ typedef struct ZydisFuzzControlBlock_ {
     ZydisDisassemblerMode disasMode;
     ZydisDecoderFlags decoderFlags;  
     ZydisFormatterStyle formatterStyle;
-    ZydisFormatterFlags formatterFlags;
+    ZydisFormatFlags formatterFlags;
+    ZydisFormatterAddressFormat formatterAddrFormat;
+    ZydisFormatterDisplacementFormat formatterDispFormat;
+    ZydisFormatterImmediateFormat formatterImmFormat;
     uint8_t bufSize;
 } ZydisFuzzControlBlock;
 
@@ -68,8 +71,9 @@ int main()
     }
 
     ZydisInstructionFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter, 
-        controlBlock.formatterStyle, controlBlock.formatterFlags)))
+    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
+        controlBlock.formatterStyle, controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
+        controlBlock.formatterDispFormat, controlBlock.formatterImmFormat)))
     {
         fputs("failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;

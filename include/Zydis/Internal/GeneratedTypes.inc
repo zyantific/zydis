@@ -17,7 +17,7 @@ typedef struct ZydisInstructionDefinition_
 #endif
 #ifdef ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS
     uint8_t affectedFlagsId : 8;
-#endif;
+#endif
 #ifdef ZYDIS_ENABLE_FEATURE_CPUID
     uint8_t cpuidId : 8;
 #endif

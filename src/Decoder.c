@@ -2142,28 +2142,6 @@ static ZydisDecoderStatus ZydisNodeHandlerEvexB(ZydisInstructionInfo* info, uint
     return ZYDIS_STATUS_DECODER_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerEvexK(ZydisInstructionInfo* info, uint16_t* index)
-{
-    ZYDIS_ASSERT(info);
-    ZYDIS_ASSERT(index);
-
-    ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
-    ZYDIS_ASSERT(info->details.evex.isDecoded);
-    *index = (info->details.evex.aaa == 0) ? 0 : 1;
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
-}
-
-static ZydisDecoderStatus ZydisNodeHandlerEvexZ(ZydisInstructionInfo* info, uint16_t* index)
-{
-    ZYDIS_ASSERT(info);
-    ZYDIS_ASSERT(index);
-
-    ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
-    ZYDIS_ASSERT(info->details.evex.isDecoded);
-    *index = info->details.evex.z;
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
-}
-
 /**
  * @brief   Uses the instruction-table to decode the bytestream until an instruction-definition
  *          is found.
