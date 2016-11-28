@@ -332,29 +332,8 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(ZydisInstructionFormatter
                     ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "*%d", operand->mem.scale));    
             }
         }
-        if ((operand->mem.disp.dataSize) && ((operand->mem.disp.value.sqword) || 
-            ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
-            (operand->mem.index == ZYDIS_REGISTER_NONE))))
-        {
-            bool printSignedHEX = 
-                (formatter->displacementFormat != ZYDIS_FORMATTER_DISP_HEX_UNSIGNED);
-            if (printSignedHEX && (operand->mem.disp.value.sqword < 0) && (
-                (operand->mem.base != ZYDIS_REGISTER_NONE) || 
-                (operand->mem.index != ZYDIS_REGISTER_NONE)))
-            {
-                ZYDIS_CHECK(ZydisStringBufferAppendFormat(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-                    "-0x%02"PRIX32, -operand->mem.disp.value.sdword));     
-            } else
-            {
-                const char* sign = 
-                    ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
-                    (operand->mem.index == ZYDIS_REGISTER_NONE)) ? "" : "+";
-                ZYDIS_CHECK(ZydisStringBufferAppendFormat(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-                    "%s0x%02"PRIX32, sign, operand->mem.disp.value.sdword)); 
-            }
-        } 
+        ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
+            info, operand)); 
     }
 
     return ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "]");
@@ -380,10 +359,10 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(ZydisInstructionFormatter
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    bool printSignedHEX = false;
     // The immediate operand contains an address
     if (operand->imm.isRelative)
     {
+        bool printSignedHEX = false;
         switch (formatter->addressFormat)
         {
         case ZYDIS_FORMATTER_ADDR_DEFAULT:
@@ -412,7 +391,70 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(ZydisInstructionFormatter
     }
 
     // The immediate operand contains an actual ordinal value
-    printSignedHEX = (formatter->immediateFormat == ZYDIS_FORMATTER_IMM_HEX_SIGNED);
+    return formatter->funcPrintImmediate(formatter, buffer, bufferLen, info, operand);
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+static ZydisStatus ZydisFormatterPrintAddressIntel(ZydisInstructionFormatter* formatter, 
+    char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand, 
+    uint64_t address)
+{
+    if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    switch (info->mode)
+    {
+    case ZYDIS_DISASSEMBLER_MODE_16BIT:
+    case ZYDIS_DISASSEMBLER_MODE_32BIT:
+        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
+            "0x%08"PRIX64, address);
+    case ZYDIS_DISASSEMBLER_MODE_64BIT:
+        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
+            "0x%016"PRIX64, address);   
+    default:
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+}
+
+static ZydisStatus ZydisFormatterPrintDisplacementIntel(ZydisInstructionFormatter* formatter, 
+    char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
+{
+    if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+    if ((operand->mem.disp.dataSize) && ((operand->mem.disp.value.sqword) || 
+        ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
+        (operand->mem.index == ZYDIS_REGISTER_NONE))))
+    {
+        bool printSignedHEX = (formatter->displacementFormat != ZYDIS_FORMATTER_DISP_HEX_UNSIGNED);
+        if (printSignedHEX && (operand->mem.disp.value.sqword < 0) && (
+            (operand->mem.base != ZYDIS_REGISTER_NONE) || 
+            (operand->mem.index != ZYDIS_REGISTER_NONE)))
+        {
+            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->mem.disp.value.sdword);     
+        }
+    }
+    const char* sign = 
+        ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
+        (operand->mem.index == ZYDIS_REGISTER_NONE)) ? "" : "+";
+    return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
+        "%s0x%02"PRIX32, sign, operand->mem.disp.value.sdword); 
+}
+
+static ZydisStatus ZydisFormatterPrintImmediateIntel(ZydisInstructionFormatter* formatter, 
+    char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
+{
+    if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    bool printSignedHEX = (formatter->immediateFormat == ZYDIS_FORMATTER_IMM_HEX_SIGNED);
     if (formatter->immediateFormat == ZYDIS_FORMATTER_IMM_HEX_AUTO)
     {
         printSignedHEX = operand->imm.isSigned;    
@@ -457,29 +499,6 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(ZydisInstructionFormatter
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-
-static ZydisStatus ZydisFormatterPrintAddressIntel(ZydisInstructionFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand, 
-    uint64_t address)
-{
-    if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-
-    switch (info->mode)
-    {
-    case ZYDIS_DISASSEMBLER_MODE_16BIT:
-    case ZYDIS_DISASSEMBLER_MODE_32BIT:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%08"PRIX64, address);
-    case ZYDIS_DISASSEMBLER_MODE_64BIT:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%016"PRIX64, address);   
-    default:
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-}
 
 static ZydisStatus ZydisFormatterPrintOperandSizeIntel(ZydisInstructionFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
@@ -836,6 +855,8 @@ ZydisStatus ZydisFormatterInitInstructionFormatterEx(
         formatter->funcPrintSegment         = &ZydisFormatterPrintSegmentIntel;
         formatter->funcPrintDecorator       = &ZydisFormatterPrintDecoratorIntel;
         formatter->funcPrintAddress         = &ZydisFormatterPrintAddressIntel;
+        formatter->funcPrintDisplacement    = &ZydisFormatterPrintDisplacementIntel;
+        formatter->funcPrintImmediate       = &ZydisFormatterPrintImmediateIntel;
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -896,6 +917,12 @@ ZydisStatus ZydisFormatterSetHook(ZydisInstructionFormatter* formatter,
     case ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS:
         *callback = *(const void**)&formatter->funcPrintAddress;
         break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT:
+        *callback = *(const void**)&formatter->funcPrintDisplacement;
+        break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE:
+        *callback = *(const void**)&formatter->funcPrintImmediate;
+        break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -945,8 +972,14 @@ ZydisStatus ZydisFormatterSetHook(ZydisInstructionFormatter* formatter,
     case ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR:
         formatter->funcPrintDecorator = *(ZydisFormatterFormatOperandFunc*)&temp;
         break;
-        case ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS:
+    case ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS:
         formatter->funcPrintAddress = *(ZydisFormatterFormatAddressFunc*)&temp;
+        break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT:
+        formatter->funcPrintDisplacement = *(ZydisFormatterFormatOperandFunc*)&temp;
+        break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE:
+        formatter->funcPrintImmediate = *(ZydisFormatterFormatOperandFunc*)&temp;
         break;
     default:
         break;

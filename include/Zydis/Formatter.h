@@ -233,7 +233,7 @@ enum ZydisFormatterHookTypes
      * @brief   This function is called to format an memory operand.
      *
      * Replacing this function might indirectly disable some specific calls to the 
-     * @c ZYDIS_FORMATTER_PRINT_ADDRESS function.
+     * @c ZYDIS_FORMATTER_PRINT_ADDRESS and @c ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT functions.
      */
     ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM,
     /**
@@ -244,7 +244,7 @@ enum ZydisFormatterHookTypes
      * @brief   This function is called to format an immediate operand.
      *
      * Replacing this function might indirectly disable some specific calls to the 
-     * @c ZYDIS_FORMATTER_PRINT_ADDRESS function.
+     * @c ZYDIS_FORMATTER_PRINT_ADDRESS and @c ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE functions.
      */
     ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,  
     /**
@@ -262,10 +262,18 @@ enum ZydisFormatterHookTypes
      *          avx-512 operand decorator.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
-        /**
+    /**
      * @brief   This function is called to print an absolute address.
      */
-    ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS
+    ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS,
+    /**
+     * @brief   This function is called to print a memory displacement value.
+     */
+    ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT,
+    /**
+     * @brief   This function is called to print an immediate value.
+     */
+    ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -336,7 +344,9 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(ZydisInstructionFormatter* forma
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG,
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM, @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR, 
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE,
- * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT and @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-types.
+ * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT, @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
+ * @c ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT and @c ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE 
+ * hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand);
@@ -385,6 +395,8 @@ typedef struct ZydisInstructionFormatter_
     ZydisFormatterFormatOperandFunc funcPrintSegment;
     ZydisFormatterFormatOperandFunc funcPrintDecorator;
     ZydisFormatterFormatAddressFunc funcPrintAddress;
+    ZydisFormatterFormatOperandFunc funcPrintDisplacement;
+    ZydisFormatterFormatOperandFunc funcPrintImmediate;
     const char* prefixHEX;
     const char* prefixOCT;
     const char* delimMnemonic;

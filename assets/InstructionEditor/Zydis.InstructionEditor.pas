@@ -1712,25 +1712,15 @@ end;
 procedure TX86Flags.AssignTo(Dest: TPersistent);
 var
   D: TX86Flags;
+  I: Integer;
 begin
   if (Dest is TX86Flags) then
   begin
     D := Dest as TX86Flags;
-    D.FCF := FCF;
-    D.FPF := FPF;
-    D.FAF := FAF;
-    D.FZF := FZF;
-    D.FSF := FSF;
-    D.FTF := FTF;
-    D.FIF := FIF;
-    D.FDF := FDF;
-    D.FOF := FOF;
-    D.FRF := FRF;
-    D.FVM := FVM;
-    D.FAC := FAC;
-    D.FVIF := FVIF;
-    D.FVIP := FVIP;
-    D.FID := FID;
+    for I := 0 to GetFlagCount - 1 do
+    begin
+      D.SetFlagValue(I, GetFlagValue(I));
+    end;
     D.Changed;
   end else inherited;
 end;
@@ -1750,11 +1740,18 @@ begin
 end;
 
 function TX86Flags.Equals(const Value: TX86Flags): Boolean;
+var
+  I: Integer;
 begin
-  Result := (Value.FCF = FCF) and (Value.FPF = FPF) and (Value.FAF = FAF) and
-    (Value.FZF = FZF) and (Value.FSF = FSF) and (Value.FTF = FTF) and (Value.FIF = FIF) and
-    (Value.FDF = FDF) and (Value.FOF = FOF) and (Value.FRF = FRF) and (Value.FVM = FVM) and
-    (Value.FAC = FAC) and (Value.FVIF = FVIF) and (Value.FVIP = FVIP) and (Value.FID = FID);
+  Result := true;
+  for I := 0 to GetFlagCount - 1 do
+  begin
+    if (GetFlagValue(I) <> Value.GetFlagValue(I)) then
+    begin
+      Result := false;
+      Break;
+    end;
+  end;
 end;
 
 function TX86Flags.GetConflictState: Boolean;
@@ -1765,6 +1762,8 @@ var
   RegsWrite: TX86RegisterSet;
   R: TX86Register;
 begin
+  Exit(false);
+
   Result := false;
   RegsRead := [];
   RegsWrite := [];
@@ -2472,7 +2471,11 @@ begin
   Result := true;
   for I := Low(FOperands) to High(FOperands) do
   begin
-    Result := Result and Value.FOperands[I].Equals(FOperands[I]);
+    if (not Value.FOperands[I].Equals(FOperands[I])) then
+    begin
+      Result := false;
+      Break;
+    end;
   end;
 end;
 
