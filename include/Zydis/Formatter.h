@@ -61,7 +61,7 @@ enum ZydisFormatterStyles
 /**
  * @brief   Defines the @c ZydisFormatFlags datatype.
  */
-typedef uint32_t ZydisFormatFlags;
+typedef uint32_t ZydisFormatterFlags;
 
 /**
  * @brief   Formats the instruction in uppercase instead of lowercase.
@@ -376,9 +376,9 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(ZydisInstructionFormatter
 /**
  * @brief   Defines the @c ZydisInstructionFormatter struct.
  */
-typedef struct ZydisInstructionFormatter_
+struct ZydisInstructionFormatter_
 {
-    ZydisFormatFlags flags;
+    ZydisFormatterFlags flags;
     ZydisFormatterAddressFormat addressFormat;
     ZydisFormatterDisplacementFormat displacementFormat;
     ZydisFormatterImmediateFormat immediateFormat;
@@ -402,7 +402,7 @@ typedef struct ZydisInstructionFormatter_
     const char* delimMnemonic;
     const char* delimOperands;
     const char* fmtDecorator;   // TODO:
-} ZydisInstructionFormatter;
+};
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -431,7 +431,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterInitInstructionFormatter(
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterInitInstructionFormatterEx(
-    ZydisInstructionFormatter* formatter, ZydisFormatterStyle style, ZydisFormatFlags flags,
+    ZydisInstructionFormatter* formatter, ZydisFormatterStyle style, ZydisFormatterFlags flags,
     ZydisFormatterAddressFormat addressFormat, ZydisFormatterDisplacementFormat displacementFormat,
     ZydisFormatterImmediateFormat immmediateFormat);
 

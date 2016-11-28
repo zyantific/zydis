@@ -59,8 +59,9 @@ int main(int argc, char** argv)
     }
 
     ZydisInstructionFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter, 
-        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT)))
+    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
+        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
+        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT)))
     {
         fputs("Failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;
