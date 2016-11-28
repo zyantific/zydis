@@ -816,7 +816,7 @@ ZydisStatus ZydisFormatterInitInstructionFormatter(
 }
 
 ZydisStatus ZydisFormatterInitInstructionFormatterEx(
-    ZydisInstructionFormatter* formatter, ZydisFormatterStyle style, ZydisFormatFlags flags,
+    ZydisInstructionFormatter* formatter, ZydisFormatterStyle style, ZydisFormatterFlags flags,
     ZydisFormatterAddressFormat addressFormat, ZydisFormatterDisplacementFormat displacementFormat,
     ZydisFormatterImmediateFormat immmediateFormat)
 {

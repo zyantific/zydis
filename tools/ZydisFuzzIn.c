@@ -43,7 +43,7 @@ typedef struct ZydisFuzzControlBlock_ {
     ZydisDisassemblerMode disasMode;
     ZydisDecoderFlags decoderFlags;  
     ZydisFormatterStyle formatterStyle;
-    ZydisFormatFlags formatterFlags;
+    ZydisFormatterFlags formatterFlags;
     ZydisFormatterAddressFormat formatterAddrFormat;
     ZydisFormatterDisplacementFormat formatterDispFormat;
     ZydisFormatterImmediateFormat formatterImmFormat;
