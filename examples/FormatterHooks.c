@@ -35,6 +35,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
 
@@ -155,7 +156,7 @@ static ZydisStatus ZydisFormatterFormatOperandImm(ZydisInstructionFormatter* for
 {
     // The @c ZydisFormatterFormatMnemonic sinals us to omit the immediate (condition-code) 
     // operand, because it got replaced by the alias-mnemonic
-    if ((int)info->userData == 1)
+    if ((uintptr_t)info->userData == 1)
     {
         // The formatter will automatically omit the operand, if the buffer remains unchanged 
         // after the callback returns
@@ -201,7 +202,7 @@ void disassembleBuffer(uint8_t* data, size_t length, bool installHooks)
     char buffer[256];
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
-        printf("%016llX  ", info.instrAddress);
+        printf("%016" PRIx64 "  ", info.instrAddress);
         if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
         {
             printf(" db %02x\n", info.data[0]);    
