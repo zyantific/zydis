@@ -202,7 +202,7 @@ void disassembleBuffer(uint8_t* data, size_t length, bool installHooks)
     char buffer[256];
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
-        printf("%016" PRIx64 "  ", info.instrAddress);
+        printf("%016" PRIX64 "  ", info.instrAddress);
         if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
         {
             printf(" db %02x\n", info.data[0]);    

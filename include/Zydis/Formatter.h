@@ -87,7 +87,7 @@ typedef uint8_t ZydisFormatterAddressFormat;
 /**
  * @brief   Values that represent address-formats.
  */
-enum ZydisFormatterAddressFormat_
+enum ZydisFormatterAddressFormats
 {   
     /**
      * @brief   Currently defaults to @c ZYDIS_FORMATTER_ADDR_ABSOLUTE.
