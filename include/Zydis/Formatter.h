@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,7 +27,6 @@
 #ifndef ZYDIS_FORMATTER_H
 #define ZYDIS_FORMATTER_H
 
-#include <stdint.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
 #include <Zydis/InstructionInfo.h>

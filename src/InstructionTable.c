@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -169,7 +169,7 @@ extern const ZydisInstructionTableNode filterEVEXB[][2];
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Contains all operand-definitions with 1 operand.
+ * @brief   Contains all operand-definitions with 1 operands.
  */
 extern const ZydisOperandDefinition operandDefinitions1[][1];
 
@@ -264,7 +264,7 @@ const ZydisInstructionTableNode* ZydisInstructionTableGetChildNode(
     return &invalid;    
 }
 
-bool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
+ZydisBool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
     const ZydisInstructionDefinition** definition, const ZydisOperandDefinition** operands, 
     uint8_t* operandCount)
 {
@@ -296,9 +296,9 @@ bool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
         break;
     default:
         ZYDIS_UNREACHABLE;
-        return false;
+        return ZYDIS_FALSE;
     }   
-    return true;
+    return ZYDIS_TRUE;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

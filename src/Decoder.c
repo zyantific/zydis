@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -24,9 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 #include <Zydis/Status.h>
 #include <Zydis/Input.h>
@@ -48,35 +45,10 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_CHECK(status) \
-    if (status != ZYDIS_STATUS_DECODER_SUCCESS) \
+    if (status != ZYDIS_STATUS_SUCCESS) \
     { \
         return status; \
     }
-
-/* ============================================================================================== */
-/* Internal enums and structs                                                                     */
-/* ============================================================================================== */
-
-/**
- * @brief   Defines the @c ZydisDecoderStatus datatype.
- */
-typedef uint32_t ZydisDecoderStatus;
-
-/**
- * @brief   Values that represents zydis decoder status-codes.
- */
-typedef enum ZydisDecoderStatusCode_
-{
-    ZYDIS_STATUS_DECODER_SUCCESS,
-    ZYDIS_STATUS_DECODER_NO_MORE_DATA,
-    ZYDIS_STATUS_DECODER_UNDEFINED_INSTRUCTION,
-    ZYDIS_STATUS_DECODER_INVALID_INSTRUCTION_LENGTH,
-    ZYDIS_STATUS_DECODER_MALFORMED_VEX,
-    ZYDIS_STATUS_DECODER_MALFORMED_EVEX,
-    ZYDIS_STATUS_DECODER_MALFORMED_XOP,
-    ZYDIS_STATUS_DECODER_ILLEGAL_REX,
-    ZYDIS_STATUS_DECODER_INVALID_VSIB
-} ZydisDecoderStatusCode;
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */
@@ -93,7 +65,7 @@ typedef enum ZydisDecoderStatusCode_
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  * @param   value   A pointer to the memory that receives the byte from the input data-source.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  *          
  * If not empty, the internal buffer of the @c ZydisInstructionDecoder instance is used as temporary
  * data-source, instead of reading the byte from the actual input data-source.
@@ -101,8 +73,8 @@ typedef enum ZydisDecoderStatusCode_
  * This function may fail, if the @c ZYDIS_MAX_INSTRUCTION_LENGTH limit got exceeded, or no more   
  * data is available.
  */
-static ZydisDecoderStatus ZydisInputPeek(ZydisInstructionDecoder* decoder, 
-    ZydisInstructionInfo* info, uint8_t* value)
+static ZydisStatus ZydisInputPeek(ZydisInstructionDecoder* decoder, ZydisInstructionInfo* info, 
+    uint8_t* value)
 { 
     ZYDIS_ASSERT(decoder); 
     ZYDIS_ASSERT(info); 
@@ -110,20 +82,19 @@ static ZydisDecoderStatus ZydisInputPeek(ZydisInstructionDecoder* decoder,
 
     if (info->length >= ZYDIS_MAX_INSTRUCTION_LENGTH) 
     { 
-        info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_MAXLENGTH; 
-        return ZYDIS_STATUS_DECODER_INVALID_INSTRUCTION_LENGTH; 
+        return ZYDIS_STATUS_INSTRUCTION_TOO_LONG; 
     } 
 
     if (decoder->buffer.count > 0)
     {
         ZYDIS_ASSERT(decoder->buffer.posRead < sizeof(decoder->buffer.data));
         *value = decoder->buffer.data[decoder->buffer.posRead];
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     }
 
     if (!decoder->input->inputNext((void*)decoder->input, value))
     {
-        return ZYDIS_STATUS_DECODER_NO_MORE_DATA;    
+        return ZYDIS_STATUS_NO_MORE_DATA;    
     }
     
     ZYDIS_ASSERT(decoder->buffer.count < sizeof(decoder->buffer.data));
@@ -134,7 +105,7 @@ static ZydisDecoderStatus ZydisInputPeek(ZydisInstructionDecoder* decoder,
     }
     ++decoder->buffer.count;
 
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -151,8 +122,7 @@ static ZydisDecoderStatus ZydisInputPeek(ZydisInstructionDecoder* decoder,
  * This function increases the @c length field of the @c ZydisInstructionInfo struct by one and
  * adds the current byte to the @c data array.
  */
-static void ZydisInputSkip(ZydisInstructionDecoder* decoder, 
-    ZydisInstructionInfo* info)
+static void ZydisInputSkip(ZydisInstructionDecoder* decoder, ZydisInstructionInfo* info)
 { 
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
@@ -174,20 +144,16 @@ static void ZydisInputSkip(ZydisInstructionDecoder* decoder,
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  * @param   value   A pointer to the memory that receives the byte from the input data-source.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  *          
  * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
  */
-static ZydisDecoderStatus ZydisInputNext(ZydisInstructionDecoder* decoder, 
-    ZydisInstructionInfo* info, uint8_t* value)
+static ZydisStatus ZydisInputNext(ZydisInstructionDecoder* decoder, ZydisInstructionInfo* info, 
+    uint8_t* value)
 { 
-    ZydisDecoderStatus status = ZydisInputPeek(decoder, info, value);
-    if (status != ZYDIS_STATUS_DECODER_SUCCESS)
-    {
-        return status;
-    }
+    ZYDIS_CHECK(ZydisInputPeek(decoder, info, value));
     ZydisInputSkip(decoder, info);
-    return ZYDIS_STATUS_DECODER_SUCCESS; 
+    return ZYDIS_STATUS_SUCCESS; 
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -200,22 +166,64 @@ static ZydisDecoderStatus ZydisInputNext(ZydisInstructionDecoder* decoder,
  * @param   rexByte The rex byte.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  */
-static void ZydisDecodeRexPrefix(ZydisInstructionInfo* info, uint8_t rexByte)
+static void ZydisDecodeREX(ZydisInstructionInfo* info, uint8_t rexByte)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT((rexByte & 0xF0) == 0x40);
 
-    info->details.rex.isDecoded = true;
+    info->attributes |= ZYDIS_ATTRIB_HAS_REX;
+    info->details.rex.isDecoded = ZYDIS_TRUE;
     info->details.rex.data[0]   = rexByte;
-    info->details.rex.w         = (rexByte >> 3) & 0x01;
-    info->details.rex.r         = (rexByte >> 2) & 0x01;
-    info->details.rex.x         = (rexByte >> 1) & 0x01;
-    info->details.rex.b         = (rexByte >> 0) & 0x01;
+    info->details.rex.W         = (rexByte >> 3) & 0x01;
+    info->details.rex.R         = (rexByte >> 2) & 0x01;
+    info->details.rex.X         = (rexByte >> 1) & 0x01;
+    info->details.rex.B         = (rexByte >> 0) & 0x01;
     // Update internal fields
-    info->details.internal.w    = info->details.rex.w;
-    info->details.internal.r    = info->details.rex.r;
-    info->details.internal.x    = info->details.rex.x;
-    info->details.internal.b    = info->details.rex.b;
+    info->details.internal.W    = info->details.rex.W;
+    info->details.internal.R    = info->details.rex.R;
+    info->details.internal.X    = info->details.rex.X;
+    info->details.internal.B    = info->details.rex.B;
+}
+
+/**
+ * @brief   Decodes the xop-prefix.
+ *
+ * @param   xopByte1    The first xop byte.
+ * @param   xopByte2    The second xop byte.
+ * @param   info        A pointer to the @c ZydisInstructionInfo struct.
+ *
+ * @return  A zydis status code.
+ */
+static ZydisStatus ZydisDecodeXOP(uint8_t xopByte1, uint8_t xopByte2, ZydisInstructionInfo* info)
+{
+    ZYDIS_ASSERT(info);
+    ZYDIS_ASSERT(((xopByte1 >> 0) & 0x1F) >= 8);
+
+    info->attributes |= ZYDIS_ATTRIB_HAS_XOP;
+    info->details.xop.isDecoded     = ZYDIS_TRUE;
+    info->details.xop.data[0]       = 0x8F;
+    info->details.xop.data[1]       = xopByte1;
+    info->details.xop.data[2]       = xopByte2;
+    info->details.xop.R             = (xopByte1 >> 7) & 0x01;
+    info->details.xop.X             = (xopByte1 >> 6) & 0x01;
+    info->details.xop.B             = (xopByte1 >> 5) & 0x01;
+    info->details.xop.m_mmmm        = (xopByte1 >> 0) & 0x1F;
+    if ((info->details.xop.m_mmmm < 0x08) || (info->details.xop.m_mmmm > 0x0A))
+    {
+        // Invalid according to the AMD documentation
+        return ZYDIS_STATUS_INVALID_MAP;
+    }
+    info->details.xop.W             = (xopByte2 >> 7) & 0x01;
+    info->details.xop.vvvv          = (xopByte2 >> 3) & 0x0F;
+    info->details.xop.L             = (xopByte2 >> 2) & 0x01;
+    info->details.xop.pp            = (xopByte2 >> 0) & 0x03; 
+    // Update internal fields
+    info->details.internal.W = info->details.xop.W;
+    info->details.internal.R = 0x01 & ~info->details.xop.R;
+    info->details.internal.X = 0x01 & ~info->details.xop.X;
+    info->details.internal.B = 0x01 & ~info->details.xop.B;
+    info->details.internal.L = info->details.xop.L;     
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -226,14 +234,15 @@ static void ZydisDecodeRexPrefix(ZydisInstructionInfo* info, uint8_t rexByte)
  * @param   vexByte2    The second vex byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  *
- * @return  True if the decoding succeeds, false if an invalid vex encoding was detected.
+ * @return  A zydis status code.
  */
-static bool ZydisDecodeVexPrefix(uint8_t vexOpcode, uint8_t vexByte1, uint8_t vexByte2, 
+static ZydisStatus ZydisDecodeVEX(uint8_t vexOpcode, uint8_t vexByte1, uint8_t vexByte2, 
     ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(info);
 
-    info->details.vex.isDecoded     = true;
+    info->attributes |= ZYDIS_ATTRIB_HAS_VEX;
+    info->details.vex.isDecoded     = ZYDIS_TRUE;
     info->details.vex.data[0]       = vexOpcode;
     switch (vexOpcode)
     {
@@ -241,26 +250,26 @@ static bool ZydisDecodeVexPrefix(uint8_t vexOpcode, uint8_t vexByte1, uint8_t ve
     {
         info->details.vex.data[1]   = vexByte1;
         info->details.vex.data[2]   = vexByte2;
-        info->details.vex.r         = (vexByte1 >> 7) & 0x01;
-        info->details.vex.x         = (vexByte1 >> 6) & 0x01;
-        info->details.vex.b         = (vexByte1 >> 5) & 0x01;
+        info->details.vex.R         = (vexByte1 >> 7) & 0x01;
+        info->details.vex.X         = (vexByte1 >> 6) & 0x01;
+        info->details.vex.B         = (vexByte1 >> 5) & 0x01;
         info->details.vex.m_mmmm    = (vexByte1 >> 0) & 0x1F;
-        info->details.vex.w         = (vexByte2 >> 7) & 0x01;
+        info->details.vex.W         = (vexByte2 >> 7) & 0x01;
         info->details.vex.vvvv      = (vexByte2 >> 3) & 0x0F;
-        info->details.vex.l         = (vexByte2 >> 2) & 0x01;
+        info->details.vex.L         = (vexByte2 >> 2) & 0x01;
         info->details.vex.pp        = (vexByte2 >> 0) & 0x03;
         break;
     }
     case 0xC5:
         info->details.vex.data[1]   = vexByte1;
         info->details.vex.data[2]   = 0;
-        info->details.vex.r         = (vexByte1 >> 7) & 0x01;
-        info->details.vex.x         = 1;
-        info->details.vex.b         = 1;
+        info->details.vex.R         = (vexByte1 >> 7) & 0x01;
+        info->details.vex.X         = 1;
+        info->details.vex.B         = 1;
         info->details.vex.m_mmmm    = 1;
-        info->details.vex.w         = 0;
+        info->details.vex.W         = 0;
         info->details.vex.vvvv      = (vexByte1 >> 3) & 0x0F;
-        info->details.vex.l         = (vexByte1 >> 2) & 0x01;
+        info->details.vex.L         = (vexByte1 >> 2) & 0x01;
         info->details.vex.pp        = (vexByte1 >> 0) & 0x03;
         break;
     default:
@@ -269,15 +278,15 @@ static bool ZydisDecodeVexPrefix(uint8_t vexOpcode, uint8_t vexByte1, uint8_t ve
     if ((info->details.vex.m_mmmm == 0x00) || (info->details.vex.m_mmmm > 0x03))
     {
         // Invalid according to the intel documentation
-        return false;
+        return ZYDIS_STATUS_INVALID_MAP;
     }
     // Update internal fields
-    info->details.internal.w = info->details.vex.w;
-    info->details.internal.r = 0x01 & ~info->details.vex.r;
-    info->details.internal.x = 0x01 & ~info->details.vex.x;
-    info->details.internal.b = 0x01 & ~info->details.vex.b;
-    info->details.internal.l = info->details.vex.l;
-    return true;
+    info->details.internal.W = info->details.vex.W;
+    info->details.internal.R = 0x01 & ~info->details.vex.R;
+    info->details.internal.X = 0x01 & ~info->details.vex.X;
+    info->details.internal.B = 0x01 & ~info->details.vex.B;
+    info->details.internal.L = info->details.vex.L;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -288,94 +297,55 @@ static bool ZydisDecodeVexPrefix(uint8_t vexOpcode, uint8_t vexByte1, uint8_t ve
  * @param   evexByte3   The third evex byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  *
- * @return  True if the decoding succeeds, false if an invalid evex encoding was detected.
+ * @return  A zydis status code.
  */
-static bool ZydisDecodeEvexPrefix(uint8_t evexByte1, uint8_t evexByte2, uint8_t evexByte3, 
+static ZydisStatus ZydisDecodeEVEX(uint8_t evexByte1, uint8_t evexByte2, uint8_t evexByte3, 
     ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(info);
 
-    info->details.evex.isDecoded    = true;
+    info->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
+    info->details.evex.isDecoded    = ZYDIS_TRUE;
     info->details.evex.data[0]      = 0x62;
     info->details.evex.data[1]      = evexByte1;
     info->details.evex.data[2]      = evexByte2;
     info->details.evex.data[3]      = evexByte3;
-    info->details.evex.r            = (evexByte1 >> 7) & 0x01;
-    info->details.evex.x            = (evexByte1 >> 6) & 0x01;
-    info->details.evex.b            = (evexByte1 >> 5) & 0x01;
-    info->details.evex.r2           = (evexByte1 >> 4) & 0x01;
+    info->details.evex.R            = (evexByte1 >> 7) & 0x01;
+    info->details.evex.X            = (evexByte1 >> 6) & 0x01;
+    info->details.evex.B            = (evexByte1 >> 5) & 0x01;
+    info->details.evex.R2           = (evexByte1 >> 4) & 0x01;
     if (((evexByte1 >> 2) & 0x03) != 0x00)
     {
         // Invalid according to the intel documentation
-        return false;
+        return ZYDIS_STATUS_MALFORMED_EVEX;
     }
     info->details.evex.mm           = (evexByte1 >> 0) & 0x03;
     if (info->details.evex.mm == 0x00)
     {
         // Invalid according to the intel documentation
-        return false;
+        return ZYDIS_STATUS_INVALID_MAP;
     }
-    info->details.evex.w            = (evexByte2 >> 7) & 0x01;
+    info->details.evex.W            = (evexByte2 >> 7) & 0x01;
     info->details.evex.vvvv         = (evexByte2 >> 3) & 0x0F;
     if (((evexByte2 >> 2) & 0x01) != 0x01)
     {
         // Invalid according to the intel documentation
-        return false;
+        return ZYDIS_STATUS_MALFORMED_EVEX;
     }
     info->details.evex.pp           = (evexByte2 >> 0) & 0x03;
     info->details.evex.z            = (evexByte3 >> 7) & 0x01;
-    info->details.evex.l2           = (evexByte3 >> 6) & 0x01;
-    info->details.evex.l            = (evexByte3 >> 5) & 0x01;
-    info->details.evex.b0           = (evexByte3 >> 4) & 0x01;
-    info->details.evex.v2           = (evexByte3 >> 3) & 0x01;
+    info->details.evex.L2           = (evexByte3 >> 6) & 0x01;
+    info->details.evex.L            = (evexByte3 >> 5) & 0x01;
+    info->details.evex.b            = (evexByte3 >> 4) & 0x01;
+    info->details.evex.V2           = (evexByte3 >> 3) & 0x01;
     info->details.evex.aaa          = (evexByte3 >> 0) & 0x07;    
     // Update internal fields
-    info->details.internal.w = info->details.evex.w;
-    info->details.internal.r = 0x01 & ~info->details.evex.r;
-    info->details.internal.x = 0x01 & ~info->details.evex.x;
-    info->details.internal.b = 0x01 & ~info->details.evex.b;
-    info->details.internal.l = info->details.evex.l;
-    return true;
-}
-
-/**
- * @brief   Decodes the xop-prefix.
- *
- * @param   xopByte1    The first xop byte.
- * @param   xopByte2    The second xop byte.
- * @param   info        A pointer to the @c ZydisInstructionInfo struct.
- *
- * @return  True if the decoding succeeds, false if an invalid xop encoding was detected.
- */
-static bool ZydisDecodeXopPrefix(uint8_t xopByte1, uint8_t xopByte2, ZydisInstructionInfo* info)
-{
-    ZYDIS_ASSERT(info);
-    ZYDIS_ASSERT(((xopByte1 >> 0) & 0x1F) >= 8);
-
-    info->details.xop.isDecoded     = true;
-    info->details.xop.data[0]       = 0x8F;
-    info->details.xop.data[1]       = xopByte1;
-    info->details.xop.data[2]       = xopByte2;
-    info->details.xop.r             = (xopByte1 >> 7) & 0x01;
-    info->details.xop.x             = (xopByte1 >> 6) & 0x01;
-    info->details.xop.b             = (xopByte1 >> 5) & 0x01;
-    info->details.xop.m_mmmm        = (xopByte1 >> 0) & 0x1F;
-    if ((info->details.xop.m_mmmm < 0x08) || (info->details.xop.m_mmmm > 0x0A))
-    {
-        // Invalid according to the documentation
-        return false;
-    }
-    info->details.xop.w             = (xopByte2 >> 7) & 0x01;
-    info->details.xop.vvvv          = (xopByte2 >> 3) & 0x0F;
-    info->details.xop.l             = (xopByte2 >> 2) & 0x01;
-    info->details.xop.pp            = (xopByte2 >> 0) & 0x03; 
-    // Update internal fields
-    info->details.internal.w = info->details.xop.w;
-    info->details.internal.r = 0x01 & ~info->details.xop.r;
-    info->details.internal.x = 0x01 & ~info->details.xop.x;
-    info->details.internal.b = 0x01 & ~info->details.xop.b;
-    info->details.internal.l = info->details.xop.l;     
-    return true;
+    info->details.internal.W = info->details.evex.W;
+    info->details.internal.R = 0x01 & ~info->details.evex.R;
+    info->details.internal.X = 0x01 & ~info->details.evex.X;
+    info->details.internal.B = 0x01 & ~info->details.evex.B;
+    info->details.internal.L = info->details.evex.L;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -384,12 +354,12 @@ static bool ZydisDecodeXopPrefix(uint8_t xopByte1, uint8_t xopByte2, ZydisInstru
  * @param   modrmByte   The modrm byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  */
-static void ZydisDecodeModrm(uint8_t modrmByte, ZydisInstructionInfo* info)
+static void ZydisDecodeModRM(uint8_t modrmByte, ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(info);
 
-    info->instrFlags |= ZYDIS_INSTRFLAG_HAS_MODRM;
-    info->details.modrm.isDecoded   = true;
+    info->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
+    info->details.modrm.isDecoded   = ZYDIS_TRUE;
     info->details.modrm.data[0]     = modrmByte;
     info->details.modrm.mod         = (modrmByte >> 6) & 0x03;
     info->details.modrm.reg         = (modrmByte >> 3) & 0x07;
@@ -402,14 +372,14 @@ static void ZydisDecodeModrm(uint8_t modrmByte, ZydisInstructionInfo* info)
  * @param   sibByte The sib byte.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct
  */
-static void ZydisDecodeSib(uint8_t sibByte, ZydisInstructionInfo* info)
+static void ZydisDecodeSIB(uint8_t sibByte, ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(info->details.modrm.isDecoded);
     ZYDIS_ASSERT((info->details.modrm.rm & 0x7) == 4);
 
-    info->instrFlags |= ZYDIS_INSTRFLAG_HAS_SIB;
-    info->details.sib.isDecoded = true;
+    info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
+    info->details.sib.isDecoded = ZYDIS_TRUE;
     info->details.sib.data[0]   = sibByte;
     info->details.sib.scale     = (sibByte >> 6) & 0x03;
     info->details.sib.index     = (sibByte >> 3) & 0x07;
@@ -424,19 +394,18 @@ static void ZydisDecodeSib(uint8_t sibByte, ZydisInstructionInfo* info)
  * @param   decoder A pointer to the @c ZydisInstructionDecoder decoder instance.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  *         
  * This function sets the corresponding flag for each prefix and automatically decodes the last
  * rex-prefix (if exists).
  */
-static ZydisDecoderStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
 
-    uint8_t groups[4] = { 0, 0, 0, 0 };
-    bool done = false;
+    ZydisBool done = ZYDIS_FALSE;
     do
     {
         uint8_t prefixByte;
@@ -444,62 +413,55 @@ static ZydisDecoderStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* 
         switch (prefixByte)
         {
         case 0xF0:
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_LOCK;
-            ++groups[0];
+            ++info->details.prefixes.hasF0;
             break;
         case 0xF2:
-            // 0xF2 and 0xF3 are mutally exclusive. The one that comes later has precedence.
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_REPNE;
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REP;
-            ++groups[0];
+            decoder->hasUnusedPrefixF2F3 = 0xF2;
+            ++info->details.prefixes.hasF2;
             break;
         case 0xF3:
-            // 0xF2 and 0xF3 are mutally exclusive. The one that comes later has precedence.
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_REP;
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPNE;
-            ++groups[0];
+            decoder->hasUnusedPrefixF2F3 = 0xF3;
+            ++info->details.prefixes.hasF3;
             break;
         case 0x2E: 
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS;
-            ++groups[1];
+            ++info->details.prefixes.has2E;
+            decoder->lastSegmentPrefix = 0x2E;
             break;
         case 0x36:
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_SS;
-            ++groups[1];
+            ++info->details.prefixes.has36;
+            decoder->lastSegmentPrefix = 0x36;
             break;
         case 0x3E: 
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS;
-            ++groups[1];
+            ++info->details.prefixes.has3E;
+            decoder->lastSegmentPrefix = 0x3E;
             break;
         case 0x26: 
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_ES;
-            ++groups[1];
+            ++info->details.prefixes.has26;
+            decoder->lastSegmentPrefix = 0x26;
             break;
         case 0x64:
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_FS;
-            ++groups[1];
+            ++info->details.prefixes.has64;
+            decoder->lastSegmentPrefix = 0x64;
             break;
         case 0x65: 
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_SEGMENT_GS;
-            ++groups[1];
+            ++info->details.prefixes.has65;
+            decoder->lastSegmentPrefix = 0x65;
             break;
         case 0x66:
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE;
-            ++groups[2];
+            decoder->hasUnusedPrefix66 = 0x66;
+            ++info->details.prefixes.has66;
             break;
         case 0x67:
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE;
-            ++groups[3];
+            ++info->details.prefixes.has67;
             break;
         default:
             if ((decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) && 
                 (prefixByte & 0xF0) == 0x40)
             {
-                info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_REX;
                 info->details.rex.data[0] = prefixByte; 
             } else
             {
-                done = true;
+                done = ZYDIS_TRUE;
             }
             break;
         }
@@ -509,26 +471,9 @@ static ZydisDecoderStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* 
         }
     } while (!done);
 
-    if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REX)
+    if (info->details.rex.data[0])
     {
-        ZydisDecodeRexPrefix(info, info->details.rex.data[0]);
-    }
-
-    if (groups[0] > 1)
-    {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_MULTIPLE_GRP1;
-    }
-    if (groups[1] > 1)
-    {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_MULTIPLE_GRP2;
-    }
-    if (groups[2] > 1)
-    {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_MULTIPLE_GRP3;
-    }
-    if (groups[3] > 1)
-    {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_MULTIPLE_GRP4;
+        ZydisDecodeREX(info, info->details.rex.data[0]);
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -545,10 +490,11 @@ static ZydisDecoderStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* 
  * @param   physicalSize    The physical size of the immediate operand.
  * @param   isSigned        Set @c true, if the immediate value is signed or @c false, if not.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
-static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* decoder,
-    ZydisInstructionInfo* info, ZydisOperandInfo* operand, uint8_t physicalSize, bool isSigned)
+static ZydisStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* decoder,
+    ZydisInstructionInfo* info, ZydisOperandInfo* operand, uint8_t physicalSize, 
+    ZydisBool isSigned)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
@@ -578,7 +524,7 @@ static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* d
             {
                 operand->imm.value.uqword = immediate;       
             }
-            decoder->imm8initialized = true;
+            decoder->imm8initialized = ZYDIS_TRUE;
             decoder->imm8 = operand->imm.value.ubyte;   
         }
         break;
@@ -639,7 +585,7 @@ static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* d
     default:
         ZYDIS_UNREACHABLE;
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -650,18 +596,18 @@ static ZydisDecoderStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* d
  * @param   registerClass   The register class.
  * @param   registerId      The register id.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
-static ZydisDecoderStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info, 
+static ZydisStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info, 
     ZydisOperandInfo* operand, ZydisRegisterClass registerClass, uint8_t registerId)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
 
     operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
-    if (registerClass == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8)
+    if (registerClass == ZYDIS_REGCLASS_GPR8)
     {
-        if ((info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REX) && (registerId >= 4)) 
+        if ((info->attributes & ZYDIS_ATTRIB_HAS_REX) && (registerId >= 4)) 
         {
             operand->reg = ZYDIS_REGISTER_SPL + (registerId - 4);
         } else 
@@ -672,14 +618,17 @@ static ZydisDecoderStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
         {
             operand->reg = ZYDIS_REGISTER_NONE;
         }
+        // TODO: Return critical error, if an invalid register was found
     } else
     {
-        operand->reg = ZydisRegisterGetById(registerClass, registerId);
+        operand->reg = ZydisRegisterEncode(registerClass, registerId);
+        if (!operand->reg)
+        {
+            return ZYDIS_STATUS_INVALID_REGISTER;
+        }
     }
 
-    // TODO: Return critical error, if an invalid register was found
-
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -690,9 +639,9 @@ static ZydisDecoderStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
  * @param   operand         A pointer to the @c ZydisOperandInfo struct.
  * @param   registerClass   The register class.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
-static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* decoder,
+static ZydisStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* decoder,
     ZydisInstructionInfo* info, ZydisOperandInfo* operand, ZydisRegisterClass registerClass)
 {
     ZYDIS_ASSERT(decoder);
@@ -700,24 +649,29 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(info->details.modrm.isDecoded);
 
-    uint8_t modrm_rm = (info->details.internal.b << 3) | info->details.modrm.rm;
+    uint8_t modrm_rm = (info->details.internal.B << 3) | info->details.modrm.rm;
     if (info->details.modrm.mod == 3)
     {
         return ZydisDecodeOperandRegister(info, operand, registerClass, modrm_rm);
     }
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     uint8_t displacementSize = 0;
-    info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_ADDRESSSIZE;
+    // TODO: Some instructions (like the MPX ones) do not accept the address-size prefix
+    info->attributes |= ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE;
+    if (info->details.prefixes.has67)
+    {
+        info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+    }
     switch (decoder->disassemblerMode)
     {
-    case ZYDIS_DISASSEMBLER_MODE_16BIT:
-        operand->mem.addressSize = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 32 : 16;
+    case ZYDIS_DISASSEMBLER_MODE_16BIT:                     // TODO: Set ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE and ZYDIS_ATTRIB_HAS_ADDRESSSIZE after getting the instruction definition
+        operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 16;
         break;
     case ZYDIS_DISASSEMBLER_MODE_32BIT:
-        operand->mem.addressSize = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 16 : 32;
+        operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 16 : 32;
         break;
     case ZYDIS_DISASSEMBLER_MODE_64BIT:
-        operand->mem.addressSize = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 32 : 64;
+        operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -762,7 +716,7 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
             {
                 if (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT)
                 {
-                    info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
+                    info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
                     operand->mem.base = ZYDIS_REGISTER_EIP;
                 } else
                 {
@@ -786,10 +740,10 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
             {                                                                          
                 uint8_t sibByte;
                 ZYDIS_CHECK(ZydisInputNext(decoder, info, &sibByte)); 
-                ZydisDecodeSib(sibByte, info);
+                ZydisDecodeSIB(sibByte, info);
             }
-            uint8_t sib_index = (info->details.internal.x << 3) | info->details.sib.index;
-            uint8_t sib_base = (info->details.internal.b << 3) | info->details.sib.base;
+            uint8_t sib_index = (info->details.internal.X << 3) | info->details.sib.index;
+            uint8_t sib_base = (info->details.internal.B << 3) | info->details.sib.base;
             operand->mem.base = ZYDIS_REGISTER_EAX + sib_base;
             operand->mem.index = ZYDIS_REGISTER_EAX + sib_index;
             operand->mem.scale = (1 << info->details.sib.scale) & ~1;
@@ -821,7 +775,7 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
         case 0:
             if (modrm_rm == 5)
             {
-                info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
+                info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
                 operand->mem.base = ZYDIS_REGISTER_RIP;
                 displacementSize = 32;
             }
@@ -841,10 +795,10 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
             {                                                                          
                 uint8_t sibByte;
                 ZYDIS_CHECK(ZydisInputNext(decoder, info, &sibByte)); 
-                ZydisDecodeSib(sibByte, info);
+                ZydisDecodeSIB(sibByte, info);
             }
-            uint8_t sib_index = (info->details.internal.x << 3) | info->details.sib.index;
-            uint8_t sib_base = (info->details.internal.b << 3) | info->details.sib.base;
+            uint8_t sib_index = (info->details.internal.X << 3) | info->details.sib.index;
+            uint8_t sib_base = (info->details.internal.B << 3) | info->details.sib.base;
             operand->mem.base = ZYDIS_REGISTER_RAX + sib_base;
             operand->mem.index = ZYDIS_REGISTER_RAX + sib_index;
             operand->mem.scale = (1 << info->details.sib.scale) & ~1;
@@ -874,18 +828,19 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
     }
     if (displacementSize)
     {
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, displacementSize, true));
-        decoder->imm8initialized = false;
+        ZYDIS_CHECK(
+            ZydisDecodeOperandImmediate(decoder, info, operand, displacementSize, ZYDIS_TRUE));
+        decoder->imm8initialized = ZYDIS_FALSE;
         operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
         operand->mem.disp.dataSize = displacementSize;
         operand->mem.disp.value.sqword = operand->imm.value.sqword;
         operand->mem.disp.dataOffset = operand->imm.dataOffset;
-        operand->imm.isSigned = false;
+        operand->imm.isSigned = ZYDIS_FALSE;
         operand->imm.dataSize = 0;
         operand->imm.value.sqword = 0;
         operand->imm.dataOffset = 0;
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -897,168 +852,185 @@ static ZydisDecoderStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* dec
  * @param   type        The sementic operand-type.
  * @param   encoding    The operand encoding.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
-static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
-    ZydisInstructionInfo* info, ZydisOperandInfo* operand, 
-    ZydisSemanticOperandType type, ZydisOperandEncoding encoding)
+static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisInstructionInfo* info, 
+    ZydisOperandInfo* operand, ZydisSemanticOperandType type, ZydisOperandEncoding encoding)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
 
+    // TODO: EVEXR’ High-16 register specifier modifier P[4] Combine with EVEX.R and ModR/M.reg
+    // TODO: EVEXX High-16 register specifier modifier P[6] Combine with EVEX.B and ModR/M.rm, when SIB/VSIB absent
+    // TODO: EVEXV’ High-16 NDS/VIDX register specifier P[19] Combine with EVEX.vvvv or when VSIB present
+
     // Fixed registers
     switch (type)
     {
     case ZYDIS_SEM_OPERAND_TYPE_AL:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 8;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_AL;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_CL:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 8;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_CL;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_AX:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_AX;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_DX:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_DX;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_ECX:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 32;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_ECX;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_EAX:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 32;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_EAX;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_RAX:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 64;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_RAX;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_ES:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_ES;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_CS:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_CS;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_SS:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_SS;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_DS:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_DS;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_GS:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_GS;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_FS:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 16;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_FS;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_ST0:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->size = 80;
         operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
         operand->reg = ZYDIS_REGISTER_ST0;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     default:
         break;
     }
     
     // Register operands
-    ZydisRegisterClass registerClass = ZYDIS_REGISTERCLASS_NONE;
+    ZydisRegisterClass registerClass = ZYDIS_REGCLASS_INVALID;
     switch (type)
     {
     case ZYDIS_SEM_OPERAND_TYPE_GPR8:
         operand->size = 8;
-        registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8;
+        registerClass = ZYDIS_REGCLASS_GPR8;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_GPR16:
         operand->size = 16;
-        registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16;
+        registerClass = ZYDIS_REGCLASS_GPR16;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_GPR32:
         operand->size = 32;
-        registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32;
+        registerClass = ZYDIS_REGCLASS_GPR32;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_GPR64:
         operand->size = 64;
-        registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64;
+        registerClass = ZYDIS_REGCLASS_GPR64;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_TR:
         operand->size = 32;
-        registerClass = ZYDIS_REGISTERCLASS_TEST;
+        registerClass = ZYDIS_REGCLASS_TEST;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_CR:
         operand->size = (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 64 : 32;
-        registerClass = ZYDIS_REGISTERCLASS_CONTROL;
+        registerClass = ZYDIS_REGCLASS_CONTROL;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_DR:
         operand->size = (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 64 : 32;
-        registerClass = ZYDIS_REGISTERCLASS_DEBUG;
+        registerClass = ZYDIS_REGCLASS_DEBUG;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_FPR:
         operand->size = 80; 
-        registerClass = ZYDIS_REGISTERCLASS_FLOATING_POINT;
+        registerClass = ZYDIS_REGCLASS_X87;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_SREG:
         operand->size = 16;
-        registerClass = ZYDIS_REGISTERCLASS_SEGMENT;
+        registerClass = ZYDIS_REGCLASS_SEGMENT;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_VR64:
         operand->size = 64;
-        registerClass = ZYDIS_REGISTERCLASS_MULTIMEDIA;
+        registerClass = ZYDIS_REGCLASS_MMX;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_VR128:
         operand->size = 128;
-        registerClass = ZYDIS_REGISTERCLASS_VECTOR128;
+        registerClass = ZYDIS_REGCLASS_XMM;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_VR256:
         operand->size = 256;
-        registerClass = ZYDIS_REGISTERCLASS_VECTOR256;
+        registerClass = ZYDIS_REGCLASS_YMM;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_VR512:
         operand->size = 512;
-        registerClass = ZYDIS_REGISTERCLASS_VECTOR512;
+        registerClass = ZYDIS_REGCLASS_ZMM;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MSKR:
         operand->size = 64;
-        registerClass = ZYDIS_REGISTERCLASS_MASK;
+        registerClass = ZYDIS_REGCLASS_MASK;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_BNDR:
         operand->size = 128;
-        registerClass = ZYDIS_REGISTERCLASS_BOUNDS;
+        registerClass = ZYDIS_REGCLASS_BOUND;
         break;
     default:
         break;
     }
-    if (registerClass != ZYDIS_REGISTERCLASS_NONE)
+    if (registerClass != ZYDIS_REGCLASS_INVALID)
     {
         switch (encoding)
         {
         case ZYDIS_OPERAND_ENCODING_REG:
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             return ZydisDecodeOperandRegister(info, operand, registerClass, 
-                (info->details.internal.r << 3) | info->details.modrm.reg);
+                (info->details.internal.R << 3) | info->details.modrm.reg);
         case ZYDIS_OPERAND_ENCODING_RM:
         case ZYDIS_OPERAND_ENCODING_RM_CD2:
         case ZYDIS_OPERAND_ENCODING_RM_CD4:
@@ -1076,9 +1048,10 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
                 registerId = registerId - 8;
             }
             return ZydisDecodeOperandRegister(info, operand, registerClass, 
-                (info->details.internal.b << 3) | registerId);
+                (info->details.internal.B << 3) | registerId);
         }
         case ZYDIS_OPERAND_ENCODING_VVVV:
+            // TODO: VVVV register can be extended by EVEX.V'
             switch (info->encoding)
             {
             case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -1101,13 +1074,13 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
             ZYDIS_ASSERT((info->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX) ||
                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_XOP));
-            ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 8, false));
+            ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 8, ZYDIS_FALSE));
             ZYDIS_CHECK(ZydisDecodeOperandRegister(info, operand, registerClass, 
                 (operand->imm.value.ubyte & 0xF0) >> 4));
             operand->imm.dataSize = 0;
             operand->imm.dataOffset = 0;
             operand->imm.value.uqword = 0;
-            return ZYDIS_STATUS_DECODER_SUCCESS;
+            return ZYDIS_STATUS_SUCCESS;
         default:
             ZYDIS_UNREACHABLE;
         }
@@ -1143,123 +1116,123 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     {
     case ZYDIS_SEM_OPERAND_TYPE_MEM:
         operand->size = 0;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM8:
         operand->size = 8;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM16:
         operand->size = 16;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_BCST2:
-        info->avx.broadcast = ZYDIS_AVX_BCSTMODE_2;
+        info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_2;
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_BCST4:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_4;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_4;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_BCST8:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_8;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_8;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_BCST16:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_16;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_16;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM32:
         operand->size = 32;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_BCST2:
-        info->avx.broadcast = ZYDIS_AVX_BCSTMODE_2;
+        info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_2;
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_BCST4:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_4;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_4;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_BCST8:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_8;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_8;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_BCST16:
-        if (info->avx.broadcast == ZYDIS_AVX_BCSTMODE_INVALID) 
+        if (info->avx.broadcast == ZYDIS_AVX512_BCSTMODE_INVALID) 
         {
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_16;
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_16;
         }
     case ZYDIS_SEM_OPERAND_TYPE_MEM64:
         operand->size = 64;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM80:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 80;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_MEM112:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 112;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_MEM128:
         operand->size = 128;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM224:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 224;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_MEM256:
         operand->size = 256;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM512:
         operand->size = 512;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_M1616:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 32;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_M1632:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 48;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_M1664:
         ZYDIS_ASSERT(evexCD8Scale == 0);
         operand->size = 80;
-        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE);
+        return ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID);
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_VSIBX:
         vsibBaseRegister = ZYDIS_REGISTER_XMM0;
         operand->size = 32;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_VSIBY:
         vsibBaseRegister = ZYDIS_REGISTER_YMM0;
         operand->size = 32;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM32_VSIBZ:
         vsibBaseRegister = ZYDIS_REGISTER_ZMM0;
         operand->size = 32;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_VSIBX:
         vsibBaseRegister = ZYDIS_REGISTER_XMM0;
         operand->size = 64;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_VSIBY:
         vsibBaseRegister = ZYDIS_REGISTER_YMM0;
         operand->size = 64;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     case ZYDIS_SEM_OPERAND_TYPE_MEM64_VSIBZ:
         vsibBaseRegister = ZYDIS_REGISTER_ZMM0;
         operand->size = 64;
-        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGISTERCLASS_NONE));
+        ZYDIS_CHECK(ZydisDecodeOperandModrmRm(decoder, info, operand, ZYDIS_REGCLASS_INVALID));
         break;
     default:
         break;
@@ -1272,18 +1245,17 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
             operand->mem.disp.value.sdword *= evexCD8Scale;
         }
     }
+    // TODO: VSIB index can be extended by EVEX.V'
     if (vsibBaseRegister)
     {
         if (info->details.modrm.rm != 0x04)
         {
-            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_INVALID_VSIB;
-            return ZYDIS_STATUS_DECODER_INVALID_VSIB;
+            return ZYDIS_STATUS_INVALID_VSIB;
         }
         switch (operand->mem.addressSize)
         {
         case 16:
-            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_INVALID_VSIB;
-            return ZYDIS_STATUS_DECODER_INVALID_VSIB;
+            return ZYDIS_STATUS_INVALID_VSIB;
         case 32:
             operand->mem.index = operand->mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister;
             break;
@@ -1293,7 +1265,7 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         default:
             ZYDIS_UNREACHABLE;
         }
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     }
 
     // Immediate operands
@@ -1302,40 +1274,40 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     case ZYDIS_SEM_OPERAND_TYPE_FIXED1:
         operand->type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
         operand->size = 8;
-        operand->imm.isSigned = true;
+        operand->imm.isSigned = ZYDIS_TRUE;
         operand->imm.value.ubyte = 1;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_REL8:
-        info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
-        operand->imm.isRelative = true;
+        info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+        operand->imm.isRelative = ZYDIS_TRUE;
     case ZYDIS_SEM_OPERAND_TYPE_IMM8:
         operand->size = 8;
-        operand->imm.isSigned = true;
+        operand->imm.isSigned = ZYDIS_TRUE;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_IMM8U:
         operand->size = 8;
-        operand->imm.isSigned = false;
+        operand->imm.isSigned = ZYDIS_FALSE;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_REL16:
-        info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
-        operand->imm.isRelative = true;
+        info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+        operand->imm.isRelative = ZYDIS_TRUE;
     case ZYDIS_SEM_OPERAND_TYPE_IMM16:
         operand->size = 16;
-        operand->imm.isSigned = true;
+        operand->imm.isSigned = ZYDIS_TRUE;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_REL32:
-        info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
-        operand->imm.isRelative = true;
+        info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+        operand->imm.isRelative = ZYDIS_TRUE;
     case ZYDIS_SEM_OPERAND_TYPE_IMM32:
         operand->size = 32;
-        operand->imm.isSigned = true;
+        operand->imm.isSigned = ZYDIS_TRUE;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_REL64:
-        info->instrFlags |= ZYDIS_INSTRFLAG_IS_RELATIVE;
-        operand->imm.isRelative = true;
+        info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+        operand->imm.isRelative = ZYDIS_TRUE;
     case ZYDIS_SEM_OPERAND_TYPE_IMM64:
         operand->size = 64;
-        operand->imm.isSigned = true;
+        operand->imm.isSigned = ZYDIS_TRUE;
         break;
     default:
         break;
@@ -1371,31 +1343,31 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         }
         break;
     case ZYDIS_SEM_OPERAND_TYPE_PTR1616:
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, ZYDIS_FALSE));
         operand->ptr.offset = operand->imm.value.uword;
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, ZYDIS_FALSE));
         operand->ptr.segment = operand->imm.value.uword;
         operand->imm.dataSize = 0;
         operand->imm.dataOffset = 0;
         operand->imm.value.uqword = 0;
         operand->type = ZYDIS_OPERAND_TYPE_POINTER;
         operand->size = 32;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_PTR1632:
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 32, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 32, ZYDIS_FALSE));
         operand->ptr.offset = operand->imm.value.udword;
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, ZYDIS_FALSE));
         operand->ptr.segment = operand->imm.value.uword;
         operand->imm.dataSize = 0;
         operand->imm.dataOffset = 0;
         operand->imm.value.uqword = 0;
         operand->type = ZYDIS_OPERAND_TYPE_POINTER;
         operand->size = 48;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_PTR1664:
         // TODO: ?
         assert(0);
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     default:
         break;
     }
@@ -1404,7 +1376,7 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     switch (type)
     {
     case ZYDIS_SEM_OPERAND_TYPE_MOFFS16:
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 16, ZYDIS_FALSE));
         operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
         operand->size = 16;
         operand->mem.disp.dataSize = 16;
@@ -1413,9 +1385,9 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         operand->imm.dataSize = 0;
         operand->imm.dataOffset = 0;
         operand->imm.value.uqword = 0;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_MOFFS32:
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 32, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 32, ZYDIS_FALSE));
         operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
         operand->size = 32;
         operand->mem.disp.dataSize = 32;
@@ -1424,9 +1396,9 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         operand->imm.dataSize = 0;
         operand->imm.dataOffset = 0;
         operand->imm.value.uqword = 0;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     case ZYDIS_SEM_OPERAND_TYPE_MOFFS64:
-        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 64, false));
+        ZYDIS_CHECK(ZydisDecodeOperandImmediate(decoder, info, operand, 64, ZYDIS_FALSE));
         operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
         operand->size = 64;
         operand->mem.disp.dataSize = 64;
@@ -1435,7 +1407,7 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
         operand->imm.dataSize = 0;
         operand->imm.dataOffset = 0;
         operand->imm.value.uqword = 0;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     default:
         break;
     }
@@ -1474,39 +1446,41 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
     }   
     if (srcidx || dstidx)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_ADDRESSSIZE;
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE;
+        if (info->details.prefixes.has67)
+        {
+            info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+        }
         switch (decoder->disassemblerMode)
         {
         case ZYDIS_DISASSEMBLER_MODE_16BIT:
-            operand->mem.addressSize = 
-                (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 32 : 16;
+            operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 16;
             break;
         case ZYDIS_DISASSEMBLER_MODE_32BIT:
-            operand->mem.addressSize = 
-                (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 16 : 32;
+            operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 16 : 32;
             break;
         case ZYDIS_DISASSEMBLER_MODE_64BIT:
-            operand->mem.addressSize = 
-                (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 32 : 64;
+            operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
             break;
         default:
             ZYDIS_UNREACHABLE;
         }
-        registerClass = ZYDIS_REGISTERCLASS_NONE;
+        registerClass = ZYDIS_REGCLASS_INVALID;
         switch (operand->mem.addressSize)
         {
         case 16:
-            registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16;
+            registerClass = ZYDIS_REGCLASS_GPR16;
             break;
         case 32:
-            registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32;
+            registerClass = ZYDIS_REGCLASS_GPR32;
             break;
         case 64:
-            registerClass = ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64;
+            registerClass = ZYDIS_REGCLASS_GPR64;
             break;
         default:
             ZYDIS_UNREACHABLE;
         } 
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         if (srcidx)
         {   
             ZYDIS_CHECK(ZydisDecodeOperandRegister(info, operand, registerClass, 6));
@@ -1515,7 +1489,7 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
             operand->mem.segment = ZYDIS_REGISTER_DS;
             operand->mem.base = operand->reg;
             operand->reg = ZYDIS_REGISTER_NONE; 
-            return ZYDIS_STATUS_DECODER_SUCCESS;
+            return ZYDIS_STATUS_SUCCESS;
         }
         if (dstidx)
         {   
@@ -1525,11 +1499,11 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
             operand->mem.base = operand->reg;
             operand->mem.segment = ZYDIS_REGISTER_ES;
             operand->reg = ZYDIS_REGISTER_NONE;
-            return ZYDIS_STATUS_DECODER_SUCCESS;
+            return ZYDIS_STATUS_SUCCESS;
         }
     }
 
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /**
@@ -1540,9 +1514,9 @@ static ZydisDecoderStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder,
  * @param   operands        A pointer to the first operand-definition of the instruction.
  * @param   operandCount    The number of operands.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
-static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
+static ZydisStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
     ZydisInstructionInfo* info, const ZydisOperandDefinition* operands, uint8_t operandCount)
 {
     ZYDIS_ASSERT(decoder);
@@ -1553,76 +1527,81 @@ static ZydisDecoderStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
     info->operandCount = operandCount;
     for (uint8_t i = 0; i < operandCount; ++i)
     {
-        info->operand[i].id = i;
-        ZydisSemanticOperandType type = operands[i].type;
-        if (type == ZYDIS_SEM_OPERAND_TYPE_UNUSED)
+        if (operands[i].type == ZYDIS_SEM_OPERAND_TYPE_UNUSED)
         {
             break;
         }
-        ZydisInstructionEncoding encoding = operands[i].encoding;
-        ZydisDecoderStatus status = 
-            ZydisDecodeOperand(decoder, info, &info->operand[i], type, encoding);
-        info->operand[i].encoding = encoding;
-        info->operand[i].access = operands[i].access;
-        if (status != ZYDIS_STATUS_DECODER_SUCCESS)
-        {
-            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_OPERANDS;
-            return status;
-        }
+        info->operands[i].id = i;
+        ZYDIS_CHECK(ZydisDecodeOperand(decoder, info, &info->operands[i], operands[i].type, 
+            operands[i].encoding));
+        info->operands[i].encoding = operands[i].encoding;
+        info->operands[i].action = operands[i].action;
         // Adjust segment register for memory operands
-        if (info->operand[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+        if (info->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS)
+            info->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
+            switch (decoder->lastSegmentPrefix)
             {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_CS;    
-            } else
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_SS)
-            {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_SS;    
-            } else
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS)
-            {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_DS;    
-            } else
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_ES)
-            {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_ES;    
-            } else
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_FS)
-            {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_FS;    
-            } else
-            if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_GS)
-            {
-                info->operand[i].mem.segment = ZYDIS_REGISTER_GS;    
-            } else
-            {
-                if ((info->operand[i].mem.base == ZYDIS_REGISTER_RSP) ||
-                    (info->operand[i].mem.base == ZYDIS_REGISTER_RBP) || 
-                    (info->operand[i].mem.base == ZYDIS_REGISTER_ESP) ||
-                    (info->operand[i].mem.base == ZYDIS_REGISTER_EBP) ||
-                    (info->operand[i].mem.base == ZYDIS_REGISTER_SP)  ||
-                    (info->operand[i].mem.base == ZYDIS_REGISTER_BP))
+            case 0x2E:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_CS;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            case 0x36:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_SS;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            case 0x3E:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_DS;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            case 0x26:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_ES;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            case 0x64:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_FS;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            case 0x65:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+                info->operands[i].mem.segment = ZYDIS_REGISTER_GS;
+                decoder->lastSegmentPrefix = 0;
+                break;
+            default:
+                if ((info->operands[i].mem.base == ZYDIS_REGISTER_RSP) ||
+                    (info->operands[i].mem.base == ZYDIS_REGISTER_RBP) || 
+                    (info->operands[i].mem.base == ZYDIS_REGISTER_ESP) ||
+                    (info->operands[i].mem.base == ZYDIS_REGISTER_EBP) ||
+                    (info->operands[i].mem.base == ZYDIS_REGISTER_SP)  ||
+                    (info->operands[i].mem.base == ZYDIS_REGISTER_BP))
                 {
-                    info->operand[i].mem.segment = ZYDIS_REGISTER_SS;
+                    info->operands[i].mem.segment = ZYDIS_REGISTER_SS;
                 } else
                 {
-                    info->operand[i].mem.segment = ZYDIS_REGISTER_DS;
-                }
+                    info->operands[i].mem.segment = ZYDIS_REGISTER_DS;
+                };
             }
         }
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Finalizes the @c ZydisInstructionInfo struct by adding additional information.
+ * @brief   Applies additional information from the instruction-definition to the 
+ *          @c ZydisInstructionInfo struct.
  * 
- * @param   info        A pointer to the @c ZydisInstructionInfo struct.
+ * @param   decoder A pointer to the @c ZydisInstructionDecoder decoder instance.
+ * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  */
-static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info)
+static void ZydisApplyInstructionDefinition(ZydisInstructionDecoder* decoder, 
+    ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(info->details.internal.definition);
@@ -1633,52 +1612,95 @@ static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info)
     // Set prefix-flags
     if (definition->acceptsLock)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_LOCK;
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;
+        if (info->details.prefixes.hasF0)
+        {
+            info->attributes |= ZYDIS_ATTRIB_HAS_LOCK;
+        }
     }
     if (definition->acceptsREP)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_REP;
-    } else if (definition->acceptsREPEREPNE)
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_REP;
+    }
+    if (definition->acceptsREPEREPNE)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_REPE | ZYDIS_PREFIXFLAG_ACCEPTS_REPNE;
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_REPE | ZYDIS_ATTRIB_ACCEPTS_REPNE;
+    }
+    if (definition->acceptsBOUND)
+    {
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_BOUND;    
     }
     if (definition->acceptsXACQUIRE)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_XACQUIRE;    
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_XACQUIRE;    
     }
     if (definition->acceptsXRELEASE)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_XRELEASE;    
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_XRELEASE;    
     }
     if (definition->acceptsHLEWithoutLock)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_HLE_WITHOUT_LOCK;
-    }
-    if ((info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_LOCK) || (definition->acceptsHLEWithoutLock))
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK;
+    } 
+    switch (decoder->hasUnusedPrefixF2F3)
     {
-        if (definition->acceptsXACQUIRE && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPE))
+    case 0xF2:
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_REPNE)
         {
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XACQUIRE; 
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPE;
-        } 
-        if (definition->acceptsXRELEASE && (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE))
-        {
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XRELEASE;
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_REPNE;
+            info->attributes |= ZYDIS_ATTRIB_HAS_REPNE;
+            break;
         }
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_XACQUIRE)
+        {
+            if ((info->attributes & ZYDIS_ATTRIB_HAS_LOCK) || (definition->acceptsHLEWithoutLock))
+            {
+                info->attributes |= ZYDIS_ATTRIB_HAS_XACQUIRE;
+                break;
+            }
+        }
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_BOUND)
+        {
+            info->attributes |= ZYDIS_ATTRIB_HAS_BOUND;
+            break;
+        }   
+        break;
+    case 0xF3:
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_REP)
+        {
+            info->attributes |= ZYDIS_ATTRIB_HAS_REP;
+            break;
+        }
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_REPE)
+        {
+            info->attributes |= ZYDIS_ATTRIB_HAS_REPE;
+            break;
+        }
+        if (info->attributes & ZYDIS_ATTRIB_ACCEPTS_XRELEASE)
+        {
+            if ((info->attributes & ZYDIS_ATTRIB_HAS_LOCK) || (definition->acceptsHLEWithoutLock))
+            {
+                info->attributes |= ZYDIS_ATTRIB_HAS_XRELEASE;
+                break;
+            }
+        }
+        break;
+    default:
+        break;
     }
+ 
     if (definition->acceptsBranchHints)
     {
-        info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_BRANCH_HINTS;
-        if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS)
+        info->attributes |= ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS;
+        switch (decoder->lastSegmentPrefix)
         {
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_BRANCH_NOT_TAKEN;
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_SEGMENT_CS;
-        }
-        if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS)
-        {
-            info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_BRANCH_TAKEN;
-            info->prefixFlags &= ~ZYDIS_PREFIXFLAG_HAS_SEGMENT_DS;
+        case 0x2E:
+            info->attributes |= ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN;
+            break;
+        case 0x3E:
+            info->attributes |= ZYDIS_ATTRIB_HAS_BRANCH_TAKEN;
+            break;
+        default:
+            break;
         }
     }
     
@@ -1691,10 +1713,10 @@ static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info)
         }
         if (definition->hasEvexZ && info->details.evex.z)
         {
-            info->avx.maskMode = ZYDIS_AVX_MASKMODE_ZERO;
+            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_ZERO;
         } else
         {
-            info->avx.maskMode = ZYDIS_AVX_MASKMODE_MERGE;
+            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
         }
         switch (definition->evexBFunctionality)
         {
@@ -1702,34 +1724,18 @@ static void ZydisFinalizeInstructionInfo(ZydisInstructionInfo* info)
             break;
         case ZYDIS_EVEXB_FUNCTIONALITY_RC:
             info->avx.roundingMode = 
-                (((info->details.evex.l2 & 0x01) << 1) | info->details.evex.l) + 1; 
+                (((info->details.evex.L2 & 0x01) << 1) | info->details.evex.L) + 1; 
         case ZYDIS_EVEXB_FUNCTIONALITY_SAE:
-            info->avx.sae = true;
+            info->avx.hasSAE = ZYDIS_TRUE;
         default:
-            info->avx.broadcast = ZYDIS_AVX_BCSTMODE_INVALID;
-        }
-    }
-
-    // Replace XCHG rAX, rAX with NOP alias
-    if (info->mnemonic == ZYDIS_MNEMONIC_XCHG)
-    {
-        if (((info->operand[0].reg == ZYDIS_REGISTER_RAX) && 
-            (info->operand[1].reg == ZYDIS_REGISTER_RAX)) || 
-            ((info->operand[0].reg == ZYDIS_REGISTER_EAX) && 
-            (info->operand[1].reg == ZYDIS_REGISTER_EAX)) ||
-            ((info->operand[0].reg == ZYDIS_REGISTER_AX) && 
-            (info->operand[1].reg == ZYDIS_REGISTER_AX)))
-        {
-            info->mnemonic = ZYDIS_MNEMONIC_NOP;
-            info->operandCount = 0;
-            memset(&info->operand[0], 0, sizeof(ZydisOperandInfo) * 2);
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_INVALID;
         }
     }
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
@@ -1758,10 +1764,13 @@ static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decode
                 if ((decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ||
                     ((nextInput & 0xF0) >= 0xC0))
                 {
-                    if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REX)
+                    if (info->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
-                        info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_ILLEGAL_REX;
-                        return ZYDIS_STATUS_DECODER_ILLEGAL_REX;
+                        return ZYDIS_STATUS_ILLEGAL_REX;
+                    }
+                    if ((decoder->hasUnusedPrefixF2F3) || (decoder->hasUnusedPrefix66))
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
                     uint8_t prefixBytes[3];
                     switch (info->opcode)
@@ -1793,25 +1802,15 @@ static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decode
                     case 0xC5:
                         // Decode vex-prefix
                         info->encoding = ZYDIS_INSTRUCTION_ENCODING_VEX;
-                        info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_VEX;
-                        if (!ZydisDecodeVexPrefix(info->opcode, prefixBytes[0], prefixBytes[1], 
-                            info))
-                        {
-                            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_MALFORMED_VEX;
-                            return ZYDIS_STATUS_DECODER_MALFORMED_VEX;
-                        }
+                        ZYDIS_CHECK(
+                            ZydisDecodeVEX(info->opcode, prefixBytes[0], prefixBytes[1], info));
                         info->opcodeMap = info->details.vex.m_mmmm;
                         break;
                     case 0x62:
                         // Decode evex-prefix
                         info->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
-                        info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_EVEX;
-                        if (!ZydisDecodeEvexPrefix(prefixBytes[0], prefixBytes[1], prefixBytes[2], 
-                            info))
-                        {
-                            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_MALFORMED_EVEX;
-                            return ZYDIS_STATUS_DECODER_MALFORMED_EVEX;
-                        }
+                        ZYDIS_CHECK(
+                            ZydisDecodeEVEX(prefixBytes[0], prefixBytes[1], prefixBytes[2], info));
                         info->opcodeMap = info->details.evex.mm;
                         break;
                     default:
@@ -1826,10 +1825,13 @@ static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decode
                 ZYDIS_CHECK(ZydisInputPeek(decoder, info, &nextInput)); 
                 if (((nextInput >> 0) & 0x1F) >= 8)
                 {
-                    if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REX)
+                    if (info->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
-                        info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_ILLEGAL_REX;
-                        return ZYDIS_STATUS_DECODER_ILLEGAL_REX;
+                        return ZYDIS_STATUS_ILLEGAL_REX;
+                    }
+                    if ((decoder->hasUnusedPrefixF2F3) || (decoder->hasUnusedPrefix66))
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
                     uint8_t prefixBytes[2];
                     // Read additional xop-prefix data
@@ -1838,12 +1840,7 @@ static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decode
                     ZYDIS_CHECK(ZydisInputNext(decoder, info, &prefixBytes[1]));
                     // Decode xop-prefix
                     info->encoding = ZYDIS_INSTRUCTION_ENCODING_XOP;
-                    info->prefixFlags |= ZYDIS_PREFIXFLAG_HAS_XOP;
-                    if (!ZydisDecodeXopPrefix(prefixBytes[0], prefixBytes[1], info))
-                    {
-                        info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_MALFORMED_XOP;
-                        return ZYDIS_STATUS_DECODER_MALFORMED_XOP;
-                    }
+                    ZYDIS_CHECK(ZydisDecodeXOP(prefixBytes[0], prefixBytes[1], info));
                     info->opcodeMap = ZYDIS_OPCODE_MAP_XOP8 + info->details.xop.m_mmmm - 0x08;
                 }
                 break;
@@ -1884,17 +1881,17 @@ static ZydisDecoderStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decode
         // All 3dnow (0x0F 0x0F) instructions are using the same operand encoding. We just 
         // decode a random (pi2fw) instruction and extract the actual opcode later.
         *index = 0x0C;
-        return ZYDIS_STATUS_DECODER_SUCCESS;
+        return ZYDIS_STATUS_SUCCESS;
     default:
         ZYDIS_CHECK(ZydisInputNext(decoder, info, &info->opcode));
         break;
     }
 
     *index = info->opcode; 
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerXop(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerXop(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
@@ -1911,20 +1908,20 @@ static ZydisDecoderStatus ZydisNodeHandlerXop(ZydisInstructionInfo* info, uint16
     default:
         ZYDIS_UNREACHABLE;
     } 
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerMode(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerMode(ZydisInstructionDecoder* decoder, 
     uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(index);
 
     *index = (decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 0 : 1;
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerVex(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerVex(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
@@ -1945,32 +1942,42 @@ static ZydisDecoderStatus ZydisNodeHandlerVex(ZydisInstructionInfo* info, uint16
     default:
         ZYDIS_UNREACHABLE;
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerMandatoryPrefix(ZydisInstructionInfo* info, 
-    uint16_t* index)
+static ZydisStatus ZydisNodeHandlerMandatoryPrefix(ZydisInstructionDecoder* decoder, 
+    ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
-    if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REP)
+    // 0x66 has precedence over 0xF2 and 0xF3
+    if (decoder->hasUnusedPrefix66)
     {
-        *index = 2;    
-        info->prefixFlags &= ~ ZYDIS_PREFIXFLAG_HAS_REP; // TODO: don't remove but mark as mandatory
-    } else if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_REPNE)
+        decoder->hasUnusedPrefix66 = 0;
+        *index = 1;      
+    } else
     {
-        *index = 3;
-        info->prefixFlags &= ~ ZYDIS_PREFIXFLAG_HAS_REPNE; // TODO: don't remove but mark as mandatory
-    } else if (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE)
-    {
-        *index = 1;
-        info->prefixFlags &= ~ ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE; // TODO: don't remove but mark as mandatory
+        switch (decoder->hasUnusedPrefixF2F3)
+        {
+        case 0xF3:
+            decoder->hasUnusedPrefixF2F3 = 0;
+            *index = 2;
+            
+            break;
+        case 0xF2:
+            decoder->hasUnusedPrefixF2F3 = 0;
+            *index = 3;         
+            break;
+        default:
+            break;
+        }
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerModrmMod(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerModrmMod(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
@@ -1981,13 +1988,13 @@ static ZydisDecoderStatus ZydisNodeHandlerModrmMod(ZydisInstructionDecoder* deco
     {
         uint8_t modrmByte;
         ZYDIS_CHECK(ZydisInputNext(decoder, info, &modrmByte));
-        ZydisDecodeModrm(modrmByte, info);               
+        ZydisDecodeModRM(modrmByte, info);               
     }
     *index = (info->details.modrm.mod == 0x3) ? 1 : 0;
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerModrmReg(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerModrmReg(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
@@ -1998,13 +2005,13 @@ static ZydisDecoderStatus ZydisNodeHandlerModrmReg(ZydisInstructionDecoder* deco
     {
         uint8_t modrmByte;
         ZYDIS_CHECK(ZydisInputNext(decoder, info, &modrmByte));
-        ZydisDecodeModrm(modrmByte, info);               
+        ZydisDecodeModRM(modrmByte, info);               
     }
     *index = info->details.modrm.reg;
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerModrmRm(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerModrmRm(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
@@ -2015,63 +2022,72 @@ static ZydisDecoderStatus ZydisNodeHandlerModrmRm(ZydisInstructionDecoder* decod
     {
         uint8_t modrmByte;
         ZYDIS_CHECK(ZydisInputNext(decoder, info, &modrmByte));
-        ZydisDecodeModrm(modrmByte, info);                
+        ZydisDecodeModRM(modrmByte, info);                
     }
     *index = info->details.modrm.rm;
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerOperandSize(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerOperandSize(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
-    info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_OPERANDSIZE;
+    info->attributes |= ZYDIS_ATTRIB_ACCEPTS_OPERANDSIZE;
+    if (decoder->hasUnusedPrefix66)
+    {
+        info->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
+        decoder->hasUnusedPrefix66 = 0;
+    }
 
     switch (decoder->disassemblerMode)
     {
     case ZYDIS_DISASSEMBLER_MODE_16BIT:
-        *index = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE) ? 1 : 0;
+        *index = (info->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
         break;
     case ZYDIS_DISASSEMBLER_MODE_32BIT:
     case ZYDIS_DISASSEMBLER_MODE_64BIT:
-        *index = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_OPERANDSIZE) ? 0 : 1;
+        *index = (info->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 0 : 1;
         break;
     default:
         ZYDIS_UNREACHABLE;
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerAddressSize(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisNodeHandlerAddressSize(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(decoder);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
-    info->prefixFlags |= ZYDIS_PREFIXFLAG_ACCEPTS_ADDRESSSIZE;
+    info->attributes |= ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE;
+    if (info->details.prefixes.has67)
+    {
+        info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+    }
 
     switch (decoder->disassemblerMode)
     {
     case ZYDIS_DISASSEMBLER_MODE_16BIT:
-        *index = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 1 : 0;
+        *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 0;
         break;
     case ZYDIS_DISASSEMBLER_MODE_32BIT:
-        *index = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 0 : 1;
+        *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 0 : 1;
         break;
     case ZYDIS_DISASSEMBLER_MODE_64BIT:
-        *index = (info->prefixFlags & ZYDIS_PREFIXFLAG_HAS_ADDRESSSIZE) ? 1 : 2;
+        *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 2;
         break;
     default: 
         ZYDIS_UNREACHABLE;
     }
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerRexW(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerRexW(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
@@ -2093,11 +2109,11 @@ static ZydisDecoderStatus ZydisNodeHandlerRexW(ZydisInstructionInfo* info, uint1
     default:
         ZYDIS_UNREACHABLE;
     }
-    *index = info->details.internal.w;
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    *index = info->details.internal.W;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerVexL(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerVexL(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
@@ -2116,30 +2132,30 @@ static ZydisDecoderStatus ZydisNodeHandlerVexL(ZydisInstructionInfo* info, uint1
     default:
         ZYDIS_UNREACHABLE;
     }
-    *index = info->details.internal.l;
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    *index = info->details.internal.L;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerEvexL2(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerEvexL2(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
     ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYDIS_ASSERT(info->details.evex.isDecoded);
-    *index = info->details.evex.l2;
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    *index = info->details.evex.L2;
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisDecoderStatus ZydisNodeHandlerEvexB(ZydisInstructionInfo* info, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerEvexB(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
     ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYDIS_ASSERT(info->details.evex.isDecoded);
-    *index = info->details.evex.b0;
-    return ZYDIS_STATUS_DECODER_SUCCESS;   
+    *index = info->details.evex.b;
+    return ZYDIS_STATUS_SUCCESS;   
 }
 
 /**
@@ -2151,7 +2167,7 @@ static ZydisDecoderStatus ZydisNodeHandlerEvexB(ZydisInstructionInfo* info, uint
  *
  * @return  A zydis decoder status code.
  */
-static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder, 
+static ZydisStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info)
 {
     ZYDIS_ASSERT(decoder);
@@ -2164,13 +2180,12 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
     {
         nodeType = node->type;
         uint16_t index = 0;
-        ZydisDecoderStatus status = 0;
+        ZydisStatus status = 0;
         switch (nodeType)
         {
         case ZYDIS_NODETYPE_INVALID:
         {
-            info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_UNDEFINED;
-            return ZYDIS_STATUS_DECODER_UNDEFINED_INSTRUCTION;
+            return ZYDIS_STATUS_DECODING_ERROR;
         }
         case ZYDIS_NODETYPE_DEFINITION_0OP:
         case ZYDIS_NODETYPE_DEFINITION_1OP:
@@ -2189,6 +2204,7 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
 
             info->mnemonic = (ZydisInstructionMnemonic)definition->mnemonic;
             info->details.internal.definition = (void*)definition;
+            ZydisApplyInstructionDefinition(decoder, info);
 
             if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
             {
@@ -2216,19 +2232,22 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
                 node = ZydisInstructionTableGetChildNode(node, info->opcode);
                 if (node->type == ZYDIS_NODETYPE_INVALID)
                 {
-                    info->instrFlags |= ZYDIS_INSTRFLAG_ERROR_UNDEFINED;
-                    return ZYDIS_STATUS_DECODER_UNDEFINED_INSTRUCTION;        
+                    return ZYDIS_STATUS_DECODING_ERROR;        
                 }
                 node = ZydisInstructionTableGetChildNode(node, 
                     (info->details.modrm.mod == 0x3) ? 1 : 0);
-                // Decode actual operands and fix the instruction-info               
+
+                // Decode actual operands and fix the instruction-info 
                 ZydisInstructionTableGetDefinition(node, &definition, &operands, &operandCount);
                 ZYDIS_ASSERT(definition);
                 ZYDIS_ASSERT(operands && (operandCount == 2));
-                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
+
                 info->mnemonic = (ZydisInstructionMnemonic)definition->mnemonic;
                 info->details.internal.definition = (void*)definition;
-                ZydisFinalizeInstructionInfo(info);  
+                ZydisApplyInstructionDefinition(decoder, info);
+
+                ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
+                 
                 return ZydisInputNext(decoder, info, &info->opcode);
             }
 
@@ -2236,9 +2255,8 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             {
                 ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
             }
-            ZydisFinalizeInstructionInfo(info);
 
-            return ZYDIS_STATUS_DECODER_SUCCESS;
+            return ZYDIS_STATUS_SUCCESS;
         }
         case ZYDIS_NODETYPE_FILTER_OPCODE:
             status = ZydisNodeHandlerOpcode(decoder, info, &index);
@@ -2253,7 +2271,7 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             status = ZydisNodeHandlerMode(decoder, &index);
             break;           
         case ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX:
-            status = ZydisNodeHandlerMandatoryPrefix(info, &index);
+            status = ZydisNodeHandlerMandatoryPrefix(decoder, info, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_MODRMMOD:
             status = ZydisNodeHandlerModrmMod(decoder, info, &index);
@@ -2294,7 +2312,7 @@ static ZydisDecoderStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
         (nodeType != ZYDIS_NODETYPE_DEFINITION_3OP) && 
         (nodeType != ZYDIS_NODETYPE_DEFINITION_4OP) && 
         (nodeType != ZYDIS_NODETYPE_DEFINITION_5OP));
-    return ZYDIS_STATUS_DECODER_SUCCESS;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -2387,12 +2405,15 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
     
-    decoder->imm8initialized = false;
+    decoder->hasUnusedPrefix66 = 0;
+    decoder->hasUnusedPrefixF2F3 = 0;
+    decoder->lastSegmentPrefix = 0;
+    decoder->imm8initialized = ZYDIS_FALSE;
 
     void* userData[6];
     for (int i = 0; i < 5; ++i)
     {
-        userData[i] = info->operand[i].userData;
+        userData[i] = info->operands[i].userData;
     }
     userData[5] = info->userData;
     memset(info, 0, sizeof(*info));   
@@ -2400,21 +2421,37 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     info->instrAddress = decoder->instructionPointer;
     for (int i = 0; i < 5; ++i)
     {
-        info->operand[i].userData = userData[i];
+        info->operands[i].userData = userData[i];
     }
     info->userData = userData[5];
 
     uint8_t bufferPosRead = decoder->buffer.posRead;
 
-    ZydisDecoderStatus status = ZydisCollectOptionalPrefixes(decoder, info);
-    if (status != ZYDIS_STATUS_DECODER_SUCCESS)
+    ZydisStatus status = ZydisCollectOptionalPrefixes(decoder, info);
+    if (status != ZYDIS_STATUS_SUCCESS)
     {
         goto DecodeError;
     }
     status = ZydisDecodeOpcode(decoder, info);
-    if (status != ZYDIS_STATUS_DECODER_SUCCESS)
+    if (status != ZYDIS_STATUS_SUCCESS)
     {
         goto DecodeError;
+    }
+
+    // Replace XCHG rAX, rAX with NOP alias
+    if (info->mnemonic == ZYDIS_MNEMONIC_XCHG)
+    {
+        if (((info->operands[0].reg == ZYDIS_REGISTER_RAX) && 
+            (info->operands[1].reg == ZYDIS_REGISTER_RAX)) || 
+            ((info->operands[0].reg == ZYDIS_REGISTER_EAX) && 
+            (info->operands[1].reg == ZYDIS_REGISTER_EAX)) ||
+            ((info->operands[0].reg == ZYDIS_REGISTER_AX) && 
+            (info->operands[1].reg == ZYDIS_REGISTER_AX)))
+        {
+            info->mnemonic = ZYDIS_MNEMONIC_NOP;
+            info->operandCount = 0;
+            memset(&info->operands[0], 0, sizeof(ZydisOperandInfo) * 2);
+        }
     }
 
     decoder->instructionPointer += info->length;
@@ -2424,7 +2461,6 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
 
 DecodeError:
 {
-    uint32_t flags = info->instrFlags;
     uint8_t firstByte = info->data[0];
     uint64_t instrAddress = info->instrAddress;
     memset(info, 0, sizeof(*info));
@@ -2438,7 +2474,7 @@ DecodeError:
             decoder->buffer.posWrite + (sizeof(decoder->buffer.data) - bufferPosRead);   
     }
     decoder->buffer.posRead = bufferPosRead;
-    if (status == ZYDIS_STATUS_DECODER_NO_MORE_DATA)
+    if (status == ZYDIS_STATUS_NO_MORE_DATA)
     {       
         return status;
     }
@@ -2451,7 +2487,6 @@ DecodeError:
   
     ++decoder->instructionPointer;
     info->mode = decoder->disassemblerMode;
-    info->instrFlags = flags & ZYDIS_INSTRFLAG_ERROR_MASK;
     info->length = 1;
     info->data[0] = firstByte;
     info->instrAddress = instrAddress;

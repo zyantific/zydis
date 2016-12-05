@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,7 +27,7 @@
 #ifndef ZYDIS_STATUS_H
 #define ZYDIS_STATUS_H
 
-#include <stdint.h>
+#include <Zydis/Types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,36 +47,86 @@ typedef uint32_t ZydisStatus;
  */
 enum ZydisStatusCode
 {
+    /* ------------------------------------------------------------------------------------------ */
+    /* General                                                                                    */
+    /* ------------------------------------------------------------------------------------------ */
+
     /**
      * @brief   The operation completed successfully.
      */
-    ZYDIS_STATUS_SUCCESS                    = 0x00000000,
+    ZYDIS_STATUS_SUCCESS                                                            = 0x00000000,
     /**
      * @brief   An invalid parameter was passed to a function.
      */
-    ZYDIS_STATUS_INVALID_PARAMETER          = 0x00000001,
+    ZYDIS_STATUS_INVALID_PARAMETER,
     /**
      * @brief   An attempt was made to perform an invalid operation.
      */
-    ZYDIS_STATUS_INVALID_OPERATION          = 0x00000002,
+    ZYDIS_STATUS_INVALID_OPERATION,
+
+    /* ------------------------------------------------------------------------------------------ */
+    /* Decoder                                                                                    */
+    /* ------------------------------------------------------------------------------------------ */
+
     /**
      * @brief   An attempt was made to read data from an input data-source that has no more data 
      *          available.
      */
-    ZYDIS_STATUS_NO_MORE_DATA               = 0x00000003,
+    ZYDIS_STATUS_NO_MORE_DATA,
     /**
-     * @brief   An error occured while decoding the current instruction. Check the @c instrFlags 
-     *          field of the @c ZydisInstructionInfo struct for further details.
+     * @brief   An general error occured while decoding the current instruction. The instruction
+     *          might be undefined.
      */
-    ZYDIS_STATUS_DECODING_ERROR             = 0x00000004, 
+    ZYDIS_STATUS_DECODING_ERROR, 
+    /**
+     * @brief   The instruction exceeded the maximum length of 15 bytes.
+     */
+    ZYDIS_STATUS_INSTRUCTION_TOO_LONG,
+    /**
+     * @brief   The instruction encoded an invalid register.
+     */
+    ZYDIS_STATUS_INVALID_REGISTER,
+    /**
+     * @brief   A lock-prefix (F0) was found while decoding an instruction that does not support
+     *          locking. 
+     */
+    ZYDIS_STATUS_ILLEGAL_LOCK,
+    /**
+     * @brief   A legacy-prefix (F2, F3, 66) was found while decoding a xop/vex/evex instruction. 
+     */
+    ZYDIS_STATUS_ILLEGAL_LEGACY_PFX,
+    /**
+     * @brief   A rex-prefix was found while decoding a xop/vex/evex instruction. 
+     */
+    ZYDIS_STATUS_ILLEGAL_REX,
+    /**
+     * @brief   An invalid opcode-map value was found while decoding a xop/vex/evex-prefix.  
+     */
+    ZYDIS_STATUS_INVALID_MAP,
+    /**
+     * @brief   An error occured while decoding the evex-prefix.  
+     */
+    ZYDIS_STATUS_MALFORMED_EVEX,
+    // TODO:
+    ZYDIS_STATUS_INVALID_VSIB,
+
+    /* ------------------------------------------------------------------------------------------ */
+    /* Formatter                                                                                  */
+    /* ------------------------------------------------------------------------------------------ */
+
     /**
      * @brief   A buffer passed to a function was too small to complete the requested operation.
      */
-    ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE   = 0x00000005,
+    ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE,
+
+    /* ------------------------------------------------------------------------------------------ */
+    /* Misc                                                                                       */
+    /* ------------------------------------------------------------------------------------------ */
+
     /**
      * @brief   The base value for user-defined status codes.
      */
-    ZYDIS_STATUS_USER                       = 0x10000000
+    ZYDIS_STATUS_USER                                                               = 0x10000000
 };
 
 /* ============================================================================================== */
@@ -84,9 +134,9 @@ enum ZydisStatusCode
 /* ============================================================================================== */
 
 /**
- * @brief   Checks a zydis status code for success.
+ * @brief   Checks if a zydis operation was successfull.
  *
- * @param   status  The status code.
+ * @param   status  The zydis status-code to check.
  */
 #define ZYDIS_SUCCESS(status) (status == ZYDIS_STATUS_SUCCESS)
 

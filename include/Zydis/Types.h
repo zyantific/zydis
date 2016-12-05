@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -24,32 +24,44 @@
 
 ***************************************************************************************************/
 
-#include <Zydis/InstructionDetails.h>
+/**
+ * @file
+ * @brief Includes and defines some default datatypes.
+ */
+
+#ifndef ZYDIS_TYPES_H
+#define ZYDIS_TYPES_H
 
 /* ============================================================================================== */
-/* CPUID                                                                                          */  
+/* Integral types                                                                                 */
 /* ============================================================================================== */
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Exported functions                                                                             */  
-/* ---------------------------------------------------------------------------------------------- */
+/**
+ * uint8_t, uint16_t, uint32_t, uint64_t, int8_t, int16_t, int32_t, int64_t
+ */
+#include <stdint.h>
 
-bool ZydisGetFirstCPUIDFeatureFlag(const ZydisInstructionInfo* info,
-    ZydisCPUIDFeatureFlag* featureFlag)
-{
-    (void)info;
-    (void)featureFlag;
-    return false;    
+/**
+ * size_t, ptrdiff_t
+ */
+#include <stddef.h>
+
+/* ============================================================================================== */
+/* Boolean                                                                                        */
+/* ============================================================================================== */
+
+#define ZYDIS_FALSE 0
+#define ZYDIS_TRUE  1
+
+/**
+ * @briefs  Defines the @c ZydisBool datatype.
+ */
+typedef uint8_t ZydisBool;
+
+/* ============================================================================================== */
+
+#ifdef __cplusplus
 }
+#endif
 
-bool ZydisGetNextCPUIDFeatureFlag(const ZydisInstructionInfo* info,
-    ZydisCPUIDFeatureFlag* featureFlag)
-{
-    (void)info;
-    (void)featureFlag;
-    return false;       
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/* ============================================================================================== */
+#endif /* ZYDIS_TYPES_H */

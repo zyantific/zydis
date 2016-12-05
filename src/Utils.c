@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -74,7 +74,6 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
                 }
                 break;
             case ZYDIS_DISASSEMBLER_MODE_64BIT:
-                assert((operand->size == 64)); // TODO: Remove after fuzzing
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;

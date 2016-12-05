@@ -326,9 +326,9 @@ begin
   end;
   if (Length(A) >= 1) then
   begin
-    if      (A[1] = 'r')  then TInstructionOperand(GetOrdValue).AccessMode := opaRead
-    else if (A[1] = 'w')  then TInstructionOperand(GetOrdValue).AccessMode := opaWrite
-    else if (A[1] = 'rw') then TInstructionOperand(GetOrdValue).AccessMode := opaReadWrite;
+    if      (A[1] = 'r')  then TInstructionOperand(GetOrdValue).Action := opaRead
+    else if (A[1] = 'w')  then TInstructionOperand(GetOrdValue).Action := opaWrite
+    else if (A[1] = 'rw') then TInstructionOperand(GetOrdValue).Action := opaReadWrite;
   end;
 end;
 

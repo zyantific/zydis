@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -24,8 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <stddef.h>
-#include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
 
 /* ============================================================================================== */
@@ -48,14 +46,6 @@ const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic)
         return NULL;
     }
     return mnemonicStrings[mnemonic];
-}
-
-ZydisStatus ZydisMnemonicReplaceString(ZydisInstructionMnemonic mnemonic, 
-    const char* mnemonicString)
-{
-    (void)mnemonic;
-    (void)mnemonicString;
-    return ZYDIS_STATUS_INVALID_OPERATION;
 }
 
 /* ============================================================================================== */

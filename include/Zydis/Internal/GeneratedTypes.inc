@@ -8,6 +8,7 @@ typedef struct ZydisInstructionDefinition_
     uint32_t acceptsLock : 1;
     uint32_t acceptsREP : 1;
     uint32_t acceptsREPEREPNE : 1;
+    uint32_t acceptsBOUND : 1;
     uint32_t acceptsXACQUIRE : 1;
     uint32_t acceptsXRELEASE : 1;
     uint32_t acceptsHLEWithoutLock : 1;

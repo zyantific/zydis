@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -24,8 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <assert.h>
-#include <Zydis/Status.h>
 #include <Zydis/Input.h>
 
 /* ============================================================================================== */
@@ -36,14 +34,14 @@
 /* Internal functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-static bool ZydisMemoryInputNext(ZydisMemoryInput* input, uint8_t* data)
+static ZydisBool ZydisMemoryInputNext(ZydisMemoryInput* input, uint8_t* data)
 {
     if (input->inputBufferPos >= input->inputBufferLen)
     {
-        return false;
+        return ZYDIS_FALSE;
     }
     *data = input->inputBuffer[input->inputBufferPos++]; 
-    return true; 
+    return ZYDIS_TRUE; 
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -73,7 +71,7 @@ ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffe
 /* Internal functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-static bool ZydisFileInputNext(ZydisFileInput* input, uint8_t* data)
+static ZydisBool ZydisFileInputNext(ZydisFileInput* input, uint8_t* data)
 {
     int c = fgetc(input->file);
     *data = (uint8_t)c;

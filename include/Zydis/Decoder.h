@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,8 +27,8 @@
 #ifndef ZYDIS_DECODER_H
 #define ZYDIS_DECODER_H
 
-#include <stdint.h>
 #include <Zydis/Defines.h>
+#include <Zydis/Types.h>
 #include <Zydis/Status.h>
 #include <Zydis/Input.h>
 #include <Zydis/InstructionInfo.h>
@@ -55,40 +55,6 @@ typedef uint32_t ZydisDecoderFlags;
  * have one of the @c ZYDIS_INSTRFLAG_ERROR_MASK flags set. 
  */
 #define ZYDIS_DECODER_FLAG_SKIP_DATA                0x00000001
-/**
- * @brief   Includes information about all registers implicitly used by the instruction.
- *          
- * If the @c ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS feature is not available,
- * @c ZydisDecoderDecodeNextInstruction will fail with 
- * @c ZYDIS_STATUS_INVALID_OPERATION.
- */
-#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_IMPLICIT  0x00000002
-/**
- * @brief   Includes information about all registers explicitly used by the instruction.
- */
-#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_EXPLICIT  0x00000004
-/**
- * @brief   Includes information about all registers indicrectly used by the instruction.
- *          
- * For example: 
- * [1] If the instruction accesses the RAX register, it indirectly accesses the EAX/AX/AL/AH 
- *     registers as well.
- * [2] If the instruction accesses the AL register, it indirectly accesses the AX/EAX/RAX 
- *     registers as well.
- * 
- * This flag only works if either the @c ZYDIS_DECODER_FLAG_REGISTER_USAGE_IMPLICIT and/or the 
- * @c ZYDIS_DECODER_FLAG_REGISTER_USAGE_EXPLICIT flag is set.
- */
-#define ZYDIS_DECODER_FLAG_REGISTER_USAGE_INDIRECT  0x00000008
-/**
- * @brief   Includes information about bits of the FLAGS/EFLAGS/RFLAGS register that are 
- *          affected by the instruction.
- */
-#define ZYDIS_DECODER_FLAG_AFFECTED_FLAGS           0x00000010
-/**
- * @brief   Includes information about the CPUID feature flags of the the instruction.
- */
-#define ZYDIS_DECODER_FLAG_CPUID                    0x00000020
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -116,12 +82,30 @@ typedef struct ZydisInstructionDecoder_
     /**
      * @brief   Internal field. @c TRUE, if the @c imm8 value is already initialized.
      */
-    bool imm8initialized;
+    ZydisBool imm8initialized;
     /**
      * @brief   Internal field. We have to store a copy of the imm8 value for instructions that 
      *          encode different operands in the lo and hi part of the immediate.
      */
     uint8_t imm8;
+
+    /**
+     * @brief   Internal field. The 0x66 prefix can be consumed, if it is used as mandatory-prefix.
+     *          This field contains the prefix-byte, if the prefix is present and not already
+     *          consumed.
+     */
+    uint8_t hasUnusedPrefix66;
+    /**
+     * @brief   Internal field. The mutally exclusive 0xF2 and 0xF3 prefixs can be consumed, if 
+     *          they are used as mandatory-prefix. This field contains the prefix-byte of the 
+     *          latest 0xF2 or 0xF3 prefix, if one of the prefixes is present and not already 
+     *          consumed.
+     */
+    uint8_t hasUnusedPrefixF2F3;
+    /**
+     * @brief   Internal field. Contains the latest (significant) segment prefix.
+     */
+    uint8_t lastSegmentPrefix;
     /**
      * @brief   Internal buffer.
      */

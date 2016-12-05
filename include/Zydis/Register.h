@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,9 +27,9 @@
 #ifndef ZYDIS_REGISTER_H
 #define ZYDIS_REGISTER_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <Zydis/Defines.h>
+#include <Zydis/Types.h>
+#include <Zydis/Status.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +38,10 @@ extern "C" {
 /* ============================================================================================== */
 /* Enums and types                                                                                */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Registers                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Defines the @c ZydisRegister datatype.
@@ -58,7 +62,7 @@ enum ZydisRegisters
     // General purpose registers 32-bit
     ZYDIS_REGISTER_EAX,    ZYDIS_REGISTER_ECX,    ZYDIS_REGISTER_EDX,   ZYDIS_REGISTER_EBX,    
     ZYDIS_REGISTER_ESP,    ZYDIS_REGISTER_EBP,    ZYDIS_REGISTER_ESI,   ZYDIS_REGISTER_EDI,
-    ZYDIS_REGISTER_R8D,    ZYDIS_REGISTER_r9D,    ZYDIS_REGISTER_R10D,  ZYDIS_REGISTER_R11D,   
+    ZYDIS_REGISTER_R8D,    ZYDIS_REGISTER_R9D,    ZYDIS_REGISTER_R10D,  ZYDIS_REGISTER_R11D,   
     ZYDIS_REGISTER_R12D,   ZYDIS_REGISTER_R13D,   ZYDIS_REGISTER_R14D,  ZYDIS_REGISTER_R15D,
     // General purpose registers 16-bit
     ZYDIS_REGISTER_AX,     ZYDIS_REGISTER_CX,     ZYDIS_REGISTER_DX,    ZYDIS_REGISTER_BX,     
@@ -104,10 +108,12 @@ enum ZydisRegisters
     ZYDIS_REGISTER_XMM20,  ZYDIS_REGISTER_XMM21,  ZYDIS_REGISTER_XMM22, ZYDIS_REGISTER_XMM23,
     ZYDIS_REGISTER_XMM24,  ZYDIS_REGISTER_XMM25,  ZYDIS_REGISTER_XMM26, ZYDIS_REGISTER_XMM27,  
     ZYDIS_REGISTER_XMM28,  ZYDIS_REGISTER_XMM29,  ZYDIS_REGISTER_XMM30, ZYDIS_REGISTER_XMM31,
+    // Flags registers
+    ZYDIS_REGISTER_RFLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_FLAGS,
+    // Instruction-pointer registers
+    ZYDIS_REGISTER_RIP,    ZYDIS_REGISTER_EIP,    ZYDIS_REGISTER_IP,     
     // Special registers
-    ZYDIS_REGISTER_RFLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_FLAGS, ZYDIS_REGISTER_RIP,    
-    ZYDIS_REGISTER_EIP,    ZYDIS_REGISTER_IP,     ZYDIS_REGISTER_MXCSR, ZYDIS_REGISTER_PKRU,
-    ZYDIS_REGISTER_XCR0,
+    ZYDIS_REGISTER_MXCSR,  ZYDIS_REGISTER_PKRU,    ZYDIS_REGISTER_XCR0,
     // Segment registers
     ZYDIS_REGISTER_ES,     ZYDIS_REGISTER_SS,     ZYDIS_REGISTER_CS,    ZYDIS_REGISTER_DS,     
     ZYDIS_REGISTER_FS,     ZYDIS_REGISTER_GS,
@@ -129,11 +135,13 @@ enum ZydisRegisters
     // Mask registers
     ZYDIS_REGISTER_K0,     ZYDIS_REGISTER_K1,     ZYDIS_REGISTER_K2,    ZYDIS_REGISTER_K3,     
     ZYDIS_REGISTER_K4,     ZYDIS_REGISTER_K5,     ZYDIS_REGISTER_K6,    ZYDIS_REGISTER_K7,
-    // Bounds registers
+    // Bound registers
     ZYDIS_REGISTER_BND0,   ZYDIS_REGISTER_BND1,   ZYDIS_REGISTER_BND2,  ZYDIS_REGISTER_BND3,
     ZYDIS_REGISTER_BNDCFG, ZYDIS_REGISTER_BNDSTATUS
 };
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Register classes                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -146,210 +154,87 @@ typedef uint8_t ZydisRegisterClass;
  */
 enum ZydisRegisterClasses
 {
-    ZYDIS_REGISTERCLASS_NONE,
-    ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8,
-    ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16,
-    ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32,
-    ZYDIS_REGISTERCLASS_GENERAL_PURPOSE64,
-    ZYDIS_REGISTERCLASS_FLOATING_POINT,
-    ZYDIS_REGISTERCLASS_MULTIMEDIA,
-    ZYDIS_REGISTERCLASS_VECTOR128,
-    ZYDIS_REGISTERCLASS_VECTOR256,
-    ZYDIS_REGISTERCLASS_VECTOR512,
-    ZYDIS_REGISTERCLASS_FLAGS,
-    ZYDIS_REGISTERCLASS_IP,
-    ZYDIS_REGISTERCLASS_SEGMENT,
-    ZYDIS_REGISTERCLASS_TABLE,
-    ZYDIS_REGISTERCLASS_TEST,
-    ZYDIS_REGISTERCLASS_CONTROL,
-    ZYDIS_REGISTERCLASS_DEBUG,
-    ZYDIS_REGISTERCLASS_MASK,
-    ZYDIS_REGISTERCLASS_BOUNDS
+    ZYDIS_REGCLASS_INVALID,
+    /**
+     * @brief   8-bit general-purpose registers.
+     */
+    ZYDIS_REGCLASS_GPR8,
+    /**
+     * @brief   16-bit general-purpose registers.
+     */
+    ZYDIS_REGCLASS_GPR16,
+    /**
+     * @brief   32-bit general-purpose registers.
+     */
+    ZYDIS_REGCLASS_GPR32,
+    /**
+     * @brief   64-bit general-purpose registers.
+     */
+    ZYDIS_REGCLASS_GPR64,
+    /**
+     * @brief   Floating point legacy registers.
+     */
+    ZYDIS_REGCLASS_X87,
+    /**
+     * @brief   Floating point multimedia registers.
+     */
+    ZYDIS_REGCLASS_MMX,
+    /**
+     * @brief   128-bit vector registers.
+     */
+    ZYDIS_REGCLASS_XMM,
+    /**
+     * @brief   256-bit vector registers.
+     */
+    ZYDIS_REGCLASS_YMM,
+    /**
+     * @brief   512-bit vector registers.
+     */
+    ZYDIS_REGCLASS_ZMM,
+    /**
+     * @brief   Flags registers.
+     */
+    ZYDIS_REGCLASS_FLAGS,
+    /**
+     * @brief   Instruction-pointer registers.
+     */
+    ZYDIS_REGCLASS_IP,
+    /**
+     * @brief   Segment registers.
+     */
+    ZYDIS_REGCLASS_SEGMENT,
+    /**
+     * @brief   Test registers.
+     */
+    ZYDIS_REGCLASS_TEST,
+    /**
+     * @brief   Control registers.
+     */
+    ZYDIS_REGCLASS_CONTROL,
+    /**
+     * @brief   Debug registers.
+     */
+    ZYDIS_REGCLASS_DEBUG,
+    /**
+     * @brief   Mask registers.
+     */
+    ZYDIS_REGCLASS_MASK,
+    /**
+     * @brief   Bound registers.
+     */
+    ZYDIS_REGCLASS_BOUND
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-
+/* Register width                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+    
 /**
- * @brief   Defines the @c ZydisRegisterSize datatype.
+ * @brief   Defines the @c ZydisRegisterWidth datatype. 
  */
-typedef uint32_t ZydisRegisterSize;
+typedef uint16_t ZydisRegisterWidth;
 
-/**
- * @brief   Values that represent zydis register-sizes.
- */
-enum ZydisRegisterSizes
-{
-    ZYDIS_REGISTERSIZE_INVALID  =   0,
-    ZYDIS_REGISTERSIZE_DYNAMIC  =   1,
-    ZYDIS_REGISTERSIZE_8        =   8,
-    ZYDIS_REGISTERSIZE_16       =  16,
-    ZYDIS_REGISTERSIZE_32       =  32,
-    ZYDIS_REGISTERSIZE_64       =  64,
-    ZYDIS_REGISTERSIZE_80       =  80,
-    ZYDIS_REGISTERSIZE_128      = 128,
-    ZYDIS_REGISTERSIZE_256      = 256,
-    ZYDIS_REGISTERSIZE_512      = 512
-};
-
-/* ============================================================================================== */
-/* Macros                                                                                         */
-/* ============================================================================================== */
-
-/**
- * @brief   Checks, if the given register is a general-purpose register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_GPR(reg) \
-    ((ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8) ||) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16) || \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32))
-
-/**
- * @brief   Checks, if the given register is a 8-bit general-purpose register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_GPR8(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE8)
-
-/**
- * @brief   Checks, if the given register is a 16-bit general-purpose register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_GPR16(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE16)
-
-/**
- * @brief   Checks, if the given register is a 32-bit general-purpose register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_GPR32(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_GENERAL_PURPOSE32)
-
-/**
- * @brief   Checks, if the given register is a legacy floating-point register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_FLOATING_POINT(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLOATING_POINT)
-
-/**
- * @brief   Checks, if the given register is a multimedia floating-point register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_MLUTIMEDIA(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MULTIMEDIA)
-
-/**
- * @brief   Checks, if the given register is a vector register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_VECTOR(reg) \
-    ((ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR128) ||) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR256) || \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR512))
-
-/**
- * @brief   Checks, if the given register is a 128-bit vector register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_VECTOR128(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR128)
-
-/**
- * @brief   Checks, if the given register is a 256-bit vector register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_VECTOR256(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR256)
-
-/**
- * @brief   Checks, if the given register is a 512-bit vector register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_VECTOR512(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_VECTOR512)
-
-/**
- * @brief   Checks, if the given register is a flags register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_FLAGS(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_FLAGS)
-
-/**
- * @brief   Checks, if the given register is an instruction-pointer register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_IP(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_IP)
-
-/**
- * @brief   Checks, if the given register is a segment register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_SEGMENT(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_SEGMENT)
-
-/**
- * @brief   Checks, if the given register is a table register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_TABLE(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_TABLE)
-
-/**
- * @brief   Checks, if the given register is a test register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_TEST(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_TEST)
-
-/**
- * @brief   Checks, if the given register is a control register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_CONTROL(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_CONTROL)
-
-/**
- * @brief   Checks, if the given register is a debug register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_DEBUG(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_DEBUG)
-
-/**
- * @brief   Checks, if the given register is a mask register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_MASK(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_MASK)
-
-/**
- * @brief   Checks, if the given register is a bounds register.
- * 
- * @param   reg The register.
- */
-#define ZYDIS_REGISTER_IS_BOUNDS(reg) \
-    (ZydisRegisterGetClass(reg) == ZYDIS_REGISTERCLASS_BOUNDS)
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -361,9 +246,19 @@ enum ZydisRegisterSizes
  * @param   registerClass   The register class.
  * @param   id              The register id.
  *
- * @return  The register specified by the @c registerClass and the @c id.
+ * @return  The register specified by the @c registerClass and the @c id or @c ZYDIS_REGISTER_NONE,
+ *          if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass, uint8_t id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id);
+
+/**
+ * @brief   Returns the id of the specified register.
+ *
+ * @param   reg The register.
+ *
+ * @return  The id of the specified register, or -1 if an invalid parameter was passed.
+ */
+ZYDIS_EXPORT int16_t ZydisRegisterGetId(ZydisRegister reg);
 
 /**
  * @brief   Returns the register-class of the specified register.
@@ -375,13 +270,22 @@ ZYDIS_EXPORT ZydisRegister ZydisRegisterGetById(ZydisRegisterClass registerClass
 ZYDIS_EXPORT ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
 
 /**
- * @brief   Returns the size of the specified register.
+ * @brief   Returns the width of the specified register mode.
  *
  * @param   reg The register.
  *
- * @return  The size of the specified register.
+ * @return  The width of the specified register.
  */
-ZYDIS_EXPORT ZydisRegisterSize ZydisRegisterGetSize(ZydisRegister reg);
+ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg);
+
+/**
+ * @brief   Returns the width of the specified register in 64-bit mode.
+ *
+ * @param   reg The register.
+ *
+ * @return  The width of the specified register.
+ */
+ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg);
 
 /**
  * @brief   Returns the specified register string.

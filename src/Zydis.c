@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -35,32 +35,32 @@ uint64_t ZydisGetVersion()
     return ZYDIS_VERSION;
 }
 
-bool ZydisIsFeatureEnabled(ZydisFeature feature)
+ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature)
 {
     switch (feature)
     {
     case ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS:
 #ifdef ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS
-        return true;
+        return ZYDIS_TRUE;
 #else
-        return false;
+        return ZYDIS_FALSE;
 #endif
     case ZYDIS_FEATURE_AFFECTED_FLAGS:
 #ifdef ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS
-        return true;
+        return ZYDIS_TRUE;
 #else
-        return false;
+        return ZYDIS_FALSE;
 #endif
     case ZYDIS_FEATURE_CPUID:
 #ifdef ZYDIS_ENABLE_FEATURE_CPUID
-        return true;
+        return ZYDIS_TRUE;
 #else
-        return false;
+        return ZYDIS_FALSE;
 #endif
     default:
         break;
     }
-    return false;    
+    return ZYDIS_FALSE;    
 }
 
 /* ============================================================================================== */

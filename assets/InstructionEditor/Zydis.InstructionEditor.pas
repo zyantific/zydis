@@ -342,6 +342,29 @@ type
     property FlagID  : TX86FlagBehaviorSet index 16 read GetValue write SetValue default [];
   end;
 
+  TEVEXEncodingContext = (
+    // EVEX.B = 1 is forbidden for this instruction and will cause UD
+    ecUD,
+    // EVEX.B = 1 broadcast
+    ecBC,
+    // EVEX.B = 1 rounding-control
+    ecRC,
+    // EVEX.B = 1 suppress all exceptions
+    ecSAE
+  );
+
+  TEVEXMaskPolicy = (
+    // The instruction can not encode a mask register
+    mpMaskInvalid,
+    // The instruction accepts mask registers other than the default-mask (K0), but does not
+    // require them
+    mpMaskAccepted,
+    // The instruction requires a mask register other than the default-mask (K0)
+    mpMaskRequired,
+    // The instruction does not allow mask registers other than the default-mask (K0)
+    mpMaskForbidden
+  );
+
   {TEVEXEncodingContext = (
     ecNone,
     ecBroadcast,
@@ -483,10 +506,14 @@ type
     opeImm64
   );
 
-  TOperandAccessMode = (
+  TOperandAction = (
     opaRead,
     opaWrite,
-    opaReadWrite
+    opaReadWrite,
+    opaCondRead,
+    opaCondWrite,
+    opaReadCondWrite,
+    opaWriteCondRead
   );
 
   TInstructionOperand = class(TPersistent)
@@ -494,12 +521,12 @@ type
     FOperands: TInstructionOperands;
     FType: TOperandType;
     FEncoding: TOperandEncoding;
-    FAccessMode: TOperandAccessMode;
+    FAction: TOperandAction;
   strict private
     function GetConflictState: Boolean;
     procedure SetType(const Value: TOperandType); inline;
     procedure SetEncoding(const Value: TOperandEncoding); inline;
-    procedure SetAccessMode(const Value: TOperandAccessMode); inline;
+    procedure SetAction(const Value: TOperandAction); inline;
   strict private
     procedure Changed; inline;
   private
@@ -518,7 +545,7 @@ type
   published
     property OperandType: TOperandType read FType write SetType default optUnused;
     property Encoding: TOperandEncoding read FEncoding write SetEncoding default opeNone;
-    property AccessMode: TOperandAccessMode read FAccessMode write SetAccessMode default opaRead;
+    property Action: TOperandAction read FAction write SetAction default opaRead;
   end;
 
   TInstructionOperands = class(TPersistent)
@@ -594,6 +621,7 @@ type
     pfAcceptsLock,
     pfAcceptsREP,
     pfAcceptsREPEREPNE,
+    pfAcceptsBOUND,
     pfAcceptsXACQUIRE,
     pfAcceptsXRELEASE,
     pfAcceptsHLEWithoutLock,
@@ -1212,10 +1240,14 @@ const
     'imm64'
   );
 
-  SOperandAccessMode: array[TOperandAccessMode] of String = (
+  SOperandAction: array[TOperandAction] of String = (
     'read',
     'write',
-    'readwrite'
+    'readwrite',
+    'cond_read',
+    'cond_write',
+    'read_cond_write',
+    'write_cond_read'
   );
 {$ENDREGION}
 
@@ -1243,6 +1275,7 @@ const
     'accepts_lock',
     'accepts_rep',
     'accepts_reperepne',
+    'accepts_bound',
     'accepts_xacquire',
     'accepts_xrelease',
     'accepts_hle_without_lock',
@@ -1276,12 +1309,7 @@ class function TJSONEnumHelper<TEnum>.ReadValue(JSON: PJSONVariantData; const Na
 var
   V: Integer;
 begin
-  {$IFDEF DEBUG}
-  if (PTypeInfo(TypeInfo(TEnum))^.Kind <> tkEnumeration) then
-  begin
-    raise Exception.Create('Invalid generic type.');
-  end;
-  {$ENDIF}
+  Assert(PTypeInfo(TypeInfo(TEnum))^.Kind = tkEnumeration, 'Invalid generic type.');
   V := TStringHelper.IndexStr(ReadString(JSON, Name, ElementStrings[0]), ElementStrings);
   if (V < 0) then
   begin
@@ -1327,23 +1355,10 @@ var
   TypData: PTypeData;
 begin
   TypInfo := TypeInfo(TSet);
-  {$IFDEF DEBUG}
-  if (TypInfo^.Kind <> tkSet) then
-  begin
-    raise Exception.Create('Invalid generic type.');
-  end;
-  {$ENDIF}
+  Assert(TypInfo^.Kind = tkSet, 'Invalid generic type.');
   TypData := GetTypeData(GetTypeData(TypInfo)^.CompType^);
-  {$IFDEF DEBUG}
-  if (TypData^.MinValue <> 0) then
-  begin
-    raise Exception.Create('The enum-type needs to be zero-based.');
-  end;
-  if (TypData^.MaxValue > 255) then
-  begin
-    raise Exception.Create('The enum-type''s maximum value needs the be lower than 256.');
-  end;
-  {$ENDIF}
+  Assert(TypData^.MinValue  =   0, 'The enum-type needs to be zero-based.');
+  Assert(TypData^.MaxValue <= 255, 'The enum-type''s maximum value needs the be lower than 256.');
   MinValue := TypData^.MinValue;
   MaxValue := TypData^.MaxValue;
 end;
@@ -1359,12 +1374,8 @@ var
   I, J: Integer;
 begin
   GetEnumBounds(MinValue, MaxValue);
-  {$IFDEF DEBUG}
-  if (MaxValue <> High(ElementStrings)) then
-  begin
-    raise Exception.Create('The size of the string-array does not match the size of the enum-type');
-  end;
-  {$ENDIF}
+  Assert(MaxValue = High(ElementStrings),
+    'The size of the string-array does not match the size of the enum-type');
   FillChar(Pointer(@Result)^, SizeOf(TSet), #0);
   A := JSON^.Data(Name);
   if (Assigned(A)) then
@@ -1399,12 +1410,8 @@ var
   I: Integer;
 begin
   GetEnumBounds(MinValue, MaxValue);
-  {$IFDEF DEBUG}
-  if (MaxValue <> High(ElementStrings)) then
-  begin
-    raise Exception.Create('The size of the string-array does not match the size of the enum-type');
-  end;
-  {$ENDIF}
+  Assert(MaxValue = High(ElementStrings),
+    'The size of the string-array does not match the size of the enum-type');
   A.Init;
   for I := MinValue to MaxValue do
   begin
@@ -1789,6 +1796,10 @@ begin
       end;
     end;
   end;
+
+  if (regEFLAGS in RegsWrite) then Exclude(RegsWrite, regFLAGS);
+  if (regEFLAGS in RegsRead)  then Exclude(RegsRead, regFLAGS);
+
   for R := regRFLAGS to regFLAGS do
   begin
     if ((R in RegsRead) xor (R in FDefinition.ImplicitRead.Registers)) or
@@ -1907,7 +1918,7 @@ begin
     D := Dest as TInstructionOperand;
     D.FType := FType;
     D.FEncoding := FEncoding;
-    D.FAccessMode := FAccessMode;
+    D.FAction := FAction;
     D.Changed;
   end else inherited;
 end;
@@ -1926,7 +1937,7 @@ end;
 function TInstructionOperand.Equals(const Value: TInstructionOperand): Boolean;
 begin
   Result :=
-    (Value.FType = FType) and (Value.FEncoding = FEncoding) and (Value.FAccessMode = FAccessMode);
+    (Value.FType = FType) and (Value.FEncoding = FEncoding) and (Value.FAction = FAction);
 end;
 
 function TInstructionOperand.GetConflictState: Boolean;
@@ -2141,10 +2152,14 @@ begin
     end;
     if (IncludeAccessMode) then
     begin
-      case FAccessMode of
-        opaRead     : Result := Result + ' (r)';
-        opaWrite    : Result := Result + ' (w)';
-        opaReadWrite: Result := Result + ' (r, w)';
+      case FAction of
+        opaRead         : Result := Result + ' (r)';
+        opaWrite        : Result := Result + ' (w)';
+        opaReadWrite    : Result := Result + ' (r, w)';
+        opaCondRead     : Result := Result + ' (r?)';
+        opaCondWrite    : Result := Result + ' (w?)';
+        opaReadCondWrite: Result := Result + ' (r, w?)';
+        opaWriteCondRead: Result := Result + ' (r?, w)';
       end;
     end;
   end;
@@ -2165,8 +2180,8 @@ begin
       V, 'type', SOperandType));
     SetEncoding(TJSONEnumHelper<TOperandEncoding>.ReadValue(
       V, 'encoding', SOperandEncoding));
-    SetAccessMode(TJSONEnumHelper<TOperandAccessMode>.ReadValue(
-      V, 'accessmode', SOperandAccessMode));
+    SetAction(TJSONEnumHelper<TOperandAction>.ReadValue(
+      V, 'action', SOperandAction));
   end;
 end;
 
@@ -2178,17 +2193,19 @@ begin
   begin
     V.Init;
     V.AddNameValue('type', SOperandType[FType]);
-    if (FEncoding   <> opeNone) then V.AddNameValue('encoding',   SOperandEncoding[FEncoding]);
-    if (FAccessMode <> opaRead) then V.AddNameValue('accessmode', SOperandAccessMode[FAccessMode]);
+    if (FEncoding <> opeNone) then
+      V.AddNameValue('encoding', SOperandEncoding[FEncoding]);
+    if (FAction   <> opaRead) then
+      V.AddNameValue('action',   SOperandAction[FAction]);
     JSON^.AddNameValue(FieldName, Variant(V));
   end;
 end;
 
-procedure TInstructionOperand.SetAccessMode(const Value: TOperandAccessMode);
+procedure TInstructionOperand.SetAction(const Value: TOperandAction);
 begin
-  if (FAccessMode <> Value) then
+  if (FAction <> Value) then
   begin
-    FAccessMode := Value;
+    FAction := Value;
     Changed;
   end;
 end;
@@ -2923,6 +2940,8 @@ begin
     Include(Conflicts, idcOperands);
   end;
 
+  // TODO: FExtensions.ModrmReg and FExtensions.ModrmRm requires FExtensions.ModrmMod <> mdNeutral
+
   if ((pfAcceptsXACQUIRE in FPrefixFlags) or (pfAcceptsXRELEASE in FPrefixFlags)) and
     (not ((pfAcceptsLock in FPrefixFlags) or (pfAcceptsHLEWithoutLock in FPrefixFlags))) then
   begin
@@ -2951,7 +2970,7 @@ begin
 
   if (FX86Flags.HasConflicts) then
   begin
-    Include(Conflicts, idcX86Flags);
+    //Include(Conflicts, idcX86Flags);
   end;
   // TODO: Check for more conflicts
   if (FConflicts <> Conflicts) then

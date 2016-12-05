@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,10 +27,9 @@
 #ifndef ZYDIS_INPUT_H
 #define ZYDIS_INPUT_H
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <Zydis/Defines.h>
+#include <Zydis/Types.h>
 #include <Zydis/Status.h>
 
 #ifdef __cplusplus
@@ -60,7 +59,7 @@ typedef struct ZydisCustomInput_ ZydisCustomInput;
  * This function should return the byte at the current input-position and increase the position
  * by one. 
  */
-typedef bool (*ZydisInputNextFunc)(ZydisCustomInput* input, uint8_t* data);
+typedef ZydisBool (*ZydisInputNextFunc)(ZydisCustomInput* input, uint8_t* data);
 
 /**
  * @brief   Defines the zydis custom input struct.

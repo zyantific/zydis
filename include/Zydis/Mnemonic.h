@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,8 +27,8 @@
 #ifndef ZYDIS_MNEMONIC_H
 #define ZYDIS_MNEMONIC_H
 
-#include <stdint.h>
 #include <Zydis/Defines.h>
+#include <Zydis/Types.h>
 #include <Zydis/Status.h>
 
 #ifdef __cplusplus
@@ -58,17 +58,6 @@ typedef uint16_t ZydisInstructionMnemonic;
  * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
  */
 ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic);
-
-/**
- * @brief   Replaces the string representation of the given mnemonic with a new value.
- *
- * @param   mnemonic        The mnemonic.
- * @param   mnemonicString  The new mnemonic string. Use @c NULL to restore default value.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisMnemonicReplaceString(ZydisInstructionMnemonic mnemonic, 
-    const char* mnemonicString);
 
 /* ============================================================================================== */
 

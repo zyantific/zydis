@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,16 +27,15 @@
 #ifndef ZYDIS_H
 #define ZYDIS_H
 
+#include <Zydis/Defines.h>
+#include <Zydis/Types.h>
 #include <Zydis/Status.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
-#include <Zydis/InstructionDetails.h>
 #include <Zydis/InstructionInfo.h>
 #include <Zydis/Input.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
-
-// TODO: Replace "bool" with a custom - compiler-unspecific sized - zype
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,7 +93,7 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the zydis feature datatype.
+ * @brief   Defines the @c ZydisFeature datatype.
  */
 typedef uint8_t ZydisFeature;
 
@@ -129,7 +128,7 @@ ZYDIS_EXPORT uint64_t ZydisGetVersion();
  *
  * @return  @c True if the feature is enabled, @c false if not.
  */
-ZYDIS_EXPORT bool ZydisIsFeatureEnabled(ZydisFeature feature);
+ZYDIS_EXPORT ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature);
 
 /* ============================================================================================== */
 

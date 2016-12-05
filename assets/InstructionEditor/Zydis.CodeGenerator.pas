@@ -699,9 +699,9 @@ begin
     end;
   end;
 
-  S := 'ZYDIS_EVEXB_FUNCTIONALITY_NONE'; T := 'false'; U := 'false';
-  if (ifAcceptsEvexAAA in Definition.Flags) then S := 'true';
-  if (ifAcceptsEvexZ   in Definition.Flags) then T := 'true';
+  S := 'ZYDIS_EVEXB_FUNCTIONALITY_NONE'; T := 'ZYDIS_FALSE'; U := 'ZYDIS_FALSE';
+  if (ifAcceptsEvexAAA in Definition.Flags) then S := 'ZYDIS_TRUE';
+  if (ifAcceptsEvexZ   in Definition.Flags) then T := 'ZYDIS_TRUE';
   if (ifHasEvexBC      in Definition.Flags) then U := 'ZYDIS_EVEXB_FUNCTIONALITY_BC'
   else
   if (ifHasEvexRC      in Definition.Flags) then U := 'ZYDIS_EVEXB_FUNCTIONALITY_RC'
@@ -709,11 +709,12 @@ begin
   if (ifHasEvexSAE     in Definition.Flags) then U := 'ZYDIS_EVEXB_FUNCTIONALITY_SAE';
 
   Buffer.Append(Format('    /*%.4x*/ ', [Index]));
-  Buffer.Append(Format('{ ZYDIS_MNEMONIC_%s, 0x%.4x, %s, %s, %s, %d, %d, %d, %d, %d, %d, %d }', [
-    AnsiUpperCase(Definition.Mnemonic), O, U, S, T,
+  Buffer.Append(Format('{ ZYDIS_MNEMONIC_%s, 0x%.4x, %s, %s, %s, %d, %d, %d, %d, %d, %d, %d, %d }',
+    [AnsiUpperCase(Definition.Mnemonic), O, U, S, T,
     Byte(pfAcceptsLock in Definition.PrefixFlags),
     Byte(pfAcceptsREP in Definition.PrefixFlags),
     Byte(pfAcceptsREPEREPNE in Definition.PrefixFlags),
+    Byte(pfAcceptsBOUND in Definition.PrefixFlags),
     Byte(pfAcceptsXACQUIRE in Definition.PrefixFlags),
     Byte(pfAcceptsXRELEASE in Definition.PrefixFlags),
     Byte(pfAcceptsHLEWithoutLock in Definition.PrefixFlags),
@@ -994,7 +995,7 @@ procedure AppendOperand(Buffer: TStringBuffer; Operand: TInstructionOperand);
 var
   OperandType,
   OperandEncoding,
-  OperandAccessMode: String;
+  OperandAction: String;
 begin
   OperandType := 'UNUSED';
   case Operand.OperandType of
@@ -1082,33 +1083,37 @@ begin
   end;
   OperandEncoding := 'NONE';
   case Operand.Encoding of
-    opeModrmReg   : OperandEncoding := 'REG';
-    opeModrmRm    : OperandEncoding := 'RM';
-    opeModrmRmCD1 : OperandEncoding := 'RM';
-    opeModrmRmCD2 : OperandEncoding := 'RM_CD2';
-    opeModrmRmCD4 : OperandEncoding := 'RM_CD4';
-    opeModrmRmCD8 : OperandEncoding := 'RM_CD8';
-    opeModrmRmCD16: OperandEncoding := 'RM_CD16';
-    opeModrmRmCD32: OperandEncoding := 'RM_CD32';
-    opeModrmRmCD64: OperandEncoding := 'RM_CD64';
-    opeOpcodeBits : OperandEncoding := 'OPCODE';
-    opeVexVVVV    : OperandEncoding := 'VVVV';
-    opeEvexAAA    : OperandEncoding := 'AAA';
-    opeImm8Lo     : OperandEncoding := 'IMM8_LO';
-    opeImm8Hi     : OperandEncoding := 'IMM8_HI';
-    opeImm8       : OperandEncoding := 'IMM8';
-    opeImm16      : OperandEncoding := 'IMM16';
-    opeImm32      : OperandEncoding := 'IMM32';
-    opeImm64      : OperandEncoding := 'IMM64';
+    opeModrmReg     : OperandEncoding := 'REG';
+    opeModrmRm      : OperandEncoding := 'RM';
+    opeModrmRmCD1   : OperandEncoding := 'RM';
+    opeModrmRmCD2   : OperandEncoding := 'RM_CD2';
+    opeModrmRmCD4   : OperandEncoding := 'RM_CD4';
+    opeModrmRmCD8   : OperandEncoding := 'RM_CD8';
+    opeModrmRmCD16  : OperandEncoding := 'RM_CD16';
+    opeModrmRmCD32  : OperandEncoding := 'RM_CD32';
+    opeModrmRmCD64  : OperandEncoding := 'RM_CD64';
+    opeOpcodeBits   : OperandEncoding := 'OPCODE';
+    opeVexVVVV      : OperandEncoding := 'VVVV';
+    opeEvexAAA      : OperandEncoding := 'AAA';
+    opeImm8Lo       : OperandEncoding := 'IMM8_LO';
+    opeImm8Hi       : OperandEncoding := 'IMM8_HI';
+    opeImm8         : OperandEncoding := 'IMM8';
+    opeImm16        : OperandEncoding := 'IMM16';
+    opeImm32        : OperandEncoding := 'IMM32';
+    opeImm64        : OperandEncoding := 'IMM64';
   end;
-  OperandAccessMode := 'READ';
-  case Operand.AccessMode of
-    opaWrite      : OperandAccessMode := 'WRITE';
-    opaReadWrite  : OperandAccessMode := 'READWRITE';
+  OperandAction := 'READ';
+  case Operand.Action of
+    opaWrite        : OperandAction := 'WRITE';
+    opaReadWrite    : OperandAction := 'READWRITE';
+    opaCondRead     : OperandAction := 'COND_READ';
+    opaCondWrite    : OperandAction := 'COND_WRITE';
+    opaReadCondWrite: OperandAction := 'READ_COND_WRITE';
+    opaWriteCondRead: OperandAction := 'WRITE_COND_READ';
   end;
   Buffer.Append(Format('ZYDIS_OPERAND_DEFINITION(ZYDIS_SEM_OPERAND_TYPE_%s, ' +
-    'ZYDIS_OPERAND_ENCODING_%s, ZYDIS_OPERAND_ACCESS_%s)', [
-    OperandType, OperandEncoding, OperandAccessMode]));
+    'ZYDIS_OPERAND_ENCODING_%s, ZYDIS_OPERAND_ACTION_%s)', [
+    OperandType, OperandEncoding, OperandAction]));
 end;
 
 var

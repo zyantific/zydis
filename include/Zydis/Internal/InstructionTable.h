@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -27,7 +27,6 @@
 #ifndef ZYDIS_INSTRUCTIONTABLE_H
 #define ZYDIS_INSTRUCTIONTABLE_H
 
-#include <stdint.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/InstructionInfo.h>
@@ -89,7 +88,7 @@ typedef struct ZydisOperandDefinition_
 {
     ZydisSemanticOperandType type : 7;
     ZydisOperandEncoding encoding : 5;
-    ZydisOperandAccess access : 2;
+    ZydisOperandAction action : 3;
 } ZydisOperandDefinition;
 
 #include <Zydis/Internal/GeneratedTypes.inc>
@@ -139,7 +138,7 @@ enum ZydisInstructionTableNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_OPCODE            = 0x07,
     /**
-     * @brief   Reference to an vex-map filter.
+     * @brief   Reference to an vex/evex-map filter.
      */
     ZYDIS_NODETYPE_FILTER_VEX               = 0x08,
     /**
@@ -337,7 +336,7 @@ ZYDIS_NO_EXPORT const ZydisInstructionTableNode* ZydisInstructionTableGetChildNo
  *                  
  * @return  @c TRUE, if @c node contained a valid instruction-definition, @c FALSE if not.
  */
-ZYDIS_NO_EXPORT bool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
+ZYDIS_NO_EXPORT ZydisBool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
     const ZydisInstructionDefinition** definition, const ZydisOperandDefinition** operands, 
         uint8_t* operandCount);
 

@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 
@@ -98,9 +98,9 @@ static ZydisStatus ZydisFormatterPrintMnemonic(ZydisInstructionFormatter* format
     info->userData = (void*)1;
 
     // Rewrite the instruction-mnemonic for the given instructions
-    if ((info->operandCount == 3) && (info->operand[2].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+    if ((info->operandCount == 3) && (info->operands[2].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
     {
-        uint8_t conditionCode = info->operand[2].imm.value.ubyte;
+        uint8_t conditionCode = info->operands[2].imm.value.ubyte;
         if (conditionCode < 0x08)
         {
             switch (info->mnemonic)
@@ -118,9 +118,9 @@ static ZydisStatus ZydisFormatterPrintMnemonic(ZydisInstructionFormatter* format
             }
         }
     }
-    if ((info->operandCount == 4) && (info->operand[3].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+    if ((info->operandCount == 4) && (info->operands[3].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
     {    
-        uint8_t conditionCode = info->operand[3].imm.value.ubyte;
+        uint8_t conditionCode = info->operands[3].imm.value.ubyte;
         if (conditionCode < 0x20)
         {
             switch (info->mnemonic)
@@ -203,11 +203,6 @@ void disassembleBuffer(uint8_t* data, size_t length, bool installHooks)
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
     {
         printf("%016" PRIX64 "  ", info.instrAddress);
-        if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
-        {
-            printf(" db %02x\n", info.data[0]);    
-            continue;
-        }
         ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], sizeof(buffer));  
         printf(" %s\n", &buffer[0]);
     }    
