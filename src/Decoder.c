@@ -340,11 +340,13 @@ static ZydisStatus ZydisDecodeEVEX(uint8_t evexByte1, uint8_t evexByte2, uint8_t
     info->details.evex.V2           = (evexByte3 >> 3) & 0x01;
     info->details.evex.aaa          = (evexByte3 >> 0) & 0x07;    
     // Update internal fields
-    info->details.internal.W = info->details.evex.W;
-    info->details.internal.R = 0x01 & ~info->details.evex.R;
-    info->details.internal.X = 0x01 & ~info->details.evex.X;
-    info->details.internal.B = 0x01 & ~info->details.evex.B;
-    info->details.internal.L = info->details.evex.L;
+    info->details.internal.W  = info->details.evex.W;
+    info->details.internal.R  = 0x01 & ~info->details.evex.R;
+    info->details.internal.X  = 0x01 & ~info->details.evex.X;
+    info->details.internal.B  = 0x01 & ~info->details.evex.B;
+    info->details.internal.L  = info->details.evex.L;
+    info->details.internal.R2 = 0x01 & ~info->details.evex.R2;
+    info->details.internal.V2 = 0x01 & ~info->details.evex.V2;
     return ZYDIS_STATUS_SUCCESS;
 }
 
@@ -652,7 +654,8 @@ static ZydisStatus ZydisDecodeOperandModrmRm(ZydisInstructionDecoder* decoder,
     uint8_t modrm_rm = (info->details.internal.B << 3) | info->details.modrm.rm;
     if (info->details.modrm.mod == 3)
     {
-        return ZydisDecodeOperandRegister(info, operand, registerClass, modrm_rm);
+        return ZydisDecodeOperandRegister(info, operand, registerClass, 
+            (info->details.internal.X << 4) | modrm_rm);
     }
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     uint8_t displacementSize = 0;
@@ -861,10 +864,6 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
 
-    // TODO: EVEXR’ High-16 register specifier modifier P[4] Combine with EVEX.R and ModR/M.reg
-    // TODO: EVEXX High-16 register specifier modifier P[6] Combine with EVEX.B and ModR/M.rm, when SIB/VSIB absent
-    // TODO: EVEXV’ High-16 NDS/VIDX register specifier P[19] Combine with EVEX.vvvv or when VSIB present
-
     // Fixed registers
     switch (type)
     {
@@ -1030,7 +1029,8 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
         case ZYDIS_OPERAND_ENCODING_REG:
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             return ZydisDecodeOperandRegister(info, operand, registerClass, 
-                (info->details.internal.R << 3) | info->details.modrm.reg);
+                (info->details.internal.R2 << 4) | 
+                (info->details.internal.R  << 3) | info->details.modrm.reg);
         case ZYDIS_OPERAND_ENCODING_RM:
         case ZYDIS_OPERAND_ENCODING_RM_CD2:
         case ZYDIS_OPERAND_ENCODING_RM_CD4:
@@ -1051,7 +1051,6 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
                 (info->details.internal.B << 3) | registerId);
         }
         case ZYDIS_OPERAND_ENCODING_VVVV:
-            // TODO: VVVV register can be extended by EVEX.V'
             switch (info->encoding)
             {
             case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -1061,7 +1060,7 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
             case ZYDIS_INSTRUCTION_ENCODING_EVEX:
                 ZYDIS_ASSERT(info->details.evex.isDecoded);
                 return ZydisDecodeOperandRegister(info, operand, registerClass, 
-                    (0x0F & ~info->details.evex.vvvv));
+                    (info->details.internal.V2 << 4) | (0x0F & ~info->details.evex.vvvv));
             case ZYDIS_INSTRUCTION_ENCODING_XOP:
                 ZYDIS_ASSERT(info->details.xop.isDecoded);
                 return ZydisDecodeOperandRegister(info, operand, registerClass, 
@@ -1245,7 +1244,6 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
             operand->mem.disp.value.sdword *= evexCD8Scale;
         }
     }
-    // TODO: VSIB index can be extended by EVEX.V'
     if (vsibBaseRegister)
     {
         if (info->details.modrm.rm != 0x04)
@@ -1257,10 +1255,12 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
         case 16:
             return ZYDIS_STATUS_INVALID_VSIB;
         case 32:
-            operand->mem.index = operand->mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister;
+            operand->mem.index = operand->mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister + 
+                ((info->details.evex.V2 == 1) ? 0 : 16);
             break;
         case 64:
-            operand->mem.index = operand->mem.index - ZYDIS_REGISTER_RAX + vsibBaseRegister;
+            operand->mem.index = operand->mem.index - ZYDIS_REGISTER_RAX + vsibBaseRegister + 
+                ((info->details.evex.V2 == 1) ? 0 : 16);
             break;
         default:
             ZYDIS_UNREACHABLE;
@@ -1272,6 +1272,7 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
     switch (type)
     {
     case ZYDIS_SEM_OPERAND_TYPE_FIXED1:
+        operand->visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
         operand->type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
         operand->size = 8;
         operand->imm.isSigned = ZYDIS_TRUE;
@@ -1704,33 +1705,7 @@ static void ZydisApplyInstructionDefinition(ZydisInstructionDecoder* decoder,
         }
     }
     
-    // Set AVX-512 info
-     if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
-    {
-        if (definition->hasEvexAAA && info->details.evex.aaa)
-        {
-            info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa; 
-        }
-        if (definition->hasEvexZ && info->details.evex.z)
-        {
-            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_ZERO;
-        } else
-        {
-            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
-        }
-        switch (definition->evexBFunctionality)
-        {
-        case ZYDIS_EVEXB_FUNCTIONALITY_BC:
-            break;
-        case ZYDIS_EVEXB_FUNCTIONALITY_RC:
-            info->avx.roundingMode = 
-                (((info->details.evex.L2 & 0x01) << 1) | info->details.evex.L) + 1; 
-        case ZYDIS_EVEXB_FUNCTIONALITY_SAE:
-            info->avx.hasSAE = ZYDIS_TRUE;
-        default:
-            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_INVALID;
-        }
-    }
+    
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -1946,9 +1921,8 @@ static ZydisStatus ZydisNodeHandlerVex(ZydisInstructionInfo* info, uint16_t* ind
 }
 
 static ZydisStatus ZydisNodeHandlerMandatoryPrefix(ZydisInstructionDecoder* decoder, 
-    ZydisInstructionInfo* info, uint16_t* index)
+    uint16_t* index)
 {
-    ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(index);
 
     // 0x66 has precedence over 0xF2 and 0xF3
@@ -2271,7 +2245,7 @@ static ZydisStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             status = ZydisNodeHandlerMode(decoder, &index);
             break;           
         case ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX:
-            status = ZydisNodeHandlerMandatoryPrefix(decoder, info, &index);
+            status = ZydisNodeHandlerMandatoryPrefix(decoder, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_MODRMMOD:
             status = ZydisNodeHandlerModrmMod(decoder, info, &index);
@@ -2436,6 +2410,64 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     if (status != ZYDIS_STATUS_SUCCESS)
     {
         goto DecodeError;
+    }
+
+    // Set AVX-512 info
+     if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
+    {
+        const ZydisInstructionDefinition* definition = 
+            (ZydisInstructionDefinition*)info->details.internal.definition;
+
+        switch (definition->evexContext)
+        {
+        case ZYDIS_EVEX_CONTEXT_INVALID:
+            if (info->details.evex.b)
+            {
+                return ZYDIS_STATUS_DECODING_ERROR; // TODO:
+            }
+            break;
+        case ZYDIS_EVEX_CONTEXT_BC:
+            break;
+        case ZYDIS_EVEX_CONTEXT_RC:
+            info->avx.roundingMode = 
+                (((info->details.evex.L2 & 0x01) << 1) | info->details.evex.L) + 1;
+            break;
+        case ZYDIS_EVEX_CONTEXT_SAE:
+            info->avx.hasSAE = ZYDIS_TRUE;
+            break;
+        default:
+            info->avx.broadcast = ZYDIS_AVX512_BCSTMODE_INVALID;
+        }
+
+        switch (definition->evexMaskPolicy)
+        {
+        case ZYDIS_AVX512_MASKPOLICY_MASK_ACCEPTED:
+            info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa;
+            break;
+        case ZYDIS_AVX512_MASKPOLICY_MASK_REQUIRED:
+            if (info->details.evex.aaa == 0)
+            {
+                return ZYDIS_STATUS_INVALID_REGISTER;
+            }
+            info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa;
+            break;
+        case ZYDIS_AVX512_MASKPOLICY_MASK_FORBIDDEN:
+            if (info->details.evex.aaa != 0)
+            {
+                return ZYDIS_STATUS_INVALID_REGISTER;
+            }
+            info->avx.maskRegister = ZYDIS_REGISTER_K0;
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
+        }
+        if (definition->evexZeroMaskAccepted && info->details.evex.z)
+        {
+            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_ZERO;    
+        } else
+        {
+            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
+        }
     }
 
     // Replace XCHG rAX, rAX with NOP alias

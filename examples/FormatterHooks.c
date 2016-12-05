@@ -33,8 +33,6 @@
  * the condition encoded in the immediate operand).
  */
 
-#include <stdint.h>
-#include <stdbool.h>
 #include <inttypes.h>
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
@@ -173,7 +171,7 @@ static ZydisStatus ZydisFormatterFormatOperandImm(ZydisInstructionFormatter* for
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-void disassembleBuffer(uint8_t* data, size_t length, bool installHooks)
+void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
 {
     ZydisMemoryInput input;
     ZydisInputInitMemoryInput(&input, data, length);
@@ -227,9 +225,9 @@ int main()
         0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
     };
 
-    disassembleBuffer(&data[0], sizeof(data), false);
+    disassembleBuffer(&data[0], sizeof(data), ZYDIS_FALSE);
     puts("");
-    disassembleBuffer(&data[0], sizeof(data), true);
+    disassembleBuffer(&data[0], sizeof(data), ZYDIS_TRUE);
 
     getchar();
     return 0;

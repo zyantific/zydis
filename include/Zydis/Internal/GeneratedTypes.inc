@@ -2,9 +2,9 @@ typedef struct ZydisInstructionDefinition_
 {
     uint32_t mnemonic : 11;
     uint32_t operandsId : 9;
-    uint32_t evexBFunctionality : 2;
-    uint32_t hasEvexAAA : 1;
-    uint32_t hasEvexZ : 1;
+    uint32_t evexContext : 2;
+    uint32_t evexMaskPolicy : 2;
+    uint32_t evexZeroMaskAccepted : 1;
     uint32_t acceptsLock : 1;
     uint32_t acceptsREP : 1;
     uint32_t acceptsREPEREPNE : 1;

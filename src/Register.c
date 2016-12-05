@@ -168,7 +168,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id)
         break;
     default:
         if ((registerClass < registerMapCount) && 
-            (id < (registerMap[registerClass].hi - registerMap[registerClass].lo)))
+            (id <= (registerMap[registerClass].hi - registerMap[registerClass].lo)))
         {
             return registerMap[registerClass].lo + id;
         }

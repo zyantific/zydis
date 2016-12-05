@@ -289,14 +289,14 @@ enum ZydisSemanticOperandTypes
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Values that represent zydis evex.b-functionalities.
+ * @brief   Values that represent zydis evex.b-contexts.
  */
 enum ZydisEvexBFunctionalities
 {
-    ZYDIS_EVEXB_FUNCTIONALITY_NONE,
-    ZYDIS_EVEXB_FUNCTIONALITY_BC,
-    ZYDIS_EVEXB_FUNCTIONALITY_RC,
-    ZYDIS_EVEXB_FUNCTIONALITY_SAE
+    ZYDIS_EVEX_CONTEXT_INVALID,
+    ZYDIS_EVEX_CONTEXT_BC,
+    ZYDIS_EVEX_CONTEXT_RC,
+    ZYDIS_EVEX_CONTEXT_SAE
 };
 
 /* ---------------------------------------------------------------------------------------------- */

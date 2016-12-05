@@ -1099,6 +1099,8 @@ typedef struct ZydisInstructionInfo_
             uint8_t B;
             uint8_t L;
             uint8_t L2;
+            uint8_t R2;
+            uint8_t V2;
         } internal;  // TODO: Move into decoder struct
     } details;
     /**

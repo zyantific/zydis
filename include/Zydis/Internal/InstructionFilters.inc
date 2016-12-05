@@ -31251,67 +31251,67 @@ const ZydisInstructionTableNode filterEVEXL2[][2] =
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA3)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA3)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA2)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA2)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA7)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA7)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA6)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA6)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BAF)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BAF)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BAE)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BAE)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB3)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB3)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB2)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB2)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA5)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA5)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA4)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA4)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA9)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA9)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x0FA8)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x0FA8)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB1)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB1)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB0)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB0)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB5)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB5)
     },
     {
         /*0000*/ ZYDIS_INVALID,
-        /*0001*/ ZYDIS_DEFINITION_2OP(0x1BB4)
+        /*0001*/ ZYDIS_DEFINITION_1OP(0x1BB4)
     },
     {
         /*0000*/ ZYDIS_INVALID,
