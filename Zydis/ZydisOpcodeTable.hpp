@@ -39,6 +39,14 @@
 #include <stdint.h>
 #include <cassert>
 
+#ifdef IN
+#undef IN
+#endif
+
+#ifdef OUT
+#undef OUT
+#endif
+
 namespace Zydis
 {
 
