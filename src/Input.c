@@ -48,7 +48,7 @@ static ZydisBool ZydisMemoryInputNext(ZydisMemoryInput* input, uint8_t* data)
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffer, uint64_t length)
+ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffer, size_t length)
 {
     if (!input || !buffer || (length == 0))
     {

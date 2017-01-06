@@ -101,11 +101,11 @@ typedef struct ZydisMemoryInput_
     /**
      * @brief   The length of the memory buffer. 
      */
-    uint64_t inputBufferLen;
+    size_t inputBufferLen;
     /**
      * @brief   The current input position.
      */
-    uint64_t inputBufferPos;
+	size_t inputBufferPos;
 } ZydisMemoryInput;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -122,7 +122,7 @@ typedef struct ZydisMemoryInput_
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisInputInitMemoryInput(ZydisMemoryInput* input, const void* buffer, 
-    uint64_t length);
+	size_t length);
 
 /* ---------------------------------------------------------------------------------------------- */
 
