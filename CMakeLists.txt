@@ -24,7 +24,8 @@ option(BUILD_TOOLS "Build tools" TRUE)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+            "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
         set(compiler_specific "-std=c99 -pedantic -Wextra -Werror")
     elseif (MSVC)
         set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /TC")
@@ -34,7 +35,7 @@ if (NOT CONFIGURED_ONCE)
 endif ()
 
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
-# to generate with a statically linked CRT when we build as a static library.
+# to generate with a statically linked CRT when we build a static library.
 if (("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND NOT FORCE_SHARED_CRT)
     foreach(flag_var
             CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
@@ -74,12 +75,9 @@ if (BUILD_SHARED_LIBS AND WIN32)
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
+target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
 set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "ZYDIS_EXPORTS")
-generate_export_header(
-    "Zydis" 
-    BASE_NAME "ZYDIS"
-    EXPORT_FILE_NAME "ZydisExportConfig.h")
-include_directories(${PROJECT_BINARY_DIR})
+generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
 if (FEATURE_IMPLICITLY_USED_REGISTERS)
     target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS)
@@ -93,8 +91,6 @@ endif ()
 
 # Examples
 if (BUILD_EXAMPLES)
-    include_directories("include")
-
     add_executable("FormatterHooks" 
         "examples/FormatterHooks.c"
         "examples/FormatHelper.h")
@@ -104,8 +100,6 @@ endif ()
 
 # Tools
 if (BUILD_TOOLS)
-    include_directories("include")
-
     add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
     target_link_libraries("ZydisDisasm" "Zydis")
     set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
