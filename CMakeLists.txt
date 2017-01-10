@@ -4,23 +4,23 @@ include(GenerateExportHeader)
 project(Zydis)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-option(BUILD_SHARED_LIBS 
+option(ZYDIS_BUILD_SHARED_LIBS 
     "Build shared libraries rather than static ones" 
     FALSE)
-option(FORCE_SHARED_CRT 
+option(ZYDIS_FORCE_SHARED_CRT 
     "Forces shared linkage against the CRT even when building a static library" 
     FALSE)
-option(FEATURE_IMPLICITLY_USED_REGISTERS 
+option(ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS 
     "Include information about implicitly used registers" 
     TRUE)
-option(FEATURE_AFFECTED_FLAGS 
+option(ZYDIS_FEATURE_AFFECTED_FLAGS 
     "Include information about affected flags"
     TRUE)
-option(FEATURE_CPUID 
+option(ZYDIS_FEATURE_CPUID 
     "Include information about CPUID feature-flags"
     FALSE)
-option(BUILD_EXAMPLES "Build examples" TRUE)
-option(BUILD_TOOLS "Build tools" TRUE)
+option(ZYDIS_BUILD_EXAMPLES "Build examples" TRUE)
+option(ZYDIS_BUILD_TOOLS "Build tools" TRUE)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
@@ -28,7 +28,7 @@ if (NOT CONFIGURED_ONCE)
             "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
         set(compiler_specific "-std=c99 -pedantic -Wextra -Werror")
     elseif (MSVC)
-        set(compiler_specific "/WX /W4 /D_CRT_SECURE_NO_WARNINGS /TC")
+        set(compiler_specific "/WX /W4 /TC")
     endif ()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
         CACHE STRING "Flags used by the compiler during all build types." FORCE)
@@ -36,7 +36,7 @@ endif ()
 
 # CMake always orders MSVC to build with a shared CRT. Hack CMake variables in order
 # to generate with a statically linked CRT when we build a static library.
-if (("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND NOT FORCE_SHARED_CRT)
+if (("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC") AND NOT ZYDIS_FORCE_SHARED_CRT)
     foreach(flag_var
             CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
             CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
@@ -70,27 +70,27 @@ set(sources
     "src/Utils.c"
     "src/Zydis.c")
 
-if (BUILD_SHARED_LIBS AND WIN32)
+if (ZYDIS_BUILD_SHARED_LIBS AND WIN32)
     set(sources ${sources} "src/VersionInfo.rc")
 endif ()
 
 add_library("Zydis" ${headers} ${sources})
 target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
-set_target_properties("Zydis" PROPERTIES COMPILE_DEFINITIONS "ZYDIS_EXPORTS")
+target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
-if (FEATURE_IMPLICITLY_USED_REGISTERS)
-    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS)
+if (ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS")
 endif ()
-if (FEATURE_AFFECTED_FLAGS)
-    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS)
+if (ZYDIS_FEATURE_AFFECTED_FLAGS)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS")
 endif ()
-if (FEATURE_CPUID)
-    target_compile_definitions(Zydis PRIVATE ZYDIS_ENABLE_FEATURE_CPUID)
+if (ZYDIS_FEATURE_CPUID)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE__FEATURE_CPUID")
 endif ()
 
 # Examples
-if (BUILD_EXAMPLES)
+if (ZYDIS_BUILD_EXAMPLES)
     add_executable("FormatterHooks" 
         "examples/FormatterHooks.c"
         "examples/FormatHelper.h")
@@ -99,7 +99,7 @@ if (BUILD_EXAMPLES)
 endif ()
 
 # Tools
-if (BUILD_TOOLS)
+if (ZYDIS_BUILD_TOOLS)
     add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
     target_link_libraries("ZydisDisasm" "Zydis")
     set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
