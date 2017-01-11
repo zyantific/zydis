@@ -38,23 +38,16 @@
 
 int main(int argc, char** argv)
 {
-    if (argc != 2)
+    if (argc < 1 || argc > 2)
     {
-        fprintf(stderr, "Usage: %s <input file>\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
+        fprintf(stderr, "Usage: %s [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
         return EXIT_FAILURE;
     }
-
-    FILE* file = fopen(argv[1], "rb");
+    
+    FILE* file = argc >= 2 ? fopen(argv[1], "rb") : stdin;
     if (!file)
     {
         fprintf(stderr, "Can not open file: %s\n", strerror(errno));
-        return EXIT_FAILURE;
-    }
-
-    ZydisFileInput input;
-    if (!ZYDIS_SUCCESS(ZydisInputInitFileInput(&input, file)))
-    {
-        fputs("Failed to initialize file-input\n", stderr);
         return EXIT_FAILURE;
     }
 
@@ -68,26 +61,46 @@ int main(int argc, char** argv)
     }
 
     ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT, 
-        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA)))
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT)))
     {
         fputs("Failed to initialize instruction-decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
-    char buffer[256];
-    ZydisInstructionInfo info;
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
+    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    size_t numBytesRead;
+    do
     {
-        if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
+        numBytesRead = fread(readBuf, 1, sizeof(readBuf), file);
+    
+        ZydisInstructionInfo info;
+        ZydisStatus status;
+        size_t readOffs = 0;
+        while ((status = ZydisDecoderDecodeInstruction(
+            &decoder, readBuf + readOffs, numBytesRead - readOffs, &info
+        )) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            printf("db %02X\n", info.data[0]);
-            continue;
-        }
+            if (!ZYDIS_SUCCESS(status))
+            {
+                ++decoder.instructionPointer;
+                ++readOffs;
+                printf("db %02X\n", info.data[0]);
+                continue;
+            }
 
-        ZydisFormatterFormatInstruction(&formatter, &info, buffer, sizeof(buffer));
-        puts(buffer);
-    }
+            char printBuffer[256];
+            ZydisFormatterFormatInstruction(&formatter, &info, printBuffer, sizeof(printBuffer));
+            puts(printBuffer);
+            readOffs += info.length;
+        }
+        
+        if (readOffs < sizeof(readBuf))
+        {
+            memmove(readBuf, readBuf + readOffs, sizeof(readBuf) - readOffs);
+        }
+    } while (numBytesRead == sizeof(readBuf));
+
+    return 0;
 }
 
 /* ============================================================================================== */

@@ -94,6 +94,7 @@ if (ZYDIS_BUILD_EXAMPLES)
         "examples/FormatHelper.h")
     target_link_libraries("FormatterHooks" "Zydis")
     set_target_properties ("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
+    target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 endif ()
 
 # Tools
@@ -101,8 +102,10 @@ if (ZYDIS_BUILD_TOOLS)
     add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
     target_link_libraries("ZydisDisasm" "Zydis")
     set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
+    target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
     add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
     target_link_libraries("ZydisFuzzIn" "Zydis")
     set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")
+    target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 endif ()
