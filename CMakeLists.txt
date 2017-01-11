@@ -51,7 +51,6 @@ set(headers
     "include/Zydis/Decoder.h"
     "include/Zydis/Defines.h"
     "include/Zydis/Formatter.h"
-    "include/Zydis/Input.h"
     "include/Zydis/InstructionInfo.h"
     "include/Zydis/Mnemonic.h"
     "include/Zydis/Register.h"
@@ -63,7 +62,6 @@ set(headers
 set(sources
     "src/Decoder.c"
     "src/Formatter.c"
-    "src/Input.c"
     "src/InstructionTable.c"
     "src/Mnemonic.c"
     "src/Register.c"
@@ -86,7 +84,7 @@ if (ZYDIS_FEATURE_AFFECTED_FLAGS)
     target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS")
 endif ()
 if (ZYDIS_FEATURE_CPUID)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE__FEATURE_CPUID")
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_CPUID")
 endif ()
 
 # Examples
