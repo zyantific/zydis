@@ -30,7 +30,6 @@
 #include <Zydis/Defines.h>
 #include <Zydis/Types.h>
 #include <Zydis/Status.h>
-#include <Zydis/Input.h>
 #include <Zydis/InstructionInfo.h>
 
 #ifdef __cplusplus
@@ -46,15 +45,7 @@ extern "C" {
  */
 typedef uint32_t ZydisDecoderFlags;
 
-/**
- * @brief   Set this flag if you do not want @c ZydisDecoderDecodeNextInstruction to fail with
- *          @c ZYDIS_STATUS_DECODING_ERROR, if an invalid instruction was found.
- *          
- * If this flag is set, @c ZydisDecoderDecodeNextInstruction just skips one byte and
- * returns @c ZYDIS_STATUS_SUCCESS. The returned @c ZydisInstructionInfo struct will
- * have one of the @c ZYDIS_INSTRFLAG_ERROR_MASK flags set. 
- */
-#define ZYDIS_DECODER_FLAG_SKIP_DATA                0x00000001
+// TODO: Add flags to enable/disable certain decoding-steps like operands, affected flags, ..
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -67,14 +58,16 @@ typedef struct ZydisInstructionDecoder_
      * @brief   The current disassembler-mode.
      */
     ZydisDisassemblerMode disassemblerMode;
+    // TODO: Remove from this struct and pass as argument
     /**
-     * @brief   A pointer to the current input data-source.
+     * @brief   The current input buffer.
      */
-    ZydisCustomInput* input;
-    /**
-     * @brief   Decoder flags.
-     */
-    ZydisDecoderFlags flags;
+    struct
+    {
+        uint8_t* buffer;
+        size_t bufferLen;
+    } input;
+    // TODO: (Maybe) remove from this struct and pass as argument
     /**
      * @brief   The current instruction-pointer value.
      */
@@ -106,16 +99,6 @@ typedef struct ZydisInstructionDecoder_
      * @brief   Internal field. Contains the latest (significant) segment prefix.
      */
     uint8_t lastSegmentPrefix;
-    /**
-     * @brief   Internal buffer.
-     */
-    struct 
-    {
-        uint8_t data[30];
-        uint8_t count;
-        uint8_t posRead;
-        uint8_t posWrite;
-    } buffer;
 } ZydisInstructionDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -129,50 +112,11 @@ typedef struct ZydisInstructionDecoder_
  *
  * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
  * @param   disassemblerMode    The desired disassembler-mode.
- * @param   input               A pointer to the input data-source.
  *                  
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
-    ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input);
-
-/**
- * @brief   Initializes the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   disassemblerMode    The desired disassembler-mode.
- * @param   input               A pointer to the input data-source.
- * @param   flags               Additional flags for the instruction-decoder.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder,
-    ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input, ZydisDecoderFlags flags);
-
-/**
- * @brief   Returns the current input data-source of the given @c ZydisInstructionDecoder
- *          instance.
- *
- * @param   decoder A pointer to the @c ZydisInstructionDecoder instance.
- * @param   input   A pointer to the memory that receives the current input data-source pointer.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderGetInput(const ZydisInstructionDecoder* decoder,
-    ZydisCustomInput** input);
-
-/**
- * @brief   Changes the input data-source of the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder A pointer to the @c ZydisInstructionDecoder instance.
- * @param   input   A pointer to the new input data-source.
- *
- * @return  A zydis status code.
- * 
- * This function flushes the internal input-buffer.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInput(ZydisInstructionDecoder* decoder,
-    ZydisCustomInput* input);
+    ZydisDisassemblerMode disassemblerMode);
 
 /**
  * @brief   Returns the current instruction-pointer of the given @c ZydisInstructionDecoder
@@ -199,16 +143,33 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecod
     uint64_t instructionPointer);
 
 /**
- * @brief   Decodes the next instruction from the decoders input data-source.
+ * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   decoder A pointer to the @c ZydisInstructionDecoder instance.
- * @param   info    A pointer to the @c ZydisInstructionInfo struct, that receives the details
- *                  about the decoded instruction.
+ * @param   decoder     A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   buffer      A pointer to the input buffer.
+ * @param   bufferLen   The length of the input buffer.
+ * @param   info        A pointer to the @c ZydisInstructionInfo struct, that receives the details
+ *                      about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
-    ZydisInstructionInfo* info);
+ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstruction(ZydisInstructionDecoder* decoder,
+    const void* buffer, size_t bufferLen, ZydisInstructionInfo* info);
+
+/**
+ * @brief   Decodes the instruction in the given input @c buffer.
+ *
+ * @param   decoder     A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   buffer      A pointer to the input buffer.
+ * @param   bufferLen   The length of the input buffer.
+ * @param   flags       Additional decoding flags.
+ * @param   info        A pointer to the @c ZydisInstructionInfo struct, that receives the details
+ *                      about the decoded instruction.
+ *
+ * @return  A zydis status code. 
+ */
+ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
+    const void* buffer, size_t bufferLen, ZydisDecoderFlags flags, ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
 

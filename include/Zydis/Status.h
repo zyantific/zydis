@@ -108,6 +108,7 @@ enum ZydisStatusCode
      */
     ZYDIS_STATUS_MALFORMED_EVEX,
     // TODO:
+    ZYDIS_STATUS_INVALID_MASK,
     ZYDIS_STATUS_INVALID_VSIB,
 
     /* ------------------------------------------------------------------------------------------ */

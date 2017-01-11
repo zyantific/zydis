@@ -111,7 +111,7 @@ const char* registerStrings[] =
     "dr12",   "dr13",   "dr14",  "dr15",
     // Mask registers
     "k0",     "k1",     "k2",    "k3",     
-    "k4",     "k5",     "k6",   "k7",
+    "k4",     "k5",     "k6",    "k7",
     // Bounds registers
     "bnd0",   "bnd1",   "bnd2",  "bnd3",
     "bndcfg", "bndstatus"

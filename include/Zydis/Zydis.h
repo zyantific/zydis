@@ -33,7 +33,6 @@
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
 #include <Zydis/InstructionInfo.h>
-#include <Zydis/Input.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
 

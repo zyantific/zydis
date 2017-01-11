@@ -26,7 +26,6 @@
 
 #include <string.h>
 #include <Zydis/Status.h>
-#include <Zydis/Input.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Internal/InstructionTable.h>
 
@@ -85,27 +84,13 @@ static ZydisStatus ZydisInputPeek(ZydisInstructionDecoder* decoder, ZydisInstruc
         return ZYDIS_STATUS_INSTRUCTION_TOO_LONG; 
     } 
 
-    if (decoder->buffer.count > 0)
+    if (decoder->input.bufferLen > 0)
     {
-        ZYDIS_ASSERT(decoder->buffer.posRead < sizeof(decoder->buffer.data));
-        *value = decoder->buffer.data[decoder->buffer.posRead];
+        *value = decoder->input.buffer[0];
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    if (!decoder->input->inputNext((void*)decoder->input, value))
-    {
-        return ZYDIS_STATUS_NO_MORE_DATA;    
-    }
-    
-    ZYDIS_ASSERT(decoder->buffer.count < sizeof(decoder->buffer.data));
-    decoder->buffer.data[decoder->buffer.posWrite++] = *value;
-    if (decoder->buffer.posWrite == sizeof(decoder->buffer.data))
-    {
-        decoder->buffer.posWrite = 0;
-    }
-    ++decoder->buffer.count;
-
-    return ZYDIS_STATUS_SUCCESS;
+    return ZYDIS_STATUS_NO_MORE_DATA;    
 }
 
 /**
@@ -128,12 +113,8 @@ static void ZydisInputSkip(ZydisInstructionDecoder* decoder, ZydisInstructionInf
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(info->length < ZYDIS_MAX_INSTRUCTION_LENGTH);
 
-    info->data[info->length++] = decoder->buffer.data[decoder->buffer.posRead++];
-    if (decoder->buffer.posRead == sizeof(decoder->buffer.data))
-    {
-        decoder->buffer.posRead = 0;
-    }  
-    --decoder->buffer.count;
+    info->data[info->length++] = decoder->input.buffer++[0];
+    --decoder->input.bufferLen;
 }
 
 /**
@@ -151,9 +132,24 @@ static void ZydisInputSkip(ZydisInstructionDecoder* decoder, ZydisInstructionInf
 static ZydisStatus ZydisInputNext(ZydisInstructionDecoder* decoder, ZydisInstructionInfo* info, 
     uint8_t* value)
 { 
-    ZYDIS_CHECK(ZydisInputPeek(decoder, info, value));
-    ZydisInputSkip(decoder, info);
-    return ZYDIS_STATUS_SUCCESS; 
+    ZYDIS_ASSERT(decoder); 
+    ZYDIS_ASSERT(info); 
+    ZYDIS_ASSERT(value);
+
+    if (info->length >= ZYDIS_MAX_INSTRUCTION_LENGTH) 
+    { 
+        return ZYDIS_STATUS_INSTRUCTION_TOO_LONG; 
+    } 
+
+    if (decoder->input.bufferLen > 0)
+    {
+        *value = decoder->input.buffer++[0];
+        info->data[info->length++] = *value;
+        --decoder->input.bufferLen;
+        return ZYDIS_STATUS_SUCCESS;
+    }
+
+    return ZYDIS_STATUS_NO_MORE_DATA;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -1736,8 +1732,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisInstructionDecoder* decoder,
             {
                 uint8_t nextInput;
                 ZYDIS_CHECK(ZydisInputPeek(decoder, info, &nextInput)); 
-                if ((decoder->disassemblerMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ||
-                    ((nextInput & 0xF0) >= 0xC0))
+                if ((nextInput & 0xF0) >= 0xC0)
                 {
                     if (info->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
@@ -2183,22 +2178,16 @@ static ZydisStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
             {
                 // Save input-buffer state and decode dummy operands
-                uint8_t bufferPosRead = decoder->buffer.posRead;
+                uint8_t* buffer = decoder->input.buffer;
+                size_t bufferLen = decoder->input.bufferLen;
                 uint8_t length = info->length;
                 ZYDIS_ASSERT(operandCount == 2);
                 ZYDIS_CHECK(ZydisDecodeOperands(decoder, info, operands, operandCount));
                 // Read actual 3dnow opcode
                 ZYDIS_CHECK(ZydisInputNext(decoder, info, &info->opcode));
                 // Restore input-buffer state
-                if (decoder->buffer.posWrite >= bufferPosRead)
-                {
-                    decoder->buffer.count = decoder->buffer.posWrite - bufferPosRead;
-                } else
-                {
-                    decoder->buffer.count = 
-                        decoder->buffer.posWrite + (sizeof(decoder->buffer.data) - bufferPosRead);   
-                }
-                decoder->buffer.posRead = bufferPosRead;
+                decoder->input.buffer = buffer;
+                decoder->input.bufferLen = bufferLen;
                 info->length = length;
                 node = ZydisInstructionTableGetRootNode();
                 node = ZydisInstructionTableGetChildNode(node, 0x0F);
@@ -2296,13 +2285,7 @@ static ZydisStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
 /* ============================================================================================== */
 
 ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
-    ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input)
-{
-    return ZydisDecoderInitInstructionDecoderEx(decoder, disassemblerMode, input, 0);
-}
-
-ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder,
-    ZydisDisassemblerMode disassemblerMode, ZydisCustomInput* input, ZydisDecoderFlags flags)
+    ZydisDisassemblerMode disassemblerMode)
 {
     if (!decoder || (
         (disassemblerMode != ZYDIS_DISASSEMBLER_MODE_16BIT) && 
@@ -2312,37 +2295,9 @@ ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decode
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
     decoder->disassemblerMode = disassemblerMode;
-    decoder->input = input;
-    decoder->flags = flags;
-    decoder->buffer.count = 0;
-    decoder->buffer.posRead = 0; 
-    decoder->buffer.posWrite = 0;
+    decoder->input.buffer = NULL;
+    decoder->input.bufferLen = 0;
     return ZYDIS_STATUS_SUCCESS;
-}
-
-ZydisStatus ZydisDecoderGetInput(const ZydisInstructionDecoder* decoder,
-    ZydisCustomInput** input)
-{
-    if (!decoder || !input)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    *input = decoder->input;
-    return ZYDIS_STATUS_SUCCESS;    
-}
-
-ZydisStatus ZydisDecoderSetInput(ZydisInstructionDecoder* decoder,
-    ZydisCustomInput* input)
-{
-    if (!decoder)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    decoder->input = input;
-    decoder->buffer.count = 0;
-    decoder->buffer.posRead = 0; 
-    decoder->buffer.posWrite = 0;
-    return ZYDIS_STATUS_SUCCESS;      
 }
 
 ZydisStatus ZydisDecoderGetInstructionPointer(const ZydisInstructionDecoder* decoder,
@@ -2367,18 +2322,28 @@ ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecoder* decoder,
     return ZYDIS_STATUS_SUCCESS; 
 }
 
-ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
-    ZydisInstructionInfo* info)
+ZydisStatus ZydisDecoderDecodeInstruction(ZydisInstructionDecoder* decoder,
+    const void* buffer, size_t bufferLen, ZydisInstructionInfo* info)
 {
+    return ZydisDecoderDecodeInstructionEx(decoder, buffer, bufferLen, 0, info);
+}
+
+ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
+    const void* buffer, size_t bufferLen, ZydisDecoderFlags flags, ZydisInstructionInfo* info)
+{
+    (void)flags;
+
     if (!decoder)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
-    if (!decoder->input)
+    if (!buffer || (bufferLen == 0))
     {
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
     
+    decoder->input.buffer = (uint8_t*)buffer;
+    decoder->input.bufferLen = bufferLen;
     decoder->hasUnusedPrefix66 = 0;
     decoder->hasUnusedPrefixF2F3 = 0;
     decoder->lastSegmentPrefix = 0;
@@ -2399,19 +2364,11 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     }
     info->userData = userData[5];
 
-    uint8_t bufferPosRead = decoder->buffer.posRead;
+    ZYDIS_CHECK(ZydisCollectOptionalPrefixes(decoder, info));
+    ZYDIS_CHECK(ZydisDecodeOpcode(decoder, info));
 
-    ZydisStatus status = ZydisCollectOptionalPrefixes(decoder, info);
-    if (status != ZYDIS_STATUS_SUCCESS)
-    {
-        goto DecodeError;
-    }
-    status = ZydisDecodeOpcode(decoder, info);
-    if (status != ZYDIS_STATUS_SUCCESS)
-    {
-        goto DecodeError;
-    }
-
+    // TODO: The index, dest and mask regs for AVX2 gathers must be different.
+    // TODO: More EVEX UD conditions (page 81)
     // Set AVX-512 info
      if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
     {
@@ -2447,23 +2404,27 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
         case ZYDIS_AVX512_MASKPOLICY_MASK_REQUIRED:
             if (info->details.evex.aaa == 0)
             {
-                return ZYDIS_STATUS_INVALID_REGISTER;
+                return ZYDIS_STATUS_INVALID_MASK;
             }
             info->avx.maskRegister = ZYDIS_REGISTER_K0 + info->details.evex.aaa;
             break;
         case ZYDIS_AVX512_MASKPOLICY_MASK_FORBIDDEN:
             if (info->details.evex.aaa != 0)
             {
-                return ZYDIS_STATUS_INVALID_REGISTER;
+                return ZYDIS_STATUS_INVALID_MASK;
             }
             info->avx.maskRegister = ZYDIS_REGISTER_K0;
             break;
         default:
             ZYDIS_UNREACHABLE;
         }
-        if (definition->evexZeroMaskAccepted && info->details.evex.z)
+        if (info->details.evex.z)
         {
-            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_ZERO;    
+            if (!definition->evexZeroMaskAccepted)
+            {
+                return ZYDIS_STATUS_INVALID_MASK;    
+            }
+            info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
         } else
         {
             info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
@@ -2489,46 +2450,6 @@ ZydisStatus ZydisDecoderDecodeNextInstruction(ZydisInstructionDecoder* decoder,
     decoder->instructionPointer += info->length;
     info->instrPointer = decoder->instructionPointer;
 
-    return ZYDIS_STATUS_SUCCESS;
-
-DecodeError:
-{
-    uint8_t firstByte = info->data[0];
-    uint64_t instrAddress = info->instrAddress;
-    memset(info, 0, sizeof(*info));
-
-    if (decoder->buffer.posWrite >= bufferPosRead)
-    {
-        decoder->buffer.count = decoder->buffer.posWrite - bufferPosRead;
-    } else
-    {
-        decoder->buffer.count = 
-            decoder->buffer.posWrite + (sizeof(decoder->buffer.data) - bufferPosRead);   
-    }
-    decoder->buffer.posRead = bufferPosRead;
-    if (status == ZYDIS_STATUS_NO_MORE_DATA)
-    {       
-        return status;
-    }
-    --decoder->buffer.count;
-    ++decoder->buffer.posRead;
-    if (decoder->buffer.posRead == sizeof(decoder->buffer.data))
-    {
-        decoder->buffer.posRead = 0;
-    }
-  
-    ++decoder->instructionPointer;
-    info->mode = decoder->disassemblerMode;
-    info->length = 1;
-    info->data[0] = firstByte;
-    info->instrAddress = instrAddress;
-    info->instrPointer = decoder->instructionPointer;
-
-    if (!decoder->flags & ZYDIS_DECODER_FLAG_SKIP_DATA)
-    {
-        return ZYDIS_STATUS_DECODING_ERROR;
-    }
-}
     return ZYDIS_STATUS_SUCCESS;
 }
 

@@ -173,12 +173,8 @@ static ZydisStatus ZydisFormatterFormatOperandImm(ZydisInstructionFormatter* for
 
 void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
 {
-    ZydisMemoryInput input;
-    ZydisInputInitMemoryInput(&input, data, length);
-
     ZydisInstructionDecoder decoder;
-    ZydisDecoderInitInstructionDecoderEx(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT, 
-        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA); 
+    ZydisDecoderInitInstructionDecoder(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT); 
     ZydisDecoderSetInstructionPointer(&decoder, 0x007FFFFFFF400000);
 
     ZydisInstructionFormatter formatter;
@@ -198,8 +194,10 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
   
     ZydisInstructionInfo info;
     char buffer[256];
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
+    while (ZYDIS_SUCCESS(ZydisDecoderDecodeInstruction(&decoder, data, length, &info)))
     {
+        data += info.length;
+        length -= info.length;
         printf("%016" PRIX64 "  ", info.instrAddress);
         ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], sizeof(buffer));  
         printf(" %s\n", &buffer[0]);

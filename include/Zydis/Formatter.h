@@ -451,8 +451,8 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisInstructionFormatter* format
  *
  * @param   formatter   A pointer to the @c ZydisInstructionFormatter instance.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
- * @param   buffer      A pointer to the string-buffer buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   buffer      A pointer to the output buffer.
+ * @param   bufferLen   The length of the output buffer.
  *
  * @return  A zydis status code.
  */
