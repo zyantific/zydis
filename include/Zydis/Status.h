@@ -141,6 +141,20 @@ enum ZydisStatusCode
  */
 #define ZYDIS_SUCCESS(status) (status == ZYDIS_STATUS_SUCCESS)
 
+/**
+ * @brief   Checks if a zydis operation was successfull and returns the status-code, if not.
+ *
+ * @param   status  The zydis status-code to check.
+ */
+#define ZYDIS_CHECK(status) \
+    { \
+        ZydisStatus s = status; \
+        if (!ZYDIS_SUCCESS(s)) \
+        { \
+            return s; \
+        } \
+    }
+
 /* ============================================================================================== */
 
 #ifdef __cplusplus

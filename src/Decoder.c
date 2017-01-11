@@ -30,20 +30,6 @@
 #include <Zydis/Internal/InstructionTable.h>
 
 /* ============================================================================================== */
-/* Internal macros                                                                                */
-/* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Helper macros                                                                                  */
-/* ---------------------------------------------------------------------------------------------- */
-
-#define ZYDIS_CHECK(status) \
-    if (status != ZYDIS_STATUS_SUCCESS) \
-    { \
-        return status; \
-    }
-
-/* ============================================================================================== */
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
@@ -2291,6 +2277,7 @@ ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
     decoder->disassemblerMode = disassemblerMode;
     decoder->input.buffer = NULL;
     decoder->input.bufferLen = 0;
+    decoder->instructionPointer = 0;
     return ZYDIS_STATUS_SUCCESS;
 }
 
