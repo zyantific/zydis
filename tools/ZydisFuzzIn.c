@@ -40,14 +40,12 @@
 #include <Zydis/Zydis.h>
 
 typedef struct ZydisFuzzControlBlock_ {
-    ZydisDisassemblerMode disasMode;
-    ZydisDecoderFlags decoderFlags;  
+    ZydisDisassemblerMode disasMode; 
     ZydisFormatterStyle formatterStyle;
     ZydisFormatterFlags formatterFlags;
     ZydisFormatterAddressFormat formatterAddrFormat;
     ZydisFormatterDisplacementFormat formatterDispFormat;
     ZydisFormatterImmediateFormat formatterImmFormat;
-    uint8_t bufSize;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -63,45 +61,53 @@ int main()
         return EXIT_FAILURE;
     }
 
-    ZydisFileInput input;
-    if (!ZYDIS_SUCCESS(ZydisInputInitFileInput(&input, stdin)))
-    {
-        fputs("failed to initialize file-input\n", stderr);
-        return EXIT_FAILURE;
-    }
-
     ZydisInstructionFormatter formatter;
     if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
         controlBlock.formatterStyle, controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
         controlBlock.formatterDispFormat, controlBlock.formatterImmFormat)))
     {
-        fputs("failed to initialized instruction-formatter\n", stderr);
+        fputs("failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
     }
 
     ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(&decoder, controlBlock.disasMode, 
-        (ZydisCustomInput*)&input, controlBlock.decoderFlags)))
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(&decoder, controlBlock.disasMode)))
     {
         fputs("Failed to initialize instruction-decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionInfo info;
-    char *outBuf = malloc(controlBlock.bufSize);
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
+    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    size_t numBytesRead;
+    do
     {
-        if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
+        numBytesRead = fread(readBuf, 1, sizeof(readBuf), stdin);
+
+        ZydisInstructionInfo info;
+        ZydisStatus status;
+        size_t readOffs = 0;
+        while ((status = ZydisDecoderDecodeInstruction(
+            &decoder, readBuf + readOffs, numBytesRead - readOffs, &info
+        )) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            printf("db %02X\n", info.data[0]);
-            continue;
+            if (!ZYDIS_SUCCESS(status))
+            {
+                ++decoder.instructionPointer;
+                ++readOffs;
+                continue;
+            }
+
+            char printBuffer[256];
+            ZydisFormatterFormatInstruction(&formatter, &info, printBuffer, sizeof(printBuffer));
+            readOffs += info.length;
         }
 
-        ZydisFormatterFormatInstruction(&formatter, &info, outBuf, controlBlock.bufSize);
-        puts(outBuf);
-    }
+        if (readOffs < sizeof(readBuf))
+        {
+            memmove(readBuf, readBuf + readOffs, sizeof(readBuf) - readOffs);
+        }
+    } while (numBytesRead == sizeof(readBuf));
 
-    free(outBuf);
     return 0;
 }
 
