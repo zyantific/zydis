@@ -67,7 +67,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
     size_t numBytesRead;
     do
     {
