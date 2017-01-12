@@ -137,9 +137,9 @@ static ZydisStatus ZydisInputNext(ZydisInstructionDecoder* decoder, ZydisInstruc
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Decodes the rex-prefix.
+ * @brief   Decodes the REX-prefix.
  *
- * @param   rexByte The rex byte.
+ * @param   rexByte The REX byte.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct.
  */
 static void ZydisDecodeREX(ZydisInstructionInfo* info, uint8_t rexByte)
@@ -162,10 +162,10 @@ static void ZydisDecodeREX(ZydisInstructionInfo* info, uint8_t rexByte)
 }
 
 /**
- * @brief   Decodes the xop-prefix.
+ * @brief   Decodes the XOP-prefix.
  *
- * @param   xopByte1    The first xop byte.
- * @param   xopByte2    The second xop byte.
+ * @param   xopByte1    The first XOP byte.
+ * @param   xopByte2    The second XOP byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  *
  * @return  A zydis status code.
@@ -203,11 +203,11 @@ static ZydisStatus ZydisDecodeXOP(uint8_t xopByte1, uint8_t xopByte2, ZydisInstr
 }
 
 /**
- * @brief   Decodes the vex-prefix.
+ * @brief   Decodes the VEX-prefix.
  *
- * @param   vexOpcode   The vex opcode.
- * @param   vexByte1    The first vex byte.
- * @param   vexByte2    The second vex byte.
+ * @param   vexOpcode   The VEX opcode.
+ * @param   vexByte1    The first VEX byte.
+ * @param   vexByte2    The second VEX byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  *
  * @return  A zydis status code.
@@ -264,11 +264,11 @@ static ZydisStatus ZydisDecodeVEX(uint8_t vexOpcode, uint8_t vexByte1, uint8_t v
 }
 
 /**
- * @brief   Decodes the evex-prefix.
+ * @brief   Decodes the EVEX-prefix.
  *
- * @param   evexByte1   The first evex byte.
- * @param   evexByte2   The second evex byte.
- * @param   evexByte3   The third evex byte.
+ * @param   evexByte1   The first EVEX byte.
+ * @param   evexByte2   The second EVEX byte.
+ * @param   evexByte3   The third EVEX byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  *
  * @return  A zydis status code.
@@ -325,9 +325,9 @@ static ZydisStatus ZydisDecodeEVEX(uint8_t evexByte1, uint8_t evexByte2, uint8_t
 }
 
 /**
- * @brief   Decodes the modrm-byte.
+ * @brief   Decodes the ModRM-byte.
  *
- * @param   modrmByte   The modrm byte.
+ * @param   modrmByte   The ModRM byte.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  */
 static void ZydisDecodeModRM(uint8_t modrmByte, ZydisInstructionInfo* info)
@@ -343,9 +343,9 @@ static void ZydisDecodeModRM(uint8_t modrmByte, ZydisInstructionInfo* info)
 }
 
 /**
- * @brief   Decodes the sib-byte.
+ * @brief   Decodes the SIB-byte.
  *
- * @param   sibByte The sib byte.
+ * @param   sibByte The SIB byte.
  * @param   info    A pointer to the @c ZydisInstructionInfo struct
  */
 static void ZydisDecodeSIB(uint8_t sibByte, ZydisInstructionInfo* info)
@@ -373,7 +373,7 @@ static void ZydisDecodeSIB(uint8_t sibByte, ZydisInstructionInfo* info)
  * @return  A zydis status code.
  *         
  * This function sets the corresponding flag for each prefix and automatically decodes the last
- * rex-prefix (if exists).
+ * REX-prefix (if exists).
  */
 static ZydisStatus ZydisCollectOptionalPrefixes(ZydisInstructionDecoder* decoder, 
     ZydisInstructionInfo* info)
@@ -608,7 +608,7 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
 }
 
 /**
- * @brief   Decodes a memory or register operand encoded in the modrm.rm field.
+ * @brief   Decodes a memory or register operand encoded in the ModRM.rm field.
  *
  * @param   decoder         A pointer to the @c ZydisInstructionDecoder decoder instance.
  * @param   info            A pointer to the @c ZydisInstructionInfo struct.

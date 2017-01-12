@@ -43,7 +43,7 @@
 extern const ZydisInstructionTableNode filterOpcode[][256];
 
 /**
- * @brief   Contains all vex-map filters.
+ * @brief   Contains all VEX-map filters.
  *          
  *          Index values:
  *          0 = LES, LDS or BOUND instruction (default encoding)
@@ -66,7 +66,7 @@ extern const ZydisInstructionTableNode filterOpcode[][256];
 extern const ZydisInstructionTableNode filterVEX[][16];
 
 /**
- * @brief   Contains all xop-map filters.
+ * @brief   Contains all XOP-map filters.
  *          
  *          Index values:
  *          0 = POP instruction (default encoding)
@@ -97,7 +97,7 @@ extern const ZydisInstructionTableNode filterMode[][2];
 extern const ZydisInstructionTableNode filterMandatoryPrefix[][4];
 
 /**
- * @brief   Contains all modrm.mod filters.
+ * @brief   Contains all ModRM.mod filters.
  *          
  *          Index values:
  *          0 = [modrm_mod == !11] = memory
@@ -106,14 +106,14 @@ extern const ZydisInstructionTableNode filterMandatoryPrefix[][4];
 extern const ZydisInstructionTableNode filterModrmMod[][2];
 
 /**
- * @brief   Contains all modrm.reg filters.
+ * @brief   Contains all ModRM.reg filters.
  *          
  *          Indexed by the numeric value of the modrm_reg field.
  */
 extern const ZydisInstructionTableNode filterModrmReg[][8];
 
 /**
- * @brief   Contains all modrm.rm filters.
+ * @brief   Contains all ModRM.rm filters.
  *          
  *          Indexed by the numeric value of the modrm_rm field.
  */
@@ -139,30 +139,30 @@ extern const ZydisInstructionTableNode filterOperandSize[][2];
 extern const ZydisInstructionTableNode filterAddressSize[][3];
 
 /**
- * @brief   Contains all rex/vex/evex.w filters.
+ * @brief   Contains all REX/VEX/EVEX.w filters.
  *          
- *          Indexed by the numeric value of the rex/vex/evex.w field.
+ *          Indexed by the numeric value of the REX/VEX/EVEX.w field.
  */
 extern const ZydisInstructionTableNode filterREXW[][2];
 
 /**
- * @brief   Contains all vex.l filters.
+ * @brief   Contains all VEX.l filters.
  *          
- *          Indexed by the numeric value of the vex/evex.l field.
+ *          Indexed by the numeric value of the VEX/EVEX.l field.
  */
 extern const ZydisInstructionTableNode filterVEXL[][2];
 
 /**
- * @brief   Contains all evex.l' filters.
+ * @brief   Contains all EVEX.l' filters.
  *          
- *          Indexed by the numeric value of the evex.l' field.
+ *          Indexed by the numeric value of the EVEX.l' field.
  */
 extern const ZydisInstructionTableNode filterEVEXL2[][2];
 
 /**
- * @brief   Contains all evex.b filters.
+ * @brief   Contains all EVEX.b filters.
  *          
- *          Indexed by the numeric value of the evex.b field.
+ *          Indexed by the numeric value of the EVEX.b field.
  */
 extern const ZydisInstructionTableNode filterEVEXB[][2];
 

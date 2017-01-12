@@ -138,11 +138,11 @@ enum ZydisInstructionTableNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_OPCODE            = 0x07,
     /**
-     * @brief   Reference to an vex/evex-map filter.
+     * @brief   Reference to an VEX/EVEX-map filter.
      */
     ZYDIS_NODETYPE_FILTER_VEX               = 0x08,
     /**
-     * @brief   Reference to an xop-map filter.
+     * @brief   Reference to an XOP-map filter.
      */
     ZYDIS_NODETYPE_FILTER_XOP               = 0x09,
     /**
@@ -154,15 +154,15 @@ enum ZydisInstructionTableNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX   = 0x0B,
     /**
-     * @brief   Reference to a modrm.mod filter.
+     * @brief   Reference to a ModRM.mod filter.
      */
     ZYDIS_NODETYPE_FILTER_MODRMMOD          = 0x0C,
     /**
-     * @brief   Reference to a modrm.reg filter.
+     * @brief   Reference to a ModRM.reg filter.
      */                                                                                      
     ZYDIS_NODETYPE_FILTER_MODRMREG          = 0x0D,
     /**
-     * @brief   Reference to a modrm.rm filter.
+     * @brief   Reference to a ModRM.rm filter.
      */
     ZYDIS_NODETYPE_FILTER_MODRMRM           = 0x0E,  
     /**
@@ -174,19 +174,19 @@ enum ZydisInstructionTableNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_ADDRESSSIZE       = 0x10,
     /**
-     * @brief   Reference to an rex/vex/evex.w filter.
+     * @brief   Reference to an REX/VEX/EVEX.w filter.
      */
     ZYDIS_NODETYPE_FILTER_REXW              = 0x11,
     /**
-     * @brief   Reference to an vex/evex.l filter.
+     * @brief   Reference to an VEX/EVEX.l filter.
      */
     ZYDIS_NODETYPE_FILTER_VEXL              = 0x12,
     /**
-     * @brief   Reference to an evex.l' filter.
+     * @brief   Reference to an EVEX.l' filter.
      */
     ZYDIS_NODETYPE_FILTER_EVEXL2            = 0x13,
     /**
-     * @brief   Reference to an evex.b filter.
+     * @brief   Reference to an EVEX.b filter.
      */
     ZYDIS_NODETYPE_FILTER_EVEXB             = 0x14
 };
@@ -289,7 +289,7 @@ enum ZydisSemanticOperandTypes
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Values that represent zydis evex.b-contexts.
+ * @brief   Values that represent zydis EVEX.b-contexts.
  */
 enum ZydisEvexBFunctionalities
 {

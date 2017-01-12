@@ -92,19 +92,19 @@ enum ZydisStatusCode
      */
     ZYDIS_STATUS_ILLEGAL_LOCK,
     /**
-     * @brief   A legacy-prefix (F2, F3, 66) was found while decoding a xop/vex/evex instruction. 
+     * @brief   A legacy-prefix (F2, F3, 66) was found while decoding a XOP/VEX/EVEX instruction. 
      */
     ZYDIS_STATUS_ILLEGAL_LEGACY_PFX,
     /**
-     * @brief   A rex-prefix was found while decoding a xop/vex/evex instruction. 
+     * @brief   A rex-prefix was found while decoding a XOP/VEX/EVEX instruction. 
      */
     ZYDIS_STATUS_ILLEGAL_REX,
     /**
-     * @brief   An invalid opcode-map value was found while decoding a xop/vex/evex-prefix.  
+     * @brief   An invalid opcode-map value was found while decoding a XOP/VEX/EVEX-prefix.  
      */
     ZYDIS_STATUS_INVALID_MAP,
     /**
-     * @brief   An error occured while decoding the evex-prefix.  
+     * @brief   An error occured while decoding the EVEX-prefix.  
      */
     ZYDIS_STATUS_MALFORMED_EVEX,
     // TODO:

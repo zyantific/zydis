@@ -96,35 +96,35 @@ enum ZydisOperandEncodings
 {
     ZYDIS_OPERAND_ENCODING_NONE,
     /**
-     * @brief   The operand is encoded in the modrm.reg field.
+     * @brief   The operand is encoded in the ModRM.reg field.
      */
     ZYDIS_OPERAND_ENCODING_REG,
     /**
-     * @brief   The operand is encoded in the modrm.rm field.
+     * @brief   The operand is encoded in the ModRM.rm field.
      */
     ZYDIS_OPERAND_ENCODING_RM,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD2,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD4,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD8,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD16,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD32,
     /**
-     * @brief   The operand is encoded in the modrm.rm field and uses the compressed-disp8 form.
+     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
      */
     ZYDIS_OPERAND_ENCODING_RM_CD64,
     /**
@@ -132,11 +132,11 @@ enum ZydisOperandEncodings
      */
     ZYDIS_OPERAND_ENCODING_OPCODE,
     /**
-     * @brief   The operand is encoded in the vex/evex.vvvv field.
+     * @brief   The operand is encoded in the VEX/EVEX.vvvv field.
      */
     ZYDIS_OPERAND_ENCODING_VVVV,
     /**
-     * @brief   The operand is encoded in the evex.aaa field.
+     * @brief   The operand is encoded in the EVEX.aaa field.
      */
     ZYDIS_OPERAND_ENCODING_AAA,
     /**
@@ -468,27 +468,27 @@ enum ZydisOpcodeMaps
 typedef uint64_t ZydisInstructionAttributes;
 
 /**
- * @brief   The instruction has the modrm byte.
+ * @brief   The instruction has the ModRM byte.
  */
 #define ZYDIS_ATTRIB_HAS_MODRM                  0x0000000000000001
 /**
- * @brief   The instruction has the sib byte.
+ * @brief   The instruction has the SUB byte.
  */
 #define ZYDIS_ATTRIB_HAS_SIB                    0x0000000000000002
 /**
- * @brief   The instruction has the rex prefix.
+ * @brief   The instruction has the REX prefix.
  */
 #define ZYDIS_ATTRIB_HAS_REX                    0x0000000000000004
 /**
- * @brief   The instruction has the xop prefix.
+ * @brief   The instruction has the XOP prefix.
  */
 #define ZYDIS_ATTRIB_HAS_XOP                    0x0000000000000008
 /**
- * @brief   The instruction has the vex prefix.
+ * @brief   The instruction has the VEX prefix.
  */
 #define ZYDIS_ATTRIB_HAS_VEX                    0x0000000000000010
 /**
- * @brief   The instruction has the evex prefix.
+ * @brief   The instruction has the EVEX prefix.
  */
 #define ZYDIS_ATTRIB_HAS_EVEX                    0x0000000000000020
 /**
@@ -687,7 +687,7 @@ enum ZydisAVX512MaskModes
 {
     ZYDIS_AVX512_MASKMODE_INVALID,
     /**
-     * @brief   Merge mode. This is the default mode for all evex-instructions.
+     * @brief   Merge mode. This is the default mode for all EVEX-instructions.
      */
     ZYDIS_AVX512_MASKMODE_MERGE,
     /**
@@ -788,7 +788,7 @@ typedef struct ZydisInstructionInfo_
      */
     uint8_t data[15];
     /**
-     * @brief   The instruction-encoding (default, 3dnow, vex, evex, xop).
+     * @brief   The instruction-encoding (default, 3DNow, VEX, EVEX, XOP).
      */
     ZydisInstructionEncoding encoding;
     /**
@@ -854,7 +854,7 @@ typedef struct ZydisInstructionInfo_
         ZydisBool hasSAE;
     } avx;    
     /**
-     * @brief   Extended info about different instruction-parts like modrm, sib or 
+     * @brief   Extended info about different instruction-parts like ModRM, SIB or 
      *          encoding-prefixes.
      */
     struct
@@ -877,7 +877,7 @@ typedef struct ZydisInstructionInfo_
             uint8_t has67;
         } prefixes;
         /**
-         * @brief   Detailed info about the rex-prefix.
+         * @brief   Detailed info about the REX-prefix.
          */
         struct
         {
@@ -894,20 +894,20 @@ typedef struct ZydisInstructionInfo_
              */
             uint8_t W;
             /**
-             * @brief   Extension of the modrm.reg field.
+             * @brief   Extension of the ModRM.reg field.
              */
             uint8_t R;
             /**
-             * @brief   Extension of the sib.index field.
+             * @brief   Extension of the SIB.index field.
              */
             uint8_t X;
             /**
-             * @brief   Extension of the modrm.rm, sib.base, or opcode.reg field.
+             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field.
              */
             uint8_t B;
         } rex; 
         /**
-         * @brief   Detailed info about the xop-prefix.
+         * @brief   Detailed info about the XOP-prefix.
          */
         struct
         {
@@ -920,15 +920,15 @@ typedef struct ZydisInstructionInfo_
              */
             uint8_t data[3];
             /**
-             * @brief   Extension of the modrm.reg field (inverted).
+             * @brief   Extension of the ModRM.reg field (inverted).
              */
             uint8_t R;
             /**
-             * @brief   Extension of the sib.index field (inverted).
+             * @brief   Extension of the SIB.index field (inverted).
              */
             uint8_t X;
             /**
-             * @brief   Extension of the modrm.rm, sib.base, or opcode.reg field (inverted).
+             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field (inverted).
              */
             uint8_t B;
             /**
@@ -953,7 +953,7 @@ typedef struct ZydisInstructionInfo_
             uint8_t pp;
         } xop;
         /**
-         * @brief   Detailed info about the vex-prefix.
+         * @brief   Detailed info about the VEX-prefix.
          */
         struct
         {
@@ -966,15 +966,15 @@ typedef struct ZydisInstructionInfo_
              */
             uint8_t data[3];
             /**
-             * @brief   Extension of the modrm.reg field (inverted).
+             * @brief   Extension of the ModRM.reg field (inverted).
              */
             uint8_t R;
             /**
-             * @brief   Extension of the sib.index field (inverted).
+             * @brief   Extension of the SIB.index field (inverted).
              */
             uint8_t X;
             /**
-             * @brief   Extension of the modrm.rm, sib.base, or opcode.reg field (inverted).
+             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field (inverted).
              */
             uint8_t B;
             /**
@@ -999,7 +999,7 @@ typedef struct ZydisInstructionInfo_
             uint8_t pp;
         } vex;
         /**
-         * @brief   Detailed info about the evex-prefix.
+         * @brief   Detailed info about the EVEX-prefix.
          */
         struct
         {
@@ -1012,15 +1012,15 @@ typedef struct ZydisInstructionInfo_
              */
             uint8_t data[4];
             /**
-             * @brief   Extension of the modrm.reg field (inverted).
+             * @brief   Extension of the ModRM.reg field (inverted).
              */
             uint8_t R;
             /**
-             * @brief   Extension of the sib.index/vidx field (inverted).
+             * @brief   Extension of the SIB.index/vidx field (inverted).
              */
             uint8_t X;
             /**
-             * @brief   Extension of the modrm.rm or sib.base field (inverted).
+             * @brief   Extension of the ModRM.rm or SIB.base field (inverted).
              */
             uint8_t B;
             /**
@@ -1069,7 +1069,7 @@ typedef struct ZydisInstructionInfo_
             uint8_t aaa;
         } evex;
         /**
-         * @brief   Detailed info about the modrm-byte.
+         * @brief   Detailed info about the ModRM-byte.
          */
         struct
         {
@@ -1080,7 +1080,7 @@ typedef struct ZydisInstructionInfo_
             uint8_t rm;
         } modrm;
         /**
-         * @brief   Detailed info about the sib-byte.
+         * @brief   Detailed info about the SIB-byte.
          */
         struct
         {
