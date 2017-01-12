@@ -37,49 +37,20 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
-/* Types                                                                                          */
-/* ============================================================================================== */
-
-/**
- * @brief   Defines the @c ZydisInstructionEncoder struct.
- *
- * All fields in this struct are private and may change anytime.
- */
-typedef struct ZydisInstructionEncoder_
-{
-    /**
-    * @brief   The output buffer.
-    */
-    struct
-    {
-        uint8_t* buffer;
-        size_t bufferLen;
-    } output;
-} ZydisInstructionEncoder;
-
-/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
 /**
- * @brief   Initializes the given @c ZydisInstructionEncoder instance.
- * @param   decoder  A pointer to the @c ZydisInstructionEncoder instance.             
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisEncoderInitInstructionEncoder(ZydisInstructionEncoder* encoder);
-
-/**
  * @brief   Encodes the given instruction info to byte-code.
  *
- * @param   encoder     A pointer to the @c ZydisInstructionEncoder instance.
  * @param   buffer      A pointer to the output buffer.
  * @param   bufferLen   The length of the output buffer.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct to be encoded.
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(ZydisInstructionEncoder* encoder,
-    const void* buffer, size_t bufferLen, ZydisInstructionInfo* info);
+ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(const void* buffer, size_t bufferLen, 
+    ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
 
