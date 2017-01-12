@@ -2275,40 +2275,18 @@ ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
     decoder->disassemblerMode = disassemblerMode;
     decoder->input.buffer = NULL;
     decoder->input.bufferLen = 0;
-    decoder->instructionPointer = 0;
     return ZYDIS_STATUS_SUCCESS;
-}
-
-ZydisStatus ZydisDecoderGetInstructionPointer(const ZydisInstructionDecoder* decoder,
-    uint64_t* instructionPointer)
-{
-    if (!decoder || !instructionPointer)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    *instructionPointer = decoder->instructionPointer;
-    return ZYDIS_STATUS_SUCCESS;
-}
-
-ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecoder* decoder, 
-    uint64_t instructionPointer)
-{
-    if (!decoder)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    decoder->instructionPointer = instructionPointer;
-    return ZYDIS_STATUS_SUCCESS; 
 }
 
 ZydisStatus ZydisDecoderDecodeInstruction(ZydisInstructionDecoder* decoder,
-    const void* buffer, size_t bufferLen, ZydisInstructionInfo* info)
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info)
 {
-    return ZydisDecoderDecodeInstructionEx(decoder, buffer, bufferLen, 0, info);
+    return ZydisDecoderDecodeInstructionEx(decoder, buffer, bufferLen, instructionPointer, 0, info);
 }
 
 ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
-    const void* buffer, size_t bufferLen, ZydisDecoderFlags flags, ZydisInstructionInfo* info)
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisDecoderFlags flags, 
+    ZydisInstructionInfo* info)
 {
     (void)flags;
 
@@ -2328,20 +2306,11 @@ ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
     decoder->lastSegmentPrefix = 0;
     decoder->imm8initialized = ZYDIS_FALSE;
 
-    void* userData[6];
-    for (int i = 0; i < 5; ++i)
-    {
-        userData[i] = info->operands[i].userData;
-    }
-    userData[5] = info->userData;
+    void* userData = info->userData;
     memset(info, 0, sizeof(*info));   
     info->mode = decoder->disassemblerMode;
-    info->instrAddress = decoder->instructionPointer;
-    for (int i = 0; i < 5; ++i)
-    {
-        info->operands[i].userData = userData[i];
-    }
-    info->userData = userData[5];
+    info->instrAddress = instructionPointer;
+    info->userData = userData;
 
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(decoder, info));
     ZYDIS_CHECK(ZydisDecodeOpcode(decoder, info));
@@ -2425,9 +2394,6 @@ ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
             memset(&info->operands[0], 0, sizeof(ZydisOperandInfo) * 2);
         }
     }
-
-    decoder->instructionPointer += info->length;
-    info->instrPointer = decoder->instructionPointer;
 
     return ZYDIS_STATUS_SUCCESS;
 }
