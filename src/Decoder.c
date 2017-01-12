@@ -223,7 +223,6 @@ static ZydisStatus ZydisDecodeVEX(uint8_t vexOpcode, uint8_t vexByte1, uint8_t v
     switch (vexOpcode)
     {
     case 0xC4:
-    {
         info->details.vex.data[1]   = vexByte1;
         info->details.vex.data[2]   = vexByte2;
         info->details.vex.R         = (vexByte1 >> 7) & 0x01;
@@ -235,7 +234,6 @@ static ZydisStatus ZydisDecodeVEX(uint8_t vexOpcode, uint8_t vexByte1, uint8_t v
         info->details.vex.L         = (vexByte2 >> 2) & 0x01;
         info->details.vex.pp        = (vexByte2 >> 0) & 0x03;
         break;
-    }
     case 0xC5:
         info->details.vex.data[1]   = vexByte1;
         info->details.vex.data[2]   = 0;

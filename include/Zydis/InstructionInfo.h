@@ -496,7 +496,10 @@ typedef uint64_t ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_IS_RELATIVE                0x0000000000000040
 /**
- * @brief   The instruction is privileged and may only be executed in ring0.
+ * @brief   The instruction is privileged.
+ *
+ * Priviliged instructions are any instructions that require a current ring
+ * level below 3 or even SMM.
  */
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000080
 /**
@@ -617,7 +620,7 @@ typedef uint64_t ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_DS             0x0000000080000000
 /**
- * @brief   The instruction has the ES segment modifier (0x25). 
+ * @brief   The instruction has the ES segment modifier (0x26). 
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_ES             0x0000000100000000
 /**
@@ -633,7 +636,7 @@ typedef uint64_t ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_HAS_OPERANDSIZE            0x0000000800000000
 /**
- * @brief   The instruction has the address-size prefix (0x66). 
+ * @brief   The instruction has the address-size prefix (0x67). 
  */
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000001000000000
 
