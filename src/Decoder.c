@@ -2158,7 +2158,7 @@ static ZydisStatus ZydisDecodeOpcode(ZydisInstructionDecoder* decoder,
             if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
             {
                 // Save input-buffer state and decode dummy operands
-                uint8_t* buffer = decoder->input.buffer;
+                const uint8_t* buffer = decoder->input.buffer;
                 size_t bufferLen = decoder->input.bufferLen;
                 uint8_t length = info->length;
                 ZYDIS_ASSERT(operandCount == 2);

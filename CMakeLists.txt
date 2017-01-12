@@ -49,6 +49,7 @@ endif ()
 # Library
 set(headers
     "include/Zydis/Decoder.h"
+	"include/Zydis/Encoder.h"
     "include/Zydis/Defines.h"
     "include/Zydis/Formatter.h"
     "include/Zydis/InstructionInfo.h"
@@ -61,6 +62,7 @@ set(headers
     "include/Zydis/Internal/InstructionTable.h")
 set(sources
     "src/Decoder.c"
+	"src/Encoder.c"
     "src/Formatter.c"
     "src/InstructionTable.c"
     "src/Mnemonic.c"

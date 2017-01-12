@@ -76,7 +76,7 @@ typedef struct ZydisInstructionDecoder_
      */
     struct
     {
-        uint8_t* buffer;
+        const uint8_t* buffer;
         size_t bufferLen;
     } input;
     // TODO: (Maybe) remove from this struct and pass as argument
