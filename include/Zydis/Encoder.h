@@ -37,6 +37,31 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
+/* Constants                                                                                      */
+/* ============================================================================================== */
+
+/**
+ * @brief  Defines a mask of attributes users may excplicitly ask for.
+ */
+#define ZYDIS_USER_ENCODABLE_ATTRIB_MASK (    \
+    ZYDIS_ATTRIB_HAS_LOCK                   | \
+    ZYDIS_ATTRIB_HAS_REP                    | \
+    ZYDIS_ATTRIB_HAS_REPE                   | \
+    ZYDIS_ATTRIB_HAS_REPNE                  | \
+    ZYDIS_ATTRIB_HAS_BOUND                  | \
+    ZYDIS_ATTRIB_HAS_XACQUIRE               | \
+    ZYDIS_ATTRIB_HAS_XRELEASE               | \
+    ZYDIS_ATTRIB_HAS_BRANCH_TAKEN           | \
+    ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN       | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_CS             | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_DS             | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_SS             | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_ES             | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_FS             | \
+    ZYDIS_ATTRIB_HAS_SEGMENT_GS               \
+)
+
+/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
@@ -49,7 +74,7 @@ extern "C" {
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(const void* buffer, size_t bufferLen, 
+ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t bufferLen, 
     ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
