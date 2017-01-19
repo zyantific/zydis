@@ -74,7 +74,7 @@ extern "C" {
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t bufferLen, 
+ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen, 
     ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
