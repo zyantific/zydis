@@ -41,6 +41,18 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Constants                                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+#define ZYDIS_MAX_INSTRUCTION_LENGTH 15
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
 /* Operand info                                                                                   */
 /* ============================================================================================== */
 
@@ -315,12 +327,12 @@ typedef struct ZydisOperandInfo_
                 int64_t sqword;
             } value;
             /**
-             * @brief   The physical displacement size.
+             * @brief   The physical displacement size, in bits.
              */
             uint8_t dataSize;
             /**
              * @brief   The offset of the displacement data, relative to the beginning of the 
-             *          instruction.
+             *          instruction, in bytes.
              */
             uint8_t dataOffset;
         } disp;
@@ -361,12 +373,12 @@ typedef struct ZydisOperandInfo_
             uint64_t uqword;
         } value;
         /**
-         * @brief   The physical immediate size.
+         * @brief   The physical immediate size, in bits.
          */
         uint8_t dataSize;
         /**
          * @brief   The offset of the immediate data, relative to the beginning of the 
-         *          instruction.
+         *          instruction, in bytes.
          */
         uint8_t dataOffset;
     } imm;

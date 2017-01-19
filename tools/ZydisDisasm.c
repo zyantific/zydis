@@ -88,24 +88,30 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            //char printBuffer[256];
-            //ZydisFormatterFormatInstruction(
-            //    &formatter, &info, printBuffer, sizeof(printBuffer)
-            //);
-            //puts(printBuffer);
-            readOffs += info.length;
+            char printBuffer[256];
+            ZydisFormatterFormatInstruction(
+                &formatter, &info, printBuffer, sizeof(printBuffer)
+            );
+            puts(printBuffer);
 
             // TODO: Remove
             // DEBUG CODE START
-            //uint8_t encBuffer[15];
-            //ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
-            //    encBuffer, sizeof(encBuffer), &info
-            //);
-            //if (!ZYDIS_SUCCESS(encStatus)) {
-            //    //__asm int 3;
-            //    *(volatile int*)0 = 0;
-            //}
+            uint8_t encBuffer[15];
+            size_t encBufferSize = sizeof(encBuffer);
+            ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
+                encBuffer, &encBufferSize, &info
+            );
+            ZYDIS_ASSERT(ZYDIS_SUCCESS(encStatus));
+            for (size_t i = 0; i < encBufferSize; ++i)
+            {
+                printf("%02X ", encBuffer[i]);
+            }
+            putchar('\n');
+            ZYDIS_ASSERT(encBufferSize == info.length);
+            ZYDIS_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
             // DEBUG CODE END
+            
+            readOffs += info.length;
         }
         
         if (readOffs < sizeof(readBuf))
