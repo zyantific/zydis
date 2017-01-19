@@ -600,7 +600,7 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
         operand->reg = ZydisRegisterEncode(registerClass, registerId);
         if (!operand->reg)
         {
-            return ZYDIS_STATUS_INVALID_REGISTER;
+            return ZYDIS_STATUS_BAD_REGISTER;
         }
     }
 

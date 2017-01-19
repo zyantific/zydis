@@ -531,7 +531,7 @@ typedef uint64_t ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XACQUIRE           0x0000000000002000
 /**
- * @brief   The instruction accepts the xrelease prefix (0xF2). 
+ * @brief   The instruction accepts the xrelease prefix (0xF3). 
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XRELEASE           0x0000000000004000
 /**
