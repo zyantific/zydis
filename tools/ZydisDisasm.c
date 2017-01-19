@@ -1,4 +1,4 @@
-﻿/***************************************************************************************************
+/***************************************************************************************************
 
   Zyan Disassembler Engine (Zydis)
 
@@ -88,10 +88,24 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            char printBuffer[256];
-            ZydisFormatterFormatInstruction(&formatter, &info, printBuffer, sizeof(printBuffer));
-            puts(printBuffer);
+            //char printBuffer[256];
+            //ZydisFormatterFormatInstruction(
+            //    &formatter, &info, printBuffer, sizeof(printBuffer)
+            //);
+            //puts(printBuffer);
             readOffs += info.length;
+
+            // TODO: Remove
+            // DEBUG CODE START
+            //uint8_t encBuffer[15];
+            //ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
+            //    encBuffer, sizeof(encBuffer), &info
+            //);
+            //if (!ZYDIS_SUCCESS(encStatus)) {
+            //    //__asm int 3;
+            //    *(volatile int*)0 = 0;
+            //}
+            // DEBUG CODE END
         }
         
         if (readOffs < sizeof(readBuf))
