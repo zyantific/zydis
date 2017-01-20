@@ -96,6 +96,12 @@ int main(int argc, char** argv)
 
             // TODO: Remove
             // DEBUG CODE START
+            for (size_t i = 0; i < info.length; ++i)
+            {
+                printf("%02X ", *(readBuf + readOffs + i));
+            }
+            putchar('\n');
+
             uint8_t encBuffer[15];
             size_t encBufferSize = sizeof(encBuffer);
             ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
