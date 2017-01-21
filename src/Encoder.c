@@ -415,6 +415,7 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     ZydisRegister reg, char topBitLoc)
 {
     int16_t regID = ZydisRegisterGetId(reg);
+    //ZydisRegisterClass clazz = ZydisRegisterGetClass(reg);
     if (regID == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
 
     uint8_t lowerBits = (regID & 0x07) >> 0;
@@ -479,6 +480,153 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     return ZYDIS_STATUS_SUCCESS;
 }
 
+static ZydisBool ZydisIsStackReg(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_SP   ||
+           reg == ZYDIS_REGISTER_ESP  ||
+           reg == ZYDIS_REGISTER_RSP  ||
+           reg == ZYDIS_REGISTER_BP   ||
+           reg == ZYDIS_REGISTER_EBP  ||
+           reg == ZYDIS_REGISTER_RBP;
+}
+
+static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
+    ZydisOperandInfo* operand, const ZydisEncoderTableOperand* tableEntry)
+{
+    // TODO: rBP
+    // TODO: RIP relative addressing
+
+    // Absolute memory access?
+    if (operand->mem.base == ZYDIS_REGISTER_NONE)
+    {
+        ctx->disp = operand->mem.disp.value.sdword;
+        ctx->dispBitSize = 32;
+
+        // In 32 bit mode, ModRM allows for a shortcut here.
+        if (ctx->info->mode == ZYDIS_DISASSEMBLER_MODE_32BIT)
+        {
+            ctx->info->details.modrm.mod = 0x00;
+            ctx->info->details.modrm.rm  = 0x05 /* memory */;
+        }
+        // In AMD64 mode, we have to build a SIB.
+        else
+        {
+            ctx->info->details.modrm.mod = 0x00;
+            ctx->info->details.modrm.rm  = 0x04 /* SIB  */;
+            ctx->info->details.sib.index = 0x04 /* none */;
+            ctx->info->details.sib.scale = 0x00 /* * 1  */;
+            ctx->info->details.sib.base  = 0x05;
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
+        }
+
+        return ZYDIS_STATUS_SUCCESS;
+    }
+
+    // Process base register.
+    ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.base, 'B'));
+
+    // Segment prefix required?
+    switch (operand->mem.segment)
+    {
+    case ZYDIS_REGISTER_ES:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+        break;
+    case ZYDIS_REGISTER_SS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
+        break;
+    case ZYDIS_REGISTER_CS:
+        if (!ZydisIsStackReg(operand->mem.base))
+        {
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+        }
+        break;
+    case ZYDIS_REGISTER_DS:
+        if (ZydisIsStackReg(operand->mem.base))
+        {
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
+        }
+        break;
+    case ZYDIS_REGISTER_FS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+        break;
+    case ZYDIS_REGISTER_GS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+        break;
+    default:
+        return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO: Better status.
+    }
+
+    // SIB byte required?
+    if (operand->mem.index || operand->mem.scale)
+    {
+        switch (operand->mem.scale)
+        {
+        case 1: ctx->info->details.sib.index = 0x00; break;
+        case 2: ctx->info->details.sib.index = 0x01; break;
+        case 4: ctx->info->details.sib.index = 0x02; break;
+        case 8: ctx->info->details.sib.index = 0x03; break;
+        default: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+
+        // Base & index register.
+        ctx->info->details.sib.base = ctx->info->details.modrm.rm;
+        ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.index, 'X'));
+
+        ctx->info->details.modrm.rm = 0x04 /* SIB */;
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
+    }
+
+    // Has displacement?
+    if (operand->mem.disp.value.sdword)
+    {
+        int32_t divisor = 1;
+        switch (tableEntry->encoding)
+        {
+        case ZYDIS_OPERAND_ENCODING_RM:                    break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD2:  divisor = 2;  break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD4:  divisor = 4;  break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD8:  divisor = 8;  break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD16: divisor = 16; break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD32: divisor = 32; break;
+        case ZYDIS_OPERAND_ENCODING_RM_CD64: divisor = 64; break;
+        default: ZYDIS_UNREACHABLE;
+        }
+
+        // Has compressed disp encoding and is compression possible?
+        int32_t* sdword = &operand->mem.disp.value.sdword;
+        if (divisor != 1 &&
+            *sdword % divisor == 0 &&
+            *sdword / divisor <= INT8_MAX &&
+            *sdword / divisor >= INT8_MIN)
+        {
+            ctx->dispBitSize = 8;
+            ctx->info->details.modrm.mod = 0x01 /* 8 bit disp */;
+            *sdword /= divisor;
+        }
+        // Nope, regular encoding. Does it fit a byte anyway?
+        else if (*sdword <= INT8_MAX && *sdword >= INT8_MIN)
+        {
+            ctx->dispBitSize = 8;
+            ctx->info->details.modrm.mod = 0x01 /* 8 bit disp */;
+        }
+        // No compression possible, emit as 32 bit.
+        else
+        {
+            ctx->dispBitSize = 32;
+            ctx->info->details.modrm.mod = 0x02 /* 32 bit disp */;
+        }
+
+        ctx->disp = *sdword;
+    }
+    // No displacement.
+    else
+    {
+        ctx->info->details.modrm.mod = 0x00 /* no disp */;
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
+}
+
 static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     ZydisOperandInfo* operand, const ZydisEncoderTableOperand* tableEntry)
 {
@@ -498,111 +646,10 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     case ZYDIS_OPERAND_ENCODING_RM_CD32:
     case ZYDIS_OPERAND_ENCODING_RM_CD64:
     {
-        // TODO: MMX registers
-        // TODO: rBP
-        // TODO: RIP relative addressing
-        // TODO: Segment prefixes
-
         // Memory operand?
         if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
-            // Absolute memory access?
-            if (operand->mem.base == ZYDIS_REGISTER_NONE)
-            {
-                ctx->disp = operand->mem.disp.value.sdword;
-                ctx->dispBitSize = 32;
-
-                // In 32 bit mode, ModRM allows for a shortcut here.
-                if (ctx->info->mode == ZYDIS_DISASSEMBLER_MODE_32BIT)
-                {
-                    ctx->info->details.modrm.mod = 0x00;
-                    ctx->info->details.modrm.rm  = 0x05 /* memory */;
-                }
-                // In AMD64 mode, we have to build a SIB.
-                else
-                {
-                    ctx->info->details.modrm.mod = 0x00;
-                    ctx->info->details.modrm.rm  = 0x04 /* SIB  */;
-                    ctx->info->details.sib.index = 0x04 /* none */;
-                    ctx->info->details.sib.scale = 0x00 /* * 1  */;
-                    ctx->info->details.sib.base  = 0x05;
-                    ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
-                }
-
-                ctx->info->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
-                break;
-            }
-
-            // Base register?
-            ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.base, 'B'));
-
-            // SIB byte required?
-            if (operand->mem.index || operand->mem.scale)
-            {
-                switch (operand->mem.scale)
-                {
-                case 1: ctx->info->details.sib.index = 0x00; break;
-                case 2: ctx->info->details.sib.index = 0x01; break;
-                case 4: ctx->info->details.sib.index = 0x02; break;
-                case 8: ctx->info->details.sib.index = 0x03; break;
-                default: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
-                }
-
-                // Base & index register.
-                ctx->info->details.sib.base = ctx->info->details.modrm.rm;
-                ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.index, 'X'));
-
-                ctx->info->details.modrm.rm = 0x04 /* SIB */;
-                ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
-            }
-
-            // Has displacement?
-            if (operand->mem.disp.value.sdword)
-            {
-                int32_t divisor = 1;
-                switch (tableEntry->encoding)
-                {
-                case ZYDIS_OPERAND_ENCODING_RM:                    break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD2:  divisor = 2;  break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD4:  divisor = 4;  break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD8:  divisor = 8;  break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD16: divisor = 16; break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD32: divisor = 32; break;
-                case ZYDIS_OPERAND_ENCODING_RM_CD64: divisor = 64; break;
-                default: ZYDIS_UNREACHABLE;
-                }
-
-                // Has compressed disp encoding and is compression possible?
-                int32_t* sdword = &operand->mem.disp.value.sdword;
-                if (divisor != 1 &&
-                    *sdword % divisor == 0 &&
-                    *sdword / divisor <= INT8_MAX &&
-                    *sdword / divisor >= INT8_MIN)
-                {
-                    ctx->dispBitSize = 8;
-                    ctx->info->details.modrm.mod = 0x01 /* 8 bit disp */;
-                    *sdword /= divisor;
-                }
-                // Nope, regular encoding. Does it fit a byte anyway?
-                else if (*sdword <= INT8_MAX && *sdword >= INT8_MIN)
-                {
-                    ctx->dispBitSize = 8;
-                    ctx->info->details.modrm.mod = 0x01 /* 8 bit disp */;
-                }
-                // No compression possible, emit as 32 bit.
-                else
-                {
-                    ctx->dispBitSize = 32;
-                    ctx->info->details.modrm.mod = 0x02 /* 32 bit disp */;
-                }
-
-                ctx->disp = *sdword;
-            }
-            // No displacement.
-            else
-            {
-                ctx->info->details.modrm.mod = 0x00 /* no disp */;
-            }
+            ZYDIS_CHECK(ZydisPrepareMemoryOperand(ctx, operand, tableEntry));
         }
         // Nope, register.
         else if (operand->type == ZYDIS_OPERAND_TYPE_REGISTER)
