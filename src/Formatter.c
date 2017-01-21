@@ -592,14 +592,14 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(ZydisInstructionFormatter* fo
     switch (operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
-    case ZYDIS_REGISTER_SS:
+    case ZYDIS_REGISTER_CS:
     case ZYDIS_REGISTER_FS:
     case ZYDIS_REGISTER_GS:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
             ZydisRegisterGetString(operand->mem.segment));
-    case ZYDIS_REGISTER_CS:
+    case ZYDIS_REGISTER_SS:
         if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
-            (info->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS))
+            (info->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
             return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
                 ZydisRegisterGetString(operand->mem.segment));

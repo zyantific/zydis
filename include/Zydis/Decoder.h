@@ -67,11 +67,6 @@ typedef struct ZydisInstructionDecoder_
         const uint8_t* buffer;
         size_t bufferLen;
     } input;
-    // TODO: (Maybe) remove from this struct and pass as argument
-    /**
-     * @brief   The current instruction-pointer value.
-     */
-    uint64_t instructionPointer;
     /**
      * @brief   Internal field. @c TRUE, if the @c imm8 value is already initialized.
      */
@@ -119,57 +114,36 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDeco
     ZydisDisassemblerMode disassemblerMode);
 
 /**
- * @brief   Returns the current instruction-pointer of the given @c ZydisInstructionDecoder
- *          instance.
- *          
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   instructionPointer  A pointer to the memory that receives the current 
- *                              instruction-pointer.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderGetInstructionPointer(
-    const ZydisInstructionDecoder* decoder, uint64_t* instructionPointer);
-
-/**
- * @brief   Changes the instruction-pointer of the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   instructionPointer  The new instruction-pointer value.
- *
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderSetInstructionPointer(ZydisInstructionDecoder* decoder, 
-    uint64_t instructionPointer);
-
-/**
  * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   decoder     A pointer to the @c ZydisInstructionDecoder instance.
- * @param   buffer      A pointer to the input buffer.
- * @param   bufferLen   The length of the input buffer.
- * @param   info        A pointer to the @c ZydisInstructionInfo struct, that receives the details
- *                      about the decoded instruction.
+ * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   buffer              A pointer to the input buffer.
+ * @param   bufferLen           The length of the input buffer.
+ * @param   instructionPointer  The instruction-pointer.
+ * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
+ *                              details about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstruction(ZydisInstructionDecoder* decoder,
-    const void* buffer, size_t bufferLen, ZydisInstructionInfo* info);
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   decoder     A pointer to the @c ZydisInstructionDecoder instance.
- * @param   buffer      A pointer to the input buffer.
- * @param   bufferLen   The length of the input buffer.
- * @param   flags       Additional decoding flags.
- * @param   info        A pointer to the @c ZydisInstructionInfo struct, that receives the details
- *                      about the decoded instruction.
+ * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   buffer              A pointer to the input buffer.
+ * @param   bufferLen           The length of the input buffer.
+ * @param   instructionPointer  The instruction-pointer.
+ * @param   flags               Additional decoding flags.
+ * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
+ *                              details about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
-    const void* buffer, size_t bufferLen, ZydisDecoderFlags flags, ZydisInstructionInfo* info);
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisDecoderFlags flags, 
+    ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
 

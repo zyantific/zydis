@@ -382,10 +382,6 @@ typedef struct ZydisOperandInfo_
          */
         uint8_t dataOffset;
     } imm;
-    /**
-     * @brief   This field is intended for custom data and may be freely set by the user.
-     */
-    void* userData;
 } ZydisOperandInfo;
 
 /* ============================================================================================== */
@@ -502,7 +498,7 @@ typedef uint64_t ZydisInstructionAttributes;
 /**
  * @brief   The instruction has the EVEX prefix.
  */
-#define ZYDIS_ATTRIB_HAS_EVEX                    0x0000000000000020
+#define ZYDIS_ATTRIB_HAS_EVEX                   0x0000000000000020
 /**
  * @brief   The instruction has one or more operands with position-relative offsets.
  */
@@ -547,7 +543,7 @@ typedef uint64_t ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XACQUIRE           0x0000000000002000
 /**
- * @brief   The instruction accepts the xrelease prefix (0xF2). 
+ * @brief   The instruction accepts the xrelease prefix (0xF3). 
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XRELEASE           0x0000000000004000
 /**

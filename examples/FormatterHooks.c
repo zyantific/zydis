@@ -36,6 +36,8 @@
 #include <inttypes.h>
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
+#include <stdlib.h>
+#include <time.h>
 
 /* ============================================================================================== */
 /* Static data                                                                                    */
@@ -46,38 +48,38 @@
  */
 static const char* conditionCodeStrings[0x20] =
 {
-    "eq",
-    "lt", 
-    "le", 
-    "unord", 
-    "neq", 
-    "nlt", 
-    "nle", 
-    "ord", 
-    "eq_uq", 
-    "nge", 
-    "ngt", 
-    "false", 
-    "oq", 
-    "ge", 
-    "gt", 
-    "true", 
-    "eq_os", 
-    "lt_oq", 
-    "le_oq",
-    "unord_s", 
-    "neq_us", 
-    "nlt_uq", 
-    "nle_uq", 
-    "ord_s", 
-    "eq_us", 
-    "nge_uq", 
-    "ngt_uq", 
-    "false_os", 
-    "neq_os", 
-    "ge_oq", 
-    "gt_oq", 
-    "true_us"
+    /*00*/ "eq",
+    /*01*/ "lt", 
+    /*02*/ "le", 
+    /*03*/ "unord", 
+    /*04*/ "neq", 
+    /*05*/ "nlt", 
+    /*06*/ "nle", 
+    /*07*/ "ord", 
+    /*08*/ "eq_uq", 
+    /*09*/ "nge", 
+    /*0A*/ "ngt", 
+    /*0B*/ "false", 
+    /*0C*/ "oq", 
+    /*0D*/ "ge", 
+    /*0E*/ "gt", 
+    /*0F*/ "true", 
+    /*10*/ "eq_os", 
+    /*11*/ "lt_oq", 
+    /*12*/ "le_oq",
+    /*13*/ "unord_s", 
+    /*14*/ "neq_us", 
+    /*15*/ "nlt_uq", 
+    /*16*/ "nle_uq", 
+    /*17*/ "ord_s", 
+    /*18*/ "eq_us", 
+    /*19*/ "nge_uq", 
+    /*1A*/ "ngt_uq", 
+    /*1B*/ "false_os", 
+    /*1C*/ "neq_os", 
+    /*1D*/ "ge_oq", 
+    /*1E*/ "gt_oq", 
+    /*1F*/ "true_us"
 };
 
 /* ============================================================================================== */
@@ -175,7 +177,6 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
 {
     ZydisInstructionDecoder decoder;
     ZydisDecoderInitInstructionDecoder(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT); 
-    ZydisDecoderSetInstructionPointer(&decoder, 0x007FFFFFFF400000);
 
     ZydisInstructionFormatter formatter;
     ZydisFormatterInitInstructionFormatterEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
@@ -191,13 +192,17 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, 
             (const void**)&defaultFormatOperandImm);
     }
-  
+
+    uint64_t instructionPointer = 0x007FFFFFFF400000;
+
     ZydisInstructionInfo info;
     char buffer[256];
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeInstruction(&decoder, data, length, &info)))
+    while (ZYDIS_SUCCESS(
+        ZydisDecoderDecodeInstruction(&decoder, data, length, instructionPointer, &info)))
     {
         data += info.length;
         length -= info.length;
+        instructionPointer += info.length;
         printf("%016" PRIX64 "  ", info.instrAddress);
         ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], sizeof(buffer));  
         printf(" %s\n", &buffer[0]);

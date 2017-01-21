@@ -85,7 +85,7 @@ enum ZydisStatusCode
     /**
      * @brief   The instruction encoded an invalid register.
      */
-    ZYDIS_STATUS_INVALID_REGISTER,
+    ZYDIS_STATUS_BAD_REGISTER,
     /**
      * @brief   A lock-prefix (F0) was found while decoding an instruction that does not support
      *          locking. 
@@ -154,13 +154,14 @@ enum ZydisStatusCode
  * @param   status  The zydis status-code to check.
  */
 #define ZYDIS_CHECK(status) \
+    do \
     { \
         ZydisStatus s = status; \
         if (!ZYDIS_SUCCESS(s)) \
         { \
             return s; \
         } \
-    }
+    } while(0)
 
 /* ============================================================================================== */
 
