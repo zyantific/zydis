@@ -501,6 +501,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         // TODO: MMX registers
         // TODO: rBP
         // TODO: RIP relative addressing
+        // TODO: Segment prefixes
 
         // Memory operand?
         if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
@@ -628,6 +629,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         if (reg == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
         // TODO: Conditional assignment instead?
         ctx->info->details.vex.vvvv  = (reg & 0x0F);
+        ctx->info->details.xop.vvvv  = (reg & 0x0F);
         ctx->info->details.evex.vvvv = (reg & 0x0F);
         break;
     }        

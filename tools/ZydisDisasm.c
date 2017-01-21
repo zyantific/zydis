@@ -77,12 +77,11 @@ int main(int argc, char** argv)
         ZydisStatus status;
         size_t readOffs = 0;
         while ((status = ZydisDecoderDecodeInstruction(
-            &decoder, readBuf + readOffs, numBytesRead - readOffs, &info
+            &decoder, readBuf + readOffs, numBytesRead - readOffs, readOffs, &info
         )) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))
             {
-                ++decoder.instructionPointer;
                 ++readOffs;
                 printf("db %02X\n", info.data[0]);
                 continue;
