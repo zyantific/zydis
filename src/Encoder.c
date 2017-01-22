@@ -78,10 +78,11 @@ typedef struct ZydisEncoderTableEntry_
     ZydisEncoderTableOperand operands[5];
     ZydisOpcodeMap map;
     ZydisInstructionAttributes attribs;
-    ZydisModRMMod modRmMod;
+    ZydisModRMMod modRmReg;
     ZydisModeConstraint modeConstraint;
     ZydisPrefixBit prefixBits;
     uint8_t mandatoryPrefix; // 0x00 = None
+    uint8_t modrmReg;        // 0xFF = None
 } ZydisEncoderTableEntry;
 
 struct ZydisPrefixAcceptMapping
@@ -419,6 +420,8 @@ static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx)
 static ZydisStatus ZydisSimplifyOperandType(ZydisSemanticOperandType semType,
     ZydisOperandType* simpleType)
 {
+    ZYDIS_ASSERT(simpleType);
+
     // TODO: Better mapping, this is just for testing.
     switch (semType)
     {
@@ -454,6 +457,8 @@ static ZydisStatus ZydisSimplifyOperandType(ZydisSemanticOperandType semType,
 static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     ZydisRegister reg, char topBitLoc)
 {
+    ZYDIS_ASSERT(ctx);
+
     int16_t regID = ZydisRegisterGetId(reg);
     if (regID == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
 
@@ -539,6 +544,10 @@ static ZydisBool ZydisIsStackReg(ZydisRegister reg)
 static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     ZydisOperandInfo* operand, const ZydisEncoderTableOperand* tableEntry)
 {
+    ZYDIS_ASSERT(ctx);
+    ZYDIS_ASSERT(operand);
+    ZYDIS_ASSERT(tableEntry);
+
     // TODO: RIP relative addressing
 
     // Absolute memory access?
@@ -727,12 +736,17 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
 static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     ZydisOperandInfo* operand, const ZydisEncoderTableOperand* tableEntry)
 {
+    ZYDIS_ASSERT(ctx);
+    ZYDIS_ASSERT(operand);
+    ZYDIS_ASSERT(tableEntry);
+
     switch (tableEntry->encoding)
     {
     case ZYDIS_OPERAND_ENCODING_NONE:
         break; // Nothing to do.
     case ZYDIS_OPERAND_ENCODING_REG:
     {
+        ZYDIS_ASSERT(!ctx->info->details.modrm.reg);
         ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->reg, 'R'));
     } break;
     case ZYDIS_OPERAND_ENCODING_RM:
@@ -743,6 +757,12 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     case ZYDIS_OPERAND_ENCODING_RM_CD32:
     case ZYDIS_OPERAND_ENCODING_RM_CD64:
     {
+        ZYDIS_ASSERT(!ctx->info->details.modrm.mod);
+        ZYDIS_ASSERT(!ctx->info->details.modrm.rm);
+        ZYDIS_ASSERT(!ctx->info->details.sib.base);
+        ZYDIS_ASSERT(!ctx->info->details.sib.index);
+        ZYDIS_ASSERT(!ctx->info->details.sib.scale);
+
         // Memory operand?
         if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
@@ -811,6 +831,8 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
 
 static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
 {
+    ZYDIS_ASSERT(ctx);
+
     // Is a prefix mandatory? 0x00 is a sentinel value for `None` in the table.
     if (ctx->matchingEntry->mandatoryPrefix != 0x00)
     {
@@ -847,6 +869,8 @@ static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
 
 static ZydisStatus ZydisDeriveEncodingForOp(ZydisOperandDefinition* operand)
 {
+    ZYDIS_ASSERT(operand);
+
     switch (operand->type)
     {
     default:
@@ -968,6 +992,12 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
 
     // Prepare opcode.
     ZYDIS_CHECK(ZydisPrepareOpcode(&ctx));
+
+    // Some instructions have additional opcode bits encoded in ModRM.reg.
+    if (ctx.matchingEntry->modRmReg != 0xFF)
+    {
+        ctx.info->details.modrm.reg = ctx.matchingEntry->modRmReg;
+    }
 
     // Analyze and prepare operands.
     if (info->operandCount > ZYDIS_ARRAY_SIZE(info->operands))
