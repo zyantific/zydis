@@ -31,7 +31,7 @@
 #include <stdint.h>
 
 /* ============================================================================================== */
-/* Internal context                                                                               */
+/* Internal context and table types                                                               */
 /* ============================================================================================== */
 
 typedef struct ZydisEncoderTableOperand_
@@ -107,25 +107,21 @@ typedef struct ZydisEncoderContext_
 /* Internal helpers                                                                               */
 /* ============================================================================================== */
 
-static ZydisStatus ZydisEmitByte(ZydisEncoderContext* ctx, uint8_t byte)
-{
-    if (ctx->writeOffs + 1 >= ctx->bufferLen)
-    {
-        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-
-    ctx->buffer[ctx->writeOffs++] = byte;
-    return ZYDIS_STATUS_SUCCESS;
-}
+/* ---------------------------------------------------------------------------------------------- */
+/* Byte stream output functions. Those are the only funcs that access the output stream directly. */
+/* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisEmitImm(ZydisEncoderContext* ctx, uint64_t imm, int bits)
 {
     ZYDIS_ASSERT(bits == 8 || bits == 16 || bits == 32 || bits == 64);
     size_t newWriteOffs = ctx->writeOffs + bits / 8;
-    if (newWriteOffs >= ctx->bufferLen ||
-        newWriteOffs > ZYDIS_MAX_INSTRUCTION_LENGTH)
+    if (newWriteOffs >= ctx->bufferLen)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
+    }
+    if (newWriteOffs > ZYDIS_MAX_INSTRUCTION_LENGTH)
+    {
+        return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
     }
 
     // TODO: bswap on big-endian
@@ -141,6 +137,15 @@ static ZydisStatus ZydisEmitImm(ZydisEncoderContext* ctx, uint64_t imm, int bits
     ctx->writeOffs = newWriteOffs;
     return ZYDIS_STATUS_SUCCESS;
 }
+
+static ZydisStatus ZydisEmitByte(ZydisEncoderContext* ctx, uint8_t byte)
+{
+    return ZydisEmitImm(ctx, byte, 8);
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Byte code encoding functions. Translate prepared data to final format.                         */
+/* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisEmitLegacyPrefixes(ZydisEncoderContext* ctx)
 {
@@ -326,6 +331,10 @@ static ZydisStatus ZydisEmitSIB(ZydisEncoderContext* ctx)
     return ZYDIS_STATUS_SUCCESS;
 }
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Preparation functions. Parse encoder request, determine required bytes and prefixes.           */
+/* ---------------------------------------------------------------------------------------------- */
+
 static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx)
 {
     ZYDIS_ASSERT(ctx);
@@ -480,20 +489,26 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     return ZYDIS_STATUS_SUCCESS;
 }
 
+static ZydisBool ZydisIsBPReg(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_BPL ||
+           reg == ZYDIS_REGISTER_BP  ||
+           reg == ZYDIS_REGISTER_EBP ||
+           reg == ZYDIS_REGISTER_RBP;
+}
+
 static ZydisBool ZydisIsStackReg(ZydisRegister reg)
 {
-    return reg == ZYDIS_REGISTER_SP   ||
-           reg == ZYDIS_REGISTER_ESP  ||
-           reg == ZYDIS_REGISTER_RSP  ||
-           reg == ZYDIS_REGISTER_BP   ||
-           reg == ZYDIS_REGISTER_EBP  ||
-           reg == ZYDIS_REGISTER_RBP;
+    return reg == ZYDIS_REGISTER_SPL ||
+           reg == ZYDIS_REGISTER_SP  ||
+           reg == ZYDIS_REGISTER_ESP ||
+           reg == ZYDIS_REGISTER_RSP ||
+           ZydisIsBPReg(reg);
 }
 
 static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     ZydisOperandInfo* operand, const ZydisEncoderTableOperand* tableEntry)
 {
-    // TODO: rBP
     // TODO: RIP relative addressing
 
     // Absolute memory access?
@@ -625,8 +640,11 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
     }
 
-    // Has displacement?
-    if (operand->mem.disp.value.sdword)
+    // Has displacement or is rBP and we have no SIB?
+    // rBP can't be ModRM-encoded without a disp.
+    if (operand->mem.disp.value.sdword || 
+        (!(ctx->info->attributes & ZYDIS_ATTRIB_HAS_SIB) 
+            && ZydisIsBPReg(operand->mem.base)))
     {
         int32_t divisor = 1;
         switch (tableEntry->encoding)
@@ -816,6 +834,8 @@ static ZydisStatus ZydisFindMatchingDef(const ZydisInstructionInfo* info,
 
     return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Implementation of public functions                                                             */

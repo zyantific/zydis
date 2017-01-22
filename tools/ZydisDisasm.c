@@ -106,6 +106,7 @@ int main(int argc, char** argv)
             ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
                 encBuffer, &encBufferSize, &info
             );
+            (void)encStatus;
             ZYDIS_ASSERT(ZYDIS_SUCCESS(encStatus));
             for (size_t i = 0; i < encBufferSize; ++i)
             {

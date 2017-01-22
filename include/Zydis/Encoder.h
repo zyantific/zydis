@@ -52,13 +52,7 @@ extern "C" {
     ZYDIS_ATTRIB_HAS_XACQUIRE               | \
     ZYDIS_ATTRIB_HAS_XRELEASE               | \
     ZYDIS_ATTRIB_HAS_BRANCH_TAKEN           | \
-    ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN       | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_CS             | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_DS             | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_SS             | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_ES             | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_FS             | \
-    ZYDIS_ATTRIB_HAS_SEGMENT_GS               \
+    ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN         \
 )
 
 /* ============================================================================================== */
