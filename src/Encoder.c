@@ -77,11 +77,40 @@ typedef struct ZydisEncoderTableEntry_
     uint8_t operandCount;
     ZydisEncoderTableOperand operands[5];
     ZydisOpcodeMap map;
-    ZydisInstructionAttributes mandatoryAttribs;
+    ZydisInstructionAttributes attribs;
     ZydisModRMMod modRmMod;
     ZydisModeConstraint modeConstraint;
     ZydisPrefixBit prefixBits;
+    uint8_t mandatoryPrefix; // 0x00 = None
 } ZydisEncoderTableEntry;
+
+struct ZydisPrefixAcceptMapping
+{
+    uint64_t has;
+    uint64_t accepts;
+} static const prefixAcceptMap[] =
+{
+    { ZYDIS_ATTRIB_HAS_LOCK,             ZYDIS_ATTRIB_ACCEPTS_LOCK         },
+    { ZYDIS_ATTRIB_HAS_REP,              ZYDIS_ATTRIB_ACCEPTS_REP          },
+    { ZYDIS_ATTRIB_HAS_REPE,             ZYDIS_ATTRIB_ACCEPTS_REPE         },
+    { ZYDIS_ATTRIB_HAS_REPZ,             ZYDIS_ATTRIB_ACCEPTS_REPZ         },
+    { ZYDIS_ATTRIB_HAS_REPNE,            ZYDIS_ATTRIB_ACCEPTS_REPNE        },
+    { ZYDIS_ATTRIB_HAS_REPNZ,            ZYDIS_ATTRIB_ACCEPTS_REPNZ        },
+    { ZYDIS_ATTRIB_HAS_BOUND,            ZYDIS_ATTRIB_ACCEPTS_BOUND        },
+    { ZYDIS_ATTRIB_HAS_XACQUIRE,         ZYDIS_ATTRIB_ACCEPTS_XACQUIRE     },
+    { ZYDIS_ATTRIB_HAS_XRELEASE,         ZYDIS_ATTRIB_ACCEPTS_XRELEASE     },
+    { ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN, ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS },
+    { ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,     ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS },
+    { ZYDIS_ATTRIB_HAS_SEGMENT,          ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_CS,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_SS,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_DS,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_ES,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_FS,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_SEGMENT_GS,       ZYDIS_ATTRIB_ACCEPTS_SEGMENT      },
+    { ZYDIS_ATTRIB_HAS_OPERANDSIZE,      ZYDIS_ATTRIB_ACCEPTS_OPERANDSIZE  },
+    { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,      ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE  },
+};
 
 #include <Zydis/Internal/EncoderTable.inc>
 
@@ -95,6 +124,8 @@ typedef struct ZydisEncoderContext_
     size_t writeOffs;
     ZydisInstructionInfo* info;
     const ZydisEncoderTableEntry* matchingEntry;
+    ZydisBool shouldEmitMandatoryPrefix;
+    uint8_t mandatoryPrefix;
     uint8_t dispBitSize;
     uint64_t disp;
     uint8_t immBitSizes[2];
@@ -219,9 +250,9 @@ static ZydisStatus ZydisEmitVEX(ZydisEncoderContext* ctx)
     ZYDIS_ASSERT(ctx);
 
     // Can we use short 2-byte VEX encoding?
-    if (ctx->info->details.vex.X == 1 &&
-        ctx->info->details.vex.B == 1 &&
-        ctx->info->details.vex.W  == 0 &&
+    if (ctx->info->details.vex.X      == 1 &&
+        ctx->info->details.vex.B      == 1 &&
+        ctx->info->details.vex.W      == 0 &&
         ctx->info->details.vex.m_mmmm == 1)
     {
         ZYDIS_CHECK(ZydisEmitByte(ctx, 0xC5));
@@ -424,7 +455,6 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     ZydisRegister reg, char topBitLoc)
 {
     int16_t regID = ZydisRegisterGetId(reg);
-    //ZydisRegisterClass clazz = ZydisRegisterGetClass(reg);
     if (regID == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
 
     uint8_t lowerBits = (regID & 0x07) >> 0;
@@ -779,6 +809,42 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     return ZYDIS_STATUS_SUCCESS;
 }
 
+static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
+{
+    // Is a prefix mandatory? 0x00 is a sentinel value for `None` in the table.
+    if (ctx->matchingEntry->mandatoryPrefix != 0x00)
+    {
+        uint8_t bitCompressedPrefix = 0x00;
+        switch (ctx->matchingEntry->mandatoryPrefix)
+        {
+        case 0x66: bitCompressedPrefix = 0x01; break;
+        case 0xF3: bitCompressedPrefix = 0x02; break;
+        case 0xF2: bitCompressedPrefix = 0x03; break;
+        default: ZYDIS_UNREACHABLE;
+        }
+
+        switch (ctx->info->encoding)
+        {
+        case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+        case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+            ctx->shouldEmitMandatoryPrefix = ZYDIS_TRUE;
+            ctx->mandatoryPrefix = ctx->matchingEntry->mandatoryPrefix;
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_VEX:
+            ctx->info->details.vex.pp = bitCompressedPrefix;
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+            ctx->info->details.evex.pp = bitCompressedPrefix;
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_XOP:
+            ctx->info->details.xop.pp = bitCompressedPrefix;
+            break;
+        }
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
+}
+
 static ZydisStatus ZydisDeriveEncodingForOp(ZydisOperandDefinition* operand)
 {
     switch (operand->type)
@@ -863,9 +929,20 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     // encoded, what prefixes are required, etc.
     ZYDIS_CHECK(ZydisFindMatchingDef(info, &ctx.matchingEntry));
     info->opcode = ctx.matchingEntry->opcode;
-    info->attributes |= ctx.matchingEntry->mandatoryAttribs;
 
-    // TODO: Check compatibility of requested prefixes to found instruction.
+    // Check compatibility of requested prefixes to found instruction.
+    if (ctx.info->attributes)
+    {
+        for (size_t i = 0; i < ZYDIS_ARRAY_SIZE(prefixAcceptMap); ++i)
+        {
+            if (ctx.info->attributes & prefixAcceptMap[i].has &&
+                !(ctx.matchingEntry->attribs & prefixAcceptMap[i].accepts))
+            {
+                // TODO: Better status.
+                return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION;
+            }
+        }
+    }
 
     // Determine required prefixes.
     switch (ctx.matchingEntry->encoding)
@@ -887,6 +964,7 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     info->details.evex.L2 = (pb & ZYDIS_PREFBIT_EVEX_L2) ? 1 : 0;
     info->details.vex.L   = (pb & ZYDIS_PREFBIT_VEX_L  ) ? 1 : 0;
     info->details.rex.W   = (pb & ZYDIS_PREFBIT_REX_W  ) ? 1 : 0;
+    ZYDIS_CHECK(ZydisPrepareMandatoryPrefixes(&ctx));
 
     // Prepare opcode.
     ZYDIS_CHECK(ZydisPrepareOpcode(&ctx));
@@ -912,6 +990,8 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     if (info->attributes & ZYDIS_ATTRIB_HAS_VEX  ) ZYDIS_CHECK(ZydisEmitVEX  (&ctx));
     if (info->attributes & ZYDIS_ATTRIB_HAS_EVEX ) ZYDIS_CHECK(ZydisEmitEVEX (&ctx));
     if (info->attributes & ZYDIS_ATTRIB_HAS_XOP  ) ZYDIS_CHECK(ZydisEmitXOP  (&ctx));
+
+    if (ctx.shouldEmitMandatoryPrefix) ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.mandatoryPrefix));
     
     for (uint8_t i = 0; i < ctx.opcodeMapPrefixLen; ++i)
     {
