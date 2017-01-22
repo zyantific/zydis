@@ -508,7 +508,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
             ctx->info->details.modrm.mod = 0x00;
             ctx->info->details.modrm.rm  = 0x05 /* memory */;
         }
-        // In AMD64 mode, we have to build a SIB.
+        // In AMD64 mode, we have to build a special SIB.
         else
         {
             ctx->info->details.modrm.mod = 0x00;
@@ -524,6 +524,48 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
 
     // Process base register.
     ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.base, 'B'));
+
+    // Address size prefix required?
+    ZydisRegisterClass baseRegClass = ZydisRegisterGetClass(operand->mem.base);
+    switch (baseRegClass)
+    {
+    case ZYDIS_REGCLASS_GPR16:
+        switch (ctx->info->mode)
+        {
+        case ZYDIS_DISASSEMBLER_MODE_16BIT:
+            break; // Nothing to do.
+        case ZYDIS_DISASSEMBLER_MODE_32BIT:
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+            break;
+        case ZYDIS_DISASSEMBLER_MODE_64BIT:
+            // AMD64 doesn't allow for 16 bit addressing.
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        default:
+            return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
+        }
+        break;
+    case ZYDIS_REGCLASS_GPR32:
+        switch (ctx->info->mode)
+        {
+        case ZYDIS_DISASSEMBLER_MODE_16BIT:
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        case ZYDIS_DISASSEMBLER_MODE_32BIT:
+            break; // Nothing to do.
+        case ZYDIS_DISASSEMBLER_MODE_64BIT:
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+        default:
+            return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
+        }
+        break;
+    case ZYDIS_REGCLASS_GPR64:
+        if (ctx->info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)
+        {
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+        break;
+    default:
+        return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
+    }
 
     // Segment prefix required?
     switch (operand->mem.segment)
@@ -559,12 +601,19 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     // SIB byte required?
     if (operand->mem.index || operand->mem.scale)
     {
+        // Base and index register must be of same register class, verify.
+        if (ZydisRegisterGetClass(operand->mem.index) != baseRegClass)
+        {
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+
+        // Translate scale to SIB format.
         switch (operand->mem.scale)
         {
-        case 1: ctx->info->details.sib.index = 0x00; break;
-        case 2: ctx->info->details.sib.index = 0x01; break;
-        case 4: ctx->info->details.sib.index = 0x02; break;
-        case 8: ctx->info->details.sib.index = 0x03; break;
+        case 1: ctx->info->details.sib.scale = 0x00; break;
+        case 2: ctx->info->details.sib.scale = 0x01; break;
+        case 4: ctx->info->details.sib.scale = 0x02; break;
+        case 8: ctx->info->details.sib.scale = 0x03; break;
         default: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         }
 
