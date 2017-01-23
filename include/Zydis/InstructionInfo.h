@@ -258,6 +258,8 @@ enum ZydisOperandActions
  */
 typedef struct ZydisOperandInfo_
 {
+    // semantic operand type ... temporary
+    uint32_t temp;
     /**
      * @brief   The operand-id.
      */
