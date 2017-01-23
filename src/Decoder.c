@@ -1509,6 +1509,10 @@ static ZydisStatus ZydisDecodeOperands(ZydisInstructionDecoder* decoder,
         info->operands[i].id = i;
         ZYDIS_CHECK(ZydisDecodeOperand(decoder, info, &info->operands[i], operands[i].type, 
             operands[i].encoding));
+
+        // temp
+        info->operands[i].temp = operands[i].type;
+
         info->operands[i].encoding = operands[i].encoding;
         info->operands[i].action = operands[i].action;
         // Adjust segment register for memory operands
