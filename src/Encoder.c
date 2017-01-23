@@ -82,6 +82,7 @@ typedef struct ZydisEncoderTableEntry_
     ZydisPrefixBit prefixBits;
     uint8_t mandatoryPrefix; // 0x00 = None
     uint8_t modrmReg;        // 0xFF = None
+    const char* cmt;
 } ZydisEncoderTableEntry;
 
 struct ZydisPrefixAcceptMapping
@@ -553,20 +554,38 @@ static ZydisBool ZydisIsStackReg(ZydisRegister reg)
     return ZydisIsSPReg(reg) || ZydisIsBPReg(reg);
 }
 
-static ZydisStatus ZydisSetREXWIfRequired(ZydisEncoderContext* ctx, ZydisRegister reg)
+static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
+    ZydisRegister segment, ZydisRegister base)
 {
-    ZydisRegisterClass regClass = ZydisRegisterGetClass(reg);
-    if (regClass == ZYDIS_REGCLASS_GPR64)
+    // Segment prefix required?
+    switch (segment)
     {
-        if (ctx->info->mode == ZYDIS_DISASSEMBLER_MODE_64BIT)
+    case ZYDIS_REGISTER_ES:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+        break;
+    case ZYDIS_REGISTER_SS:
+        if (!ZydisIsStackReg(base))
         {
-            ctx->info->details.rex.W = 0x01;
-            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_REX;
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
         }
-        else
+        break;
+    case ZYDIS_REGISTER_CS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+        break;
+    case ZYDIS_REGISTER_DS:
+        if (ZydisIsStackReg(base))
         {
-            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
         }
+        break;
+    case ZYDIS_REGISTER_FS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+        break;
+    case ZYDIS_REGISTER_GS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+        break;
+    default:
+        return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO: Better status.
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -578,6 +597,8 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(tableEntry);
+
+    ZYDIS_CHECK(ZydisPrepareSegmentPrefix(ctx, operand->mem.segment, operand->mem.base));
 
     // Absolute memory access? Special case.
     if (operand->mem.base == ZYDIS_REGISTER_NONE)
@@ -676,37 +697,6 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
-    }
-
-    // Segment prefix required?
-    switch (operand->mem.segment)
-    {
-    case ZYDIS_REGISTER_ES:
-        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
-        break;
-    case ZYDIS_REGISTER_SS:
-        if (!ZydisIsStackReg(operand->mem.base))
-        {
-            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
-        }
-        break;
-    case ZYDIS_REGISTER_CS:
-        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
-        break;
-    case ZYDIS_REGISTER_DS:
-        if (ZydisIsStackReg(operand->mem.base))
-        {
-            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
-        }
-        break;
-    case ZYDIS_REGISTER_FS:
-        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
-        break;
-    case ZYDIS_REGISTER_GS:
-        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
-        break;
-    default:
-        return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO: Better status.
     }
 
     // SIB byte required? rSP can only be encoded with SIB.
@@ -809,12 +799,27 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     switch (tableEntry->encoding)
     {
     case ZYDIS_OPERAND_ENCODING_NONE:
-        break; // Nothing to do.
+        // For some encodings, we have to switch on the sem op type.
+        switch (tableEntry->type)
+        {
+        case ZYDIS_SEM_OPERAND_TYPE_MOFFS16:
+        case ZYDIS_SEM_OPERAND_TYPE_MOFFS32:
+        case ZYDIS_SEM_OPERAND_TYPE_MOFFS64:
+            ZYDIS_CHECK(ZydisPrepareSegmentPrefix(
+                ctx, operand->mem.segment, ZYDIS_REGISTER_NONE
+            ));
+            ctx->imms[0] = operand->mem.disp.value.sqword;
+            ctx->immBitSizes[0] = operand->mem.disp.dataSize;
+            break;
+        default:
+            // Hidden operand, nothing to encode.
+            break;
+        }
+        break;
     case ZYDIS_OPERAND_ENCODING_REG:
     {
         ZYDIS_ASSERT(!ctx->info->details.modrm.reg);
         ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->reg, 'R'));
-        ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
     } break;
     case ZYDIS_OPERAND_ENCODING_RM:
     case ZYDIS_OPERAND_ENCODING_RM_CD2:
@@ -839,7 +844,6 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         else if (operand->type == ZYDIS_OPERAND_TYPE_REGISTER)
         {
             ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->reg, 'B'));
-            ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
             ctx->info->details.modrm.mod = 0x03 /* reg */;
         }
 
@@ -853,7 +857,6 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         ctx->info->opcode += reg & 0x07;
         ctx->info->details.rex.B = (reg & 0x08) >> 3;
         if (ctx->info->details.rex.B) ctx->info->attributes |= ZYDIS_ATTRIB_HAS_REX;
-        //ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
         break;
     }
     case ZYDIS_OPERAND_ENCODING_VVVV:
@@ -1057,7 +1060,7 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     info->details.evex.B  = (pb & ZYDIS_PREFBIT_EVEX_B ) ? 1 : 0;
     info->details.evex.L2 = (pb & ZYDIS_PREFBIT_EVEX_L2) ? 1 : 0;
     info->details.vex.L   = (pb & ZYDIS_PREFBIT_VEX_L  ) ? 1 : 0;
-    if (info->details.rex.W)
+    if (pb & ZYDIS_PREFBIT_REX_W)
     {
         info->details.rex.W = 1;
         info->attributes |= ZYDIS_ATTRIB_HAS_REX;
