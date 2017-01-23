@@ -78,7 +78,6 @@ typedef struct ZydisEncoderTableEntry_
     ZydisEncoderTableOperand operands[5];
     ZydisOpcodeMap map;
     ZydisInstructionAttributes attribs;
-    ZydisModRMMod modRmReg;
     ZydisModeConstraint modeConstraint;
     ZydisPrefixBit prefixBits;
     uint8_t mandatoryPrefix; // 0x00 = None
@@ -251,8 +250,8 @@ static ZydisStatus ZydisEmitVEX(ZydisEncoderContext* ctx)
     ZYDIS_ASSERT(ctx);
 
     // Can we use short 2-byte VEX encoding?
-    if (ctx->info->details.vex.X      == 1 &&
-        ctx->info->details.vex.B      == 1 &&
+    if (ctx->info->details.vex.X      == 0 &&
+        ctx->info->details.vex.B      == 0 &&
         ctx->info->details.vex.W      == 0 &&
         ctx->info->details.vex.m_mmmm == 1)
     {
@@ -472,9 +471,11 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
         case 'X': ctx->info->details.sib.index = lowerBits; break;
         default: ZYDIS_UNREACHABLE;
     }
+
+    // No top bit? Quick exit.
+    if (!topBit) return ZYDIS_STATUS_SUCCESS;
     
     uint8_t* topBitDst = NULL;
-
     switch (ctx->info->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
@@ -532,13 +533,36 @@ static ZydisBool ZydisIsBPReg(ZydisRegister reg)
            reg == ZYDIS_REGISTER_RBP;
 }
 
-static ZydisBool ZydisIsStackReg(ZydisRegister reg)
+static ZydisBool ZydisIsSPReg(ZydisRegister reg)
 {
     return reg == ZYDIS_REGISTER_SPL ||
            reg == ZYDIS_REGISTER_SP  ||
            reg == ZYDIS_REGISTER_ESP ||
-           reg == ZYDIS_REGISTER_RSP ||
-           ZydisIsBPReg(reg);
+           reg == ZYDIS_REGISTER_RSP;
+}
+
+static ZydisBool ZydisIsStackReg(ZydisRegister reg)
+{
+    return ZydisIsSPReg(reg) || ZydisIsBPReg(reg);
+}
+
+static ZydisStatus ZydisSetREXWIfRequired(ZydisEncoderContext* ctx, ZydisRegister reg)
+{
+    ZydisRegisterClass regClass = ZydisRegisterGetClass(reg);
+    if (regClass == ZYDIS_REGCLASS_GPR64)
+    {
+        if (ctx->info->mode == ZYDIS_DISASSEMBLER_MODE_64BIT)
+        {
+            ctx->info->details.rex.W = 0x01;
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_REX;
+        }
+        else
+        {
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
@@ -628,13 +652,13 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
         break;
     case ZYDIS_REGISTER_SS:
-        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
-        break;
-    case ZYDIS_REGISTER_CS:
         if (!ZydisIsStackReg(operand->mem.base))
         {
-            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
         }
+        break;
+    case ZYDIS_REGISTER_CS:
+        ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
         break;
     case ZYDIS_REGISTER_DS:
         if (ZydisIsStackReg(operand->mem.base))
@@ -652,18 +676,13 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO: Better status.
     }
 
-    // SIB byte required?
-    if (operand->mem.index || operand->mem.scale)
+    // SIB byte required? rSP can only be encoded with SIB.
+    if (operand->mem.index || operand->mem.scale || ZydisIsSPReg(operand->mem.base))
     {
-        // Base and index register must be of same register class, verify.
-        if (ZydisRegisterGetClass(operand->mem.index) != baseRegClass)
-        {
-            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
-        }
-
         // Translate scale to SIB format.
         switch (operand->mem.scale)
         {
+        case 0: // We take 0 (uninitialized, 0 from memset) as * 1.
         case 1: ctx->info->details.sib.scale = 0x00; break;
         case 2: ctx->info->details.sib.scale = 0x01; break;
         case 4: ctx->info->details.sib.scale = 0x02; break;
@@ -671,11 +690,25 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         default: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         }
 
-        // Base & index register.
+        // Move base register info to SIB.
         ctx->info->details.sib.base = ctx->info->details.modrm.rm;
-        ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.index, 'X'));
-
         ctx->info->details.modrm.rm = 0x04 /* SIB */;
+
+        // Process index register.
+        if (operand->mem.index != ZYDIS_REGISTER_NONE)
+        {
+            // Base and index register must be of same register class, verify.
+            if (ZydisRegisterGetClass(operand->mem.index) != baseRegClass)
+            {
+                return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+            }
+            ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->mem.index, 'X'));
+        }
+        else
+        {
+            ctx->info->details.sib.index = 0x04 /* no index */;
+        }
+        
         ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
     }
 
@@ -748,6 +781,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     {
         ZYDIS_ASSERT(!ctx->info->details.modrm.reg);
         ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->reg, 'R'));
+        ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
     } break;
     case ZYDIS_OPERAND_ENCODING_RM:
     case ZYDIS_OPERAND_ENCODING_RM_CD2:
@@ -772,6 +806,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         else if (operand->type == ZYDIS_OPERAND_TYPE_REGISTER)
         {
             ZYDIS_CHECK(ZydisPrepareRegOperand(ctx, operand->reg, 'B'));
+            ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
             ctx->info->details.modrm.mod = 0x03 /* reg */;
         }
 
@@ -782,9 +817,10 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     {
         int16_t reg = ZydisRegisterGetId(operand->reg);
         if (reg == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
-        ctx->info->opcode += reg & 0x0F;
-        ctx->info->details.rex.R = (reg & 0x08) >> 3;
+        ctx->info->opcode += reg & 0x07;
+        ctx->info->details.rex.B = (reg & 0x08) >> 3;
         if (ctx->info->details.rex.B) ctx->info->attributes |= ZYDIS_ATTRIB_HAS_REX;
+        //ZYDIS_CHECK(ZydisSetREXWIfRequired(ctx, operand->reg));
         break;
     }
     case ZYDIS_OPERAND_ENCODING_VVVV:
@@ -909,9 +945,10 @@ static ZydisStatus ZydisFindMatchingDef(const ZydisInstructionInfo* info,
             const ZydisEncoderTableOperand* curEncoderOp = &curEntry->operands[k];
             const ZydisOperandInfo* curReqOp = &info->operands[k];
             if (curReqOp->encoding != curEncoderOp->encoding) goto continueTopLevel;
-            ZydisOperandType simpleType;
-            ZYDIS_CHECK(ZydisSimplifyOperandType(curEncoderOp->type, &simpleType));
-            if (curReqOp->type != simpleType) goto continueTopLevel;
+            //ZydisOperandType simpleType;
+            //ZYDIS_CHECK(ZydisSimplifyOperandType(curEncoderOp->type, &simpleType));
+            //if (curReqOp->type != simpleType) goto continueTopLevel;
+            if (curReqOp->temp != curEncoderOp->type) goto continueTopLevel;
         }
 
         // Still here? We found our entry!
@@ -987,16 +1024,20 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     info->details.evex.B  = (pb & ZYDIS_PREFBIT_EVEX_B ) ? 1 : 0;
     info->details.evex.L2 = (pb & ZYDIS_PREFBIT_EVEX_L2) ? 1 : 0;
     info->details.vex.L   = (pb & ZYDIS_PREFBIT_VEX_L  ) ? 1 : 0;
-    info->details.rex.W   = (pb & ZYDIS_PREFBIT_REX_W  ) ? 1 : 0;
+    if (info->details.rex.W)
+    {
+        info->details.rex.W = 1;
+        info->attributes |= ZYDIS_ATTRIB_HAS_REX;
+    }
     ZYDIS_CHECK(ZydisPrepareMandatoryPrefixes(&ctx));
 
     // Prepare opcode.
     ZYDIS_CHECK(ZydisPrepareOpcode(&ctx));
 
     // Some instructions have additional opcode bits encoded in ModRM.reg.
-    if (ctx.matchingEntry->modRmReg != 0xFF)
+    if (ctx.matchingEntry->modrmReg != 0xFF)
     {
-        ctx.info->details.modrm.reg = ctx.matchingEntry->modRmReg;
+        ctx.info->details.modrm.reg = ctx.matchingEntry->modrmReg;
     }
 
     // Analyze and prepare operands.
