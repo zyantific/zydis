@@ -541,6 +541,13 @@ static ZydisBool ZydisIsSPReg(ZydisRegister reg)
            reg == ZYDIS_REGISTER_RSP;
 }
 
+static ZydisBool ZydisIsIPReg(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_IP  ||
+           reg == ZYDIS_REGISTER_EIP ||
+           reg == ZYDIS_REGISTER_RIP;
+}
+
 static ZydisBool ZydisIsStackReg(ZydisRegister reg)
 {
     return ZydisIsSPReg(reg) || ZydisIsBPReg(reg);
@@ -572,9 +579,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(tableEntry);
 
-    // TODO: RIP relative addressing
-
-    // Absolute memory access?
+    // Absolute memory access? Special case.
     if (operand->mem.base == ZYDIS_REGISTER_NONE)
     {
         ctx->disp = operand->mem.disp.value.sdword;
@@ -595,6 +600,34 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
             ctx->info->details.sib.scale = 0x00 /* * 1  */;
             ctx->info->details.sib.base  = 0x05;
             ctx->info->attributes |= ZYDIS_ATTRIB_HAS_SIB;
+        }
+
+        return ZYDIS_STATUS_SUCCESS;
+    }
+
+    // rIP relative addressing? Special case.
+    if (ZydisIsIPReg(operand->mem.base))
+    {
+        // rIP addressing is only available since AMD64.
+        if (ctx->info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)
+        {
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+
+        // Only available with either EIP or RIP, not with IP.
+        if (operand->mem.base == ZYDIS_REGISTER_IP)
+        {
+            return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        }
+
+        ctx->disp = operand->mem.disp.value.sdword;
+        ctx->dispBitSize = 32;
+        ctx->info->details.modrm.mod = 0x00;
+        ctx->info->details.modrm.rm  = 0x05 /* RIP relative mem */;
+
+        if (operand->mem.base == ZYDIS_REGISTER_EIP)
+        {
+            ctx->info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
         }
 
         return ZYDIS_STATUS_SUCCESS;
