@@ -6,21 +6,21 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 option(ZYDIS_BUILD_SHARED_LIBS 
     "Build shared libraries rather than static ones" 
-    FALSE)
+    OFF)
 option(ZYDIS_FORCE_SHARED_CRT 
-    "Forces shared linkage against the CRT even when building a static library" 
-    FALSE)
+    "Forces shared linkage against the CRT even when building a static library. MSVC only." 
+    OFF)
 option(ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS 
     "Include information about implicitly used registers" 
-    TRUE)
+    OFF)
 option(ZYDIS_FEATURE_AFFECTED_FLAGS 
     "Include information about affected flags"
-    TRUE)
+    OFF)
 option(ZYDIS_FEATURE_CPUID 
     "Include information about CPUID feature-flags"
-    FALSE)
-option(ZYDIS_BUILD_EXAMPLES "Build examples" TRUE)
-option(ZYDIS_BUILD_TOOLS "Build tools" TRUE)
+    OFF)
+option(ZYDIS_BUILD_EXAMPLES "Build examples" ON)
+option(ZYDIS_BUILD_TOOLS "Build tools" ON)
 
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
@@ -49,7 +49,7 @@ endif ()
 # Library
 set(headers
     "include/Zydis/Decoder.h"
-	"include/Zydis/Encoder.h"
+	#"include/Zydis/Encoder.h"
     "include/Zydis/Defines.h"
     "include/Zydis/Formatter.h"
     "include/Zydis/InstructionInfo.h"
@@ -62,7 +62,7 @@ set(headers
     "include/Zydis/Internal/InstructionTable.h")
 set(sources
     "src/Decoder.c"
-	"src/Encoder.c"
+	#"src/Encoder.c"
     "src/Formatter.c"
     "src/InstructionTable.c"
     "src/Mnemonic.c"

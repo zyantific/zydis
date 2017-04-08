@@ -95,6 +95,7 @@ int main(int argc, char** argv)
 
             // TODO: Remove
             // DEBUG CODE START
+#if 0
             for (size_t i = 0; i < info.length; ++i)
             {
                 printf("%02X ", *(readBuf + readOffs + i));
@@ -115,6 +116,7 @@ int main(int argc, char** argv)
             putchar('\n');
             ZYDIS_ASSERT(encBufferSize == info.length);
             ZYDIS_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
+#endif
             // DEBUG CODE END
             
             readOffs += info.length;
