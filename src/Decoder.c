@@ -524,7 +524,7 @@ static ZydisStatus ZydisDecodeOperandImmediate(ZydisInstructionDecoder* decoder,
     case 32:
     {
         uint32_t data[4] = { 0, 0, 0, 0 };
-        for (int i = sizeof(data) / sizeof(data[0]); i > 0; --i)
+        for (int i = ZYDIS_ARRAY_SIZE(data); i > 0; --i)
         {
             ZYDIS_CHECK(ZydisInputNext(decoder, info, (uint8_t*)&data[i - 1]));    
         }
@@ -1255,6 +1255,7 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
     case ZYDIS_SEM_OPERAND_TYPE_REL8:
         info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
         operand->imm.isRelative = ZYDIS_TRUE;
+        // Intentional fallthrough.
     case ZYDIS_SEM_OPERAND_TYPE_IMM8:
         operand->size = 8;
         operand->imm.isSigned = ZYDIS_TRUE;
@@ -1266,6 +1267,7 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
     case ZYDIS_SEM_OPERAND_TYPE_REL16:
         info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
         operand->imm.isRelative = ZYDIS_TRUE;
+        // Intentional fallthrough.
     case ZYDIS_SEM_OPERAND_TYPE_IMM16:
         operand->size = 16;
         operand->imm.isSigned = ZYDIS_TRUE;
@@ -1280,6 +1282,7 @@ static ZydisStatus ZydisDecodeOperand(ZydisInstructionDecoder* decoder, ZydisIns
     case ZYDIS_SEM_OPERAND_TYPE_REL64:
         info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
         operand->imm.isRelative = ZYDIS_TRUE;
+        // Intentional fallthrough.
     case ZYDIS_SEM_OPERAND_TYPE_IMM64:
         operand->size = 64;
         operand->imm.isSigned = ZYDIS_TRUE;
@@ -2380,6 +2383,16 @@ ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
         } else
         {
             info->avx.maskMode = ZYDIS_AVX512_MASKMODE_MERGE;
+        }
+    }
+
+    // For relative operands, apply instruction length offset.
+    for (size_t i = 0; i < info->operandCount; ++i)
+    {
+        if (info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE &&
+            info->operands[i].imm.isRelative)
+        {
+            info->operands[i].imm.value.sqword += info->length;
         }
     }
 
