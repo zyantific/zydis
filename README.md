@@ -1,5 +1,5 @@
-Zyan Disassembler Engine (Zydis)
-================================
+# Zyan Disassembler Engine (Zydis)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Fast and lightweight x86/x86-64 disassembler library.
 
@@ -7,17 +7,17 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 - Supports all x86 and x86-64 (AMD64) general-purpose and system instructions.
 - Supported ISA extensions:
- - FPU (x87), MMX
- - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
- - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
- - ADX, BMI1, BMI2, FMA, FMA4
- - ..
+  - FPU (x87), MMX
+  - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
+  - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
+  - ADX, BMI1, BMI2, FMA, FMA4
+  - ..
 - Optimized for high performance
 - No dynamic memory allocation
- - Perfect for kernel-mode drivers and embedded devices
+  - Perfect for kernel-mode drivers and embedded devices
 - Very small file-size overhead compared to other common disassembler libraries
 - Language bindings
- - C++, Delphi, Python, ..
+  - C++, Delphi, Python, ..
 - Complete doxygen documentation
 
 ## Quick Example ##
