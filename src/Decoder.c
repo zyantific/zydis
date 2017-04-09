@@ -2386,16 +2386,6 @@ ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
         }
     }
 
-    // For relative operands, apply instruction length offset.
-    for (size_t i = 0; i < info->operandCount; ++i)
-    {
-        if (info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE &&
-            info->operands[i].imm.isRelative)
-        {
-            info->operands[i].imm.value.sqword += info->length;
-        }
-    }
-
     // Replace XCHG rAX, rAX with NOP alias
     if (info->mnemonic == ZYDIS_MNEMONIC_XCHG)
     {

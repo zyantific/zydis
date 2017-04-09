@@ -51,19 +51,21 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
         }
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            *address = (uint64_t)((uint32_t)info->instrPointer + operand->mem.disp.value.sdword); 
+            *address = (uint64_t)((uint32_t)info->instrPointer + operand->mem.disp.value.sdword);
             return ZYDIS_STATUS_SUCCESS;   
         }
         if (operand->mem.base == ZYDIS_REGISTER_RIP)
         {
-            *address = (uint64_t)(info->instrPointer + operand->mem.disp.value.sqword); 
+            *address = 
+                (uint64_t)(info->instrPointer + operand->mem.disp.value.sqword);
             return ZYDIS_STATUS_SUCCESS;   
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         if (operand->imm.isSigned && operand->imm.isRelative)
         {
-            *address = (uint64_t)((int64_t)info->instrPointer + operand->imm.value.sqword);
+            *address = 
+                (uint64_t)((int64_t)info->instrPointer + info->length + operand->imm.value.sqword);
             switch (info->mode)
             {
             case ZYDIS_DISASSEMBLER_MODE_16BIT:
