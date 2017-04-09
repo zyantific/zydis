@@ -931,7 +931,7 @@ begin
     begin
       O := NodeData^.Definition.Operands.Operands[I];
       S := S + IntToStr(Integer(O.OperandType)) + ',' + IntToStr(Integer(O.Encoding)) + ',' +
-        IntToStr(Integer(O.AccessMode)) + ',';
+        IntToStr(Integer(O.Action)) + ',';
     end;
     Clipboard.AsText := S;
   end;
@@ -959,7 +959,7 @@ begin
           O := NodeData^.Definition.Operands.Operands[J];
           O.OperandType := TOperandType(StrToInt(A[I]));
           O.Encoding := TOperandEncoding(StrToInt(A[I + 1]));
-          O.AccessMode := TOperandAccessMode(StrToInt(A[I + 2]));
+          O.Action := TOperandAction(StrToInt(A[I + 2]));
           Inc(I, 3);
           Inc(J);
         end;
