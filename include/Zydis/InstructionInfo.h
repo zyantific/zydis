@@ -397,7 +397,7 @@ typedef struct ZydisOperandInfo_
 /**
  * @brief   Defines the @c ZydisDisassemblerMode datatype.
  */
-typedef uint8_t ZydisDisassemblerMode;
+typedef uint8_t ZydisOperatingMode;
 
 /**
  * @brief   Values that represent disassembler-modes.
@@ -784,7 +784,7 @@ typedef struct ZydisInstructionInfo_
     /**
      * @brief   The disassembler-mode used to decode this instruction.
      */
-    ZydisDisassemblerMode mode;
+    ZydisOperatingMode mode;
     /**
      * @brief   The instruction-mnemonic.
      */

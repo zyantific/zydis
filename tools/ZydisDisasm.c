@@ -60,13 +60,6 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT)))
-    {
-        fputs("Failed to initialize instruction-decoder\n", stderr);
-        return EXIT_FAILURE;
-    }
-
     uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
     size_t numBytesRead;
     do
@@ -76,8 +69,12 @@ int main(int argc, char** argv)
         ZydisInstructionInfo info;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeInstruction(
-            &decoder, readBuf + readOffs, numBytesRead - readOffs, readOffs, &info
+        while ((status = ZydisDecode(
+            ZYDIS_DISASSEMBLER_MODE_64BIT, 
+            readBuf + readOffs, 
+            numBytesRead - readOffs,
+            readOffs,
+            &info
         )) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))

@@ -41,60 +41,19 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the @c ZydisDecoderFlags datatype.
+ * @brief   Defines the @c ZydisDecodeGranularity datatype.
  */
-typedef uint32_t ZydisDecoderFlags;
-
-// TODO: Add flags to enable/disable certain decoding-steps like operands, affected flags, ..
-
-/* ---------------------------------------------------------------------------------------------- */
+typedef uint32_t ZydisDecodeGranularity;
 
 /**
- * @brief   Defines the @c ZydisInstructionDecoder struct.
+ * @brief   Decoders modes defining how granular the instruction should be decoded.
  */
-typedef struct ZydisInstructionDecoder_
+enum ZydisDecodeGranularities
 {
-    /**
-     * @brief   The current disassembler-mode.
-     */
-    ZydisDisassemblerMode disassemblerMode;
-    // TODO: Remove from this struct and pass as argument
-    /**
-     * @brief   The current input buffer.
-     */
-    struct
-    {
-        const uint8_t* buffer;
-        size_t bufferLen;
-    } input;
-    /**
-     * @brief   Internal field. @c TRUE, if the @c imm8 value is already initialized.
-     */
-    ZydisBool imm8initialized;
-    /**
-     * @brief   Internal field. We have to store a copy of the imm8 value for instructions that 
-     *          encode different operands in the lo and hi part of the immediate.
-     */
-    uint8_t imm8;
-
-    /**
-     * @brief   Internal field. The 0x66 prefix can be consumed, if it is used as mandatory-prefix.
-     *          This field contains the prefix-byte, if the prefix is present and not already
-     *          consumed.
-     */
-    uint8_t hasUnusedPrefix66;
-    /**
-     * @brief   Internal field. The mutally exclusive 0xF2 and 0xF3 prefixs can be consumed, if 
-     *          they are used as mandatory-prefix. This field contains the prefix-byte of the 
-     *          latest 0xF2 or 0xF3 prefix, if one of the prefixes is present and not already 
-     *          consumed.
-     */
-    uint8_t hasUnusedPrefixF2F3;
-    /**
-     * @brief   Internal field. Contains the latest (significant) segment prefix.
-     */
-    uint8_t lastSegmentPrefix;
-} ZydisInstructionDecoder;
+    ZYDIS_DECODE_GRANULARITY_DEFAULT,
+    ZYDIS_DECODE_GRANULARITY_MINIMAL,
+    ZYDIS_DECODE_GRANULARITY_FULL
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -103,20 +62,9 @@ typedef struct ZydisInstructionDecoder_
 /* ============================================================================================== */
 
 /**
- * @brief   Initializes the given @c ZydisInstructionDecoder instance.
- *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
- * @param   disassemblerMode    The desired disassembler-mode.
- *                  
- * @return  A zydis status code.
- */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder,
-    ZydisDisassemblerMode disassemblerMode);
-
-/**
  * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   operatingMode       The desired operating mode.
  * @param   buffer              A pointer to the input buffer.
  * @param   bufferLen           The length of the input buffer.
  * @param   instructionPointer  The instruction-pointer.
@@ -125,25 +73,25 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDeco
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstruction(ZydisInstructionDecoder* decoder,
+ZYDIS_EXPORT ZydisStatus ZydisDecode(ZydisOperatingMode operatingMode,
     const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   operatingMode       The desired operating mode.
  * @param   buffer              A pointer to the input buffer.
  * @param   bufferLen           The length of the input buffer.
  * @param   instructionPointer  The instruction-pointer.
- * @param   flags               Additional decoding flags.
+ * @param   granularity         The granularity to decode with.
  * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
  *                              details about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeInstructionEx(ZydisInstructionDecoder* decoder,
-    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisDecoderFlags flags, 
-    ZydisInstructionInfo* info);
+ZYDIS_EXPORT ZydisStatus ZydisDecodeEx(ZydisOperatingMode operatingMode,
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, 
+    ZydisDecodeGranularity granularity, ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
 
