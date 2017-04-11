@@ -25,7 +25,7 @@ option(ZYDIS_BUILD_TOOLS "Build tools" ON)
 if (NOT CONFIGURED_ONCE)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-            "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
         set(compiler_specific "-std=c99 -pedantic -Wextra -Werror")
     elseif (MSVC)
         set(compiler_specific "/WX /W4 /TC")
