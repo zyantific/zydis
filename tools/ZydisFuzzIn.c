@@ -40,12 +40,13 @@
 #include <Zydis/Zydis.h>
 
 typedef struct ZydisFuzzControlBlock_ {
-    ZydisDisassemblerMode disasMode; 
+    ZydisOperatingMode operatingMode; 
     ZydisFormatterStyle formatterStyle;
     ZydisFormatterFlags formatterFlags;
     ZydisFormatterAddressFormat formatterAddrFormat;
     ZydisFormatterDisplacementFormat formatterDispFormat;
     ZydisFormatterImmediateFormat formatterImmFormat;
+    ZydisDecodeGranularity granularity;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -79,11 +80,12 @@ int main()
         ZydisInstructionInfo info;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecode(
-            controlBlock.disasMode, 
+        while ((status = ZydisDecodeEx(
+            controlBlock.operatingMode,
             readBuf + readOffs, 
-            numBytesRead - readOffs, 
+            numBytesRead - readOffs,
             readOffs, 
+            controlBlock.granularity,
             &info
         )) != ZYDIS_STATUS_NO_MORE_DATA)
         {

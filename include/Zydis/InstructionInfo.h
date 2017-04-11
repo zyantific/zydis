@@ -396,7 +396,7 @@ typedef struct ZydisOperandInfo_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDisassemblerMode datatype.
+ * @brief   Defines the @c ZydisOperatingMode datatype.
  */
 typedef uint8_t ZydisOperatingMode;
 
@@ -783,7 +783,7 @@ enum ZydisAVXRoundingModes
 typedef struct ZydisInstructionInfo_
 {
     /**
-     * @brief   The disassembler-mode used to decode this instruction.
+     * @brief   The operating mode used to decode this instruction.
      */
     ZydisOperatingMode mode;
     /**
@@ -1101,21 +1101,6 @@ typedef struct ZydisInstructionInfo_
             uint8_t index;
             uint8_t base;
         } sib;
-        /**
-         * @brief   Internal data.
-         */
-        struct
-        {
-            const void* definition;
-            uint8_t W;
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-            uint8_t L;
-            uint8_t L2;
-            uint8_t R2;
-            uint8_t V2;
-        } internal;  // TODO: Move into decoder struct
     } details;
     /**
      * @brief   This field is intended for custom data and may be freely set by the user.

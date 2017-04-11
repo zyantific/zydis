@@ -74,7 +74,8 @@ enum ZydisDecodeGranularities
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecode(ZydisOperatingMode operatingMode,
-    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, 
+    ZydisInstructionInfo* info);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.

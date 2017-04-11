@@ -175,9 +175,6 @@ static ZydisStatus ZydisFormatterFormatOperandImm(ZydisInstructionFormatter* for
 
 void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
 {
-    ZydisInstructionDecoder decoder;
-    ZydisDecoderInitInstructionDecoder(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT); 
-
     ZydisInstructionFormatter formatter;
     ZydisFormatterInitInstructionFormatterEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
         ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
@@ -198,7 +195,7 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
     ZydisInstructionInfo info;
     char buffer[256];
     while (ZYDIS_SUCCESS(
-        ZydisDecoderDecodeInstruction(&decoder, data, length, instructionPointer, &info)))
+        ZydisDecode(ZYDIS_DISASSEMBLER_MODE_64BIT, data, length, instructionPointer, &info)))
     {
         data += info.length;
         length -= info.length;
