@@ -401,13 +401,13 @@ typedef struct ZydisOperandInfo_
 typedef uint8_t ZydisOperatingMode;
 
 /**
- * @brief   Values that represent disassembler-modes.
+ * @brief   Values that represent operating modes.
  */
-enum ZydisDisassemblerModes
+enum ZydisOperatingModes
 {
-    ZYDIS_DISASSEMBLER_MODE_16BIT = 16,
-    ZYDIS_DISASSEMBLER_MODE_32BIT = 32,
-    ZYDIS_DISASSEMBLER_MODE_64BIT = 64    
+    ZYDIS_OPERATING_MODE_16BIT = 16,
+    ZYDIS_OPERATING_MODE_32BIT = 32,
+    ZYDIS_OPERATING_MODE_64BIT = 64    
 };
 
 /* ---------------------------------------------------------------------------------------------- */

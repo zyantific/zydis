@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         ZydisStatus status;
         size_t readOffs = 0;
         while ((status = ZydisDecode(
-            ZYDIS_DISASSEMBLER_MODE_64BIT, 
+            ZYDIS_OPERATING_MODE_64BIT, 
             readBuf + readOffs, 
             numBytesRead - readOffs,
             readOffs,

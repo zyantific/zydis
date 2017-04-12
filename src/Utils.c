@@ -68,14 +68,14 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
                 (uint64_t)((int64_t)info->instrPointer + info->length + operand->imm.value.sqword);
             switch (info->mode)
             {
-            case ZYDIS_DISASSEMBLER_MODE_16BIT:
-            case ZYDIS_DISASSEMBLER_MODE_32BIT:
+            case ZYDIS_OPERATING_MODE_16BIT:
+            case ZYDIS_OPERATING_MODE_32BIT:
                 if (operand->size == 16)
                 {
                     *address &= 0xFFFF;
                 }
                 break;
-            case ZYDIS_DISASSEMBLER_MODE_64BIT:
+            case ZYDIS_OPERATING_MODE_64BIT:
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;

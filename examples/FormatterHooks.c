@@ -195,7 +195,7 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
     ZydisInstructionInfo info;
     char buffer[256];
     while (ZYDIS_SUCCESS(
-        ZydisDecode(ZYDIS_DISASSEMBLER_MODE_64BIT, data, length, instructionPointer, &info)))
+        ZydisDecode(ZYDIS_OPERATING_MODE_64BIT, data, length, instructionPointer, &info)))
     {
         data += info.length;
         length -= info.length;

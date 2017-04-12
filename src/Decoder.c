@@ -512,7 +512,7 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* ctx,
             ++info->details.prefixes.has67;
             break;
         default:
-            if ((ctx->operatingMode == ZYDIS_DISASSEMBLER_MODE_64BIT) && 
+            if ((ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT) && 
                 (prefixByte & 0xF0) == 0x40)
             {
                 info->details.rex.data[0] = prefixByte; 
@@ -722,13 +722,13 @@ static ZydisStatus ZydisDecodeOperandModrmRm(ZydisDecoderContext* ctx,
     }
     switch (ctx->operatingMode)
     {
-    case ZYDIS_DISASSEMBLER_MODE_16BIT:                     // TODO: Set ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE and ZYDIS_ATTRIB_HAS_ADDRESSSIZE after getting the instruction definition
+    case ZYDIS_OPERATING_MODE_16BIT:                     // TODO: Set ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE and ZYDIS_ATTRIB_HAS_ADDRESSSIZE after getting the instruction definition
         operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 16;
         break;
-    case ZYDIS_DISASSEMBLER_MODE_32BIT:
+    case ZYDIS_OPERATING_MODE_32BIT:
         operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 16 : 32;
         break;
-    case ZYDIS_DISASSEMBLER_MODE_64BIT:
+    case ZYDIS_OPERATING_MODE_64BIT:
         operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
         break;
     default:
@@ -772,7 +772,7 @@ static ZydisStatus ZydisDecodeOperandModrmRm(ZydisDecoderContext* ctx,
         case 0:
             if (modrm_rm == 5)
             {
-                if (ctx->operatingMode == ZYDIS_DISASSEMBLER_MODE_64BIT)
+                if (ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT)
                 {
                     info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
                     operand->mem.base = ZYDIS_REGISTER_EIP;
@@ -1035,11 +1035,11 @@ static ZydisStatus ZydisDecodeOperand(ZydisDecoderContext* ctx, ZydisInstruction
         registerClass = ZYDIS_REGCLASS_TEST;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_CR:
-        operand->size = (ctx->operatingMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 64 : 32;
+        operand->size = (ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT) ? 64 : 32;
         registerClass = ZYDIS_REGCLASS_CONTROL;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_DR:
-        operand->size = (ctx->operatingMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 64 : 32;
+        operand->size = (ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT) ? 64 : 32;
         registerClass = ZYDIS_REGCLASS_DEBUG;
         break;
     case ZYDIS_SEM_OPERAND_TYPE_FPR:
@@ -1512,13 +1512,13 @@ static ZydisStatus ZydisDecodeOperand(ZydisDecoderContext* ctx, ZydisInstruction
         }
         switch (ctx->operatingMode)
         {
-        case ZYDIS_DISASSEMBLER_MODE_16BIT:
+        case ZYDIS_OPERATING_MODE_16BIT:
             operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 16;
             break;
-        case ZYDIS_DISASSEMBLER_MODE_32BIT:
+        case ZYDIS_OPERATING_MODE_32BIT:
             operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 16 : 32;
             break;
-        case ZYDIS_DISASSEMBLER_MODE_64BIT:
+        case ZYDIS_OPERATING_MODE_64BIT:
             operand->mem.addressSize = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
             break;
         default:
@@ -1949,7 +1949,7 @@ static ZydisStatus ZydisNodeHandlerMode(ZydisDecoderContext* ctx, uint16_t* inde
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(index);
 
-    *index = (ctx->operatingMode == ZYDIS_DISASSEMBLER_MODE_64BIT) ? 0 : 1;
+    *index = (ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT) ? 0 : 1;
     return ZYDIS_STATUS_SUCCESS;   
 }
 
@@ -2074,11 +2074,11 @@ static ZydisStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* ctx,
 
     switch (ctx->operatingMode)
     {
-    case ZYDIS_DISASSEMBLER_MODE_16BIT:
+    case ZYDIS_OPERATING_MODE_16BIT:
         *index = (info->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
         break;
-    case ZYDIS_DISASSEMBLER_MODE_32BIT:
-    case ZYDIS_DISASSEMBLER_MODE_64BIT:
+    case ZYDIS_OPERATING_MODE_32BIT:
+    case ZYDIS_OPERATING_MODE_64BIT:
         *index = (info->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 0 : 1;
         break;
     default:
@@ -2102,13 +2102,13 @@ static ZydisStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* ctx,
 
     switch (ctx->operatingMode)
     {
-    case ZYDIS_DISASSEMBLER_MODE_16BIT:
+    case ZYDIS_OPERATING_MODE_16BIT:
         *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 0;
         break;
-    case ZYDIS_DISASSEMBLER_MODE_32BIT:
+    case ZYDIS_OPERATING_MODE_32BIT:
         *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 0 : 1;
         break;
-    case ZYDIS_DISASSEMBLER_MODE_64BIT:
+    case ZYDIS_OPERATING_MODE_64BIT:
         *index = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 2;
         break;
     default: 
@@ -2357,9 +2357,9 @@ ZydisStatus ZydisDecode(ZydisOperatingMode operatingMode, const void* buffer, si
 ZydisStatus ZydisDecodeEx(ZydisOperatingMode operatingMode, const void* buffer, size_t bufferLen, 
     uint64_t instructionPointer, ZydisDecodeGranularity granularity, ZydisInstructionInfo* info)
 {
-    if ((operatingMode != ZYDIS_DISASSEMBLER_MODE_16BIT) &&
-        (operatingMode != ZYDIS_DISASSEMBLER_MODE_32BIT) &&
-        (operatingMode != ZYDIS_DISASSEMBLER_MODE_64BIT))
+    if ((operatingMode != ZYDIS_OPERATING_MODE_16BIT) &&
+        (operatingMode != ZYDIS_OPERATING_MODE_32BIT) &&
+        (operatingMode != ZYDIS_OPERATING_MODE_64BIT))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }

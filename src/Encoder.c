@@ -607,7 +607,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         ctx->dispBitSize = 32;
 
         // In 32 bit mode, ModRM allows for a shortcut here.
-        if (ctx->info->mode == ZYDIS_DISASSEMBLER_MODE_32BIT)
+        if (ctx->info->mode == ZYDIS_OPERATING_MODE_32BIT)
         {
             ctx->info->details.modrm.mod = 0x00;
             ctx->info->details.modrm.rm  = 0x05 /* memory */;
@@ -630,7 +630,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     if (ZydisIsIPReg(operand->mem.base))
     {
         // rIP addressing is only available since AMD64.
-        if (ctx->info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)
+        if (ctx->info->mode != ZYDIS_OPERATING_MODE_64BIT)
         {
             return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         }
@@ -664,12 +664,12 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     case ZYDIS_REGCLASS_GPR16:
         switch (ctx->info->mode)
         {
-        case ZYDIS_DISASSEMBLER_MODE_16BIT:
+        case ZYDIS_OPERATING_MODE_16BIT:
             break; // Nothing to do.
-        case ZYDIS_DISASSEMBLER_MODE_32BIT:
+        case ZYDIS_OPERATING_MODE_32BIT:
             ctx->info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
             break;
-        case ZYDIS_DISASSEMBLER_MODE_64BIT:
+        case ZYDIS_OPERATING_MODE_64BIT:
             // AMD64 doesn't allow for 16 bit addressing.
             return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         default:
@@ -679,18 +679,18 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     case ZYDIS_REGCLASS_GPR32:
         switch (ctx->info->mode)
         {
-        case ZYDIS_DISASSEMBLER_MODE_16BIT:
+        case ZYDIS_OPERATING_MODE_16BIT:
             return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
-        case ZYDIS_DISASSEMBLER_MODE_32BIT:
+        case ZYDIS_OPERATING_MODE_32BIT:
             break; // Nothing to do.
-        case ZYDIS_DISASSEMBLER_MODE_64BIT:
+        case ZYDIS_OPERATING_MODE_64BIT:
             ctx->info->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
         }
         break;
     case ZYDIS_REGCLASS_GPR64:
-        if (ctx->info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT)
+        if (ctx->info->mode != ZYDIS_OPERATING_MODE_64BIT)
         {
             return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         }
@@ -966,9 +966,9 @@ static ZydisStatus ZydisFindMatchingDef(const ZydisInstructionInfo* info,
         if (curEntry->mnemonic != info->mnemonic ||
             curEntry->operandCount != info->operandCount ||
             curEntry->encoding != info->encoding ||
-            (info->mode == ZYDIS_DISASSEMBLER_MODE_64BIT && 
+            (info->mode == ZYDIS_OPERATING_MODE_64BIT && 
                 curEntry->modeConstraint == ZYDIS_MODE_CONSTR_EXCLUDE64) ||
-            (info->mode != ZYDIS_DISASSEMBLER_MODE_64BIT && 
+            (info->mode != ZYDIS_OPERATING_MODE_64BIT && 
                 curEntry->modeConstraint == ZYDIS_MODE_CONSTR_REQUIRE64))
         {
             continue;
