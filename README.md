@@ -1,6 +1,8 @@
 Zyan Disassembler Engine (Zydis) [![Build Status](https://travis-ci.org/zyantific/zyan-disassembler-engine.svg?branch=master)](https://travis-ci.org/zyantific/zyan-disassembler-engine)
 ================================
 
+[![Join the chat at https://gitter.im/zyantific/zyan-disassembler-engine](https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg)](https://gitter.im/zyantific/zyan-disassembler-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Fast and lightweight x86/x86-64 disassembler library.
 
 ## Features ##
