@@ -296,7 +296,7 @@ ZydisBool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* no
         break;
     default:
         ZYDIS_UNREACHABLE;
-        return ZYDIS_FALSE;
+        //return ZYDIS_FALSE;
     }   
     return ZYDIS_TRUE;
 }

@@ -114,11 +114,22 @@
 #endif
 
 /* ============================================================================================== */
-/* Debugging macros                                                                               */
+/* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
 
 #define ZYDIS_ASSERT(condition) assert(condition)
-#define ZYDIS_UNREACHABLE assert(0)
+
+#if defined(ZYDIS_MSVC) && defined(ZYDIS_RELEASE)
+#   define ZYDIS_UNREACHABLE 
+#elif defined(ZYDIS_GNUC) && defined(ZYDIS_RELEASE)
+#   if __has_builtin(__builtin_unreachable)
+#       define ZYDIS_UNREACHABLE __builtin_unreachable()
+#   else
+#       define ZYDIS_UNREACHABLE
+#   endif
+#else
+#   define ZYDIS_UNREACHABLE assert(0)
+#endif
 
 /* ============================================================================================== */
 /* Utils                                                                                          */
