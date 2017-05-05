@@ -1795,7 +1795,8 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* ctx,
             {
                 uint8_t nextInput;
                 ZYDIS_CHECK(ZydisInputPeek(ctx, info, &nextInput)); 
-                if ((nextInput & 0xF0) >= 0xC0)
+                if (((nextInput & 0xF0) >= 0xC0) || 
+                    (ctx->operatingMode == ZYDIS_OPERATING_MODE_64BIT))
                 {
                     if (info->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
@@ -1856,7 +1857,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* ctx,
             {
                 uint8_t nextInput;
                 ZYDIS_CHECK(ZydisInputPeek(ctx, info, &nextInput));
-                if (((nextInput >> 0) & 0x1F) >= 8)
+                if ((nextInput & 0x1F) >= 8)
                 {
                     if (info->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
