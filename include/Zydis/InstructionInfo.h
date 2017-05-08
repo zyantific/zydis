@@ -875,6 +875,7 @@ typedef struct ZydisInstructionInfo_
          */
         struct
         {
+            uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH - 1]; // TODO:
             uint8_t hasF0;
             uint8_t hasF3;
             uint8_t hasF2;
@@ -1080,6 +1081,68 @@ typedef struct ZydisInstructionInfo_
             uint8_t aaa;
         } evex;
         /**
+        * @brief    Detailed info about the MVEX-prefix.
+        */
+        struct
+        {
+            /**
+             * @brief   @c TRUE if the prefix got already decoded.
+             */
+            ZydisBool isDecoded;
+            /**
+             * @brief   The raw bytes of the prefix.
+             */
+            uint8_t data[4];
+            /**
+             * @brief   Extension of the ModRM.reg field (inverted).
+             */
+            uint8_t R;
+            /**
+             * @brief   Extension of the SIB.index/vidx field (inverted).
+             */
+            uint8_t X;
+            /**
+             * @brief   Extension of the ModRM.rm or SIB.base field (inverted).
+             */
+            uint8_t B;
+            /**
+             * @brief   High-16 register specifier modifier (inverted).
+             */
+            uint8_t R2;
+            /**
+             * @brief   Opcode-map specifier.
+             */
+            uint8_t mmmm;
+            /**
+             * @brief   64-bit operand-size promotion or opcode-extension.
+             */
+            uint8_t W;
+            /**
+             * @brief   NDS register specifier (inverted).
+             */
+            uint8_t vvvv;
+            /**
+             * @brief   Compressed legacy prefix.
+             */
+            uint8_t pp;
+            /**
+             * @brief   Non-temporal/eviction hint.
+             */
+            uint8_t E;
+            /**
+             * @brief   Swizzle/broadcast/up-convert/down-convert/static-rounding controls.
+             */
+            uint8_t SSS;
+            /**
+             * @brief   High-16 NDS/VIDX register specifier.
+             */
+            uint8_t V2;
+            /**
+             * @brief   Embedded opmask register specifier.
+             */
+            uint8_t aaa;
+        } mvex;
+        /**
          * @brief   Detailed info about the ModRM-byte.
          */
         struct
@@ -1101,6 +1164,64 @@ typedef struct ZydisInstructionInfo_
             uint8_t index;
             uint8_t base;
         } sib;
+        /**
+         * @brief   Detailed info about displacement-bytes.
+         */
+        struct
+        {
+            /**
+             * @brief   The displacement value
+             */
+            union
+            {
+                int8_t sbyte;
+                int16_t sword;
+                int32_t sdword;
+                int64_t sqword;
+            } value;
+            /**
+             * @brief   The physical displacement size, in bits.
+             */
+            uint8_t dataSize;
+            /**
+             * @brief   The offset of the displacement data, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            uint8_t dataOffset;
+        } disp;
+        /**
+         * @brief   Detailed info about immediate-bytes.
+         */
+        struct
+        {
+            /**
+             * @brief   Signals, if the immediate value is signed.
+             */
+            ZydisBool isSigned;  
+            /**
+             * @brief   The immediate value.
+             */
+            union
+            {
+                int8_t sbyte;
+                uint8_t ubyte;
+                int16_t sword;
+                uint16_t uword;
+                int32_t sdword;
+                uint32_t udword;
+                int64_t sqword;
+                uint64_t uqword;
+            } value;
+            /**
+             * @brief   The physical immediate size, in bits.
+             */
+            uint8_t dataSize;
+            /**
+             * @brief   The offset of the immediate data, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            uint8_t dataOffset;
+        } imm[2];
     } details;
     /**
      * @brief   This field is intended for custom data and may be freely set by the user.
