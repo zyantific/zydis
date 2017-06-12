@@ -51,9 +51,22 @@ typedef uint32_t ZydisDecodeGranularity;
 enum ZydisDecodeGranularities
 {
     ZYDIS_DECODE_GRANULARITY_DEFAULT,
+    /**
+     * @brief   Minimal instruction decoding without semantic operand analysis.
+     */
     ZYDIS_DECODE_GRANULARITY_MINIMAL,
     ZYDIS_DECODE_GRANULARITY_FULL
 };
+
+/**
+ * @brief   Defines the @c ZydisInstructionDecoder datatype.
+ */
+typedef struct ZydisInstructionDecoder_
+{
+    ZydisMachineMode machineMode;
+    ZydisAddressWidth addressWidth;
+    ZydisDecodeGranularity decodeGranularity;
+} ZydisInstructionDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -62,36 +75,45 @@ enum ZydisDecodeGranularities
 /* ============================================================================================== */
 
 /**
- * @brief   Decodes the instruction in the given input @c buffer.
+ * @brief   Initializes the given @c ZydisInstructionDecoder instance.
  *
- * @param   operatingMode       The desired operating mode.
- * @param   buffer              A pointer to the input buffer.
- * @param   bufferLen           The length of the input buffer.
- * @param   instructionPointer  The instruction-pointer.
- * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
- *                              details about the decoded instruction.
+ * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   machineMode         The machine mode.
+ * @param   addressWidth        The address width.
  *
- * @return  A zydis status code. 
+ * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecode(ZydisOperatingMode operatingMode, const void* buffer, 
-    size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
+ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder, 
+    ZydisMachineMode machineMode, ZydisAddressWidth addressWidth);
+
+/**
+ * @brief   Initializes the given @c ZydisInstructionDecoder instance.
+ *
+ * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
+ * @param   machineMode         The machine mode.
+ * @param   addressWidth        The address width.
+ * @param   decodeGranularity   The decode granularity.
+ *
+ * @return  A zydis status code.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder, 
+    ZydisMachineMode machineMode, ZydisAddressWidth addressWidth, 
+    ZydisDecodeGranularity decodeGranularity);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
  *
- * @param   operatingMode       The desired operating mode.
+ * @param   decoder             A pointer to the @c ZydisInstructionDecoder instance.
  * @param   buffer              A pointer to the input buffer.
  * @param   bufferLen           The length of the input buffer.
  * @param   instructionPointer  The instruction-pointer.
- * @param   granularity         The granularity to decode with.
  * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
  *                              details about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecodeEx(ZydisOperatingMode operatingMode, const void* buffer, 
-    size_t bufferLen, uint64_t instructionPointer, ZydisDecodeGranularity granularity, 
-    ZydisInstructionInfo* info);
+ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(ZydisInstructionDecoder* decoder, 
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
 

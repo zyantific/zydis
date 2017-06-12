@@ -29,7 +29,6 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/Types.h>
-#include <Zydis/Status.h>
 
 #ifdef __cplusplus
 extern "C" {

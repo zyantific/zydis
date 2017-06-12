@@ -391,13 +391,13 @@ static ZydisStatus ZydisFormatterPrintAddressIntel(ZydisInstructionFormatter* fo
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    switch (info->mode)
+    switch (info->machineMode)
     {
-    case ZYDIS_OPERATING_MODE_16BIT:
-    case ZYDIS_OPERATING_MODE_32BIT:
+    case 16:
+    case 32:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
             "0x%08"PRIX64, address);
-    case ZYDIS_OPERATING_MODE_64BIT:
+    case 64:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
             "0x%016"PRIX64, address);   
     default:

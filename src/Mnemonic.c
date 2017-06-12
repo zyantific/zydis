@@ -30,10 +30,7 @@
 /* Mnemonic strings                                                                               */
 /* ============================================================================================== */
 
-static const char* mnemonicStrings[] = 
-{
 #include <Zydis/Internal/MnemonicStrings.inc>
-};
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -41,7 +38,7 @@ static const char* mnemonicStrings[] =
 
 const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic)
 {
-    if (mnemonic > (sizeof(mnemonicStrings) / sizeof(mnemonicStrings[0])) - 1)
+    if (mnemonic > ZYDIS_ARRAY_SIZE(mnemonicStrings) - 1)
     {
         return NULL;
     }

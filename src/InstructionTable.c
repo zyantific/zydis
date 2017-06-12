@@ -36,36 +36,6 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Contains all opcode filters.
- *          
- *          Indexed by the numeric value of the opcode.
- */
-extern const ZydisInstructionTableNode filterOpcode[][256];
-
-/**
- * @brief   Contains all VEX-map filters.
- *          
- *          Index values:
- *          0 = LES, LDS or BOUND instruction (default encoding)
- *          1 = 0F  
- *          2 = 0F38  
- *          3 = 0F3A  
- *          4 = 66  
- *          5 = 66_0F  
- *          6 = 66_0F38  
- *          7 = 66_0F3A  
- *          8 = F3  
- *          9 = F3_0F
- *          A = F3_0F38
- *          B = F3_0F3A
- *          C = F2
- *          D = F2_0F
- *          E = F2_0F38
- *          F = F2_0F3A
- */
-extern const ZydisInstructionTableNode filterVEX[][16];
-
-/**
  * @brief   Contains all XOP-map filters.
  *          
  *          Index values:
@@ -74,264 +44,267 @@ extern const ZydisInstructionTableNode filterVEX[][16];
  *          2 = xop9
  *          3 = xopA
  */
-extern const ZydisInstructionTableNode filterXOP[][4];
+extern const ZydisInstructionTreeNode filtersXOP[][4];
+
+/**
+ * @brief   Contains all VEX-map filters.
+ *          
+ *          Index values:
+ *          00 = LES or LDS instruction (default encoding)
+ *          01 = VEX MAP0
+ *          02 = 0F  
+ *          03 = 0F38  
+ *          04 = 0F3A  
+ *          05 = 66  
+ *          06 = 66_0F  
+ *          07 = 66_0F38  
+ *          08 = 66_0F3A  
+ *          09 = F3  
+ *          0A = F3_0F
+ *          0B = F3_0F38
+ *          0C = F3_0F3A
+ *          0D = F2
+ *          0E = F2_0F
+ *          0F = F2_0F38
+ *          10 = F2_0F3A
+ */
+extern const ZydisInstructionTreeNode filtersVEX[][17];
+
+/**
+ * @brief   Contains all EVEX/MVEX-map filters.
+ *          
+ *          Index values:
+ *          00 = BOUND instruction (default encoding)
+ *          01 = EVEX MAP0
+ *          02 = EVEX 0F  
+ *          03 = EVEX 0F38  
+ *          04 = EVEX 0F3A  
+ *          05 = EVEX 66  
+ *          06 = EVEX 66_0F  
+ *          07 = EVEX 66_0F38  
+ *          08 = EVEX 66_0F3A  
+ *          09 = EVEX F3  
+ *          0A = EVEX F3_0F
+ *          0B = EVEX F3_0F38
+ *          0C = EVEX F3_0F3A
+ *          0D = EVEX EVEX F2
+ *          0E = EVEX F2_0F
+ *          0F = EVEX 
+ *          10 = EVEX F2_0F3A
+ *          11 = MVEX MAP0
+ *          12 = MVEX 0F  
+ *          13 = MVEX 0F38  
+ *          14 = MVEX 0F3A  
+ *          15 = MVEX 66  
+ *          16 = MVEX 66_0F  
+ *          17 = MVEX 66_0F38  
+ *          18 = MVEX 66_0F3A  
+ *          19 = MVEX F3  
+ *          1A = MVEX F3_0F
+ *          1B = MVEX F3_0F38
+ *          1C = MVEX F3_0F3A
+ *          1D = MVEX EVEX F2
+ *          1E = MVEX F2_0F
+ *          1F = MVEX F2_0F38
+ *          20 = MVEX F2_0F3A
+ */
+extern const ZydisInstructionTreeNode filtersEMVEX[][33];
+
+/**
+ * @brief   Contains all opcode filters.
+ *          
+ *          Indexed by the numeric value of the opcode.
+ */
+extern const ZydisInstructionTreeNode filtersOpcode[][256];
 
 /**
  * @brief   Contains all instruction-mode filters.
  *          
  *          Index values:
- *          0 = 64 bit mode required
- *          1 = 64 bit mode excluded
+ *          0 = 16 bit mode
+ *          1 = 32 bit mode
+ *          2 = 64 bit mode
  */
-extern const ZydisInstructionTableNode filterMode[][2];
+extern const ZydisInstructionTreeNode filtersMode[][3];
+
+/**
+ * @brief   Contains all compacted instruction-mode filters.
+ *          
+ *          Index values:
+ *          0 = 64 bit mode
+ *          1 = not 64 bit mode
+ */
+extern const ZydisInstructionTreeNode filtersModeCompact[][2];
+
+/**
+ * @brief   Contains all ModRM.mod filters.
+ *          
+ *          Indexed by the ordinal value of the ModRM.mod field.
+ */
+extern const ZydisInstructionTreeNode filtersModrmMod[][4];
+
+/**
+ * @brief   Contains all compacted ModRM.mod filters.
+ *          
+ *          Index values:
+ *          0 = [ModRM.mod ==  11] = register
+ *          1 = [ModRM.mod == !11] = memory
+ */
+extern const ZydisInstructionTreeNode filtersModrmModCompact[][2];
+
+/**
+ * @brief   Contains all ModRM.reg filters.
+ *          
+ *          Indexed by the numeric value of the ModRM.reg field.
+ */
+extern const ZydisInstructionTreeNode filtersModrmReg[][8];
+
+/**
+ * @brief   Contains all ModRM.rm filters.
+ *          
+ *          Indexed by the numeric value of the ModRM.rm field.
+ */
+extern const ZydisInstructionTreeNode filtersModrmRm[][8];
 
 /**
  * @brief   Contains all mandatory-prefix switch tables.
  *          
  *          Index values:
- *          0 = none
- *          1 = 66  
- *          2 = F3  
- *          3 = F2
+ *          0 = ignored (prefixes are not interpreted as mandatory-prefix)
+ *          1 = none
+ *          2 = 66  
+ *          3 = F3  
+ *          4 = F2
  */
-extern const ZydisInstructionTableNode filterMandatoryPrefix[][4];
-
-/**
- * @brief   Contains all ModRM.mod filters.
- *          
- *          Index values:
- *          0 = [modrm_mod == !11] = memory
- *          1 = [modrm_mod ==  11] = register
- */
-extern const ZydisInstructionTableNode filterModrmMod[][2];
-
-/**
- * @brief   Contains all ModRM.reg filters.
- *          
- *          Indexed by the numeric value of the modrm_reg field.
- */
-extern const ZydisInstructionTableNode filterModrmReg[][8];
-
-/**
- * @brief   Contains all ModRM.rm filters.
- *          
- *          Indexed by the numeric value of the modrm_rm field.
- */
-extern const ZydisInstructionTableNode filterModrmRm[][8];
+extern const ZydisInstructionTreeNode filtersMandatoryPrefix[][5];
 
 /**
  * @brief   Contains all operand-size filters.
  *          
  *          Index values:
- *          0 = 16bit = 0x66 prefix in 32 bit mode
- *          1 = 32bit = 0x66 prefix in 16 bit mode  
+ *          0 = 16 bit
+ *          1 = 32 bit
+ *          2 = 64 bit 
  */
-extern const ZydisInstructionTableNode filterOperandSize[][2];
+extern const ZydisInstructionTreeNode filtersOperandSize[][3];
 
 /**
  * @brief   Contains all address-size filters.
  *          
  *          Index values:
- *          0 = 16
- *          1 = 32  
- *          2 = 64
+ *          0 = 16 bit
+ *          1 = 32 bit 
+ *          2 = 64 bit
  */
-extern const ZydisInstructionTableNode filterAddressSize[][3];
+extern const ZydisInstructionTreeNode filtersAddressSize[][3];
+
+/**
+ * @brief   Contains all vector-length filters.
+ *          
+ *          Index values:
+ *          0 = 128 bit
+ *          1 = 256 bit 
+ *          2 = 512 bit
+ */
+extern const ZydisInstructionTreeNode filtersVectorLength[][3];
 
 /**
  * @brief   Contains all REX/VEX/EVEX.w filters.
  *          
  *          Indexed by the numeric value of the REX/VEX/EVEX.w field.
  */
-extern const ZydisInstructionTableNode filterREXW[][2];
+extern const ZydisInstructionTreeNode filtersREXW[][2];
 
 /**
- * @brief   Contains all VEX.l filters.
+ * @brief   Contains all REX/VEX/EVEX.B filters.
  *          
- *          Indexed by the numeric value of the VEX/EVEX.l field.
+ *          Indexed by the numeric value of the REX/VEX/EVEX.B field.
  */
-extern const ZydisInstructionTableNode filterVEXL[][2];
-
-/**
- * @brief   Contains all EVEX.l' filters.
- *          
- *          Indexed by the numeric value of the EVEX.l' field.
- */
-extern const ZydisInstructionTableNode filterEVEXL2[][2];
+extern const ZydisInstructionTreeNode filtersREXB[][2];
 
 /**
  * @brief   Contains all EVEX.b filters.
  *          
  *          Indexed by the numeric value of the EVEX.b field.
  */
-extern const ZydisInstructionTableNode filterEVEXB[][2];
+extern const ZydisInstructionTreeNode filtersEVEXB[][2];
+
+/**
+ * @brief   Contains all MVEX.E filters.
+ *          
+ *          Indexed by the numeric value of the MVEX.E field.
+ */
+extern const ZydisInstructionTreeNode filtersMVEXE[][2];
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Contains all operand-definitions with 1 operands.
+ * @brief   Contains all operand-definitions.
  */
-extern const ZydisOperandDefinition operandDefinitions1[][1];
-
-/**
- * @brief   Contains all operand-definitions with 2 operands.
- */
-extern const ZydisOperandDefinition operandDefinitions2[][2];
-
-/**
- * @brief   Contains all operand-definitions with 3 operands.
- */
-extern const ZydisOperandDefinition operandDefinitions3[][3];
-
-/**
- * @brief   Contains all operand-definitions with 4 operands.
- */
-extern const ZydisOperandDefinition operandDefinitions4[][4];
-
-/**
- * @brief   Contains all operand-definitions with 5 operands.
- */
-extern const ZydisOperandDefinition operandDefinitions5[][5];
+extern const ZydisOperandDefinition operandDefinitions[];
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Contains all instruction-definitions.
+ * @brief   Contains all instruction-definitions with @c DEFAULT encoding.
  */
-extern const ZydisInstructionDefinition instructionDefinitions[];
+extern const ZydisInstructionDefinitionDEFAULT instructionDefinitionsDEFAULT[];
+
+/**
+ * @brief   Contains all instruction-definitions with @c 3DNOW encoding.
+ */
+extern const ZydisInstructionDefinition3DNOW instructionDefinitions3DNOW[];
+
+/**
+ * @brief   Contains all instruction-definitions with @c XOP encoding.
+ */
+extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
+
+/**
+ * @brief   Contains all instruction-definitions with @c VEX encoding.
+ */
+extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
+
+/**
+ * @brief   Contains all instruction-definitions with @c EVEX encoding.
+ */
+extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
+
+/**
+ * @brief   Contains all instruction-definitions with @c MVEX encoding.
+ */
+extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Functions                                                                                      */
+/* Physical instruction encodings                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-const ZydisInstructionTableNode* ZydisInstructionTableGetRootNode()
-{
-    static const ZydisInstructionTableNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
-    return &root;
-}
-
-const ZydisInstructionTableNode* ZydisInstructionTableGetChildNode(
-    const ZydisInstructionTableNode* parent, uint16_t index)
-{
-    switch (parent->type)
-    {
-    case ZYDIS_NODETYPE_FILTER_OPCODE:
-        ZYDIS_ASSERT(index < 256);
-        return &filterOpcode[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_VEX:
-        ZYDIS_ASSERT(index <  16);
-        return &filterVEX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_XOP:
-        ZYDIS_ASSERT(index <   4);
-        return &filterXOP[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE:
-        ZYDIS_ASSERT(index <   3);
-        return &filterMode[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MANDATORYPREFIX:
-        ZYDIS_ASSERT(index <   4);
-        return &filterMandatoryPrefix[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMMOD:
-        ZYDIS_ASSERT(index <   2);
-        return &filterModrmMod[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMREG:
-        ZYDIS_ASSERT(index <   8);
-        return &filterModrmReg[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRMRM:
-        ZYDIS_ASSERT(index <   8);
-        return &filterModrmRm[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_OPERANDSIZE:
-        ZYDIS_ASSERT(index <   2);
-        return &filterOperandSize[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_ADDRESSSIZE:
-        ZYDIS_ASSERT(index <   3);
-        return &filterAddressSize[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_REXW:
-        ZYDIS_ASSERT(index <   2);
-        return &filterREXW[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_VEXL:
-        ZYDIS_ASSERT(index <   2);
-        return &filterVEXL[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEXL2:
-        ZYDIS_ASSERT(index <   2);
-        return &filterEVEXL2[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEXB:
-        ZYDIS_ASSERT(index <   2);
-        return &filterEVEXB[parent->value][index];
-    default:
-        ZYDIS_UNREACHABLE;
-    }
-    static const ZydisInstructionTableNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
-    return &invalid;    
-}
-
-ZydisBool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* node,
-    const ZydisInstructionDefinition** definition, const ZydisOperandDefinition** operands, 
-    uint8_t* operandCount)
-{
-    *definition = &instructionDefinitions[node->value];
-    switch (node->type)
-    {
-    case ZYDIS_NODETYPE_DEFINITION_0OP:
-        *operandCount = 0;
-        break;
-    case ZYDIS_NODETYPE_DEFINITION_1OP:
-        *operandCount = 1;
-        *operands = operandDefinitions1[(*definition)->operandsId];
-        break;
-    case ZYDIS_NODETYPE_DEFINITION_2OP:
-        *operandCount = 2;
-        *operands = operandDefinitions2[(*definition)->operandsId];
-        break;
-    case ZYDIS_NODETYPE_DEFINITION_3OP:
-        *operandCount = 3;
-        *operands = operandDefinitions3[(*definition)->operandsId];
-        break;
-    case ZYDIS_NODETYPE_DEFINITION_4OP:
-        *operandCount = 4;
-        *operands = operandDefinitions4[(*definition)->operandsId];
-        break;
-    case ZYDIS_NODETYPE_DEFINITION_5OP:
-        *operandCount = 5;
-        *operands = operandDefinitions5[(*definition)->operandsId];
-        break;
-    default:
-        ZYDIS_UNREACHABLE;
-        //return ZYDIS_FALSE;
-    }   
-    return ZYDIS_TRUE;
-}
+#include <Zydis/Internal/InstructionClassMap.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Main instruction-table                                                                         */
+/* Instruction tree                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INVALID \
     { ZYDIS_NODETYPE_INVALID, 0x00000000 }
 #define ZYDIS_FILTER(type, id) \
     { type, id }
-#define ZYDIS_DEFINITION_0OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_0OP, id }
-#define ZYDIS_DEFINITION_1OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_1OP, id }
-#define ZYDIS_DEFINITION_2OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_2OP, id }
-#define ZYDIS_DEFINITION_3OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_3OP, id }
-#define ZYDIS_DEFINITION_4OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_4OP, id }
-#define ZYDIS_DEFINITION_5OP(id) \
-    { ZYDIS_NODETYPE_DEFINITION_5OP, id }
+#define ZYDIS_DEFINITION(encoding, instrclass, id) \
+    { ZYDIS_NODETYPE_DEFINITION_MASK | instrclass, (encoding << 13) | id }
 
 #include <Zydis/Internal/InstructionFilters.inc>
 
 #undef ZYDIS_INVALID
 #undef ZYDIS_FILTER
-#undef ZYDIS_DEFINITION_0OP
-#undef ZYDIS_DEFINITION_1OP
-#undef ZYDIS_DEFINITION_2OP
-#undef ZYDIS_DEFINITION_3OP
-#undef ZYDIS_DEFINITION_4OP
-#undef ZYDIS_DEFINITION_5OP
+#undef ZYDIS_DEFINITION
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction definitions                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+#include <Zydis/Internal/InstructionDefinitions.inc>
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definitions                                                                            */
@@ -344,10 +317,137 @@ ZydisBool ZydisInstructionTableGetDefinition(const ZydisInstructionTableNode* no
 
 #undef ZYDIS_OPERAND_DEFINITION
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Instruction definitions                                                                        */
-/* ---------------------------------------------------------------------------------------------- */
+/* ============================================================================================== */
+/* Functions                                                                                      */
+/* ============================================================================================== */
 
-#include <Zydis/Internal/InstructionDefinitions.inc>
+const ZydisInstructionTreeNode* ZydisInstructionTreeGetRootNode()
+{
+    static const ZydisInstructionTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
+    return &root;
+}
+
+const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
+    const ZydisInstructionTreeNode* parent, uint16_t index)
+{
+    switch (parent->type)
+    {
+    case ZYDIS_NODETYPE_FILTER_XOP:
+        ZYDIS_ASSERT(index <   4);
+        return &filtersXOP[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_VEX:
+        ZYDIS_ASSERT(index <  17);
+        return &filtersVEX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EMVEX:
+        ZYDIS_ASSERT(index <  33);
+        return &filtersEMVEX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_OPCODE:
+        ZYDIS_ASSERT(index < 256);
+        return &filtersOpcode[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE:
+        ZYDIS_ASSERT(index <   4);
+        return &filtersMode[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_COMPACT:
+        ZYDIS_ASSERT(index <   3);
+        return &filtersModeCompact[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODRM_MOD:
+        ZYDIS_ASSERT(index <   4);
+        return &filtersModrmMod[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModrmModCompact[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODRM_REG:
+        ZYDIS_ASSERT(index <   8);
+        return &filtersModrmReg[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODRM_RM:
+        ZYDIS_ASSERT(index <   8);
+        return &filtersModrmRm[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
+        ZYDIS_ASSERT(index <   5);
+        return &filtersMandatoryPrefix[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_OPERAND_SIZE:
+        ZYDIS_ASSERT(index <   3);
+        return &filtersOperandSize[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE:
+        ZYDIS_ASSERT(index <   3);
+        return &filtersAddressSize[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH:
+        ZYDIS_ASSERT(index <   3);
+        return &filtersVectorLength[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_REX_W:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersREXW[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_REX_B:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersREXB[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_B:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersEVEXB[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MVEX_E:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersMVEXE[parent->value][index];
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+    static const ZydisInstructionTreeNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
+    return &invalid;    
+}
+
+void ZydisGetInstructionDefinition(const ZydisInstructionTreeNode* node,
+    const ZydisInstructionDefinition** definition)
+{
+    ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
+    switch ((node->value >> 13) & 0x07)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitionsDEFAULT[node->value & 0x1FFF];
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitions3DNOW[node->value & 0x1FFF];
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_XOP:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitionsXOP[node->value & 0x1FFF];
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_VEX:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitionsVEX[node->value & 0x1FFF];
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[node->value & 0x1FFF];
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+        *definition = 
+            (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[node->value & 0x1FFF];
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+}
+
+void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node, 
+    const ZydisInstructionParts** info)
+{
+    ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
+    uint8_t class = (node->type) & 0x7F;
+    ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionClassMap));
+    *info = &instructionClassMap[class];
+}
+
+uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
+    const ZydisOperandDefinition** operands)
+{
+    if (definition->operandCount == 0)
+    {
+        *operands = NULL;
+        return 0;
+    }
+    ZYDIS_ASSERT(definition->operandReference != 0xFFFF);
+    *operands = &operandDefinitions[definition->operandReference];
+    return definition->operandCount;
+}
 
 /* ============================================================================================== */

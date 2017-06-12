@@ -37,7 +37,6 @@
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
 #include <stdlib.h>
-#include <time.h>
 
 /* ============================================================================================== */
 /* Static data                                                                                    */
@@ -173,7 +172,8 @@ static ZydisStatus ZydisFormatterFormatOperandImm(ZydisInstructionFormatter* for
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
+void disassembleBuffer(ZydisInstructionDecoder* decoder, uint8_t* data, size_t length, 
+    ZydisBool installHooks)
 {
     ZydisInstructionFormatter formatter;
     ZydisFormatterInitInstructionFormatterEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
@@ -195,7 +195,7 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
     ZydisInstructionInfo info;
     char buffer[256];
     while (ZYDIS_SUCCESS(
-        ZydisDecode(ZYDIS_OPERATING_MODE_64BIT, data, length, instructionPointer, &info)))
+        ZydisDecoderDecodeBuffer(decoder, data, length, instructionPointer, &info)))
     {
         data += info.length;
         length -= info.length;
@@ -210,6 +210,8 @@ void disassembleBuffer(uint8_t* data, size_t length, ZydisBool installHooks)
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
+#include <Zydis/Internal/InstructionTable.h>
+
 int main()
 {
 
@@ -218,16 +220,20 @@ int main()
         // cmpps xmm1, xmm4, 0x03
         0x0F, 0xC2, 0xCC, 0x03, 
 
-        // vcmpord_spd xmm1, xmm2, xmm3
+        // vcmppd xmm1, xmm2, xmm3, 0x17
         0xC5, 0xE9, 0xC2, 0xCB, 0x17,
 
         // vcmpps k2 {k7}, zmm2, dword ptr ds:[rax + rbx*4 + 0x100] {1to16}, 0x0F
         0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
     };
 
-    disassembleBuffer(&data[0], sizeof(data), ZYDIS_FALSE);
+    ZydisInstructionDecoder decoder;
+    ZydisDecoderInitInstructionDecoder(
+        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_INVALID);
+
+    disassembleBuffer(&decoder, &data[0], sizeof(data), ZYDIS_FALSE);
     puts("");
-    disassembleBuffer(&data[0], sizeof(data), ZYDIS_TRUE);
+    disassembleBuffer(&decoder, &data[0], sizeof(data), ZYDIS_TRUE);
 
     getchar();
     return 0;
