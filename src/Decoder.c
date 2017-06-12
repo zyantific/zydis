@@ -1397,11 +1397,11 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
-                    uint8_t prefixBytes[2];
+                    uint8_t prefixBytes[3] = { 0x8F, 0x00, 0x00 };
                     // Read additional xop-prefix data
                     ZYDIS_ASSERT(!info->details.xop.isDecoded);
-                    ZYDIS_CHECK(ZydisInputNext(context, info, &prefixBytes[0]));
                     ZYDIS_CHECK(ZydisInputNext(context, info, &prefixBytes[1]));
+                    ZYDIS_CHECK(ZydisInputNext(context, info, &prefixBytes[2]));
                     // Decode xop-prefix
                     info->encoding = ZYDIS_INSTRUCTION_ENCODING_XOP;
                     ZYDIS_CHECK(ZydisDecodeXOP(context, info, prefixBytes));
