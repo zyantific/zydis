@@ -45,7 +45,7 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        if (operand->mem.disp.dataSize == 0)
+        if (!operand->mem.disp.hasDisplacement)
         {
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }

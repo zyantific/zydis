@@ -271,7 +271,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(ZydisInstructionFormatter
     ZYDIS_CHECK(
         ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "["));
  
-    if ((operand->mem.disp.dataSize != 0) && (
+    if (operand->mem.disp.hasDisplacement && (
         (operand->mem.base == ZYDIS_REGISTER_NONE) ||
         (operand->mem.base == ZYDIS_REGISTER_EIP) || 
         (operand->mem.base == ZYDIS_REGISTER_RIP)) &&
@@ -413,7 +413,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(ZydisInstructionFormatte
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    if ((operand->mem.disp.dataSize) && ((operand->mem.disp.value.sqword) || 
+    if (operand->mem.disp.hasDisplacement && ((operand->mem.disp.value.sqword) || 
         ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
         (operand->mem.index == ZYDIS_REGISTER_NONE))))
     {
@@ -627,7 +627,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(ZydisInstructionFormatter* 
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    const char* bufEnd = *buffer + bufferLen;
+    /*const char* bufEnd = *buffer + bufferLen;
 
     if (operand->id == 0)
     {
@@ -708,7 +708,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(ZydisInstructionFormatter* 
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
         }
-    }
+    }*/
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -742,8 +742,6 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(ZydisInstructionFormatter* for
         const char* bufPreOperand = *buffer;
         switch (info->operands[i].type)
         {
-        case ZYDIS_OPERAND_TYPE_UNUSED:
-            return ZYDIS_STATUS_INVALID_PARAMETER;
         case ZYDIS_OPERAND_TYPE_REGISTER:
             ZYDIS_CHECK(formatter->funcFormatOperandReg(formatter, buffer, bufEnd - *buffer, 
                 info, &info->operands[i]));

@@ -107,74 +107,42 @@ typedef uint8_t ZydisOperandEncoding;
 enum ZydisOperandEncodings
 {
     ZYDIS_OPERAND_ENCODING_NONE,
-    /**
-     * @brief   The operand is encoded in the ModRM.reg field.
-     */
-    ZYDIS_OPERAND_ENCODING_REG,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field.
-     */
-    ZYDIS_OPERAND_ENCODING_RM,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD2,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD4,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD8,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD16,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD32,
-    /**
-     * @brief   The operand is encoded in the ModRM.rm field and uses the compressed-disp8 form.
-     */
-    ZYDIS_OPERAND_ENCODING_RM_CD64,
-    /**
-     * @brief   The operand is encoded in the lower 4 bits of the opcode (register only).
-     */
+    ZYDIS_OPERAND_ENCODING_MODRM_REG,
+    ZYDIS_OPERAND_ENCODING_MODRM_RM,
     ZYDIS_OPERAND_ENCODING_OPCODE,
-    /**
-     * @brief   The operand is encoded in the VEX/EVEX.vvvv field.
-     */
-    ZYDIS_OPERAND_ENCODING_VVVV,
-    /**
-     * @brief   The operand is encoded in the EVEX.aaa field.
-     */
-    ZYDIS_OPERAND_ENCODING_AAA,
-    /**
-     * @brief   The operand is encoded in the low-part of an 8-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM8_LO,
-    /**
-     * @brief   The operand is encoded in the high-part of an 8-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM8_HI,
-    /**
-     * @brief   The operand is encoded as an 8-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM8,
-    /**
-     * @brief   The operand is encoded as an 16-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM16,
-    /**
-     * @brief   The operand is encoded as an 32-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM32,
-    /**
-     * @brief   The operand is encoded as an 64-bit immediate value.
-     */
-    ZYDIS_OPERAND_ENCODING_IMM64
+    ZYDIS_OPERAND_ENCODING_NDS,
+    ZYDIS_OPERAND_ENCODING_MASK,
+    ZYDIS_OPERAND_ENCODING_UIMM8_LO,
+    ZYDIS_OPERAND_ENCODING_UIMM8_HI,
+    ZYDIS_OPERAND_ENCODING_DISP8,
+    ZYDIS_OPERAND_ENCODING_DISP16,
+    ZYDIS_OPERAND_ENCODING_DISP32,
+    ZYDIS_OPERAND_ENCODING_DISP64,
+    ZYDIS_OPERAND_ENCODING_DISP16_32_64,
+    ZYDIS_OPERAND_ENCODING_DISP32_32_64,
+    ZYDIS_OPERAND_ENCODING_DISP16_32_32,
+    ZYDIS_OPERAND_ENCODING_UIMM_CONST1,
+    ZYDIS_OPERAND_ENCODING_UIMM8,
+    ZYDIS_OPERAND_ENCODING_UIMM16,
+    ZYDIS_OPERAND_ENCODING_UIMM32,
+    ZYDIS_OPERAND_ENCODING_UIMM64,
+    ZYDIS_OPERAND_ENCODING_UIMM16_32_64,
+    ZYDIS_OPERAND_ENCODING_UIMM32_32_64,
+    ZYDIS_OPERAND_ENCODING_UIMM16_32_32,
+    ZYDIS_OPERAND_ENCODING_SIMM8,
+    ZYDIS_OPERAND_ENCODING_SIMM16,
+    ZYDIS_OPERAND_ENCODING_SIMM32,
+    ZYDIS_OPERAND_ENCODING_SIMM64,
+    ZYDIS_OPERAND_ENCODING_SIMM16_32_64,
+    ZYDIS_OPERAND_ENCODING_SIMM32_32_64,
+    ZYDIS_OPERAND_ENCODING_SIMM16_32_32,
+    ZYDIS_OPERAND_ENCODING_JIMM8,
+    ZYDIS_OPERAND_ENCODING_JIMM16,
+    ZYDIS_OPERAND_ENCODING_JIMM32,
+    ZYDIS_OPERAND_ENCODING_JIMM64,
+    ZYDIS_OPERAND_ENCODING_JIMM16_32_64,
+    ZYDIS_OPERAND_ENCODING_JIMM32_32_64,
+    ZYDIS_OPERAND_ENCODING_JIMM16_32_32
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -191,6 +159,7 @@ typedef uint8_t ZydisOperandVisibility;
  */
 enum ZydisOperandVisibilities
 {
+    ZYDIS_OPERAND_VISIBILITY_INVALID,
     /**
      * @brief   The operand is explicitly encoded in the instruction. 
      */
@@ -219,6 +188,7 @@ typedef uint8_t ZydisOperandAction;
  */
 enum ZydisOperandActions
 {
+    ZYDIS_OPERAND_ACTION_INVALID,
     /**
      * @brief   The operand is read by the instruction.
      */
@@ -234,19 +204,45 @@ enum ZydisOperandActions
     /**
      * @brief   The operand is conditionally read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_COND_READ,
+    ZYDIS_OPERAND_ACTION_CONDREAD,
     /**
      * @brief   The operand is conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_COND_WRITE,
+    ZYDIS_OPERAND_ACTION_CONDWRITE,
     /**
      * @brief   The operand is read and conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_READ_COND_WRITE,
+    ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
     /**
-     * @brief   The operand is written conditionally read by the instruction (must write).
+     * @brief   The operand is written and conditionally read by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_WRITE_COND_READ, 
+    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE, 
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Element type                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisElementType datatype.
+ */
+typedef uint8_t ZydisElementType;
+
+/**
+ * @brief   Values that represent element-types.
+ */
+enum ZydisElementTypes
+{
+    ZYDIS_ELEMENT_TYPE_INVALID,
+    ZYDIS_ELEMENT_TYPE_VARIABLE,  // TODO: Remove
+    ZYDIS_ELEMENT_TYPE_STRUCT,
+    ZYDIS_ELEMENT_TYPE_UINT,
+    ZYDIS_ELEMENT_TYPE_INT,
+    ZYDIS_ELEMENT_TYPE_FLOAT16,
+    ZYDIS_ELEMENT_TYPE_FLOAT32,
+    ZYDIS_ELEMENT_TYPE_FLOAT64,
+    ZYDIS_ELEMENT_TYPE_FLOAT80,
+    ZYDIS_ELEMENT_TYPE_LONGBCD
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -258,8 +254,6 @@ enum ZydisOperandActions
  */
 typedef struct ZydisOperandInfo_
 {
-    // semantic operand type ... temporary
-    uint32_t temp;
     /**
      * @brief   The operand-id.
      */
@@ -273,17 +267,29 @@ typedef struct ZydisOperandInfo_
      */
     ZydisOperandVisibility visibility;
     /**
-     * @brief   The operand-encoding (only valid for explicit operands).
-     */
-    ZydisOperandEncoding encoding;
-    /**
      * @brief   The operand-action.
      */
     ZydisOperandAction action; 
     /**
+     * @brief   The operand-encoding.
+     */
+    ZydisOperandEncoding encoding;
+    /**
      * @brief   The logical size of the operand (in bytes).
      */
-    uint16_t size;    
+    uint16_t size; 
+    /**
+     * @brief   The element-type.
+     */
+    ZydisElementType elementType;
+    /**
+     * @brief   The size of a single element.
+     */
+    uint16_t elementSize;
+    /**
+     * @brief   The number of elements.
+     */
+    uint16_t elementCount;
     /**
      * @brief   Extended info for register-operands.
      */
@@ -293,10 +299,6 @@ typedef struct ZydisOperandInfo_
      */
     struct
     {
-        /**
-         * @brief   The adress size (16, 32 or 64 bit).
-         */
-        uint8_t addressSize;
         /**
          * @brief   The segment register.
          */
@@ -319,6 +321,10 @@ typedef struct ZydisOperandInfo_
         struct
         {
             /**
+             * @brief   Signals, if the displacement value is used.
+             */
+            ZydisBool hasDisplacement;
+            /**
              * @brief   The displacement value
              */
             union
@@ -328,15 +334,6 @@ typedef struct ZydisOperandInfo_
                 int32_t sdword;
                 int64_t sqword;
             } value;
-            /**
-             * @brief   The physical displacement size, in bits.
-             */
-            uint8_t dataSize;
-            /**
-             * @brief   The offset of the displacement data, relative to the beginning of the 
-             *          instruction, in bytes.
-             */
-            uint8_t dataOffset;
         } disp;
     } mem;
     /**
@@ -375,15 +372,6 @@ typedef struct ZydisOperandInfo_
             int64_t sqword;
             uint64_t uqword;
         } value;
-        /**
-         * @brief   The physical immediate size, in bits.
-         */
-        uint8_t dataSize;
-        /**
-         * @brief   The offset of the immediate data, relative to the beginning of the 
-         *          instruction, in bytes.
-         */
-        uint8_t dataOffset;
     } imm;
 } ZydisOperandInfo;
 
@@ -699,125 +687,117 @@ typedef uint64_t ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000001000000000
 
 /* ---------------------------------------------------------------------------------------------- */
-/* AVX mask policy                                                                                */
+/* AVX vector-length                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisAVX512MaskPolicy datatype.
+ * @brief   Defines the @c ZydisVectorLength datatype.
  */
-typedef uint8_t ZydisAVX512MaskPolicy;
+typedef uint16_t ZydisVectorLength;
 
 /**
- * @brief   Values that represent avx-512 mask-policies.
+ * @brief   Values that represent vector-lengths.
  */
-enum ZydisAVX512MaskPolicies
+enum ZydisVectorLengths
 {
-    ZYDIS_AVX512_MASKPOLICY_INVALID,
-    /**
-     * @brief   The instruction accepts mask-registers other than the default-mask (@c REG_K0), but
-     *          does not require them.
-     */
-    ZYDIS_AVX512_MASKPOLICY_MASK_ACCEPTED,
-    /**
-     * @brief   The instruction requires a mask-register other than the default-mask (@c REG_K0).
-     */
-    ZYDIS_AVX512_MASKPOLICY_MASK_REQUIRED,
-    /**
-     * @brief   The instruction does not allow a mask-register other than the default-mask 
-     *          (@c REG_K0).
-     */
-    ZYDIS_AVX512_MASKPOLICY_MASK_FORBIDDEN
+    ZYDIS_VECTOR_LENGTH_INVALID =   0,
+    ZYDIS_VECTOR_LENGTH_128     = 128,
+    ZYDIS_VECTOR_LENGTH_256     = 256,
+    ZYDIS_VECTOR_LENGTH_512     = 512
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-/* AVX mask mode                                                                                  */
+/* EVEX tuple-type                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisAVX512MaskMode datatype.
+ * @brief   Defines the @c ZydisEVEXTupleType datatype.
  */
-typedef uint8_t ZydisAVX512MaskMode;
+typedef uint8_t ZydisEVEXTupleType;
 
 /**
- * @brief   Values that represent avx-512 mask-modes.
+ * @brief   Values that represent EVEX tuple-types.
  */
-enum ZydisAVX512MaskModes
+enum ZydisEVEXTupleTypes
 {
-    ZYDIS_AVX512_MASKMODE_INVALID,
+    ZYDIS_TUPLETYPE_INVALID,
     /**
-     * @brief   Merge mode. This is the default mode for all EVEX-instructions.
+     * @brief   Full Vector
      */
-    ZYDIS_AVX512_MASKMODE_MERGE,
+    ZYDIS_TUPLETYPE_FV,
     /**
-     * @brief   The zeroing mode is enabled for this instruction.
+     * @brief   Half Vector
      */
-    ZYDIS_AVX512_MASKMODE_ZERO
+    ZYDIS_TUPLETYPE_HV,
+    /**
+     * @brief   Full Vector Mem
+     */
+    ZYDIS_TUPLETYPE_FVM,
+    /**
+     * @brief   Tuple1 Scalar
+     */
+    ZYDIS_TUPLETYPE_T1S,
+    /**
+     * @brief   Tuple1 Fixed
+     */
+    ZYDIS_TUPLETYPE_T1F,
+    /**
+     * @brief   Gather / Scatter
+     */
+    ZYDIS_TUPLETYPE_GSCAT,
+    /**
+     * @brief   Tuple2
+     */
+    ZYDIS_TUPLETYPE_T2,
+    /**
+     * @brief   Tuple4
+     */
+    ZYDIS_TUPLETYPE_T4,
+    /**
+     * @brief   Tuple8
+     */
+    ZYDIS_TUPLETYPE_T8,
+    /**
+     * @brief   Half Mem
+     */
+    ZYDIS_TUPLETYPE_HVM,
+    /**
+     * @brief   QuarterMem
+     */
+    ZYDIS_TUPLETYPE_QVM,
+    /**
+     * @brief   OctMem
+     */
+    ZYDIS_TUPLETYPE_OVM,
+    /**
+     * @brief   Mem128
+     */
+    ZYDIS_TUPLETYPE_M128,
+    /**
+     * @brief   MOVDDUP
+     */
+    ZYDIS_TUPLETYPE_DUP
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-/* AVX broadcast type                                                                             */
+/* AVX broadcast-mode                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisAVX512BroadcastType datatype.
+ * @brief   Defines the @c ZydisBroadcastMode datatype.
  */
-typedef uint8_t ZydisAVX512BroadcastType;
+typedef uint16_t ZydisBroadcastMode;
 
 /**
- * @brief   Values that represent avx-512 broadcast-types.
+ * @brief   Values that represent AVX broadcast-modes.
  */
-enum ZydisAVX512BroadcastTypes
+enum ZydisBroadcastModes
 {
-    ZYDIS_AVX512_BCSTMODE_INVALID,
-    /**
-     * @brief   1to2 broadcast.
-     */
-    ZYDIS_AVX512_BCSTMODE_2,
-    /**
-     * @brief   1to4 broadcast.
-     */
-    ZYDIS_AVX512_BCSTMODE_4,
-    /**
-     * @brief   1to8 broadcast.
-     */
-    ZYDIS_AVX512_BCSTMODE_8,
-    /**
-     * @brief   1to16 broadcast.
-     */
-    ZYDIS_AVX512_BCSTMODE_16
-};
-
-/* ---------------------------------------------------------------------------------------------- */
-/* AVX rounding mode                                                                              */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisAVX512RoundingMode datatype.
- */
-typedef uint8_t ZydisAVX512RoundingMode;
-
-/**
- * @brief   Values that represent avx-512 rounding-modes.
- */
-enum ZydisAVXRoundingModes
-{
-    ZYDIS_AVX_RNDMODE_INVALID,
-    /**
-     * @brief   Round to nearest.
-     */
-    ZYDIS_AVX_RNDMODE_RN,
-    /**
-     * @brief   Round down.
-     */
-    ZYDIS_AVX_RNDMODE_RD,
-    /**
-     * @brief   Round up.
-     */
-    ZYDIS_AVX_RNDMODE_RU,
-    /**
-     * @brief   Round towards zero.
-     */
-    ZYDIS_AVX_RNDMODE_RZ
+    ZYDIS_BROADCAST_MODE_INVALID,
+    ZYDIS_BROADCAST_MODE_1_TO_2,
+    ZYDIS_BROADCAST_MODE_1_TO_4,
+    ZYDIS_BROADCAST_MODE_1_TO_8,
+    ZYDIS_BROADCAST_MODE_1_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -872,7 +852,7 @@ typedef struct ZydisInstructionInfo_
     /**
      * @brief   Detailed info for all instruction operands.
      */
-    ZydisOperandInfo operands[5];
+    ZydisOperandInfo operands[10];
     /**
      * @brief  Instruction attributes.
      */
@@ -890,35 +870,16 @@ typedef struct ZydisInstructionInfo_
      */
     uint64_t instrPointer;
     /**
-     * @brief   Extended info for avx-related instructions.
+     * @brief   Extended info for AVX instructions.
      */
     struct
     {
-        /**
-         * @brief   The AVX mask-policy.
-         */
-        ZydisAVX512MaskPolicy maskPolicy;
-        /**
-         * @brief   The AVX mask-mode.
-         */
-        ZydisAVX512MaskMode maskMode; 
-        /**
-         * @brief   The AVX mask-register.
-         */
-        ZydisRegister maskRegister;
-        /**
-         * @brief   The avx-512 broadcast-type.
-         */
-        ZydisAVX512BroadcastType broadcast;
-        /**
-         * @brief   The avx-512 rounding-mode.
-         */
-        ZydisAVX512RoundingMode roundingMode;
-        /**
-         * @brief   @c TRUE, if the avx-512 suppress-all-exceptions flag is set.
-         */
-        ZydisBool hasSAE;
-    } avx;    
+        ZydisVectorLength vectorLength;
+        ZydisEVEXTupleType tupleType;
+        uint8_t elementSize;
+        uint8_t compressedDisp8Scale;
+        ZydisBroadcastMode broadcastMode;
+    } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 
      *          encoding-prefixes.

@@ -162,11 +162,68 @@ enum ZydisInstructionTreeNodeTypes
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisSemanticOperandType datatype.
+ */
+typedef uint8_t ZydisSemanticOperandType;
+
+/**
+ * @brief   Values that represent semantic operand-types.
+ */
+enum ZydisSemanticOperandTypes
+{
+    ZYDIS_SEMANTIC_OPTYPE_UNUSED,
+    ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+    ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM,
+    ZYDIS_SEMANTIC_OPTYPE_GPR8,
+    ZYDIS_SEMANTIC_OPTYPE_GPR16,
+    ZYDIS_SEMANTIC_OPTYPE_GPR32,
+    ZYDIS_SEMANTIC_OPTYPE_GPR64,
+    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64, 
+    ZYDIS_SEMANTIC_OPTYPE_GPR32_32_64,
+    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32, 
+    ZYDIS_SEMANTIC_OPTYPE_FPR,
+    ZYDIS_SEMANTIC_OPTYPE_MMX,
+    ZYDIS_SEMANTIC_OPTYPE_XMM,
+    ZYDIS_SEMANTIC_OPTYPE_YMM,
+    ZYDIS_SEMANTIC_OPTYPE_ZMM,
+    ZYDIS_SEMANTIC_OPTYPE_BND,
+    ZYDIS_SEMANTIC_OPTYPE_SREG,
+    ZYDIS_SEMANTIC_OPTYPE_CR,
+    ZYDIS_SEMANTIC_OPTYPE_DR,
+    ZYDIS_SEMANTIC_OPTYPE_MASK,
+    ZYDIS_SEMANTIC_OPTYPE_MEM,
+    ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBX,
+    ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBY,
+    ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ,
+    ZYDIS_SEMANTIC_OPTYPE_IMM,
+    ZYDIS_SEMANTIC_OPTYPE_REL,
+    ZYDIS_SEMANTIC_OPTYPE_PTR,
+    ZYDIS_SEMANTIC_OPTYPE_AGEN,
+    ZYDIS_SEMANTIC_OPTYPE_MOFFS    
+};
+
+/**
  * @brief   Defines the @c ZydisOperandDefinition struct.
  */
 typedef struct ZydisOperandDefinition_
 {
-    int dummy;
+    ZydisSemanticOperandType type : 5;
+    ZydisOperandVisibility visibility : 2;
+    ZydisOperandAction action : 3;
+    uint16_t size[3];
+    uint8_t elementType : 4;
+    uint16_t elementSize : 12;
+    union
+    {
+        uint8_t encoding; 
+        ZydisRegister reg;
+        struct 
+        {
+            uint8_t seg : 3;
+            uint8_t base : 3; 
+            ZydisOperandAction baseAction : 3;
+        } mem;
+    } op;
 } ZydisOperandDefinition;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -200,7 +257,6 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
     ZydisBool acceptsHLEWithoutLock : 1;
     ZydisBool acceptsBranchHints : 1;
     ZydisBool acceptsSegment : 1;
-    
 } ZydisInstructionDefinitionDEFAULT;
 
 typedef struct ZydisInstructionDefinition3DNOW_
@@ -220,7 +276,9 @@ typedef struct ZydisInstructionDefinitionVEX_
 
 typedef struct ZydisInstructionDefinitionEVEX_
 {
-    ZydisInstructionDefinition base;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZydisEVEXTupleType tupleType : 4;
+    uint8_t elementSize : 7;
 } ZydisInstructionDefinitionEVEX;
 
 typedef struct ZydisInstructionDefinitionMVEX_
