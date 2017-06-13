@@ -711,14 +711,14 @@ enum ZydisVectorLengths
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisEVEXTupleType datatype.
+ * @brief   Defines the @c ZydisTupleType datatype.
  */
-typedef uint8_t ZydisEVEXTupleType;
+typedef uint8_t ZydisTupleType;
 
 /**
  * @brief   Values that represent EVEX tuple-types.
  */
-enum ZydisEVEXTupleTypes
+enum ZydisTupleTypes
 {
     ZYDIS_TUPLETYPE_INVALID,
     /**
@@ -780,6 +780,31 @@ enum ZydisEVEXTupleTypes
 };
 
 /* ---------------------------------------------------------------------------------------------- */
+/* AVX mask mode                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisMaskMode datatype.
+ */
+typedef uint8_t ZydisMaskMode;
+
+/**
+ * @brief   Values that represent AVX mask-modes.
+ */
+enum ZydisMaskModes
+{
+    ZYDIS_MASKMODE_INVALID,
+    /**
+     * @brief   Merge mode. This is the default mode for all EVEX-instructions.
+     */
+    ZYDIS_MASKMODE_MERGE,
+    /**
+     * @brief   The zeroing mode is enabled for this instruction.
+     */
+    ZYDIS_MASKMODE_ZERO
+};
+
+/* ---------------------------------------------------------------------------------------------- */
 /* AVX broadcast-mode                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -798,6 +823,55 @@ enum ZydisBroadcastModes
     ZYDIS_BROADCAST_MODE_1_TO_4,
     ZYDIS_BROADCAST_MODE_1_TO_8,
     ZYDIS_BROADCAST_MODE_1_TO_16
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* AVX rounding-mode                                                                              */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisRoundingMode datatype.
+ */
+typedef uint8_t ZydisRoundingMode;
+
+/**
+ * @brief   Values that represent AVX rounding-modes.
+ */
+enum ZydisRoundingModes
+{
+    ZYDIS_RNDMODE_INVALID,
+    /**
+     * @brief   Round to nearest.
+     */
+    ZYDIS_RNDMODE_RN,
+    /**
+     * @brief   Round down.
+     */
+    ZYDIS_RNDMODE_RD,
+    /**
+     * @brief   Round up.
+     */
+    ZYDIS_RNDMODE_RU,
+    /**
+     * @brief   Round towards zero.
+     */
+    ZYDIS_RNDMODE_RZ,
+    /**
+     * @brief   Round to nearest and suppress all exceptions.
+     */
+    ZYDIS_RNDMODE_RN_SAE,
+    /**
+     * @brief   Round down and suppress all exceptions.
+     */
+    ZYDIS_RNDMODE_RD_SAE,
+    /**
+     * @brief   Round up and suppress all exceptions.
+     */
+    ZYDIS_RNDMODE_RU_SAE,
+    /**
+     * @brief   Round towards zero and suppress all exceptions.
+     */
+    ZYDIS_RNDMODE_RZ_SAE
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -874,11 +948,34 @@ typedef struct ZydisInstructionInfo_
      */
     struct
     {
+        /**
+         * @brief   The AVX vector-length.
+         */
         ZydisVectorLength vectorLength;
-        ZydisEVEXTupleType tupleType;
+        /**
+         * @brief   The AVX tuple-type (EVEX only).
+         */
+        ZydisTupleType tupleType;
+        /**
+         * @brief   The AVX element-size.
+         */
         uint8_t elementSize;
+        /**
+         * @brief   The scale-factor for compressed 8-bit displacement values.
+         */
         uint8_t compressedDisp8Scale;
+        /**
+         * @brief   The AVX mask-mode.
+         */
+        ZydisMaskMode maskMode;
+        /**
+         * @brief   The AVX broadcast-mode.
+         */
         ZydisBroadcastMode broadcastMode;
+        /**
+         * @brief   The AVX rounding-mode.
+         */
+        ZydisRoundingMode roundingMode;
     } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 

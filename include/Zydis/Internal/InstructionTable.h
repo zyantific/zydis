@@ -152,9 +152,13 @@ enum ZydisInstructionTreeNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x11,
     /**
+     * @brief   Reference to an EVEX.z filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_Z            = 0x12,
+    /**
      * @brief   Reference to an MVEX.E filter.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12,
+    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x13,
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -230,6 +234,61 @@ typedef struct ZydisOperandDefinition_
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * @brief   Defines the @c ZydisEVEXFunctionality datatype.
+ */
+typedef uint8_t ZydisEVEXFunctionality;
+
+/**
+ * @brief   Values that represent EVEX-functionalities.
+ */
+enum ZydisEVEXFunctionalities
+{
+    ZYDIS_EVEX_FUNC_INVALID,
+    /**
+     * @brief   @c EVEX.b enables broadcast functionality.
+     */
+    ZYDIS_EVEX_FUNC_BC,
+    /**
+     * @brief   @c EVEX.b enables embedded-rounding functionality.
+     */
+    ZYDIS_EVEX_FUNC_RC,
+    /**
+     * @brief   @c EVEX.b enables sae functionality.
+     */
+    ZYDIS_EVEX_FUNC_SAE
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisMaskPolicy datatype.
+ */
+typedef uint8_t ZydisMaskPolicy;
+
+/**
+ * @brief   Values that represent AVX mask policies.
+ */
+enum ZydisMaskPolicies
+{
+    ZYDIS_MASK_POLICY_INVALID,
+    /**
+     * @brief   The instruction accepts mask-registers other than the default-mask (K0), but
+     *          does not require them.
+     */
+    ZYDIS_MASK_POLICY_ALLOWED,
+    /**
+     * @brief   The instruction requires a mask-register other than the default-mask (K0).
+     */
+    ZYDIS_MASK_POLICY_REQUIRED,
+    /**
+     * @brief   The instruction does not allow a mask-register other than the default-mask (K0).
+     */
+    ZYDIS_MASK_POLICY_FORBIDDEN
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
     ZydisInstructionMnemonic mnemonic : 11; \
     uint8_t operandCount              :  4; \
@@ -277,8 +336,10 @@ typedef struct ZydisInstructionDefinitionVEX_
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
-    ZydisEVEXTupleType tupleType : 4;
+    ZydisTupleType tupleType : 4;
     uint8_t elementSize : 7;
+    ZydisEVEXFunctionality functionality : 2;
+    ZydisMaskPolicy maskPolicy : 2;
 } ZydisInstructionDefinitionEVEX;
 
 typedef struct ZydisInstructionDefinitionMVEX_
