@@ -220,7 +220,7 @@ enum ZydisOperandActions
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Element type                                                                                   */
+/* Elements                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -244,6 +244,11 @@ enum ZydisElementTypes
     ZYDIS_ELEMENT_TYPE_FLOAT80,
     ZYDIS_ELEMENT_TYPE_LONGBCD
 };
+
+/**
+ * @brief   Defines the @c ZydisElementSize datatype.
+ */
+typedef uint16_t ZydisElementSize;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand info                                                                                   */
@@ -285,7 +290,7 @@ typedef struct ZydisOperandInfo_
     /**
      * @brief   The size of a single element.
      */
-    uint16_t elementSize;
+    ZydisElementSize elementSize;
     /**
      * @brief   The number of elements.
      */

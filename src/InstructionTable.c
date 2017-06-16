@@ -328,6 +328,10 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Functions                                                                                      */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction tree                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
 const ZydisInstructionTreeNode* ZydisInstructionTreeGetRootNode()
 {
     static const ZydisInstructionTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
@@ -403,6 +407,10 @@ const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
     return &invalid;    
 }
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction definition                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
 void ZydisGetInstructionDefinition(const ZydisInstructionTreeNode* node,
     const ZydisInstructionDefinition** definition)
 {
@@ -447,6 +455,10 @@ void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node,
     *info = &instructionClassMap[class];
 }
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Operand definition                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
 uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
     const ZydisOperandDefinition** operands)
 {
@@ -459,5 +471,49 @@ uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     *operands = &operandDefinitions[definition->operandReference];
     return definition->operandCount;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Element info                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
+
+void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
+    ZydisElementSize* size)
+{
+    static const struct
+    {
+        ZydisElementType type;
+        ZydisElementSize size;
+    } lookup[21] =
+    {
+        { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
+        { ZYDIS_ELEMENT_TYPE_VARIABLE ,   0 },
+        { ZYDIS_ELEMENT_TYPE_STRUCT   ,   0 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,   0 },
+        { ZYDIS_ELEMENT_TYPE_UINT     ,   0 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,   1 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,   8 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,  16 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,  32 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,  64 },
+        { ZYDIS_ELEMENT_TYPE_UINT     ,   8 },
+        { ZYDIS_ELEMENT_TYPE_UINT     ,  16 },
+        { ZYDIS_ELEMENT_TYPE_UINT     ,  32 },
+        { ZYDIS_ELEMENT_TYPE_UINT     ,  64 },
+        { ZYDIS_ELEMENT_TYPE_UINT     , 128 },
+        { ZYDIS_ELEMENT_TYPE_UINT     , 256 },
+        { ZYDIS_ELEMENT_TYPE_FLOAT16  ,  16 },
+        { ZYDIS_ELEMENT_TYPE_FLOAT32  ,  32 },
+        { ZYDIS_ELEMENT_TYPE_FLOAT64  ,  64 },
+        { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
+        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
+    };
+
+    ZYDIS_ASSERT((element >= 0) && (element < ZYDIS_ARRAY_SIZE(lookup)));
+
+    *type = lookup[element].type;
+    *size = lookup[element].size;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

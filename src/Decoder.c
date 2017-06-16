@@ -902,6 +902,111 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Sets the operand-size and element-specific information for the given operand.
+ *
+ * @param   context         A pointer to the @c ZydisDecoderContext instance.
+ * @param   info            A pointer to the @c ZydisInstructionInfo struct.
+ * @param   operand         A pointer to the @c ZydisOperandInfo struct.
+ * @param   definition      A pointer to the @c ZydisOperandDefinition struct.
+ */
+static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context, 
+    ZydisInstructionInfo* info, ZydisOperandInfo* operand, const ZydisOperandDefinition* definition)
+{
+    ZYDIS_ASSERT(context);
+    ZYDIS_ASSERT(info);
+    ZYDIS_ASSERT(operand);
+    ZYDIS_ASSERT(definition);
+
+    // Operand size
+    switch (operand->type)
+    {
+    case ZYDIS_OPERAND_TYPE_REGISTER:
+    {
+        operand->size = (context->decoder->machineMode == 64) ? 
+            ZydisRegisterGetWidth64(operand->reg) : ZydisRegisterGetWidth(operand->reg);
+        operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+        operand->elementSize = operand->size;
+        break;
+    }
+    case ZYDIS_OPERAND_TYPE_MEMORY:
+        switch (info->encoding)
+        {
+        case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+        case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+        case ZYDIS_INSTRUCTION_ENCODING_XOP:
+        case ZYDIS_INSTRUCTION_ENCODING_VEX:
+            operand->size = definition->size[context->eoszIndex] * 8;
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+            if (definition->size[context->eoszIndex])
+            {
+                // Operand size is hardcoded
+                operand->size = definition->size[context->eoszIndex] * 8;    
+            } else
+            {
+                // Operand size depends on the tuple-type, the element-size and the number of 
+                // elements
+                ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+                ZYDIS_ASSERT(info->avx.tupleType);
+                switch (info->avx.tupleType)
+                {
+                case ZYDIS_TUPLETYPE_FV:
+                    if (info->avx.broadcastMode)
+                    {
+                        operand->size = info->avx.elementSize;
+                    } else
+                    {
+                        operand->size = info->avx.vectorLength;
+                    }
+                    break;
+                case ZYDIS_TUPLETYPE_HV:
+                    if (info->avx.broadcastMode)
+                    {
+                        operand->size = info->avx.elementSize;
+                    } else
+                    {
+                        operand->size = info->avx.vectorLength / 2;
+                    }
+                    break;
+                default:
+                    ZYDIS_UNREACHABLE;
+                }
+            }
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+            // TODO:
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
+        }
+        break;
+    case ZYDIS_OPERAND_TYPE_POINTER:
+    case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+        operand->size = definition->size[context->eoszIndex] * 8;
+        ZYDIS_ASSERT(operand->size);
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+
+    // Element info
+    if (definition->elementType)
+    {
+        ZydisGetElementInfo(definition->elementType, &operand->elementType, &operand->elementSize);
+        if (!operand->elementSize)
+        {
+            // The element size is the same as the operand size. This is used for single element
+            // scaling operands 
+            operand->elementSize = operand->size;
+        }
+    }
+    if (operand->elementSize && operand->size)
+    {
+        operand->elementCount = operand->size / operand->elementSize;
+    }
+}
+
+/**
  * @brief   Decodes an register-operand.
  *
  * @param   info            A pointer to the @c ZydisInstructionInfo struct.
@@ -1243,15 +1348,13 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
  * @brief   Decodes an implicit memory operand.
  *
  * @param   context         A pointer to the @c ZydisDecoderContext instance.
- * @param   info            A pointer to the @c ZydisInstructionInfo struct.
  * @param   operand         A pointer to the @c ZydisOperandInfo struct.
  * @param   definition      A pointer to the @c ZydisOperandDefinition struct.
  */
 static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context, 
-    ZydisInstructionInfo* info, ZydisOperandInfo* operand, const ZydisOperandDefinition* definition)
+    ZydisOperandInfo* operand, const ZydisOperandDefinition* definition)
 {
     ZYDIS_ASSERT(context);
-    ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(definition);
 
@@ -1323,20 +1426,14 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             ZydisDecodeOperandImplicitRegister(context, info, &info->operands[i], operand);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
-            ZydisDecodeOperandImplicitMemory(context, info, &info->operands[i], operand);
+            ZydisDecodeOperandImplicitMemory(context, &info->operands[i], operand);
             break;
         default:
             break;
         }
         if (info->operands[i].type)
         {
-            if (info->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
-            {
-                //ZYDIS_ASSERT(operand->size[context->eoszIndex]);
-                info->operands[i].size = operand->size[context->eoszIndex] * 8;
-            }
-            ++operand;
-            continue;
+            goto FinalizeOperand;
         }
 
         // Register operands
@@ -1494,20 +1591,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             default:
                 ZYDIS_UNREACHABLE;
             }
-            
-            if (!operand->size[context->eoszIndex])
-            {
-                info->operands[i].size = (context->decoder->machineMode == 64) ? 
-                    ZydisRegisterGetWidth64(info->operands[i].reg) :
-                    ZydisRegisterGetWidth(info->operands[i].reg);
-            } else
-            {
-                // TODO: Always override size for register operands?
-                info->operands[i].size = operand->size[context->eoszIndex] * 8;
-            }
-
-            ++operand;
-            continue;
+           
+            goto FinalizeOperand;
         }
 
         // Memory operands
@@ -1542,7 +1627,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         default:
             break;
         }
-        if (info->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+        if (info->operands[i].type)
         {
             if (vsibBaseRegister)
             {
@@ -1603,9 +1688,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                 };
             }
 
-            //ZYDIS_ASSERT(operand->size[context->eoszIndex]);
-            info->operands[i].size = operand->size[context->eoszIndex] * 8;
-
             // Handle compressed 8-bit displacement
             if (((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                  (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
@@ -1614,8 +1696,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                 info->operands[i].mem.disp.value.sqword *= info->avx.compressedDisp8Scale;
             }
 
-            ++operand;
-            continue;
+            goto FinalizeOperand;
         }
 
         // Immediate operands
@@ -1638,6 +1719,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         }
         ZYDIS_ASSERT(info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE);
 
+FinalizeOperand:
+        ZydisSetOperandSizeAndElementInfo(context, info, &info->operands[i], operand);
         ++operand;
     }
 
@@ -2106,6 +2189,20 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     break;
                 case 1:
                     info->avx.compressedDisp8Scale = 4;
+                    switch (info->avx.vectorLength)
+                    {
+                    case 128:
+                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_2;
+                        break;
+                    case 256:
+                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_4;
+                        break;
+                    case 512:
+                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_8;
+                        break;
+                    default:
+                        ZYDIS_UNREACHABLE;
+                    }
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2167,7 +2264,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     break;
                 case 1:
                     ZYDIS_ASSERT(info->avx.elementSize == 64);
-                    ZYDIS_ASSERT((info->avx.vectorLength == 256) || (info->avx.vectorLength == 512));
+                    ZYDIS_ASSERT((info->avx.vectorLength == 256) || 
+                                 (info->avx.vectorLength == 512));
                     info->avx.compressedDisp8Scale = 16;
                     break;
                 default:
@@ -2179,7 +2277,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {
                 case 0:
                     ZYDIS_ASSERT(info->avx.elementSize == 32);
-                    ZYDIS_ASSERT((info->avx.vectorLength == 256) || (info->avx.vectorLength == 512));
+                    ZYDIS_ASSERT((info->avx.vectorLength == 256) || 
+                                 (info->avx.vectorLength == 512));
                     info->avx.compressedDisp8Scale = 16;
                     break;
                 case 1:
@@ -2269,7 +2368,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             }
         } else
         {
-            // TODO: Add tuple type to register-only definitions
+            // TODO: Add tuple type to register-only definitions or remove it from the info struct
             ZYDIS_ASSERT(info->details.modrm.mod == 3);
         }
 

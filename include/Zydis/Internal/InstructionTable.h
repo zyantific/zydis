@@ -204,6 +204,39 @@ enum ZydisSemanticOperandTypes
 };
 
 /**
+ * @brief   Defines the @c ZydisInternalElementType datatype.
+ */
+typedef uint8_t ZydisInternalElementType;
+
+/**
+ * @brief   Values that represent internal element-types.
+ */
+enum ZydisInternalElementTypes
+{
+    ZYDIS_IELEMENT_TYPE_INVALID,
+    ZYDIS_IELEMENT_TYPE_VARIABLE, // TODO: Remove
+    ZYDIS_IELEMENT_TYPE_STRUCT,
+    ZYDIS_IELEMENT_TYPE_INT,
+    ZYDIS_IELEMENT_TYPE_UINT,
+    ZYDIS_IELEMENT_TYPE_INT1,
+    ZYDIS_IELEMENT_TYPE_INT8,
+    ZYDIS_IELEMENT_TYPE_INT16,
+    ZYDIS_IELEMENT_TYPE_INT32,
+    ZYDIS_IELEMENT_TYPE_INT64,
+    ZYDIS_IELEMENT_TYPE_UINT8,
+    ZYDIS_IELEMENT_TYPE_UINT16,
+    ZYDIS_IELEMENT_TYPE_UINT32,
+    ZYDIS_IELEMENT_TYPE_UINT64,
+    ZYDIS_IELEMENT_TYPE_UINT128,
+    ZYDIS_IELEMENT_TYPE_UINT256,
+    ZYDIS_IELEMENT_TYPE_FLOAT16,
+    ZYDIS_IELEMENT_TYPE_FLOAT32,
+    ZYDIS_IELEMENT_TYPE_FLOAT64,
+    ZYDIS_IELEMENT_TYPE_FLOAT80,
+    ZYDIS_IELEMENT_TYPE_BCD80
+};
+
+/**
  * @brief   Defines the @c ZydisOperandDefinition struct.
  */
 typedef struct ZydisOperandDefinition_
@@ -212,8 +245,7 @@ typedef struct ZydisOperandDefinition_
     ZydisOperandVisibility visibility : 2;
     ZydisOperandAction action : 3;
     uint16_t size[3];
-    uint8_t elementType : 4;
-    uint16_t elementSize : 12;
+    ZydisInternalElementType elementType : 5;
     union
     {
         uint8_t encoding; 
@@ -222,7 +254,7 @@ typedef struct ZydisOperandDefinition_
             uint8_t type : 3;
             union
             {
-                ZydisRegister reg : 8;
+                ZydisRegister reg;
                 uint8_t id : 6;
             } reg;
         } reg;
@@ -448,6 +480,10 @@ typedef struct ZydisInstructionParts_
 /* Functions                                                                                      */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction tree                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Returns the root node of the instruction tree.
  *
@@ -466,6 +502,10 @@ ZYDIS_NO_EXPORT const ZydisInstructionTreeNode* ZydisInstructionTreeGetRootNode(
 ZYDIS_NO_EXPORT const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
     const ZydisInstructionTreeNode* parent, uint16_t index);
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Instruction definition                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Returns the instruction- and operand-definition that is linked to the given @c node.
  *
@@ -476,14 +516,18 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(const ZydisInstructionTreeNod
     const ZydisInstructionDefinition** definition);
 
 /**
- * @brief   Returns information about optional instruction parts for the instruction that is linked  
- *          to the given @c node.
+ * @brief   Returns information about optional instruction parts (like modrm, displacement or 
+ *          immediates) for the instruction that is linked to the given @c node.
  *
  * @param   node    The instruction definition node.
  * @param   info    A pointer to the @c ZydisInstructionParts struct.        
  */
 ZYDIS_NO_EXPORT void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node, 
     const ZydisInstructionParts** info);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Operand definition                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Returns the instruction- and operand-definition that is linked to the given @c node.
@@ -496,6 +540,22 @@ ZYDIS_NO_EXPORT void ZydisGetOptionalInstructionParts(const ZydisInstructionTree
  */
 ZYDIS_NO_EXPORT uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
     const ZydisOperandDefinition** operands);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Element info                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the actual type and size of an internal element-type.
+ *
+ * @param   element The internal element type.
+ * @param   type    The actual element type.
+ * @param   size    The element size.
+ */
+ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
+    ZydisElementSize* size);
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 

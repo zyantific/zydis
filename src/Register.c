@@ -210,6 +210,23 @@ ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
 
 ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
 {
+    // Special cases
+    switch (reg)
+    {
+    case ZYDIS_REGISTER_IP:
+    case ZYDIS_REGISTER_FLAGS:
+        return 16;
+    case ZYDIS_REGISTER_EIP:
+    case ZYDIS_REGISTER_EFLAGS:
+        return 32;
+    case ZYDIS_REGISTER_RIP:
+    case ZYDIS_REGISTER_RFLAGS:
+        return 64;
+    default:
+        break;
+    }
+
+    // Register classes
     for (unsigned i = 0; i < registerMapCount; ++i)
     {
         if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
@@ -222,6 +239,23 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
 
 ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 {
+    // Special cases
+    switch (reg)
+    {
+    case ZYDIS_REGISTER_IP:
+    case ZYDIS_REGISTER_FLAGS:
+        return 16;
+    case ZYDIS_REGISTER_EIP:
+    case ZYDIS_REGISTER_EFLAGS:
+        return 32;
+    case ZYDIS_REGISTER_RIP:
+    case ZYDIS_REGISTER_RFLAGS:
+        return 64;
+    default:
+        break;
+    }
+
+    // Register classes
     for (unsigned i = 0; i < registerMapCount; ++i)
     {
         if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
