@@ -63,9 +63,6 @@ typedef uint16_t ZydisInstructionTreeNodeValue;
 
 /**
  * @brief   Defines the @c ZydisInstructionTreeNode struct.
- * 
- * This struct is static for now, because its size is sufficient to encode up to 65535
- * instruction filters (what is about 10 times more than we currently need).
  */
 typedef struct ZydisInstructionTreeNode_
 {
@@ -220,7 +217,15 @@ typedef struct ZydisOperandDefinition_
     union
     {
         uint8_t encoding; 
-        ZydisRegister reg;
+        struct
+        {
+            uint8_t type : 3;
+            union
+            {
+                ZydisRegister reg : 8;
+                uint8_t id : 6;
+            } reg;
+        } reg;
         struct 
         {
             uint8_t seg : 3;
@@ -229,6 +234,25 @@ typedef struct ZydisOperandDefinition_
         } mem;
     } op;
 } ZydisOperandDefinition;
+
+enum ZydisImplicitRegisterType
+{
+    ZYDIS_IMPLREG_TYPE_STATIC,
+    ZYDIS_IMPLREG_TYPE_GPR_OSZ,
+    ZYDIS_IMPLREG_TYPE_GPR_ASZ,
+    ZYDIS_IMPLREG_TYPE_GPR_SSZ,
+    ZYDIS_IMPLREG_TYPE_IP_ASZ,
+    ZYDIS_IMPLREG_TYPE_IP_SSZ,
+    ZYDIS_IMPLREG_TYPE_FLAGS_SSZ
+};
+
+enum ZydisImplicitMemBase
+{
+    ZYDIS_IMPLMEM_BASE_ASI,
+    ZYDIS_IMPLMEM_BASE_ADI,
+    ZYDIS_IMPLMEM_BASE_ABP,
+    ZYDIS_IMPLMEM_BASE_ABX
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction definition                                                                         */

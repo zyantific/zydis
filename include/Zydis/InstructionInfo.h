@@ -818,11 +818,11 @@ typedef uint16_t ZydisBroadcastMode;
  */
 enum ZydisBroadcastModes
 {
-    ZYDIS_BROADCAST_MODE_INVALID,
-    ZYDIS_BROADCAST_MODE_1_TO_2,
-    ZYDIS_BROADCAST_MODE_1_TO_4,
-    ZYDIS_BROADCAST_MODE_1_TO_8,
-    ZYDIS_BROADCAST_MODE_1_TO_16
+    ZYDIS_BCSTMODE_INVALID,
+    ZYDIS_BCSTMODE_1_TO_2,
+    ZYDIS_BCSTMODE_1_TO_4,
+    ZYDIS_BCSTMODE_1_TO_8,
+    ZYDIS_BCSTMODE_1_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */

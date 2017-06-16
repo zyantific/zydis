@@ -33,27 +33,27 @@
 const char* registerStrings[] =
 {
     "none",
-    // General purpose registers 64-bit
-    "rax",    "rcx",    "rdx",   "rbx",    
-    "rsp",    "rbp",    "rsi",   "rdi",
-    "r8",     "r9",     "r10",   "r11",    
-    "r12",    "r13",    "r14",   "r15",
-    // General purpose registers 32-bit
-    "eax",    "ecx",    "edx",   "ebx",    
-    "esp",    "ebp",    "esi",   "edi",
-    "r8d",    "r9d",    "r10d",  "r11d",   
-    "r12d",   "r13d",   "r14d",  "r15d",
-    // General purpose registers 16-bit
-    "ax",     "cx",     "dx",    "bx",     
-    "sp",     "bp",     "si",    "di",
-    "r8w",    "r9w",    "r10w",  "r11w",   
-    "r12w",   "r13w",   "r14w",  "r15w",
     // General purpose registers  8-bit
     "al",     "cl",     "dl",    "bl",     
     "ah",     "ch",     "dh",    "bh",
     "spl",    "bpl",    "sil",   "dil",
     "r8b",    "r9b",    "r10b",  "r11b",   
     "r12b",   "r13b",   "r14b",  "r15b",
+    // General purpose registers 16-bit
+    "ax",     "cx",     "dx",    "bx",     
+    "sp",     "bp",     "si",    "di",
+    "r8w",    "r9w",    "r10w",  "r11w",   
+    "r12w",   "r13w",   "r14w",  "r15w",
+    // General purpose registers 32-bit
+    "eax",    "ecx",    "edx",   "ebx",    
+    "esp",    "ebp",    "esi",   "edi",
+    "r8d",    "r9d",    "r10d",  "r11d",   
+    "r12d",   "r13d",   "r14d",  "r15d",
+    // General purpose registers 64-bit
+    "rax",    "rcx",    "rdx",   "rbx",    
+    "rsp",    "rbp",    "rsi",   "rdi",
+    "r8",     "r9",     "r10",   "r11",    
+    "r12",    "r13",    "r14",   "r15",
     // Floating point legacy registers
     "st0",    "st1",    "st2",   "st3",    
     "st4",    "st5",    "st6",   "st7",

@@ -64,8 +64,7 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         if (operand->imm.isSigned && operand->imm.isRelative)
         {
-            *address = 
-                (uint64_t)((int64_t)info->instrPointer + info->length + operand->imm.value.sqword);
+            *address = (uint64_t)((int64_t)info->instrPointer + operand->imm.value.sqword);
             switch (info->machineMode)
             {
             case 16:
