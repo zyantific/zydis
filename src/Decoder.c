@@ -263,12 +263,13 @@ static ZydisStatus ZydisDecodeXOP(ZydisDecoderContext* context, ZydisInstruction
     info->details.xop.pp            = (data[2] >> 0) & 0x03; 
 
     // Update internal fields
-    context->cache.W           = info->details.xop.W;
-    context->cache.R           = 0x01 & ~info->details.xop.R;
-    context->cache.X           = 0x01 & ~info->details.xop.X;
-    context->cache.B           = 0x01 & ~info->details.xop.B;
-    context->cache.L           = info->details.xop.L;
-    context->cache.v_vvvv       = (0x0F & ~info->details.xop.vvvv);
+    context->cache.W                = info->details.xop.W;
+    context->cache.R                = 0x01 & ~info->details.xop.R;
+    context->cache.X                = 0x01 & ~info->details.xop.X;
+    context->cache.B                = 0x01 & ~info->details.xop.B;
+    context->cache.L                = info->details.xop.L;
+    context->cache.LL               = info->details.xop.L;
+    context->cache.v_vvvv           = (0x0F & ~info->details.xop.vvvv);
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -329,12 +330,13 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context, ZydisInstruction
     }
 
     // Update internal fields
-    context->cache.W = info->details.vex.W;
-    context->cache.R = 0x01 & ~info->details.vex.R;
-    context->cache.X = 0x01 & ~info->details.vex.X;
-    context->cache.B = 0x01 & ~info->details.vex.B;
-    context->cache.L = info->details.vex.L;
-    context->cache.v_vvvv = (0x0F & ~info->details.vex.vvvv);
+    context->cache.W                = info->details.vex.W;
+    context->cache.R                = 0x01 & ~info->details.vex.R;
+    context->cache.X                = 0x01 & ~info->details.vex.X;
+    context->cache.B                = 0x01 & ~info->details.vex.B;
+    context->cache.L                = info->details.vex.L;
+    context->cache.LL               = info->details.vex.L;
+    context->cache.v_vvvv           = (0x0F & ~info->details.vex.vvvv);
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -395,14 +397,14 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.evex.aaa          = (data[3] >> 0) & 0x07; 
     
     // Update internal fields
-    context->cache.W           = info->details.evex.W;
-    context->cache.R           = 0x01 & ~info->details.evex.R;
-    context->cache.X           = 0x01 & ~info->details.evex.X;
-    context->cache.B           = 0x01 & ~info->details.evex.B;
-    context->cache.LL          = (data[3] >> 5) & 0x03;
-    context->cache.R2          = 0x01 & ~info->details.evex.R2;
-    context->cache.V2          = 0x01 & ~info->details.evex.V2;
-    context->cache.v_vvvv       = 
+    context->cache.W                = info->details.evex.W;
+    context->cache.R                = 0x01 & ~info->details.evex.R;
+    context->cache.X                = 0x01 & ~info->details.evex.X;
+    context->cache.B                = 0x01 & ~info->details.evex.B;
+    context->cache.LL               = (data[3] >> 5) & 0x03;
+    context->cache.R2               = 0x01 & ~info->details.evex.R2;
+    context->cache.V2               = 0x01 & ~info->details.evex.V2;
+    context->cache.v_vvvv           = 
         ((0x01 & ~info->details.evex.V2) << 4) | (0x0F & ~info->details.evex.vvvv); 
 
     return ZYDIS_STATUS_SUCCESS;
@@ -454,13 +456,13 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.mvex.kkk          = (data[3] >> 0) & 0x07; 
     
     // Update internal fields
-    context->cache.W           = info->details.mvex.W;
-    context->cache.R           = 0x01 & ~info->details.mvex.R;
-    context->cache.X           = 0x01 & ~info->details.mvex.X;
-    context->cache.B           = 0x01 & ~info->details.mvex.B;
-    context->cache.R2          = 0x01 & ~info->details.mvex.R2;
-    context->cache.V2          = 0x01 & ~info->details.mvex.V2;
-    context->cache.v_vvvv       = 
+    context->cache.W                = info->details.mvex.W;
+    context->cache.R                = 0x01 & ~info->details.mvex.R;
+    context->cache.X                = 0x01 & ~info->details.mvex.X;
+    context->cache.B                = 0x01 & ~info->details.mvex.B;
+    context->cache.R2               = 0x01 & ~info->details.mvex.R2;
+    context->cache.V2               = 0x01 & ~info->details.mvex.V2;
+    context->cache.v_vvvv           = 
         ((0x01 & ~info->details.mvex.V2) << 4) | (0x0F & ~info->details.mvex.vvvv);
 
     return ZYDIS_STATUS_SUCCESS;
@@ -874,7 +876,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP)
     {
         ZYDIS_CHECK(ZydisReadDisplacement(
-            context, info, optionalParts->disp.size[context->eoszIndex]));    
+            context, info, optionalParts->disp.size[context->easzIndex]));    
     }
 
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_IMM0)
@@ -2940,6 +2942,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
 
     // Iterate through the instruction table
     const ZydisInstructionTreeNode* node = ZydisInstructionTreeGetRootNode();
+    const ZydisInstructionTreeNode* temp = NULL;
     ZydisInstructionTreeNodeType nodeType;
     do
     {
@@ -2949,6 +2952,17 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
         switch (nodeType)
         {
         case ZYDIS_NODETYPE_INVALID:
+            if (temp)
+            {
+                node = temp;
+                temp = NULL;
+                nodeType = ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX;
+                if (context->mandatoryCandidate == 0x66)
+                {
+                    info->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
+                }
+                continue;
+            }
             return ZYDIS_STATUS_DECODING_ERROR;
         case ZYDIS_NODETYPE_FILTER_XOP:
             status = ZydisNodeHandlerXOP(info, &index);
@@ -2982,6 +2996,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
             break; 
         case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(context, info, &index);
+            temp = ZydisInstructionTreeGetChildNode(node, 0);
             // TODO: Return to this point, if index == 0 contains a value and the previous path
             // TODO: was not successfull
             // TODO: Restore consumed prefix
