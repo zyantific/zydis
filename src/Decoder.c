@@ -1615,8 +1615,12 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:
+            info->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
+            info->operands[i].mem.disp.hasDisplacement = ZYDIS_TRUE;
+            info->operands[i].mem.disp.value.sqword = info->details.disp.value.sqword;
             break; // TODO: implement
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
+            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
             break; // TODO: implement
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYDIS_ASSERT(info->details.disp.dataSize);
