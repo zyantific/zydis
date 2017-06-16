@@ -642,12 +642,12 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(ZydisInstructionFormatter* 
             }
             ZYDIS_CHECK(ZydisStringBufferAppendFormat(buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, 
                 " {%s}", reg)); 
-        }
-        if (info->avx.maskMode == ZYDIS_MASKMODE_ZERO)
-        {
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {z}"));    
-        }
+            if (info->avx.maskMode == ZYDIS_MASKMODE_ZERO)
+            {
+                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {z}"));    
+            }
+        }     
     } else
     {
         if (info->operands[operand->id].type == ZYDIS_OPERAND_TYPE_MEMORY)
@@ -782,7 +782,7 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(ZydisInstructionFormatter* for
         
         if (bufPreOperand == *buffer)
         {
-            // Omit whole operands, if the buffer did not change during the formatting-callback
+            // Omit whole operand, if the buffer did not change during the formatting-callback
             *buffer = bufRestore;
             *buffer[0] = 0;
         } else

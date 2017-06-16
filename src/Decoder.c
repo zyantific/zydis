@@ -72,6 +72,12 @@ typedef struct ZydisDecoderContext_
      */
     uint8_t eoszIndex;
     /**
+     * @brief   Contains the effective address-size index.
+     * 
+     * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
+     */
+    uint8_t easzIndex;
+    /**
      * @brief   Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
      */
     struct
@@ -1249,6 +1255,40 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(definition);
 
+    static const ZydisRegisterClass lookup[3] = 
+    {
+        ZYDIS_REGCLASS_GPR16,
+        ZYDIS_REGCLASS_GPR32,
+        ZYDIS_REGCLASS_GPR64
+    };
+
+    operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
+
+    // TODO: Base action
+    switch (definition->op.mem.base)
+    {
+    case ZYDIS_IMPLMEM_BASE_ABX:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 3);
+        break;
+    case ZYDIS_IMPLMEM_BASE_ABP:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 5);
+        break;
+    case ZYDIS_IMPLMEM_BASE_ASI:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 6);
+        break;
+    case ZYDIS_IMPLMEM_BASE_ADI:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 7);
+        break;    
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+
+    if (definition->op.mem.seg)
+    {
+        operand->mem.segment = 
+            ZydisRegisterEncode(ZYDIS_REGCLASS_SEGMENT, definition->op.mem.seg - 1);
+        ZYDIS_ASSERT(operand->mem.segment);
+    }
 }
 
 /**
@@ -1266,8 +1306,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(definition);
-
-    (void)context;
 
     uint8_t immId = 0;
     const ZydisOperandDefinition* operand;
@@ -1289,6 +1327,16 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             break;
         default:
             break;
+        }
+        if (info->operands[i].type)
+        {
+            if (info->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+            {
+                //ZYDIS_ASSERT(operand->size[context->eoszIndex]);
+                info->operands[i].size = operand->size[context->eoszIndex] * 8;
+            }
+            ++operand;
+            continue;
         }
 
         // Register operands
@@ -1457,6 +1505,9 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                 // TODO: Always override size for register operands?
                 info->operands[i].size = operand->size[context->eoszIndex] * 8;
             }
+
+            ++operand;
+            continue;
         }
 
         // Memory operands
@@ -1562,6 +1613,9 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             {
                 info->operands[i].mem.disp.value.sqword *= info->avx.compressedDisp8Scale;
             }
+
+            ++operand;
+            continue;
         }
 
         // Immediate operands
@@ -1572,6 +1626,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         case ZYDIS_SEMANTIC_OPTYPE_IMM:
             ZYDIS_ASSERT((immId == 0) || (immId == 1));
             info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
+            //ZYDIS_ASSERT(operand->size[context->eoszIndex]);
             info->operands[i].size = operand->size[context->eoszIndex] * 8;
             info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
             info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
@@ -1581,6 +1636,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         default:
             break;
         }
+        ZYDIS_ASSERT(info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE);
 
         ++operand;
     }
@@ -1733,6 +1789,21 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context, ZydisIns
         break;
     case 64:
         info->addressWidth = (info->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+
+    switch (info->addressWidth)
+    {
+    case 16:
+        context->easzIndex = 0;
+        break;
+    case 32:
+        context->easzIndex = 1;
+        break;
+    case 64:
+        context->easzIndex = 2;
         break;
     default:
         ZYDIS_UNREACHABLE;

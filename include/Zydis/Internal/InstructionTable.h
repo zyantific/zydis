@@ -248,10 +248,10 @@ enum ZydisImplicitRegisterType
 
 enum ZydisImplicitMemBase
 {
-    ZYDIS_IMPLMEM_BASE_ASI,
-    ZYDIS_IMPLMEM_BASE_ADI,
+    ZYDIS_IMPLMEM_BASE_ABX,
     ZYDIS_IMPLMEM_BASE_ABP,
-    ZYDIS_IMPLMEM_BASE_ABX
+    ZYDIS_IMPLMEM_BASE_ASI,
+    ZYDIS_IMPLMEM_BASE_ADI    
 };
 
 /* ---------------------------------------------------------------------------------------------- */
