@@ -983,6 +983,11 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_OPERAND_TYPE_POINTER:
+        ZYDIS_ASSERT((info->details.imm[0].dataSize == 16) || 
+                     (info->details.imm[0].dataSize == 32));
+        ZYDIS_ASSERT(info->details.imm[1].dataSize == 16);
+        operand->size = info->details.imm[0].dataSize + info->details.imm[1].dataSize;
+        break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         operand->size = definition->size[context->eoszIndex] * 8;
         ZYDIS_ASSERT(operand->size);
@@ -1616,14 +1621,19 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             vsibBaseRegister = ZYDIS_REGISTER_ZMM0;
             ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
             break;
-        case ZYDIS_SEMANTIC_OPTYPE_PTR:
-            info->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
-            info->operands[i].mem.disp.hasDisplacement = ZYDIS_TRUE;
-            info->operands[i].mem.disp.value.sqword = info->details.disp.value.sqword;
-            break; // TODO: implement
+        case ZYDIS_SEMANTIC_OPTYPE_PTR:        
+            ZYDIS_ASSERT((info->details.imm[0].dataSize == 16) || 
+                         (info->details.imm[0].dataSize == 32));
+            ZYDIS_ASSERT(info->details.imm[1].dataSize == 16);
+            info->operands[i].type = ZYDIS_OPERAND_TYPE_POINTER;
+            info->operands[i].ptr.offset = info->details.imm[0].value.sdword;
+            info->operands[i].ptr.segment = info->details.imm[1].value.uword;
+            break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
-            break; // TODO: implement
+            info->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
+            info->operands[i].mem.isAddressGenOnly = ZYDIS_TRUE;
+            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i])); 
+            break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYDIS_ASSERT(info->details.disp.dataSize);
             info->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;

@@ -305,6 +305,10 @@ typedef struct ZydisOperandInfo_
     struct
     {
         /**
+         * @brief   Signals, if the memory operand is only used for address generation.
+         */
+        ZydisBool isAddressGenOnly;
+        /**
          * @brief   The segment register.
          */
         ZydisRegister segment;
