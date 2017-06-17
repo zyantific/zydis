@@ -61,8 +61,9 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   Contains the prefix that should be traited as the mandatory-prefix, if the current
      *          instruction needs one.
-     *          0x66 has precedence over 0xF3/0xF2 and the last 0xF3/0xF2 has precedence over 
-     *          previous ones.
+     *          
+     *          The last 0xF3/0xF2 prefix has precedence over previous ones and 0xF3/0xF2 in 
+     *          general has precedence over 0x66.
      */
     uint8_t mandatoryCandidate;
     /**
@@ -462,6 +463,7 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context, ZydisInstructio
     context->cache.B                = 0x01 & ~info->details.mvex.B;
     context->cache.R2               = 0x01 & ~info->details.mvex.R2;
     context->cache.V2               = 0x01 & ~info->details.mvex.V2;
+    context->cache.LL               = 2;
     context->cache.v_vvvv           = 
         ((0x01 & ~info->details.mvex.V2) << 4) | (0x0F & ~info->details.mvex.vvvv);
 
@@ -706,17 +708,11 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             ++info->details.prefixes.hasF0;
             break;
         case 0xF2:
-            if (context->mandatoryCandidate != 0x66)
-            {
-                context->mandatoryCandidate = 0xF2;
-            }
+            context->mandatoryCandidate = 0xF2;
             ++info->details.prefixes.hasF2;
             break;
         case 0xF3:
-            if (context->mandatoryCandidate != 0x66)
-            {
-                context->mandatoryCandidate = 0xF3;
-            }
+            context->mandatoryCandidate = 0xF3;
             ++info->details.prefixes.hasF3;
             break;
         case 0x2E: 
@@ -744,7 +740,10 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             context->lastSegmentPrefix = 0x65;
             break;
         case 0x66:
-            context->mandatoryCandidate = 0x66;
+            if (!context->mandatoryCandidate)
+            {
+                context->mandatoryCandidate = 0x66;
+            }
             ++info->details.prefixes.has66;
             info->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
             break;
@@ -2401,10 +2400,6 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-// TODO: Update attributes after a valid instruction was found
-
-/* ---------------------------------------------------------------------------------------------- */
-
 static ZydisStatus ZydisNodeHandlerXOP(ZydisInstructionInfo* info, uint16_t* index)
 {
     ZYDIS_ASSERT(info);
@@ -2625,7 +2620,6 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        // TODO: We need to change this
         // All 3DNOW (0x0F 0x0F) instructions are using the same operand encoding. We just 
         // decode a random (pi2fw) instruction and extract the actual opcode later.
         *index = 0x0C;
