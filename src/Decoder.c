@@ -66,6 +66,9 @@ typedef struct ZydisDecoderContext_
      *          general has precedence over 0x66.
      */
     uint8_t mandatoryCandidate;
+
+    uint8_t prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
+
     /**
      * @brief   Contains the effective operand-size index.
      * 
@@ -764,6 +767,7 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         }
         if (!done)
         {
+            context->prefixes[info->details.prefixes.count] = prefixByte;
             info->details.prefixes.data[info->details.prefixes.count++] = prefixByte;
             ZydisInputSkip(context, info);
         }
@@ -2377,6 +2381,11 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 default:
                     ZYDIS_UNREACHABLE;
                 }
+                break;
+            case ZYDIS_TUPLETYPE_T1_4X:
+                ZYDIS_ASSERT(info->avx.elementSize == 32);
+                ZYDIS_ASSERT(context->cache.W == 0);
+                info->avx.compressedDisp8Scale = 16;
                 break;
             default:
                 ZYDIS_UNREACHABLE;

@@ -785,7 +785,11 @@ enum ZydisTupleTypes
     /**
      * @brief   MOVDDUP
      */
-    ZYDIS_TUPLETYPE_DUP
+    ZYDIS_TUPLETYPE_DUP,
+    /**
+     * @brief   Tuple1 4x32
+     */
+    ZYDIS_TUPLETYPE_T1_4X
 };
 
 /* ---------------------------------------------------------------------------------------------- */
