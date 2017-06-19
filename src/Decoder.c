@@ -398,7 +398,7 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.evex.L            = (data[3] >> 5) & 0x01;
     info->details.evex.b            = (data[3] >> 4) & 0x01;
     info->details.evex.V2           = (data[3] >> 3) & 0x01;
-    info->details.evex.aaa          = (data[3] >> 0) & 0x07; 
+    info->details.evex.aaa          = (data[3] >> 0) & 0x07;
     
     // Update internal fields
     context->cache.W                = info->details.evex.W;
@@ -410,6 +410,12 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     context->cache.V2               = 0x01 & ~info->details.evex.V2;
     context->cache.v_vvvv           = 
         ((0x01 & ~info->details.evex.V2) << 4) | (0x0F & ~info->details.evex.vvvv); 
+
+    if (!info->details.evex.b && (context->cache.LL == 3))
+    {
+        // LL = 3 is only valid for instructions with embedded rounding control
+        return ZYDIS_STATUS_MALFORMED_EVEX;
+    }
 
     return ZYDIS_STATUS_SUCCESS;
 }
