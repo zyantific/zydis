@@ -291,6 +291,43 @@ enum ZydisImplicitMemBase
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisInternalVectorLength datatype.
+ */
+typedef uint8_t ZydisInternalVectorLength;
+
+/**
+ * @brief   Values that represent internal vector-lengths.
+ */
+enum ZydisInternalVectorLengths
+{
+    ZYDIS_IVECTOR_LENGTH_DEFAULT,
+    ZYDIS_IVECTOR_LENGTH_FIXED_128,
+    ZYDIS_IVECTOR_LENGTH_FIXED_256,
+    ZYDIS_IVECTOR_LENGTH_FIXED_512
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisInternalElementSize datatype.
+ */
+typedef uint8_t ZydisInternalElementSize;
+
+/**
+ * @brief   Values that represent internal element-sizes.
+ */
+enum ZydisInternalElementSizes
+{
+    ZYDIS_IELEMENT_SIZE_INVALID,
+    ZYDIS_IELEMENT_SIZE_8,
+    ZYDIS_IELEMENT_SIZE_16,
+    ZYDIS_IELEMENT_SIZE_32,
+    ZYDIS_IELEMENT_SIZE_64
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisEVEXFunctionality datatype.
  */
 typedef uint8_t ZydisEVEXFunctionality;
@@ -392,8 +429,9 @@ typedef struct ZydisInstructionDefinitionVEX_
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZydisInternalVectorLength vectorLength: 2;
     ZydisTupleType tupleType : 4;
-    uint8_t elementSize : 7;
+    ZydisInternalElementSize elementSize : 4;
     ZydisEVEXFunctionality functionality : 2;
     ZydisMaskPolicy maskPolicy : 2;
 } ZydisInstructionDefinitionEVEX;
