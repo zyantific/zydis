@@ -500,11 +500,11 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(ZydisInstructionFormatter
     uint32_t typecast = 0;
     if (formatter->flags & ZYDIS_FMTFLAG_FORCE_OPERANDSIZE)
     {
-        if (info->operands[operand->id].type == ZYDIS_OPERAND_TYPE_MEMORY)
+        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && (!operand->mem.isAddressGenOnly))
         {
             typecast = info->operands[operand->id].size;
         }
-    } else if (info->operands[operand->id].type == ZYDIS_OPERAND_TYPE_MEMORY) 
+    } else if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && (!operand->mem.isAddressGenOnly)) 
     {
         switch (operand->id)
         {

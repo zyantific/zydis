@@ -522,6 +522,10 @@ enum ZydisOpcodeMaps
  */
 typedef uint64_t ZydisInstructionAttributes;
 
+// TODO: Update values
+
+// TODO: Add IsAtomic
+
 /**
  * @brief   The instruction has the ModRM byte.
  */
@@ -553,8 +557,7 @@ typedef uint64_t ZydisInstructionAttributes;
 /**
  * @brief   The instruction is privileged.
  *
- * Priviliged instructions are any instructions that require a current ring
- * level below 3 or even SMM.
+ * Priviliged instructions are any instructions that require a current ring level below 3.
  */
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000080
 /**
@@ -606,14 +609,6 @@ typedef uint64_t ZydisInstructionAttributes;
  * @brief   The instruction accepts segment prefixes (0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_SEGMENT            0x0000000000020000
-/**
- * @brief   The instruction accepts the operand-size prefix (0x66).
- */
-#define ZYDIS_ATTRIB_ACCEPTS_OPERANDSIZE        0x0000000000040000  // TODO: Remove
-/**
- * @brief   The instruction accepts the address-size prefix (0x67).
- */
-#define ZYDIS_ATTRIB_ACCEPTS_ADDRESSSIZE        0x0000000000080000  // TODO: Remove
 /**
  * @brief   The instruction has the lock prefix (0xF0). 
  */

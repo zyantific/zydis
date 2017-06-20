@@ -933,8 +933,14 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
     {
     case ZYDIS_OPERAND_TYPE_REGISTER:
     {
-        operand->size = (context->decoder->machineMode == 64) ? 
-            ZydisRegisterGetWidth64(operand->reg) : ZydisRegisterGetWidth(operand->reg);
+        if (definition->size[context->eoszIndex])
+        {
+            operand->size = definition->size[context->eoszIndex] * 8;     
+        } else
+        {
+            operand->size = (context->decoder->machineMode == 64) ? 
+                ZydisRegisterGetWidth64(operand->reg) : ZydisRegisterGetWidth(operand->reg);
+        }
         operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
         operand->elementSize = operand->size;
         break;
@@ -2055,6 +2061,10 @@ static void ZydisSetPrefixRelatedAttributes(ZydisDecoderContext* context,
             }
         } else
         {
+            if (def->acceptsSegment)
+            {
+                info->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
+            }
             if (context->lastSegmentPrefix && def->acceptsSegment)
             {
                 switch (context->lastSegmentPrefix)
