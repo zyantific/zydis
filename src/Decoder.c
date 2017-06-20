@@ -326,8 +326,7 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context, ZydisInstruction
         ZYDIS_UNREACHABLE;
     }  
 
-    // TODO: map = 0 is allowed for some newer VEX instructions
-    if (/*(info->details.vex.m_mmmm == 0x00) || */(info->details.vex.m_mmmm > 0x03))
+    if (info->details.vex.m_mmmm > 0x03)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
@@ -380,12 +379,11 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.evex.mm           = (data[1] >> 0) & 0x03;
 
     // TODO: Check if map = 0 is allowed for new EVEX instructions
-
-    //if (info->details.evex.mm == 0x00)
-    //{
-    //    // Invalid according to the intel documentation
-    //    return ZYDIS_STATUS_INVALID_MAP;
-    //}
+    if (info->details.evex.mm == 0x00)
+    {
+        // Invalid according to the intel documentation
+        return ZYDIS_STATUS_INVALID_MAP;
+    }
 
     info->details.evex.W            = (data[2] >> 7) & 0x01;
     info->details.evex.vvvv         = (data[2] >> 3) & 0x0F;
@@ -411,6 +409,10 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     context->cache.v_vvvv           = 
         ((0x01 & ~info->details.evex.V2) << 4) | (0x0F & ~info->details.evex.vvvv); 
 
+    if (!info->details.evex.V2 && (context->decoder->machineMode != 64))
+    {
+        return ZYDIS_STATUS_MALFORMED_EVEX;
+    }
     if (!info->details.evex.b && (context->cache.LL == 3))
     {
         // LL = 3 is only valid for instructions with embedded rounding control
@@ -447,8 +449,7 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.mvex.R2           = (data[1] >> 4) & 0x01;
     info->details.mvex.mmmm         = (data[1] >> 0) & 0x0F;
 
-    // TODO: Check if map = 0 is allowed for new MVEX instructions
-    if (/*(info->details.mvex.mmmm == 0x00) || */(info->details.mvex.mmmm > 0x03))
+    if (info->details.mvex.mmmm > 0x03)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
@@ -3177,7 +3178,7 @@ ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decode
         addressWidth = ZYDIS_ADDRESS_WIDTH_64;
     } else
     {
-        if ((addressWidth != 16) && (addressWidth != 32) && (addressWidth != 64))
+        if ((addressWidth != 16) && (addressWidth != 32))
         {
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
