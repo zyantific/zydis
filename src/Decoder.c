@@ -3189,7 +3189,8 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                         { 1, 0, 0, 0, 0, 0, 0, 0 }
                     };
                     ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_SIZE(lookup));
-                    if (!lookup[def->functionality])
+                    ZYDIS_ASSERT(info->details.mvex.SSS < 8);
+                    if (!lookup[def->functionality][info->details.mvex.SSS])
                     {
                         return ZYDIS_STATUS_DECODING_ERROR;
                     }
