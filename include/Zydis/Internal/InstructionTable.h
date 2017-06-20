@@ -355,6 +355,81 @@ enum ZydisEVEXFunctionalities
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisMVEXFunctionality datatype.
+ */
+typedef uint8_t ZydisMVEXFunctionality;
+
+/**
+ * @brief   Values that represent MVEX-functionalities.
+ */
+enum ZydisMVEXFunctionalities
+{
+    ZYDIS_MVEX_FUNC_INVALID,
+    /**
+     * @brief   @c MVEX.SSS controls embedded-rounding and sae functionality.
+     */
+    ZYDIS_MVEX_FUNC_RC,
+    /**
+     * @brief   @c MVEX.SSS controls register swizzle 32-bit functionality.
+     */
+    ZYDIS_MVEX_FUNC_REG_SWIZZLE_32,
+    /**
+     * @brief   @c MVEX.SSS controls register swizzle 64-bit functionality.
+     */
+    ZYDIS_MVEX_FUNC_REG_SWIZZLE_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit float upconvert (load-op) functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_32,  
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit float upconvert (load-op) functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit integer upconvert (load-op) functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_32,
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit integer upconvert (load-op) functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit float upconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_UCONV_32,
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit float upconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_UCONV_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit integer upconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_UCONV_32,
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit integer upconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_UCONV_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit float downconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_DCONV_32,
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit float downconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_FLOAT_DCONV_64,
+    /**
+     * @brief   @c MVEX.SSS controls 32-bit integer downconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_DCONV_32,
+    /**
+     * @brief   @c MVEX.SSS controls 64-bit integer downconvert functionality.
+     */
+    ZYDIS_MVEX_FUNC_INT_DCONV_64
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisMaskPolicy datatype.
  */
 typedef uint8_t ZydisMaskPolicy;
@@ -438,7 +513,9 @@ typedef struct ZydisInstructionDefinitionEVEX_
 
 typedef struct ZydisInstructionDefinitionMVEX_
 {
-    ZydisInstructionDefinition base;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZydisMVEXFunctionality functionality : 4;
+    ZydisMaskPolicy maskPolicy : 2;
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */
