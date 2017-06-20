@@ -960,6 +960,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             {
                 ZYDIS_ASSERT(definition->size[context->eoszIndex] == 0);
                 operand->size = info->addressWidth; 
+                operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
                 operand->elementCount = 1;
             } else
             {
