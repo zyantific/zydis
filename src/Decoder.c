@@ -1464,6 +1464,13 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
             ZydisDecodeOperandImplicitMemory(context, &info->operands[i], operand);
             break;
+        case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1:
+            info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
+            info->operands[i].size = 8;
+            info->operands[i].imm.value.ubyte = 1;
+            info->operands[i].imm.isSigned = ZYDIS_FALSE;
+            info->operands[i].imm.isRelative = ZYDIS_FALSE;
+            break;
         default:
             break;
         }
@@ -1760,7 +1767,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         case ZYDIS_SEMANTIC_OPTYPE_IMM:
             ZYDIS_ASSERT((immId == 0) || (immId == 1));
             info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
-            //ZYDIS_ASSERT(operand->size[context->eoszIndex]);
             info->operands[i].size = operand->size[context->eoszIndex] * 8;
             info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
             info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
