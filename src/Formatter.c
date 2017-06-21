@@ -463,16 +463,13 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(ZydisInstructionFormatter* 
                 ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->imm.value.sdword);
         case 64:
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX64,  -operand->imm.value.sqword);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX64, -operand->imm.value.sqword);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }    
     }
-    switch (operand->size)
+    switch (info->operandSize)
     {
-    case 8:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX8, operand->imm.value.ubyte);
     case 16:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, 
             ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX16, operand->imm.value.uword);
@@ -481,7 +478,7 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(ZydisInstructionFormatter* 
             ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX32, operand->imm.value.udword);
     case 64:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX64,  operand->imm.value.uqword);
+            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX64, operand->imm.value.uqword);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
