@@ -777,6 +777,10 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         }
         if (!done)
         {
+            if ((prefixByte & 0xF0) != 0x40)
+            {
+                info->details.rex.data[0] = 0x00;       
+            }
             context->prefixes[info->details.prefixes.count] = prefixByte;
             info->details.prefixes.data[info->details.prefixes.count++] = prefixByte;
             ZydisInputSkip(context, info);
