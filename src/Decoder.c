@@ -547,7 +547,7 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
     {
         uint8_t value;
         ZYDIS_CHECK(ZydisInputNext(context, info, &value));
-        info->details.disp.value.sbyte = (int8_t)value;
+        info->details.disp.value.sqword = (int8_t)value;
         break;
     }
     case 16:
@@ -555,7 +555,7 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
         uint16_t data[2] = { 0, 0 };
         ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[1]));
         ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[0]));
-        info->details.disp.value.sword = (data[0] << 8) | data[1];
+        info->details.disp.value.sqword = (int16_t)((data[0] << 8) | data[1]);
         break;   
     }
     case 32:
@@ -565,8 +565,8 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
         {
             ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
         }
-        info->details.disp.value.sdword = 
-            (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+        info->details.disp.value.sqword = 
+            (int32_t)((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]);
         break;
     }
     case 64:
@@ -577,8 +577,8 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
             ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
         }
         info->details.disp.value.sqword = 
-            (data[0] << 56) | (data[1] << 48) | (data[2] << 40) | (data[3] << 32) | 
-            (data[4] << 24) | (data[5] << 16) | (data[6] <<  8) | data[7];
+            (int64_t)((data[0] << 56) | (data[1] << 48) | (data[2] << 40) | (data[3] << 32) | 
+                      (data[4] << 24) | (data[5] << 16) | (data[6] <<  8) | data[7]);
         break;
     }
     default:
@@ -1453,6 +1453,9 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
     uint8_t immId = 0;
     const ZydisOperandDefinition* operand;
     info->operandCount = ZydisGetOperandDefinitions(definition, &operand);
+
+    ZYDIS_ASSERT(info->operandCount < ZYDIS_ARRAY_SIZE(info->operands));
+
     for (uint8_t i = 0; i < info->operandCount; ++i)
     {
         info->operands[i].id = i;
@@ -2135,7 +2138,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(definition);
 
-    if (info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
+    switch (info->encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
@@ -2463,14 +2468,65 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_ASSERT(info->details.modrm.mod == 3);
         }
 
-        // Rounding mode
-        if (def->functionality == ZYDIS_EVEX_FUNC_RC)
+        // Rounding mode and SAE
+        if (info->details.evex.b)
         {
-            info->avx.roundingMode = ZYDIS_RNDMODE_RN_SAE + context->cache.LL;
+            switch (def->functionality)
+            {
+            case ZYDIS_EVEX_FUNC_INVALID:
+            case ZYDIS_EVEX_FUNC_BC:
+                // Noting to do here
+                break;
+            case ZYDIS_EVEX_FUNC_RC:
+                info->avx.roundingMode = ZYDIS_RNDMODE_RN_SAE + context->cache.LL;
+                break;
+            case ZYDIS_EVEX_FUNC_SAE:
+                info->avx.hasSAE = ZYDIS_TRUE;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
         }
 
         // Mask mode
         info->avx.maskMode = ZYDIS_MASKMODE_MERGE + info->details.evex.z;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+    {
+        const ZydisInstructionDefinitionMVEX* def = 
+            (const ZydisInstructionDefinitionMVEX*)definition;     
+
+        switch (def->functionality)
+        {
+        case ZYDIS_MVEX_FUNC_INVALID:
+            // Nothing to do here
+            break;
+        case ZYDIS_MVEX_FUNC_RC:
+            info->avx.roundingMode = ZYDIS_RNDMODE_INVALID + info->details.mvex.SSS;
+            break;
+        case ZYDIS_MVEX_FUNC_SAE:
+            if (info->details.mvex.SSS >= 4)
+            {
+                info->avx.hasSAE = ZYDIS_TRUE;
+            }
+            break;
+        default:
+            break;
+            //ZYDIS_UNREACHABLE;
+        }
+
+        // Eviction hint
+        if ((info->details.modrm.mod != 3) && info->details.mvex.E)
+        {
+            info->avx.hasEvictionHint = ZYDIS_TRUE;
+        }
+
+        break;
+    }
+    default:
+        // Nothing to do here
+        break;
     }
 }
 
@@ -3157,11 +3213,13 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     maskPolicy = def->maskPolicy;
                     
                     // Check for invalid MVEX.SSS values
-                    static const uint8_t lookup[16][8] =
+                    static const uint8_t lookup[17][8] =
                     {
                         // ZYDIS_MVEX_FUNC_INVALID
                         { 0, 0, 0, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_RC
+                        { 1, 1, 1, 1, 1, 1, 1, 1 },
+                        // ZYDIS_MVEX_FUNC_SAE
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_REG_SWIZZLE_32
                         { 1, 1, 1, 1, 1, 1, 1, 1 },

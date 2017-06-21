@@ -367,9 +367,13 @@ enum ZydisMVEXFunctionalities
 {
     ZYDIS_MVEX_FUNC_INVALID,
     /**
-     * @brief   @c MVEX.SSS controls embedded-rounding and sae functionality.
+     * @brief   @c MVEX.SSS controls embedded-rounding functionality.
      */
     ZYDIS_MVEX_FUNC_RC,
+    /**
+     * @brief   @c MVEX.SSS controls sae functionality.
+     */
+    ZYDIS_MVEX_FUNC_SAE,
     /**
      * @brief   @c MVEX.SSS controls register swizzle 32-bit functionality.
      */

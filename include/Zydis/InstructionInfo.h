@@ -983,6 +983,9 @@ typedef struct ZydisInstructionInfo_
          * @brief   The AVX rounding-mode.
          */
         ZydisRoundingMode roundingMode;
+
+        ZydisBool hasSAE;
+        ZydisBool hasEvictionHint;
     } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 
