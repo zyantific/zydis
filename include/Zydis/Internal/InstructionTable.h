@@ -519,7 +519,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
-    ZydisMVEXFunctionality functionality : 4;
+    ZydisMVEXFunctionality functionality : 5;
     ZydisMaskPolicy maskPolicy : 2;
 } ZydisInstructionDefinitionMVEX;
 
