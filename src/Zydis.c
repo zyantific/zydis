@@ -39,14 +39,20 @@ ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature)
 {
     switch (feature)
     {
-    case ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS:
-#ifdef ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS
+    case ZYDIS_FEATURE_EVEX:
+#ifdef ZYDIS_ENABLE_FEATURE_EVEX
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
-    case ZYDIS_FEATURE_AFFECTED_FLAGS:
-#ifdef ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS
+    case ZYDIS_FEATURE_MVEX:
+#ifdef ZYDIS_ENABLE_FEATURE_MVEX
+        return ZYDIS_TRUE;
+#else
+        return ZYDIS_FALSE;
+#endif
+    case ZYDIS_FEATURE_FLAGS:
+#ifdef ZYDIS_ENABLE_FEATURE_FLAGS
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;

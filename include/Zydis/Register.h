@@ -270,7 +270,7 @@ ZYDIS_EXPORT int16_t ZydisRegisterGetId(ZydisRegister reg);
 ZYDIS_EXPORT ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
 
 /**
- * @brief   Returns the width of the specified register mode.
+ * @brief   Returns the width of the specified register.
  *
  * @param   reg The register.
  *

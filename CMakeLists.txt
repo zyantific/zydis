@@ -10,12 +10,15 @@ option(ZYDIS_BUILD_SHARED_LIBS
 option(ZYDIS_FORCE_SHARED_CRT 
     "Forces shared linkage against the CRT even when building a static library. MSVC only." 
     OFF)
-option(ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS 
-    "Include information about implicitly used registers" 
-    OFF)
-option(ZYDIS_FEATURE_AFFECTED_FLAGS 
+option(ZYDIS_FEATURE_EVEX 
+    "Enable EVEX encoded instructions" 
+    ON)
+option(ZYDIS_FEATURE_MVEX 
+    "Enable MVEX encoded instructions" 
+    ON)
+option(ZYDIS_FEATURE_FLAGS 
     "Include information about affected flags"
-    OFF)
+    ON)
 option(ZYDIS_FEATURE_CPUID 
     "Include information about CPUID feature-flags"
     OFF)
@@ -79,11 +82,14 @@ target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
-if (ZYDIS_FEATURE_IMPLICITLY_USED_REGISTERS)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_IMPLICITLY_USED_REGISTERS")
+if (ZYDIS_FEATURE_EVEX)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_EVEX")
 endif ()
-if (ZYDIS_FEATURE_AFFECTED_FLAGS)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_AFFECTED_FLAGS")
+if (ZYDIS_FEATURE_MVEX)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_MVEX")
+endif ()
+if (ZYDIS_FEATURE_FLAGS)
+    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_FLAGS")
 endif ()
 if (ZYDIS_FEATURE_CPUID)
     target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_CPUID")
