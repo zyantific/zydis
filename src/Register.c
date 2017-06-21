@@ -92,7 +92,7 @@ const char* registerStrings[] =
     "eip",    "ip",     "mxcsr", "pkru",
     "xcr0",
     // Segment registers
-    "es",     "ss",     "cs",    "ds",     
+    "es",     "cs",     "ss",    "ds",     
     "fs",     "gs",
     // Table registers
     "gdtr",   "ldtr",   "idtr",  "tr",

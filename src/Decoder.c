@@ -665,7 +665,7 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     case 64:
     {
         uint64_t data[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        for (int i = sizeof(data) / sizeof(data[0]); i > 0; --i)
+        for (int i = ZYDIS_ARRAY_SIZE(data); i > 0; --i)
         {
             ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
         }
