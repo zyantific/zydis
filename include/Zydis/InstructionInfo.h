@@ -800,15 +800,15 @@ typedef uint8_t ZydisMaskMode;
  */
 enum ZydisMaskModes
 {
-    ZYDIS_MASKMODE_INVALID,
+    ZYDIS_MASK_MODE_INVALID,
     /**
      * @brief   Merge mode. This is the default mode for all EVEX-instructions.
      */
-    ZYDIS_MASKMODE_MERGE,
+    ZYDIS_MASK_MODE_MERGE,
     /**
      * @brief   The zeroing mode is enabled for this instruction.
      */
-    ZYDIS_MASKMODE_ZERO
+    ZYDIS_MASK_MODE_ZERO
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -825,11 +825,13 @@ typedef uint16_t ZydisBroadcastMode;
  */
 enum ZydisBroadcastModes
 {
-    ZYDIS_BCSTMODE_INVALID,
-    ZYDIS_BCSTMODE_1_TO_2,
-    ZYDIS_BCSTMODE_1_TO_4,
-    ZYDIS_BCSTMODE_1_TO_8,
-    ZYDIS_BCSTMODE_1_TO_16
+    ZYDIS_BROADCAST_MODE_INVALID,
+    ZYDIS_BROADCAST_MODE_1_TO_2,
+    ZYDIS_BROADCAST_MODE_1_TO_4,
+    ZYDIS_BROADCAST_MODE_1_TO_8,
+    ZYDIS_BROADCAST_MODE_1_TO_16,
+    ZYDIS_BROADCAST_MODE_4_TO_8,
+    ZYDIS_BROADCAST_MODE_4_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -846,39 +848,86 @@ typedef uint8_t ZydisRoundingMode;
  */
 enum ZydisRoundingModes
 {
-    ZYDIS_RNDMODE_INVALID,
+    ZYDIS_ROUNDING_MODE_INVALID,
     /**
      * @brief   Round to nearest.
      */
-    ZYDIS_RNDMODE_RN,
+    ZYDIS_ROUNDING_MODE_RN,
     /**
      * @brief   Round down.
      */
-    ZYDIS_RNDMODE_RD,
+    ZYDIS_ROUNDING_MODE_RD,
     /**
      * @brief   Round up.
      */
-    ZYDIS_RNDMODE_RU,
+    ZYDIS_ROUNDING_MODE_RU,
     /**
      * @brief   Round towards zero.
      */
-    ZYDIS_RNDMODE_RZ,
+    ZYDIS_ROUNDING_MODE_RZ,
     /**
      * @brief   Round to nearest and suppress all exceptions.
      */
-    ZYDIS_RNDMODE_RN_SAE,
+    ZYDIS_ROUNDING_MODE_RN_SAE,
     /**
      * @brief   Round down and suppress all exceptions.
      */
-    ZYDIS_RNDMODE_RD_SAE,
+    ZYDIS_ROUNDING_MODE_RD_SAE,
     /**
      * @brief   Round up and suppress all exceptions.
      */
-    ZYDIS_RNDMODE_RU_SAE,
+    ZYDIS_ROUNDING_MODE_RU_SAE,
     /**
      * @brief   Round towards zero and suppress all exceptions.
      */
-    ZYDIS_RNDMODE_RZ_SAE
+    ZYDIS_ROUNDING_MODE_RZ_SAE
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* KNC swizzle-mode                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisSwizzleMode datatype.
+ */
+typedef uint16_t ZydisSwizzleMode;
+
+/**
+ * @brief   Values that represent swizzle-modes.
+ */
+enum ZydisSwizzleModes
+{
+    ZYDIS_SWIZZLE_MODE_INVALID,
+    ZYDIS_SWIZZLE_MODE_DCBA,
+    ZYDIS_SWIZZLE_MODE_CDAB,
+    ZYDIS_SWIZZLE_MODE_BADC,
+    ZYDIS_SWIZZLE_MODE_DACB,
+    ZYDIS_SWIZZLE_MODE_AAAA,
+    ZYDIS_SWIZZLE_MODE_BBBB,
+    ZYDIS_SWIZZLE_MODE_CCCC,
+    ZYDIS_SWIZZLE_MODE_DDDD
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* KNC conversion-mode                                                                            */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisConversionMode datatype.
+ */
+typedef uint16_t ZydisConversionMode;
+
+/**
+ * @brief   Values that represent conversion-modes.
+ */
+enum ZydisConversionModes
+{
+    ZYDIS_CONVERSION_MODE_INVALID,
+    ZYDIS_CONVERSION_MODE_FLOAT16,
+    ZYDIS_CONVERSION_MODE_SINT8,
+    ZYDIS_CONVERSION_MODE_UINT8,
+    ZYDIS_CONVERSION_MODE_SINT16,
+    ZYDIS_CONVERSION_MODE_UINT16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -986,6 +1035,8 @@ typedef struct ZydisInstructionInfo_
 
         ZydisBool hasSAE;
         ZydisBool hasEvictionHint;
+        ZydisSwizzleMode swizzleMode;
+        ZydisConversionMode conversionMode;
     } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 

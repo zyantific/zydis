@@ -2223,13 +2223,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         switch (info->avx.vectorLength)
                         {
                         case 128:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_4;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
                             break;
                         case 256:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_8;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
                             break;
                         case 512:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_16;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
                             break;
                         default:
                             ZYDIS_UNREACHABLE;
@@ -2241,13 +2241,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         switch (info->avx.vectorLength)
                         {
                         case 128:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_2;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_2;
                             break;
                         case 256:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_4;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
                             break;
                         case 512:
-                            info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_8;
+                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
                             break;
                         default:
                             ZYDIS_UNREACHABLE;
@@ -2286,13 +2286,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     switch (info->avx.vectorLength)
                     {
                     case 128:
-                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_2;
+                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_2;
                         break;
                     case 256:
-                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_4;
+                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
                         break;
                     case 512:
-                        info->avx.broadcastMode = ZYDIS_BCSTMODE_1_TO_8;
+                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
@@ -2478,7 +2478,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 // Noting to do here
                 break;
             case ZYDIS_EVEX_FUNC_RC:
-                info->avx.roundingMode = ZYDIS_RNDMODE_RN_SAE + context->cache.LL;
+                info->avx.roundingMode = ZYDIS_ROUNDING_MODE_RN_SAE + context->cache.LL;
                 break;
             case ZYDIS_EVEX_FUNC_SAE:
                 info->avx.hasSAE = ZYDIS_TRUE;
@@ -2489,7 +2489,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask mode
-        info->avx.maskMode = ZYDIS_MASKMODE_MERGE + info->details.evex.z;
+        info->avx.maskMode = ZYDIS_MASK_MODE_MERGE + info->details.evex.z;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
@@ -2497,13 +2497,14 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;     
 
+        // Rounding mode, sae, swizzle, convert
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
             // Nothing to do here
             break;
         case ZYDIS_MVEX_FUNC_RC:
-            info->avx.roundingMode = ZYDIS_RNDMODE_INVALID + info->details.mvex.SSS;
+            info->avx.roundingMode = ZYDIS_ROUNDING_MODE_RN + info->details.mvex.SSS;
             break;
         case ZYDIS_MVEX_FUNC_SAE:
             if (info->details.mvex.SSS >= 4)
@@ -2511,9 +2512,135 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 info->avx.hasSAE = ZYDIS_TRUE;
             }
             break;
-        default:
+        case ZYDIS_MVEX_FUNC_REG_SWIZZLE_32:
+        case ZYDIS_MVEX_FUNC_REG_SWIZZLE_64:
+            info->avx.swizzleMode = ZYDIS_SWIZZLE_MODE_DCBA + info->details.mvex.SSS;
             break;
-            //ZYDIS_UNREACHABLE;
+        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_32:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 1:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                break;
+            case 2:
+                 info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                break;
+            case 3:
+                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
+                break;
+            case 4:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                break;
+            case 6:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                break;
+            case 7:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;
+        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_64:
+        case ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_64:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 1:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                break;
+            case 2:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_8;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;
+        case ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_32:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 1:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                break;
+            case 2:
+                 info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                break;
+            case 4:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                break;
+            case 5:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                break;
+            case 6:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                break;
+            case 7:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;
+        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_32:
+        case ZYDIS_MVEX_FUNC_FLOAT_DCONV_32:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 3:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
+                break;
+            case 4:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                break;
+            case 5:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                break;
+            case 6:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                break;
+            case 7:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;
+        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_64:
+        case ZYDIS_MVEX_FUNC_FLOAT_DCONV_64:
+            break;
+        case ZYDIS_MVEX_FUNC_INT_UCONV_32:
+        case ZYDIS_MVEX_FUNC_INT_DCONV_32:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 4:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                break;
+            case 5:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                break;
+            case 6:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                break;
+            case 7:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;
+        case ZYDIS_MVEX_FUNC_INT_UCONV_64:
+        case ZYDIS_MVEX_FUNC_INT_DCONV_64:
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
         }
 
         // Eviction hint
