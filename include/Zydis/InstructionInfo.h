@@ -709,83 +709,6 @@ enum ZydisVectorLengths
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-/* EVEX tuple-type                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisTupleType datatype.
- */
-typedef uint8_t ZydisTupleType;
-
-/**
- * @brief   Values that represent EVEX tuple-types.
- */
-enum ZydisTupleTypes
-{
-    ZYDIS_TUPLETYPE_INVALID,
-    /**
-     * @brief   Full Vector
-     */
-    ZYDIS_TUPLETYPE_FV,
-    /**
-     * @brief   Half Vector
-     */
-    ZYDIS_TUPLETYPE_HV,
-    /**
-     * @brief   Full Vector Mem
-     */
-    ZYDIS_TUPLETYPE_FVM,
-    /**
-     * @brief   Tuple1 Scalar
-     */
-    ZYDIS_TUPLETYPE_T1S,
-    /**
-     * @brief   Tuple1 Fixed
-     */
-    ZYDIS_TUPLETYPE_T1F,
-    /**
-     * @brief   Tuple1 4x32
-     */
-    ZYDIS_TUPLETYPE_T1_4X,
-    /**
-     * @brief   Gather / Scatter
-     */
-    ZYDIS_TUPLETYPE_GSCAT,
-    /**
-     * @brief   Tuple2
-     */
-    ZYDIS_TUPLETYPE_T2,
-    /**
-     * @brief   Tuple4
-     */
-    ZYDIS_TUPLETYPE_T4,
-    /**
-     * @brief   Tuple8
-     */
-    ZYDIS_TUPLETYPE_T8,
-    /**
-     * @brief   Half Mem
-     */
-    ZYDIS_TUPLETYPE_HVM,
-    /**
-     * @brief   QuarterMem
-     */
-    ZYDIS_TUPLETYPE_QVM,
-    /**
-     * @brief   OctMem
-     */
-    ZYDIS_TUPLETYPE_OVM,
-    /**
-     * @brief   Mem128
-     */
-    ZYDIS_TUPLETYPE_M128,
-    /**
-     * @brief   MOVDDUP
-     */
-    ZYDIS_TUPLETYPE_DUP
-};
-
-/* ---------------------------------------------------------------------------------------------- */
 /* AVX mask mode                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -1008,14 +931,6 @@ typedef struct ZydisInstructionInfo_
          */
         ZydisVectorLength vectorLength;
         /**
-         * @brief   The AVX tuple-type (EVEX only).
-         */
-        ZydisTupleType tupleType;
-        /**
-         * @brief   The AVX element-size.
-         */
-        uint8_t elementSize;
-        /**
          * @brief   The scale-factor for compressed 8-bit displacement values.
          */
         uint8_t compressedDisp8Scale;
@@ -1031,13 +946,26 @@ typedef struct ZydisInstructionInfo_
          * @brief   The AVX rounding-mode.
          */
         ZydisRoundingMode roundingMode;
+        /**
+         * @brief   The AVX register-swizzle mode (MVEX only).
+         */
+        ZydisSwizzleMode swizzleMode;
+        /**
+         * @brief   The AVX data-conversion mode (MVEX only).
+         */
+        ZydisConversionMode conversionMode;
 
         // TODO: Remove SAE from the rounding-mode enum and always add it as extra value
 
+        /**
+         * @brief   Signals, if the sae functionality is enabled for the instruction.
+         */
         ZydisBool hasSAE;
+        /**
+         * @brief   Signals, if the instruction has a memory eviction-hint (MVEX only).
+         */
         ZydisBool hasEvictionHint;
-        ZydisSwizzleMode swizzleMode;
-        ZydisConversionMode conversionMode;
+        
     } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 

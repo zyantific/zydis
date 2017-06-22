@@ -356,6 +356,81 @@ enum ZydisEVEXFunctionalities
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisEVEXTupleType datatype.
+ */
+typedef uint8_t ZydisEVEXTupleType;
+
+/**
+ * @brief   Values that represent EVEX tuple-types.
+ */
+enum ZydisEVEXTupleTypes
+{
+    ZYDIS_TUPLETYPE_INVALID,
+    /**
+     * @brief   Full Vector
+     */
+    ZYDIS_TUPLETYPE_FV,
+    /**
+     * @brief   Half Vector
+     */
+    ZYDIS_TUPLETYPE_HV,
+    /**
+     * @brief   Full Vector Mem
+     */
+    ZYDIS_TUPLETYPE_FVM,
+    /**
+     * @brief   Tuple1 Scalar
+     */
+    ZYDIS_TUPLETYPE_T1S,
+    /**
+     * @brief   Tuple1 Fixed
+     */
+    ZYDIS_TUPLETYPE_T1F,
+    /**
+     * @brief   Tuple1 4x32
+     */
+    ZYDIS_TUPLETYPE_T1_4X,
+    /**
+     * @brief   Gather / Scatter
+     */
+    ZYDIS_TUPLETYPE_GSCAT,
+    /**
+     * @brief   Tuple2
+     */
+    ZYDIS_TUPLETYPE_T2,
+    /**
+     * @brief   Tuple4
+     */
+    ZYDIS_TUPLETYPE_T4,
+    /**
+     * @brief   Tuple8
+     */
+    ZYDIS_TUPLETYPE_T8,
+    /**
+     * @brief   Half Mem
+     */
+    ZYDIS_TUPLETYPE_HVM,
+    /**
+     * @brief   QuarterMem
+     */
+    ZYDIS_TUPLETYPE_QVM,
+    /**
+     * @brief   OctMem
+     */
+    ZYDIS_TUPLETYPE_OVM,
+    /**
+     * @brief   Mem128
+     */
+    ZYDIS_TUPLETYPE_M128,
+    /**
+     * @brief   MOVDDUP
+     */
+    ZYDIS_TUPLETYPE_DUP
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisMVEXFunctionality datatype.
  */
 typedef uint8_t ZydisMVEXFunctionality;
@@ -510,7 +585,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
     ZydisInternalVectorLength vectorLength: 2;
-    ZydisTupleType tupleType : 4;
+    ZydisEVEXTupleType tupleType : 4;
     ZydisInternalElementSize elementSize : 4;
     ZydisEVEXFunctionality functionality : 2;
     ZydisMaskPolicy maskPolicy : 2;
