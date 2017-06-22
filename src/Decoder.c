@@ -2615,6 +2615,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             (const ZydisInstructionDefinitionMVEX*)definition;     
 
         // Compressed disp8 scale
+        uint8_t index = def->hasElementGranularity;
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
@@ -2633,23 +2634,27 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SF_32:
         case ZYDIS_MVEX_FUNC_UF_32:
         {    
-            static const uint8_t lookup[8] = 
+            static const uint8_t lookup[3][8] = 
             {
-                64,  4, 16, 32, 16, 16, 32, 32    
+                { 64,  4, 16, 32, 16, 16, 32, 32 },
+                { 4,   0,  0,  2,  1,  1,  2,  2 },
+                { 16,  0,  0,  8,  4,  4,  8,  8 }              
             };
-            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
-            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            info->avx.compressedDisp8Scale = lookup[index][info->details.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_SI_32:
         case ZYDIS_MVEX_FUNC_UI_32:
         {    
-            static const uint8_t lookup[8] = 
+            static const uint8_t lookup[3][8] = 
             {
-                64,  4, 16,  0, 16, 16, 32, 32    
+                { 64,  4, 16,  0, 16, 16, 32, 32 },
+                {  4,  0,  0,  0,  1,  1,  2,  2 },
+                { 16,  0,  0,  0,  4,  4,  8,  8 }              
             };
-            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
-            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            info->avx.compressedDisp8Scale = lookup[index][info->details.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_SF_64:
@@ -2657,29 +2662,40 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SI_64:
         case ZYDIS_MVEX_FUNC_UI_64:
         {    
-            static const uint8_t lookup[3] = 
+            static const uint8_t lookup[3][3] = 
             {
-                64,  8, 32   
+                { 64,  8, 32 },
+                {  8,  0,  0 },
+                { 32,  0,  0 }               
             };
-            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
-            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            info->avx.compressedDisp8Scale = lookup[index][info->details.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_DF_32:
         case ZYDIS_MVEX_FUNC_DI_32:
         {    
-            static const uint8_t lookup[8] = 
+            static const uint8_t lookup[2][8] = 
             {
-                64,  0,  0, 32, 16, 16, 32, 32  
+                { 64,  0,  0, 32, 16, 16, 32, 32 },
+                {  4,  0,  0,  2,  1,  1,  2,  2 }
             };
-            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
-            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            info->avx.compressedDisp8Scale = lookup[index][info->details.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_DF_64:
         case ZYDIS_MVEX_FUNC_DI_64:
-            info->avx.compressedDisp8Scale = 64;
-            break;
+        {
+            static const uint8_t lookup[2][1] = 
+            {
+                { 64 },
+                {  8 }
+            };
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            info->avx.compressedDisp8Scale = lookup[index][info->details.mvex.SSS];
+            break;        
+        }
         default:
             ZYDIS_UNREACHABLE;
         }

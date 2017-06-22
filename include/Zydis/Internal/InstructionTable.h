@@ -628,6 +628,7 @@ typedef struct ZydisInstructionDefinitionMVEX_
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
     ZydisMVEXFunctionality functionality : 5;
     ZydisMaskPolicy maskPolicy : 2;
+    ZydisBool hasElementGranularity : 1;
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */
