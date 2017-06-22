@@ -375,61 +375,61 @@ enum ZydisMVEXFunctionalities
      */
     ZYDIS_MVEX_FUNC_SAE,
     /**
-     * @brief   @c MVEX.SSS controls register swizzle 32-bit functionality.
+     * @brief   Sf32(reg) or Si32(reg).
      */
-    ZYDIS_MVEX_FUNC_REG_SWIZZLE_32,
+    ZYDIS_MVEX_FUNC_SWIZZLE_32,
     /**
-     * @brief   @c MVEX.SSS controls register swizzle 64-bit functionality.
+     * @brief   Sf64(reg) or Si64(reg).
      */
-    ZYDIS_MVEX_FUNC_REG_SWIZZLE_64,
+    ZYDIS_MVEX_FUNC_SWIZZLE_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit float upconvert (load-op) functionality.
+     * @brief   Sf32(mem).
      */
-    ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_32,  
+    ZYDIS_MVEX_FUNC_SF_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit float upconvert (load-op) functionality.
+     * @brief   Sf64(mem).
      */
-    ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_64,
+    ZYDIS_MVEX_FUNC_SF_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit integer upconvert (load-op) functionality.
+     * @brief   Si32(mem).
      */
-    ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_32,
+    ZYDIS_MVEX_FUNC_SI_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit integer upconvert (load-op) functionality.
+     * @brief   Si64(mem).
      */
-    ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_64,
+    ZYDIS_MVEX_FUNC_SI_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit float upconvert functionality.
+     * @brief   Uf32.
      */
-    ZYDIS_MVEX_FUNC_FLOAT_UCONV_32,
+    ZYDIS_MVEX_FUNC_UF_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit float upconvert functionality.
+     * @brief   Uf64.
      */
-    ZYDIS_MVEX_FUNC_FLOAT_UCONV_64,
+    ZYDIS_MVEX_FUNC_UF_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit integer upconvert functionality.
+     * @brief   Ui32.
      */
-    ZYDIS_MVEX_FUNC_INT_UCONV_32,
+    ZYDIS_MVEX_FUNC_UI_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit integer upconvert functionality.
+     * @brief   Ui64.
      */
-    ZYDIS_MVEX_FUNC_INT_UCONV_64,
+    ZYDIS_MVEX_FUNC_UI_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit float downconvert functionality.
+     * @brief   Df32.
      */
-    ZYDIS_MVEX_FUNC_FLOAT_DCONV_32,
+    ZYDIS_MVEX_FUNC_DF_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit float downconvert functionality.
+     * @brief   Df64.
      */
-    ZYDIS_MVEX_FUNC_FLOAT_DCONV_64,
+    ZYDIS_MVEX_FUNC_DF_64,
     /**
-     * @brief   @c MVEX.SSS controls 32-bit integer downconvert functionality.
+     * @brief   Di32.
      */
-    ZYDIS_MVEX_FUNC_INT_DCONV_32,
+    ZYDIS_MVEX_FUNC_DI_32,
     /**
-     * @brief   @c MVEX.SSS controls 64-bit integer downconvert functionality.
+     * @brief   Di64.
      */
-    ZYDIS_MVEX_FUNC_INT_DCONV_64
+    ZYDIS_MVEX_FUNC_DI_64
 };
 
 /* ---------------------------------------------------------------------------------------------- */

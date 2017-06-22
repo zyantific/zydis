@@ -233,7 +233,6 @@ typedef uint8_t ZydisElementType;
 enum ZydisElementTypes
 {
     ZYDIS_ELEMENT_TYPE_INVALID,
-    ZYDIS_ELEMENT_TYPE_VARIABLE,  // TODO: Remove
     ZYDIS_ELEMENT_TYPE_STRUCT,
     ZYDIS_ELEMENT_TYPE_UINT,
     ZYDIS_ELEMENT_TYPE_INT,
@@ -1032,6 +1031,8 @@ typedef struct ZydisInstructionInfo_
          * @brief   The AVX rounding-mode.
          */
         ZydisRoundingMode roundingMode;
+
+        // TODO: Remove SAE from the rounding-mode enum and always add it as extra value
 
         ZydisBool hasSAE;
         ZydisBool hasEvictionHint;

@@ -97,6 +97,16 @@ typedef struct ZydisDecoderContext_
         uint8_t v_vvvv;
         uint8_t mask;
     } cache;
+
+    struct
+    {
+        int dummy;
+    } evex;
+
+    struct
+    {
+        ZydisMVEXFunctionality functionality;
+    } mvex;
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -981,8 +991,8 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             {
                 // Operand size depends on the tuple-type, the element-size and the number of 
                 // elements
-                ZYDIS_ASSERT(info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
-                ZYDIS_ASSERT(info->avx.tupleType);
+                ZYDIS_ASSERT(info->avx.vectorLength);
+                ZYDIS_ASSERT(info->avx.elementSize);
                 switch (info->avx.tupleType)
                 {
                 case ZYDIS_TUPLETYPE_FV:
@@ -1010,7 +1020,94 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             ZYDIS_ASSERT(operand->size);
             break;
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-            // TODO:
+            if (definition->size[context->eoszIndex])
+            {
+                // Operand size is hardcoded
+                operand->size = definition->size[context->eoszIndex] * 8;    
+            } else
+            {
+                ZYDIS_ASSERT(definition->elementType == ZYDIS_IELEMENT_TYPE_VARIABLE);
+                ZYDIS_ASSERT(info->avx.vectorLength == 512);
+                switch (info->avx.conversionMode)
+                {
+                case ZYDIS_CONVERSION_MODE_INVALID:
+                    // Element size
+                    switch (context->mvex.functionality)
+                    {
+                    case ZYDIS_MVEX_FUNC_SF_32:
+                    case ZYDIS_MVEX_FUNC_UF_32:
+                    case ZYDIS_MVEX_FUNC_DF_32:
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT32;
+                        operand->elementSize = 32;
+                        break;
+                    case ZYDIS_MVEX_FUNC_SI_32:
+                    case ZYDIS_MVEX_FUNC_UI_32:
+                    case ZYDIS_MVEX_FUNC_DI_32:
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+                        operand->elementSize = 32;
+                        break;
+                    case ZYDIS_MVEX_FUNC_SF_64:
+                    case ZYDIS_MVEX_FUNC_UF_64:
+                    case ZYDIS_MVEX_FUNC_DF_64:
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT64;
+                        operand->elementSize = 64;
+                        break;
+                    case ZYDIS_MVEX_FUNC_SI_64:
+                    case ZYDIS_MVEX_FUNC_UI_64:
+                    case ZYDIS_MVEX_FUNC_DI_64:
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+                        operand->elementSize = 64;
+                        break;
+                    default:
+                        ZYDIS_UNREACHABLE;
+                    }
+                    switch (info->avx.broadcastMode)
+                    {
+                    case ZYDIS_BROADCAST_MODE_INVALID:
+                        operand->size = 512;          
+                        break;
+                    case ZYDIS_BROADCAST_MODE_1_TO_8:
+                    case ZYDIS_BROADCAST_MODE_1_TO_16:
+                        operand->size = operand->elementSize;
+                        break;
+                    case ZYDIS_BROADCAST_MODE_4_TO_8:
+                    case ZYDIS_BROADCAST_MODE_4_TO_16:
+                        operand->size = operand->elementSize * 4;
+                        break;
+                    default:
+                        ZYDIS_UNREACHABLE;
+                    }
+                    
+                    break;
+                case ZYDIS_CONVERSION_MODE_FLOAT16:
+                    operand->size = 256;
+                    operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT16;
+                    operand->elementSize = 16;
+                    break;
+                case ZYDIS_CONVERSION_MODE_SINT16:
+                    operand->size = 256;
+                    operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+                    operand->elementSize = 16;
+                    break;
+                case ZYDIS_CONVERSION_MODE_UINT16:
+                    operand->size = 256;
+                    operand->elementType = ZYDIS_ELEMENT_TYPE_UINT;
+                    operand->elementSize = 16;
+                    break;
+                case ZYDIS_CONVERSION_MODE_SINT8:
+                    operand->size = 128;
+                    operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+                    operand->elementSize = 8;
+                    break;
+                case ZYDIS_CONVERSION_MODE_UINT8:
+                    operand->size = 128;
+                    operand->elementType = ZYDIS_ELEMENT_TYPE_UINT;
+                    operand->elementSize = 8;
+                    break;
+                default:
+                    ZYDIS_UNREACHABLE;
+                }
+            }
             break;
         default:
             ZYDIS_UNREACHABLE;
@@ -1030,7 +1127,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
     }
 
     // Element info
-    if (definition->elementType)
+    if (definition->elementType && (definition->elementType != ZYDIS_IELEMENT_TYPE_VARIABLE))
     {
         ZydisGetElementInfo(definition->elementType, &operand->elementType, &operand->elementSize);
         if (!operand->elementSize)
@@ -2145,12 +2242,12 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
     
+        // Vector length
         uint8_t vectorLength = vectorLength = context->cache.LL;;
         if (def->vectorLength)
         {
             vectorLength = def->vectorLength - 1;
-        }
-        // Vector length
+        }   
         switch (vectorLength)
         {
         case 0:
@@ -2494,10 +2591,14 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
     {
+        // Vector length
+        info->avx.vectorLength = ZYDIS_VECTOR_LENGTH_512;
+
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;     
 
         // Rounding mode, sae, swizzle, convert
+        context->mvex.functionality = def->functionality;
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
@@ -2512,11 +2613,11 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 info->avx.hasSAE = ZYDIS_TRUE;
             }
             break;
-        case ZYDIS_MVEX_FUNC_REG_SWIZZLE_32:
-        case ZYDIS_MVEX_FUNC_REG_SWIZZLE_64:
+        case ZYDIS_MVEX_FUNC_SWIZZLE_32:
+        case ZYDIS_MVEX_FUNC_SWIZZLE_64:
             info->avx.swizzleMode = ZYDIS_SWIZZLE_MODE_DCBA + info->details.mvex.SSS;
             break;
-        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_32:
+        case ZYDIS_MVEX_FUNC_SF_32:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -2543,23 +2644,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_UNREACHABLE;
             }
             break;
-        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_64:
-        case ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_64:
-            switch (info->details.mvex.SSS)
-            {
-            case 0:
-                break;
-            case 1:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
-                break;
-            case 2:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_8;
-                break;
-            default:
-                ZYDIS_UNREACHABLE;
-            }
-            break;
-        case ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_32:
+        case ZYDIS_MVEX_FUNC_SI_32:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -2586,8 +2671,24 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_UNREACHABLE;
             }
             break;
-        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_32:
-        case ZYDIS_MVEX_FUNC_FLOAT_DCONV_32:
+        case ZYDIS_MVEX_FUNC_SF_64:
+        case ZYDIS_MVEX_FUNC_SI_64:
+            switch (info->details.mvex.SSS)
+            {
+            case 0:
+                break;
+            case 1:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                break;
+            case 2:
+                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_8;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+            break;     
+        case ZYDIS_MVEX_FUNC_UF_32:
+        case ZYDIS_MVEX_FUNC_DF_32:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -2611,11 +2712,11 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_UNREACHABLE;
             }
             break;
-        case ZYDIS_MVEX_FUNC_FLOAT_UCONV_64:
-        case ZYDIS_MVEX_FUNC_FLOAT_DCONV_64:
+        case ZYDIS_MVEX_FUNC_UF_64:
+        case ZYDIS_MVEX_FUNC_DF_64:
             break;
-        case ZYDIS_MVEX_FUNC_INT_UCONV_32:
-        case ZYDIS_MVEX_FUNC_INT_DCONV_32:
+        case ZYDIS_MVEX_FUNC_UI_32:
+        case ZYDIS_MVEX_FUNC_DI_32:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -2636,8 +2737,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_UNREACHABLE;
             }
             break;
-        case ZYDIS_MVEX_FUNC_INT_UCONV_64:
-        case ZYDIS_MVEX_FUNC_INT_DCONV_64:
+        case ZYDIS_MVEX_FUNC_UI_64:
+        case ZYDIS_MVEX_FUNC_DI_64:
             break;
         default:
             ZYDIS_UNREACHABLE;
@@ -3348,33 +3449,33 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SAE
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_REG_SWIZZLE_32
+                        // ZYDIS_MVEX_FUNC_SWIZZLE_32
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_REG_SWIZZLE_64
+                        // ZYDIS_MVEX_FUNC_SWIZZLE_64
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_32
+                        // ZYDIS_MVEX_FUNC_SF_32
                         { 1, 1, 1, 1, 1, 0, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_UCONV_LOAD_64
+                        // ZYDIS_MVEX_FUNC_SF_64
                         { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_32
+                        // ZYDIS_MVEX_FUNC_SI_32
                         { 1, 1, 1, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_INT_UCONV_LOAD_64
+                        // ZYDIS_MVEX_FUNC_SI_64
                         { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_UCONV_32
+                        // ZYDIS_MVEX_FUNC_UF_32
                         { 1, 0, 0, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_UCONV_64
+                        // ZYDIS_MVEX_FUNC_UF_64
                         { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_INT_UCONV_32
+                        // ZYDIS_MVEX_FUNC_UI_32
                         { 1, 0, 0, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_INT_UCONV_64
+                        // ZYDIS_MVEX_FUNC_UI_64
                         { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_DCONV_32
+                        // ZYDIS_MVEX_FUNC_DF_32
                         { 1, 0, 0, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_FLOAT_DCONV_64
+                        // ZYDIS_MVEX_FUNC_DF_64
                         { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_INT_DCONV_32
+                        // ZYDIS_MVEX_FUNC_DI_32
                         { 1, 0, 0, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_INT_DCONV_64
+                        // ZYDIS_MVEX_FUNC_DI_64
                         { 1, 0, 0, 0, 0, 0, 0, 0 }
                     };
                     ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_SIZE(lookup));

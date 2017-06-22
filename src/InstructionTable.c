@@ -486,7 +486,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     } lookup[21] =
     {
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
-        { ZYDIS_ELEMENT_TYPE_VARIABLE ,   0 },
+        { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
         { ZYDIS_ELEMENT_TYPE_STRUCT   ,   0 },
         { ZYDIS_ELEMENT_TYPE_INT      ,   0 },
         { ZYDIS_ELEMENT_TYPE_UINT     ,   0 },
