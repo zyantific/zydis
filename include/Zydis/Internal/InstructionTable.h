@@ -450,6 +450,22 @@ enum ZydisMVEXFunctionalities
      */
     ZYDIS_MVEX_FUNC_SAE,
     /**
+     * @brief   No special operation (32bit float elements).
+     */
+    ZYDIS_MVEX_FUNC_F_32,
+    /**
+     * @brief   No special operation (32bit uint elements).
+     */
+    ZYDIS_MVEX_FUNC_I_32,
+    /**
+     * @brief   No special operation (64bit float elements).
+     */
+    ZYDIS_MVEX_FUNC_F_64,
+    /**
+     * @brief   No special operation (64bit uint elements).
+     */
+    ZYDIS_MVEX_FUNC_I_64,
+    /**
      * @brief   Sf32(reg) or Si32(reg).
      */
     ZYDIS_MVEX_FUNC_SWIZZLE_32,

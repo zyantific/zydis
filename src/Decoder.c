@@ -1094,8 +1094,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
-                    }
-                    
+                    } 
                     break;
                 case ZYDIS_CONVERSION_MODE_FLOAT16:
                     operand->size = 256;
@@ -2625,6 +2624,12 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SWIZZLE_64:
             // Nothing to do here
             break;
+        case ZYDIS_MVEX_FUNC_F_32:
+        case ZYDIS_MVEX_FUNC_I_32:
+        case ZYDIS_MVEX_FUNC_F_64:
+        case ZYDIS_MVEX_FUNC_I_64: 
+            info->avx.compressedDisp8Scale = 64;
+            break;
         case ZYDIS_MVEX_FUNC_SF_32:
         case ZYDIS_MVEX_FUNC_UF_32:
         {    
@@ -2684,6 +2689,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
+        case ZYDIS_MVEX_FUNC_F_32:
+        case ZYDIS_MVEX_FUNC_I_32:
+        case ZYDIS_MVEX_FUNC_F_64:
+        case ZYDIS_MVEX_FUNC_I_64:
             // Nothing to do here
             break;
         case ZYDIS_MVEX_FUNC_RC:
@@ -3527,14 +3536,22 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     maskPolicy = def->maskPolicy;
                     
                     // Check for invalid MVEX.SSS values
-                    static const uint8_t lookup[21][8] =
+                    static const uint8_t lookup[25][8] =
                     {
                         // ZYDIS_MVEX_FUNC_INVALID
-                        { 0, 0, 0, 0, 0, 0, 0, 0 },
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_RC
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SAE
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
+                        // ZYDIS_MVEX_FUNC_F_32
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
+                        // ZYDIS_MVEX_FUNC_I_32
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
+                        // ZYDIS_MVEX_FUNC_F_64
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
+                        // ZYDIS_MVEX_FUNC_I_64
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_SWIZZLE_32
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SWIZZLE_64
