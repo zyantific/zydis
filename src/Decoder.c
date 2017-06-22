@@ -2597,6 +2597,71 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;     
 
+        // Compressed disp8 scale
+        info->avx.compressedDisp8Scale = 1;
+        switch (def->functionality)
+        {
+        case ZYDIS_MVEX_FUNC_INVALID:
+        case ZYDIS_MVEX_FUNC_RC:
+        case ZYDIS_MVEX_FUNC_SAE:
+        case ZYDIS_MVEX_FUNC_SWIZZLE_32:
+        case ZYDIS_MVEX_FUNC_SWIZZLE_64:
+            // Nothing to do here
+            break;
+        case ZYDIS_MVEX_FUNC_SF_32:
+        case ZYDIS_MVEX_FUNC_UF_32:
+        {    
+            static const uint8_t lookup[8] = 
+            {
+                64,  4, 16, 32, 16, 16, 32, 32    
+            };
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
+            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            break;
+        }
+        case ZYDIS_MVEX_FUNC_SI_32:
+        case ZYDIS_MVEX_FUNC_UI_32:
+        {    
+            static const uint8_t lookup[8] = 
+            {
+                64,  4, 16,  0, 16, 16, 32, 32    
+            };
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
+            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            break;
+        }
+        case ZYDIS_MVEX_FUNC_SF_64:
+        case ZYDIS_MVEX_FUNC_UF_64:
+        case ZYDIS_MVEX_FUNC_SI_64:
+        case ZYDIS_MVEX_FUNC_UI_64:
+        {    
+            static const uint8_t lookup[3] = 
+            {
+                64,  8, 32   
+            };
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
+            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            break;
+        }
+        case ZYDIS_MVEX_FUNC_DF_32:
+        case ZYDIS_MVEX_FUNC_DI_32:
+        {    
+            static const uint8_t lookup[8] = 
+            {
+                64,  0,  0, 32, 16, 16, 32, 32  
+            };
+            ZYDIS_ASSERT(info->details.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup));
+            info->avx.compressedDisp8Scale = lookup[info->details.mvex.SSS];
+            break;
+        }
+        case ZYDIS_MVEX_FUNC_DF_64:
+        case ZYDIS_MVEX_FUNC_DI_64:
+            info->avx.compressedDisp8Scale = 64;
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
+        }
+
         // Rounding mode, sae, swizzle, convert
         context->mvex.functionality = def->functionality;
         switch (def->functionality)
