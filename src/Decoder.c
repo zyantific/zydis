@@ -1049,12 +1049,16 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     switch (context->mvex.functionality)
                     {
                     case ZYDIS_MVEX_FUNC_SF_32:
+                    case ZYDIS_MVEX_FUNC_SF_32_BCST:
+                    case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
                     case ZYDIS_MVEX_FUNC_UF_32:
                     case ZYDIS_MVEX_FUNC_DF_32:
                         operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT32;
                         operand->elementSize = 32;
                         break;
                     case ZYDIS_MVEX_FUNC_SI_32:
+                    case ZYDIS_MVEX_FUNC_SI_32_BCST:
+                    case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
                     case ZYDIS_MVEX_FUNC_UI_32:
                     case ZYDIS_MVEX_FUNC_DI_32:
                         operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
@@ -2696,6 +2700,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             info->avx.swizzleMode = ZYDIS_SWIZZLE_MODE_DCBA + info->details.mvex.SSS;
             break;
         case ZYDIS_MVEX_FUNC_SF_32:
+        case ZYDIS_MVEX_FUNC_SF_32_BCST:
+        case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -2723,6 +2729,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             }
             break;
         case ZYDIS_MVEX_FUNC_SI_32:
+        case ZYDIS_MVEX_FUNC_SI_32_BCST:
+        case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
             switch (info->details.mvex.SSS)
             {
             case 0:
@@ -3519,7 +3527,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     maskPolicy = def->maskPolicy;
                     
                     // Check for invalid MVEX.SSS values
-                    static const uint8_t lookup[17][8] =
+                    static const uint8_t lookup[21][8] =
                     {
                         // ZYDIS_MVEX_FUNC_INVALID
                         { 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -3533,10 +3541,18 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SF_32
                         { 1, 1, 1, 1, 1, 0, 1, 1 },
+                        // ZYDIS_MVEX_FUNC_SF_32_BCST
+                        { 1, 1, 1, 0, 0, 0, 0, 0 },
+                        // ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16
+                        { 1, 0, 1, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_SF_64
                         { 1, 1, 1, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_SI_32
                         { 1, 1, 1, 0, 1, 1, 1, 1 },
+                        // ZYDIS_MVEX_FUNC_SI_32_BCST
+                        { 1, 1, 1, 0, 0, 0, 0, 0 },
+                        // ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16
+                        { 1, 0, 1, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_SI_64
                         { 1, 1, 1, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_UF_32

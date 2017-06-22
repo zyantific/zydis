@@ -462,6 +462,14 @@ enum ZydisMVEXFunctionalities
      */
     ZYDIS_MVEX_FUNC_SF_32,
     /**
+     * @brief   Sf32(mem) broadcast only.
+     */
+    ZYDIS_MVEX_FUNC_SF_32_BCST,
+    /**
+     * @brief   Sf32(mem) broadcast 4to16 only.
+     */
+    ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16,
+    /**
      * @brief   Sf64(mem).
      */
     ZYDIS_MVEX_FUNC_SF_64,
@@ -469,6 +477,14 @@ enum ZydisMVEXFunctionalities
      * @brief   Si32(mem).
      */
     ZYDIS_MVEX_FUNC_SI_32,
+    /**
+     * @brief   Si32(mem) broadcast only.
+     */
+    ZYDIS_MVEX_FUNC_SI_32_BCST,
+    /**
+     * @brief   Si32(mem) broadcast 4to16 only.
+     */
+    ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16,
     /**
      * @brief   Si64(mem).
      */
