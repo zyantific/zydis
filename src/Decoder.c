@@ -2258,6 +2258,61 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 
     switch (info->encoding)
     {
+    case ZYDIS_INSTRUCTION_ENCODING_XOP:
+    {
+        // Vector length
+        static const ZydisVectorLength lookup[2] = 
+        { 
+            ZYDIS_VECTOR_LENGTH_128, 
+            ZYDIS_VECTOR_LENGTH_256
+        };
+        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        info->avx.vectorLength = lookup[context->cache.LL];
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_VEX:
+    {
+        // Vector length  
+        static const ZydisVectorLength lookup[2] = 
+        { 
+            ZYDIS_VECTOR_LENGTH_128, 
+            ZYDIS_VECTOR_LENGTH_256 
+        };
+        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        info->avx.vectorLength = lookup[context->cache.LL];
+
+        // Static broadcast-factor
+        const ZydisInstructionDefinitionVEX* def = 
+            (const ZydisInstructionDefinitionVEX*)definition;
+        if (def->broadcast)
+        {
+            info->avx.broadcast.isStatic = ZYDIS_TRUE;
+            switch (def->broadcast)
+            {
+            case ZYDIS_VEX_STATIC_BROADCAST_1_TO_2:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_2;
+                break;
+            case ZYDIS_VEX_STATIC_BROADCAST_1_TO_4:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_4;
+                break;
+            case ZYDIS_VEX_STATIC_BROADCAST_1_TO_8:  
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                break;
+            case ZYDIS_VEX_STATIC_BROADCAST_1_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                break;
+            case ZYDIS_VEX_STATIC_BROADCAST_1_TO_32:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_32;
+                break;
+            case ZYDIS_VEX_STATIC_BROADCAST_2_TO_4:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_2_TO_4;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+        }
+        break;
+    }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
         const ZydisInstructionDefinitionEVEX* def = 
@@ -2269,20 +2324,15 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         {
             vectorLength = def->vectorLength - 1;
         }   
-        switch (vectorLength)
-        {
-        case 0:
-            info->avx.vectorLength = ZYDIS_VECTOR_LENGTH_128;
-            break;
-        case 1:
-            info->avx.vectorLength = ZYDIS_VECTOR_LENGTH_256;
-            break;
-        case 2:
-            info->avx.vectorLength = ZYDIS_VECTOR_LENGTH_512;
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        // Vector length  
+        static const ZydisVectorLength lookup[3] = 
+        { 
+            ZYDIS_VECTOR_LENGTH_128, 
+            ZYDIS_VECTOR_LENGTH_256, 
+            ZYDIS_VECTOR_LENGTH_512 
+        };
+        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        info->avx.vectorLength = lookup[context->cache.LL];
 
         context->evex.tupleType = def->tupleType;
         if (def->tupleType)
@@ -2585,6 +2635,54 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_ASSERT(info->details.modrm.mod == 3);
         }
 
+        // Static broadcast-factor
+        if (def->broadcast)
+        {
+            ZYDIS_ASSERT(!info->avx.broadcast.mode);
+            info->avx.broadcast.isStatic = ZYDIS_TRUE;
+            switch (def->broadcast)
+            {
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_2:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_2;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_4:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_4;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_8:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_32:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_32;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_1_TO_64:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_64;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_2_TO_4:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_2_TO_4;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_2_TO_8:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_2_TO_8;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_2_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_2_TO_16;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_4_TO_8:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_8;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_4_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                break;
+            case ZYDIS_EVEX_STATIC_BROADCAST_8_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_8_TO_16;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+        }
+
         // Rounding mode and SAE
         if (info->details.evex.b)
         {
@@ -2617,7 +2715,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition; 
 
-        // Compressed disp8 scale and broadcast-factor
+        // Static broadcast-factor
         uint8_t index = def->hasElementGranularity;
         ZYDIS_ASSERT(!index || !def->broadcast);
         if (!index && def->broadcast)
@@ -2645,6 +2743,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_UNREACHABLE;
             }
         }
+
+        // Compressed disp8 scale and broadcast-factor
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
@@ -2771,6 +2871,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 break;
             case 4:
                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                break;
+            case 5:
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
                 break;
             case 6:
                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
@@ -3602,7 +3705,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                         // ZYDIS_MVEX_FUNC_SWIZZLE_64
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SF_32
-                        { 1, 1, 1, 1, 1, 0, 1, 1 },
+                        { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SF_32_BCST
                         { 1, 1, 1, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16

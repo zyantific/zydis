@@ -752,8 +752,14 @@ enum ZydisBroadcastModes
     ZYDIS_BROADCAST_MODE_1_TO_4,
     ZYDIS_BROADCAST_MODE_1_TO_8,
     ZYDIS_BROADCAST_MODE_1_TO_16,
+    ZYDIS_BROADCAST_MODE_1_TO_32,
+    ZYDIS_BROADCAST_MODE_1_TO_64,
+    ZYDIS_BROADCAST_MODE_2_TO_4,
+    ZYDIS_BROADCAST_MODE_2_TO_8,
+    ZYDIS_BROADCAST_MODE_2_TO_16,
     ZYDIS_BROADCAST_MODE_4_TO_8,
-    ZYDIS_BROADCAST_MODE_4_TO_16
+    ZYDIS_BROADCAST_MODE_4_TO_16,
+    ZYDIS_BROADCAST_MODE_8_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */

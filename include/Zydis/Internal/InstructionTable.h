@@ -542,6 +542,54 @@ enum ZydisMVEXFunctionalities
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisVEXStaticBroadcast datatype.
+ */
+typedef uint8_t ZydisVEXStaticBroadcast;
+
+/**
+ * @brief   Values that represent static VEX-broadcasts.
+ */
+enum ZydisVEXStaticBroadcasts
+{
+    ZYDIS_VEX_STATIC_BROADCAST_NONE,
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_2,
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_4,
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_8,  
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_16,
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_32,
+    ZYDIS_VEX_STATIC_BROADCAST_2_TO_4   
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisEVEXStaticBroadcast datatype.
+ */
+typedef uint8_t ZydisEVEXStaticBroadcast;
+
+/**
+ * @brief   Values that represent static EVEX-broadcasts.
+ */
+enum ZydisEVEXStaticBroadcasts
+{
+    ZYDIS_EVEX_STATIC_BROADCAST_NONE,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_2,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_4,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_8,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_16,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_32,
+    ZYDIS_EVEX_STATIC_BROADCAST_1_TO_64,
+    ZYDIS_EVEX_STATIC_BROADCAST_2_TO_4,
+    ZYDIS_EVEX_STATIC_BROADCAST_2_TO_8,
+    ZYDIS_EVEX_STATIC_BROADCAST_2_TO_16,
+    ZYDIS_EVEX_STATIC_BROADCAST_4_TO_8,
+    ZYDIS_EVEX_STATIC_BROADCAST_4_TO_16,
+    ZYDIS_EVEX_STATIC_BROADCAST_8_TO_16   
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisMVEXStaticBroadcast datatype.
  */
 typedef uint8_t ZydisMVEXStaticBroadcast;
@@ -629,7 +677,8 @@ typedef struct ZydisInstructionDefinitionXOP_
 
 typedef struct ZydisInstructionDefinitionVEX_
 {
-    ZydisInstructionDefinition base;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZydisVEXStaticBroadcast broadcast : 3;
 } ZydisInstructionDefinitionVEX;
 
 typedef struct ZydisInstructionDefinitionEVEX_
@@ -640,6 +689,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZydisInternalElementSize elementSize : 4;
     ZydisEVEXFunctionality functionality : 2;
     ZydisMaskPolicy maskPolicy : 2;
+    ZydisEVEXStaticBroadcast broadcast : 4;
 } ZydisInstructionDefinitionEVEX;
 
 typedef struct ZydisInstructionDefinitionMVEX_
