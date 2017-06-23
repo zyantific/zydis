@@ -2248,6 +2248,29 @@ static void ZydisSetPrefixRelatedAttributes(ZydisDecoderContext* context,
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
  * @param   info        A pointer to the @c ZydisInstructionInfo struct.
  * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
+ * 
+ * Information set for XOP:
+ * - Vector Length
+ * 
+ * Information set for VEX:
+ * - Vector length
+ * - Static broadcast-factor
+ * 
+ * Information set for EVEX:
+ * - Vector length
+ * - Broadcast-factor (static and dynamic)
+ * - Rounding-mode and SAE
+ * - Mask mode
+ * - Compressed 8-bit displacement scale-factor
+ * 
+ * Information set for MVEX:
+ * - Vector length
+ * - Broadcast-factor (static and dynamic)
+ * - Rounding-mode and SAE
+ * - Swizzle- and conversion-mode
+ * - Mask mode
+ * - Eviction hint
+ * - Compressed 8-bit displacement scale-factor
  */
 static void ZydisSetAVXInformation(ZydisDecoderContext* context, 
     ZydisInstructionInfo* info, const ZydisInstructionDefinition* definition)
@@ -2324,7 +2347,6 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         {
             vectorLength = def->vectorLength - 1;
         }   
-        // Vector length  
         static const ZydisVectorLength lookup[3] = 
         { 
             ZYDIS_VECTOR_LENGTH_128, 
@@ -2332,7 +2354,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_VECTOR_LENGTH_512 
         };
         ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
-        info->avx.vectorLength = lookup[context->cache.LL];
+        info->avx.vectorLength = lookup[vectorLength];
 
         context->evex.tupleType = def->tupleType;
         if (def->tupleType)
