@@ -989,7 +989,6 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                 ZYDIS_ASSERT(definition->size[context->eoszIndex] == 0);
                 operand->size = info->addressWidth; 
                 operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
-                operand->elementCount = 1;
             } else
             {
                 ZYDIS_ASSERT(definition->size[context->eoszIndex]);
@@ -1145,7 +1144,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 
-    // Element info
+    // Element-type and -size
     if (definition->elementType && (definition->elementType != ZYDIS_IELEMENT_TYPE_VARIABLE))
     {
         ZydisGetElementInfo(definition->elementType, &operand->elementType, &operand->elementSize);
@@ -1156,6 +1155,9 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             operand->elementSize = operand->size;
         }
     }
+
+    // Element count
+    operand->elementCount = 1;
     if (operand->elementSize && operand->size)
     {
         operand->elementCount = operand->size / operand->elementSize;
