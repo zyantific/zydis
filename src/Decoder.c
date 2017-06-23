@@ -1010,7 +1010,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                 switch (context->evex.tupleType)
                 {
                 case ZYDIS_TUPLETYPE_FV:
-                    if (info->avx.broadcastMode)
+                    if (info->avx.broadcast.mode)
                     {
                         operand->size = context->evex.elementSize;
                     } else
@@ -1019,7 +1019,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     }
                     break;
                 case ZYDIS_TUPLETYPE_HV:
-                    if (info->avx.broadcastMode)
+                    if (info->avx.broadcast.mode)
                     {
                         operand->size = context->evex.elementSize;
                     } else
@@ -1042,10 +1042,11 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             {
                 ZYDIS_ASSERT(definition->elementType == ZYDIS_IELEMENT_TYPE_VARIABLE);
                 ZYDIS_ASSERT(info->avx.vectorLength == 512);
+
                 switch (info->avx.conversionMode)
                 {
                 case ZYDIS_CONVERSION_MODE_INVALID:
-                    // Element size
+                    operand->size = 512;
                     switch (context->mvex.functionality)
                     {
                     case ZYDIS_MVEX_FUNC_SF_32:
@@ -1079,22 +1080,6 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     default:
                         ZYDIS_UNREACHABLE;
                     }
-                    switch (info->avx.broadcastMode)
-                    {
-                    case ZYDIS_BROADCAST_MODE_INVALID:
-                        operand->size = 512;          
-                        break;
-                    case ZYDIS_BROADCAST_MODE_1_TO_8:
-                    case ZYDIS_BROADCAST_MODE_1_TO_16:
-                        operand->size = operand->elementSize;
-                        break;
-                    case ZYDIS_BROADCAST_MODE_4_TO_8:
-                    case ZYDIS_BROADCAST_MODE_4_TO_16:
-                        operand->size = operand->elementSize * 4;
-                        break;
-                    default:
-                        ZYDIS_UNREACHABLE;
-                    } 
                     break;
                 case ZYDIS_CONVERSION_MODE_FLOAT16:
                     operand->size = 256;
@@ -1120,6 +1105,23 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     operand->size = 128;
                     operand->elementType = ZYDIS_ELEMENT_TYPE_UINT;
                     operand->elementSize = 8;
+                    break;
+                default:
+                    ZYDIS_UNREACHABLE;
+                }
+                
+                switch (info->avx.broadcast.mode)
+                {
+                case ZYDIS_BROADCAST_MODE_INVALID:
+                    // Nothing to do here         
+                    break;
+                case ZYDIS_BROADCAST_MODE_1_TO_8:
+                case ZYDIS_BROADCAST_MODE_1_TO_16:
+                    operand->size = operand->elementSize;
+                    break;
+                case ZYDIS_BROADCAST_MODE_4_TO_8:
+                case ZYDIS_BROADCAST_MODE_4_TO_16:
+                    operand->size = operand->elementSize * 4;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2337,13 +2339,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         switch (info->avx.vectorLength)
                         {
                         case 128:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_4;
                             break;
                         case 256:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
                             break;
                         case 512:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
                             break;
                         default:
                             ZYDIS_UNREACHABLE;
@@ -2355,13 +2357,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         switch (info->avx.vectorLength)
                         {
                         case 128:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_2;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_2;
                             break;
                         case 256:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_4;
                             break;
                         case 512:
-                            info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                            info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
                             break;
                         default:
                             ZYDIS_UNREACHABLE;
@@ -2400,13 +2402,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     switch (info->avx.vectorLength)
                     {
                     case 128:
-                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_2;
+                        info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_2;
                         break;
                     case 256:
-                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_4;
+                        info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_4;
                         break;
                     case 512:
-                        info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                        info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
@@ -2578,7 +2580,6 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             }
         } else
         {
-            // TODO: Add tuple type to register-only definitions or remove it from the info struct
             ZYDIS_ASSERT(info->details.modrm.mod == 3);
         }
 
@@ -2612,10 +2613,36 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         info->avx.vectorLength = ZYDIS_VECTOR_LENGTH_512;
 
         const ZydisInstructionDefinitionMVEX* def = 
-            (const ZydisInstructionDefinitionMVEX*)definition;     
+            (const ZydisInstructionDefinitionMVEX*)definition; 
 
-        // Compressed disp8 scale
+        // Compressed disp8 scale and broadcast-factor
         uint8_t index = def->hasElementGranularity;
+        ZYDIS_ASSERT(!index || !def->broadcast);
+        if (!index && def->broadcast)
+        {
+            info->avx.broadcast.isStatic = ZYDIS_TRUE;
+            switch (def->broadcast)
+            {
+            case ZYDIS_MVEX_STATIC_BROADCAST_1_TO_8:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                index = 1;
+                break;
+            case ZYDIS_MVEX_STATIC_BROADCAST_1_TO_16:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                index = 1;
+                break;
+            case ZYDIS_MVEX_STATIC_BROADCAST_4_TO_8:
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_8;
+                index = 2;
+                break;
+            case ZYDIS_MVEX_STATIC_BROADCAST_4_TO_16: 
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                index = 2;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+        }
         switch (def->functionality)
         {
         case ZYDIS_MVEX_FUNC_INVALID:
@@ -2732,13 +2759,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case 0:
                 break;
             case 1:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
                 break;
             case 2:
-                 info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
                 break;
             case 3:
-                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
+                info->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
                 break;
             case 4:
                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
@@ -2761,10 +2788,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case 0:
                 break;
             case 1:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_16;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_16;
                 break;
             case 2:
-                 info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_16;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
                 break;
             case 4:
                 info->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
@@ -2789,10 +2816,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case 0:
                 break;
             case 1:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_1_TO_8;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_1_TO_8;
                 break;
             case 2:
-                info->avx.broadcastMode = ZYDIS_BROADCAST_MODE_4_TO_8;
+                info->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_8;
                 break;
             default:
                 ZYDIS_UNREACHABLE;

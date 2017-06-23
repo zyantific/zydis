@@ -278,7 +278,7 @@ typedef struct ZydisOperandInfo_
      */
     ZydisOperandEncoding encoding;
     /**
-     * @brief   The logical size of the operand (in bytes).
+     * @brief   The logical size of the operand (in bits).
      */
     uint16_t size; 
     /**
@@ -939,9 +939,22 @@ typedef struct ZydisInstructionInfo_
          */
         ZydisMaskMode maskMode;
         /**
-         * @brief   The AVX broadcast-mode.
+         * @brief   Contains info about the AVX broadcast-factor.
          */
-        ZydisBroadcastMode broadcastMode;
+        struct
+        {
+            /**
+             * @brief   Signals, if the broadcast is a static broadcast.
+             * 
+             * This is the case for instructions with inbuild broadcast functionality, that is
+             * always active and not controlled by a flag in the EVEX/MVEX-prefix.
+             */
+            ZydisBool isStatic;
+            /**
+             * @brief   The AVX broadcast-mode.
+             */
+            ZydisBroadcastMode mode;
+        } broadcast;
         /**
          * @brief   The AVX rounding-mode.
          */

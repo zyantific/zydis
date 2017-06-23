@@ -542,6 +542,25 @@ enum ZydisMVEXFunctionalities
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the @c ZydisMVEXStaticBroadcast datatype.
+ */
+typedef uint8_t ZydisMVEXStaticBroadcast;
+
+/**
+ * @brief   Values that represent static MVEX-broadcasts.
+ */
+enum ZydisMVEXStaticBroadcasts
+{
+    ZYDIS_MVEX_STATIC_BROADCAST_NONE,
+    ZYDIS_MVEX_STATIC_BROADCAST_1_TO_8,
+    ZYDIS_MVEX_STATIC_BROADCAST_1_TO_16,
+    ZYDIS_MVEX_STATIC_BROADCAST_4_TO_8,
+    ZYDIS_MVEX_STATIC_BROADCAST_4_TO_16
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisMaskPolicy datatype.
  */
 typedef uint8_t ZydisMaskPolicy;
@@ -629,6 +648,7 @@ typedef struct ZydisInstructionDefinitionMVEX_
     ZydisMVEXFunctionality functionality : 5;
     ZydisMaskPolicy maskPolicy : 2;
     ZydisBool hasElementGranularity : 1;
+    ZydisMVEXStaticBroadcast broadcast : 3;
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */
