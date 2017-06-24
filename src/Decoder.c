@@ -754,19 +754,35 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             break;
         case 0x2E: 
             ++info->details.prefixes.has2E;
-            context->lastSegmentPrefix = 0x2E;
+            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
+               ((context->lastSegmentPrefix != 0x64) && (context->lastSegmentPrefix != 0x65)))
+            {
+                context->lastSegmentPrefix = 0x2E;
+            }
             break;
         case 0x36:
             ++info->details.prefixes.has36;
-            context->lastSegmentPrefix = 0x36;
+            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
+               ((context->lastSegmentPrefix != 0x64) && (context->lastSegmentPrefix != 0x65)))
+            {
+                context->lastSegmentPrefix = 0x36;
+            }
             break;
         case 0x3E: 
             ++info->details.prefixes.has3E;
-            context->lastSegmentPrefix = 0x3E;
+            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
+               ((context->lastSegmentPrefix != 0x64) && (context->lastSegmentPrefix != 0x65)))
+            {
+                context->lastSegmentPrefix = 0x3E;
+            }
             break;
         case 0x26: 
             ++info->details.prefixes.has26;
-            context->lastSegmentPrefix = 0x26;
+            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
+               ((context->lastSegmentPrefix != 0x64) && (context->lastSegmentPrefix != 0x65)))
+            {
+                context->lastSegmentPrefix = 0x26;
+            }
             break;
         case 0x64:
             ++info->details.prefixes.has64;
