@@ -2249,6 +2249,32 @@ static void ZydisSetPrefixRelatedAttributes(ZydisDecoderContext* context,
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+        if (context->lastSegmentPrefix)
+        {
+            switch (context->lastSegmentPrefix)
+            {
+            case 0x2E: 
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+                break;
+            case 0x36:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
+                break;
+            case 0x3E: 
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
+                break;
+            case 0x26: 
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+                break;
+            case 0x64:
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+                break;
+            case 0x65: 
+                info->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
+        }
         break;
     default:
         ZYDIS_UNREACHABLE;
