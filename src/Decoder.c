@@ -1908,6 +1908,19 @@ FinalizeOperand:
         ++operand;
     }
 
+    // Fix operand-action for EVEX instructions with merge-mask
+    if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
+        (info->avx.maskMode == ZYDIS_MASK_MODE_MERGE) &&
+        (info->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (info->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (info->operands[1].reg >= ZYDIS_REGISTER_K1) &&
+        (info->operands[1].reg <= ZYDIS_REGISTER_K7))
+    {
+        ZYDIS_ASSERT(info->operands[0].action == ZYDIS_OPERAND_ACTION_WRITE ||
+                     info->operands[0].action == ZYDIS_OPERAND_ACTION_READWRITE);
+        info->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+    }
+
     return ZYDIS_STATUS_SUCCESS;
 }
 
@@ -2727,6 +2740,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 
         // Mask mode
         info->avx.maskMode = ZYDIS_MASK_MODE_MERGE + info->details.evex.z;
+
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
@@ -3018,6 +3032,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         {
             info->avx.hasEvictionHint = ZYDIS_TRUE;
         }
+
+        // Mask mode
+        info->avx.maskMode = ZYDIS_MASK_MODE_MERGE;
 
         break;
     }
