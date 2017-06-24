@@ -1272,7 +1272,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         switch (info->details.modrm.mod)
         {
         case 0:
-            if (modrm_rm == 5)
+            if ((modrm_rm & 0x07) == 5)
             {
                 if (context->decoder->machineMode == 64)
                 {
@@ -1327,7 +1327,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         switch (info->details.modrm.mod)
         {
         case 0:
-            if (modrm_rm == 5)
+            if ((modrm_rm & 0x07) == 5)
             {
                 operand->mem.base = ZYDIS_REGISTER_RIP;
                 displacementSize = 32;
