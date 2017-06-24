@@ -2353,7 +2353,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_VECTOR_LENGTH_256, 
             ZYDIS_VECTOR_LENGTH_512 
         };
-        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(vectorLength < ZYDIS_ARRAY_SIZE(lookup));
         info->avx.vectorLength = lookup[vectorLength];
 
         context->evex.tupleType = def->tupleType;
@@ -2783,6 +2783,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             info->avx.compressedDisp8Scale = 64;
             break;
         case ZYDIS_MVEX_FUNC_SF_32:
+        case ZYDIS_MVEX_FUNC_SF_32_BCST:
+        case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
         case ZYDIS_MVEX_FUNC_UF_32:
         {    
             static const uint8_t lookup[3][8] = 
@@ -2797,6 +2799,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
         case ZYDIS_MVEX_FUNC_SI_32:
         case ZYDIS_MVEX_FUNC_UI_32:
+        case ZYDIS_MVEX_FUNC_SI_32_BCST:
+        case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
         {    
             static const uint8_t lookup[3][8] = 
             {
