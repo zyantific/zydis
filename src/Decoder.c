@@ -1939,8 +1939,16 @@ FinalizeOperand:
             info->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
-            ZYDIS_ASSERT(info->operands[0].action == ZYDIS_OPERAND_ACTION_WRITE);
-            info->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
+            switch (info->operands[0].action)
+            {
+            case ZYDIS_OPERAND_ACTION_READ:
+                break;
+            case ZYDIS_OPERAND_ACTION_WRITE:
+                info->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
+                break;
+            default:
+                ZYDIS_UNREACHABLE;
+            }
             break;
         default:
             break;

@@ -112,8 +112,9 @@ enum ZydisStatusCode
      * @brief   An error occured while decoding the MVEX-prefix.  
      */
     ZYDIS_STATUS_MALFORMED_MVEX, // TODO: Do we need this?
-
-    // TODO:
+    /**
+     * @brief   An invalid write-mask was specified for an EVEX/MVEX instruction.  
+     */
     ZYDIS_STATUS_INVALID_MASK,
 
     /* ------------------------------------------------------------------------------------------ */
