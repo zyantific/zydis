@@ -508,7 +508,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
     };
 
-    ZYDIS_ASSERT((element >= 0) && (element < ZYDIS_ARRAY_SIZE(lookup)));
+    ZYDIS_ASSERT(element < ZYDIS_ARRAY_SIZE(lookup));
 
     *type = lookup[element].type;
     *size = lookup[element].size;

@@ -632,7 +632,7 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT((id == 0) || (id == 1));
-    ZYDIS_ASSERT(isSigned || ~isRelative);
+    ZYDIS_ASSERT(isSigned || !isRelative);
     ZYDIS_ASSERT(info->details.imm[id].dataSize == 0);
 
     info->details.imm[id].dataSize = size;
