@@ -51,6 +51,14 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+    ZydisInstructionDecoder decoder;
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(
+        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_INVALID)))
+    {
+        fputs("Failed to initialize decoder\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     ZydisInstructionFormatter formatter;
     if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
         ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
@@ -69,8 +77,8 @@ int main(int argc, char** argv)
         ZydisInstructionInfo info;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecode(
-            ZYDIS_OPERATING_MODE_64BIT, 
+        while ((status = ZydisDecoderDecodeBuffer(
+            &decoder, 
             readBuf + readOffs, 
             numBytesRead - readOffs,
             readOffs,
