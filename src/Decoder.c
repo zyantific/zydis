@@ -1932,9 +1932,17 @@ FinalizeOperand:
         (info->operands[1].reg >= ZYDIS_REGISTER_K1) &&
         (info->operands[1].reg <= ZYDIS_REGISTER_K7))
     {
-        ZYDIS_ASSERT(info->operands[0].action == ZYDIS_OPERAND_ACTION_WRITE ||
-                     info->operands[0].action == ZYDIS_OPERAND_ACTION_READWRITE);
-        info->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+        switch (info->operands[0].action)
+        {
+        case ZYDIS_OPERAND_ACTION_WRITE:
+            info->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
+            break;
+        case ZYDIS_OPERAND_ACTION_READWRITE:
+            info->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
+        }
     }
 
     return ZYDIS_STATUS_SUCCESS;
