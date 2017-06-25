@@ -1485,7 +1485,7 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         switch (context->decoder->addressWidth)
         {
         case 16:
-            operand->reg = ZYDIS_REGISTER_IP;
+            operand->reg = ZYDIS_REGISTER_EIP;
             break;
         case 32:
             operand->reg = ZYDIS_REGISTER_EIP;
