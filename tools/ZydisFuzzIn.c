@@ -40,13 +40,13 @@
 #include <Zydis/Zydis.h>
 
 typedef struct ZydisFuzzControlBlock_ {
-    ZydisOperatingMode operatingMode; 
+    ZydisMachineMode machineMode; 
+    ZydisDecodeGranularity granularity;
     ZydisFormatterStyle formatterStyle;
     ZydisFormatterFlags formatterFlags;
     ZydisFormatterAddressFormat formatterAddrFormat;
     ZydisFormatterDisplacementFormat formatterDispFormat;
     ZydisFormatterImmediateFormat formatterImmFormat;
-    ZydisDecodeGranularity granularity;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -59,6 +59,15 @@ int main()
     if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
     {
         fputs("not enough bytes to fuzz\n", stderr);
+        return EXIT_FAILURE;
+    }
+
+    ZydisInstructionDecoder decoder;
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(
+        &decoder, controlBlock.machineMode, 
+        ZYDIS_ADDRESS_WIDTH_INVALID, controlBlock.granularity)))
+    {
+        fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
@@ -80,12 +89,11 @@ int main()
         ZydisInstructionInfo info;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecodeEx(
-            controlBlock.operatingMode,
+        while ((status = ZydisDecoderDecodeBuffer(
+            &decoder,
             readBuf + readOffs, 
             numBytesRead - readOffs,
             readOffs, 
-            controlBlock.granularity,
             &info
         )) != ZYDIS_STATUS_NO_MORE_DATA)
         {
