@@ -1921,6 +1921,7 @@ FinalizeOperand:
     // Fix operand-action for EVEX instructions with merge-mask
     if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
         (info->avx.maskMode == ZYDIS_MASK_MODE_MERGE) &&
+        (info->operandCount >= 3) &&
         (info->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
         (info->operands[1].reg >= ZYDIS_REGISTER_K1) &&
         (info->operands[1].reg <= ZYDIS_REGISTER_K7))
