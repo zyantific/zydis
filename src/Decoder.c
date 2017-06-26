@@ -1226,20 +1226,23 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisInstructionInfo* info,
 /**
  * @brief   Decodes a memory operand.
  *
- * @param   context         A pointer to the @c ZydisDecoderContext instance.
- * @param   info            A pointer to the @c ZydisInstructionInfo struct.
- * @param   operand         A pointer to the @c ZydisOperandInfo struct.
+ * @param   context             A pointer to the @c ZydisDecoderContext instance.
+ * @param   info                A pointer to the @c ZydisInstructionInfo struct.
+ * @param   operand             A pointer to the @c ZydisOperandInfo struct.
+ * @param   vsibBaseRegister    The base-register for instructions with VSIB addressing.
  *
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
-    ZydisInstructionInfo* info, ZydisOperandInfo* operand)
+    ZydisInstructionInfo* info, ZydisOperandInfo* operand, ZydisRegister vsibBaseRegister)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(info->details.modrm.isDecoded);
     ZYDIS_ASSERT(info->details.modrm.mod != 3);
+    ZYDIS_ASSERT(!vsibBaseRegister || ((info->details.modrm.rm == 4) && 
+        ((info->addressWidth == 32) || (info->addressWidth == 64))));
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
 
@@ -1317,6 +1320,11 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
             operand->mem.base = ZYDIS_REGISTER_EAX + sib_base;
             operand->mem.index = ZYDIS_REGISTER_EAX + sib_index;
             operand->mem.scale = (1 << info->details.sib.scale) & ~1;
+            if (vsibBaseRegister)
+            {
+                operand->mem.index = operand->mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister + 
+                    ((context->cache.V2 == 1) ? 16 : 0);    
+            } else
             if (operand->mem.index == ZYDIS_REGISTER_ESP)  
             {
                 operand->mem.index = ZYDIS_REGISTER_NONE;
@@ -1366,6 +1374,11 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
             operand->mem.base = ZYDIS_REGISTER_RAX + sib_base;
             operand->mem.index = ZYDIS_REGISTER_RAX + sib_index;
             operand->mem.scale = (1 << info->details.sib.scale) & ~1;
+            if (vsibBaseRegister)
+            {
+                operand->mem.index = operand->mem.index - ZYDIS_REGISTER_RAX + vsibBaseRegister + 
+                    ((context->cache.V2 == 1) ? 16 : 0);    
+            } else
             if (operand->mem.index == ZYDIS_REGISTER_RSP)  
             {
                 operand->mem.index = ZYDIS_REGISTER_NONE;
@@ -1788,23 +1801,23 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         }
 
         // Memory operands
-        ZydisRegister vsibBaseRegister = ZYDIS_REGISTER_NONE;
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_MEM:
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_NONE));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBX:
-            vsibBaseRegister = ZYDIS_REGISTER_XMM0;
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_XMM0));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBY:
-            vsibBaseRegister = ZYDIS_REGISTER_YMM0;
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_YMM0));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ: 
-            vsibBaseRegister = ZYDIS_REGISTER_ZMM0;
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i]));
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_ZMM0));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:        
             ZYDIS_ASSERT((info->details.imm[0].dataSize == 16) || 
@@ -1817,7 +1830,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
             info->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
             info->operands[i].mem.isAddressGenOnly = ZYDIS_TRUE;
-            ZYDIS_CHECK(ZydisDecodeOperandMemory(context, info, &info->operands[i])); 
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_NONE)); 
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYDIS_ASSERT(info->details.disp.dataSize);
@@ -1830,26 +1844,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         }
         if (info->operands[i].type)
         {
-            if (vsibBaseRegister)
-            {
-                ZYDIS_ASSERT(info->details.modrm.rm == 0x04);
-                switch (info->addressWidth)
-                {
-                case 32:
-                    info->operands[i].mem.index = 
-                        info->operands[i].mem.index - ZYDIS_REGISTER_EAX + vsibBaseRegister + 
-                        ((context->cache.V2 == 1) ? 16 : 0);
-                    break;
-                case 64:
-                    info->operands[i].mem.index = 
-                        info->operands[i].mem.index - ZYDIS_REGISTER_RAX + vsibBaseRegister + 
-                        ((context->cache.V2 == 1) ? 16 : 0);
-                    break;
-                default:
-                    ZYDIS_UNREACHABLE;
-                }
-            }
-
             if (info->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
             {
                 info->operands[i].mem.segment = ZYDIS_REGISTER_CS;    
