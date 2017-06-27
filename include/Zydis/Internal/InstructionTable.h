@@ -644,6 +644,10 @@ enum ZydisMaskPolicies
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3)
 
+#define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
+    ZYDIS_INSTRUCTION_DEFINITION_BASE; \
+    ZydisBool hasNDSOperand                 ZYDIS_BITFIELD( 1)
+
 /**
  * @brief   Defines the @c ZydisInstructionDefinition struct.
  */
@@ -669,23 +673,23 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
 
 typedef struct ZydisInstructionDefinition3DNOW_
 {
-    ZydisInstructionDefinition base;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE;
 } ZydisInstructionDefinition3DNOW;
 
 typedef struct ZydisInstructionDefinitionXOP_
 {
-    ZydisInstructionDefinition base;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
 } ZydisInstructionDefinitionXOP;
 
 typedef struct ZydisInstructionDefinitionVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
     ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD(3);
 } ZydisInstructionDefinitionVEX;
 
 typedef struct ZydisInstructionDefinitionEVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
     ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD(2);
     ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD(4);
     ZydisInternalElementSize elementSize    ZYDIS_BITFIELD(4);
@@ -696,7 +700,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
 
 typedef struct ZydisInstructionDefinitionMVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
     ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD(5);
     ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD(2);
     ZydisBool hasElementGranularity         ZYDIS_BITFIELD(1);

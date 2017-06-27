@@ -641,6 +641,7 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
     default:
         ZYDIS_UNREACHABLE;
     }
+
     // TODO: Fix endianess on big-endian systems   
 
     return ZYDIS_STATUS_SUCCESS;
@@ -3762,6 +3763,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                 ZydisGetOptionalInstructionParts(node, &optionalParts);
                 ZYDIS_CHECK(ZydisDecodeOptionalInstructionParts(context, info, optionalParts));
 
+                ZydisBool hasNDSOperand = ZYDIS_FALSE;
                 ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
                 switch (info->encoding)
                 {
@@ -3786,23 +3788,40 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     break;
                 }
                 case ZYDIS_INSTRUCTION_ENCODING_XOP:
-                case ZYDIS_INSTRUCTION_ENCODING_VEX:
+                {
+                    const ZydisInstructionDefinitionXOP* def = 
+                        (const ZydisInstructionDefinitionXOP*)definition;
+                    hasNDSOperand = def->hasNDSOperand;
                     break;
+                }
+                case ZYDIS_INSTRUCTION_ENCODING_VEX:
+                {
+                    const ZydisInstructionDefinitionVEX* def = 
+                        (const ZydisInstructionDefinitionVEX*)definition;
+                    hasNDSOperand = def->hasNDSOperand;
+                    break;
+                }
                 case ZYDIS_INSTRUCTION_ENCODING_EVEX:
                 {
                     const ZydisInstructionDefinitionEVEX* def = 
                         (const ZydisInstructionDefinitionEVEX*)definition;
+                    hasNDSOperand = def->hasNDSOperand;
                     maskPolicy = def->maskPolicy;
-
-                    // TODO: Check for invalid .vvvv value
                     break;
                 }
                 case ZYDIS_INSTRUCTION_ENCODING_MVEX:
                 {
                     const ZydisInstructionDefinitionMVEX* def = 
                         (const ZydisInstructionDefinitionMVEX*)definition;
+                    hasNDSOperand = def->hasNDSOperand;
                     maskPolicy = def->maskPolicy;
                     
+                    // Check for invalid MVEX.vvvv value
+                    if (!def->hasNDSOperand && context->cache.v_vvvv)
+                    {
+                        return ZYDIS_STATUS_DECODING_ERROR;
+                    }
+
                     // Check for invalid MVEX.SSS values
                     static const uint8_t lookup[25][8] =
                     {
@@ -3867,6 +3886,12 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                 }
                 default:
                     ZYDIS_UNREACHABLE;
+                }
+
+                // Check for invalid EVEX.vvvv value
+                if (!hasNDSOperand && context->cache.v_vvvv)
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
                 }
 
                 // Check for invalid MASK registers
