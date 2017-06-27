@@ -45,7 +45,7 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   A pointer to the @c ZydisInstructionDecoder instance.
      */
-    ZydisInstructionDecoder* decoder;
+    const ZydisInstructionDecoder* decoder;
     /**
      * @brief   The input buffer.
      */
@@ -216,6 +216,48 @@ static ZydisStatus ZydisInputNext(ZydisDecoderContext* context, ZydisInstruction
         *value = context->buffer++[0];
         info->data[info->length++] = *value;
         --context->bufferLen;
+        return ZYDIS_STATUS_SUCCESS;
+    }
+
+    return ZYDIS_STATUS_NO_MORE_DATA;
+}
+
+/**
+ * @brief   Reads a variable amount of bytes from the current read-position of the input data-source 
+ *          and increases the read-position by specified amount of bytes afterwards.
+ *
+ * @param   context         A pointer to the @c ZydisDecoderContext instance.
+ * @param   info            A pointer to the @c ZydisInstructionInfo struct.
+ * @param   value           A pointer to the memory that receives the byte from the input 
+ *                          data-source.
+ * @param   numberOfBytes   The number of bytes to read from the input data-source.
+ *
+ * @return  A zydis status code.
+ *          
+ * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
+ */
+static ZydisStatus ZydisInputNextBytes(ZydisDecoderContext* context, ZydisInstructionInfo* info, 
+    uint8_t* value, uint8_t numberOfBytes)
+{ 
+    ZYDIS_ASSERT(context); 
+    ZYDIS_ASSERT(info); 
+    ZYDIS_ASSERT(value);
+    ZYDIS_ASSERT((numberOfBytes == 2) || (numberOfBytes == 4) || (numberOfBytes == 8));
+
+    if (info->length >= ZYDIS_MAX_INSTRUCTION_LENGTH) 
+    { 
+        return ZYDIS_STATUS_INSTRUCTION_TOO_LONG; 
+    } 
+
+    if (context->bufferLen >= numberOfBytes)
+    {
+        memcpy(&info->data[info->length], context->buffer, numberOfBytes);
+        info->length += numberOfBytes;
+
+        memcpy(value, context->buffer, numberOfBytes);
+        context->buffer += numberOfBytes;
+        context->bufferLen -= numberOfBytes;
+
         return ZYDIS_STATUS_SUCCESS;
     }
 
@@ -565,51 +607,41 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
 
     info->details.disp.dataSize = size;
     info->details.disp.dataOffset = info->length;
+
     switch (size)
     {
     case 8:
     {
         uint8_t value;
         ZYDIS_CHECK(ZydisInputNext(context, info, &value));
-        info->details.disp.value.sqword = (int8_t)value;
+        info->details.disp.value.sqword = *(int8_t*)&value;
         break;
     }
     case 16:
     {
-        uint16_t data[2] = { 0, 0 };
-        ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[1]));
-        ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[0]));
-        info->details.disp.value.sqword = (int16_t)((data[0] << 8) | data[1]);
-        break;   
+        uint16_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 2));
+        info->details.disp.value.sqword = *(int16_t*)&value;
+        break;
     }
     case 32:
     {
-        uint32_t data[4] = { 0, 0, 0, 0 };
-        for (int i = ZYDIS_ARRAY_SIZE(data); i > 0; --i)
-        {
-            ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
-        }
-        info->details.disp.value.sqword = 
-            (int32_t)((data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]);
+        uint32_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 4));
+        info->details.disp.value.sqword = *(int32_t*)&value;
         break;
     }
     case 64:
     {
-        uint64_t data[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        for (int i = sizeof(data) / sizeof(data[0]); i > 0; --i)
-        {
-            ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
-        }
-        info->details.disp.value.sqword = 
-            (int64_t)((data[0] << 56) | (data[1] << 48) | (data[2] << 40) | (data[3] << 32) | 
-                      (data[4] << 24) | (data[5] << 16) | (data[6] <<  8) | data[7]);
+        uint64_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 8));
+        info->details.disp.value.sqword = *(int64_t*)&value;
         break;
     }
     default:
         ZYDIS_UNREACHABLE;
     }
-
-    // TODO: Fix endianess on big-endian systems
+    // TODO: Fix endianess on big-endian systems   
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -656,10 +688,8 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     }
     case 16:
     {
-        uint16_t data[2] = { 0, 0 };
-        ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[1]));
-        ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[0]));
-        uint16_t value = (data[0] << 8) | data[1];
+        uint16_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 2));
         if (isSigned)
         {
             info->details.imm[id].value.sqword = (int16_t)value;
@@ -671,12 +701,8 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     }
     case 32:
     {
-        uint32_t data[4] = { 0, 0, 0, 0 };
-        for (int i = ZYDIS_ARRAY_SIZE(data); i > 0; --i)
-        {
-            ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
-        }
-        uint32_t value = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+        uint32_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 4));
         if (isSigned)
         {
             info->details.imm[id].value.sqword = (int32_t)value;
@@ -688,14 +714,8 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     }
     case 64:
     {
-        uint64_t data[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-        for (int i = ZYDIS_ARRAY_SIZE(data); i > 0; --i)
-        {
-            ZYDIS_CHECK(ZydisInputNext(context, info, (uint8_t*)&data[i - 1]));    
-        }
-        uint64_t value = 
-            (data[0] << 56) | (data[1] << 48) | (data[2] << 40) | (data[3] << 32) | 
-            (data[4] << 24) | (data[5] << 16) | (data[6] <<  8) | data[7];
+        uint64_t value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 8));
         if (isSigned)
         {
             info->details.imm[id].value.sqword = (int64_t)value;
@@ -3773,6 +3793,8 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     const ZydisInstructionDefinitionEVEX* def = 
                         (const ZydisInstructionDefinitionEVEX*)definition;
                     maskPolicy = def->maskPolicy;
+
+                    // TODO: Check for invalid .vvvv value
                     break;
                 }
                 case ZYDIS_INSTRUCTION_ENCODING_MVEX:
@@ -3945,7 +3967,7 @@ ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decode
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisDecoderDecodeBuffer(ZydisInstructionDecoder* decoder, const void* buffer, 
+ZydisStatus ZydisDecoderDecodeBuffer(const ZydisInstructionDecoder* decoder, const void* buffer, 
     size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info)
 {
     if (!decoder)

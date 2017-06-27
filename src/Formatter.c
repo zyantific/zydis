@@ -181,7 +181,7 @@ static ZydisStatus ZydisStringBufferAppendFormat(char** buffer, size_t bufferLen
 /* Intel style                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisFormatterPrintPrefixesIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintPrefixesIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info)
@@ -224,7 +224,7 @@ static ZydisStatus ZydisFormatterPrintPrefixesIntel(ZydisInstructionFormatter* f
     return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisStatus ZydisFormatterPrintMnemonicIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info)
@@ -242,7 +242,7 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(ZydisInstructionFormatter* f
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisFormatterFormatOperandRegIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -258,7 +258,7 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(ZydisInstructionFormatter
     return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, reg);
 }
 
-static ZydisStatus ZydisFormatterFormatOperandMemIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -325,7 +325,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(ZydisInstructionFormatter
     return ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "]");
 }
 
-static ZydisStatus ZydisFormatterFormatOperandPtrIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -337,7 +337,7 @@ static ZydisStatus ZydisFormatterFormatOperandPtrIntel(ZydisInstructionFormatter
         "0x%04"PRIX16":0x%08"PRIX32, operand->ptr.segment, operand->ptr.offset);
 }
 
-static ZydisStatus ZydisFormatterFormatOperandImmIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -382,7 +382,7 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(ZydisInstructionFormatter
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisFormatterPrintAddressIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand, 
     uint64_t address)
 {
@@ -405,7 +405,7 @@ static ZydisStatus ZydisFormatterPrintAddressIntel(ZydisInstructionFormatter* fo
     }
 }
 
-static ZydisStatus ZydisFormatterPrintDisplacementIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -435,7 +435,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(ZydisInstructionFormatte
     return ZYDIS_STATUS_SUCCESS; 
 }
 
-static ZydisStatus ZydisFormatterPrintImmediateIntel(ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisInstructionFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -486,7 +486,7 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(ZydisInstructionFormatter* 
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisFormatterPrintOperandSizeIntel(ZydisInstructionFormatter* formatter,
+static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisInstructionFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -578,7 +578,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(ZydisInstructionFormatter
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisFormatterPrintSegmentIntel(ZydisInstructionFormatter* formatter,
+static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisInstructionFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -616,7 +616,7 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(ZydisInstructionFormatter* fo
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisFormatterPrintDecoratorIntel(ZydisInstructionFormatter* formatter,
+static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisInstructionFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info, ZydisOperandInfo* operand)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info || !operand)
@@ -809,7 +809,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(ZydisInstructionFormatter* 
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisFormatterFormatInstrIntel(ZydisInstructionFormatter* formatter,
+static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisInstructionFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisInstructionInfo* info)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !info)
@@ -1078,9 +1078,8 @@ ZydisStatus ZydisFormatterSetHook(ZydisInstructionFormatter* formatter,
     return ZYDIS_STATUS_INVALID_PARAMETER;
 }
 
-ZydisStatus ZydisFormatterFormatInstruction(
-    ZydisInstructionFormatter* formatter, ZydisInstructionInfo* info, char* buffer,
-    size_t bufferLen)
+ZydisStatus ZydisFormatterFormatInstruction(const ZydisInstructionFormatter* formatter, 
+    ZydisInstructionInfo* info, char* buffer, size_t bufferLen)
 {
     if (!formatter || !info || !buffer || (bufferLen == 0))
     {

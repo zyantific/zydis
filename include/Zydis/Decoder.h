@@ -112,7 +112,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDe
  *
  * @return  A zydis status code. 
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(ZydisInstructionDecoder* decoder, 
+ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisInstructionDecoder* decoder, 
     const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
 
 /* ============================================================================================== */
