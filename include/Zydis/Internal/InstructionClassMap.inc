@@ -15,6 +15,7 @@ static const ZydisInstructionParts instructionClassMap[] =
     /*0C*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { {  8,  8,  8 }, ZYDIS_TRUE, ZYDIS_TRUE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
     /*0D*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_DISP, { { 16, 32, 64 } }, { { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
     /*0E*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { { 16, 32, 64 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
-    /*0F*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { { 16, 16, 16 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
-    /*10*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_MODRM | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { { 32, 32, 32 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }
+    /*0F*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_MODRM | ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM, { {  0,  0,  0 } }, { { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
+    /*10*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { { 16, 16, 16 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } },
+    /*11*/ { 0 | ZYDIS_INSTRPART_FLAG_HAS_MODRM | ZYDIS_INSTRPART_FLAG_HAS_IMM0, { {  0,  0,  0 } }, { { { 32, 32, 32 }, ZYDIS_FALSE, ZYDIS_FALSE }, { {  0,  0,  0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }
 };

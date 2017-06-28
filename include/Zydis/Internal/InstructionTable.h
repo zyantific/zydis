@@ -744,10 +744,18 @@ typedef uint8_t ZydisInstructionPartFlags;
  */
 #define ZYDIS_INSTRPART_FLAG_HAS_IMM1       0x08
 
+/**
+ * @brief   The instruction ignores the value of `modrm.mod` and always assumes `modrm.mod == 3`
+ *          ("reg, reg" - form).
+ *          
+ *          Instructions with this flag can't have a SIB byte or a displacement value.
+ */
+#define ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM 0x10
+
 typedef struct ZydisInstructionParts_
 {
     /**
-     * @brief   
+     * @brief   Contains flags with information about the physical instruction-encoding.  
      */
     ZydisInstructionPartFlags flags;
     /**

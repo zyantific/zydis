@@ -1846,6 +1846,40 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         }
         if (info->operands[i].type)
         {
+            // Handle compressed 8-bit displacement
+            if (((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
+                (info->details.disp.dataSize == 8))
+            {
+                info->operands[i].mem.disp.value.sqword *= info->avx.compressedDisp8Scale;
+            }
+
+            goto FinalizeOperand;
+        }
+
+        // Immediate operands
+        switch (operand->type)
+        {
+        case ZYDIS_SEMANTIC_OPTYPE_REL:
+            ZYDIS_ASSERT(info->details.imm[immId].isRelative);
+        case ZYDIS_SEMANTIC_OPTYPE_IMM:
+            ZYDIS_ASSERT((immId == 0) || (immId == 1));
+            info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
+            info->operands[i].size = operand->size[context->eoszIndex] * 8;
+            info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
+            info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
+            info->operands[i].imm.isRelative = info->details.imm[immId].isRelative;
+            ++immId;
+            break;
+        default:
+            break;
+        }
+        ZYDIS_ASSERT(info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE);
+
+FinalizeOperand:
+        // Set segment-register for memory operands
+        if (info->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+        {
             if (info->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
             {
                 info->operands[i].mem.segment = ZYDIS_REGISTER_CS;    
@@ -1884,38 +1918,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                     info->operands[i].mem.segment = ZYDIS_REGISTER_DS;
                 };
             }
-
-            // Handle compressed 8-bit displacement
-            if (((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
-                 (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
-                (info->details.disp.dataSize == 8))
-            {
-                info->operands[i].mem.disp.value.sqword *= info->avx.compressedDisp8Scale;
-            }
-
-            goto FinalizeOperand;
         }
 
-        // Immediate operands
-        switch (operand->type)
-        {
-        case ZYDIS_SEMANTIC_OPTYPE_REL:
-            ZYDIS_ASSERT(info->details.imm[immId].isRelative);
-        case ZYDIS_SEMANTIC_OPTYPE_IMM:
-            ZYDIS_ASSERT((immId == 0) || (immId == 1));
-            info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
-            info->operands[i].size = operand->size[context->eoszIndex] * 8;
-            info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
-            info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
-            info->operands[i].imm.isRelative = info->details.imm[immId].isRelative;
-            ++immId;
-            break;
-        default:
-            break;
-        }
-        ZYDIS_ASSERT(info->operands[i].type == ZYDIS_OPERAND_TYPE_IMMEDIATE);
-
-FinalizeOperand:
         ZydisSetOperandSizeAndElementInfo(context, info, &info->operands[i], operand);
         ++operand;
     }
@@ -3087,72 +3091,75 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
         }
         uint8_t hasSIB = 0;
         uint8_t displacementSize = 0;
-        switch (info->addressWidth)
+        if (!(optionalParts->flags & ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM))
         {
-        case 16:
-            switch (info->details.modrm.mod)
+            switch (info->addressWidth)
             {
-            case 0:
-                if (info->details.modrm.rm == 6) 
+            case 16:
+                switch (info->details.modrm.mod)
                 {
-                    displacementSize = 16;
-                }
-                break;
-            case 1:
-                displacementSize = 8;
-                break;
-            case 2:
-                displacementSize = 16;
-                break;
-            case 3:
-                break;
-            default:
-                ZYDIS_UNREACHABLE;
-            }
-        case 32:
-        case 64:
-            hasSIB = (info->details.modrm.mod != 3) && (info->details.modrm.rm == 4);
-            switch (info->details.modrm.mod)
-            {
-            case 0:
-                if (info->details.modrm.rm == 5)
-                {
-                    if (context->decoder->machineMode == 64)
+                case 0:
+                    if (info->details.modrm.rm == 6) 
                     {
-                        info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+                        displacementSize = 16;
                     }
-                    displacementSize = 32;
+                    break;
+                case 1:
+                    displacementSize = 8;
+                    break;
+                case 2:
+                    displacementSize = 16;
+                    break;
+                case 3:
+                    break;
+                default:
+                    ZYDIS_UNREACHABLE;
                 }
-                break;
-            case 1:
-                displacementSize = 8;
-                break;
-            case 2:
-                displacementSize = 32;
-                break;
-            case 3:
+            case 32:
+            case 64:
+                hasSIB = (info->details.modrm.mod != 3) && (info->details.modrm.rm == 4);
+                switch (info->details.modrm.mod)
+                {
+                case 0:
+                    if (info->details.modrm.rm == 5)
+                    {
+                        if (context->decoder->machineMode == 64)
+                        {
+                            info->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
+                        }
+                        displacementSize = 32;
+                    }
+                    break;
+                case 1:
+                    displacementSize = 8;
+                    break;
+                case 2:
+                    displacementSize = 32;
+                    break;
+                case 3:
+                    break;
+                default:
+                    ZYDIS_UNREACHABLE;
+                }
                 break;
             default:
                 ZYDIS_UNREACHABLE;
             }
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
-        if (hasSIB)
-        {
-            uint8_t sibByte;
-            ZYDIS_CHECK(ZydisInputNext(context, info, &sibByte)); 
-            ZydisDecodeSIB(info, sibByte);
-            if (info->details.sib.base == 5)
+            if (hasSIB)
             {
-                displacementSize = (info->details.modrm.mod == 1) ? 8 : 32;
+                uint8_t sibByte;
+                ZYDIS_CHECK(ZydisInputNext(context, info, &sibByte)); 
+                ZydisDecodeSIB(info, sibByte);
+                if (info->details.sib.base == 5)
+                {
+                    displacementSize = (info->details.modrm.mod == 1) ? 8 : 32;
+                }
             }
+            if (displacementSize)
+            {
+                ZYDIS_CHECK(ZydisReadDisplacement(context, info, displacementSize));
+            } 
         }
-        if (displacementSize)
-        {
-            ZYDIS_CHECK(ZydisReadDisplacement(context, info, displacementSize));
-        }    
     }
 
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP)
@@ -3199,7 +3206,7 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context, ZydisInst
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT(definition);
 
-    static const uint8_t operandSizeMap[6][8] =
+    static const uint8_t operandSizeMap[7][8] =
     {
         // Default for most instructions
         {
@@ -3264,6 +3271,18 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context, ZydisInst
             32, // 32 66 W0
             32, // 64 __ W0
             32, // 64 66 W0
+            64, // 64 __ W1
+            64  // 64 66 W1
+        },
+        // Operand size is forced to 64-bit in 64-bit mode and forced to 32-bit in all other nmodes.
+        // This is used for `mov CR, GPR` and `mov GPR, CR`.
+        {
+            32, // 16 __ W0
+            32, // 16 66 W0
+            32, // 32 __ W0
+            32, // 32 66 W0
+            64, // 64 __ W0
+            64, // 64 66 W0
             64, // 64 __ W1
             64  // 64 66 W1
         }
