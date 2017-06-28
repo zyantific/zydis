@@ -149,19 +149,19 @@ enum ZydisRegisterEncodings
     /**
      * @brief   The register-id is encoded in `modrm.reg`.
      * 
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.R'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.R`.
+     * Possible extension by `EVEX/MVEX.R'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.R`.
      */
     ZYDIS_REG_ENCODING_REG,
     /**
      * @brief   The register-id is encoded in `XOP/VEX/EVEX/MVEX.vvvv`.
      * 
-     * Possible extension by `EVEX/MVEX.V'` (vector only).
+     * Possible extension by `EVEX/MVEX.v'` (vector only).
      */
     ZYDIS_REG_ENCODING_NDSNDD,
     /**
      * @brief   The register-id is encoded in `modrm.rm`.
      * 
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.X` (vector only) and `REX/XOP/VEX/EVEX/MVEX.B`.
+     * Possible extension by `EVEX/MVEX.X` (vector only) and `REX/XOP/VEX/EVEX/MVEX.B`.
      */
     ZYDIS_REG_ENCODING_RM,
     /**
@@ -179,7 +179,7 @@ enum ZydisRegisterEncodings
     /**
      * @brief   The register-id is encoded in `sib.index`.
      * 
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.V'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.X`.
+     * Possible extension by `EVEX/MVEX.V'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.X`.
      */
     ZYDIS_REG_ENCODING_VIDX,
     /**
@@ -906,11 +906,12 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
         {
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             uint8_t value = info->details.modrm.reg | (context->cache.R << 3);
+            // R' only exists for EVEX and MVEX. No encoding check needed
             switch (registerClass)
             {
             case ZYDIS_REGCLASS_XMM:
             case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
+            case ZYDIS_REGCLASS_ZMM:              
                 value |= (context->cache.R2 << 4);
                 break;
             default:
@@ -919,6 +920,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
             return value;
         }
         case ZYDIS_REG_ENCODING_NDSNDD:
+            // v' only exists for EVEX and MVEX. No encoding check needed
             switch (registerClass)
             {
             case ZYDIS_REGCLASS_XMM:
@@ -934,15 +936,21 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
         {
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             uint8_t value = info->details.modrm.rm | (context->cache.B << 3);
-            switch (registerClass)
+            // We have to check the instruction-encoding, because the extension by X is only valid
+            // for EVEX and MVEX instructions
+            if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
             {
-            case ZYDIS_REGCLASS_XMM:
-            case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
-                value |= (context->cache.X << 4);
-                break;
-            default:
-                break;
+                switch (registerClass)
+                {
+                case ZYDIS_REGCLASS_XMM:
+                case ZYDIS_REGCLASS_YMM:
+                case ZYDIS_REGCLASS_ZMM:
+                    value |= (context->cache.X << 4);
+                    break;
+                default:
+                    break;
+                }
             }
             return value;
         }
@@ -967,6 +975,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
             ZYDIS_ASSERT((registerClass == ZYDIS_REGCLASS_XMM) ||
                          (registerClass == ZYDIS_REGCLASS_YMM) ||
                          (registerClass == ZYDIS_REGCLASS_ZMM));
+            // v' only exists for EVEX and MVEX. No encoding check needed
             return info->details.sib.index | (context->cache.X << 3) | (context->cache.V2 << 4);
         case ZYDIS_REG_ENCODING_IS4:
         {
