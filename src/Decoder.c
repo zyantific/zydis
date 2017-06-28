@@ -980,14 +980,20 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
         case ZYDIS_REG_ENCODING_IS4:
         {
             uint8_t value = (info->details.imm[0].value.ubyte >> 4) & 0x0F;
-            switch (registerClass)
+            // We have to check the instruction-encoding, because the extension by bit [3] is only 
+            // valid for EVEX and MVEX instructions
+            if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
             {
-            case ZYDIS_REGCLASS_XMM:
-            case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
-                value |= (((info->details.imm[0].value.ubyte >> 3) & 0x01) << 4);
-            default:
-                break;
+                switch (registerClass)
+                {
+                case ZYDIS_REGCLASS_XMM:
+                case ZYDIS_REGCLASS_YMM:
+                case ZYDIS_REGCLASS_ZMM:
+                    value |= (((info->details.imm[0].value.ubyte >> 3) & 0x01) << 4);
+                default:
+                    break;
+                }
             }
             return value;
         }
