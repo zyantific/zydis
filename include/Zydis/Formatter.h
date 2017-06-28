@@ -258,7 +258,7 @@ enum ZydisFormatterHookTypes
     ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT,
     /**
      * @brief   This function is called right after formatting an operand to print the optional 
-     *          avx-512 operand decorator.
+     *          EVEX/MVEX operand-decorator.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
     /**

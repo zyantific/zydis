@@ -721,49 +721,58 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisInstructionForma
             ((operand->id != (info->operandCount - 1)) && 
              (info->operands[operand->id + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE)))
         {
-            switch (info->avx.roundingMode)
+            if (info->avx.hasSAE)
             {
-            case ZYDIS_ROUNDING_MODE_INVALID:
-                if (info->avx.hasSAE)
+                switch (info->avx.roundingMode)
                 {
+                case ZYDIS_ROUNDING_MODE_INVALID:
                     ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
                         ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sae}"));    
-                }
-                break;
-            case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RN_SAE:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn-sae}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RD_SAE:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd-sae}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RU_SAE:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru-sae}"));
-                break;
-            case ZYDIS_ROUNDING_MODE_RZ_SAE:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz-sae}"));
-                break;
-            default:
-                return ZYDIS_STATUS_INVALID_PARAMETER;
+                    break;
+                case ZYDIS_ROUNDING_MODE_RN:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn-sae}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RD:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd-sae}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RU:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru-sae}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RZ:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz-sae}"));
+                    break;
+                default:
+                    return ZYDIS_STATUS_INVALID_PARAMETER;
+                }   
+            } else
+            {
+                switch (info->avx.roundingMode)
+                {
+                case ZYDIS_ROUNDING_MODE_INVALID:
+                    break;
+                case ZYDIS_ROUNDING_MODE_RN:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RD:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RU:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru}"));
+                    break;
+                case ZYDIS_ROUNDING_MODE_RZ:
+                    ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                        ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz}"));
+                    break;
+                default:
+                    return ZYDIS_STATUS_INVALID_PARAMETER;
+                }    
             }
 
             switch (info->avx.swizzleMode)

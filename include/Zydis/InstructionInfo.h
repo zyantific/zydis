@@ -792,23 +792,7 @@ enum ZydisRoundingModes
     /**
      * @brief   Round towards zero.
      */
-    ZYDIS_ROUNDING_MODE_RZ,
-    /**
-     * @brief   Round to nearest and suppress all exceptions.
-     */
-    ZYDIS_ROUNDING_MODE_RN_SAE,
-    /**
-     * @brief   Round down and suppress all exceptions.
-     */
-    ZYDIS_ROUNDING_MODE_RD_SAE,
-    /**
-     * @brief   Round up and suppress all exceptions.
-     */
-    ZYDIS_ROUNDING_MODE_RU_SAE,
-    /**
-     * @brief   Round towards zero and suppress all exceptions.
-     */
-    ZYDIS_ROUNDING_MODE_RZ_SAE
+    ZYDIS_ROUNDING_MODE_RZ
 };
 
 /* ---------------------------------------------------------------------------------------------- */

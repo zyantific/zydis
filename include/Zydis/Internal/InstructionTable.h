@@ -646,7 +646,7 @@ enum ZydisMaskPolicies
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
-    ZydisBool hasNDSOperand                 ZYDIS_BITFIELD( 1)
+    ZydisBool hasNDSNDDOperand              ZYDIS_BITFIELD( 1)
 
 /**
  * @brief   Defines the @c ZydisInstructionDefinition struct.
