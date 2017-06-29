@@ -1780,7 +1780,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                     ZydisDecodeOperandRegister(info, &info->operands[i], registerClass, 
                     ZydisCalcRegisterId(context, info, ZYDIS_REG_ENCODING_OPCODE, registerClass)));
                 break;
-            case ZYDIS_OPERAND_ENCODING_NDS:
+            case ZYDIS_OPERAND_ENCODING_NDSNDD:
                 ZYDIS_CHECK(
                     ZydisDecodeOperandRegister(info, &info->operands[i], registerClass, 
                     ZydisCalcRegisterId(context, info, ZYDIS_REG_ENCODING_NDSNDD, registerClass)));
@@ -1790,7 +1790,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                     ZydisDecodeOperandRegister(info, &info->operands[i], registerClass, 
                     ZydisCalcRegisterId(context, info, ZYDIS_REG_ENCODING_MASK, registerClass)));
                 break;
-            case ZYDIS_OPERAND_ENCODING_UIMM8_HI:
+            case ZYDIS_OPERAND_ENCODING_IS4:
                 ZYDIS_CHECK(
                     ZydisDecodeOperandRegister(info, &info->operands[i], registerClass, 
                     ZydisCalcRegisterId(context, info, ZYDIS_REG_ENCODING_IS4, registerClass)));
@@ -1866,7 +1866,15 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             ZYDIS_ASSERT((immId == 0) || (immId == 1));
             info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
             info->operands[i].size = operand->size[context->eoszIndex] * 8;
-            info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
+            if (operand->op.encoding == ZYDIS_OPERAND_ENCODING_IS4)
+            {
+                // The upper half of the 8-bit immediate is used to encode a register specifier
+                ZYDIS_ASSERT(info->details.imm[immId].dataSize == 8);
+                info->operands[i].imm.value.ubyte = info->details.imm[immId].value.ubyte & 0x0F;   
+            } else
+            {
+                info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
+            }
             info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
             info->operands[i].imm.isRelative = info->details.imm[immId].isRelative;
             ++immId;
@@ -4017,6 +4025,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                 ZYDIS_CHECK(ZydisDecodeOptionalInstructionParts(context, info, optionalParts));
 
                 ZydisBool hasNDSNDDOperand = ZYDIS_FALSE;
+                ZydisBool hasVSIB = ZYDIS_FALSE;
                 ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
                 switch (info->encoding)
                 {
@@ -4059,6 +4068,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     const ZydisInstructionDefinitionEVEX* def = 
                         (const ZydisInstructionDefinitionEVEX*)definition;
                     hasNDSNDDOperand = def->hasNDSNDDOperand;
+                    hasVSIB = def->hasVSIB;
                     maskPolicy = def->maskPolicy;
                     break;
                 }
@@ -4067,6 +4077,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     const ZydisInstructionDefinitionMVEX* def = 
                         (const ZydisInstructionDefinitionMVEX*)definition;
                     hasNDSNDDOperand = def->hasNDSNDDOperand;
+                    hasVSIB = def->hasVSIB;
                     maskPolicy = def->maskPolicy;
 
                     // Check for invalid MVEX.SSS values
@@ -4135,10 +4146,14 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     ZYDIS_UNREACHABLE;
                 }
 
-                // TODO: Add check for invalid .V`
-
-                // Check for invalid XOP/VEX/EVEX/MVEX.vvvv value
+                // Check for invalid `XOP/VEX/EVEX/MVEX.vvvv` value
                 if (!hasNDSNDDOperand && (context->cache.v_vvvv & 0x0F))
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
+                }
+
+                // Check for invalid `EVEX/MVEX.v'` value
+                if (!hasNDSNDDOperand && !hasVSIB && context->cache.V2)
                 {
                     return ZYDIS_STATUS_DECODING_ERROR;
                 }
