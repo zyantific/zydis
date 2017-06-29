@@ -1933,7 +1933,8 @@ FinalizeOperand:
     }
 
     // Fix operand-action for EVEX instructions with merge-mask
-    if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
+    if (((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) || 
+         (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) && 
         (info->avx.maskMode == ZYDIS_MASK_MODE_MERGE) &&
         (info->operandCount >= 3) &&
         (info->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
@@ -4084,7 +4085,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     static const uint8_t lookup[25][8] =
                     {
                         // ZYDIS_MVEX_FUNC_INVALID
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
+                        { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_RC
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SAE
