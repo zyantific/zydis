@@ -2700,6 +2700,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         // Compressed disp8 scale and broadcast-factor
         switch (def->functionality)
         {
+        case ZYDIS_MVEX_FUNC_IGNORED:
         case ZYDIS_MVEX_FUNC_INVALID:
         case ZYDIS_MVEX_FUNC_RC:
         case ZYDIS_MVEX_FUNC_SAE:
@@ -2790,6 +2791,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         context->mvex.functionality = def->functionality;
         switch (def->functionality)
         {
+        case ZYDIS_MVEX_FUNC_IGNORED:
         case ZYDIS_MVEX_FUNC_INVALID:
         case ZYDIS_MVEX_FUNC_F_32:
         case ZYDIS_MVEX_FUNC_I_32:
