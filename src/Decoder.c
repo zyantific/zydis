@@ -906,6 +906,10 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
         {
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             uint8_t value = info->details.modrm.reg;
+            if (registerClass != ZYDIS_REGCLASS_MASK)
+            {
+                value |= (context->cache.R << 3);    
+            }
             // R' only exists for EVEX and MVEX. No encoding check needed
             switch (registerClass)
             {
@@ -914,10 +918,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
             case ZYDIS_REGCLASS_ZMM:              
                 value |= (context->cache.R2 << 4);
                 break;
-            case ZYDIS_REGCLASS_MASK:
-                break;
             default:
-                value |= (context->cache.R  << 3);
                 break;
             }
             return value;
@@ -939,6 +940,10 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
         {
             ZYDIS_ASSERT(info->details.modrm.isDecoded);
             uint8_t value = info->details.modrm.rm;
+            if (registerClass != ZYDIS_REGCLASS_MASK)
+            {
+                value |= (context->cache.B << 3);    
+            }
             // We have to check the instruction-encoding, because the extension by X is only valid
             // for EVEX and MVEX instructions
             if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
@@ -951,10 +956,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
                 case ZYDIS_REGCLASS_ZMM:
                     value |= (context->cache.X << 4);
                     break;
-                case ZYDIS_REGCLASS_MASK:
-                    break;
                 default:
-                    value |= (context->cache.B << 3);
                     break;
                 }
             }
