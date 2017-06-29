@@ -1114,18 +1114,26 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     switch (context->mvex.functionality)
                     {
                     case ZYDIS_MVEX_FUNC_SF_32:
-                    case ZYDIS_MVEX_FUNC_SF_32_BCST:
                     case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
                     case ZYDIS_MVEX_FUNC_UF_32:
                     case ZYDIS_MVEX_FUNC_DF_32:
                         operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT32;
                         operand->elementSize = 32;
                         break;
+                    case ZYDIS_MVEX_FUNC_SF_32_BCST:
+                        operand->size = 256;
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_FLOAT32;
+                        operand->elementSize = 32;
+                        break;
                     case ZYDIS_MVEX_FUNC_SI_32:
-                    case ZYDIS_MVEX_FUNC_SI_32_BCST:
                     case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
                     case ZYDIS_MVEX_FUNC_UI_32:
                     case ZYDIS_MVEX_FUNC_DI_32:
+                        operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
+                        operand->elementSize = 32;
+                        break;
+                    case ZYDIS_MVEX_FUNC_SI_32_BCST:
+                        operand->size = 256;
                         operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
                         operand->elementSize = 32;
                         break;
