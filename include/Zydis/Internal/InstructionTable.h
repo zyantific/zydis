@@ -442,6 +442,13 @@ typedef uint8_t ZydisMVEXFunctionality;
  */
 enum ZydisMVEXFunctionalities
 {
+    /**
+     * @brief   @c The MVEX.SSS value is ignored.
+     */
+    ZYDIS_MVEX_FUNC_IGNORED,
+    /**
+     * @brief   @c MVEX.SSS must be 000b.
+     */
     ZYDIS_MVEX_FUNC_INVALID,
     /**
      * @brief   @c MVEX.SSS controls embedded-rounding functionality.

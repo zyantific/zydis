@@ -4093,10 +4093,12 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, ZydisIns
                     maskPolicy = def->maskPolicy;
 
                     // Check for invalid MVEX.SSS values
-                    static const uint8_t lookup[25][8] =
+                    static const uint8_t lookup[26][8] =
                     {
-                        // ZYDIS_MVEX_FUNC_INVALID
+                        // ZYDIS_MVEX_FUNC_IGNORED
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
+                        // ZYDIS_MVEX_FUNC_INVALID
+                        { 1, 0, 0, 0, 0, 0, 0, 0 },
                         // ZYDIS_MVEX_FUNC_RC
                         { 1, 1, 1, 1, 1, 1, 1, 1 },
                         // ZYDIS_MVEX_FUNC_SAE
