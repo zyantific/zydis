@@ -1956,6 +1956,9 @@ FinalizeOperand:
             case ZYDIS_OPERAND_ACTION_WRITE:
                 info->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
                 break;
+            case ZYDIS_OPERAND_ACTION_READWRITE:
+                info->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+                break;
             default:
                 ZYDIS_UNREACHABLE;
             }
