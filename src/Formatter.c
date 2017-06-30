@@ -282,7 +282,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisInstructionFor
         if (operand->mem.base == ZYDIS_REGISTER_NONE)
         {
             // MOFFS8/16/32/64
-            address = (uint64_t)operand->mem.disp.value.sqword;
+            address = (uint64_t)operand->mem.disp.value;
         } else
         {
             // EIP/RIP-relative
@@ -367,13 +367,13 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisInstructionFor
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
-        if (printSignedHEX && (operand->imm.value.sqword < 0))
+        if (printSignedHEX && (operand->imm.value.s < 0))
         {
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->imm.value.sdword);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -(int32_t)operand->imm.value.s);
         }
         return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%02"PRIX32, operand->imm.value.sdword);
+            "0x%02"PRIX32, (int32_t)operand->imm.value.s);
     }
 
     // The immediate operand contains an actual ordinal value
@@ -413,24 +413,24 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisInstructionFo
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    if (operand->mem.disp.hasDisplacement && ((operand->mem.disp.value.sqword) || 
+    if (operand->mem.disp.hasDisplacement && ((operand->mem.disp.value) || 
         ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
         (operand->mem.index == ZYDIS_REGISTER_NONE))))
     {
         ZydisBool printSignedHEX = 
             (formatter->displacementFormat != ZYDIS_FORMATTER_DISP_HEX_UNSIGNED);
-        if (printSignedHEX && (operand->mem.disp.value.sqword < 0) && (
+        if (printSignedHEX && (operand->mem.disp.value < 0) && (
             (operand->mem.base != ZYDIS_REGISTER_NONE) || 
             (operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->mem.disp.value.sdword);     
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->mem.disp.value);     
         }
         const char* sign = 
             ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
             (operand->mem.index == ZYDIS_REGISTER_NONE)) ? "" : "+";
         return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "%s0x%02"PRIX32, sign, operand->mem.disp.value.sdword);
+            "%s0x%02"PRIX32, sign, operand->mem.disp.value);
     }
     return ZYDIS_STATUS_SUCCESS; 
 }
@@ -448,22 +448,22 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisInstructionForma
     {
         printSignedHEX = operand->imm.isSigned;    
     }
-    if (printSignedHEX && (operand->imm.value.sqword < 0))
+    if (printSignedHEX && (operand->imm.value.s < 0))
     {
         switch (operand->size)
         {
         case 8:
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX8, -operand->imm.value.sbyte);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX8, -(int8_t)operand->imm.value.s);
         case 16:
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX16, -operand->imm.value.sword);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX16, -(int16_t)operand->imm.value.s);
         case 32:
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->imm.value.sdword);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -(int32_t)operand->imm.value.s);
         case 64:
             return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX64, -operand->imm.value.sqword);
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX64, -operand->imm.value.s);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }    
@@ -472,13 +472,13 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisInstructionForma
     {
     case 16:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX16, operand->imm.value.uword);
+            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX16, (uint16_t)operand->imm.value.u);
     case 32:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX32, operand->imm.value.udword);
+            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX32, (uint32_t)operand->imm.value.u);
     case 64:
         return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX64, operand->imm.value.uqword);
+            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX64, operand->imm.value.u);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }

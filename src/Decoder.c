@@ -468,6 +468,7 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context, ZydisInstruction
         ZYDIS_UNREACHABLE;
     }  
 
+    // TODO: m_mmmm = 0 is only valid for some KNC instructions
     if (info->details.vex.m_mmmm > 0x03)
     {
         // Invalid according to the intel documentation
@@ -520,7 +521,6 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
 
     info->details.evex.mm           = (data[1] >> 0) & 0x03;
 
-    // TODO: Check if map = 0 is allowed for new EVEX instructions
     if (info->details.evex.mm == 0x00)
     {
         // Invalid according to the intel documentation
@@ -538,6 +538,12 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, ZydisInstructio
     info->details.evex.L            = (data[3] >> 5) & 0x01;
     info->details.evex.b            = (data[3] >> 4) & 0x01;
     info->details.evex.V2           = (data[3] >> 3) & 0x01;
+
+    if (!info->details.evex.V2 && context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        return ZYDIS_STATUS_MALFORMED_EVEX;
+    }
+
     info->details.evex.aaa          = (data[3] >> 0) & 0x07;
     
     // Update internal fields
@@ -678,10 +684,10 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(info);
-    ZYDIS_ASSERT(info->details.disp.dataSize == 0);
+    ZYDIS_ASSERT(info->details.disp.size == 0);
 
-    info->details.disp.dataSize = size;
-    info->details.disp.dataOffset = info->length;
+    info->details.disp.size = size;
+    info->details.disp.offset = info->length;
 
     switch (size)
     {
@@ -689,28 +695,28 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, ZydisInst
     {
         uint8_t value;
         ZYDIS_CHECK(ZydisInputNext(context, info, &value));
-        info->details.disp.value.sqword = *(int8_t*)&value;
+        info->details.disp.value = *(int8_t*)&value;
         break;
     }
     case 16:
     {
         uint16_t value;
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 2));
-        info->details.disp.value.sqword = *(int16_t*)&value;
+        info->details.disp.value = *(int16_t*)&value;
         break;
     }
     case 32:
     {
         uint32_t value;
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 4));
-        info->details.disp.value.sqword = *(int32_t*)&value;
+        info->details.disp.value = *(int32_t*)&value;
         break;
     }
     case 64:
     {
         uint64_t value;
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 8));
-        info->details.disp.value.sqword = *(int64_t*)&value;
+        info->details.disp.value = *(int64_t*)&value;
         break;
     }
     default:
@@ -741,10 +747,10 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
     ZYDIS_ASSERT(info);
     ZYDIS_ASSERT((id == 0) || (id == 1));
     ZYDIS_ASSERT(isSigned || !isRelative);
-    ZYDIS_ASSERT(info->details.imm[id].dataSize == 0);
+    ZYDIS_ASSERT(info->details.imm[id].size == 0);
 
-    info->details.imm[id].dataSize = size;
-    info->details.imm[id].dataOffset = info->length;
+    info->details.imm[id].size = size;
+    info->details.imm[id].offset = info->length;
     info->details.imm[id].isSigned = isSigned;
     info->details.imm[id].isRelative = isRelative;
     switch (size)
@@ -755,10 +761,10 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
         ZYDIS_CHECK(ZydisInputNext(context, info, &value));
         if (isSigned)
         {
-            info->details.imm[id].value.sqword = (int8_t)value;
+            info->details.imm[id].value.s = (int8_t)value;
         } else
         {
-            info->details.imm[id].value.ubyte = value;    
+            info->details.imm[id].value.u = value;    
         }
         break;
     }
@@ -768,10 +774,10 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 2));
         if (isSigned)
         {
-            info->details.imm[id].value.sqword = (int16_t)value;
+            info->details.imm[id].value.s = (int16_t)value;
         } else
         {
-            info->details.imm[id].value.uword = value;    
+            info->details.imm[id].value.u = value;    
         }
         break;   
     }
@@ -781,10 +787,10 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 4));
         if (isSigned)
         {
-            info->details.imm[id].value.sqword = (int32_t)value;
+            info->details.imm[id].value.s = (int32_t)value;
         } else
         {
-            info->details.imm[id].value.udword = value;    
+            info->details.imm[id].value.u = value;    
         }
         break;
     }
@@ -794,10 +800,10 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, ZydisInstruc
         ZYDIS_CHECK(ZydisInputNextBytes(context, info, (uint8_t*)&value, 8));
         if (isSigned)
         {
-            info->details.imm[id].value.sqword = (int64_t)value;
+            info->details.imm[id].value.s = (int64_t)value;
         } else
         {
-            info->details.imm[id].value.uqword = value;    
+            info->details.imm[id].value.u = value;    
         }
         break;
     }
@@ -880,7 +886,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
                          (registerClass == ZYDIS_REGCLASS_ZMM));
             return info->details.sib.index;
         case ZYDIS_REG_ENCODING_IS4:
-            return (info->details.imm[0].value.ubyte >> 5) & 0x07;
+            return (info->details.imm[0].value.u >> 5) & 0x07;
         case ZYDIS_REG_ENCODING_MASK:
             return context->cache.mask;
         default:
@@ -987,7 +993,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
             return info->details.sib.index | (context->cache.X << 3) | (context->cache.V2 << 4);
         case ZYDIS_REG_ENCODING_IS4:
         {
-            uint8_t value = (info->details.imm[0].value.ubyte >> 4) & 0x0F;
+            uint8_t value = (info->details.imm[0].value.u >> 4) & 0x0F;
             // We have to check the instruction-encoding, because the extension by bit [3] is only 
             // valid for EVEX and MVEX instructions
             if ((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
@@ -998,7 +1004,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, ZydisInstructio
                 case ZYDIS_REGCLASS_XMM:
                 case ZYDIS_REGCLASS_YMM:
                 case ZYDIS_REGCLASS_ZMM:
-                    value |= (((info->details.imm[0].value.ubyte >> 3) & 0x01) << 4);
+                    value |= ((info->details.imm[0].value.u & 0x08) << 1);
                 default:
                     break;
                 }
@@ -1213,10 +1219,10 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_OPERAND_TYPE_POINTER:
-        ZYDIS_ASSERT((info->details.imm[0].dataSize == 16) || 
-                     (info->details.imm[0].dataSize == 32));
-        ZYDIS_ASSERT(info->details.imm[1].dataSize == 16);
-        operand->size = info->details.imm[0].dataSize + info->details.imm[1].dataSize;
+        ZYDIS_ASSERT((info->details.imm[0].size == 16) || 
+                     (info->details.imm[0].size == 32));
+        ZYDIS_ASSERT( info->details.imm[1].size == 16);
+        operand->size = info->details.imm[0].size + info->details.imm[1].size;
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         operand->size = definition->size[context->eoszIndex] * 8;
@@ -1482,9 +1488,9 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     }
     if (displacementSize)
     {
-        ZYDIS_ASSERT(info->details.disp.dataSize == displacementSize);
+        ZYDIS_ASSERT(info->details.disp.size == displacementSize);
         operand->mem.disp.hasDisplacement = ZYDIS_TRUE;
-        operand->mem.disp.value.sqword = info->details.disp.value.sqword;
+        operand->mem.disp.value = info->details.disp.value;
     }
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -1700,7 +1706,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1:
             info->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
             info->operands[i].size = 8;
-            info->operands[i].imm.value.ubyte = 1;
+            info->operands[i].imm.value.u = 1;
             info->operands[i].imm.isSigned = ZYDIS_FALSE;
             info->operands[i].imm.isRelative = ZYDIS_FALSE;
             break;
@@ -1838,12 +1844,12 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                 ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGCLASS_ZMM));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:        
-            ZYDIS_ASSERT((info->details.imm[0].dataSize == 16) || 
-                         (info->details.imm[0].dataSize == 32));
-            ZYDIS_ASSERT(info->details.imm[1].dataSize == 16);
+            ZYDIS_ASSERT((info->details.imm[0].size == 16) || 
+                         (info->details.imm[0].size == 32));
+            ZYDIS_ASSERT( info->details.imm[1].size == 16);
             info->operands[i].type = ZYDIS_OPERAND_TYPE_POINTER;
-            info->operands[i].ptr.offset = info->details.imm[0].value.sdword;
-            info->operands[i].ptr.segment = info->details.imm[1].value.uword;
+            info->operands[i].ptr.offset  = (uint32_t)info->details.imm[0].value.u;
+            info->operands[i].ptr.segment = (uint16_t)info->details.imm[1].value.u;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
             info->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
@@ -1852,10 +1858,10 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
                 ZydisDecodeOperandMemory(context, info, &info->operands[i], ZYDIS_REGISTER_NONE)); 
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
-            ZYDIS_ASSERT(info->details.disp.dataSize);
+            ZYDIS_ASSERT(info->details.disp.size);
             info->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
             info->operands[i].mem.disp.hasDisplacement = ZYDIS_TRUE;
-            info->operands[i].mem.disp.value.sqword = info->details.disp.value.sqword;
+            info->operands[i].mem.disp.value = info->details.disp.value;
             break;
         default:
             break;
@@ -1865,9 +1871,9 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             // Handle compressed 8-bit displacement
             if (((info->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                  (info->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
-                (info->details.disp.dataSize == 8))
+                (info->details.disp.size == 8))
             {
-                info->operands[i].mem.disp.value.sqword *= info->avx.compressedDisp8Scale;
+                info->operands[i].mem.disp.value *= info->avx.compressedDisp8Scale;
             }
 
             goto FinalizeOperand;
@@ -1885,11 +1891,11 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context, ZydisInstru
             if (operand->op.encoding == ZYDIS_OPERAND_ENCODING_IS4)
             {
                 // The upper half of the 8-bit immediate is used to encode a register specifier
-                ZYDIS_ASSERT(info->details.imm[immId].dataSize == 8);
-                info->operands[i].imm.value.ubyte = info->details.imm[immId].value.ubyte & 0x0F;   
+                ZYDIS_ASSERT(info->details.imm[immId].size == 8);
+                info->operands[i].imm.value.u = (uint8_t)info->details.imm[immId].value.u & 0x0F;   
             } else
             {
-                info->operands[i].imm.value.uqword = info->details.imm[immId].value.uqword;
+                info->operands[i].imm.value.u = info->details.imm[immId].value.u;
             }
             info->operands[i].imm.isSigned = info->details.imm[immId].isSigned;
             info->operands[i].imm.isRelative = info->details.imm[immId].isRelative;

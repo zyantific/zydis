@@ -333,13 +333,7 @@ typedef struct ZydisOperandInfo_
             /**
              * @brief   The displacement value
              */
-            union
-            {
-                int8_t sbyte;
-                int16_t sword;
-                int32_t sdword;
-                int64_t sqword;
-            } value;
+            int64_t value;
         } disp;
     } mem;
     /**
@@ -369,14 +363,8 @@ typedef struct ZydisOperandInfo_
          */
         union 
         {
-            int8_t sbyte;
-            uint8_t ubyte;
-            int16_t sword;
-            uint16_t uword;
-            int32_t sdword;
-            uint32_t udword;
-            int64_t sqword;
-            uint64_t uqword;
+            uint64_t u;
+            int64_t s;         
         } value;
     } imm;
 } ZydisOperandInfo;
@@ -688,6 +676,46 @@ typedef uint64_t ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000001000000000
 
 /* ---------------------------------------------------------------------------------------------- */
+/* SSE/AVX exception-class                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisExceptionClass datatype.
+ */
+typedef uint16_t ZydisExceptionClass;
+
+/**
+ * @brief   Values that represent exception-classes.
+ */
+enum ZydisExceptionClasses
+{
+    ZYDIS_EXCEPTION_CLASS_NONE,
+    // TODO: SSE and AVX
+    ZYDIS_EXCEPTION_CLASS_E1,
+    ZYDIS_EXCEPTION_CLASS_E1NF,
+    ZYDIS_EXCEPTION_CLASS_E2,
+    ZYDIS_EXCEPTION_CLASS_E2NF,
+    ZYDIS_EXCEPTION_CLASS_E3,
+    ZYDIS_EXCEPTION_CLASS_E3NF,
+    ZYDIS_EXCEPTION_CLASS_E4,
+    ZYDIS_EXCEPTION_CLASS_E4NF,
+    ZYDIS_EXCEPTION_CLASS_E5,
+    ZYDIS_EXCEPTION_CLASS_E5NF,
+    ZYDIS_EXCEPTION_CLASS_E6,
+    ZYDIS_EXCEPTION_CLASS_E6NF,
+    ZYDIS_EXCEPTION_CLASS_E7NM,
+    ZYDIS_EXCEPTION_CLASS_E7NM128,
+    ZYDIS_EXCEPTION_CLASS_E9NF,
+    ZYDIS_EXCEPTION_CLASS_E10,
+    ZYDIS_EXCEPTION_CLASS_E10NF,
+    ZYDIS_EXCEPTION_CLASS_E11,
+    ZYDIS_EXCEPTION_CLASS_E12,
+    ZYDIS_EXCEPTION_CLASS_E12NP,
+    ZYDIS_EXCEPTION_CLASS_K20,
+    ZYDIS_EXCEPTION_CLASS_K21
+};
+
+/* ---------------------------------------------------------------------------------------------- */
 /* AVX vector-length                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -956,9 +984,6 @@ typedef struct ZydisInstructionInfo_
          * @brief   The AVX data-conversion mode (MVEX only).
          */
         ZydisConversionMode conversionMode;
-
-        // TODO: Remove SAE from the rounding-mode enum and always add it as extra value
-
         /**
          * @brief   Signals, if the sae functionality is enabled for the instruction.
          */
@@ -967,7 +992,6 @@ typedef struct ZydisInstructionInfo_
          * @brief   Signals, if the instruction has a memory eviction-hint (MVEX only).
          */
         ZydisBool hasEvictionHint;
-        
     } avx;  
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 
@@ -1278,22 +1302,16 @@ typedef struct ZydisInstructionInfo_
             /**
              * @brief   The displacement value
              */
-            union
-            {
-                int8_t sbyte;
-                int16_t sword;
-                int32_t sdword;
-                int64_t sqword;
-            } value;
+            int64_t value;
             /**
              * @brief   The physical displacement size, in bits.
              */
-            uint8_t dataSize;
+            uint8_t size;
             /**
              * @brief   The offset of the displacement data, relative to the beginning of the
              *          instruction, in bytes.
              */
-            uint8_t dataOffset;
+            uint8_t offset;
         } disp;
         /**
          * @brief   Detailed info about immediate-bytes.
@@ -1314,25 +1332,19 @@ typedef struct ZydisInstructionInfo_
              * @brief   The immediate value.
              */
             union
-            {
-                int8_t sbyte;
-                uint8_t ubyte;
-                int16_t sword;
-                uint16_t uword;
-                int32_t sdword;
-                uint32_t udword;
-                int64_t sqword;
-                uint64_t uqword;
+            {  
+                uint64_t u;
+                int64_t s;
             } value;
             /**
              * @brief   The physical immediate size, in bits.
              */
-            uint8_t dataSize;
+            uint8_t size;
             /**
              * @brief   The offset of the immediate data, relative to the beginning of the
              *          instruction, in bytes.
              */
-            uint8_t dataOffset;
+            uint8_t offset;
         } imm[2];
     } details;
     /**
