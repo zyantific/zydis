@@ -45,7 +45,7 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   A pointer to the @c ZydisInstructionDecoder instance.
      */
-    const ZydisInstructionDecoder* decoder;
+    const ZydisDecoder* decoder;
     /**
      * @brief   The input buffer.
      */
@@ -4324,16 +4324,14 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisStatus ZydisDecoderInitInstructionDecoder(ZydisInstructionDecoder* decoder, 
-    ZydisMachineMode machineMode, ZydisAddressWidth addressWidth)
+ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
+    ZydisAddressWidth addressWidth)
 {
-    return ZydisDecoderInitInstructionDecoderEx(
-        decoder, machineMode, addressWidth, ZYDIS_DECODE_GRANULARITY_DEFAULT);
+    return ZydisDecoderInitEx(decoder, machineMode, addressWidth, ZYDIS_DECODE_GRANULARITY_DEFAULT);
 }
 
-ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decoder, 
-    ZydisMachineMode machineMode, ZydisAddressWidth addressWidth, 
-    ZydisDecodeGranularity decodeGranularity)
+ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
+    ZydisAddressWidth addressWidth, ZydisDecodeGranularity decodeGranularity)
 {
     if (!decoder || ((machineMode != 16) && (machineMode != 32) && (machineMode != 64)) ||
         ((decodeGranularity != ZYDIS_DECODE_GRANULARITY_DEFAULT) && 
@@ -4364,7 +4362,7 @@ ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDecoder* decode
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisDecoderDecodeBuffer(const ZydisInstructionDecoder* decoder, const void* buffer, 
+ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buffer, 
     size_t bufferLen, uint64_t instructionPointer, ZydisDecodedInstruction* instruction)
 {
     if (!decoder)

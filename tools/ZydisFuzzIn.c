@@ -63,17 +63,17 @@ int main()
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(
-        &decoder, controlBlock.machineMode, controlBlock.addressWidth, controlBlock.granularity)))
+    ZydisDecoder decoder;
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitEx(&decoder, controlBlock.machineMode, 
+        controlBlock.addressWidth, controlBlock.granularity)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
-        controlBlock.formatterStyle, controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
+    ZydisFormatter formatter;
+    if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, controlBlock.formatterStyle, 
+        controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
         controlBlock.formatterDispFormat, controlBlock.formatterImmFormat)))
     {
         fputs("failed to initialize instruction-formatter\n", stderr);
