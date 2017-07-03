@@ -35,7 +35,6 @@
 #include <Zydis/InstructionInfo.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
-#include <Zydis/Encoder.h>
 #include <Zydis/Utils.h>
 
 #ifdef __cplusplus

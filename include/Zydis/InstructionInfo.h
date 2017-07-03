@@ -248,13 +248,13 @@ enum ZydisElementTypes
 typedef uint16_t ZydisElementSize;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Operand info                                                                                   */
+/* Decoded operand                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOperandInfo struct.
+ * @brief   Defines the @c ZydisDecodedOperand struct.
  */
-typedef struct ZydisOperandInfo_
+typedef struct ZydisDecodedOperand_
 {
     /**
      * @brief   The operand-id.
@@ -367,7 +367,7 @@ typedef struct ZydisOperandInfo_
             int64_t s;         
         } value;
     } imm;
-} ZydisOperandInfo;
+} ZydisDecodedOperand;
 
 /* ============================================================================================== */
 /* Instruction info                                                                               */
@@ -870,13 +870,13 @@ enum ZydisConversionModes
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction info                                                                               */
+/* Decoded instruction                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the zydis instruction info struct.
+ * @brief   Defines the @c ZydisDecodedInstruction struct.
  */
-typedef struct ZydisInstructionInfo_
+typedef struct ZydisDecodedInstruction_
 {
     /**
      * @brief   The machine mode used to decode this instruction.
@@ -921,7 +921,7 @@ typedef struct ZydisInstructionInfo_
     /**
      * @brief   Detailed info for all instruction operands.
      */
-    ZydisOperandInfo operands[10];
+    ZydisDecodedOperand operands[10];
     /**
      * @brief  Instruction attributes.
      */
@@ -1351,7 +1351,7 @@ typedef struct ZydisInstructionInfo_
      * @brief   This field is intended for custom data and may be freely set by the user.
      */
     void* userData;
-} ZydisInstructionInfo;
+} ZydisDecodedInstruction;
 
 /* ---------------------------------------------------------------------------------------------- */
 

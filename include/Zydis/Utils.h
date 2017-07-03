@@ -43,14 +43,15 @@ extern "C" {
 /**
  * @brief   Calculates the absolute target-address of an relative instruction operand.
  *
- * @param   info    A pointer to the @c ZydisInstructionInfo struct.
- * @param   operand A pointer to the @c ZydisOperandInfo struct.
- * @param   address A pointer to the memory that receives the absolute target-address.
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
+ * @param   address     A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zydis status code
  */
-ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisInstructionInfo* info,
-    const ZydisOperandInfo* operand, uint64_t* address);
+ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand, 
+    uint64_t* address);
 
 /* ============================================================================================== */
 

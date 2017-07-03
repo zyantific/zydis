@@ -107,13 +107,14 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitInstructionDecoderEx(ZydisInstructionDe
  * @param   buffer              A pointer to the input buffer.
  * @param   bufferLen           The length of the input buffer.
  * @param   instructionPointer  The instruction-pointer.
- * @param   info                A pointer to the @c ZydisInstructionInfo struct, that receives the 
- *                              details about the decoded instruction.
+ * @param   instruction         A pointer to the @c ZydisDecodedInstruction struct, that receives 
+ *                              the details about the decoded instruction.
  *
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisInstructionDecoder* decoder, 
-    const void* buffer, size_t bufferLen, uint64_t instructionPointer, ZydisInstructionInfo* info);
+    const void* buffer, size_t bufferLen, uint64_t instructionPointer, 
+    ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */
 
