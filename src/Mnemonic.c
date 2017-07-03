@@ -30,7 +30,7 @@
 /* Mnemonic strings                                                                               */
 /* ============================================================================================== */
 
-#include <Zydis/Internal/MnemonicStrings.inc>
+#include <Generated/MnemonicStrings.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

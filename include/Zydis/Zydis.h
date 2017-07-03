@@ -32,7 +32,7 @@
 #include <Zydis/Status.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
-#include <Zydis/InstructionInfo.h>
+#include <Zydis/DecoderTypes.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Formatter.h>
 #include <Zydis/Utils.h>

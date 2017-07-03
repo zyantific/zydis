@@ -60,7 +60,9 @@ endif ()
 
 add_library("Zydis")
 
-target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
+target_include_directories("Zydis" 
+    PUBLIC "include" ${PROJECT_BINARY_DIR}
+    PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
@@ -82,7 +84,7 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/InstructionInfo.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
@@ -90,7 +92,7 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
     PRIVATE
-        "include/Zydis/Internal/InstructionTable.h"
+        "src/InstructionTable.h"
         "src/Decoder.c"
         "src/Formatter.c"
         "src/InstructionTable.c"
@@ -125,7 +127,7 @@ if (ZYDIS_BUILD_EXAMPLES)
         "examples/FormatterHooks.c"
         "examples/FormatHelper.h")
     target_link_libraries("FormatterHooks" "Zydis")
-    set_target_properties ("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
+    set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
     target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 endif ()
 

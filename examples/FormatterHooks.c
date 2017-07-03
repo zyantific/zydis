@@ -37,7 +37,6 @@
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
 #include <stdlib.h>
-#include <time.h>
 
 /* ============================================================================================== */
 /* Static data                                                                                    */
@@ -214,11 +213,8 @@ void disassembleBuffer(ZydisInstructionDecoder* decoder, uint8_t* data, size_t l
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-#include <Zydis/Internal/InstructionTable.h>
-
 int main()
 {
-
     uint8_t data[] = 
     {
         // cmpps xmm1, xmm4, 0x03

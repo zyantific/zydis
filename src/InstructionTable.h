@@ -29,7 +29,7 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
-#include <Zydis/InstructionInfo.h>
+#include <Zydis/DecoderTypes.h>
 
 #ifdef __cplusplus
 extern "C" {

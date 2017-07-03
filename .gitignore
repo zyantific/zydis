@@ -80,3 +80,5 @@ CTestTestfile.cmake
 # MacOS
 .DS_Store
 
+build*
+.vs

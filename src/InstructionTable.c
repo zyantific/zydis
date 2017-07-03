@@ -25,7 +25,7 @@
 ***************************************************************************************************/
 
 #include <assert.h>
-#include <Zydis/Internal/InstructionTable.h>
+#include <InstructionTable.h>
 
 /* ============================================================================================== */
 /* Data tables                                                                                    */
@@ -286,7 +286,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Physical instruction encodings                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-#include <Zydis/Internal/InstructionClassMap.inc>
+#include <Generated/InstructionClassMap.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction tree                                                                               */
@@ -299,7 +299,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #define ZYDIS_DEFINITION(encoding, instrclass, id) \
     { ZYDIS_NODETYPE_DEFINITION_MASK | instrclass, (encoding << 13) | id }
 
-#include <Zydis/Internal/InstructionFilters.inc>
+#include <Generated/InstructionFilters.inc>
 
 #undef ZYDIS_INVALID
 #undef ZYDIS_FILTER
@@ -309,7 +309,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Instruction definitions                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
-#include <Zydis/Internal/InstructionDefinitions.inc>
+#include <Generated/InstructionDefinitions.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -320,7 +320,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #define ZYDIS_OPERAND_DEFINITION(type, encoding, access) \
     { type, encoding, access }
 
-#include <Zydis/Internal/OperandDefinitions.inc>
+#include <Generated/OperandDefinitions.inc>
 
 #undef ZYDIS_OPERAND_DEFINITION
 

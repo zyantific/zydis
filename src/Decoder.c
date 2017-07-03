@@ -27,7 +27,7 @@
 #include <string.h>
 #include <Zydis/Status.h>
 #include <Zydis/Decoder.h>
-#include <Zydis/Internal/InstructionTable.h>
+#include <InstructionTable.h>
 
 /* ============================================================================================== */
 /* Internal enums and types                                                                       */

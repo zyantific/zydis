@@ -43,7 +43,7 @@ extern "C" {
  */
 typedef uint16_t ZydisInstructionMnemonic;
 
-#include <Zydis/Internal/MnemonicDefines.inc>    
+#include <Zydis/Generated/MnemonicDefines.h>    
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
