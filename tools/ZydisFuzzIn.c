@@ -40,7 +40,8 @@
 #include <Zydis/Zydis.h>
 
 typedef struct ZydisFuzzControlBlock_ {
-    ZydisMachineMode machineMode; 
+    ZydisMachineMode machineMode;
+    ZydisAddressWidth addressWidth;
     ZydisDecodeGranularity granularity;
     ZydisFormatterStyle formatterStyle;
     ZydisFormatterFlags formatterFlags;
@@ -64,8 +65,7 @@ int main()
 
     ZydisInstructionDecoder decoder;
     if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(
-        &decoder, controlBlock.machineMode, 
-        ZYDIS_ADDRESS_WIDTH_INVALID, controlBlock.granularity)))
+        &decoder, controlBlock.machineMode, controlBlock.addressWidth, controlBlock.granularity)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
@@ -86,16 +86,11 @@ int main()
     {
         numBytesRead = fread(readBuf, 1, sizeof(readBuf), stdin);
 
-        ZydisInstructionInfo info;
+        ZydisDecodedInstruction instruction;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(
-            &decoder,
-            readBuf + readOffs, 
-            numBytesRead - readOffs,
-            readOffs, 
-            &info
-        )) != ZYDIS_STATUS_NO_MORE_DATA)
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs, 
+            numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))
             {
@@ -104,8 +99,9 @@ int main()
             }
 
             char printBuffer[256];
-            ZydisFormatterFormatInstruction(&formatter, &info, printBuffer, sizeof(printBuffer));
-            readOffs += info.length;
+            ZydisFormatterFormatInstruction(
+                &formatter, &instruction, printBuffer, sizeof(printBuffer));
+            readOffs += instruction.length;
         }
 
         if (readOffs < sizeof(readBuf))

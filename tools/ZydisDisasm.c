@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 
     ZydisInstructionDecoder decoder;
     if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(
-        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_INVALID)))
+        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
@@ -74,28 +74,22 @@ int main(int argc, char** argv)
     {
         numBytesRead = fread(readBuf, 1, sizeof(readBuf), file);
     
-        ZydisInstructionInfo info;
+        ZydisDecodedInstruction instruction;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(
-            &decoder, 
-            readBuf + readOffs, 
-            numBytesRead - readOffs,
-            readOffs,
-            &info
-        )) != ZYDIS_STATUS_NO_MORE_DATA)
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs, 
+            numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))
             {
                 ++readOffs;
-                printf("db %02X\n", info.data[0]);
+                printf("db %02X\n", instruction.data[0]);
                 continue;
             }
 
             char printBuffer[256];
             ZydisFormatterFormatInstruction(
-                &formatter, &info, printBuffer, sizeof(printBuffer)
-            );
+                &formatter, &instruction, printBuffer, sizeof(printBuffer));
             puts(printBuffer);
 
             // TODO: Remove
@@ -124,7 +118,7 @@ int main(int argc, char** argv)
 #endif
             // DEBUG CODE END
             
-            readOffs += info.length;
+            readOffs += instruction.length;
         }
         
         if (readOffs < sizeof(readBuf))
