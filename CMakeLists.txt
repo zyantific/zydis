@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 include(GenerateExportHeader)
+include(GNUInstallDirs)
 
 project(Zydis VERSION 2.0)
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # =============================================================================================== #
 # Overridable options                                                                             #
@@ -26,9 +26,6 @@ option(ZYDIS_FEATURE_ENCODER
     OFF)
 
 # Build configuration
-option(ZYDIS_BUILD_SHARED_LIBS 
-    "Build shared libraries rather than static ones" 
-    OFF)
 option(ZYDIS_BUILD_EXAMPLES 
     "Build examples" 
     ON)
@@ -62,6 +59,7 @@ endif ()
 
 add_library("Zydis")
 
+set_property(TARGET "Zydis" PROPERTY USE_FOLDERS ON)
 target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
@@ -101,13 +99,22 @@ target_sources("Zydis"
         "src/Utils.c"
         "src/Zydis.c")
 
-if (ZYDIS_BUILD_SHARED_LIBS AND WIN32)
+if (BUILD_SHARED_LIBS AND WIN32)
     target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
 endif ()
 
 if (ZYDIS_FEATURE_ENCODER)
-    target_sources("Zydis" PUBLIC "include/Encoder.h" PRIVATE "src/Encoder.c")
+    target_sources("Zydis" 
+        PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/Encoder.h" 
+        PRIVATE "src/Encoder.c")
 endif ()
+
+# TODO: Install CMake config.
+install(TARGETS "Zydis"
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # =============================================================================================== #
 # Examples                                                                                        #
