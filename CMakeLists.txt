@@ -42,6 +42,7 @@ option(ZYDIS_DEV_MODE
 
 # If in developer mode, hack global compiler flags.
 if (ZYDIS_DEV_MODE)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
             "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
             "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
@@ -59,22 +60,21 @@ endif ()
 
 add_library("Zydis")
 
-set_property(TARGET "Zydis" PROPERTY USE_FOLDERS ON)
 target_include_directories("Zydis" PUBLIC "include/" ${PROJECT_BINARY_DIR})
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
 if (ZYDIS_FEATURE_EVEX)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_EVEX")
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_EVEX")
 endif ()
 if (ZYDIS_FEATURE_MVEX)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_MVEX")
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_MVEX")
 endif ()
 if (ZYDIS_FEATURE_FLAGS)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_FLAGS")
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_FLAGS")
 endif ()
 if (ZYDIS_FEATURE_CPUID)
-    target_compile_definitions("Zydis" PRIVATE "ZYDIS_ENABLE_FEATURE_CPUID")
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_CPUID")
 endif ()
 
 target_sources("Zydis"
