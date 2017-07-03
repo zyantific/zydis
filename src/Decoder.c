@@ -195,6 +195,8 @@ enum ZydisRegisterEncodings
     ZYDIS_REG_ENCODING_MASK
 };
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Internal functions                                                                             */
 /* ============================================================================================== */
@@ -3980,12 +3982,188 @@ static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, u
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Checks for certain post-decode error-conditions.
+ *
+ * @param   context     A pointer to the @c ZydisDecoderContext instance.
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
+ *
+ * @return  A zydis status code.
+ * 
+ * This function is called directly after a valid instruction-definition was found.
+ */
+static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context, 
+    ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
+{
+    ZydisBool acceptsLock = ZYDIS_FALSE;
+    ZydisBool hasNDSNDDOperand = ZYDIS_FALSE;
+    ZydisBool hasVSIB = ZYDIS_FALSE;
+    ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
+    switch (instruction->encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    {
+        const ZydisInstructionDefinitionDEFAULT* def = 
+            (const ZydisInstructionDefinitionDEFAULT*)definition;
+        acceptsLock = def->acceptsLock;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+    {
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_XOP:
+    {
+        const ZydisInstructionDefinitionXOP* def = 
+            (const ZydisInstructionDefinitionXOP*)definition;
+        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_VEX:
+    {
+        const ZydisInstructionDefinitionVEX* def = 
+            (const ZydisInstructionDefinitionVEX*)definition;
+        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+    {
+        const ZydisInstructionDefinitionEVEX* def = 
+            (const ZydisInstructionDefinitionEVEX*)definition;
+        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        hasVSIB = def->hasVSIB;
+        maskPolicy = def->maskPolicy;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+    {
+        const ZydisInstructionDefinitionMVEX* def = 
+            (const ZydisInstructionDefinitionMVEX*)definition;
+        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        hasVSIB = def->hasVSIB;
+        maskPolicy = def->maskPolicy;
+
+        // Check for invalid MVEX.SSS values
+        static const uint8_t lookup[26][8] =
+        {
+            // ZYDIS_MVEX_FUNC_IGNORED
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_INVALID
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_RC
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_SAE
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_F_32
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_I_32
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_F_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_I_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SWIZZLE_32
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_SWIZZLE_64
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_SF_32
+            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_SF_32_BCST
+            { 1, 1, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16
+            { 1, 0, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SF_64
+            { 1, 1, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SI_32
+            { 1, 1, 1, 0, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_SI_32_BCST
+            { 1, 1, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16
+            { 1, 0, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_SI_64
+            { 1, 1, 1, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_UF_32
+            { 1, 0, 0, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_UF_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_UI_32
+            { 1, 0, 0, 0, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_UI_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_DF_32
+            { 1, 0, 0, 1, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_DF_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 },
+            // ZYDIS_MVEX_FUNC_DI_32
+            { 1, 0, 0, 0, 1, 1, 1, 1 },
+            // ZYDIS_MVEX_FUNC_DI_64
+            { 1, 0, 0, 0, 0, 0, 0, 0 }
+        };
+        ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(instruction->details.mvex.SSS < 8);
+        if (!lookup[def->functionality][instruction->details.mvex.SSS])
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
+        break;
+    }
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+
+    // Check for illegal LOCK-prefix
+    if (instruction->details.prefixes.hasF0 && !acceptsLock)
+    {
+        return ZYDIS_STATUS_ILLEGAL_LOCK;
+    }
+
+    // Check for invalid `XOP/VEX/EVEX/MVEX.vvvv` value
+    if (!hasNDSNDDOperand && (context->cache.v_vvvv & 0x0F))
+    {
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
+
+    // Check for invalid `EVEX/MVEX.v'` value
+    if (!hasNDSNDDOperand && !hasVSIB && context->cache.V2)
+    {
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
+
+    // Check for invalid MASK registers
+    switch (maskPolicy)
+    {
+    case ZYDIS_MASK_POLICY_INVALID:
+    case ZYDIS_MASK_POLICY_ALLOWED:
+        // Nothing to do here
+        break;
+    case ZYDIS_MASK_POLICY_REQUIRED:
+        if (!context->cache.mask)
+        {
+            return ZYDIS_STATUS_INVALID_MASK;
+        }
+        break;
+    case ZYDIS_MASK_POLICY_FORBIDDEN:
+        if (context->cache.mask)
+        {
+            return ZYDIS_STATUS_INVALID_MASK;
+        }
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Uses the instruction-tree to decode the current instruction.
  *
  * @param   context     A pointer to the @c ZydisDecoderContext instance.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  *
- * @return  A zydis decoder status code.
+ * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context, 
     ZydisDecodedInstruction* instruction)
@@ -4088,16 +4266,10 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 
                 const ZydisInstructionParts* optionalParts;
                 ZydisGetOptionalInstructionParts(node, &optionalParts);
-                ZYDIS_CHECK(ZydisDecodeOptionalInstructionParts(context, instruction, optionalParts));
+                ZYDIS_CHECK(
+                    ZydisDecodeOptionalInstructionParts(context, instruction, optionalParts));
 
-                ZydisBool hasNDSNDDOperand = ZYDIS_FALSE;
-                ZydisBool hasVSIB = ZYDIS_FALSE;
-                ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
-                switch (instruction->encoding)
-                {
-                case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
-                    break;
-                case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+                if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
                 {
                     // Get actual 3dnow opcode and definition
                     ZYDIS_CHECK(ZydisInputNext(context, instruction, &instruction->opcode));
@@ -4113,141 +4285,9 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                     node = ZydisInstructionTreeGetChildNode(
                         node, (instruction->details.modrm.mod == 0x3) ? 0 : 1);
                     ZydisGetInstructionDefinition(node, &definition);
-                    break;
-                }
-                case ZYDIS_INSTRUCTION_ENCODING_XOP:
-                {
-                    const ZydisInstructionDefinitionXOP* def = 
-                        (const ZydisInstructionDefinitionXOP*)definition;
-                    hasNDSNDDOperand = def->hasNDSNDDOperand;
-                    break;
-                }
-                case ZYDIS_INSTRUCTION_ENCODING_VEX:
-                {
-                    const ZydisInstructionDefinitionVEX* def = 
-                        (const ZydisInstructionDefinitionVEX*)definition;
-                    hasNDSNDDOperand = def->hasNDSNDDOperand;
-                    break;
-                }
-                case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-                {
-                    const ZydisInstructionDefinitionEVEX* def = 
-                        (const ZydisInstructionDefinitionEVEX*)definition;
-                    hasNDSNDDOperand = def->hasNDSNDDOperand;
-                    hasVSIB = def->hasVSIB;
-                    maskPolicy = def->maskPolicy;
-                    break;
-                }
-                case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-                {
-                    const ZydisInstructionDefinitionMVEX* def = 
-                        (const ZydisInstructionDefinitionMVEX*)definition;
-                    hasNDSNDDOperand = def->hasNDSNDDOperand;
-                    hasVSIB = def->hasVSIB;
-                    maskPolicy = def->maskPolicy;
-
-                    // Check for invalid MVEX.SSS values
-                    static const uint8_t lookup[26][8] =
-                    {
-                        // ZYDIS_MVEX_FUNC_IGNORED
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_INVALID
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_RC
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_SAE
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_F_32
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_I_32
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_F_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_I_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SWIZZLE_32
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_SWIZZLE_64
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_SF_32
-                        { 1, 1, 1, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_SF_32_BCST
-                        { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16
-                        { 1, 0, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SF_64
-                        { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SI_32
-                        { 1, 1, 1, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_SI_32_BCST
-                        { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16
-                        { 1, 0, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_SI_64
-                        { 1, 1, 1, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_UF_32
-                        { 1, 0, 0, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_UF_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_UI_32
-                        { 1, 0, 0, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_UI_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_DF_32
-                        { 1, 0, 0, 1, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_DF_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 },
-                        // ZYDIS_MVEX_FUNC_DI_32
-                        { 1, 0, 0, 0, 1, 1, 1, 1 },
-                        // ZYDIS_MVEX_FUNC_DI_64
-                        { 1, 0, 0, 0, 0, 0, 0, 0 }
-                    };
-                    ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_SIZE(lookup));
-                    ZYDIS_ASSERT(instruction->details.mvex.SSS < 8);
-                    if (!lookup[def->functionality][instruction->details.mvex.SSS])
-                    {
-                        return ZYDIS_STATUS_DECODING_ERROR;
-                    }
-                    break;
-                }
-                default:
-                    ZYDIS_UNREACHABLE;
                 }
 
-                // Check for invalid `XOP/VEX/EVEX/MVEX.vvvv` value
-                if (!hasNDSNDDOperand && (context->cache.v_vvvv & 0x0F))
-                {
-                    return ZYDIS_STATUS_DECODING_ERROR;
-                }
-
-                // Check for invalid `EVEX/MVEX.v'` value
-                if (!hasNDSNDDOperand && !hasVSIB && context->cache.V2)
-                {
-                    return ZYDIS_STATUS_DECODING_ERROR;
-                }
-
-                // Check for invalid MASK registers
-                switch (maskPolicy)
-                {
-                case ZYDIS_MASK_POLICY_INVALID:
-                case ZYDIS_MASK_POLICY_ALLOWED:
-                    // Nothing to do here
-                    break;
-                case ZYDIS_MASK_POLICY_REQUIRED:
-                    if (!context->cache.mask)
-                    {
-                        return ZYDIS_STATUS_INVALID_MASK;
-                    }
-                    break;
-                case ZYDIS_MASK_POLICY_FORBIDDEN:
-                    if (context->cache.mask)
-                    {
-                        return ZYDIS_STATUS_INVALID_MASK;
-                    }
-                    break;
-                default:
-                    ZYDIS_UNREACHABLE;
-                }
+                ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
 
                 instruction->mnemonic = definition->mnemonic;
 

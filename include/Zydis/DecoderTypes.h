@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief Defines the basic @c ZydisInstructionInfo and @c ZydisOperandInfo struct.
+ * @brief   Defines the basic @c ZydisDecodedInstruction and @c ZydisDecodedOperand structs.
  */
 
 #ifndef ZYDIS_INSTRUCTIONINFO_H
@@ -964,7 +964,7 @@ typedef struct ZydisDecodedInstruction_
              * @brief   Signals, if the broadcast is a static broadcast.
              * 
              * This is the case for instructions with inbuild broadcast functionality, that is
-             * always active and not controlled by a flag in the EVEX/MVEX-prefix.
+             * always active and not be controlled by a flag in the XOP/VEX/EVEX/MVEX-prefix.
              */
             ZydisBool isStatic;
             /**
