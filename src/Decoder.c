@@ -213,9 +213,6 @@ enum ZydisRegisterEncodings
  * @param   value       A pointer to the memory that receives the byte from the input data-source.
  *
  * @return  A zydis status code.
- *          
- * If not empty, the internal buffer of the @c ZydisDecoderContext instance is used as temporary
- * data-source, instead of reading the byte from the actual input data-source.
  * 
  * This function may fail, if the @c ZYDIS_MAX_INSTRUCTION_LENGTH limit got exceeded, or no more   
  * data is available.
@@ -249,10 +246,7 @@ static ZydisStatus ZydisInputPeek(ZydisDecoderContext* context,
  *                  
  * This function is supposed to get called ONLY after a successfull call of @c ZydisInputPeek.
  * 
- * If not empty, the read-position of the @c ZydisDecoderContext instances internal buffer is
- * increased, instead of the actual input data-sources read-position.
- * 
- * This function increases the @c length field of the @c ZydisInstructionInfo struct by one and
+ * This function increases the @c length field of the @c ZydisDecodedInstruction struct by one and
  * adds the current byte to the @c data array.
  */
 static void ZydisInputSkip(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction)
@@ -3140,7 +3134,7 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
  * 
  * @return  A zydis status code.
  */
-static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* context, 
+static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context, 
     ZydisDecodedInstruction* instruction, const ZydisInstructionParts* optionalParts)
 {
     ZYDIS_ASSERT(context);
@@ -3232,7 +3226,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP)
     {
         ZYDIS_CHECK(ZydisReadDisplacement(
-            context, instruction, optionalParts->disp.size[context->easzIndex]));    
+            context, instruction, optionalParts->disp.size[context->easzIndex])); 
     }
 
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_IMM0)
@@ -3243,7 +3237,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
         }
         ZYDIS_CHECK(ZydisReadImmediate(context, instruction, 0, 
             optionalParts->imm[0].size[context->eoszIndex], 
-            optionalParts->imm[0].isSigned, optionalParts->imm[0].isRelative));    
+            optionalParts->imm[0].isSigned, optionalParts->imm[0].isRelative));  
     }
 
     if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_IMM1)
@@ -3251,7 +3245,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
         ZYDIS_ASSERT(!(optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP));
         ZYDIS_CHECK(ZydisReadImmediate(context, instruction, 1, 
             optionalParts->imm[1].size[context->eoszIndex], 
-            optionalParts->imm[1].isSigned, optionalParts->imm[1].isRelative));     
+            optionalParts->imm[1].isSigned, optionalParts->imm[1].isRelative));    
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -4266,8 +4260,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 
                 const ZydisInstructionParts* optionalParts;
                 ZydisGetOptionalInstructionParts(node, &optionalParts);
-                ZYDIS_CHECK(
-                    ZydisDecodeOptionalInstructionParts(context, instruction, optionalParts));
+                ZYDIS_CHECK(ZydisDecodeInstructionPhysical(context, instruction, optionalParts));
 
                 if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
                 {
@@ -4291,7 +4284,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 
                 instruction->mnemonic = definition->mnemonic;
 
-                if (context->decoder->decodeGranularity == ZYDIS_DECODE_GRANULARITY_FULL)
+                if (context->decoder->decodeGranularity == ZYDIS_DECODE_GRANULARITY_SEMANTIC)
                 {
                     ZydisSetPrefixRelatedAttributes(context, instruction, definition);
                     switch (instruction->encoding)
@@ -4335,14 +4328,17 @@ ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMo
 {
     if (!decoder || ((machineMode != 16) && (machineMode != 32) && (machineMode != 64)) ||
         ((decodeGranularity != ZYDIS_DECODE_GRANULARITY_DEFAULT) && 
-         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_FULL) && 
-         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_MINIMAL)))
+         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_PHYSICAL) &&
+         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_SEMANTIC)))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
     if (machineMode == 64)
     {
-        addressWidth = ZYDIS_ADDRESS_WIDTH_64;
+        if (addressWidth != 64)
+        {
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
     } else
     {
         if ((addressWidth != 16) && (addressWidth != 32))
@@ -4352,7 +4348,7 @@ ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMo
     }
     if (decodeGranularity == ZYDIS_DECODE_GRANULARITY_DEFAULT)
     {
-        decodeGranularity = ZYDIS_DECODE_GRANULARITY_FULL;
+        decodeGranularity = ZYDIS_DECODE_GRANULARITY_SEMANTIC;
     }
 
     decoder->machineMode = machineMode;

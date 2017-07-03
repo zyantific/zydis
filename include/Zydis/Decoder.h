@@ -52,10 +52,20 @@ enum ZydisDecodeGranularities
 {
     ZYDIS_DECODE_GRANULARITY_DEFAULT,
     /**
-     * @brief   Minimal instruction decoding without semantic operand analysis.
+     * @brief   Minimal instruction decoding without semantic analysis.
+     * 
+     * This mode should be sufficient, if you plan to analyse code for pure relocation purposes, 
+     * as it gives you access to the mnemonic, the instruction-length, displacements, immediates 
+     * and even the `ZYDIS_ATTRIB_IS_RELATIVE`.
+     * 
+     * Operands, most attributes and other specific information (like AVX info) are not 
+     * accessible in this mode.
      */
-    ZYDIS_DECODE_GRANULARITY_MINIMAL,
-    ZYDIS_DECODE_GRANULARITY_FULL
+    ZYDIS_DECODE_GRANULARITY_PHYSICAL,
+    /**
+     * @brief   Full physical and semantical instruction-decoding.
+     */
+    ZYDIS_DECODE_GRANULARITY_SEMANTIC
 };
 
 /**
