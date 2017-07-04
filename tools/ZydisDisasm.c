@@ -51,17 +51,17 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoder(
-        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+    ZydisDecoder decoder;
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
     }
 
-    ZydisInstructionFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
-        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
+    ZydisFormatter formatter;
+    if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL, 
+        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
         ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT)))
     {
         fputs("Failed to initialized instruction-formatter\n", stderr);

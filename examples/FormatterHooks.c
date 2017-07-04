@@ -26,9 +26,9 @@
 
 /**
  * @file
- * @brief   Demonstrates the hooking functionality of the @c ZydisInstructionFormatter class.
+ * @brief   Demonstrates the hooking functionality of the @c ZydisFormatter class.
  * 
- * This example demonstrates the hooking functionality of the @c ZydisInstructionFormatter class by 
+ * This example demonstrates the hooking functionality of the @c ZydisFormatter class by 
  * rewriting the mnemonics of (V)CMPPS and (V)CMPPD to their corresponding alias-forms (based on  
  * the condition encoded in the immediate operand).
  */
@@ -87,7 +87,7 @@ static const char* conditionCodeStrings[0x20] =
 
 ZydisFormatterFormatFunc defaultPrintMnemonic;
 
-static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisInstructionFormatter* formatter, 
+static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction)
 {
     // We use the user-data field of the instruction-info to pass data to the 
@@ -152,7 +152,7 @@ static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisInstructionFormatter* 
 
 ZydisFormatterFormatOperandFunc defaultFormatOperandImm;
 
-static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisInstructionFormatter* formatter,
+static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
     ZydisDecodedOperand* operand)
 {
@@ -175,11 +175,10 @@ static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisInstructionFormatte
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-void disassembleBuffer(ZydisInstructionDecoder* decoder, uint8_t* data, size_t length, 
-    ZydisBool installHooks)
+void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, ZydisBool installHooks)
 {
-    ZydisInstructionFormatter formatter;
-    ZydisFormatterInitInstructionFormatterEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
+    ZydisFormatter formatter;
+    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
         ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
         ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
 
@@ -215,6 +214,7 @@ void disassembleBuffer(ZydisInstructionDecoder* decoder, uint8_t* data, size_t l
 
 int main()
 {
+
     uint8_t data[] = 
     {
         // cmpps xmm1, xmm4, 0x03
@@ -227,10 +227,8 @@ int main()
         0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
     };
 
-
-    ZydisInstructionDecoder decoder;
-    ZydisDecoderInitInstructionDecoder(
-        &decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+    ZydisDecoder decoder;
+    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
     disassembleBuffer(&decoder, &data[0], sizeof(data), ZYDIS_FALSE);
     puts("");

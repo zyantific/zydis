@@ -37,29 +37,26 @@ int main()
         0x88, 0xFC, 0xDA, 0x02, 0x00
     };
 
-    ZydisMemoryInput input;
-    ZydisInputInitMemoryInput(&input, &data, sizeof(data));
+    ZydisDecoder decoder;
+    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
-    ZydisInstructionDecoder decoder;
-    ZydisDecoderInitInstructionDecoderEx(&decoder, ZYDIS_DISASSEMBLER_MODE_64BIT, 
-        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA); 
-    ZydisDecoderSetInstructionPointer(&decoder, 0x007FFFFFFF400000);
-
-    ZydisInstructionFormatter formatter;
-    ZydisFormatterInitInstructionFormatterEx(&formatter, 
-        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT);
+    ZydisFormatter formatter;
+    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
+        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
+        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
   
-    ZydisInstructionInfo info;
+    uint64_t instructionPointer = 0x007FFFFFFF400000;
+
+    ZydisDecodedInstruction instruction;
     char buffer[256];
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
+    while (ZYDIS_SUCCESS(
+        ZydisDecoderDecodeBuffer(decoder, data, length, instructionPointer, &instruction)))
     {
-        printf("%016llX  ", info.instrAddress);
-        if (info.flags & ZYDIS_IFLAG_ERROR_MASK)
-        {
-            printf(" db %02x\n", info.data[0]);    
-            continue;
-        }
-        ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], sizeof(buffer));  
+        data += instruction.length;
+        length -= instruction.length;
+        instructionPointer += instruction.length;
+        printf("%016" PRIX64 "  ", instruction.instrAddress);
+        ZydisFormatterFormatInstruction(&formatter, &instruction, &buffer[0], sizeof(buffer));  
         printf(" %s\n", &buffer[0]);
     }
 }
