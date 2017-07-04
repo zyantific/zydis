@@ -297,9 +297,9 @@ int main(int argc, char** argv)
             fread(buffer, 1, length, file);
 
             printf("Testing %s ...\n", tests[i].encoding);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_PHYSICAL, ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_SEMANTIC, ZYDIS_FALSE);
-            // testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_SEMANTIC, ZYDIS_TRUE );
+            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_MINIMAL, ZYDIS_FALSE);
+            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_FALSE);
+            // testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
 
             puts("");
             free(buffer);
