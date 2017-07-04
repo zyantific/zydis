@@ -33,14 +33,21 @@
 #include <time.h>
 #include <Zydis/Zydis.h>
 
-#ifdef ZYDIS_WINDOWS
+#if defined(ZYDIS_WINDOWS)
 #   include <Windows.h>
+#elif defined(ZYDIS_APPLE)
+#   include <mach/mach_time.h>
+#elif defined(ZYDIS_LINUX)
+#   include <sys/time.h>
+#else
+#   error "Unsupported platform detected"
 #endif
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
+#if defined(ZYDIS_WINDOWS)
 double   CounterFreq  = 0.0;
 uint64_t CounterStart = 0;
 
@@ -62,6 +69,11 @@ double GetCounter()
     QueryPerformanceCounter(&li);
     return (double)(li.QuadPart - CounterStart) / CounterFreq;
 }
+#elif defined(ZYDIS_APPLE)
+// TODO:
+#elif defined(ZYDIS_LINUX)
+// TODO:
+#endif
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */

@@ -1346,7 +1346,7 @@ typedef struct ZydisDecodedInstruction_
              */
             uint8_t offset;
         } imm[2];
-    } details;
+    } raw;
     /**
      * @brief   This field is intended for custom data and may be freely set by the user.
      */
