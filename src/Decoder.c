@@ -121,6 +121,10 @@ typedef struct ZydisDecoderContext_
          */
         ZydisMVEXFunctionality functionality;
     } mvex;
+    /**
+     * @brief   The scale factor for EVEX/MVEX compressed 8-bit displacement values.
+     */
+    uint8_t cd8scale;
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -1898,7 +1902,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                  (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
                  (instruction->raw.disp.size == 8))
             {
-                instruction->operands[i].mem.disp.value *= instruction->avx.compressedDisp8Scale;
+                instruction->operands[i].mem.disp.value *= context->cd8scale;
             }
 
             goto FinalizeOperand;
@@ -2363,13 +2367,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     switch (instruction->avx.vectorLength)
                     {
                     case 128:
-                        instruction->avx.compressedDisp8Scale = 16;
+                        context->cd8scale = 16;
                         break;
                     case 256:
-                        instruction->avx.compressedDisp8Scale = 32;
+                        context->cd8scale = 32;
                         break;
                     case 512:
-                        instruction->avx.compressedDisp8Scale = 64;
+                        context->cd8scale = 64;
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
@@ -2381,7 +2385,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     {
                     case 0:
                         ZYDIS_ASSERT(context->evex.elementSize == 32);
-                        instruction->avx.compressedDisp8Scale = 4;
+                        context->cd8scale = 4;
                         switch (instruction->avx.vectorLength)
                         {
                         case 128:
@@ -2399,7 +2403,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         break;
                     case 1:
                         ZYDIS_ASSERT(context->evex.elementSize == 64);
-                        instruction->avx.compressedDisp8Scale = 8;
+                        context->cd8scale = 8;
                         switch (instruction->avx.vectorLength)
                         {
                         case 128:
@@ -2431,20 +2435,20 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     switch (instruction->avx.vectorLength)
                     {
                     case 128:
-                        instruction->avx.compressedDisp8Scale = 8;
+                        context->cd8scale = 8;
                         break;
                     case 256:
-                        instruction->avx.compressedDisp8Scale = 16;
+                        context->cd8scale = 16;
                         break;
                     case 512:
-                        instruction->avx.compressedDisp8Scale = 32;
+                        context->cd8scale = 32;
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
                     }
                     break;
                 case 1:
-                    instruction->avx.compressedDisp8Scale = 4;
+                    context->cd8scale = 4;
                     switch (instruction->avx.vectorLength)
                     {
                     case 128:
@@ -2468,13 +2472,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 switch (instruction->avx.vectorLength)
                 {
                 case 128:
-                    instruction->avx.compressedDisp8Scale = 16;
+                    context->cd8scale = 16;
                     break;
                 case 256:
-                    instruction->avx.compressedDisp8Scale = 32;
+                    context->cd8scale = 32;
                     break;
                 case 512:
-                    instruction->avx.compressedDisp8Scale = 64;
+                    context->cd8scale = 64;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2493,16 +2497,16 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     ZYDIS_UNREACHABLE;
                 }
             case ZYDIS_TUPLETYPE_T1S:
-                instruction->avx.compressedDisp8Scale = context->evex.elementSize / 8;
+                context->cd8scale = context->evex.elementSize / 8;
                 break;
             case ZYDIS_TUPLETYPE_T1F:
                 switch (context->evex.elementSize)
                 {
                 case 32:
-                    instruction->avx.compressedDisp8Scale = 4;
+                    context->cd8scale = 4;
                     break;
                 case 64:
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2511,20 +2515,20 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case ZYDIS_TUPLETYPE_T1_4X:
                 ZYDIS_ASSERT(context->evex.elementSize == 32);
                 ZYDIS_ASSERT(context->cache.W == 0);
-                instruction->avx.compressedDisp8Scale = 16;
+                context->cd8scale = 16;
                 break;
             case ZYDIS_TUPLETYPE_T2:
                 switch (context->cache.W)
                 {
                 case 0:
                     ZYDIS_ASSERT(context->evex.elementSize == 32);
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 case 1:
                     ZYDIS_ASSERT(context->evex.elementSize == 64);
                     ZYDIS_ASSERT((instruction->avx.vectorLength == 256) || 
                                  (instruction->avx.vectorLength == 512));
-                    instruction->avx.compressedDisp8Scale = 16;
+                    context->cd8scale = 16;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2537,12 +2541,12 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     ZYDIS_ASSERT(context->evex.elementSize == 32);
                     ZYDIS_ASSERT((instruction->avx.vectorLength == 256) || 
                                  (instruction->avx.vectorLength == 512));
-                    instruction->avx.compressedDisp8Scale = 16;
+                    context->cd8scale = 16;
                     break;
                 case 1:
                     ZYDIS_ASSERT(context->evex.elementSize == 64);
                     ZYDIS_ASSERT(instruction->avx.vectorLength == 512);
-                    instruction->avx.compressedDisp8Scale = 32;
+                    context->cd8scale = 32;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2552,19 +2556,19 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_ASSERT(!context->cache.W);
                 ZYDIS_ASSERT(instruction->avx.vectorLength == 512);
                 ZYDIS_ASSERT(context->evex.elementSize == 32);
-                instruction->avx.compressedDisp8Scale = 32;
+                context->cd8scale = 32;
                 break;
             case ZYDIS_TUPLETYPE_HVM:
                 switch (instruction->avx.vectorLength)
                 {
                 case 128:
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 case 256:
-                    instruction->avx.compressedDisp8Scale = 16;
+                    context->cd8scale = 16;
                     break;
                 case 512:
-                    instruction->avx.compressedDisp8Scale = 32;
+                    context->cd8scale = 32;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2574,13 +2578,13 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 switch (instruction->avx.vectorLength)
                 {
                 case 128:
-                    instruction->avx.compressedDisp8Scale = 4;
+                    context->cd8scale = 4;
                     break;
                 case 256:
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 case 512:
-                    instruction->avx.compressedDisp8Scale = 16;
+                    context->cd8scale = 16;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2590,32 +2594,32 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 switch (instruction->avx.vectorLength)
                 {
                 case 128:
-                    instruction->avx.compressedDisp8Scale = 2;
+                    context->cd8scale = 2;
                     break;
                 case 256:
-                    instruction->avx.compressedDisp8Scale = 4;
+                    context->cd8scale = 4;
                     break;
                 case 512:
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
                 }
                 break;
             case ZYDIS_TUPLETYPE_M128:
-                instruction->avx.compressedDisp8Scale = 16;
+                context->cd8scale = 16;
                 break;
             case ZYDIS_TUPLETYPE_DUP:
                 switch (instruction->avx.vectorLength)
                 {
                 case 128:
-                    instruction->avx.compressedDisp8Scale = 8;
+                    context->cd8scale = 8;
                     break;
                 case 256:
-                    instruction->avx.compressedDisp8Scale = 32;
+                    context->cd8scale = 32;
                     break;
                 case 512:
-                    instruction->avx.compressedDisp8Scale = 64;
+                    context->cd8scale = 64;
                     break;
                 default:
                     ZYDIS_UNREACHABLE;
@@ -2754,7 +2758,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_I_32:
         case ZYDIS_MVEX_FUNC_F_64:
         case ZYDIS_MVEX_FUNC_I_64: 
-            instruction->avx.compressedDisp8Scale = 64;
+            context->cd8scale = 64;
             break;
         case ZYDIS_MVEX_FUNC_SF_32:
         case ZYDIS_MVEX_FUNC_SF_32_BCST:
@@ -2768,7 +2772,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 16,  0,  0,  8,  4,  4,  8,  8 }              
             };
             ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
-            instruction->avx.compressedDisp8Scale = lookup[index][instruction->raw.mvex.SSS];
+            context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_SI_32:
@@ -2783,7 +2787,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 16,  0,  0,  0,  4,  4,  8,  8 }              
             };
             ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
-            instruction->avx.compressedDisp8Scale = lookup[index][instruction->raw.mvex.SSS];
+            context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_SF_64:
@@ -2798,7 +2802,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 32,  0,  0 }               
             };
             ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
-            instruction->avx.compressedDisp8Scale = lookup[index][instruction->raw.mvex.SSS];
+            context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_DF_32:
@@ -2810,7 +2814,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {  4,  0,  0,  2,  1,  1,  2,  2 }
             };
             ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
-            instruction->avx.compressedDisp8Scale = lookup[index][instruction->raw.mvex.SSS];
+            context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
         case ZYDIS_MVEX_FUNC_DF_64:
@@ -2822,7 +2826,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {  8 }
             };
             ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
-            instruction->avx.compressedDisp8Scale = lookup[index][instruction->raw.mvex.SSS];
+            context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;        
         }
         default:

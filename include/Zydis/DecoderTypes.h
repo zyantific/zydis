@@ -948,10 +948,6 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisVectorLength vectorLength;
         /**
-         * @brief   The scale-factor for compressed 8-bit displacement values.
-         */
-        uint8_t compressedDisp8Scale;
-        /**
          * @brief   The AVX mask-mode.
          */
         ZydisMaskMode maskMode;
