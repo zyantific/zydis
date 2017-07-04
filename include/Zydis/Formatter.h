@@ -277,6 +277,26 @@ enum ZydisFormatterHookTypes
 
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * @brief   Defines the @c ZydisDecoratorType datatype.
+ */
+typedef uint8_t ZydisDecoratorType;
+
+/**
+ * @brief   Values that represent decorator-types.
+ */
+enum ZydisDecoratorTypes
+{
+    ZYDIS_DECORATOR_TYPE_INVALID,
+    ZYDIS_DECORATOR_TYPE_MASK,
+    ZYDIS_DECORATOR_TYPE_BROADCAST,
+    ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL,
+    ZYDIS_DECORATOR_TYPE_SAE,
+    ZYDIS_DECORATOR_TYPE_SWIZZLE,
+    ZYDIS_DECORATOR_TYPE_CONVERSION,
+    ZYDIS_DECORATOR_TYPE_EVICTION_HINT
+};
+
 typedef struct ZydisFormatter_  ZydisFormatter;
 
 /**
@@ -374,6 +394,32 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
     ZydisDecodedOperand* operand, uint64_t address);
 
 /**
+ * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
+ *
+ * @param   formatter   A pointer to the @c ZydisFormatter instance.
+ * @param   buffer      A pointer to the string-buffer.
+ * @param   bufferLen   The length of the string-buffer.
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
+ * @param   type        The decorator type.
+ * @param   mask        The embedded-mask register (`ZYDIS_DECORATOR_TYPE_MASK` only).
+ * 
+ * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
+ *          formatting process to fail.
+ * 
+ * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
+ * number of chars written.
+ * 
+ * Returning @c ZYDIS_STATUS_SUCCESS without increasing the buffer-pointer is valid and will cause 
+ * the formatter to omit the current decorator.
+ *
+ * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
+ */
+typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
+    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
+    ZydisDecodedOperand* operand, ZydisDecoratorType type, ZydisRegister mask);
+
+/**
  * @brief   Defines the @c ZydisFormatter struct.
  */
 struct ZydisFormatter_
@@ -393,15 +439,10 @@ struct ZydisFormatter_
     ZydisFormatterFormatOperandFunc funcFormatOperandImm;
     ZydisFormatterFormatOperandFunc funcPrintOperandSize;
     ZydisFormatterFormatOperandFunc funcPrintSegment;
-    ZydisFormatterFormatOperandFunc funcPrintDecorator;
+    ZydisFormatterFormatDecoratorFunc funcPrintDecorator;
     ZydisFormatterFormatAddressFunc funcPrintAddress;
     ZydisFormatterFormatOperandFunc funcPrintDisplacement;
-    ZydisFormatterFormatOperandFunc funcPrintImmediate;
-    const char* prefixHEX;
-    const char* prefixOCT;
-    const char* delimMnemonic;
-    const char* delimOperands;
-    const char* fmtDecorator;   // TODO:
+    ZydisFormatterFormatOperandFunc funcPrintImmediate; 
 };
 
 /* ============================================================================================== */
@@ -435,13 +476,18 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterInitEx(ZydisFormatter* formatter, ZydisFo
     ZydisFormatterImmediateFormat immmediateFormat);
 
 /**
- * @brief   TODO:
+ * @brief   Replaces a formatter function with a custom callback and/or retrieves the currently
+ *          used function.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   hook        The formatter hook-type.
- * @param   callback    TODO: In Out
+ * @param   callback    A pointer to a variable that contains the pointer of the callback function
+ *                      and receives the pointer of the currently used function.
  *
  * @return  A zydis status code.
+ * 
+ * Call this function with `callback` pointing to a `NULL` value to retrieve the currently used
+ * function without replacing it.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, 
     ZydisFormatterHookType hook, const void** callback);

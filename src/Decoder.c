@@ -2026,14 +2026,14 @@ FinalizeOperand:
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Sets prefix-related attributes for the given instruction.
+ * @brief   Sets attributes for the given instruction.
  * 
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
  */
-static void ZydisSetPrefixRelatedAttributes(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
+static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction, 
+    const ZydisInstructionDefinition* definition)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -4294,7 +4294,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 
                 if (context->decoder->decodeGranularity == ZYDIS_DECODE_GRANULARITY_FULL)
                 {
-                    ZydisSetPrefixRelatedAttributes(context, instruction, definition);
+                    ZydisSetAttributes(context, instruction, definition);
                     switch (instruction->encoding)
                     {
                     case ZYDIS_INSTRUCTION_ENCODING_XOP:

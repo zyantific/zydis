@@ -217,7 +217,7 @@ typedef uint8_t ZydisInternalElementType;
 enum ZydisInternalElementTypes
 {
     ZYDIS_IELEMENT_TYPE_INVALID,
-    ZYDIS_IELEMENT_TYPE_VARIABLE, // TODO: Remove
+    ZYDIS_IELEMENT_TYPE_VARIABLE,
     ZYDIS_IELEMENT_TYPE_STRUCT,
     ZYDIS_IELEMENT_TYPE_INT,
     ZYDIS_IELEMENT_TYPE_UINT,
@@ -270,6 +270,9 @@ typedef struct ZydisOperandDefinition_
     } op;
 } ZydisOperandDefinition;
 
+/**
+ * @brief   Values that represent implicit-register types.
+ */
 enum ZydisImplicitRegisterType
 {
     ZYDIS_IMPLREG_TYPE_STATIC,
@@ -281,6 +284,9 @@ enum ZydisImplicitRegisterType
     ZYDIS_IMPLREG_TYPE_FLAGS_SSZ
 };
 
+/**
+ * @brief   Values that represent implicit-memory base-registers.
+ */
 enum ZydisImplicitMemBase
 {
     ZYDIS_IMPLMEM_BASE_ABX,
@@ -657,7 +663,7 @@ enum ZydisMaskPolicies
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
-    ZydisBool hasVSIB                      ZYDIS_BITFIELD( 1)
+    ZydisBool hasVSIB                       ZYDIS_BITFIELD( 1)
 
 /**
  * @brief   Defines the @c ZydisInstructionDefinition struct.
