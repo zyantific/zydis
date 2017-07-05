@@ -3140,9 +3140,9 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
  * @brief   Decodes optional instruction parts like the ModRM byte, the SIB byte and additional
  *          displacements and/or immediate values.
  *          
- * @param   context         A pointer to the @c ZydisDecoderContext struct.
- * @param   instruction     A pointer to the @c ZydisDecodedInstruction struct.
- * @param   optionalParts   A pointer to the @c ZydisInstructionParts struct.
+ * @param   context     A pointer to the @c ZydisDecoderContext struct.
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   info        A pointer to the @c ZydisInstructionParts struct.
  * 
  * @return  A zydis status code.
  */

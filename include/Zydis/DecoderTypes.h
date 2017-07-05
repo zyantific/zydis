@@ -509,8 +509,6 @@ typedef uint64_t ZydisInstructionAttributes;
 
 // TODO: Update values
 
-// TODO: Add IsAtomic
-
 /**
  * @brief   The instruction has the ModRM byte.
  */
