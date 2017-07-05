@@ -676,16 +676,17 @@ typedef struct ZydisInstructionDefinition_
 typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
-    ZydisBool acceptsLock                   ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREP                    ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD(1);
-    ZydisBool acceptsBOUND                  ZYDIS_BITFIELD(1);
-    ZydisBool acceptsXACQUIRE               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsXRELEASE               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD(1);
-    ZydisBool acceptsBranchHints            ZYDIS_BITFIELD(1);
-    ZydisBool acceptsSegment                ZYDIS_BITFIELD(1);
+    ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsLock                   ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsBOUND                  ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsXACQUIRE               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsXRELEASE               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsBranchHints            ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsSegment                ZYDIS_BITFIELD( 1);
 } ZydisInstructionDefinitionDEFAULT;
 
 typedef struct ZydisInstructionDefinition3DNOW_
@@ -701,27 +702,27 @@ typedef struct ZydisInstructionDefinitionXOP_
 typedef struct ZydisInstructionDefinitionVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
-    ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD(3);
+    ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionVEX;
 
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
-    ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD(2);
-    ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD(4);
-    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD(4);
-    ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD(2);
-    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD(2);
-    ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD(4);
-} ZydisInstructionDefinitionEVEX;
+    ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD( 2);
+    ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD( 4);
+    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 4);
+    ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD( 2);
+    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
+    ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 4);
+} ZydisInstructionDefinitionEVEX;                           
 
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
-    ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD(5);
-    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD(2);
-    ZydisBool hasElementGranularity         ZYDIS_BITFIELD(1);
-    ZydisMVEXStaticBroadcast broadcast      ZYDIS_BITFIELD(3);
+    ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD( 5);
+    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
+    ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);
+    ZydisMVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */

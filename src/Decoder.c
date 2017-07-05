@@ -2046,6 +2046,10 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         const ZydisInstructionDefinitionDEFAULT* def = 
             (const ZydisInstructionDefinitionDEFAULT*)definition;
 
+        if (def->isPrivileged)
+        {
+            instruction->attributes |= ZYDIS_ATTRIB_IS_PRIVILEGED;
+        }
         if (def->acceptsLock)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;
