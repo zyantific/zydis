@@ -3143,13 +3143,13 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, const ZydisInstructionParts* optionalParts)
+    ZydisDecodedInstruction* instruction, const ZydisPhysicalInstructionInfo* info)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
-    ZYDIS_ASSERT(optionalParts);
+    ZYDIS_ASSERT(info);
 
-    if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_MODRM)
+    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_MODRM)
     {
         if (!instruction->raw.modrm.isDecoded)
         {
@@ -3159,7 +3159,7 @@ static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context,
         }
         uint8_t hasSIB = 0;
         uint8_t displacementSize = 0;
-        if (!(optionalParts->flags & ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM))
+        if (!(info->flags & ZYDIS_PHYSINSTR_FLAG_FORCE_REG_FORM))
         {
             switch (instruction->addressWidth)
             {
@@ -3231,29 +3231,27 @@ static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context,
         }
     }
 
-    if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP)
+    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_DISP)
     {
         ZYDIS_CHECK(ZydisReadDisplacement(
-            context, instruction, optionalParts->disp.size[context->easzIndex])); 
+            context, instruction, info->disp.size[context->easzIndex])); 
     }
 
-    if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_IMM0)
+    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_IMM0)
     {
-        if (optionalParts->imm[0].isRelative)
+        if (info->imm[0].isRelative)
         {
             instruction->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
         }
         ZYDIS_CHECK(ZydisReadImmediate(context, instruction, 0, 
-            optionalParts->imm[0].size[context->eoszIndex], 
-            optionalParts->imm[0].isSigned, optionalParts->imm[0].isRelative));  
+            info->imm[0].size[context->eoszIndex], info->imm[0].isSigned, info->imm[0].isRelative));  
     }
 
-    if (optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_IMM1)
+    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_IMM1)
     {
-        ZYDIS_ASSERT(!(optionalParts->flags & ZYDIS_INSTRPART_FLAG_HAS_DISP));
+        ZYDIS_ASSERT(!(info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_DISP));
         ZYDIS_CHECK(ZydisReadImmediate(context, instruction, 1, 
-            optionalParts->imm[1].size[context->eoszIndex], 
-            optionalParts->imm[1].isSigned, optionalParts->imm[1].isRelative));    
+            info->imm[1].size[context->eoszIndex], info->imm[1].isSigned, info->imm[1].isRelative));    
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -4266,9 +4264,9 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 ZydisSetEffectiveOperandSize(context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(context, instruction);
 
-                const ZydisInstructionParts* optionalParts;
-                ZydisGetOptionalInstructionParts(node, &optionalParts);
-                ZYDIS_CHECK(ZydisDecodeInstructionPhysical(context, instruction, optionalParts));
+                const ZydisPhysicalInstructionInfo* info;
+                ZydisGetPhysicalInstructionInfo(node, &info);
+                ZYDIS_CHECK(ZydisDecodeInstructionPhysical(context, instruction, info));
 
                 if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
                 {

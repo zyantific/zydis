@@ -286,7 +286,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Physical instruction encodings                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-#include <Generated/InstructionClassMap.inc>
+#include <Generated/PhysicalEncodings.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction tree                                                                               */
@@ -446,13 +446,13 @@ void ZydisGetInstructionDefinition(const ZydisInstructionTreeNode* node,
     }
 }
 
-void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node, 
-    const ZydisInstructionParts** info)
+void ZydisGetPhysicalInstructionInfo(const ZydisInstructionTreeNode* node, 
+    const ZydisPhysicalInstructionInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
     uint8_t class = (node->type) & 0x7F;
-    ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionClassMap));
-    *info = &instructionClassMap[class];
+    ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(physicalEncodings));
+    *info = &physicalEncodings[class];
 }
 
 /* ---------------------------------------------------------------------------------------------- */

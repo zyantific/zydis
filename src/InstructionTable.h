@@ -652,7 +652,7 @@ enum ZydisMaskPolicies
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisInstructionMnemonic mnemonic       ZYDIS_BITFIELD(11); \
+    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(11); \
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3)
@@ -737,29 +737,29 @@ typedef struct ZydisInstructionDefinitionMVEX_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisInstructionPartFlags datatype.
+ * @brief   Defines the @c ZydisPhysicalInstructionInfoFlags datatype.
  */
-typedef uint8_t ZydisInstructionPartFlags;
+typedef uint8_t ZydisPhysicalInstructionInfoFlags;
 
 /**
  * @brief   The instruction has an optional modrm byte.
  */
-#define ZYDIS_INSTRPART_FLAG_HAS_MODRM      0x01
+#define ZYDIS_PHYSINSTR_FLAG_HAS_MODRM      0x01
 
 /**
  * @brief   The instruction has an optional displacement value.
  */
-#define ZYDIS_INSTRPART_FLAG_HAS_DISP       0x02
+#define ZYDIS_PHYSINSTR_FLAG_HAS_DISP       0x02
 
 /**
  * @brief   The instruction has an optional immediate value.
  */
-#define ZYDIS_INSTRPART_FLAG_HAS_IMM0       0x04
+#define ZYDIS_PHYSINSTR_FLAG_HAS_IMM0       0x04
 
 /**
  * @brief   The instruction has a second optional immediate value.
  */
-#define ZYDIS_INSTRPART_FLAG_HAS_IMM1       0x08
+#define ZYDIS_PHYSINSTR_FLAG_HAS_IMM1       0x08
 
 /**
  * @brief   The instruction ignores the value of `modrm.mod` and always assumes `modrm.mod == 3`
@@ -767,14 +767,17 @@ typedef uint8_t ZydisInstructionPartFlags;
  *          
  *          Instructions with this flag can't have a SIB byte or a displacement value.
  */
-#define ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM 0x10
+#define ZYDIS_PHYSINSTR_FLAG_FORCE_REG_FORM 0x10
 
-typedef struct ZydisInstructionParts_
+/**
+ * @brief   Defines the @c ZydisPhysicalInstructionInfo struct.
+ */
+typedef struct ZydisPhysicalInstructionInfo_
 {
     /**
      * @brief   Contains flags with information about the physical instruction-encoding.  
      */
-    ZydisInstructionPartFlags flags;
+    ZydisPhysicalInstructionInfoFlags flags;
     /**
      * @brief   Displacement info.
      */
@@ -803,7 +806,7 @@ typedef struct ZydisInstructionParts_
          */
         ZydisBool isRelative;
     } imm[2];
-} ZydisInstructionParts;
+} ZydisPhysicalInstructionInfo;
 
 /* ============================================================================================== */
 /* Functions                                                                                      */
@@ -851,8 +854,8 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(const ZydisInstructionTreeNod
  * @param   node    The instruction definition node.
  * @param   info    A pointer to the @c ZydisInstructionParts struct.        
  */
-ZYDIS_NO_EXPORT void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node, 
-    const ZydisInstructionParts** info);
+ZYDIS_NO_EXPORT void ZydisGetPhysicalInstructionInfo(const ZydisInstructionTreeNode* node, 
+    const ZydisPhysicalInstructionInfo** info);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */

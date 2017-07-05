@@ -885,7 +885,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   The instruction-mnemonic.
      */
-    ZydisInstructionMnemonic mnemonic;  
+    ZydisMnemonic mnemonic;  
     /**
      * @brief   The length of the decoded instruction.
      */
