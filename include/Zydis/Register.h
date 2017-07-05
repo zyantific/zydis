@@ -28,7 +28,7 @@
 #define ZYDIS_REGISTER_H
 
 #include <Zydis/Defines.h>
-#include <Zydis/Types.h>
+#include <Zydis/CommonTypes.h>
 #include <Zydis/Status.h>
 
 #ifdef __cplusplus

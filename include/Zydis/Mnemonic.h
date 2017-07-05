@@ -28,7 +28,7 @@
 #define ZYDIS_MNEMONIC_H
 
 #include <Zydis/Defines.h>
-#include <Zydis/Types.h>
+#include <Zydis/CommonTypes.h>
 
 #ifdef __cplusplus
 extern "C" {

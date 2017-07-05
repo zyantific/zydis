@@ -27,10 +27,10 @@
 #ifndef ZYDIS_DECODER_H
 #define ZYDIS_DECODER_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/Types.h>
-#include <Zydis/Status.h>
+#include <Zydis/CommonTypes.h>
 #include <Zydis/DecoderTypes.h>
+#include <Zydis/Defines.h>
+#include <Zydis/Status.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +72,7 @@ enum ZydisDecodeGranularities
 };
 
 /**
- * @brief   Defines the @c ZydisDecoder datatype.
+ * @brief   Defines the @c ZydisDecoder struct.
  */
 typedef struct ZydisDecoder_
 {

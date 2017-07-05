@@ -27,9 +27,9 @@
 #ifndef ZYDIS_FORMATTER_H
 #define ZYDIS_FORMATTER_H
 
+#include <Zydis/DecoderTypes.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
-#include <Zydis/DecoderTypes.h>
 
 #ifdef __cplusplus
 extern "C" {

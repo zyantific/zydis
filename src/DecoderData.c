@@ -24,8 +24,7 @@
 
 ***************************************************************************************************/
 
-#include <assert.h>
-#include <InstructionTable.h>
+#include <DecoderData.h>
 
 /* ============================================================================================== */
 /* Data tables                                                                                    */
@@ -44,7 +43,7 @@
  *          2 = xop9
  *          3 = xopA
  */
-extern const ZydisInstructionTreeNode filtersXOP[][4];
+extern const ZydisDecoderTreeNode filtersXOP[][4];
 
 /**
  * @brief   Contains all VEX-map filters.
@@ -68,7 +67,7 @@ extern const ZydisInstructionTreeNode filtersXOP[][4];
  *          0F = F2_0F38
  *          10 = F2_0F3A
  */
-extern const ZydisInstructionTreeNode filtersVEX[][17];
+extern const ZydisDecoderTreeNode filtersVEX[][17];
 
 /**
  * @brief   Contains all EVEX/MVEX-map filters.
@@ -108,14 +107,14 @@ extern const ZydisInstructionTreeNode filtersVEX[][17];
  *          1F = MVEX F2_0F38
  *          20 = MVEX F2_0F3A
  */
-extern const ZydisInstructionTreeNode filtersEMVEX[][33];
+extern const ZydisDecoderTreeNode filtersEMVEX[][33];
 
 /**
  * @brief   Contains all opcode filters.
  *          
  *          Indexed by the numeric value of the opcode.
  */
-extern const ZydisInstructionTreeNode filtersOpcode[][256];
+extern const ZydisDecoderTreeNode filtersOpcode[][256];
 
 /**
  * @brief   Contains all instruction-mode filters.
@@ -125,7 +124,7 @@ extern const ZydisInstructionTreeNode filtersOpcode[][256];
  *          1 = 32 bit mode
  *          2 = 64 bit mode
  */
-extern const ZydisInstructionTreeNode filtersMode[][3];
+extern const ZydisDecoderTreeNode filtersMode[][3];
 
 /**
  * @brief   Contains all compacted instruction-mode filters.
@@ -134,14 +133,14 @@ extern const ZydisInstructionTreeNode filtersMode[][3];
  *          0 = 64 bit mode
  *          1 = not 64 bit mode
  */
-extern const ZydisInstructionTreeNode filtersModeCompact[][2];
+extern const ZydisDecoderTreeNode filtersModeCompact[][2];
 
 /**
  * @brief   Contains all ModRM.mod filters.
  *          
  *          Indexed by the ordinal value of the ModRM.mod field.
  */
-extern const ZydisInstructionTreeNode filtersModrmMod[][4];
+extern const ZydisDecoderTreeNode filtersModrmMod[][4];
 
 /**
  * @brief   Contains all compacted ModRM.mod filters.
@@ -150,21 +149,21 @@ extern const ZydisInstructionTreeNode filtersModrmMod[][4];
  *          0 = [ModRM.mod ==  11] = register
  *          1 = [ModRM.mod == !11] = memory
  */
-extern const ZydisInstructionTreeNode filtersModrmModCompact[][2];
+extern const ZydisDecoderTreeNode filtersModrmModCompact[][2];
 
 /**
  * @brief   Contains all ModRM.reg filters.
  *          
  *          Indexed by the numeric value of the ModRM.reg field.
  */
-extern const ZydisInstructionTreeNode filtersModrmReg[][8];
+extern const ZydisDecoderTreeNode filtersModrmReg[][8];
 
 /**
  * @brief   Contains all ModRM.rm filters.
  *          
  *          Indexed by the numeric value of the ModRM.rm field.
  */
-extern const ZydisInstructionTreeNode filtersModrmRm[][8];
+extern const ZydisDecoderTreeNode filtersModrmRm[][8];
 
 /**
  * @brief   Contains all mandatory-prefix switch tables.
@@ -176,7 +175,7 @@ extern const ZydisInstructionTreeNode filtersModrmRm[][8];
  *          3 = F3  
  *          4 = F2
  */
-extern const ZydisInstructionTreeNode filtersMandatoryPrefix[][5];
+extern const ZydisDecoderTreeNode filtersMandatoryPrefix[][5];
 
 /**
  * @brief   Contains all operand-size filters.
@@ -186,7 +185,7 @@ extern const ZydisInstructionTreeNode filtersMandatoryPrefix[][5];
  *          1 = 32 bit
  *          2 = 64 bit 
  */
-extern const ZydisInstructionTreeNode filtersOperandSize[][3];
+extern const ZydisDecoderTreeNode filtersOperandSize[][3];
 
 /**
  * @brief   Contains all address-size filters.
@@ -196,7 +195,7 @@ extern const ZydisInstructionTreeNode filtersOperandSize[][3];
  *          1 = 32 bit 
  *          2 = 64 bit
  */
-extern const ZydisInstructionTreeNode filtersAddressSize[][3];
+extern const ZydisDecoderTreeNode filtersAddressSize[][3];
 
 /**
  * @brief   Contains all vector-length filters.
@@ -206,81 +205,42 @@ extern const ZydisInstructionTreeNode filtersAddressSize[][3];
  *          1 = 256 bit 
  *          2 = 512 bit
  */
-extern const ZydisInstructionTreeNode filtersVectorLength[][3];
+extern const ZydisDecoderTreeNode filtersVectorLength[][3];
 
 /**
  * @brief   Contains all REX/VEX/EVEX.w filters.
  *          
  *          Indexed by the numeric value of the REX/VEX/EVEX.w field.
  */
-extern const ZydisInstructionTreeNode filtersREXW[][2];
+extern const ZydisDecoderTreeNode filtersREXW[][2];
 
 /**
  * @brief   Contains all REX/VEX/EVEX.B filters.
  *          
  *          Indexed by the numeric value of the REX/VEX/EVEX.B field.
  */
-extern const ZydisInstructionTreeNode filtersREXB[][2];
+extern const ZydisDecoderTreeNode filtersREXB[][2];
 
 /**
  * @brief   Contains all EVEX.b filters.
  *          
  *          Indexed by the numeric value of the EVEX.b field.
  */
-extern const ZydisInstructionTreeNode filtersEVEXB[][2];
+extern const ZydisDecoderTreeNode filtersEVEXB[][2];
 
 /**
  * @brief   Contains all EVEX.z filters.
  *          
  *          Indexed by the numeric value of the EVEX.z field.
  */
-extern const ZydisInstructionTreeNode filtersEVEXZ[][2];
+extern const ZydisDecoderTreeNode filtersEVEXZ[][2];
 
 /**
  * @brief   Contains all MVEX.E filters.
  *          
  *          Indexed by the numeric value of the MVEX.E field.
  */
-extern const ZydisInstructionTreeNode filtersMVEXE[][2];
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Contains all operand-definitions.
- */
-extern const ZydisOperandDefinition operandDefinitions[];
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Contains all instruction-definitions with @c DEFAULT encoding.
- */
-extern const ZydisInstructionDefinitionDEFAULT instructionDefinitionsDEFAULT[];
-
-/**
- * @brief   Contains all instruction-definitions with @c 3DNOW encoding.
- */
-extern const ZydisInstructionDefinition3DNOW instructionDefinitions3DNOW[];
-
-/**
- * @brief   Contains all instruction-definitions with @c XOP encoding.
- */
-extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
-
-/**
- * @brief   Contains all instruction-definitions with @c VEX encoding.
- */
-extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
-
-/**
- * @brief   Contains all instruction-definitions with @c EVEX encoding.
- */
-extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
-
-/**
- * @brief   Contains all instruction-definitions with @c MVEX encoding.
- */
-extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
+extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Physical instruction encodings                                                                 */
@@ -289,15 +249,15 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #include <Generated/PhysicalEncodings.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction tree                                                                               */
+/* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INVALID \
     { ZYDIS_NODETYPE_INVALID, 0x00000000 }
 #define ZYDIS_FILTER(type, id) \
     { type, id }
-#define ZYDIS_DEFINITION(encoding, instrclass, id) \
-    { ZYDIS_NODETYPE_DEFINITION_MASK | instrclass, (encoding << 13) | id }
+#define ZYDIS_DEFINITION(encoding_id, id) \
+    { ZYDIS_NODETYPE_DEFINITION_MASK | encoding_id, id }
 
 #include <Generated/InstructionFilters.inc>
 
@@ -306,40 +266,23 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #undef ZYDIS_DEFINITION
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction definitions                                                                        */
-/* ---------------------------------------------------------------------------------------------- */
-
-#include <Generated/InstructionDefinitions.inc>
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Operand definitions                                                                            */
-/* ---------------------------------------------------------------------------------------------- */
-
-#define ZYDIS_OPERAND_DEFINITION(type, encoding, access) \
-    { type, encoding, access }
-
-#include <Generated/OperandDefinitions.inc>
-
-#undef ZYDIS_OPERAND_DEFINITION
 
 /* ============================================================================================== */
 /* Functions                                                                                      */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Instruction tree                                                                               */
+/* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-const ZydisInstructionTreeNode* ZydisInstructionTreeGetRootNode()
+const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode()
 {
-    static const ZydisInstructionTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
+    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
     return &root;
 }
 
-const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
-    const ZydisInstructionTreeNode* parent, uint16_t index)
+const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent, 
+    uint16_t index)
 {
     switch (parent->type)
     {
@@ -403,117 +346,17 @@ const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
     default:
         ZYDIS_UNREACHABLE;
     }
-    static const ZydisInstructionTreeNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
+    static const ZydisDecoderTreeNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
     return &invalid;    
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Instruction definition                                                                         */
-/* ---------------------------------------------------------------------------------------------- */
-
-void ZydisGetInstructionDefinition(const ZydisInstructionTreeNode* node,
-    const ZydisInstructionDefinition** definition)
-{
-    ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    switch ((node->value >> 13) & 0x07)
-    {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitionsDEFAULT[node->value & 0x1FFF];
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitions3DNOW[node->value & 0x1FFF];
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitionsXOP[node->value & 0x1FFF];
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitionsVEX[node->value & 0x1FFF];
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[node->value & 0x1FFF];
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        *definition = 
-            (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[node->value & 0x1FFF];
-        break;
-    default:
-        ZYDIS_UNREACHABLE;
-    }
-}
-
-void ZydisGetPhysicalInstructionInfo(const ZydisInstructionTreeNode* node, 
-    const ZydisPhysicalInstructionInfo** info)
+void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node, 
+    const ZydisInstructionEncodingInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
     uint8_t class = (node->type) & 0x7F;
     ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(physicalEncodings));
     *info = &physicalEncodings[class];
 }
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Operand definition                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
-
-uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
-    const ZydisOperandDefinition** operands)
-{
-    if (definition->operandCount == 0)
-    {
-        *operands = NULL;
-        return 0;
-    }
-    ZYDIS_ASSERT(definition->operandReference != 0xFFFF);
-    *operands = &operandDefinitions[definition->operandReference];
-    return definition->operandCount;
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Element info                                                                                   */
-/* ---------------------------------------------------------------------------------------------- */
-
-void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
-    ZydisElementSize* size)
-{
-    static const struct
-    {
-        ZydisElementType type;
-        ZydisElementSize size;
-    } lookup[21] =
-    {
-        { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
-        { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
-        { ZYDIS_ELEMENT_TYPE_STRUCT   ,   0 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,   0 },
-        { ZYDIS_ELEMENT_TYPE_UINT     ,   0 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,   1 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,   8 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,  16 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,  32 },
-        { ZYDIS_ELEMENT_TYPE_INT      ,  64 },
-        { ZYDIS_ELEMENT_TYPE_UINT     ,   8 },
-        { ZYDIS_ELEMENT_TYPE_UINT     ,  16 },
-        { ZYDIS_ELEMENT_TYPE_UINT     ,  32 },
-        { ZYDIS_ELEMENT_TYPE_UINT     ,  64 },
-        { ZYDIS_ELEMENT_TYPE_UINT     , 128 },
-        { ZYDIS_ELEMENT_TYPE_UINT     , 256 },
-        { ZYDIS_ELEMENT_TYPE_FLOAT16  ,  16 },
-        { ZYDIS_ELEMENT_TYPE_FLOAT32  ,  32 },
-        { ZYDIS_ELEMENT_TYPE_FLOAT64  ,  64 },
-        { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
-        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
-    };
-
-    ZYDIS_ASSERT(element < ZYDIS_ARRAY_SIZE(lookup));
-
-    *type = lookup[element].type;
-    *size = lookup[element].size;
-}
-
-/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

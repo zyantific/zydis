@@ -25,9 +25,10 @@
 ***************************************************************************************************/
 
 #include <string.h>
-#include <Zydis/Status.h>
 #include <Zydis/Decoder.h>
-#include <InstructionTable.h>
+#include <Zydis/Status.h>
+#include <DecoderData.h>
+#include <SharedData.h>
 
 /* ============================================================================================== */
 /* Internal enums and types                                                                       */
@@ -3142,18 +3143,18 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
  *          
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
- * @param   info        A pointer to the @c ZydisInstructionParts struct.
+ * @param   info        A pointer to the @c ZydisInstructionEncodingInfo struct.
  * 
  * @return  A zydis status code.
  */
-static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, const ZydisPhysicalInstructionInfo* info)
+static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* context, 
+    ZydisDecodedInstruction* instruction, const ZydisInstructionEncodingInfo* info)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(info);
 
-    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_MODRM)
+    if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_MODRM)
     {
         if (!instruction->raw.modrm.isDecoded)
         {
@@ -3163,7 +3164,7 @@ static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context,
         }
         uint8_t hasSIB = 0;
         uint8_t displacementSize = 0;
-        if (!(info->flags & ZYDIS_PHYSINSTR_FLAG_FORCE_REG_FORM))
+        if (!(info->flags & ZYDIS_INSTR_ENC_FLAG_FORCE_REG_FORM))
         {
             switch (instruction->addressWidth)
             {
@@ -3235,13 +3236,13 @@ static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context,
         }
     }
 
-    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_DISP)
+    if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_DISP)
     {
         ZYDIS_CHECK(ZydisReadDisplacement(
             context, instruction, info->disp.size[context->easzIndex])); 
     }
 
-    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_IMM0)
+    if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_IMM0)
     {
         if (info->imm[0].isRelative)
         {
@@ -3251,9 +3252,9 @@ static ZydisStatus ZydisDecodeInstructionPhysical(ZydisDecoderContext* context,
             info->imm[0].size[context->eoszIndex], info->imm[0].isSigned, info->imm[0].isRelative));  
     }
 
-    if (info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_IMM1)
+    if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_IMM1)
     {
-        ZYDIS_ASSERT(!(info->flags & ZYDIS_PHYSINSTR_FLAG_HAS_DISP));
+        ZYDIS_ASSERT(!(info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_DISP));
         ZYDIS_CHECK(ZydisReadImmediate(context, instruction, 1, 
             info->imm[1].size[context->eoszIndex], info->imm[1].isSigned, info->imm[1].isRelative));    
     }
@@ -4162,7 +4163,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Uses the instruction-tree to decode the current instruction.
+ * @brief   Uses the decoder-tree to decode the current instruction.
  *
  * @param   context     A pointer to the @c ZydisDecoderContext instance.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
@@ -4175,10 +4176,10 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
 
-    // Iterate through the instruction table
-    const ZydisInstructionTreeNode* node = ZydisInstructionTreeGetRootNode();
-    const ZydisInstructionTreeNode* temp = NULL;
-    ZydisInstructionTreeNodeType nodeType;
+    // Iterate through the decoder tree
+    const ZydisDecoderTreeNode* node = ZydisDecoderTreeGetRootNode();
+    const ZydisDecoderTreeNode* temp = NULL;
+    ZydisDecoderTreeNodeType nodeType;
     do
     {
         nodeType = node->type;
@@ -4231,7 +4232,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             break; 
         case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(context, instruction, &index);
-            temp = ZydisInstructionTreeGetChildNode(node, 0);
+            temp = ZydisDecoderTreeGetChildNode(node, 0);
             // TODO: Return to this point, if index == 0 contains a value and the previous path
             // TODO: was not successfull
             // TODO: Restore consumed prefix
@@ -4264,30 +4265,31 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             if (nodeType & ZYDIS_NODETYPE_DEFINITION_MASK)
             { 
                 const ZydisInstructionDefinition* definition;
-                ZydisGetInstructionDefinition(node, &definition);
+                ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
                 ZydisSetEffectiveOperandSize(context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(context, instruction);
 
-                const ZydisPhysicalInstructionInfo* info;
-                ZydisGetPhysicalInstructionInfo(node, &info);
-                ZYDIS_CHECK(ZydisDecodeInstructionPhysical(context, instruction, info));
+                const ZydisInstructionEncodingInfo* info;
+                ZydisGetInstructionEncodingInfo(node, &info);
+                ZYDIS_CHECK(ZydisDecodeOptionalInstructionParts(context, instruction, info));
 
                 if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
                 {
                     // Get actual 3dnow opcode and definition
                     ZYDIS_CHECK(ZydisInputNext(context, instruction, &instruction->opcode));
-                    node = ZydisInstructionTreeGetRootNode();
-                    node = ZydisInstructionTreeGetChildNode(node, 0x0F);
-                    node = ZydisInstructionTreeGetChildNode(node, 0x0F);
-                    node = ZydisInstructionTreeGetChildNode(node, instruction->opcode);
+                    node = ZydisDecoderTreeGetRootNode();
+                    node = ZydisDecoderTreeGetChildNode(node, 0x0F);
+                    node = ZydisDecoderTreeGetChildNode(node, 0x0F);
+                    node = ZydisDecoderTreeGetChildNode(node, instruction->opcode);
                     if (node->type == ZYDIS_NODETYPE_INVALID)
                     {
                         return ZYDIS_STATUS_DECODING_ERROR;        
                     }
                     ZYDIS_ASSERT(node->type == ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT);
-                    node = ZydisInstructionTreeGetChildNode(
+                    node = ZydisDecoderTreeGetChildNode(
                         node, (instruction->raw.modrm.mod == 0x3) ? 0 : 1);
-                    ZydisGetInstructionDefinition(node, &definition);
+                    ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
+                    ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
                 }
 
                 ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
@@ -4316,7 +4318,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             ZYDIS_UNREACHABLE;
         }
         ZYDIS_CHECK(status);
-        node = ZydisInstructionTreeGetChildNode(node, index);
+        node = ZydisDecoderTreeGetChildNode(node, index);
     } while((nodeType != ZYDIS_NODETYPE_INVALID) && !(nodeType & ZYDIS_NODETYPE_DEFINITION_MASK));
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -4392,6 +4394,7 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     void* userData = instruction->userData;
     memset(instruction, 0, sizeof(*instruction));   
     instruction->machineMode = decoder->machineMode;
+    instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
     instruction->instrAddress = instructionPointer;
     instruction->userData = userData;
 

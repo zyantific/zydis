@@ -27,14 +27,15 @@
 #ifndef ZYDIS_H
 #define ZYDIS_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/Types.h>
-#include <Zydis/Status.h>
-#include <Zydis/Mnemonic.h>
-#include <Zydis/Register.h>
-#include <Zydis/DecoderTypes.h>
+#include <Zydis/CommonTypes.h>
 #include <Zydis/Decoder.h>
+#include <Zydis/DecoderTypes.h>
+#include <Zydis/Defines.h>
 #include <Zydis/Formatter.h>
+#include <Zydis/Mnemonic.h>
+#include <Zydis/Register.h>   
+#include <Zydis/SharedTypes.h>
+#include <Zydis/Status.h>
 #include <Zydis/Utils.h>
 
 #ifdef __cplusplus

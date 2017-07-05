@@ -81,23 +81,26 @@ endif ()
 
 target_sources("Zydis"
     PUBLIC
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/CommonTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Types.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"       
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
     PRIVATE
-        "src/InstructionTable.h"
+        "src/DecoderData.h"
+        "src/SharedData.h"
         "src/Decoder.c"
+        "src/DecoderData.c"
         "src/Formatter.c"
-        "src/InstructionTable.c"
         "src/Mnemonic.c"
         "src/Register.c"
+        "src/SharedData.c"
         "src/Utils.c"
         "src/Zydis.c")
 
@@ -107,8 +110,12 @@ endif ()
 
 if (ZYDIS_FEATURE_ENCODER)
     target_sources("Zydis" 
-        PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/Encoder.h" 
-        PRIVATE "src/Encoder.c")
+        PUBLIC 
+            "${CMAKE_CURRENT_LIST_DIR}/include/Encoder.h" 
+        PRIVATE 
+            "src/EncoderData.h"
+            "src/Encoder.c"
+            "src/EncoderData.c")
 endif ()
 
 # TODO: Install CMake config.
