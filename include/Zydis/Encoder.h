@@ -30,7 +30,7 @@
 #include <Zydis/Defines.h>
 #include <Zydis/Types.h>
 #include <Zydis/Status.h>
-#include <Zydis/InstructionInfo.h>
+#include <Zydis/DecoderTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,20 +56,66 @@ extern "C" {
 )
 
 /* ============================================================================================== */
+/* Structs                                                                                        */
+/* ============================================================================================== */
+
+typedef struct ZydisEncoderOperand_
+{
+    ZydisOperandType type;
+    ZydisRegister reg;
+    struct
+    {
+        ZydisRegister segment;
+        ZydisRegister base;
+        ZydisRegister index;
+        uint8_t scale;
+        uint8_t dispSize;
+        int64_t disp;
+    } mem;
+    struct
+    {
+        uint16_t segment;
+        uint32_t offset;
+    } ptr;
+    uint8_t immSize;
+    union
+    {
+        uint64_t u;
+        int64_t s;
+    } imm;
+} ZydisEncoderOperand;
+
+typedef struct ZydisEncoderRequest_
+{
+    ZydisMachineMode machineMode;
+    ZydisInstructionMnemonic mnemonic;
+    ZydisInstructionAttributes attributes;
+    ZydisInstructionEncoding encoding;
+    uint8_t operandCount;
+    ZydisEncoderOperand operands[10];
+
+    // TODO: AVX stuff
+    // TODO: MVEX stuff
+} ZydisEncoderRequest;
+
+/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
+
+ZYDIS_EXPORT ZydisStatus ZydisEncoderRequestFromDecodedInstruction(
+    const ZydisDecodedInstruction* in, ZydisEncoderRequest* out);
 
 /**
  * @brief   Encodes the given instruction info to byte-code.
  *
  * @param   buffer      A pointer to the output buffer.
  * @param   bufferLen   The length of the output buffer.
- * @param   info        A pointer to the @c ZydisInstructionInfo struct to be encoded.
+ * @param   request     A pointer to the @c ZydisEncoderRequest encode.
  *
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen, 
-    ZydisInstructionInfo* info);
+    ZydisEncoderRequest* request);
 
 /* ============================================================================================== */
 

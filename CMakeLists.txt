@@ -107,7 +107,7 @@ endif ()
 
 if (ZYDIS_FEATURE_ENCODER)
     target_sources("Zydis" 
-        PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/Encoder.h" 
+        PUBLIC "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h" 
         PRIVATE "src/Encoder.c")
 endif ()
 
