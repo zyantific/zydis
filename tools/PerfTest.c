@@ -70,7 +70,25 @@ double GetCounter()
     return (double)(li.QuadPart - CounterStart) / CounterFreq;
 }
 #elif defined(ZYDIS_APPLE)
-// TODO:
+uint64_t counterStart = 0;
+mach_timebase_info_data_t timebaseInfo;
+
+void StartCounter()
+{
+    counterStart = mach_absolute_time();
+}
+
+double GetCounter()
+{
+    uint64_t elapsed = mach_absolute_time() - counterStart;
+
+    if (timebaseInfo.denom == 0)
+    {
+        mach_timebase_info(&timebaseInfo);
+    }
+
+    return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
+}
 #elif defined(ZYDIS_LINUX)
 // TODO:
 #endif
@@ -231,9 +249,9 @@ void generateTestData(FILE* file, uint8_t encoding)
 
 int main(int argc, char** argv)
 {
-    if (argc < 3 || (!strcmp(argv[1], "-test") && !strcmp(argv[1], "-generate")))
+    if (argc < 3 || (strcmp(argv[1], "-test") && strcmp(argv[1], "-generate")))
     {
-        fputs("Usage: PerfTest -[test|generate] [directory]", stderr);
+        fputs("Usage: PerfTest -[test|generate] [directory]\n", stderr);
         return EXIT_FAILURE;
     }
 
@@ -306,8 +324,6 @@ int main(int argc, char** argv)
             fclose(file);
         }
     }
-
-    getchar();
 
     return 0;
 }
