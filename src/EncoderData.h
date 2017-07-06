@@ -56,24 +56,23 @@ extern "C" {
  */
 typedef struct ZydisEncodableInstruction_
 {
-    ZydisInstructionEncoding encoding   ZYDIS_BITFIELD( 3);
     uint16_t definitionReference        ZYDIS_BITFIELD(13);
-    struct
-    {
-        uint8_t mode                    ZYDIS_BITFIELD( 2);
-        uint8_t modrmMod                ZYDIS_BITFIELD( 3);
-        uint8_t modrmReg                ZYDIS_BITFIELD( 4);
-        uint8_t modrmRm                 ZYDIS_BITFIELD( 4);
-        uint8_t mandatoryPrefix         ZYDIS_BITFIELD( 3);
-        uint8_t operandSize             ZYDIS_BITFIELD( 2);
-        uint8_t addressSize             ZYDIS_BITFIELD( 2);
-        uint8_t vectorLength            ZYDIS_BITFIELD( 2);
-        uint8_t rexW                    ZYDIS_BITFIELD( 2);
-        uint8_t rexB                    ZYDIS_BITFIELD( 2);
-        uint8_t evexB                   ZYDIS_BITFIELD( 2);
-        uint8_t evexZ                   ZYDIS_BITFIELD( 2);
-        uint8_t mvexE                   ZYDIS_BITFIELD( 2);
-    } filters; 
+    ZydisInstructionEncoding encoding   ZYDIS_BITFIELD( 3);
+    uint8_t opcode                      ZYDIS_BITFIELD( 8);
+    ZydisOpcodeMap opcodeMap            ZYDIS_BITFIELD( 3); 
+    uint8_t mode                        ZYDIS_BITFIELD( 3); 
+    uint8_t modrmMod                    ZYDIS_BITFIELD( 4); 
+    ZydisBool forceModrmReg             ZYDIS_BITFIELD( 1);
+    uint8_t modrmReg                    ZYDIS_BITFIELD( 8); 
+    ZydisBool forceModrmRm              ZYDIS_BITFIELD( 1);
+    uint8_t modrmRm                     ZYDIS_BITFIELD( 8); 
+    uint8_t mandatoryPrefix             ZYDIS_BITFIELD( 3); 
+    uint8_t vectorLength                ZYDIS_BITFIELD( 2);
+    uint8_t rexW                        ZYDIS_BITFIELD( 1);
+    uint8_t rexB                        ZYDIS_BITFIELD( 2); 
+    uint8_t evexB                       ZYDIS_BITFIELD( 1); 
+    uint8_t evexZ                       ZYDIS_BITFIELD( 2); 
+    uint8_t mvexE                       ZYDIS_BITFIELD( 2); 
 } ZydisEncodableInstruction;
 
 /* ---------------------------------------------------------------------------------------------- */

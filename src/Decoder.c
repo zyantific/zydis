@@ -3583,7 +3583,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                         instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_VEX;
                         ZYDIS_CHECK(ZydisDecodeVEX(context, instruction, prefixBytes));
                         instruction->opcodeMap = 
-                            ZYDIS_OPCODE_MAP_EX0 + instruction->raw.vex.m_mmmm;
+                            ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.vex.m_mmmm;
                         break;
                     case 0x62:
                         switch ((prefixBytes[2] >> 2) & 0x01)
@@ -3593,14 +3593,14 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_MVEX;
                             ZYDIS_CHECK(ZydisDecodeMVEX(context, instruction, prefixBytes));
                             instruction->opcodeMap = 
-                                ZYDIS_OPCODE_MAP_EX0 + instruction->raw.mvex.mmmm;
+                                ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.mvex.mmmm;
                             break;
                         case 1:
                             // Decode EVEX-prefix
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
                             ZYDIS_CHECK(ZydisDecodeEVEX(context, instruction, prefixBytes));
                             instruction->opcodeMap = 
-                                ZYDIS_OPCODE_MAP_EX0 + instruction->raw.evex.mm;
+                                ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.evex.mm;
                             break;
                         default:
                             ZYDIS_UNREACHABLE;
@@ -3649,7 +3649,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
             {
             case 0x0F:
                 instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_3DNOW;
-                instruction->opcodeMap = ZYDIS_OPCODE_MAP_DEFAULT;
+                instruction->opcodeMap = ZYDIS_OPCODE_MAP_0F0F;
                 break;
             case 0x38:
                 instruction->opcodeMap = ZYDIS_OPCODE_MAP_0F38;

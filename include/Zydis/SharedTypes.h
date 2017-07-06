@@ -361,14 +361,14 @@ typedef uint8_t ZydisOpcodeMap;
  */
 enum ZydisOpcodeMaps
 {
-    ZYDIS_OPCODE_MAP_DEFAULT    = 0x00,
-    ZYDIS_OPCODE_MAP_EX0        = 0x01,
-    ZYDIS_OPCODE_MAP_0F         = 0x02,
-    ZYDIS_OPCODE_MAP_0F38       = 0x03,
-    ZYDIS_OPCODE_MAP_0F3A       = 0x04,
-    ZYDIS_OPCODE_MAP_XOP8       = 0x05,
-    ZYDIS_OPCODE_MAP_XOP9       = 0x06,
-    ZYDIS_OPCODE_MAP_XOPA       = 0x07
+    ZYDIS_OPCODE_MAP_DEFAULT,
+    ZYDIS_OPCODE_MAP_0F,
+    ZYDIS_OPCODE_MAP_0F38,
+    ZYDIS_OPCODE_MAP_0F3A,
+    ZYDIS_OPCODE_MAP_0F0F,
+    ZYDIS_OPCODE_MAP_XOP8,
+    ZYDIS_OPCODE_MAP_XOP9,
+    ZYDIS_OPCODE_MAP_XOPA
 };
 
 /* ---------------------------------------------------------------------------------------------- */
