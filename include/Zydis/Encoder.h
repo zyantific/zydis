@@ -28,9 +28,11 @@
 #define ZYDIS_ENCODER_H
 
 #include <Zydis/Defines.h>
-#include <Zydis/Types.h>
 #include <Zydis/Status.h>
-#include <Zydis/DecoderTypes.h>
+#include <Zydis/SharedTypes.h>
+#ifdef ZYDIS_ENABLE_FEATURE_DECODER
+#   include <Zydis/DecoderTypes.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,11 +90,11 @@ typedef struct ZydisEncoderOperand_
 typedef struct ZydisEncoderRequest_
 {
     ZydisMachineMode machineMode;
-    ZydisInstructionMnemonic mnemonic;
+    ZydisMnemonic mnemonic;
     ZydisInstructionAttributes attributes;
     ZydisInstructionEncoding encoding;
     uint8_t operandCount;
-    ZydisEncoderOperand operands[10];
+    ZydisEncoderOperand operands[5];
 
     // TODO: AVX stuff
     // TODO: MVEX stuff
@@ -102,8 +104,10 @@ typedef struct ZydisEncoderRequest_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZYDIS_EXPORT ZydisStatus ZydisEncoderRequestFromDecodedInstruction(
+#ifdef ZYDIS_ENABLE_FEATURE_DECODER
+ZYDIS_EXPORT ZydisStatus ZydisEncoderDecodedInstructionToRequest(
     const ZydisDecodedInstruction* in, ZydisEncoderRequest* out);
+#endif
 
 /**
  * @brief   Encodes the given instruction info to byte-code.

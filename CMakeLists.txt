@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
 
@@ -9,6 +9,12 @@ project(Zydis VERSION 2.0)
 # =============================================================================================== #
 
 # Features
+option(ZYDIS_FEATURE_DECODER
+    "Enable instruction decoding and formtting functionality"
+    ON)
+option(ZYDIS_FEATURE_ENCODER
+    "Enable instruction encoding functionality"
+    OFF)
 option(ZYDIS_FEATURE_EVEX 
     "Enable support for EVEX instructions" 
     ON)
@@ -20,12 +26,6 @@ option(ZYDIS_FEATURE_FLAGS
     ON)
 option(ZYDIS_FEATURE_CPUID 
     "Include information about CPUID feature-flags"
-    OFF)
-option(ZYDIS_FEATURE_DECODER
-    "Enable instruction decoding and formtting functionality"
-    ON)
-option(ZYDIS_FEATURE_ENCODER
-    "Enable instruction encoding functionality"
     OFF)
 
 # Build configuration
@@ -68,6 +68,14 @@ target_include_directories("Zydis"
     PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
+
+if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
+	message(
+		FATAL_ERROR
+		"\nIt's dangerous to go alone! Take at least one of these:\n"
+		"[ ] ZYDIS_FEATURE_ENCODER [ ] ZYDIS_FEATURE_DECODER"
+	)
+endif ()
 
 if (ZYDIS_FEATURE_EVEX)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_EVEX")

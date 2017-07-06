@@ -73,7 +73,7 @@ typedef struct ZydisEncodableInstruction_
         uint8_t evexB                   ZYDIS_BITFIELD( 2);
         uint8_t evexZ                   ZYDIS_BITFIELD( 2);
         uint8_t mvexE                   ZYDIS_BITFIELD( 2);
-    } filterIndizes; 
+    } filters; 
 } ZydisEncodableInstruction;
 
 /* ---------------------------------------------------------------------------------------------- */
