@@ -27,10 +27,10 @@
 #ifndef ZYDIS_DECODER_H
 #define ZYDIS_DECODER_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/Types.h>
-#include <Zydis/Status.h>
+#include <Zydis/CommonTypes.h>
 #include <Zydis/DecoderTypes.h>
+#include <Zydis/Defines.h>
+#include <Zydis/Status.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,26 +50,29 @@ typedef uint32_t ZydisDecodeGranularity;
  */
 enum ZydisDecodeGranularities
 {
+    /**
+     * @brief   Defaults to `ZYDIS_DECODE_GRANULARITY_FULL`. 
+     */
     ZYDIS_DECODE_GRANULARITY_DEFAULT,
     /**
      * @brief   Minimal instruction decoding without semantic analysis.
      * 
-     * This mode should be sufficient, if you plan to analyse code for pure relocation purposes, 
-     * as it gives you access to the mnemonic, the instruction-length, displacements, immediates 
-     * and the `ZYDIS_ATTRIB_IS_RELATIVE` attribute.
+     * This mode provides access to the mnemonic, the instruction-length, the effective 
+     * operand-size, the effective address-width, some attributes (e.g. `ZYDIS_ATTRIB_IS_RELATIVE`) 
+     * and all of the information in the `raw` field of the `ZydisDecodedInstruction` struct.
      * 
      * Operands, most attributes and other specific information (like AVX info) are not 
      * accessible in this mode.
      */
     ZYDIS_DECODE_GRANULARITY_MINIMAL,
     /**
-     * @brief   Full physical and semantical instruction-decoding.
+     * @brief   Full physical and semantic instruction-decoding.
      */
     ZYDIS_DECODE_GRANULARITY_FULL
 };
 
 /**
- * @brief   Defines the @c ZydisDecoder datatype.
+ * @brief   Defines the @c ZydisDecoder struct.
  */
 typedef struct ZydisDecoder_
 {

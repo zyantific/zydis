@@ -97,7 +97,7 @@ double GetCounter()
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-void processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
+uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
     ZydisBool format)
 {
     ZydisDecoder decoder;
@@ -121,6 +121,7 @@ void processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity gra
         }
     }
 
+    uint64_t count = 0;
     size_t offset = 0;
     ZydisStatus status;
     ZydisDecodedInstruction instruction;
@@ -134,24 +135,29 @@ void processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity gra
             puts("Unexpected decoding error");
             exit(EXIT_FAILURE);
         }
+        ++count;
         if (format)
         {
             ZydisFormatterFormatInstruction(
                 &formatter, &instruction, formatBuffer, sizeof(formatBuffer));
         }            
         offset += instruction.length;
-    }    
+    } 
+    
+    return count;
 }
 
 void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
     ZydisBool format)
 {
+    uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
     {
-        processBuffer(buffer, length, granularity, format);
+        count += processBuffer(buffer, length, granularity, format);
     }
-    printf("Granularity %d, Formatting %d: %8.2f msec\n", granularity, format, GetCounter());  
+    printf("Granularity %d, Formatting %d, Instructions: ~%6.2fM, Time: %8.2f msec\n", 
+        granularity, format, (double)count / 1000000, GetCounter());  
 }
 
 void generateTestData(FILE* file, uint8_t encoding)

@@ -24,18 +24,17 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_INSTRUCTIONTABLE_H
-#define ZYDIS_INSTRUCTIONTABLE_H
+#ifndef ZYDIS_SHAREDDATA_H
+#define ZYDIS_SHAREDDATA_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
-#include <Zydis/DecoderTypes.h>
+#include <Zydis/Register.h>
+#include <Zydis/SharedTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define ZYDIS_BITFIELD(x) : x
 
 /* ============================================================================================== */
 /* Enums and types                                                                                */
@@ -48,117 +47,6 @@ extern "C" {
 #endif
 
 #pragma pack(push, 1)
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Instruction tree                                                                               */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisInstructionTreeNodeType datatype.
- */                                 
-typedef uint8_t ZydisInstructionTreeNodeType;
-
-/**
- * @brief   Defines the @c ZydisInstructionTreeNodeValue datatype.
- */
-typedef uint16_t ZydisInstructionTreeNodeValue;
-
-/**
- * @brief   Defines the @c ZydisInstructionTreeNode struct.
- */
-typedef struct ZydisInstructionTreeNode_
-{
-    ZydisInstructionTreeNodeType type;
-    ZydisInstructionTreeNodeValue value;
-} ZydisInstructionTreeNode;
-
-/**
- * @brief   Values that represent zydis instruction tree node types.
- */
-enum ZydisInstructionTreeNodeTypes
-{
-    ZYDIS_NODETYPE_INVALID                  = 0x00,
-    /**
-     * @brief   Reference to an instruction-definition.
-     */
-    ZYDIS_NODETYPE_DEFINITION_MASK          = 0x80,
-    /**
-     * @brief   Reference to an XOP-map filter.
-     */
-    ZYDIS_NODETYPE_FILTER_XOP               = 0x01,
-    /**
-     * @brief   Reference to an VEX-map filter.
-     */
-    ZYDIS_NODETYPE_FILTER_VEX               = 0x02,
-    /**
-     * @brief   Reference to an EVEX/MVEX-map filter.
-     */
-    ZYDIS_NODETYPE_FILTER_EMVEX             = 0x03,
-    /**
-     * @brief   Reference to an opcode filter.
-     */
-    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x04,
-    /**
-     * @brief   Reference to an instruction-mode filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MODE              = 0x05,
-    /**
-     * @brief   Reference to an compacted instruction-mode filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MODE_COMPACT      = 0x06,
-    /**
-     * @brief   Reference to a ModRM.mod filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD         = 0x07,
-    /**
-     * @brief   Reference to a compacted ModRM.mod filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT = 0x08,
-    /**
-     * @brief   Reference to a ModRM.reg filter.
-     */                                                                                      
-    ZYDIS_NODETYPE_FILTER_MODRM_REG         = 0x09,
-    /**
-     * @brief   Reference to a ModRM.rm filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MODRM_RM          = 0x0A,
-    /**
-     * @brief   Reference to a mandatory-prefix filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX  = 0x0B,
-    /**
-     * @brief   Reference to an operand-size filter.
-     */
-    ZYDIS_NODETYPE_FILTER_OPERAND_SIZE      = 0x0C,
-    /**
-     * @brief   Reference to an address-size filter.
-     */
-    ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE      = 0x0D,
-    /**
-     * @brief   Reference to a vector-length filter.
-     */
-    ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH     = 0x0E,
-    /**
-     * @brief   Reference to an REX/VEX/EVEX.W filter.
-     */
-    ZYDIS_NODETYPE_FILTER_REX_W             = 0x0F,
-    /**
-     * @brief   Reference to an REX/VEX/EVEX.B filter.
-     */
-    ZYDIS_NODETYPE_FILTER_REX_B             = 0x10,
-    /**
-     * @brief   Reference to an EVEX.b filter.
-     */
-    ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x11,
-    /**
-     * @brief   Reference to an EVEX.z filter.
-     */
-    ZYDIS_NODETYPE_FILTER_EVEX_Z            = 0x12,
-    /**
-     * @brief   Reference to an MVEX.E filter.
-     */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x13,
-};
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
@@ -217,7 +105,7 @@ typedef uint8_t ZydisInternalElementType;
 enum ZydisInternalElementTypes
 {
     ZYDIS_IELEMENT_TYPE_INVALID,
-    ZYDIS_IELEMENT_TYPE_VARIABLE, // TODO: Remove
+    ZYDIS_IELEMENT_TYPE_VARIABLE,
     ZYDIS_IELEMENT_TYPE_STRUCT,
     ZYDIS_IELEMENT_TYPE_INT,
     ZYDIS_IELEMENT_TYPE_UINT,
@@ -270,6 +158,9 @@ typedef struct ZydisOperandDefinition_
     } op;
 } ZydisOperandDefinition;
 
+/**
+ * @brief   Values that represent implicit-register types.
+ */
 enum ZydisImplicitRegisterType
 {
     ZYDIS_IMPLREG_TYPE_STATIC,
@@ -281,6 +172,9 @@ enum ZydisImplicitRegisterType
     ZYDIS_IMPLREG_TYPE_FLAGS_SSZ
 };
 
+/**
+ * @brief   Values that represent implicit-memory base-registers.
+ */
 enum ZydisImplicitMemBase
 {
     ZYDIS_IMPLMEM_BASE_ABX,
@@ -646,7 +540,7 @@ enum ZydisMaskPolicies
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisInstructionMnemonic mnemonic       ZYDIS_BITFIELD(11); \
+    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(11); \
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3)
@@ -657,7 +551,7 @@ enum ZydisMaskPolicies
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
-    ZydisBool hasVSIB                      ZYDIS_BITFIELD( 1)
+    ZydisBool hasVSIB                       ZYDIS_BITFIELD( 1)
 
 /**
  * @brief   Defines the @c ZydisInstructionDefinition struct.
@@ -670,16 +564,17 @@ typedef struct ZydisInstructionDefinition_
 typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
-    ZydisBool acceptsLock                   ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREP                    ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD(1);
-    ZydisBool acceptsBOUND                  ZYDIS_BITFIELD(1);
-    ZydisBool acceptsXACQUIRE               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsXRELEASE               ZYDIS_BITFIELD(1);
-    ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD(1);
-    ZydisBool acceptsBranchHints            ZYDIS_BITFIELD(1);
-    ZydisBool acceptsSegment                ZYDIS_BITFIELD(1);
+    ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsLock                   ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsBOUND                  ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsXACQUIRE               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsXRELEASE               ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsBranchHints            ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsSegment                ZYDIS_BITFIELD( 1);
 } ZydisInstructionDefinitionDEFAULT;
 
 typedef struct ZydisInstructionDefinition3DNOW_
@@ -695,27 +590,27 @@ typedef struct ZydisInstructionDefinitionXOP_
 typedef struct ZydisInstructionDefinitionVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
-    ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD(3);
+    ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionVEX;
 
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
-    ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD(2);
-    ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD(4);
-    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD(4);
-    ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD(2);
-    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD(2);
-    ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD(4);
-} ZydisInstructionDefinitionEVEX;
+    ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD( 2);
+    ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD( 4);
+    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 4);
+    ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD( 2);
+    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
+    ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 4);
+} ZydisInstructionDefinitionEVEX;                           
 
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
-    ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD(5);
-    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD(2);
-    ZydisBool hasElementGranularity         ZYDIS_BITFIELD(1);
-    ZydisMVEXStaticBroadcast broadcast      ZYDIS_BITFIELD(3);
+    ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD( 5);
+    ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
+    ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);
+    ZydisMVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -726,143 +621,40 @@ typedef struct ZydisInstructionDefinitionMVEX_
 #   pragma warning(pop)
 #endif
 
-/* ---------------------------------------------------------------------------------------------- */
-/* Physical instruction info                                                                      */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisInstructionPartFlags datatype.
- */
-typedef uint8_t ZydisInstructionPartFlags;
-
-/**
- * @brief   The instruction has an optional modrm byte.
- */
-#define ZYDIS_INSTRPART_FLAG_HAS_MODRM      0x01
-
-/**
- * @brief   The instruction has an optional displacement value.
- */
-#define ZYDIS_INSTRPART_FLAG_HAS_DISP       0x02
-
-/**
- * @brief   The instruction has an optional immediate value.
- */
-#define ZYDIS_INSTRPART_FLAG_HAS_IMM0       0x04
-
-/**
- * @brief   The instruction has a second optional immediate value.
- */
-#define ZYDIS_INSTRPART_FLAG_HAS_IMM1       0x08
-
-/**
- * @brief   The instruction ignores the value of `modrm.mod` and always assumes `modrm.mod == 3`
- *          ("reg, reg" - form).
- *          
- *          Instructions with this flag can't have a SIB byte or a displacement value.
- */
-#define ZYDIS_INSTRPART_FLAG_FORCE_REG_FORM 0x10
-
-typedef struct ZydisInstructionParts_
-{
-    /**
-     * @brief   Contains flags with information about the physical instruction-encoding.  
-     */
-    ZydisInstructionPartFlags flags;
-    /**
-     * @brief   Displacement info.
-     */
-    struct
-    {
-        /**
-         * @brief   The size of the displacement value.
-         */
-        uint8_t size[3];
-    } disp;
-    /**
-     * @brief   Immediate info.
-     */
-    struct
-    {
-        /**
-         * @brief   The size of the immediate value.
-         */
-        uint8_t size[3];
-        /**
-         * @brief   Signals, if the value is signed.
-         */
-        ZydisBool isSigned;
-        /**
-         * @brief   Signals, if the value is a relative offset.
-         */
-        ZydisBool isRelative;
-    } imm[2];
-} ZydisInstructionParts;
-
 /* ============================================================================================== */
 /* Functions                                                                                      */
 /* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Instruction tree                                                                               */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Returns the root node of the instruction tree.
- *
- * @return  The root node of the instruction tree.
- */
-ZYDIS_NO_EXPORT const ZydisInstructionTreeNode* ZydisInstructionTreeGetRootNode();
-
-/**
- * @brief   Returns the child node of @c parent specified by @c index.
- *
- * @param   parent  The parent node.
- * @param   index   The index of the child node to retrieve.
- *                  
- * @return  The specified child node.
- */
-ZYDIS_NO_EXPORT const ZydisInstructionTreeNode* ZydisInstructionTreeGetChildNode(
-    const ZydisInstructionTreeNode* parent, uint16_t index);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the instruction- and operand-definition that is linked to the given @c node.
+ * @brief   Returns the instruction-definition with the given `encoding` and `id`.
  *
- * @param   node            The instruction definition node.
- * @param   definition      A pointer to a variable that receives a pointer to the 
+ * @param   encoding    The instruction-encoding.
+ * @param   id          The definition-id.
+ * @param   definition  A pointer to the variable that receives a pointer to the instruction-
+ *                      definition.
  */
-ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(const ZydisInstructionTreeNode* node,
-    const ZydisInstructionDefinition** definition);
-
-/**
- * @brief   Returns information about optional instruction parts (like modrm, displacement or 
- *          immediates) for the instruction that is linked to the given @c node.
- *
- * @param   node    The instruction definition node.
- * @param   info    A pointer to the @c ZydisInstructionParts struct.        
- */
-ZYDIS_NO_EXPORT void ZydisGetOptionalInstructionParts(const ZydisInstructionTreeNode* node, 
-    const ZydisInstructionParts** info);
+ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding,
+    uint16_t id, const ZydisInstructionDefinition** definition);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns the instruction- and operand-definition that is linked to the given @c node.
+ * @brief   Returns the the operand-definitions for the given instruction-`definition`.
  *
- * @param   definition      A pointer to the instruction-definition.
- * @param   operands        A pointer to a variable that receives a pointer to the first 
- *                          operand-definition of the instruction.
+ * @param   definition  A pointer to the instruction-definition.
+ * @param   operand     A pointer to the variable that receives a pointer to the first operand-
+ *                      definition of the instruction.
  *                          
  * @return  The number of operands for the given instruction-definition.
  */
 ZYDIS_NO_EXPORT uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
-    const ZydisOperandDefinition** operands);
+    const ZydisOperandDefinition** operand);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element info                                                                                   */
@@ -886,4 +678,4 @@ ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, Zydis
 }
 #endif
 
-#endif /* ZYDIS_INSTRUCTIONTABLE_H */
+#endif /* ZYDIS_SHAREDDATA_H */

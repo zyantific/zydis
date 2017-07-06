@@ -36,7 +36,7 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic)
+const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 {
     if (mnemonic > ZYDIS_ARRAY_SIZE(mnemonicStrings) - 1)
     {

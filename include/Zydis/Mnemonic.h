@@ -28,7 +28,7 @@
 #define ZYDIS_MNEMONIC_H
 
 #include <Zydis/Defines.h>
-#include <Zydis/Types.h>
+#include <Zydis/CommonTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,9 +39,9 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the @c ZydisInstructionMnemonic datatype.
+ * @brief   Defines the @c ZydisMnemonic datatype.
  */
-typedef uint16_t ZydisInstructionMnemonic;
+typedef uint16_t ZydisMnemonic;
 
 #include <Zydis/Generated/MnemonicDefines.h>    
 
@@ -56,7 +56,7 @@ typedef uint16_t ZydisInstructionMnemonic;
  *                      
  * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
  */
-ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisInstructionMnemonic mnemonic);
+ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
 
 /* ============================================================================================== */
 

@@ -29,8 +29,8 @@
  * @brief Includes and defines some default datatypes.
  */
 
-#ifndef ZYDIS_TYPES_H
-#define ZYDIS_TYPES_H
+#ifndef ZYDIS_COMMONTYPES_H
+#define ZYDIS_COMMONTYPES_H
 
 /* ============================================================================================== */
 /* Integral types                                                                                 */
@@ -68,4 +68,4 @@ typedef uint8_t ZydisBool;
 }
 #endif
 
-#endif /* ZYDIS_TYPES_H */
+#endif /* ZYDIS_COMMONTYPES_H */
