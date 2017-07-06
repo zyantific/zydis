@@ -21,6 +21,9 @@ option(ZYDIS_FEATURE_FLAGS
 option(ZYDIS_FEATURE_CPUID 
     "Include information about CPUID feature-flags"
     OFF)
+option(ZYDIS_FEATURE_DECODER
+    "Enable instruction decoding and formtting functionality"
+    ON)
 option(ZYDIS_FEATURE_ENCODER
     "Enable instruction encoding functionality"
     OFF)
@@ -78,14 +81,17 @@ endif ()
 if (ZYDIS_FEATURE_CPUID)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_CPUID")
 endif ()
+if (ZYDIS_FEATURE_DECODER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_DECODER")
+endif ()
+if (ZYDIS_FEATURE_ENCODER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_ENCODER")
+endif ()
 
 target_sources("Zydis"
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/CommonTypes.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Defines.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
@@ -93,19 +99,24 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
     PRIVATE
-        "src/DecoderData.h"
-        "src/SharedData.h"
-        "src/Decoder.c"
-        "src/DecoderData.c"
-        "src/Formatter.c"
         "src/Mnemonic.c"
         "src/Register.c"
+        "src/SharedData.h"
         "src/SharedData.c"
         "src/Utils.c"
         "src/Zydis.c")
 
-if (BUILD_SHARED_LIBS AND WIN32)
-    target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
+if (ZYDIS_FEATURE_DECODER)
+    target_sources("Zydis" 
+        PUBLIC 
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
+        PRIVATE 
+            "src/DecoderData.h"
+            "src/Decoder.c"
+            "src/DecoderData.c"
+            "src/Formatter.c")
 endif ()
 
 if (ZYDIS_FEATURE_ENCODER)
@@ -116,6 +127,10 @@ if (ZYDIS_FEATURE_ENCODER)
             "src/EncoderData.h"
             "src/Encoder.c"
             "src/EncoderData.c")
+endif ()
+
+if (BUILD_SHARED_LIBS AND WIN32)
+    target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
 endif ()
 
 # TODO: Install CMake config.
@@ -130,12 +145,14 @@ install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_EXAMPLES)
-    add_executable("FormatterHooks" 
-        "examples/FormatterHooks.c"
-        "examples/FormatHelper.h")
-    target_link_libraries("FormatterHooks" "Zydis")
-    set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
-    target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+	if (ZYDIS_FEATURE_DECODER)
+		add_executable("FormatterHooks" 
+			"examples/FormatterHooks.c"
+			"examples/FormatHelper.h")
+		target_link_libraries("FormatterHooks" "Zydis")
+		set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
+		target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+	endif ()
 endif ()
 
 # =============================================================================================== #
@@ -143,18 +160,20 @@ endif ()
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_TOOLS)
-    add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
-    target_link_libraries("ZydisDisasm" "Zydis")
-    set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
-    target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+	if (ZYDIS_FEATURE_DECODER)
+		add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+		target_link_libraries("ZydisDisasm" "Zydis")
+		set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
+		target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
-    add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
-    target_link_libraries("ZydisFuzzIn" "Zydis")
-    set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")
-    target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+		add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
+		target_link_libraries("ZydisFuzzIn" "Zydis")
+		set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")
+		target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
-    add_executable("PerfTest" "tools/PerfTest.c")
-    target_link_libraries("PerfTest" "Zydis")
-    set_target_properties("PerfTest" PROPERTIES FOLDER "Tools")
-    target_compile_definitions("PerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+		add_executable("PerfTest" "tools/PerfTest.c")
+		target_link_libraries("PerfTest" "Zydis")
+		set_target_properties("PerfTest" PROPERTIES FOLDER "Tools")
+		target_compile_definitions("PerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+	endif ()
 endif ()
