@@ -1415,7 +1415,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
                     ZydisCalcRegisterId(context, instruction, 
                         vidxRegisterClass ? ZYDIS_REG_ENCODING_VIDX : ZYDIS_REG_ENCODING_INDEX, 
                         vidxRegisterClass ? vidxRegisterClass : ZYDIS_REGCLASS_GPR32));
-            operand->mem.scale = (1 << instruction->raw.sib.scale) & ~1;
+            operand->mem.scale = (1 << instruction->raw.sib.scale);
             if (operand->mem.index == ZYDIS_REGISTER_ESP)  
             {
                 operand->mem.index = ZYDIS_REGISTER_NONE;
@@ -1472,7 +1472,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
                     ZydisCalcRegisterId(context, instruction, 
                         vidxRegisterClass ? ZYDIS_REG_ENCODING_VIDX : ZYDIS_REG_ENCODING_INDEX, 
                         vidxRegisterClass ? vidxRegisterClass : ZYDIS_REGCLASS_GPR64));
-            operand->mem.scale = (1 << instruction->raw.sib.scale) & ~1;
+            operand->mem.scale = (1 << instruction->raw.sib.scale);;
             if (operand->mem.index == ZYDIS_REGISTER_RSP)  
             {
                 operand->mem.index = ZYDIS_REGISTER_NONE;
@@ -1731,6 +1731,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             goto FinalizeOperand;
         }
 
+        instruction->operands[i].encoding = operand->op.encoding;
+
         // Register operands
         ZydisRegisterClass registerClass = ZYDIS_REGCLASS_INVALID;
         switch (operand->type)
@@ -1797,7 +1799,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         }
         if (registerClass)
         {
-            instruction->operands[i].encoding = operand->op.encoding;
             switch (operand->op.encoding)
             {
             case ZYDIS_OPERAND_ENCODING_MODRM_REG:

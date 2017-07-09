@@ -61,6 +61,8 @@ typedef struct ZydisEncodableInstruction_
     uint8_t opcode                      ZYDIS_BITFIELD( 8);
     ZydisOpcodeMap opcodeMap            ZYDIS_BITFIELD( 3); 
     uint8_t mode                        ZYDIS_BITFIELD( 3); 
+    uint8_t operandSize                 ZYDIS_BITFIELD( 3);
+    uint8_t addressSize                 ZYDIS_BITFIELD( 3);
     uint8_t modrmMod                    ZYDIS_BITFIELD( 4); 
     ZydisBool forceModrmReg             ZYDIS_BITFIELD( 1);
     uint8_t modrmReg                    ZYDIS_BITFIELD( 8); 

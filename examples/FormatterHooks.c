@@ -223,7 +223,7 @@ int main()
         // vcmppd xmm1, xmm2, xmm3, 0x17
         0xC5, 0xE9, 0xC2, 0xCB, 0x17,
 
-        // vcmpps k2 {k7}, zmm2, zmmword ptr ds:[rax + rbx*4 + 0x100] {1to16}, 0x0F
+        // vcmpps k2 {k7}, zmm2, dword ptr ds:[rax + rbx*4 + 0x100] {1to16}, 0x0F
         0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
     };
 
@@ -234,7 +234,6 @@ int main()
     puts("");
     disassembleBuffer(&decoder, &data[0], sizeof(data), ZYDIS_TRUE);
 
-    getchar();
     return 0;
 }
 

@@ -303,7 +303,7 @@ enum ZydisOperandActions
     /**
      * @brief   The operand is written and conditionally read by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE, 
+    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE 
 };
 
 /* ---------------------------------------------------------------------------------------------- */
