@@ -139,7 +139,7 @@ typedef struct ZydisOperandDefinition_
     ZydisInternalElementType elementType    ZYDIS_BITFIELD(5);
     union
     {
-        uint8_t encoding; 
+        ZydisOperandEncoding encoding; 
         struct
         {
             uint8_t type                    ZYDIS_BITFIELD(3);

@@ -63,6 +63,10 @@ enum ZydisStatusCode
      * @brief   An attempt was made to perform an invalid operation.
      */
     ZYDIS_STATUS_INVALID_OPERATION,
+    /**
+     * @brief   A buffer passed to a function was too small to complete the requested operation.
+     */
+    ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE,
 
     /* ------------------------------------------------------------------------------------------ */
     /* Decoder                                                                                    */
@@ -122,15 +126,6 @@ enum ZydisStatusCode
     /* ------------------------------------------------------------------------------------------ */
 
     ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION,
-
-    /* ------------------------------------------------------------------------------------------ */
-    /* Formatter                                                                                  */
-    /* ------------------------------------------------------------------------------------------ */
-
-    /**
-     * @brief   A buffer passed to a function was too small to complete the requested operation.
-     */
-    ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE,
 
     /* ------------------------------------------------------------------------------------------ */
     /* Misc                                                                                       */
