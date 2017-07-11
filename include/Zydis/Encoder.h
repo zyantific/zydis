@@ -61,6 +61,8 @@ extern "C" {
 /* Structs                                                                                        */
 /* ============================================================================================== */
 
+#define ZYDIS_ENCODER_MAX_OPERANDS (5)
+
 typedef struct ZydisEncoderOperand_
 {
     ZydisOperandType type;
@@ -94,7 +96,7 @@ typedef struct ZydisEncoderRequest_
     ZydisInstructionAttributes attributes;
     ZydisInstructionEncoding encoding;
     uint8_t operandCount;
-    ZydisEncoderOperand operands[5];
+    ZydisEncoderOperand operands[ZYDIS_ENCODER_MAX_OPERANDS];
 
     // TODO: AVX stuff
     // TODO: MVEX stuff
@@ -119,7 +121,7 @@ ZYDIS_EXPORT ZydisStatus ZydisEncoderDecodedInstructionToRequest(
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen, 
-    ZydisEncoderRequest* request);
+    const ZydisEncoderRequest* request);
 
 /* ============================================================================================== */
 
