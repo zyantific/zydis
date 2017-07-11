@@ -28,7 +28,7 @@
 #include <Zydis/Utils.h>
 
 /* ============================================================================================== */
-/* Operand utils                                                                                  */
+/* Address calculation                                                                            */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -86,6 +86,34 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* i
         break;
     }
     return ZYDIS_STATUS_INVALID_PARAMETER;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
+/* Flags                                                                                          */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Exported functions                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction, 
+    ZydisCPUFlagAction action, ZydisCPUFlagMask* flags)
+{
+    if (!instruction)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+    *flags = 0;
+    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    {
+        if (instruction->flags[i].action == action)
+        {
+            *flags |= (1 << i);
+        }
+    }
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

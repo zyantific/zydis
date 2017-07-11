@@ -343,6 +343,134 @@ typedef uint64_t ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000001000000000
 
 /* ---------------------------------------------------------------------------------------------- */
+/* R/E/FLAGS info                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisCPUFlag datatype.
+ */
+typedef uint8_t ZydisCPUFlag;
+
+/**
+ * @brief   Defines the @c ZydisCPUFlagMask datatype.
+ */
+typedef uint32_t ZydisCPUFlagMask;
+
+/**
+ * @brief   Values that represent CPU-flags.
+ */
+enum ZydisCPUFlags
+{
+    /**
+     * @brief   Carry flag.
+     */
+    ZYDIS_CPUFLAG_CF,
+    /**
+     * @brief   Parity flag.
+     */
+    ZYDIS_CPUFLAG_PF,
+    /**
+     * @brief   Adjust flag.
+     */
+    ZYDIS_CPUFLAG_AF,
+    /**
+     * @brief   Zero flag.
+     */
+    ZYDIS_CPUFLAG_ZF,
+    /**
+     * @brief   Sign flag.
+     */
+    ZYDIS_CPUFLAG_SF,
+    /**
+     * @brief   Trap flag.
+     */
+    ZYDIS_CPUFLAG_TF,
+    /**
+     * @brief   Interrupt enable flag.
+     */
+    ZYDIS_CPUFLAG_IF,
+    /**
+     * @brief   Direction flag.
+     */
+    ZYDIS_CPUFLAG_DF,
+    /**
+     * @brief   Overflow flag.
+     */
+    ZYDIS_CPUFLAG_OF,
+    /**
+     * @brief   I/O privilege level flag.
+     */
+    ZYDIS_CPUFLAG_IOPL,
+    /**
+     * @brief   Nested task flag.
+     */
+    ZYDIS_CPUFLAG_NT,
+    /**
+     * @brief   Resume flag.
+     */
+    ZYDIS_CPUFLAG_RF,
+    /**
+     * @brief   Virtual 8086 mode flag.
+     */
+    ZYDIS_CPUFLAG_VM,
+    /**
+     * @brief   Alignment check.
+     */
+    ZYDIS_CPUFLAG_AC,
+    /**
+     * @brief   Virtual interrupt flag.
+     */
+    ZYDIS_CPUFLAG_VIF,
+    /**
+     * @brief   Virtual interrupt pending.
+     */
+    ZYDIS_CPUFLAG_VIP,
+    /**
+     * @brief   Able to use CPUID instruction.
+     */
+    ZYDIS_CPUFLAG_ID,
+    /**
+     * @brief   FPU condition-code flag 0.
+     */
+    ZYDIS_CPUFLAG_C0,
+    /**
+     * @brief   FPU condition-code flag 1.
+     */
+    ZYDIS_CPUFLAG_C1,
+    /**
+     * @brief   FPU condition-code flag 2.
+     */
+    ZYDIS_CPUFLAG_C2,
+    /**
+     * @brief   FPU condition-code flag 3.
+     */
+    ZYDIS_CPUFLAG_C3,
+
+    /**
+     * @brief   Marker value.
+     */
+    ZYDIS_CPUFLAG_ENUM_COUNT
+};
+
+/**
+ * @brief   Defines the @c ZydisCPUFlagAction datatype.
+ */
+typedef uint8_t ZydisCPUFlagAction;
+
+/**
+ * @brief   Values that represent CPU-flag actions.
+ */
+enum ZydisCPUFlagActions
+{
+    ZYDIS_CPUFLAG_ACTION_NONE,
+    ZYDIS_CPUFLAG_ACTION_TEST,
+    ZYDIS_CPUFLAG_ACTION_MODIFIED,
+    ZYDIS_CPUFLAG_ACTION_SET_0,
+    ZYDIS_CPUFLAG_ACTION_SET_1,
+    ZYDIS_CPUFLAG_ACTION_UNDEFINED
+};
+
+/* ---------------------------------------------------------------------------------------------- */
 /* SSE/AVX exception-class                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -560,7 +688,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   The raw bytes of the decoded instruction.
      */
-    uint8_t data[15];
+    uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
     /**
      * @brief   The instruction-encoding (default, 3DNow, VEX, EVEX, XOP).
      */
@@ -588,7 +716,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   Detailed info for all instruction operands.
      */
-    ZydisDecodedOperand operands[10];
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
     /**
      * @brief  Instruction attributes.
      */
@@ -605,6 +733,25 @@ typedef struct ZydisDecodedInstruction_
      * This field is used to properly format relative instructions.
      */
     uint64_t instrPointer;
+    /**
+     * @brief   Information about accessed CPU flags.
+     */
+    struct
+    {
+        /**
+         * @brief   The CPU-flag id.
+         * 
+         * This value is identical to the accessed array index.
+         */
+        ZydisCPUFlag id;
+        /**
+         * @brief   The CPU-flag action.
+         * 
+         * You can call `ZydisGetCPUFlagsByAction` to get a mask with all flags matching a specific
+         * action.
+         */
+        ZydisCPUFlagAction action;
+    } flags[ZYDIS_CPUFLAG_ENUM_COUNT];
     /**
      * @brief   Extended info for AVX instructions.
      */

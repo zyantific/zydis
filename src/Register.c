@@ -268,7 +268,7 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if ((reg == 0) || (reg > (sizeof(registerStrings) / sizeof(registerStrings[0])) - 1))
+    if (reg > (sizeof(registerStrings) / sizeof(registerStrings[0])) - 1)
     {
         return NULL;
     }

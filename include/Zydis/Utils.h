@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /* ============================================================================================== */
-/* Utils                                                                                          */
+/* Address calculation                                                                            */
 /* ============================================================================================== */
 
 /**
@@ -52,6 +52,22 @@ extern "C" {
 ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand, 
     uint64_t* address);
+
+/* ============================================================================================== */
+/* Flags                                                                                          */
+/* ============================================================================================== */
+
+/**
+ * @brief   Returns a mask of CPU-flags matching the given `action`.
+ *
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   action      The CPU-flag action.
+ * @param   flags       A pointer to the variable that receives the flag mask.
+ *
+ * @return  A zydis status code
+ */
+ZYDIS_EXPORT ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction, 
+    ZydisCPUFlagAction action, ZydisCPUFlagMask* flags);
 
 /* ============================================================================================== */
 
