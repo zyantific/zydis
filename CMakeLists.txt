@@ -174,6 +174,11 @@ if (ZYDIS_BUILD_TOOLS)
 		set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
 		target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
+        add_executable("ZydisInfo" "tools/ZydisInfo.c")
+        target_link_libraries("ZydisInfo" "Zydis")
+        set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+
 		add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
 		target_link_libraries("ZydisFuzzIn" "Zydis")
 		set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")

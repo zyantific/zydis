@@ -1542,84 +1542,31 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         break;
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
-        switch (instruction->addressWidth)
-        {
-        case 16:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR16, definition->op.reg.reg.id);
-            break;
-        case 32:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR32, definition->op.reg.reg.id);
-            break;
-        case 64:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR64, definition->op.reg.reg.id);
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        operand->reg = ZydisRegisterEncode(
+            (instruction->addressWidth      == 16) ? ZYDIS_REGCLASS_GPR16  : 
+            (instruction->addressWidth      == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64, 
+            definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
-        switch (context->decoder->addressWidth)
-        {
-        case 16:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR16, definition->op.reg.reg.id);
-            break;
-        case 32:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR32, definition->op.reg.reg.id);
-            break;
-        case 64:
-            operand->reg = ZydisRegisterEncode(ZYDIS_REGCLASS_GPR64, definition->op.reg.reg.id);
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        operand->reg = ZydisRegisterEncode(
+            (context->decoder->addressWidth == 16) ? ZYDIS_REGCLASS_GPR16  : 
+            (context->decoder->addressWidth == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64, 
+            definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
-        switch (instruction->addressWidth)
-        {
-        case 16:
-            operand->reg = ZYDIS_REGISTER_IP;
-            break;
-        case 32:
-            operand->reg = ZYDIS_REGISTER_EIP;
-            break;
-        case 64:
-            operand->reg = ZYDIS_REGISTER_RIP;
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        operand->reg =
+            (instruction->addressWidth      == 16) ? ZYDIS_REGISTER_IP     :
+            (instruction->addressWidth      == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
-        switch (context->decoder->addressWidth)
-        {
-        case 16:
-            operand->reg = ZYDIS_REGISTER_EIP;
-            break;
-        case 32:
-            operand->reg = ZYDIS_REGISTER_EIP;
-            break;
-        case 64:
-            operand->reg = ZYDIS_REGISTER_RIP;
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        operand->reg =
+            (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_EIP    :
+            (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
-        switch (context->decoder->addressWidth)
-        {
-        case 16:
-            operand->reg = ZYDIS_REGISTER_FLAGS;
-            break;
-        case 32:
-            operand->reg = ZYDIS_REGISTER_EFLAGS;
-            break;
-        case 64:
-            operand->reg = ZYDIS_REGISTER_RFLAGS;
-            break;
-        default:
-            ZYDIS_UNREACHABLE;
-        }
+        operand->reg =
+            (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_FLAGS  :
+            (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EFLAGS : ZYDIS_REGISTER_RFLAGS;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -2025,8 +1972,6 @@ FinalizeOperand:
     return ZYDIS_STATUS_SUCCESS;
 }
 
-/* ---------------------------------------------------------------------------------------------- */
-
 /**
  * @brief   Sets attributes for the given instruction.
  * 
@@ -2222,6 +2167,20 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
     default:
         ZYDIS_UNREACHABLE;
     }
+}
+
+/**
+ * @brief   Sets the accessed CPU-flags for the current instruction.
+ *          
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
+ */
+static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction, 
+    const ZydisInstructionDefinition* definition)
+{
+    const ZydisAccessedFlags* flags;
+    ZydisGetAccessedFlags(definition, &flags);
+    memcpy(&instruction->flags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
 }
 
 /**
@@ -4312,6 +4271,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
+                    ZydisSetAccessedFlags(instruction, definition);
                 }
 
                 return ZYDIS_STATUS_SUCCESS;
