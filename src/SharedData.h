@@ -31,6 +31,7 @@
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
+#include "Zydis/DecoderTypes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -543,7 +544,8 @@ enum ZydisMaskPolicies
     ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(11); \
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
-    uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3)
+    uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3); \
+    uint8_t flagsReference                  ZYDIS_BITFIELD( 7)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
@@ -614,6 +616,15 @@ typedef struct ZydisInstructionDefinitionMVEX_
 } ZydisInstructionDefinitionMVEX;
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Accessed CPU flags                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+typedef struct ZydisAccessedFlags_
+{
+    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_ENUM_COUNT];
+} ZydisAccessedFlags;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 #pragma pack(pop)
 
@@ -669,6 +680,19 @@ ZYDIS_NO_EXPORT uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinit
  */
 ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
     ZydisElementSize* size);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Accessed CPU flags                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the the operand-definitions for the given instruction-`definition`.
+ *
+ * @param   definition  A pointer to the instruction-definition.
+ * @param   flags       A pointer to the variable that receives the `ZydisAccessedFlags` struct.
+ */
+ZYDIS_NO_EXPORT void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+    const ZydisAccessedFlags** flags);
 
 /* ---------------------------------------------------------------------------------------------- */
 

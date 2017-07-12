@@ -463,7 +463,7 @@ typedef uint8_t ZydisCPUFlagAction;
 enum ZydisCPUFlagActions
 {
     ZYDIS_CPUFLAG_ACTION_NONE,
-    ZYDIS_CPUFLAG_ACTION_TEST,
+    ZYDIS_CPUFLAG_ACTION_TESTED,
     ZYDIS_CPUFLAG_ACTION_MODIFIED,
     ZYDIS_CPUFLAG_ACTION_SET_0,
     ZYDIS_CPUFLAG_ACTION_SET_1,
@@ -738,12 +738,6 @@ typedef struct ZydisDecodedInstruction_
      */
     struct
     {
-        /**
-         * @brief   The CPU-flag id.
-         * 
-         * This value is identical to the accessed array index.
-         */
-        ZydisCPUFlag id;
         /**
          * @brief   The CPU-flag action.
          * 

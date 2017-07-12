@@ -78,8 +78,6 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #include <Generated/InstructionDefinitions.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Operand definitions                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -89,6 +87,14 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 #include <Generated/OperandDefinitions.inc>
 
 #undef ZYDIS_OPERAND_DEFINITION
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Accessed CPU flags                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+#include <Generated/CPUFlags.inc>
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Functions                                                                                      */
@@ -183,6 +189,17 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 
     *type = lookup[element].type;
     *size = lookup[element].size;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Accessed CPU flags                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+    const ZydisAccessedFlags** flags)
+{
+    ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_SIZE(accessedFlags));
+    *flags = &accessedFlags[definition->flagsReference];
 }
 
 /* ---------------------------------------------------------------------------------------------- */
