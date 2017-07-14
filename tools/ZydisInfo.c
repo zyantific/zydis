@@ -67,76 +67,10 @@ const char* ZydisFormatStatus(ZydisStatus status)
 /* Print functions                                                                                */
 /* ============================================================================================== */
 
-void printFlags(ZydisDecodedInstruction* instruction)
-{
-    static const char* flagNames[] =
-    {
-        "CF",
-        "PF",
-        "AF",
-        "ZF",
-        "SF",
-        "TF",
-        "IF",
-        "DF",
-        "OF",
-        "IOPL",
-        "NT",
-        "RF",
-        "VM",
-        "AC",
-        "VIF",
-        "VIP",
-        "ID",
-        "C0",
-        "C1",
-        "C2",
-        "C3"
-    };
-    static const char* flagActions[] =
-    {
-        " ",
-        "T",
-        "M",
-        "0",
-        "1",
-        "U"
-    };
-
-    printf("FLAGS:\n    ACTIONS: ");
-    uint8_t c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
-    {
-        if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
-        {
-            ++c;
-            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
-        }
-        if (c == 8)
-        {
-            printf("\n             ");
-        }
-    }
-    puts(c ? "" : "none");
-
-    ZydisCPUFlagMask flags, temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
-    printf("       READ: 0x%08"PRIX32"\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
-    flags |= temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
-    flags |= temp;
-    printf("    WRITTEN: 0x%08"PRIX32"\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
-    printf("  UNDEFINED: 0x%08"PRIX32"\n", flags);
-
-    puts("");
-}
-
 void printOperands(ZydisDecodedInstruction* instruction)
 {
-    puts("Operands:");
+    fputs("== [ OPERANDS ] =====================================================", stdout);
+    fputs("=======================================\n", stdout);
     fputs("##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ", stdout);
     fputs("  ELEMTYPE                        VALUE\n", stdout);
     fputs("==  =========  ==========  ======  ============   ====  =====  ======", stdout);
@@ -276,18 +210,203 @@ void printOperands(ZydisDecodedInstruction* instruction)
     fputs("  ========  ===========================\n", stdout);    
 }
 
+void printFlags(ZydisDecodedInstruction* instruction)
+{
+    static const char* flagNames[] =
+    {
+        "CF",
+        "PF",
+        "AF",
+        "ZF",
+        "SF",
+        "TF",
+        "IF",
+        "DF",
+        "OF",
+        "IOPL",
+        "NT",
+        "RF",
+        "VM",
+        "AC",
+        "VIF",
+        "VIP",
+        "ID",
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+    };
+    static const char* flagActions[] =
+    {
+        " ",
+        "T",
+        "M",
+        "0",
+        "1",
+        "U"
+    };
+
+    fputs("== [    FLAGS ] =====================================================", stdout);
+    fputs("=======================================\n", stdout);
+    printf("    ACTIONS: ");
+    uint8_t c = 0;
+    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    {
+        if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
+        {
+            ++c;
+            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
+        }
+        if (c == 8)
+        {
+            printf("\n             ");
+        }
+    }
+    puts(c ? "" : "none");
+
+    ZydisCPUFlagMask flags, temp;
+    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
+    printf("       READ: 0x%08"PRIX32"\n", flags);
+    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
+    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
+    flags |= temp;
+    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
+    flags |= temp;
+    printf("    WRITTEN: 0x%08"PRIX32"\n", flags);
+    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
+    printf("  UNDEFINED: 0x%08"PRIX32"\n", flags);
+}
+
+void printAVXInfo(ZydisDecodedInstruction* instruction)
+{
+    static const char* broadcastStrings[] =
+    {
+        "NONE",
+        "1_TO_2",
+        "1_TO_4",
+        "1_TO_8",
+        "1_TO_16",
+        "1_TO_32",
+        "1_TO_64",
+        "2_TO_4",
+        "2_TO_8",
+        "2_TO_16",
+        "4_TO_8",
+        "4_TO_16",
+        "8_TO_16"
+    };
+
+    static const char* maskModeStrings[] =
+    {
+        "NONE",
+        "MERGE",
+        "ZERO"
+    };
+
+    static const char* roundingModeStrings[] =
+    {
+        "DEFAULT",
+        "RN",
+        "RD",
+        "RU",
+        "RZ"
+    };
+
+    static const char* swizzleModeStrings[] =
+    {
+        "NONE",
+        "DCBA",
+        "CDAB",
+        "BADC",
+        "DACB",
+        "AAAA",
+        "BBBB",
+        "CCCC",
+        "DDDD"
+    };
+
+    static const char* conversionModeStrings[] =
+    {
+        "NONE",
+        "FLOAT16",
+        "SINT8",
+        "UINT8",
+        "SINT16",
+        "UINT16"
+    };
+
+    fputs("== [      AVX ] =====================================================", stdout);
+    fputs("=======================================\n", stdout);
+
+    printf("  VECTORLEN: %03d\n", instruction->avx.vectorLength);
+    printf("  BROADCAST: %s%s", broadcastStrings[instruction->avx.broadcast.mode], 
+        instruction->avx.broadcast.isStatic ? " (static)" : "");
+
+    switch (instruction->encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
+        printf("\n       MASK: %s [%5s]%s", ZydisRegisterGetString(instruction->avx.mask.reg), 
+            maskModeStrings[instruction->avx.mask.mode], 
+            instruction->avx.mask.isControlMask ? " (control-mask)" : "");
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
+        printf("\n       MASK: %s [MERGE]", ZydisRegisterGetString(instruction->avx.mask.reg));
+        printf("\n         EH: %s", instruction->avx.hasEvictionHint ? "Y" : "N");
+        printf("\n    SWIZZLE: %s", swizzleModeStrings[instruction->avx.swizzleMode]);
+        printf("\n    CONVERT: %s", conversionModeStrings[instruction->avx.conversionMode]);
+        break;
+    default:
+        break;
+    }
+    puts("");
+}
+
 void printInstruction(ZydisDecodedInstruction* instruction)
 {
-    ZydisFormatter formatter;
-    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
-        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
-    char buffer[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer));  
-    printf("Mnemonic   : %s\n", ZydisMnemonicGetString(instruction->mnemonic));
-    printf("Disassembly: %s\n\n", &buffer[0]);
+    static const char* opcodeMapStrings[] =
+    {
+        "DEFAULT",
+        "0F",
+        "0F38",
+        "0F3A",
+        "0F0F",
+        "XOP8",
+        "XOP9",
+        "XOPA"
+    };
+
+    static const char* instructionEncodingStrings[] =
+    {
+        "",
+        "DEFAULT",
+        "3DNOW",
+        "XOP",
+        "VEX",
+        "EVEX",
+        "MVEX"
+    };
+
+    fputs("== [    BASIC ] =====================================================", stdout);
+    fputs("=======================================\n", stdout);
+    printf("  MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
+        ZydisMnemonicGetString(instruction->mnemonic),
+        instructionEncodingStrings[instruction->encoding],
+        opcodeMapStrings[instruction->opcodeMap],
+        instruction->opcode);
+    printf("    LENGTH: %2d\n", instruction->length);
+    printf("       SSZ: %2d\n", instruction->stackWidth);
+    printf("      EOSZ: %2d\n", instruction->operandSize);
+    printf("      EASZ: %2d\n", instruction->addressWidth);
     
-    printOperands(instruction);
+    if (instruction->operandCount > 0)
+    {
+        puts("");
+        printOperands(instruction);
+    }
     
     if (ZydisRegisterGetClass(
         instruction->operands[instruction->operandCount - 1].reg) == ZYDIS_REGCLASS_FLAGS)
@@ -295,20 +414,33 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         puts("");
         printFlags(instruction);
     }
+
+    if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_XOP) ||
+        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX) ||
+        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
+    {
+        puts("");
+        printAVXInfo(instruction);
+    }
+
+    ZydisFormatter formatter;
+    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
+        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
+        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
+    char buffer[256];
+    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer));
+    fputs("\n== [   DISASM ] =====================================================", stdout);
+    fputs("=======================================\n", stdout);
+    printf("  %s\n", &buffer[0]);
 }
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-#include <../src/SharedData.h>
-
 int main(int argc, char** argv)
 {
-    printf("%"PRId64"\n", (uint64_t)sizeof(ZydisInstructionDefinitionDEFAULT));
-    printf("%"PRId64"\n", (uint64_t)sizeof(ZydisInstructionDefinitionEVEX));
-    printf("%"PRId64"\n", (uint64_t)sizeof(ZydisOperandDefinition));
-
     if (argc < 3)
     {
         fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
@@ -335,7 +467,7 @@ int main(int argc, char** argv)
 
     uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH] =
     {
-        0x48, 0xC1, 0xC0, 0x04//0x0F, 0x01, 0xC3//0x48, 0x00, 0xC0//0x48, 0x8B, 0x04, 0x05, 0x00, 0x00, 0x00, 0x00//0xC4, 0xE3, 0x89, 0x48, 0x8C, 0x98, 0x00, 0x01, 0x00, 0x00, 0x38//0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
+        0x62, 0x22, 0xF9, 0x85, 0xA2, 0x64, 0x78, 0x5E, 0x24, 0x04, 0xCF, 0x7E, 0x23
     };
 
     ZydisDecodedInstruction instruction;
