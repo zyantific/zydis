@@ -546,11 +546,12 @@ enum ZydisMaskModes
 {
     ZYDIS_MASK_MODE_INVALID,
     /**
-     * @brief   Merge mode. This is the default mode for all EVEX-instructions.
+     * @brief   The embedded mask register is used as a merge-mask. This is the default mode for 
+     *          all EVEX/MVEX-instructions.
      */
     ZYDIS_MASK_MODE_MERGE,
     /**
-     * @brief   The zeroing mode is enabled for this instruction.
+     * @brief   The embedded mask register is used as a zero-mask.
      */
     ZYDIS_MASK_MODE_ZERO
 };
@@ -706,6 +707,10 @@ typedef struct ZydisDecodedInstruction_
      */
     uint8_t operandSize;
     /**
+     * @brief   The stack width.
+     */
+    uint8_t stackWidth;
+    /**
      * @brief   The effective address width.
      */
     uint8_t addressWidth;
@@ -756,9 +761,23 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisVectorLength vectorLength;
         /**
-         * @brief   The AVX mask-mode.
+         * @brief   Info about the embedded writemask-register.
          */
-        ZydisMaskMode maskMode;
+        struct
+        {
+            /**
+             * @brief   The masking mode.
+             */
+            ZydisMaskMode mode;
+            /**
+             * @brief   The mask register.
+             */
+            ZydisRegister reg;
+            /**
+             * @brief   Signals, if the mask-register is used as a control mask. 
+             */
+            ZydisBool isControlMask;
+        } mask;
         /**
          * @brief   Contains info about the AVX broadcast-factor.
          */

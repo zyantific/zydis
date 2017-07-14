@@ -1936,7 +1936,7 @@ FinalizeOperand:
     // Fix operand-action for EVEX instructions with merge-mask
     if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) || 
          (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) && 
-        (instruction->avx.maskMode == ZYDIS_MASK_MODE_MERGE) &&
+        (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         (instruction->operandCount >= 3) &&
         (instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
         (instruction->operands[1].reg >= ZYDIS_REGISTER_K1) &&
@@ -2180,6 +2180,9 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
 {
     const ZydisAccessedFlags* flags;
     ZydisGetAccessedFlags(definition, &flags);
+
+    ZYDIS_ASSERT(ZYDIS_ARRAY_SIZE(instruction->flags) == ZYDIS_ARRAY_SIZE(flags->action));
+
     memcpy(&instruction->flags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
 }
 
@@ -2666,8 +2669,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             }
         }
 
-        // Mask mode
-        instruction->avx.maskMode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
+        // Mask
+        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        instruction->avx.mask.isControlMask = def->isControlMask;
 
         break;
     }
@@ -2963,8 +2968,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             instruction->avx.hasEvictionHint = ZYDIS_TRUE;
         }
 
-        // Mask mode
-        instruction->avx.maskMode = ZYDIS_MASK_MODE_MERGE;
+        // Mask
+        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE;
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.mvex.kkk;
 
         break;
     }
@@ -3922,17 +3928,6 @@ static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, u
     return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisStatus ZydisNodeHandlerEvexZ(ZydisDecodedInstruction* instruction, uint16_t* index)
-{
-    ZYDIS_ASSERT(instruction);
-    ZYDIS_ASSERT(index);
-
-    ZYDIS_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
-    ZYDIS_ASSERT(instruction->raw.evex.isDecoded);
-    *index = instruction->raw.evex.z;
-    return ZYDIS_STATUS_SUCCESS;   
-}
-
 static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, uint16_t* index)
 {
     ZYDIS_ASSERT(instruction);
@@ -3998,6 +3993,13 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         hasNDSNDDOperand = def->hasNDSNDDOperand;
         hasVSIB = def->hasVSIB;
         maskPolicy = def->maskPolicy;
+
+        // Check for invalid zero-mask
+        if ((instruction->raw.evex.z) && (!def->acceptsZeroMask))
+        {
+            return ZYDIS_STATUS_INVALID_MASK; // TODO: Dedicated status code
+        }
+
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
@@ -4215,9 +4217,6 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_EVEX_B:
             status = ZydisNodeHandlerEvexB(instruction, &index);
             break;  
-        case ZYDIS_NODETYPE_FILTER_EVEX_Z:
-            status = ZydisNodeHandlerEvexZ(instruction, &index);
-            break; 
         case ZYDIS_NODETYPE_FILTER_MVEX_E:
             status = ZydisNodeHandlerMvexE(instruction, &index);
             break;                           
@@ -4271,7 +4270,12 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    ZydisSetAccessedFlags(instruction, definition);
+                    ZydisRegister reg = instruction->operands[instruction->operandCount - 1].reg;
+                    if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
+                        (reg == ZYDIS_REGISTER_RFLAGS))
+                    {
+                        ZydisSetAccessedFlags(instruction, definition);
+                    }
                 }
 
                 return ZYDIS_STATUS_SUCCESS;
@@ -4355,6 +4359,7 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     void* userData = instruction->userData;
     memset(instruction, 0, sizeof(*instruction));   
     instruction->machineMode = decoder->machineMode;
+    instruction->stackWidth = decoder->addressWidth;
     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
     instruction->instrAddress = instructionPointer;
     instruction->userData = userData;

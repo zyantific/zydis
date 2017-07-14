@@ -134,13 +134,9 @@ enum ZydisDecoderTreeNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x11,
     /**
-     * @brief   Reference to an EVEX.z filter.
-     */
-    ZYDIS_NODETYPE_FILTER_EVEX_Z            = 0x12,
-    /**
      * @brief   Reference to an MVEX.E filter.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x13,
+    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12
 };
 
 /* ---------------------------------------------------------------------------------------------- */

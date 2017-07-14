@@ -603,6 +603,8 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 4);
     ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD( 2);
     ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
+    ZydisBool acceptsZeroMask               ZYDIS_BITFIELD( 1);
+    ZydisBool isControlMask                 ZYDIS_BITFIELD( 1);
     ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 4);
 } ZydisInstructionDefinitionEVEX;                           
 

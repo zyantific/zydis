@@ -229,13 +229,6 @@ extern const ZydisDecoderTreeNode filtersREXB[][2];
 extern const ZydisDecoderTreeNode filtersEVEXB[][2];
 
 /**
- * @brief   Contains all EVEX.z filters.
- *          
- *          Indexed by the numeric value of the EVEX.z field.
- */
-extern const ZydisDecoderTreeNode filtersEVEXZ[][2];
-
-/**
  * @brief   Contains all MVEX.E filters.
  *          
  *          Indexed by the numeric value of the MVEX.E field.
@@ -337,9 +330,6 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_EVEX_B:
         ZYDIS_ASSERT(index <   2);
         return &filtersEVEXB[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEX_Z:
-        ZYDIS_ASSERT(index <   2);
-        return &filtersEVEXZ[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYDIS_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];

@@ -507,6 +507,8 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
+    // TODO: refactor
+
     uint32_t typecast = 0;
     if (formatter->flags & ZYDIS_FMTFLAG_FORCE_OPERANDSIZE)
     {
@@ -656,7 +658,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
             }
             ZYDIS_CHECK(ZydisStringBufferAppendFormat(
                 buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, " {%s}", reg)); 
-            if (instruction->avx.maskMode == ZYDIS_MASK_MODE_ZERO)
+            if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
             {
                 ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
                     ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {z}"));    
@@ -914,52 +916,48 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
             if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                 (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
             {
-                if (i == 0)
+                if  ((i == 0) && 
+                     (instruction->operands[i + 1].encoding == ZYDIS_OPERAND_ENCODING_MASK))
                 {
-                    if  (instruction->operands[i + 1].encoding == ZYDIS_OPERAND_ENCODING_MASK)
+                    ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                        bufEnd - *buffer, instruction, &instruction->operands[i], 
+                        ZYDIS_DECORATOR_TYPE_MASK, instruction->operands[i + 1].reg));    
+                }
+                if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+                {
+                    ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                        bufEnd - *buffer, instruction, &instruction->operands[i], 
+                        ZYDIS_DECORATOR_TYPE_BROADCAST, ZYDIS_REGISTER_NONE));
+                    if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
                     {
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_MASK, instruction->operands[i + 1].reg));    
+                            ZYDIS_DECORATOR_TYPE_CONVERSION, ZYDIS_REGISTER_NONE)); 
+                        ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                            bufEnd - *buffer, instruction, &instruction->operands[i], 
+                            ZYDIS_DECORATOR_TYPE_EVICTION_HINT, ZYDIS_REGISTER_NONE));
                     }
                 } else
                 {
-                    if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
-                    {
-                        ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                            bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_BROADCAST, ZYDIS_REGISTER_NONE));
+                    if ((i == (instruction->operandCount - 1)) || 
+                        (instruction->operands[i + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+                    { 
                         if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
                         {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_CONVERSION, ZYDIS_REGISTER_NONE)); 
+                                ZYDIS_DECORATOR_TYPE_SWIZZLE, ZYDIS_REGISTER_NONE)); 
+                        }
+                        if (instruction->avx.roundingMode)
+                        {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_EVICTION_HINT, ZYDIS_REGISTER_NONE));
-                        }
-                    } else
-                    {
-                        if ((i == (instruction->operandCount - 1)) || 
-                            (instruction->operands[i + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
-                        { 
-                            if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
-                            {
-                                ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                                    bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                    ZYDIS_DECORATOR_TYPE_SWIZZLE, ZYDIS_REGISTER_NONE)); 
-                            }
-                            if (instruction->avx.roundingMode)
-                            {
-                                ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                                    bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                    ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL, ZYDIS_REGISTER_NONE));
-                            } else
-                            {
-                                ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                                    bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                    ZYDIS_DECORATOR_TYPE_SAE, ZYDIS_REGISTER_NONE));
-                            }
+                                ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL, ZYDIS_REGISTER_NONE));
+                        } else
+                        {
+                            ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                                bufEnd - *buffer, instruction, &instruction->operands[i], 
+                                ZYDIS_DECORATOR_TYPE_SAE, ZYDIS_REGISTER_NONE));
                         }
                     }
                 }
