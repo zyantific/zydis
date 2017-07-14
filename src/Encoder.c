@@ -538,7 +538,7 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisBool ZydisIsBPReg(ZydisRegister reg)
+static ZydisBool ZydisRegIsBP(ZydisRegister reg)
 {
     return reg == ZYDIS_REGISTER_BPL ||
            reg == ZYDIS_REGISTER_BP  ||
@@ -546,7 +546,7 @@ static ZydisBool ZydisIsBPReg(ZydisRegister reg)
            reg == ZYDIS_REGISTER_RBP;
 }
 
-static ZydisBool ZydisIsSPReg(ZydisRegister reg)
+static ZydisBool ZydisRegIsSP(ZydisRegister reg)
 {
     return reg == ZYDIS_REGISTER_SPL ||
            reg == ZYDIS_REGISTER_SP  ||
@@ -554,16 +554,23 @@ static ZydisBool ZydisIsSPReg(ZydisRegister reg)
            reg == ZYDIS_REGISTER_RSP;
 }
 
-static ZydisBool ZydisIsIPReg(ZydisRegister reg)
+static ZydisBool ZydisRegIsIP(ZydisRegister reg)
 {
     return reg == ZYDIS_REGISTER_IP  ||
            reg == ZYDIS_REGISTER_EIP ||
            reg == ZYDIS_REGISTER_RIP;
 }
 
-static ZydisBool ZydisIsStackReg(ZydisRegister reg)
+static ZydisBool ZydisRegIsStack(ZydisRegister reg)
 {
-    return ZydisIsSPReg(reg) || ZydisIsBPReg(reg);
+    return ZydisRegIsSP(reg) || ZydisRegIsBP(reg);
+}
+
+static ZydisBool ZydisSemanticTypeIsImplicit(ZydisSemanticOperandType type)
+{
+    return type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG ||
+           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM ||
+           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1;
 }
 
 static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
@@ -576,7 +583,7 @@ static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
         ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
         break;
     case ZYDIS_REGISTER_SS:
-        if (!ZydisIsStackReg(base))
+        if (!ZydisRegIsStack(base))
         {
             ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
         }
@@ -585,7 +592,7 @@ static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
         ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
         break;
     case ZYDIS_REGISTER_DS:
-        if (ZydisIsStackReg(base))
+        if (ZydisRegIsStack(base))
         {
             ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
         }
@@ -604,12 +611,11 @@ static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
 }
 
 static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
-    ZydisEncoderOperand* operand, const ZydisOperandDefinition* operandDef)
+    ZydisEncoderOperand* operand)
 {
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(ctx->req);
     ZYDIS_ASSERT(operand);
-    ZYDIS_ASSERT(operandDef);
 
     ZYDIS_CHECK(ZydisPrepareSegmentPrefix(ctx, operand->mem.segment, operand->mem.base));
 
@@ -640,7 +646,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     }
 
     // rIP relative addressing? Special case.
-    if (ZydisIsIPReg(operand->mem.base))
+    if (ZydisRegIsIP(operand->mem.base))
     {
         // rIP addressing is only available since AMD64.
         if (ctx->req->machineMode != 64)
@@ -713,7 +719,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     }
 
     // SIB byte required? rSP can only be encoded with SIB.
-    if (operand->mem.index || operand->mem.scale || ZydisIsSPReg(operand->mem.base))
+    if (operand->mem.index || operand->mem.scale || ZydisRegIsSP(operand->mem.base))
     {
         // Translate scale to SIB format.
         switch (operand->mem.scale)
@@ -751,7 +757,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     // Has displacement or is rBP and we have no SIB?
     // rBP can't be ModRM-encoded without a disp.
     if (operand->mem.disp || (!(ctx->req->attributes & ZYDIS_ATTRIB_HAS_SIB)
-        && ZydisIsBPReg(operand->mem.base)))
+        && ZydisRegIsBP(operand->mem.base)))
     {
         ctx->dispBitSize = 32;
         ctx->raw.modrm.mod = 0x02 /* 32 bit disp */;
@@ -772,9 +778,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(operand);
     ZYDIS_ASSERT(operandDef);
-    ZYDIS_ASSERT(operandDef->type != ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG);
-    ZYDIS_ASSERT(operandDef->type != ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM);
-    ZYDIS_ASSERT(operandDef->type != ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1);
+    ZYDIS_ASSERT(!ZydisSemanticTypeIsImplicit(operandDef->type));
 
     switch (operandDef->op.encoding)
     {
@@ -806,7 +810,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         // Memory operand?
         if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
-            ZYDIS_CHECK(ZydisPrepareMemoryOperand(ctx, operand, operandDef));
+            ZYDIS_CHECK(ZydisPrepareMemoryOperand(ctx, operand));
         }
         // Nope, register.
         else if (operand->type == ZYDIS_OPERAND_TYPE_REGISTER)
@@ -907,11 +911,9 @@ static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
 }
 
 static ZydisStatus ZydisDeriveSemanticOperandTypeMask(
-    ZydisEncoderContext* ctx, const ZydisEncoderOperand* op, 
-    ZydisSemanticOperandTypeMask* mask)
+    const ZydisEncoderOperand* op, ZydisSemanticOperandTypeMask* mask)
 {
     ZYDIS_ASSERT(op);
-    ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(mask);
 
     switch (op->type)
@@ -1019,40 +1021,108 @@ static ZydisStatus ZydisFindMatchingDef(
     // Walk list of requested operands, derive possible encodings
     // and perform additional sanity checks.
     ZydisSemanticOperandTypeMask semOperandTypeMasks[ZYDIS_ENCODER_MAX_OPERANDS];
-    ZydisBool requireOperandSizeOverride = ZYDIS_FALSE;
-    //ZydisBool requireAddressSizeOverride = ZYDIS_FALSE;
+    ZydisBool require66 = ZYDIS_FALSE;
+    ZydisBool require67 = ZYDIS_FALSE;
+    ZydisBool requireREXW = ZYDIS_FALSE;
+    uint8_t eosz = req->machineMode;
+    uint8_t easz = req->machineMode;
     for (uint8_t i = 0; i < req->operandCount; ++i)
     {
         const ZydisEncoderOperand* curReqOperand = req->operands + i;
+
+        // Do we need any operand size overrides?
         if (curReqOperand->type == ZYDIS_OPERAND_TYPE_REGISTER)
         {
             switch (ZydisRegisterGetClass(curReqOperand->reg))
             {
             case ZYDIS_REGCLASS_GPR16:
+                eosz = 16;
                 switch (req->machineMode)
                 {
-                case 16: break; // Nothing to do.
+                case 16: break; // Default mode.
                 case 32:
-                case 64: requireOperandSizeOverride = ZYDIS_TRUE; break;
+                case 64: require66 = ZYDIS_TRUE; break;
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
             case ZYDIS_REGCLASS_GPR32:
+                eosz = 32;
                 switch (req->machineMode)
                 {
-                case 16: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION;
+                case 16: require66 = ZYDIS_TRUE; break;
                 case 32:
-                case 64: break; // Nothing to do.
+                case 64: break; // Default mode.
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
             case ZYDIS_REGCLASS_GPR64:
+                eosz = 64;
                 switch (req->machineMode)
                 {
                 case 16: 
                 case 32: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION;
-                case 64: break;
+                case 64: requireREXW = ZYDIS_TRUE; break;
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
+                }
+                break;
+            default:
+                ; // Other registers can't be operand-scaled. 
+            }
+        }
+
+        // Address size overrides?
+        if (curReqOperand->type == ZYDIS_OPERAND_TYPE_MEMORY)
+        {
+            // Verify base and index have the same register class, if present.
+            ZydisRegisterClass baseRegClass = ZydisRegisterGetClass(curReqOperand->mem.base);
+            if (curReqOperand->mem.base != ZYDIS_REGISTER_NONE &&
+                curReqOperand->mem.base != ZYDIS_REGISTER_NONE &&
+                baseRegClass != ZydisRegisterGetClass(curReqOperand->mem.index))
+            {
+                return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+            }
+
+            // Address size prefix required?
+            switch (baseRegClass)
+            {
+            case ZYDIS_REGCLASS_GPR16: easz = 16; break;
+            case ZYDIS_REGCLASS_GPR32: easz = 32; break;
+            case ZYDIS_REGCLASS_GPR64: easz = 64; break;
+            default:
+                switch (baseRegClass)
+                {
+                case ZYDIS_REGISTER_IP:  easz = 16; break;
+                case ZYDIS_REGISTER_EIP: easz = 32; break;
+                case ZYDIS_REGISTER_RIP: easz = 64; break;
+                default:
+                    ; // Other registers can't be address-scaled.
+                }
+            }
+
+            switch (easz)
+            {
+            case 16:
+                switch (ctx->req->machineMode)
+                {
+                case 16: break; // Default mode.
+                case 32: require67 = ZYDIS_TRUE; break;
+                case 64: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+                default: return ZYDIS_STATUS_INVALID_PARAMETER;
+                }
+                break;
+            case 32:
+                switch (ctx->req->machineMode)
+                {
+                case 16: require67 = ZYDIS_TRUE; break;
+                case 32: break; // Default mode.
+                case 64: require67 = ZYDIS_TRUE; break;
+                default: return ZYDIS_STATUS_INVALID_PARAMETER;
+                }
+                break;
+            case 64:
+                if (ctx->req->machineMode != 64)
+                {
+                    return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
                 }
                 break;
             default:
@@ -1061,7 +1131,7 @@ static ZydisStatus ZydisFindMatchingDef(
         }
 
         ZYDIS_CHECK(ZydisDeriveSemanticOperandTypeMask(
-            ctx, req->operands + i, semOperandTypeMasks + i
+            req->operands + i, semOperandTypeMasks + i
         ));
     }
 
@@ -1097,9 +1167,56 @@ static ZydisStatus ZydisFindMatchingDef(
             // it's safe to assume this isn't the instruction we're looking for.
             if (curDefOperand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN) goto _nextInsn;
 
-            if (curDefOperand->type != curReqOperand->type) continue;
+            // Is the type one of those we permit for the given operand?
+            if (!(1 << curDefOperand->type & semOperandTypeMasks[k])) goto _nextInsn;
 
-            // blah blah more checks
+            // For implicit operands, check if the implicit value is what we're looking for.
+            switch (curDefOperand->type)
+            {
+            case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG:
+            {
+                switch (curDefOperand->op.reg.type)
+                {
+                case ZYDIS_IMPLREG_TYPE_STATIC:
+                    // reg reg reg banaaanaa phooone!
+                    if (curDefOperand->op.reg.reg.reg != curReqOperand->reg) goto _nextInsn;
+                    break;
+                case ZYDIS_IMPLREG_TYPE_GPR_OSZ:
+
+                    break;
+                case ZYDIS_IMPLREG_TYPE_GPR_ASZ: break; // TODO
+                case ZYDIS_IMPLREG_TYPE_GPR_SSZ: break; // TODO
+                case ZYDIS_IMPLREG_TYPE_IP_ASZ: break; // TODO
+                case ZYDIS_IMPLREG_TYPE_IP_SSZ: break; // TODO
+                case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ: break; // TODO
+                default: ZYDIS_UNREACHABLE;
+                }
+            } break;
+            case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
+            {
+                // TODO: Can those be scaled using 67?
+                ZydisRegisterClass regClass;
+                switch (req->machineMode)
+                {
+                case 16: regClass = ZYDIS_REGCLASS_GPR16; break;
+                case 32: regClass = ZYDIS_REGCLASS_GPR32; break;
+                case 64: regClass = ZYDIS_REGCLASS_GPR64; break;
+                default: return ZYDIS_STATUS_INVALID_PARAMETER;
+                }
+                static const uint8_t regIdxLookup[4] = {3, 5, 6, 7};
+                ZYDIS_ASSERT(curDefOperand->op.mem.base < ZYDIS_ARRAY_SIZE(regIdxLookup));
+                uint8_t regIdx = regIdxLookup[curDefOperand->op.mem.base];
+                ZydisRegister derivedReg = ZydisRegisterEncode(regClass, regIdx);
+
+                if (curReqOperand->mem.base != derivedReg) goto _nextInsn;
+            } break;
+            case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1: 
+            {
+                if (curReqOperand->imm.u != 1) goto _nextInsn;
+            } break;
+            default: 
+                ; // Shut up linter.
+            }
         }
 
         // Make sure we compared either all operands or the remaining operands are hidden.
