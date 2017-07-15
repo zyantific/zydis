@@ -402,7 +402,6 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   type        The decorator type.
- * @param   mask        The embedded-mask register (`ZYDIS_DECORATOR_TYPE_MASK` only).
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -417,7 +416,7 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  */
 typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, ZydisDecoratorType type, ZydisRegister mask);
+    ZydisDecodedOperand* operand, ZydisDecoratorType type);
 
 /**
  * @brief   Defines the @c ZydisFormatter struct.

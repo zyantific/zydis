@@ -637,7 +637,7 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
 
 static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* formatter,
     char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, ZydisDecoratorType type, ZydisRegister mask)
+    ZydisDecodedOperand* operand, ZydisDecoratorType type)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
@@ -649,9 +649,9 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     {
     case ZYDIS_DECORATOR_TYPE_MASK:
     {
-        if (mask != ZYDIS_REGISTER_K0)
+        if (instruction->avx.mask.reg != ZYDIS_REGISTER_K0)
         {
-            const char* reg = ZydisRegisterGetString(mask);
+            const char* reg = ZydisRegisterGetString(instruction->avx.mask.reg);
             if (!reg)
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -921,21 +921,21 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
                 {
                     ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                         bufEnd - *buffer, instruction, &instruction->operands[i], 
-                        ZYDIS_DECORATOR_TYPE_MASK, instruction->operands[i + 1].reg));    
+                        ZYDIS_DECORATOR_TYPE_MASK));    
                 }
                 if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
                 {
                     ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                         bufEnd - *buffer, instruction, &instruction->operands[i], 
-                        ZYDIS_DECORATOR_TYPE_BROADCAST, ZYDIS_REGISTER_NONE));
+                        ZYDIS_DECORATOR_TYPE_BROADCAST));
                     if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
                     {
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_CONVERSION, ZYDIS_REGISTER_NONE)); 
+                            ZYDIS_DECORATOR_TYPE_CONVERSION)); 
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_EVICTION_HINT, ZYDIS_REGISTER_NONE));
+                            ZYDIS_DECORATOR_TYPE_EVICTION_HINT));
                     }
                 } else
                 {
@@ -946,18 +946,18 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
                         {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_SWIZZLE, ZYDIS_REGISTER_NONE)); 
+                                ZYDIS_DECORATOR_TYPE_SWIZZLE)); 
                         }
                         if (instruction->avx.roundingMode)
                         {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL, ZYDIS_REGISTER_NONE));
+                                ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL));
                         } else
                         {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_SAE, ZYDIS_REGISTER_NONE));
+                                ZYDIS_DECORATOR_TYPE_SAE));
                         }
                     }
                 }
