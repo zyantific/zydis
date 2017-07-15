@@ -45,6 +45,7 @@ const char* ZydisFormatStatus(ZydisStatus status)
         "SUCCESS",
         "INVALID_PARAMETER",
         "INVALID_OPERATION",
+        "INSUFFICIENT_BUFFER_SIZE",
         "NO_MORE_DATA",
         "DECODING_ERROR",
         "INSTRUCTION_TOO_LONG",
@@ -465,14 +466,36 @@ int main(int argc, char** argv)
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH] =
+    uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    uint8_t length = 0;
+    for (uint8_t i = 0; i < argc - 2; ++i)
     {
-        0x62, 0x22, 0xF9, 0x85, 0xA2, 0x64, 0x78, 0x5E, 0x24, 0x04, 0xCF, 0x7E, 0x23
-    };
+        if (length == ZYDIS_MAX_INSTRUCTION_LENGTH)
+        {
+            fprintf(stderr, "Maximum number of %d bytes exceeded", ZYDIS_MAX_INSTRUCTION_LENGTH);
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        size_t len = strlen(argv[i + 2]);
+        if (len % 2)
+        {
+            fputs("Even number of hex nibbles expected", stderr);
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        for (uint8_t j = 0; j < len / 2; ++j)
+        {
+            unsigned value;
+            if (!sscanf(&argv[i + 2][j * 2], "%02x", &value))
+            {
+                fputs("Invalid hex value", stderr);
+                return ZYDIS_STATUS_INVALID_PARAMETER;
+            }
+            data[i + j] = (uint8_t)value;
+            ++length;
+        }
+    }   
 
     ZydisDecodedInstruction instruction;
-    ZydisStatus status = 
-        ZydisDecoderDecodeBuffer(&decoder, &data, ZYDIS_MAX_INSTRUCTION_LENGTH, 0, &instruction);
+    ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, 0, &instruction);
     if (!ZYDIS_SUCCESS(status))
     {
         if (status >= ZYDIS_STATUS_USER)
@@ -487,8 +510,6 @@ int main(int argc, char** argv)
     }
 
     printInstruction(&instruction);
-    
-    getchar();
 
     return ZYDIS_STATUS_SUCCESS;
 }
