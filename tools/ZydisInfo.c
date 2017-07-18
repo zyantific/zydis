@@ -74,8 +74,8 @@ void printOperands(ZydisDecodedInstruction* instruction)
     fputs("=======================================\n", stdout);
     fputs("##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ", stdout);
     fputs("  ELEMTYPE                        VALUE\n", stdout);
-    fputs("==  =========  ==========  ======  ============   ====  =====  ======", stdout);
-    fputs("  ========  ===========================\n", stdout);
+    fputs("--  ---------  ----------  ------  ------------   ----  -----  ------", stdout);
+    fputs("  --------  ---------------------------\n", stdout);
     uint8_t immId = 0;
     for (uint8_t i = 0; i < instruction->operandCount; ++i)
     {
@@ -207,8 +207,8 @@ void printOperands(ZydisDecodedInstruction* instruction)
         }
         puts("");
     }
-    fputs("==  =========  ==========  ======  ============   ====  =====  ======", stdout);
-    fputs("  ========  ===========================\n", stdout);    
+    fputs("--  ---------  ----------  ------  ------------   ----  -----  ------", stdout);
+    fputs("  --------  ---------------------------\n", stdout);  
 }
 
 void printFlags(ZydisDecodedInstruction* instruction)
@@ -253,14 +253,14 @@ void printFlags(ZydisDecodedInstruction* instruction)
     uint8_t c = 0;
     for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
     {
+        if (c == 8)
+        {
+            printf("\n             ");
+        }
         if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
             ++c;
             printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
-        }
-        if (c == 8)
-        {
-            printf("\n             ");
         }
     }
     puts(c ? "" : "none");
