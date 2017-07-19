@@ -185,7 +185,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             if (instruction->operands[i].imm.isSigned)
             {
-                printf("  (%s %s %2d) 0x%016"PRIX64, 
+                printf("  (%s %s %2d) 0x%016" PRIX64, 
                     instruction->operands[i].imm.isSigned ? "S" : "U", 
                     instruction->operands[i].imm.isRelative ? "R" : "_", 
                     instruction->raw.imm[immId].size,
@@ -197,7 +197,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
                     "REL  ", instruction->operands[i].imm.isRelative ? "Y" : "N");
                 printf("  %84s =                  %2d\n", 
                     "SIZE ", instruction->raw.imm[immId].size);
-                printf("  %84s =  0x%016"PRIX64, 
+                printf("  %84s =  0x%016" PRIX64, 
                     "VALUE", instruction->operands[i].imm.value.u);
             }
             ++immId;
@@ -267,15 +267,15 @@ void printFlags(ZydisDecodedInstruction* instruction)
 
     ZydisCPUFlagMask flags, temp;
     ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
-    printf("       READ: 0x%08"PRIX32"\n", flags);
+    printf("       READ: 0x%08" PRIX32 "\n", flags);
     ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
     ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
     flags |= temp;
     ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
     flags |= temp;
-    printf("    WRITTEN: 0x%08"PRIX32"\n", flags);
+    printf("    WRITTEN: 0x%08" PRIX32 "\n", flags);
     ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
-    printf("  UNDEFINED: 0x%08"PRIX32"\n", flags);
+    printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
 }
 
 void printAVXInfo(ZydisDecodedInstruction* instruction)
@@ -393,15 +393,15 @@ void printInstruction(ZydisDecodedInstruction* instruction)
 
     fputs("== [    BASIC ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
-    printf("  MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
+    printf("   MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
         ZydisMnemonicGetString(instruction->mnemonic),
         instructionEncodingStrings[instruction->encoding],
         opcodeMapStrings[instruction->opcodeMap],
         instruction->opcode);
-    printf("    LENGTH: %2d\n", instruction->length);
-    printf("       SSZ: %2d\n", instruction->stackWidth);
-    printf("      EOSZ: %2d\n", instruction->operandSize);
-    printf("      EASZ: %2d\n", instruction->addressWidth);
+    printf("     LENGTH: %2d\n", instruction->length);
+    printf("        SSZ: %2d\n", instruction->stackWidth);
+    printf("       EOSZ: %2d\n", instruction->operandSize);
+    printf("       EASZ: %2d\n", instruction->addressWidth);
     
     if (instruction->operandCount > 0)
     {
@@ -489,7 +489,7 @@ int main(int argc, char** argv)
                 fputs("Invalid hex value", stderr);
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            data[i + j] = (uint8_t)value;
+            data[length] = (uint8_t)value;
             ++length;
         }
     }   
@@ -501,7 +501,7 @@ int main(int argc, char** argv)
         if (status >= ZYDIS_STATUS_USER)
         {
             fprintf(stderr, 
-                "Could not decode instruction: User defined status code 0x%"PRIx32, status);     
+                "Could not decode instruction: User defined status code 0x%" PRIx32, status);     
         } else
         {
             fprintf(stderr, "Could not decode instruction: %s", ZydisFormatStatus(status));
