@@ -3369,26 +3369,27 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
  * 
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
  */
 static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction)
+    ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
 
+    ZydisBool hasOverride = definition->acceptsAddressSizeOverride && 
+        (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE); 
+
     switch (context->decoder->addressWidth)
     {
     case 16:
-        instruction->addressWidth = 
-            (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 16;
+        instruction->addressWidth = hasOverride ? 32 : 16;
         break;
     case 32:
-        instruction->addressWidth = 
-            (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 16 : 32;
+        instruction->addressWidth = hasOverride ? 16 : 32;
         break;
     case 64:
-        instruction->addressWidth = 
-            (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 32 : 64;
+        instruction->addressWidth = hasOverride ? 32 : 64;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -4226,7 +4227,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 const ZydisInstructionDefinition* definition;
                 ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
                 ZydisSetEffectiveOperandSize(context, instruction, definition);
-                ZydisSetEffectiveAddressWidth(context, instruction);
+                ZydisSetEffectiveAddressWidth(context, instruction, definition);
 
                 const ZydisInstructionEncodingInfo* info;
                 ZydisGetInstructionEncodingInfo(node, &info);

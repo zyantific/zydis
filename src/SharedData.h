@@ -545,7 +545,8 @@ enum ZydisMaskPolicies
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3); \
-    uint8_t flagsReference                  ZYDIS_BITFIELD( 7)
+    uint8_t flagsReference                  ZYDIS_BITFIELD( 7); \
+    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
