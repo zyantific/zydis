@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Status code definitions and check macros.
+ */
+
 #ifndef ZYDIS_STATUS_H
 #define ZYDIS_STATUS_H
 

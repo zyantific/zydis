@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Functions for formatting human-readable instructions.
+ */
+
 #ifndef ZYDIS_FORMATTER_H
 #define ZYDIS_FORMATTER_H
 

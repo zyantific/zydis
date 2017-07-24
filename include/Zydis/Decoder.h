@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Functions for decoding instructions.
+ */
+
 #ifndef ZYDIS_DECODER_H
 #define ZYDIS_DECODER_H
 

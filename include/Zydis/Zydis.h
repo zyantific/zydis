@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Master include file, including everything else.
+ */
+
 #ifndef ZYDIS_H
 #define ZYDIS_H
 

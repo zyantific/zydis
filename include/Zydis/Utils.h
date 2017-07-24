@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Other utility functions.
+ */
+
 #ifndef ZYDIS_UTILS_H
 #define ZYDIS_UTILS_H
 

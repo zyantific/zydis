@@ -82,3 +82,5 @@ CTestTestfile.cmake
 
 build*
 .vs
+
+doc/html

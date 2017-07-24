@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Functions for (re-)encoding instructions.
+ */
+
 #ifndef ZYDIS_ENCODER_H
 #define ZYDIS_ENCODER_H
 

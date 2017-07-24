@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   Utility functions and constants for registers.
+ */
+
 #ifndef ZYDIS_REGISTER_H
 #define ZYDIS_REGISTER_H
 

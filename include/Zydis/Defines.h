@@ -24,6 +24,11 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * @brief   General helper and platform detection macros.
+ */
+
 #ifndef ZYDIS_DEFINES_H
 #define ZYDIS_DEFINES_H
 
