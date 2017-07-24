@@ -6,7 +6,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 ## Features ##
 
 - Supports all x86 and x86-64 (AMD64) general-purpose and system instructions.
-- Supported ISA extensions:
+- Supports pretty much all ISA extensions:
   - FPU (x87), MMX
   - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
   - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
@@ -16,8 +16,6 @@ Fast and lightweight x86/x86-64 disassembler library.
 - No dynamic memory allocation
   - Perfect for kernel-mode drivers and embedded devices
 - Very small file-size overhead compared to other common disassembler libraries
-- Language bindings
-  - C++, Delphi, Python, ..
 - Complete doxygen documentation
 
 ## Quick Example ##
@@ -80,6 +78,13 @@ The above example program generates the following output:
 ## Compilation ##
 
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
+
+## Roadmap ##
+
+- Language bindings
+- Tests
+- Encoding support
+- Graphical editor for the instruction-database
 
 ## License ##
 
