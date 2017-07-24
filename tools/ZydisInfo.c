@@ -253,12 +253,12 @@ void printFlags(ZydisDecodedInstruction* instruction)
     uint8_t c = 0;
     for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
     {
-        if (c == 8)
-        {
-            printf("\n             ");
-        }
         if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
+            if (c && (c % 8 == 0))
+            {
+                printf("\n             ");
+            }
             ++c;
             printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
         }
