@@ -18,6 +18,14 @@ Fast and lightweight x86/x86-64 disassembler library.
 - Very small file-size overhead compared to other common disassembler libraries
 - Complete doxygen documentation
 
+## Roadmap ##
+
+- Language bindings [v2.0 final]
+- Tests [v2.0 final]
+- Graphical editor for the instruction-database [v2.0 final]
+- Implement CMake feature gates. Currently, everything is always included. [v2.0 final]
+- Encoding support [v2.1]
+
 ## Quick Example ##
 
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
@@ -60,6 +68,19 @@ int main()
 }
 ```
 
+## Compilation ##
+
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
+
+```bash
+# Linux and OS X
+git clone 'https://github.com/zyantific/zydis.git'
+cd zydis
+mkdir build && cd build
+cmake ..
+make
+```
+
 ## Sample Output ##
 
 The above example program generates the following output:
@@ -75,17 +96,9 @@ The above example program generates the following output:
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
-## Compilation ##
-
-Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
-
-## Roadmap ##
-
-- Language bindings
-- Tests
-- Encoding support
-- Graphical editor for the instruction-database
+## ZydisInfo tool ##
+![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
 ## License ##
 
-Zyan Disassembler Engine is licensed under the MIT License. Dependencies are under their respective licenses.
+Zydis is licensed under the MIT license.
