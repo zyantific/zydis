@@ -68,19 +68,6 @@ int main()
 }
 ```
 
-## Compilation ##
-
-Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
-
-```bash
-# Linux and OS X
-git clone 'https://github.com/zyantific/zydis.git'
-cd zydis
-mkdir build && cd build
-cmake ..
-make
-```
-
 ## Sample Output ##
 
 The above example program generates the following output:
@@ -96,7 +83,20 @@ The above example program generates the following output:
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
-## ZydisInfo tool ##
+## Compilation ##
+
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
+
+```bash
+# Linux and OS X
+git clone 'https://github.com/zyantific/zydis.git'
+cd zydis
+mkdir build && cd build
+cmake ..
+make
+```
+
+## `ZydisInfo` tool ##
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
 ## License ##
