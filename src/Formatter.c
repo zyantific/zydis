@@ -756,8 +756,11 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
         }
         break;
     case ZYDIS_DECORATOR_TYPE_SAE:
-        ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sae}")); 
+        if (instruction->avx.hasSAE && !instruction->avx.roundingMode)
+        {
+            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
+                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sae}")); 
+        }
         break;
     case ZYDIS_DECORATOR_TYPE_SWIZZLE:
         switch (instruction->avx.swizzleMode)
@@ -948,17 +951,12 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
                                 ZYDIS_DECORATOR_TYPE_SWIZZLE)); 
                         }
-                        if (instruction->avx.roundingMode)
-                        {
-                            ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                                bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL));
-                        } else
-                        {
-                            ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
-                                bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_SAE));
-                        }
+                        ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                            bufEnd - *buffer, instruction, &instruction->operands[i], 
+                            ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL));
+                        ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
+                            bufEnd - *buffer, instruction, &instruction->operands[i], 
+                            ZYDIS_DECORATOR_TYPE_SAE));
                     }
                 }
             }
