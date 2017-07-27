@@ -1028,8 +1028,6 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
     default:
         ZYDIS_UNREACHABLE;
     }
-    ZYDIS_UNREACHABLE;
-    return 0;
 }
 
 /**

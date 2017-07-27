@@ -33,6 +33,7 @@
 #define ZYDIS_DEFINES_H
 
 #include <assert.h>
+#include <stdlib.h>
 #include <ZydisExportConfig.h>
 
 /* ============================================================================================== */
@@ -131,11 +132,13 @@
 #       else
 #           define ZYDIS_UNREACHABLE
 #       endif
+#   elif defined(ZYDIS_MSVC)
+#       define ZYDIS_UNREACHABLE __assume(0)
 #   else
 #       define ZYDIS_UNREACHABLE
 #   endif
 #else
-#   define ZYDIS_UNREACHABLE assert(0)
+#   define ZYDIS_UNREACHABLE { assert(0); abort(); }
 #endif
 
 /* ============================================================================================== */

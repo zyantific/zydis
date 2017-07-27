@@ -335,9 +335,7 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
         return &filtersMVEXE[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
-    }
-    static const ZydisDecoderTreeNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
-    return &invalid;    
+    } 
 }
 
 void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node, 

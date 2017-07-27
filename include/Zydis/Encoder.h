@@ -86,7 +86,6 @@ typedef struct ZydisEncoderOperand_
         uint16_t segment;
         uint32_t offset;
     } ptr;
-    uint8_t immSize;
     union
     {
         uint64_t u;
@@ -117,7 +116,7 @@ ZYDIS_EXPORT ZydisStatus ZydisEncoderDecodedInstructionToRequest(
 #endif
 
 /**
- * @brief   Encodes the given instruction info to byte-code.
+ * @brief   Encodes the given instruction request to byte-code.
  *
  * @param   buffer      A pointer to the output buffer.
  * @param   bufferLen   The length of the output buffer.
