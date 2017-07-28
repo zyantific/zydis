@@ -467,6 +467,7 @@ static ZydisStatus ZydisSemanticOperandTypeDeriveMask(
                 1 << ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBX |
                 1 << ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBY |
                 1 << ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ |
+                1 << ZYDIS_SEMANTIC_OPTYPE_AGEN |
                 1 << ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM;
         break;
     case ZYDIS_OPERAND_TYPE_POINTER:
@@ -500,9 +501,9 @@ static uint8_t ZydisSImmGetMinSize(int64_t imm)
     return 64;
 }
 
-static ZydisBool ZydisSemanticOperandTypeImmIsSigned(ZydisSemanticOperandType type)
+static ZydisBool ZydisOperandEncodingImmIsSigned(ZydisOperandEncoding enc)
 {
-    switch (type)
+    switch (enc)
     {
     case ZYDIS_OPERAND_ENCODING_DISP8:
     case ZYDIS_OPERAND_ENCODING_DISP16:
@@ -539,10 +540,10 @@ static ZydisBool ZydisSemanticOperandTypeImmIsSigned(ZydisSemanticOperandType ty
     }
 }
 
-static ZydisStatus ZydisSemanticOperandTypeImmGetEffectiveSize(
-    ZydisSemanticOperandType type, ZydisMachineMode machineMode, uint8_t* esz)
+static ZydisStatus ZydisOperandEncodingGetEffectiveImmSize(
+    ZydisOperandEncoding enc, ZydisMachineMode machineMode, uint8_t* esz)
 {
-    switch (type)
+    switch (enc)
     {
     case ZYDIS_OPERAND_ENCODING_DISP8:
     case ZYDIS_OPERAND_ENCODING_SIMM8:
@@ -604,6 +605,41 @@ static ZydisStatus ZydisSemanticOperandTypeImmGetEffectiveSize(
     default: 
         ZYDIS_UNREACHABLE;
     }
+}
+
+static ZydisBool ZydisRegIsBP(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_BPL ||
+           reg == ZYDIS_REGISTER_BP  ||
+           reg == ZYDIS_REGISTER_EBP ||
+           reg == ZYDIS_REGISTER_RBP;
+}
+
+static ZydisBool ZydisRegIsSP(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_SPL ||
+           reg == ZYDIS_REGISTER_SP  ||
+           reg == ZYDIS_REGISTER_ESP ||
+           reg == ZYDIS_REGISTER_RSP;
+}
+
+static ZydisBool ZydisRegIsIP(ZydisRegister reg)
+{
+    return reg == ZYDIS_REGISTER_IP  ||
+           reg == ZYDIS_REGISTER_EIP ||
+           reg == ZYDIS_REGISTER_RIP;
+}
+
+static ZydisBool ZydisRegIsStack(ZydisRegister reg)
+{
+    return ZydisRegIsSP(reg) || ZydisRegIsBP(reg);
+}
+
+static ZydisBool ZydisSemanticTypeIsImplicit(ZydisSemanticOperandType type)
+{
+    return type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG ||
+           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM ||
+           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -728,41 +764,6 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     }
 
     return ZYDIS_STATUS_SUCCESS;
-}
-
-static ZydisBool ZydisRegIsBP(ZydisRegister reg)
-{
-    return reg == ZYDIS_REGISTER_BPL ||
-           reg == ZYDIS_REGISTER_BP  ||
-           reg == ZYDIS_REGISTER_EBP ||
-           reg == ZYDIS_REGISTER_RBP;
-}
-
-static ZydisBool ZydisRegIsSP(ZydisRegister reg)
-{
-    return reg == ZYDIS_REGISTER_SPL ||
-           reg == ZYDIS_REGISTER_SP  ||
-           reg == ZYDIS_REGISTER_ESP ||
-           reg == ZYDIS_REGISTER_RSP;
-}
-
-static ZydisBool ZydisRegIsIP(ZydisRegister reg)
-{
-    return reg == ZYDIS_REGISTER_IP  ||
-           reg == ZYDIS_REGISTER_EIP ||
-           reg == ZYDIS_REGISTER_RIP;
-}
-
-static ZydisBool ZydisRegIsStack(ZydisRegister reg)
-{
-    return ZydisRegIsSP(reg) || ZydisRegIsBP(reg);
-}
-
-static ZydisBool ZydisSemanticTypeIsImplicit(ZydisSemanticOperandType type)
-{
-    return type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG ||
-           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM ||
-           type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1;
 }
 
 static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
@@ -1262,7 +1263,7 @@ static ZydisStatus ZydisFindMatchingDef(
         const ZydisInstructionDefinition* candidateDef = NULL;
         ZydisGetInstructionDefinition(
             candidateInsn->encoding, candidateInsn->definitionReference, &candidateDef);
-        ZydisOperandDefinition* candidateOperands = NULL;
+        const ZydisOperandDefinition* candidateOperands = NULL;
         uint8_t defOperandCount = ZydisGetOperandDefinitions(candidateDef, &candidateOperands);
 
         if (req->operandCount > defOperandCount) goto _nextInsn;
@@ -1334,6 +1335,7 @@ static ZydisStatus ZydisFindMatchingDef(
                 if (curReqOperand->imm.u != 1) goto _nextInsn;
             } break;
             case ZYDIS_SEMANTIC_OPTYPE_IMM:
+            case ZYDIS_SEMANTIC_OPTYPE_REL:
             {
                 // Even though the user probably had an idea if their immediate was signed
                 // or unsigned, we try to encode it with whatever the signedness of the 
@@ -1342,15 +1344,15 @@ static ZydisStatus ZydisFindMatchingDef(
                 // also encode it as an 8-bit signed -1 that is then expanded back to 0xFFFFFFFF 
                 // at runtime (assuming machineMode == 32), resulting in more compact and 
                 // efficient encoding.
-                uint8_t minSize = ZydisSemanticOperandTypeImmIsSigned(curDefOperand->type)
+                uint8_t minSize = ZydisOperandEncodingImmIsSigned(curDefOperand->op.encoding)
                     ? ZydisSImmGetMinSize(curReqOperand->imm.s)
                     : ZydisUImmGetMinSize(curReqOperand->imm.u);
                 uint8_t eisz;
-                ZYDIS_CHECK(ZydisSemanticOperandTypeImmGetEffectiveSize(
-                    curDefOperand->type, req->machineMode, &eisz
+                ZYDIS_CHECK(ZydisOperandEncodingGetEffectiveImmSize(
+                    curDefOperand->op.encoding, req->machineMode, &eisz
                 ));
                 if (eisz < minSize) goto _nextInsn;
-                ctx->derivedImmSize[k] = minSize;
+                ctx->derivedImmSize[k] = eisz;
             } break;
             default: 
                 ; // No further checks required.
@@ -1400,11 +1402,11 @@ ZydisStatus ZydisEncoderDecodedInstructionToRequest(
     out->encoding = in->encoding;
     out->operandCount = 0;
 
-    for (uint8_t iIn = 0
-        ; iIn < in->operandCount && out->operandCount < ZYDIS_ARRAY_SIZE(out->operands)
-        ; ++iIn)
+    for (uint8_t i = 0
+        ; i < in->operandCount && out->operandCount < ZYDIS_ARRAY_SIZE(out->operands)
+        ; ++i)
     {
-        const ZydisDecodedOperand* inOp = in->operands + iIn;
+        const ZydisDecodedOperand* inOp = in->operands + i;
         ZydisEncoderOperand* outOp = out->operands + out->operandCount;
         if (inOp->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN) continue;
 
