@@ -29,7 +29,6 @@
 #include <EncoderData.h>
 
 #include <string.h>
-#include <stdint.h>
 
 /* ============================================================================================== */
 /* Internal context and table types                                                               */

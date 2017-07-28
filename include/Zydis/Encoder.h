@@ -34,6 +34,8 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
+#include <Zydis/Register.h>
+#include <Zydis/Mnemonic.h>
 #include <Zydis/SharedTypes.h>
 #ifdef ZYDIS_ENABLE_FEATURE_DECODER
 #   include <Zydis/DecoderTypes.h>

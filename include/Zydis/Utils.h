@@ -32,7 +32,6 @@
 #ifndef ZYDIS_UTILS_H
 #define ZYDIS_UTILS_H
 
-#include <stdint.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
 #include <Zydis/DecoderTypes.h>

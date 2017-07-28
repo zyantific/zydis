@@ -28,9 +28,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#include <inttypes.h>
 #include <Zydis/Formatter.h>
 #include <Zydis/Utils.h>
+#include <Zydis/CommonTypes.h>
+
+#if defined(ZYDIS_WINKERNEL)
+#   include <ntddk.h>
+#   include <Ntstrsafe.h>
+#endif
 
 /* ============================================================================================== */
 /* String formatting                                                                              */
@@ -67,6 +72,24 @@ enum ZydisStringBufferAppendModes
 /* ---------------------------------------------------------------------------------------------- */
 /* Internal functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
+
+#if defined(ZYDIS_WINKERNEL)
+static int ZydisVSNPrintF(char* s, size_t n, const char* format, va_list arg)
+{
+    size_t bytesRemaining;
+    NTSTATUS ret = RtlStringCchVPrintfExA(
+        s, n, NULL, &bytesRemaining, 0, format, arg
+    );
+
+    if (!NT_SUCCESS(ret)) return -1;
+    return (int)(n - bytesRemaining);
+}
+#else
+static int ZydisVSNPrintF(char* s, size_t n, const char* format, va_list arg)
+{
+    return vsnprintf(s, n, format, arg);
+}
+#endif
 
 /**
  * @brief   Appends the @c text to the given @c buffer and increases the string-buffer pointer by
@@ -137,7 +160,7 @@ static ZydisStatus ZydisStringBufferAppendFormat(char** buffer, size_t bufferLen
 
     va_list arglist;
     va_start(arglist, format);
-    int w = vsnprintf(*buffer, bufferLen, format, arglist);
+    int w = ZydisVSNPrintF(*buffer, bufferLen, format, arglist);
     if ((w < 0) || ((size_t)w >= bufferLen))
     {
         va_end(arglist);

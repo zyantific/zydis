@@ -32,8 +32,6 @@
 #ifndef ZYDIS_DEFINES_H
 #define ZYDIS_DEFINES_H
 
-#include <assert.h>
-#include <stdlib.h>
 #include <ZydisExportConfig.h>
 
 /* ============================================================================================== */
@@ -123,7 +121,12 @@
 /* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
 
-#define ZYDIS_ASSERT(condition) assert(condition)
+#if defined(ZYDIS_WINKERNEL)
+#   define ZYDIS_ASSERT(condition)
+#else
+#   include <assert.h>
+#   define ZYDIS_ASSERT(condition) assert(condition)
+#endif
 
 #if defined(ZYDIS_RELEASE)
 #   if defined(ZYDIS_GNUC)
@@ -137,7 +140,10 @@
 #   else
 #       define ZYDIS_UNREACHABLE
 #   endif
+#elif defined(ZYDIS_WINKERNEL)
+#   define ZYDIS_UNREACHABLE
 #else
+#   include <stdlib.h>
 #   define ZYDIS_UNREACHABLE { assert(0); abort(); }
 #endif
 

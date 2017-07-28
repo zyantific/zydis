@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 
             // TODO: Remove
             // DEBUG CODE START
-#if 1
+#if 0
             for (size_t i = 0; i < instruction.length; ++i)
             {
                 printf("%02X ", *(readBuf + readOffs + i));
