@@ -37,9 +37,118 @@
 
 typedef uint32_t ZydisSemanticOperandTypeMask;
 
-/**
- * @brief   The encoder context struct.
- */
+typedef struct ZydisInstructionQuery_
+{
+    ZydisSemanticOperandTypeMask semOperandTypeMasks[ZYDIS_ENCODER_MAX_OPERANDS];
+    ZydisBool require66;
+    ZydisBool require67;
+    ZydisBool requireREXW;
+    uint8_t eosz;
+    uint8_t easz;
+} ZydisInstructionQuery;
+
+typedef struct ZydisInstructionMatch_
+{
+    const ZydisEncodableInstruction* insn;
+    const ZydisInstructionDefinition* def;
+    uint8_t operandCount;
+    const ZydisOperandDefinition* operands;
+    uint8_t derivedImmSizes[ZYDIS_ENCODER_MAX_OPERANDS];
+} ZydisInstructionMatch;
+
+typedef struct ZydisRawInstruction_
+{
+    ZydisInstructionAttributes derivedAttrs;
+    uint8_t mandatoryPrefix; // 0 = not present
+    uint8_t opcodeMapPrefixLen;
+    uint8_t opcodeMapPrefix[3];
+    uint8_t opcode;
+
+    struct
+    {
+        int64_t val;
+        uint8_t size;
+    } disp;
+    struct
+    {
+        uint64_t val;
+        uint8_t size;
+    } imms[2];
+    struct
+    {
+        uint8_t W;
+        uint8_t R;
+        uint8_t X;
+        uint8_t B;
+    } rex;
+    struct
+    {
+        uint8_t R;
+        uint8_t X;
+        uint8_t B;
+        uint8_t m_mmmm;
+        uint8_t W;
+        uint8_t vvvv;
+        uint8_t L;
+        uint8_t pp;
+    } xop;
+    struct
+    {
+        uint8_t R;
+        uint8_t X;
+        uint8_t B;
+        uint8_t m_mmmm;
+        uint8_t W;
+        uint8_t vvvv;
+        uint8_t L;
+        uint8_t pp;
+    } vex;
+    struct
+    {
+        uint8_t R;
+        uint8_t X;
+        uint8_t B;
+        uint8_t R2;
+        uint8_t mm;
+        uint8_t W;
+        uint8_t vvvv;
+        uint8_t pp;
+        uint8_t z;
+        uint8_t L2;
+        uint8_t L;
+        uint8_t b;
+        uint8_t V2;
+        uint8_t aaa;
+    } evex;
+    struct
+    {
+        uint8_t R;
+        uint8_t X;
+        uint8_t B;
+        uint8_t R2;
+        uint8_t mmmm;
+        uint8_t W;
+        uint8_t vvvv;
+        uint8_t pp;
+        uint8_t E;
+        uint8_t SSS;
+        uint8_t V2;
+        uint8_t kkk;
+    } mvex;
+    struct
+    {
+        uint8_t mod;
+        uint8_t reg;
+        uint8_t rm;
+    } modrm;
+    struct
+    {
+        uint8_t scale;
+        uint8_t index;
+        uint8_t base;
+    } sib;
+} ZydisRawInstruction;
+
 typedef struct ZydisEncoderContext_
 {
     // Input parameters.
@@ -48,109 +157,7 @@ typedef struct ZydisEncoderContext_
     size_t writeOffs;
     const ZydisEncoderRequest* req;
 
-    // Definition requirements (filled by `ZydisAnalyzeRequirements`)
-    ZydisSemanticOperandTypeMask semOperandTypeMasks[ZYDIS_ENCODER_MAX_OPERANDS];
-    uint8_t derivedImmSize[ZYDIS_ENCODER_MAX_OPERANDS];
-    ZydisBool require66;
-    ZydisBool require67;
-    ZydisBool requireREXW;
-    uint8_t eosz;
-    uint8_t easz;
-
-    // Found matching definition info (filled by `ZydisFindMatchingDef`)
-    const ZydisEncodableInstruction* matchingInsn;
-    const ZydisInstructionDefinition* matchingDef;
-    uint8_t matchingOperandCount;
-    const ZydisOperandDefinition* matchingOperands;
-
-    ZydisInstructionAttributes derivedAttrs;
-    ZydisBool emitMandatoryPrefix;
-    uint8_t mandatoryPrefix;
-    uint8_t dispBitSize;
-    uint64_t disp;
-    uint8_t immBitSizes[2];
-    uint64_t imms[2];
-    uint8_t opcodeMapPrefixLen;
-    uint8_t opcodeMapPrefix[3];
-
-    // Prepared, raw instruction data (filled by `ZydisPrepare*` funcs)
-    struct
-    {
-        uint8_t opcode;
-        struct
-        {
-            uint8_t W;
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-        } rex;
-        struct
-        {
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-            uint8_t m_mmmm;
-            uint8_t W;
-            uint8_t vvvv;
-            uint8_t L;
-            uint8_t pp;
-        } xop;
-        struct
-        {
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-            uint8_t m_mmmm;
-            uint8_t W;
-            uint8_t vvvv;
-            uint8_t L;
-            uint8_t pp;
-        } vex;
-        struct
-        {
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-            uint8_t R2;
-            uint8_t mm;
-            uint8_t W;
-            uint8_t vvvv;
-            uint8_t pp;
-            uint8_t z;
-            uint8_t L2;
-            uint8_t L;
-            uint8_t b;
-            uint8_t V2;
-            uint8_t aaa;
-        } evex;
-        struct
-        {
-            uint8_t R;
-            uint8_t X;
-            uint8_t B;
-            uint8_t R2;
-            uint8_t mmmm;
-            uint8_t W;
-            uint8_t vvvv;
-            uint8_t pp;
-            uint8_t E;
-            uint8_t SSS;
-            uint8_t V2;
-            uint8_t kkk;
-        } mvex;
-        struct
-        {
-            uint8_t mod;
-            uint8_t reg;
-            uint8_t rm;
-        } modrm;
-        struct
-        {
-            uint8_t scale;
-            uint8_t index;
-            uint8_t base;
-        } sib;
-    } raw;
+    ZydisRawInstruction raw;
 } ZydisEncoderContext;
 
 /* ============================================================================================== */
@@ -646,29 +653,28 @@ static ZydisBool ZydisSemanticTypeIsImplicit(ZydisSemanticOperandType type)
 /* Preparation functions. Parse encoder request, determine required bytes and prefixes.           */
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx)
+static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx, const ZydisInstructionMatch* match)
 {
     ZYDIS_ASSERT(ctx);
-    ZYDIS_ASSERT(ctx->matchingDef);
-    ZYDIS_ASSERT(ctx->req);
+    ZYDIS_ASSERT(match);
 
     // Put opcode map prefix(es), if required.
     switch (ctx->req->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        switch (ctx->matchingInsn->opcodeMap)
+        switch (match->insn->opcodeMap)
         {
         case ZYDIS_OPCODE_MAP_0F:
-            ctx->opcodeMapPrefix[ctx->opcodeMapPrefixLen++] = 0x0F;
+            ctx->raw.opcodeMapPrefix[ctx->raw.opcodeMapPrefixLen++] = 0x0F;
             break;
         case ZYDIS_OPCODE_MAP_0F38:
-            ctx->opcodeMapPrefix[ctx->opcodeMapPrefixLen++] = 0x0F;
-            ctx->opcodeMapPrefix[ctx->opcodeMapPrefixLen++] = 0x38;
+            ctx->raw.opcodeMapPrefix[ctx->raw.opcodeMapPrefixLen++] = 0x0F;
+            ctx->raw.opcodeMapPrefix[ctx->raw.opcodeMapPrefixLen++] = 0x38;
             break;
         case ZYDIS_OPCODE_MAP_0F3A:
-            ctx->opcodeMapPrefix[ctx->opcodeMapPrefixLen++] = 0x0F;
-            ctx->opcodeMapPrefix[ctx->opcodeMapPrefixLen++] = 0x3A;
+            ctx->raw.opcodeMapPrefix[ctx->raw.opcodeMapPrefixLen++] = 0x0F;
+            ctx->raw.opcodeMapPrefix[ctx->raw.opcodeMapPrefixLen++] = 0x3A;
             break;
         case ZYDIS_OPCODE_MAP_DEFAULT:
             break; // Nothing to do.
@@ -677,16 +683,16 @@ static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx)
         }
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ctx->raw.vex.m_mmmm = ctx->matchingInsn->opcodeMap;
+        ctx->raw.vex.m_mmmm = match->insn->opcodeMap;
         ZYDIS_ASSERT(ctx->raw.vex.m_mmmm <= 0x03);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ctx->raw.evex.mm = ctx->matchingInsn->opcodeMap;
+        ctx->raw.evex.mm = match->insn->opcodeMap;
         ZYDIS_ASSERT(ctx->raw.evex.mm <= 0x03);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
         ctx->raw.xop.m_mmmm =
-            ctx->matchingInsn->opcodeMap - ZYDIS_OPCODE_MAP_XOP8 + 0x08;
+            match->insn->opcodeMap - ZYDIS_OPCODE_MAP_XOP8 + 0x08;
         ZYDIS_ASSERT(ctx->raw.xop.m_mmmm >= 0x08);
         ZYDIS_ASSERT(ctx->raw.xop.m_mmmm <= 0x0B);
         break;
@@ -730,7 +736,7 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
             case 'X': ctx->raw.rex.X = topBit; break;
             default: ZYDIS_UNREACHABLE;
         }
-        if (topBit) ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
+        if (topBit) ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
         switch (topBitLoc)
@@ -773,28 +779,28 @@ static ZydisStatus ZydisPrepareSegmentPrefix(ZydisEncoderContext* ctx,
     switch (segment)
     {
     case ZYDIS_REGISTER_ES:
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
         break;
     case ZYDIS_REGISTER_SS:
         if (!ZydisRegIsStack(base))
         {
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
         }
         break;
     case ZYDIS_REGISTER_CS:
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
         break;
     case ZYDIS_REGISTER_DS:
         if (ZydisRegIsStack(base))
         {
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
         }
         break;
     case ZYDIS_REGISTER_FS:
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
         break;
     case ZYDIS_REGISTER_GS:
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
         break;
     default:
         return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO: Better status.
@@ -815,8 +821,8 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     // Absolute memory access? Special case.
     if (operand->mem.base == ZYDIS_REGISTER_NONE)
     {
-        ctx->disp = operand->mem.disp;
-        ctx->dispBitSize = 32;
+        ctx->raw.disp.val = operand->mem.disp;
+        ctx->raw.disp.size = 32;
 
         // In 32 bit mode, ModRM allows for a shortcut here.
         if (ctx->req->machineMode == 32)
@@ -832,7 +838,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
             ctx->raw.sib.index = 0x04 /* none */;
             ctx->raw.sib.scale = 0x00 /* * 1  */;
             ctx->raw.sib.base  = 0x05;
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SIB;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SIB;
         }
 
         return ZYDIS_STATUS_SUCCESS;
@@ -853,14 +859,14 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
             return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
         }
 
-        ctx->disp = operand->mem.disp;
-        ctx->dispBitSize = 32;
+        ctx->raw.disp.val = operand->mem.disp;
+        ctx->raw.disp.size = 32;
         ctx->raw.modrm.mod = 0x00;
         ctx->raw.modrm.rm  = 0x05 /* RIP relative mem */;
 
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
         }
 
         return ZYDIS_STATUS_SUCCESS;
@@ -879,7 +885,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         case 16:
             break; // Nothing to do.
         case 32:
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
             break;
         case 64:
             // AMD64 doesn't allow for 16 bit addressing.
@@ -896,7 +902,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
         case 32:
             break; // Nothing to do.
         case 64:
-            ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+            ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER; // TODO
         }
@@ -944,7 +950,7 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
             ctx->raw.sib.index = 0x04 /* no index */;
         }
         
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_SIB;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_SIB;
     }
 
     // Has displacement or is rBP and we have no SIB?
@@ -952,9 +958,9 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     if (operand->mem.disp || (!(ctx->req->attributes & ZYDIS_ATTRIB_HAS_SIB)
         && ZydisRegIsBP(operand->mem.base)))
     {
-        ctx->dispBitSize = 32;
+        ctx->raw.disp.size = 32;
         ctx->raw.modrm.mod = 0x02 /* 32 bit disp */;
-        ctx->disp = operand->mem.disp;
+        ctx->raw.disp.val = operand->mem.disp;
     }
     // No displacement.
     else
@@ -965,11 +971,12 @@ static ZydisStatus ZydisPrepareMemoryOperand(ZydisEncoderContext* ctx,
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
+static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, 
+    ZydisInstructionMatch* match, uint8_t n)
 {
     ZYDIS_ASSERT(ctx);
     const ZydisEncoderOperand* reqOperand = ctx->req->operands + n;
-    const ZydisOperandDefinition* operandDef = ctx->matchingOperands + n;
+    const ZydisOperandDefinition* operandDef = match->operands + n;
     //ZYDIS_ASSERT(!ZydisSemanticTypeIsImplicit(operandDef->type));
 
     switch (operandDef->op.encoding)
@@ -982,8 +989,8 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
             ZYDIS_CHECK(ZydisPrepareSegmentPrefix(
                 ctx, reqOperand->mem.segment, ZYDIS_REGISTER_NONE
             ));
-            ctx->imms[0] = reqOperand->mem.disp;
-            ctx->immBitSizes[0] = reqOperand->mem.dispSize;
+            ctx->raw.imms[0].val = reqOperand->mem.disp;
+            ctx->raw.imms[0].size = reqOperand->mem.dispSize;
         }
     } break;
     case ZYDIS_OPERAND_ENCODING_MODRM_REG:
@@ -1011,7 +1018,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
             ctx->raw.modrm.mod = 0x03 /* reg */;
         }
 
-        ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_MODRM;
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_MODRM;
         break;
     }
     case ZYDIS_OPERAND_ENCODING_OPCODE:
@@ -1020,7 +1027,7 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
         if (reg == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
         ctx->raw.opcode += reg & 0x07;
         ctx->raw.rex.B = (reg & 0x08) >> 3;
-        if (ctx->raw.rex.B) ctx->derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
+        if (ctx->raw.rex.B) ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
         break;
     }
     case ZYDIS_OPERAND_ENCODING_NDSNDD:
@@ -1035,8 +1042,8 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
         break; // TODO
     case ZYDIS_OPERAND_ENCODING_IS4:
     {
-        ctx->immBitSizes[0] = 8;
-        ctx->imms[0] |= reqOperand->imm.u & 0x0F;
+        ctx->raw.imms[0].size = 8;
+        ctx->raw.imms[0].val |= reqOperand->imm.u & 0x0F;
         break;
     }
     // TODO
@@ -1059,9 +1066,9 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
     case ZYDIS_OPERAND_ENCODING_SIMM64:
     case ZYDIS_OPERAND_ENCODING_JIMM64:
     {
-        uint8_t immIdx = ctx->immBitSizes[0] ? 1 : 0;
-        ctx->immBitSizes[immIdx] = ctx->derivedImmSize[n];
-        ctx->imms[immIdx] = reqOperand->imm.u;
+        uint8_t immIdx = ctx->raw.imms[0].size ? 1 : 0;
+        ctx->raw.imms[immIdx].val = reqOperand->imm.u;
+        ctx->raw.imms[immIdx].size = match->derivedImmSizes[n];
         break;
     }
     default:
@@ -1071,20 +1078,21 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx, uint8_t n)
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
+static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx,
+    ZydisInstructionMatch* match)
 {
     ZYDIS_ASSERT(ctx);
+    ZYDIS_ASSERT(match);
 
     // Is a prefix mandatory? 0x00 is a sentinel value for `None` in the table.
-    uint8_t prefix = ctx->matchingInsn->mandatoryPrefix;
+    uint8_t prefix = match->insn->mandatoryPrefix;
     if (prefix != 0x00)
     {
         switch (ctx->req->encoding)
         {
         case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-            ctx->emitMandatoryPrefix = ZYDIS_TRUE;
-            ctx->mandatoryPrefix = prefix;
+            ctx->raw.mandatoryPrefix = prefix;
             break;
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
             ctx->raw.vex.pp = prefix;
@@ -1104,18 +1112,19 @@ static ZydisStatus ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx)
 }
 
 static ZydisStatus ZydisAnalyzeRequirements(
-    ZydisEncoderContext* ctx, const ZydisEncoderRequest* req)
+    ZydisEncoderContext* ctx, const ZydisEncoderRequest* req, ZydisInstructionQuery* q)
 {
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(req);
+    ZYDIS_ASSERT(q);
 
     // Walk list of requested operands, derive possible encodings
     // and perform additional sanity checks.
-    ctx->require66 = ZYDIS_FALSE;
-    ctx->require67 = ZYDIS_FALSE;
-    ctx->requireREXW = ZYDIS_FALSE;
-    ctx->eosz = req->machineMode;
-    ctx->easz = req->machineMode;
+    q->require66 = ZYDIS_FALSE;
+    q->require67 = ZYDIS_FALSE;
+    q->requireREXW = ZYDIS_FALSE;
+    q->eosz = req->machineMode;
+    q->easz = req->machineMode;
     for (uint8_t i = 0; i < req->operandCount; ++i)
     {
         const ZydisEncoderOperand* curReqOperand = req->operands + i;
@@ -1126,32 +1135,32 @@ static ZydisStatus ZydisAnalyzeRequirements(
             switch (ZydisRegisterGetClass(curReqOperand->reg))
             {
             case ZYDIS_REGCLASS_GPR16:
-                ctx->eosz = 16;
+                q->eosz = 16;
                 switch (req->machineMode)
                 {
                 case 16: break; // Default mode.
                 case 32:
-                case 64: ctx->require66 = ZYDIS_TRUE; break;
+                case 64: q->require66 = ZYDIS_TRUE; break;
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
             case ZYDIS_REGCLASS_GPR32:
-                ctx->eosz = 32;
+                q->eosz = 32;
                 switch (req->machineMode)
                 {
-                case 16: ctx->require66 = ZYDIS_TRUE; break;
+                case 16: q->require66 = ZYDIS_TRUE; break;
                 case 32:
                 case 64: break; // Default mode.
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
             case ZYDIS_REGCLASS_GPR64:
-                ctx->eosz = 64;
+                q->eosz = 64;
                 switch (req->machineMode)
                 {
                 case 16: 
                 case 32: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION;
-                case 64: ctx->requireREXW = ZYDIS_TRUE; break;
+                case 64: q->requireREXW = ZYDIS_TRUE; break;
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
@@ -1175,27 +1184,27 @@ static ZydisStatus ZydisAnalyzeRequirements(
             // Address size prefix required?
             switch (baseRegClass)
             {
-            case ZYDIS_REGCLASS_GPR16: ctx->easz = 16; break;
-            case ZYDIS_REGCLASS_GPR32: ctx->easz = 32; break;
-            case ZYDIS_REGCLASS_GPR64: ctx->easz = 64; break;
+            case ZYDIS_REGCLASS_GPR16: q->easz = 16; break;
+            case ZYDIS_REGCLASS_GPR32: q->easz = 32; break;
+            case ZYDIS_REGCLASS_GPR64: q->easz = 64; break;
             default:
                 switch (baseRegClass)
                 {
-                case ZYDIS_REGISTER_IP:  ctx->easz = 16; break;
-                case ZYDIS_REGISTER_EIP: ctx->easz = 32; break;
-                case ZYDIS_REGISTER_RIP: ctx->easz = 64; break;
+                case ZYDIS_REGISTER_IP:  q->easz = 16; break;
+                case ZYDIS_REGISTER_EIP: q->easz = 32; break;
+                case ZYDIS_REGISTER_RIP: q->easz = 64; break;
                 default:
                     ; // Other registers can't be address-scaled.
                 }
             }
 
-            switch (ctx->easz)
+            switch (q->easz)
             {
             case 16:
                 switch (ctx->req->machineMode)
                 {
                 case 16: break; // Default mode.
-                case 32: ctx->require67 = ZYDIS_TRUE; break;
+                case 32: q->require67 = ZYDIS_TRUE; break;
                 case 64: return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
@@ -1203,9 +1212,9 @@ static ZydisStatus ZydisAnalyzeRequirements(
             case 32:
                 switch (ctx->req->machineMode)
                 {
-                case 16: ctx->require67 = ZYDIS_TRUE; break;
+                case 16: q->require67 = ZYDIS_TRUE; break;
                 case 32: break; // Default mode.
-                case 64: ctx->require67 = ZYDIS_TRUE; break;
+                case 64: q->require67 = ZYDIS_TRUE; break;
                 default: return ZYDIS_STATUS_INVALID_PARAMETER;
                 }
                 break;
@@ -1221,7 +1230,7 @@ static ZydisStatus ZydisAnalyzeRequirements(
         }
 
         ZYDIS_CHECK(ZydisSemanticOperandTypeDeriveMask(
-            req->operands + i, ctx->semOperandTypeMasks + i
+            req->operands + i, q->semOperandTypeMasks + i
         ));
     }
 
@@ -1229,13 +1238,15 @@ static ZydisStatus ZydisAnalyzeRequirements(
 }
 
 static ZydisStatus ZydisFindMatchingDef(
-    ZydisEncoderContext* ctx, const ZydisEncoderRequest* req)
+    ZydisEncoderContext* ctx, const ZydisEncoderRequest* req, ZydisInstructionMatch* match)
 {
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(req);
+    ZYDIS_ASSERT(match);
 
     // Evaluate request.
-    ZYDIS_CHECK(ZydisAnalyzeRequirements(ctx, req));
+    ZydisInstructionQuery q;
+    ZYDIS_CHECK(ZydisAnalyzeRequirements(ctx, req, &q));
 
     // Translate requested mode to flags.
     uint8_t modeFlag;
@@ -1280,7 +1291,7 @@ static ZydisStatus ZydisFindMatchingDef(
             if (curDefOperand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN) goto _nextInsn;
 
             // Is the type one of those we permit for the given operand?
-            if (!(1 << curDefOperand->type & ctx->semOperandTypeMasks[k])) goto _nextInsn;
+            if (!(1 << curDefOperand->type & q.semOperandTypeMasks[k])) goto _nextInsn;
 
             // For some operand types, additional checks are required.
             switch (curDefOperand->type)
@@ -1352,7 +1363,7 @@ static ZydisStatus ZydisFindMatchingDef(
                     curDefOperand->op.encoding, req->machineMode, &eisz
                 ));
                 if (eisz < minSize) goto _nextInsn;
-                ctx->derivedImmSize[k] = eisz;
+                match->derivedImmSizes[k] = eisz;
             } break;
             default: 
                 ; // No further checks required.
@@ -1367,10 +1378,10 @@ static ZydisStatus ZydisFindMatchingDef(
         }
 
         // Still here? Looks like we found our instruction, then!
-        ctx->matchingInsn = candidateInsn;
-        ctx->matchingDef = candidateDef;
-        ctx->matchingOperands = candidateOperands;
-        ctx->matchingOperandCount = req->operandCount;
+        match->insn = candidateInsn;
+        match->def = candidateDef;
+        match->operands = candidateOperands;
+        match->operandCount = req->operandCount;
         return ZYDIS_STATUS_SUCCESS;
 
     _nextInsn:
@@ -1462,34 +1473,35 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
 
     // Mask out attributes that can't be set explicitly by user.
     // TODO: We should probably rather error on unsupported attrs.
-    ctx.derivedAttrs = request->attributes & ZYDIS_USER_ENCODABLE_ATTRIB_MASK;
+    ctx.raw.derivedAttrs = request->attributes & ZYDIS_USER_ENCODABLE_ATTRIB_MASK;
 
     // Search matching instruction, collect information about what needs to be
     // encoded, what prefixes are required, etc.
-    ZYDIS_CHECK(ZydisFindMatchingDef(&ctx, request));
-    ctx.raw.opcode = ctx.matchingInsn->opcode;
+    ZydisInstructionMatch match;
+    ZYDIS_CHECK(ZydisFindMatchingDef(&ctx, request, &match));
+    ctx.raw.opcode = match.insn->opcode;
 
     // TODO: Check compatibility of requested prefixes to found instruction.
 
     // Prepare prefix bits.
-    ctx.raw.evex.B  = ctx.matchingInsn->evexB;
-    ctx.raw.evex.L  = ctx.matchingInsn->vectorLength & 0x01;
-    ctx.raw.evex.L2 = ctx.matchingInsn->vectorLength & 0x02;
-    ctx.raw.vex.L   = ctx.matchingInsn->vectorLength & 0x01;
-    if (ctx.matchingInsn->rexW)
+    ctx.raw.evex.B  = match.insn->evexB;
+    ctx.raw.evex.L  = match.insn->vectorLength & 0x01;
+    ctx.raw.evex.L2 = match.insn->vectorLength & 0x02;
+    ctx.raw.vex.L   = match.insn->vectorLength & 0x01;
+    if (match.insn->rexW)
     {
         ctx.raw.rex.W = 1;
-        ctx.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
+        ctx.raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
     }
-    ZYDIS_CHECK(ZydisPrepareMandatoryPrefixes(&ctx));
+    ZYDIS_CHECK(ZydisPrepareMandatoryPrefixes(&ctx, &match));
 
     // Prepare opcode.
-    ZYDIS_CHECK(ZydisPrepareOpcode(&ctx));
+    ZYDIS_CHECK(ZydisPrepareOpcode(&ctx, &match));
 
     // Some instructions have additional opcode bits encoded in ModRM.reg.
-    if (ctx.matchingInsn->modrmReg != 0xFF)
+    if (match.insn->modrmReg != 0xFF)
     {
-        ctx.raw.modrm.reg = ctx.matchingInsn->modrmReg;
+        ctx.raw.modrm.reg = match.insn->modrmReg;
     }
 
     // Analyze and prepare operands.
@@ -1499,16 +1511,16 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    for (uint8_t i = 0; i < ctx.matchingDef->operandCount; ++i)
+    for (uint8_t i = 0; i < match.def->operandCount; ++i)
     {
-        ZYDIS_CHECK(ZydisPrepareOperand(&ctx, i));
+        ZYDIS_CHECK(ZydisPrepareOperand(&ctx, &match, i));
     }
 
-    // Do actual encoding work.
+    // Emit prepared raw instruction to bytestream.
     ZYDIS_CHECK(ZydisEmitLegacyPrefixes(&ctx));
-    if (ctx.derivedAttrs & ZYDIS_ATTRIB_HAS_REX) ZYDIS_CHECK(ZydisEmitREX(&ctx));
+    if (ctx.raw.derivedAttrs & ZYDIS_ATTRIB_HAS_REX) ZYDIS_CHECK(ZydisEmitREX(&ctx));
 
-    switch (ctx.matchingInsn->encoding)
+    switch (match.insn->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX: ZYDIS_CHECK(ZydisEmitEVEX(&ctx)); break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:  ZYDIS_CHECK(ZydisEmitVEX (&ctx)); break;
@@ -1516,21 +1528,25 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     default:; // Shut up linter.
     }
 
-    if (ctx.emitMandatoryPrefix) ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.mandatoryPrefix));
+    if (ctx.raw.mandatoryPrefix) ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.raw.mandatoryPrefix));
     
-    for (uint8_t i = 0; i < ctx.opcodeMapPrefixLen; ++i)
+    for (uint8_t i = 0; i < ctx.raw.opcodeMapPrefixLen; ++i)
     {
-        ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.opcodeMapPrefix[i]));
+        ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.raw.opcodeMapPrefix[i]));
     }
 
     ZYDIS_CHECK(ZydisEmitByte(&ctx, ctx.raw.opcode));
 
-    if (ctx.derivedAttrs & ZYDIS_ATTRIB_HAS_MODRM) ZYDIS_CHECK(ZydisEmitModRM(&ctx));
-    if (ctx.derivedAttrs & ZYDIS_ATTRIB_HAS_SIB  ) ZYDIS_CHECK(ZydisEmitSIB  (&ctx));
+    if (ctx.raw.derivedAttrs & ZYDIS_ATTRIB_HAS_MODRM) ZYDIS_CHECK(ZydisEmitModRM(&ctx));
+    if (ctx.raw.derivedAttrs & ZYDIS_ATTRIB_HAS_SIB) ZYDIS_CHECK(ZydisEmitSIB(&ctx));
+    if (ctx.raw.disp.size) ZYDIS_CHECK(ZydisEmitImm(&ctx, ctx.raw.disp.val, ctx.raw.disp.size));
 
-    if (ctx.dispBitSize   ) ZYDIS_CHECK(ZydisEmitImm(&ctx, ctx.disp,    ctx.dispBitSize   ));
-    if (ctx.immBitSizes[0]) ZYDIS_CHECK(ZydisEmitImm(&ctx, ctx.imms[0], ctx.immBitSizes[0]));
-    if (ctx.immBitSizes[1]) ZYDIS_CHECK(ZydisEmitImm(&ctx, ctx.imms[1], ctx.immBitSizes[1]));
+    for (uint8_t i = 0
+        ; i < ZYDIS_ARRAY_SIZE(ctx.raw.imms) && ctx.raw.imms[i].size
+        ; ++i)
+    {
+        ZYDIS_CHECK(ZydisEmitImm(&ctx, ctx.raw.imms[i].val, ctx.raw.imms[i].size));
+    }
 
     *bufferLen = ctx.writeOffs;
     return ZYDIS_STATUS_SUCCESS;
