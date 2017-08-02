@@ -104,8 +104,16 @@ typedef struct ZydisEncoderRequest_
     uint8_t operandCount;
     ZydisEncoderOperand operands[ZYDIS_ENCODER_MAX_OPERANDS];
 
-    // TODO: AVX stuff
-    // TODO: MVEX stuff
+    struct
+    {
+        ZydisVectorLength vectorLength;
+        struct
+        {
+            ZydisMaskMode mode;
+            ZydisRegister reg;
+        } mask;
+    } avx;
+    // TODO: mvex stuff
 } ZydisEncoderRequest;
 
 /* ============================================================================================== */
