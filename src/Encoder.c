@@ -77,65 +77,28 @@ typedef struct ZydisRawInstruction_
     } imms[2];
     struct
     {
+        // REX bits
         uint8_t W;
         uint8_t R;
         uint8_t X;
         uint8_t B;
-    } rex;
-    struct
-    {
-        uint8_t R;
-        uint8_t X;
-        uint8_t B;
-        uint8_t m_mmmm;
-        uint8_t W;
-        uint8_t vvvv;
-        uint8_t L;
-        uint8_t pp;
-    } xop;
-    struct
-    {
-        uint8_t R;
-        uint8_t X;
-        uint8_t B;
-        uint8_t m_mmmm;
-        uint8_t W;
-        uint8_t vvvv;
-        uint8_t L;
-        uint8_t pp;
-    } vex;
-    struct
-    {
-        uint8_t R;
-        uint8_t X;
-        uint8_t B;
-        uint8_t R2;
+
+        // XOP/VEX bits
         uint8_t mm;
-        uint8_t W;
         uint8_t vvvv;
+        uint8_t L;
         uint8_t pp;
+
+        // EVEX/MVEX bits
+        uint8_t R2;
         uint8_t z;
         uint8_t L2;
-        uint8_t L;
         uint8_t b;
         uint8_t V2;
-        uint8_t aaa;
-    } evex;
-    struct
-    {
-        uint8_t R;
-        uint8_t X;
-        uint8_t B;
-        uint8_t R2;
-        uint8_t mmmm;
-        uint8_t W;
-        uint8_t vvvv;
-        uint8_t pp;
-        uint8_t E;
+        uint8_t mask; // `.aaa` / `.kkk`
         uint8_t SSS;
-        uint8_t V2;
-        uint8_t kkk;
-    } mvex;
+        uint8_t E;
+    } bits;
     struct
     {
         uint8_t mod;
@@ -265,10 +228,10 @@ static ZydisStatus ZydisEmitREX(ZydisEncoderContext* ctx)
     ZYDIS_CHECK(ZydisEmitByte(
         ctx, 
         0x40 |
-        (ctx->raw.rex.W & 0x01) << 3 |
-        (ctx->raw.rex.R & 0x01) << 2 |
-        (ctx->raw.rex.X & 0x01) << 1 |
-        (ctx->raw.rex.B & 0x01) << 0
+        (ctx->raw.bits.W & 0x01) << 3 |
+        (ctx->raw.bits.R & 0x01) << 2 |
+        (ctx->raw.bits.X & 0x01) << 1 |
+        (ctx->raw.bits.B & 0x01) << 0
     ));
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -278,18 +241,16 @@ static ZydisStatus ZydisEmitVEX(ZydisEncoderContext* ctx)
     ZYDIS_ASSERT(ctx);
 
     // Can we use short 2-byte VEX encoding?
-    if (ctx->raw.vex.X      == 0 &&
-        ctx->raw.vex.B      == 0 &&
-        ctx->raw.vex.W      == 0 &&
-        ctx->raw.vex.m_mmmm == 1)
+    if (ctx->raw.bits.X == 0 && ctx->raw.bits.B == 0 &&
+        ctx->raw.bits.W == 0 && ctx->raw.bits.mm == 1)
     {
         ZYDIS_CHECK(ZydisEmitByte(ctx, 0xC5));
         ZYDIS_CHECK(ZydisEmitByte(
             ctx,
-            (~ctx->raw.vex.R    & 0x01) << 7 |
-            (~ctx->raw.vex.vvvv & 0x0F) << 3 |
-            ( ctx->raw.vex.L    & 0x01) << 2 |
-            ( ctx->raw.vex.pp   & 0x03) << 0
+            (~ctx->raw.bits.R    & 0x01) << 7 |
+            (~ctx->raw.bits.vvvv & 0x0F) << 3 |
+            ( ctx->raw.bits.L    & 0x01) << 2 |
+            ( ctx->raw.bits.pp   & 0x03) << 0
         ));
     }
     // Nope, use 3-byte VEX.
@@ -298,17 +259,17 @@ static ZydisStatus ZydisEmitVEX(ZydisEncoderContext* ctx)
         ZYDIS_CHECK(ZydisEmitByte(ctx, 0xC4));
         ZYDIS_CHECK(ZydisEmitByte(
             ctx,
-            (~ctx->raw.vex.R      & 0x01) << 7 |
-            (~ctx->raw.vex.X      & 0x01) << 6 |
-            (~ctx->raw.vex.B      & 0x01) << 5 |
-            ( ctx->raw.vex.m_mmmm & 0x1F) << 0
+            (~ctx->raw.bits.R  & 0x01) << 7 |
+            (~ctx->raw.bits.X  & 0x01) << 6 |
+            (~ctx->raw.bits.B  & 0x01) << 5 |
+            ( ctx->raw.bits.mm & 0x1F) << 0
         ));
         ZYDIS_CHECK(ZydisEmitByte(
             ctx,
-            ( ctx->raw.vex.W    & 0x01) << 7 |
-            (~ctx->raw.vex.vvvv & 0x0F) << 3 |
-            ( ctx->raw.vex.L    & 0x01) << 2 |
-            ( ctx->raw.vex.pp   & 0x03) << 0
+            ( ctx->raw.bits.W    & 0x01) << 7 |
+            (~ctx->raw.bits.vvvv & 0x0F) << 3 |
+            ( ctx->raw.bits.L    & 0x01) << 2 |
+            ( ctx->raw.bits.pp   & 0x03) << 0
         ));
     }
 
@@ -321,26 +282,54 @@ static ZydisStatus ZydisEmitEVEX(ZydisEncoderContext* ctx)
     ZYDIS_CHECK(ZydisEmitByte(ctx, 0x62));
     ZYDIS_CHECK(ZydisEmitByte(
         ctx, 
-        (ctx->raw.evex.R    & 0x01) << 7 |
-        (ctx->raw.evex.X    & 0x01) << 6 |
-        (ctx->raw.evex.B    & 0x01) << 5 |
-        (ctx->raw.evex.R2   & 0x01) << 4 |
-        (ctx->raw.evex.mm   & 0x03) << 0
+        (ctx->raw.bits.R  & 0x01) << 7 |
+        (ctx->raw.bits.X  & 0x01) << 6 |
+        (ctx->raw.bits.B  & 0x01) << 5 |
+        (ctx->raw.bits.R2 & 0x01) << 4 |
+        (ctx->raw.bits.mm & 0x03) << 0
     ));
     ZYDIS_CHECK(ZydisEmitByte(
         ctx, 
-        (ctx->raw.evex.W    & 0x01) << 7 |
-        (ctx->raw.evex.vvvv & 0x0F) << 3 |
-        (ctx->raw.evex.pp   & 0x03) << 0
+        (ctx->raw.bits.W    & 0x01) << 7 |
+        (ctx->raw.bits.vvvv & 0x0F) << 3 |
+        (ctx->raw.bits.pp   & 0x03) << 0
     ));
     ZYDIS_CHECK(ZydisEmitByte(
         ctx,
-        (ctx->raw.evex.z    & 0x01) << 7 |
-        (ctx->raw.evex.L2   & 0x01) << 6 |
-        (ctx->raw.evex.L    & 0x01) << 5 |
-        (ctx->raw.evex.b    & 0x01) << 4 |
-        (ctx->raw.evex.V2   & 0x01) << 3 |
-        (ctx->raw.evex.aaa  & 0x07) << 0
+        (ctx->raw.bits.z    & 0x01) << 7 |
+        (ctx->raw.bits.L2   & 0x01) << 6 |
+        (ctx->raw.bits.L    & 0x01) << 5 |
+        (ctx->raw.bits.b    & 0x01) << 4 |
+        (ctx->raw.bits.V2   & 0x01) << 3 |
+        (ctx->raw.bits.mask & 0x07) << 0
+    ));
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+static ZydisStatus ZydisEmitMVEX(ZydisEncoderContext* ctx)
+{
+    ZYDIS_ASSERT(ctx);
+    ZYDIS_CHECK(ZydisEmitByte(ctx, 0x62));
+    ZYDIS_CHECK(ZydisEmitByte(
+        ctx,
+        (ctx->raw.bits.R  & 0x01) << 7 |
+        (ctx->raw.bits.X  & 0x01) << 6 |
+        (ctx->raw.bits.B  & 0x01) << 5 |
+        (ctx->raw.bits.R2 & 0x01) << 4 |
+        (ctx->raw.bits.mm & 0x0F) << 0
+    ));
+    ZYDIS_CHECK(ZydisEmitByte(
+        ctx,
+        (ctx->raw.bits.W    & 0x01) << 7 |
+        (ctx->raw.bits.vvvv & 0x0F) << 3 |
+        (ctx->raw.bits.pp   & 0x03) << 0
+    ));
+    ZYDIS_CHECK(ZydisEmitByte(
+        ctx,
+        (ctx->raw.bits.E    & 0x01) << 7 |
+        (ctx->raw.bits.SSS  & 0x07) << 4 |
+        (ctx->raw.bits.V2   & 0x01) << 3 |
+        (ctx->raw.bits.mask & 0x07) << 0
     ));
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -351,17 +340,17 @@ static ZydisStatus ZydisEmitXOP(ZydisEncoderContext* ctx)
     ZYDIS_CHECK(ZydisEmitByte(ctx, 0x8F));
     ZYDIS_CHECK(ZydisEmitByte(
         ctx,
-        (ctx->raw.xop.R      & 0x01) << 7 |
-        (ctx->raw.xop.X      & 0x01) << 6 |
-        (ctx->raw.xop.B      & 0x01) << 5 |
-        (ctx->raw.xop.m_mmmm & 0x1F) << 0
+        (ctx->raw.bits.R  & 0x01) << 7 |
+        (ctx->raw.bits.X  & 0x01) << 6 |
+        (ctx->raw.bits.B  & 0x01) << 5 |
+        (ctx->raw.bits.mm & 0x1F) << 0
     ));
     ZYDIS_CHECK(ZydisEmitByte(
         ctx,
-        (ctx->raw.xop.W      & 0x01) << 7 |
-        (ctx->raw.xop.vvvv   & 0x0F) << 3 |
-        (ctx->raw.xop.L      & 0x01) << 2 |
-        (ctx->raw.xop.pp     & 0x03) << 0
+        (ctx->raw.bits.W    & 0x01) << 7 |
+        (ctx->raw.bits.vvvv & 0x0F) << 3 |
+        (ctx->raw.bits.L    & 0x01) << 2 |
+        (ctx->raw.bits.pp   & 0x03) << 0
     ));
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -689,18 +678,19 @@ static ZydisStatus ZydisPrepareOpcode(ZydisEncoderContext* ctx, const ZydisInstr
         }
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ctx->raw.vex.m_mmmm = match->insn->opcodeMap;
-        ZYDIS_ASSERT(ctx->raw.vex.m_mmmm <= 0x03);
+        ctx->raw.bits.mm = match->insn->opcodeMap;
+        ZYDIS_ASSERT(ctx->raw.bits.mm <= 0x03);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ctx->raw.evex.mm = match->insn->opcodeMap;
-        ZYDIS_ASSERT(ctx->raw.evex.mm <= 0x03);
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+        ctx->raw.bits.mm = match->insn->opcodeMap;
+        ZYDIS_ASSERT(ctx->raw.bits.mm <= 0x03);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        ctx->raw.xop.m_mmmm =
+        ctx->raw.bits.mm =
             match->insn->opcodeMap - ZYDIS_OPCODE_MAP_XOP8 + 0x08;
-        ZYDIS_ASSERT(ctx->raw.xop.m_mmmm >= 0x08);
-        ZYDIS_ASSERT(ctx->raw.xop.m_mmmm <= 0x0B);
+        ZYDIS_ASSERT(ctx->raw.bits.mm >= 0x08);
+        ZYDIS_ASSERT(ctx->raw.bits.mm <= 0x0B);
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -731,57 +721,18 @@ static ZydisStatus ZydisPrepareRegOperand(ZydisEncoderContext* ctx,
     // No top bit? Quick exit.
     if (!topBit) return ZYDIS_STATUS_SUCCESS;
     
-    switch (ctx->req->encoding)
+    if ((ctx->req->encoding == ZYDIS_INSTRUCTION_ENCODING_DEFAULT ||
+        ctx->req->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW) && topBit)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
-    case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        switch (topBitDst)
-        {
-            case 'B': ctx->raw.rex.B = topBit; break;
-            case 'R': ctx->raw.rex.R = topBit; break;
-            case 'X': ctx->raw.rex.X = topBit; break;
-            default: ZYDIS_UNREACHABLE;
-        }
-        if (topBit) ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        switch (topBitDst)
-        {
-            case 'B': ctx->raw.vex.B = topBit; break;
-            case 'R': ctx->raw.vex.R = topBit; break;
-            case 'X': ctx->raw.vex.X = topBit; break;
-            default: ZYDIS_UNREACHABLE;
-        }
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        switch (topBitDst)
-        {
-            case 'B': ctx->raw.xop.B = topBit; break;
-            case 'R': ctx->raw.xop.R = topBit; break;
-            case 'X': ctx->raw.xop.X = topBit; break;
-            default: ZYDIS_UNREACHABLE;
-        }
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        switch (topBitDst)
-        {
-            case 'B': ctx->raw.evex.B = topBit; break;
-            case 'R': ctx->raw.evex.R = topBit; break;
-            case 'X': ctx->raw.evex.X = topBit; break;
-            default: ZYDIS_UNREACHABLE;
-        }
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        switch (topBitDst)
-        {
-            case 'B': ctx->raw.mvex.B = topBit; break;
-            case 'R': ctx->raw.mvex.R = topBit; break;
-            case 'X': ctx->raw.mvex.X = topBit; break;
-            default: ZYDIS_UNREACHABLE;
-        }
-        break;
-    default:
-        return ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION; // TODO
+        ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
+    }
+
+    switch (topBitDst)
+    {
+        case 'B': ctx->raw.bits.B = topBit; break;
+        case 'R': ctx->raw.bits.R = topBit; break;
+        case 'X': ctx->raw.bits.X = topBit; break;
+        default: ZYDIS_UNREACHABLE;
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -1008,26 +959,20 @@ static ZydisStatus ZydisPrepareOperand(ZydisEncoderContext* ctx,
         int16_t reg = ZydisRegisterGetId(reqOperand->reg);
         if (reg == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
         ctx->raw.opcode += reg & 0x07;
-        ctx->raw.rex.B = (reg & 0x08) >> 3;
-        if (ctx->raw.rex.B) ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
+        ctx->raw.bits.B = (reg & 0x08) >> 3;
+        if (ctx->raw.bits.B) ctx->raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
         break;
     }
     case ZYDIS_OPERAND_ENCODING_NDSNDD:
     {
         int16_t reg = ZydisRegisterGetId(reqOperand->reg);
         if (reg == -1) return ZYDIS_STATUS_INVALID_PARAMETER;
-        ctx->raw.vex.vvvv = ctx->raw.xop.vvvv = ctx->raw.evex.vvvv = reg & 0x0F;
+        ctx->raw.bits.vvvv = ctx->raw.bits.vvvv = ctx->raw.bits.vvvv = reg & 0x0F;
         break;
     }        
     case ZYDIS_OPERAND_ENCODING_MASK:
     {
-        uint8_t regId = reqOperand->reg - ZYDIS_REGISTER_K0;
-        switch (match->insn->encoding)
-        {
-        case ZYDIS_INSTRUCTION_ENCODING_EVEX: ctx->raw.evex.aaa = regId; break;
-        case ZYDIS_INSTRUCTION_ENCODING_MVEX: ctx->raw.mvex.kkk = regId; break;
-        default: ZYDIS_UNREACHABLE;
-        }
+        ctx->raw.bits.mask = reqOperand->reg - ZYDIS_REGISTER_K0;
     } break;
     case ZYDIS_OPERAND_ENCODING_IS4:
     {
@@ -1085,14 +1030,11 @@ static void ZydisPrepareMandatoryPrefixes(ZydisEncoderContext* ctx,
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
             ctx->raw.mandatoryPrefix = prefix;
             break;
-        case ZYDIS_INSTRUCTION_ENCODING_VEX:
-            ctx->raw.vex.pp = prefix;
-            break;
-        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-            ctx->raw.evex.pp = prefix;
-            break;
         case ZYDIS_INSTRUCTION_ENCODING_XOP:
-            ctx->raw.xop.pp = prefix;
+        case ZYDIS_INSTRUCTION_ENCODING_VEX:
+        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+        case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+            ctx->raw.bits.pp = prefix;
             break;
         default:
             ZYDIS_UNREACHABLE;
@@ -1481,15 +1423,9 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
     // TODO: Check compatibility of requested prefixes to found instruction.
 
     // Prepare prefix bits.
-    ctx.raw.evex.B  = match.insn->evexB;
-    ctx.raw.evex.L  = match.insn->vectorLength & 0x01;
-    ctx.raw.evex.L2 = match.insn->vectorLength & 0x02;
-    ctx.raw.vex.L   = match.insn->vectorLength & 0x01;
-    if (match.insn->rexW)
-    {
-        ctx.raw.rex.W = 1;
-        ctx.raw.derivedAttrs |= ZYDIS_ATTRIB_HAS_REX;
-    }
+    ctx.raw.bits.B  = match.insn->evexB;
+    ctx.raw.bits.L  = match.insn->vectorLength & 0x01;
+    ctx.raw.bits.L2 = match.insn->vectorLength & 0x02;
     ZydisPrepareMandatoryPrefixes(&ctx, &match);
 
     // Prepare opcode.
@@ -1511,6 +1447,7 @@ ZydisStatus ZydisEncoderEncodeInstruction(void* buffer, size_t* bufferLen,
 
     switch (match.insn->encoding)
     {
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX: ZYDIS_CHECK(ZydisEmitMVEX(&ctx)); break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX: ZYDIS_CHECK(ZydisEmitEVEX(&ctx)); break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:  ZYDIS_CHECK(ZydisEmitVEX (&ctx)); break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:  ZYDIS_CHECK(ZydisEmitXOP (&ctx)); break;
