@@ -156,7 +156,7 @@ void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity g
     {
         count += processBuffer(buffer, length, granularity, format);
     }
-    printf("Granularity %d, Formatting %d, Instructions: ~%6.2fM, Time: %8.2f msec\n", 
+    printf("Granularity %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
         granularity, format, (double)count / 1000000, GetCounter());  
 }
 
@@ -171,9 +171,9 @@ void generateTestData(FILE* file, uint8_t encoding)
     }
     
     uint8_t last = 0;
-    double size = 0;
+    uint32_t count = 0;
     ZydisDecodedInstruction instruction;
-    while (size < 1024 * 1024)
+    while (count < 100000)
     {
         uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
         for (int i = 0; i < ZYDIS_MAX_INSTRUCTION_LENGTH; ++i)
@@ -235,13 +235,13 @@ void generateTestData(FILE* file, uint8_t encoding)
             if (b)
             {
                 fwrite(&instruction.data[0], 1, instruction.length, file);
-                size += instruction.length;
+                ++count;
 
-                double p = (size / (1024 * 1024) * 100);
-                if (last < (uint8_t)p)
+                uint8_t p = (uint8_t)((double)count / 100000 * 100);
+                if (last < p)
                 {
-                    last = (uint8_t)p;
-                    printf("%3.0f%%\n", p);
+                    last = p;
+                    printf("%3.0d%%\n", p);
                 }
                 
             }
