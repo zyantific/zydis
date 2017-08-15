@@ -880,11 +880,6 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
     ZYDIS_CHECK(formatter->funcPrintMnemonic(formatter, buffer, bufEnd - *buffer, instruction));
 
     char* bufRestore = *buffer;
-    if (instruction->operandCount > 0)
-    {
-        ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 0, " "));
-    }
-
     for (uint8_t i = 0; i < instruction->operandCount; ++i)
     {
         if (instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
@@ -892,7 +887,10 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
             break;
         }
 
-        if (i != 0)
+        if (i == 0)
+        {
+            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 0, " "));
+        } else
         {
             bufRestore = *buffer;
             ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 0, ", "));

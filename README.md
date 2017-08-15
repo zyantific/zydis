@@ -56,7 +56,7 @@ int main()
     ZydisDecodedInstruction instruction;
     char buffer[256];
     while (ZYDIS_SUCCESS(
-        ZydisDecoderDecodeBuffer(decoder, data, length, instructionPointer, &instruction)))
+        ZydisDecoderDecodeBuffer(&decoder, &data[0], length, instructionPointer, &instruction)))
     {
         data += instruction.length;
         length -= instruction.length;
