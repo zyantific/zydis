@@ -3,22 +3,23 @@
 
 Fast and lightweight x86/x86-64 disassembler library.
 
-## Features ##
+## Features
 
-- Supports all x86 and x86-64 (AMD64) general-purpose and system instructions.
-- Supports pretty much all ISA extensions:
+- Supports all x86 and x86-64 (AMD64) instructions.
+- Supports pretty much all ISA extensions (list incomplete):
   - FPU (x87), MMX
   - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
   - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
   - ADX, BMI1, BMI2, FMA, FMA4
-  - ..
 - Optimized for high performance
-- No dynamic memory allocation
-  - Perfect for kernel-mode drivers and embedded devices
+- No dynamic memory allocation ("malloc")
 - Very small file-size overhead compared to other common disassembler libraries
-- Complete doxygen documentation
+- [Complete doxygen documentation](https://www.zyantific.com/doc/zydis/index.html)
+- No dependencies on platform specific APIs
+  - Should compile on any platform with a complete libc and CMake
+  - Tested on Windows, macOS and Linux
 
-## Roadmap ##
+## Roadmap
 
 - Language bindings [v2.0 final]
 - Tests [v2.0 final]
@@ -26,7 +27,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 - Implement CMake feature gates. Currently, everything is always included. [v2.0 final]
 - Encoding support [v2.1]
 
-## Quick Example ##
+## Quick Example
 
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
 
@@ -43,47 +44,59 @@ int main()
         0x88, 0xFC, 0xDA, 0x02, 0x00
     };
 
+    // Initialize decoder context.
     ZydisDecoder decoder;
-    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+    ZydisDecoderInit(
+        &decoder, 
+        ZYDIS_MACHINE_MODE_LONG_64, 
+        ZYDIS_ADDRESS_WIDTH_64);
 
+    // Initialize formatter. Only required when you actually plan to
+    // do instruction formatting ("disassembling"), like we do here.
     ZydisFormatter formatter;
-    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
-        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
+    ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
   
+    // Loop over the instructions in our buffer.
     uint64_t instructionPointer = 0x007FFFFFFF400000;
-
+    uint8_t* readPointer = data;
+    size_t length = sizeof(data);
     ZydisDecodedInstruction instruction;
-    char buffer[256];
-    while (ZYDIS_SUCCESS(
-        ZydisDecoderDecodeBuffer(decoder, data, length, instructionPointer, &instruction)))
+    while (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(
+        &decoder, readPointer, length, instructionPointer, &instruction)))
     {
-        data += instruction.length;
+        // Print current instruction pointer.
+        printf("%016" PRIX64 "  ", instructionPointer);
+
+        // Format & print the binary instruction 
+        // structure to human readable format.
+        char buffer[256];
+        ZydisFormatterFormatInstruction(
+            &formatter, &instruction, buffer, sizeof(buffer));
+        puts(buffer);
+
+        readPointer += instruction.length;
         length -= instruction.length;
         instructionPointer += instruction.length;
-        printf("%016" PRIX64 "  ", instruction.instrAddress);
-        ZydisFormatterFormatInstruction(&formatter, &instruction, &buffer[0], sizeof(buffer));  
-        printf(" %s\n", &buffer[0]);
     }
 }
 ```
 
-## Sample Output ##
+## Sample Output
 
 The above example program generates the following output:
 
 ```
 007FFFFFFF400000   push rcx
-007FFFFFFF400001   lea eax, dword ptr ss:[rbp-0x01]
+007FFFFFFF400001   lea eax, [rbp-0x01]
 007FFFFFFF400004   push rax
-007FFFFFFF400005   push qword ptr ss:[rbp+0x0C]
-007FFFFFFF400008   push qword ptr ss:[rbp+0x08]
-007FFFFFFF40000B   call qword ptr ds:[0x008000007588A5B1]
+007FFFFFFF400005   push qword ptr [rbp+0x0C]
+007FFFFFFF400008   push qword ptr [rbp+0x08]
+007FFFFFFF40000B   call [0x008000007588A5B1]
 007FFFFFFF400011   test eax, eax
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
-## Compilation ##
+## Compilation
 
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
@@ -96,9 +109,15 @@ cmake ..
 make
 ```
 
-## `ZydisInfo` tool ##
+## `ZydisInfo` tool
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
-## License ##
+## Credits
+- Intel (for open-sourcing XED, allowing for automatic comparision of our tables against theirs, improving both)
+- LLVM (for providing pretty solid instruction data as well)
+- Christian Ludloff (http://sandpile.org, insanely helpful)
+- Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
+
+## License
 
 Zydis is licensed under the MIT license.
