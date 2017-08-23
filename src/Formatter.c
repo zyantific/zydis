@@ -1166,10 +1166,10 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
         formatter->funcPrintImmediate = *(ZydisFormatterFormatOperandFunc*)&temp;
         break;
     default:
-        break;
+        return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    return ZYDIS_STATUS_INVALID_PARAMETER;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
