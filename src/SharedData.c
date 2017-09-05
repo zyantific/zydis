@@ -92,7 +92,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Accessed CPU flags                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-#include <Generated/CPUFlags.inc>
+#include <Generated/AccessedFlags.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
 

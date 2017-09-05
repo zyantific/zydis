@@ -4277,6 +4277,9 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
 
                 instruction->mnemonic = definition->mnemonic;
+                instruction->meta.category = definition->category;
+                instruction->meta.isaSet = definition->isaSet;
+                instruction->meta.isaExt = definition->isaExt;
 
                 if (context->decoder->decodeGranularity == ZYDIS_DECODE_GRANULARITY_FULL)
                 {

@@ -24,49 +24,45 @@
 
 ***************************************************************************************************/
 
-/**
- * @file
- * @brief   Mnemonic constant definitions and helper functions.
- */
-
-#ifndef ZYDIS_MNEMONIC_H
-#define ZYDIS_MNEMONIC_H
-
-#include <Zydis/Defines.h>
-#include <Zydis/CommonTypes.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <Zydis/MetaInfo.h>
 
 /* ============================================================================================== */
-/* Enums and types                                                                                */
+/* Enum strings                                                                                   */
 /* ============================================================================================== */
 
-/**
- * @brief   Defines the @c ZydisMnemonic datatype.
- */
-typedef uint16_t ZydisMnemonic;
-
-#include <Zydis/Generated/EnumMnemonic.h>    
+#include <Generated/EnumCategoryStrings.inc>
+#include <Generated/EnumISASetStrings.inc>
+#include <Generated/EnumISAExtStrings.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-/**
- * @brief   Returns the specified instruction mnemonic string.
- *          
- * @param   mnemonic    The mnemonic.
- *                      
- * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
- */
-ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
+const char* ZydisCategoryGetString(ZydisInstructionCategory category)
+{
+    if (category > ZYDIS_ARRAY_SIZE(zydisCategoryStrings) - 1)
+    {
+        return NULL;
+    }
+    return zydisCategoryStrings[category];    
+}
+
+const char* ZydisISASetGetString(ZydisISASet isaSet)
+{
+    if (isaSet > ZYDIS_ARRAY_SIZE(zydisISASetStrings) - 1)
+    {
+        return NULL;
+    }
+    return zydisISASetStrings[isaSet];    
+}
+
+const char* ZydisISAExtGetString(ZydisISAExt isaExt)
+{
+    if (isaExt > ZYDIS_ARRAY_SIZE(zydisISAExtStrings) - 1)
+    {
+        return NULL;
+    }
+    return zydisISAExtStrings[isaExt];     
+}
 
 /* ============================================================================================== */
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* ZYDIS_MNEMONIC_H */

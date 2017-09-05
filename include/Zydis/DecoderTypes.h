@@ -33,6 +33,7 @@
 #define ZYDIS_INSTRUCTIONINFO_H
 
 #include <Zydis/CommonTypes.h>
+#include <Zydis/MetaInfo.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
@@ -815,7 +816,25 @@ typedef struct ZydisDecodedInstruction_
          * @brief   Signals, if the instruction has a memory eviction-hint (MVEX only).
          */
         ZydisBool hasEvictionHint;
-    } avx;  
+    } avx;
+    /**
+     * @brief   Meta info.
+     */
+    struct
+    {
+        /**
+         * @brief   The instruction category.
+         */
+        ZydisInstructionCategory category;
+        /**
+         * @brief   The ISA-set.
+         */
+        ZydisISASet isaSet;
+        /**
+         * @brief   The ISA-set extension.
+         */
+        ZydisISAExt isaExt;
+    } meta;
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 
      *          encoding-prefixes.

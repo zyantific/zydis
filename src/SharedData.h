@@ -541,12 +541,15 @@ enum ZydisMaskPolicies
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(11); \
+    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(ZYDIS_MNEMONIC_MAX_BITS); \
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3); \
     uint8_t flagsReference                  ZYDIS_BITFIELD( 7); \
-    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1)
+    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
+    ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MAX_BITS); \
+    ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MAX_BITS); \
+    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MAX_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \

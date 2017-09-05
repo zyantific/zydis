@@ -1175,6 +1175,7 @@ static ZydisStatus ZydisFindMatchingDef(
     ZYDIS_ASSERT(ctx);
     ZYDIS_ASSERT(req);
     ZYDIS_ASSERT(match);
+    (void)ctx;
 
     // Translate sizes to flags.
     uint8_t modeFlag = ZydisSizeToFlag(req->machineMode);

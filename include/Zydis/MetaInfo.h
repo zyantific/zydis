@@ -26,11 +26,11 @@
 
 /**
  * @file
- * @brief   Mnemonic constant definitions and helper functions.
+ * @brief   
  */
 
-#ifndef ZYDIS_MNEMONIC_H
-#define ZYDIS_MNEMONIC_H
+#ifndef ZYDIS_METAINFO_H
+#define ZYDIS_METAINFO_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/CommonTypes.h>
@@ -44,24 +44,56 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the @c ZydisMnemonic datatype.
+ * @brief   Defines the @c ZydisInstructionCategory datatype.
  */
-typedef uint16_t ZydisMnemonic;
+typedef uint16_t ZydisInstructionCategory;
 
-#include <Zydis/Generated/EnumMnemonic.h>    
+#include <Zydis/Generated/EnumCategory.h> 
+
+/**
+ * @brief   Defines the @c ZydisISASet datatype.
+ */
+typedef uint16_t ZydisISASet;
+
+#include <Zydis/Generated/EnumISASet.h>
+
+/**
+ * @brief   Defines the @c ZydisISAExtension datatype.
+ */
+typedef uint16_t ZydisISAExt;
+
+#include <Zydis/Generated/EnumISAExt.h>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-/**
- * @brief   Returns the specified instruction mnemonic string.
+ /**
+ * @brief   Returns the specified instruction category string.
  *          
- * @param   mnemonic    The mnemonic.
+ * @param   category    The instruction category.
  *                      
- * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
+ * @return  The instruction category string or @c NULL, if an invalid category was passed.
  */
-ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
+ZYDIS_EXPORT const char* ZydisCategoryGetString(ZydisInstructionCategory category);
+
+/**
+ * @brief   Returns the specified isa-set string.
+ *          
+ * @param   isaSet  The isa-set.
+ *                      
+ * @return  The isa-set string or @c NULL, if an invalid isa-set was passed.
+ */
+ZYDIS_EXPORT const char* ZydisISASetGetString(ZydisISASet isaSet);
+
+/**
+ * @brief   Returns the specified isa-extension string.
+ *          
+ * @param   isaExt  The isa-extension.
+ *                      
+ * @return  The isa-extension string or @c NULL, if an invalid isa-extension was passed.
+ */
+ZYDIS_EXPORT const char* ZydisISAExtGetString(ZydisISAExt isaExt);
 
 /* ============================================================================================== */
 
@@ -69,4 +101,4 @@ ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
 }
 #endif
 
-#endif /* ZYDIS_MNEMONIC_H */
+#endif /* ZYDIS_METAINFO_H */

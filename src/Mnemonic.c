@@ -30,7 +30,7 @@
 /* Mnemonic strings                                                                               */
 /* ============================================================================================== */
 
-#include <Generated/MnemonicStrings.inc>
+#include <Generated/EnumMnemonicStrings.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -38,11 +38,11 @@
 
 const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 {
-    if (mnemonic > ZYDIS_ARRAY_SIZE(mnemonicStrings) - 1)
+    if (mnemonic > ZYDIS_ARRAY_SIZE(zydisMnemonicStrings) - 1)
     {
         return NULL;
     }
-    return mnemonicStrings[mnemonic];
+    return zydisMnemonicStrings[mnemonic];
 }
 
 /* ============================================================================================== */
