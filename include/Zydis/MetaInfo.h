@@ -58,7 +58,7 @@ typedef uint16_t ZydisISASet;
 #include <Zydis/Generated/EnumISASet.h>
 
 /**
- * @brief   Defines the @c ZydisISAExtension datatype.
+ * @brief   Defines the @c ZydisISAExt datatype.
  */
 typedef uint16_t ZydisISAExt;
 

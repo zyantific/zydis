@@ -549,7 +549,8 @@ enum ZydisMaskPolicies
     ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
     ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MAX_BITS); \
     ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MAX_BITS); \
-    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MAX_BITS)
+    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MAX_BITS); \
+    ZydisExceptionClass exceptionClass      ZYDIS_BITFIELD( 6)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \

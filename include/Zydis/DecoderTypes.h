@@ -486,7 +486,23 @@ typedef uint16_t ZydisExceptionClass;
 enum ZydisExceptionClasses
 {
     ZYDIS_EXCEPTION_CLASS_NONE,
-    // TODO: SSE and AVX
+    // TODO: FP Exceptions
+    ZYDIS_EXCEPTION_CLASS_SSE1,
+    ZYDIS_EXCEPTION_CLASS_SSE2,
+    ZYDIS_EXCEPTION_CLASS_SSE3,
+    ZYDIS_EXCEPTION_CLASS_SSE4,
+    ZYDIS_EXCEPTION_CLASS_SSE5,
+    ZYDIS_EXCEPTION_CLASS_SSE7,
+    ZYDIS_EXCEPTION_CLASS_AVX1,
+    ZYDIS_EXCEPTION_CLASS_AVX2,
+    ZYDIS_EXCEPTION_CLASS_AVX3,
+    ZYDIS_EXCEPTION_CLASS_AVX4,
+    ZYDIS_EXCEPTION_CLASS_AVX5,
+    ZYDIS_EXCEPTION_CLASS_AVX6,
+    ZYDIS_EXCEPTION_CLASS_AVX7,
+    ZYDIS_EXCEPTION_CLASS_AVX8,
+    ZYDIS_EXCEPTION_CLASS_AVX11,
+    ZYDIS_EXCEPTION_CLASS_AVX12,
     ZYDIS_EXCEPTION_CLASS_E1,
     ZYDIS_EXCEPTION_CLASS_E1NF,
     ZYDIS_EXCEPTION_CLASS_E2,
@@ -505,6 +521,7 @@ enum ZydisExceptionClasses
     ZYDIS_EXCEPTION_CLASS_E10,
     ZYDIS_EXCEPTION_CLASS_E10NF,
     ZYDIS_EXCEPTION_CLASS_E11,
+    ZYDIS_EXCEPTION_CLASS_E11NF,
     ZYDIS_EXCEPTION_CLASS_E12,
     ZYDIS_EXCEPTION_CLASS_E12NP,
     ZYDIS_EXCEPTION_CLASS_K20,
@@ -834,6 +851,10 @@ typedef struct ZydisDecodedInstruction_
          * @brief   The ISA-set extension.
          */
         ZydisISAExt isaExt;
+        /**
+         * @brief   The exception class.
+         */
+        ZydisExceptionClass exceptionClass;
     } meta;
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or 

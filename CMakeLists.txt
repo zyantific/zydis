@@ -29,6 +29,9 @@ option(ZYDIS_FEATURE_CPUID
     OFF)
 
 # Build configuration
+option(BUILD_SHARED_LIBS
+    "Build shared libraries"
+    OFF)
 option(ZYDIS_BUILD_EXAMPLES 
     "Build examples" 
     ON)

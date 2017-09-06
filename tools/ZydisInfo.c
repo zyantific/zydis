@@ -391,6 +391,50 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         "MVEX"
     };
 
+    static const char* exceptionClassStrings[] =
+    {
+        "NONE",
+        "SSE1",
+        "SSE2",
+        "SSE3",
+        "SSE4",
+        "SSE5",
+        "SSE7",
+        "AVX1",
+        "AVX2",
+        "AVX3",
+        "AVX4",
+        "AVX5",
+        "AVX6",
+        "AVX7",
+        "AVX8",
+        "AVX11",
+        "AVX12",
+        "E1",
+        "E1NF",
+        "E2",
+        "E2NF",
+        "E3",
+        "E3NF",
+        "E4",
+        "E4NF",
+        "E5",
+        "E5NF",
+        "E6",
+        "E6NF",
+        "E7NM",
+        "E7NM128",
+        "E9NF",
+        "E10",
+        "E10NF",
+        "E11",
+        "E11NF",
+        "E12",
+        "E12NP",
+        "K20",
+        "K21"
+    };
+
     fputs("== [    BASIC ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
     printf("   MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
@@ -405,6 +449,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     printf("   CATEGORY: %s\n", ZydisCategoryGetString(instruction->meta.category));
     printf("    ISA-SET: %s\n", ZydisISASetGetString(instruction->meta.isaSet));
     printf("    ISA-EXT: %s\n", ZydisISAExtGetString(instruction->meta.isaExt));
+    printf(" EXCEPTIONS: %s\n", exceptionClassStrings[instruction->meta.exceptionClass]);
     
     if (instruction->operandCount > 0)
     {
