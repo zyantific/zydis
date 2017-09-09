@@ -592,7 +592,7 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(data[0] == 0x62);
 
-    instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
+    instruction->attributes |= ZYDIS_ATTRIB_HAS_MVEX;
     instruction->raw.mvex.isDecoded = ZYDIS_TRUE;
     instruction->raw.mvex.data[0]   = 0x62;
     instruction->raw.mvex.data[1]   = data[1];
@@ -4282,7 +4282,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 instruction->meta.isaExt = definition->isaExt;
                 instruction->meta.exceptionClass = definition->exceptionClass;
 
-                if (context->decoder->decodeGranularity == ZYDIS_DECODE_GRANULARITY_FULL)
+                if (context->decoder->granularity == ZYDIS_DECODE_GRANULARITY_FULL)
                 {
                     ZydisSetAttributes(context, instruction, definition);
                     switch (instruction->encoding)
@@ -4328,12 +4328,12 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
 }
 
 ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
-    ZydisAddressWidth addressWidth, ZydisDecodeGranularity decodeGranularity)
+    ZydisAddressWidth addressWidth, ZydisDecodeGranularity granularity)
 {
     if (!decoder || ((machineMode != 16) && (machineMode != 32) && (machineMode != 64)) ||
-        ((decodeGranularity != ZYDIS_DECODE_GRANULARITY_DEFAULT) && 
-         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_MINIMAL) &&
-         (decodeGranularity != ZYDIS_DECODE_GRANULARITY_FULL)))
+        ((granularity != ZYDIS_DECODE_GRANULARITY_DEFAULT) && 
+         (granularity != ZYDIS_DECODE_GRANULARITY_MINIMAL) &&
+         (granularity != ZYDIS_DECODE_GRANULARITY_FULL)))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -4350,14 +4350,14 @@ ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMo
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
     }
-    if (decodeGranularity == ZYDIS_DECODE_GRANULARITY_DEFAULT)
+    if (granularity == ZYDIS_DECODE_GRANULARITY_DEFAULT)
     {
-        decodeGranularity = ZYDIS_DECODE_GRANULARITY_FULL;
+        granularity = ZYDIS_DECODE_GRANULARITY_FULL;
     }
 
     decoder->machineMode = machineMode;
     decoder->addressWidth = addressWidth;
-    decoder->decodeGranularity = decodeGranularity;
+    decoder->granularity = granularity;
 
     return ZYDIS_STATUS_SUCCESS;
 }
