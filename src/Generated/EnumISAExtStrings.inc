@@ -1,7 +1,6 @@
 static const char* zydisISAExtStrings[] =
 {
     "INVALID",
-    "",
     "AMD",
     "AVX512BW_128",
     "AVX512BW_128N",
