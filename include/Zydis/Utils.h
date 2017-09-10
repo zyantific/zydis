@@ -62,7 +62,7 @@ ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
 /* ============================================================================================== */
 
 /**
- * @brief   Returns a mask of CPU-flags matching the given `action`.
+ * @brief   Returns a mask of accessed CPU-flags matching the given `action`.
  *
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   action      The CPU-flag action.
@@ -70,7 +70,7 @@ ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
  *
  * @return  A zydis status code
  */
-ZYDIS_EXPORT ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction, 
+ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags);
 
 /* ============================================================================================== */

@@ -1153,7 +1153,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                 ZYDIS_ASSERT(definition->elementType == ZYDIS_IELEMENT_TYPE_VARIABLE);
                 ZYDIS_ASSERT(instruction->avx.vectorLength == 512);
 
-                switch (instruction->avx.conversionMode)
+                switch (instruction->avx.conversion.mode)
                 {
                 case ZYDIS_CONVERSION_MODE_INVALID:
                     operand->size = 512;
@@ -2205,7 +2205,7 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
 
     ZYDIS_ASSERT(ZYDIS_ARRAY_SIZE(instruction->flags) == ZYDIS_ARRAY_SIZE(flags->action));
 
-    memcpy(&instruction->flags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
+    memcpy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
 }
 
 /**
@@ -2681,7 +2681,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 // Noting to do here
                 break;
             case ZYDIS_EVEX_FUNC_RC:
-                instruction->avx.roundingMode = ZYDIS_ROUNDING_MODE_RN + context->cache.LL;
+                instruction->avx.rounding.mode = ZYDIS_ROUNDING_MODE_RN + context->cache.LL;
                 // Intentional fallthrough
             case ZYDIS_EVEX_FUNC_SAE:
                 instruction->avx.hasSAE = ZYDIS_TRUE;
@@ -2838,7 +2838,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             // Nothing to do here
             break;
         case ZYDIS_MVEX_FUNC_RC:
-            instruction->avx.roundingMode = ZYDIS_ROUNDING_MODE_RN + instruction->raw.mvex.SSS;
+            instruction->avx.rounding.mode = ZYDIS_ROUNDING_MODE_RN + instruction->raw.mvex.SSS;
             break;
         case ZYDIS_MVEX_FUNC_SAE:
             if (instruction->raw.mvex.SSS >= 4)
@@ -2848,7 +2848,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             break;
         case ZYDIS_MVEX_FUNC_SWIZZLE_32:
         case ZYDIS_MVEX_FUNC_SWIZZLE_64:
-            instruction->avx.swizzleMode = ZYDIS_SWIZZLE_MODE_DCBA + instruction->raw.mvex.SSS;
+            instruction->avx.swizzle.mode = ZYDIS_SWIZZLE_MODE_DCBA + instruction->raw.mvex.SSS;
             break;
         case ZYDIS_MVEX_FUNC_SF_32:
         case ZYDIS_MVEX_FUNC_SF_32_BCST:
@@ -2864,19 +2864,19 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 instruction->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
                 break;
             case 3:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_FLOAT16;
                 break;
             case 4:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT8;
                 break;
             case 5:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT8;
                 break;
             case 6:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT16;
                 break;
             case 7:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT16;
                 break;
             default:
                 ZYDIS_UNREACHABLE;
@@ -2896,16 +2896,16 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 instruction->avx.broadcast.mode = ZYDIS_BROADCAST_MODE_4_TO_16;
                 break;
             case 4:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT8;
                 break;
             case 5:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT8;
                 break;
             case 6:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT16;
                 break;
             case 7:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT16;
                 break;
             default:
                 ZYDIS_UNREACHABLE;
@@ -2934,19 +2934,19 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case 0:
                 break;
             case 3:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_FLOAT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_FLOAT16;
                 break;
             case 4:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT8;
                 break;
             case 5:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT8;
                 break;
             case 6:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT16;
                 break;
             case 7:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT16;
                 break;
             default:
                 ZYDIS_UNREACHABLE;
@@ -2962,16 +2962,16 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case 0:
                 break;
             case 4:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT8;
                 break;
             case 5:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT8;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT8;
                 break;
             case 6:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_UINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_UINT16;
                 break;
             case 7:
-                instruction->avx.conversionMode = ZYDIS_CONVERSION_MODE_SINT16;
+                instruction->avx.conversion.mode = ZYDIS_CONVERSION_MODE_SINT16;
                 break;
             default:
                 ZYDIS_UNREACHABLE;

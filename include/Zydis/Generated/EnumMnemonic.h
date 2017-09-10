@@ -1,3 +1,5 @@
+typedef uint16_t ZydisMnemonic;
+
 enum ZydisMnemonics
 {
     ZYDIS_MNEMONIC_INVALID,

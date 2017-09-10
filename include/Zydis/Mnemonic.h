@@ -46,8 +46,6 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisMnemonic datatype.
  */
-typedef uint16_t ZydisMnemonic;
-
 #include <Zydis/Generated/EnumMnemonic.h>    
 
 /* ============================================================================================== */

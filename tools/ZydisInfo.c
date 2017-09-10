@@ -251,30 +251,30 @@ void printFlags(ZydisDecodedInstruction* instruction)
     fputs("=======================================\n", stdout);
     printf("    ACTIONS: ");
     uint8_t c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
     {
-        if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
+        if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
             if (c && (c % 8 == 0))
             {
                 printf("\n             ");
             }
             ++c;
-            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
+            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->accessedFlags[i].action]);
         }
     }
     puts(c ? "" : "none");
 
     ZydisCPUFlagMask flags, temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
     printf("       READ: 0x%08" PRIX32 "\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
     flags |= temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
     flags |= temp;
     printf("    WRITTEN: 0x%08" PRIX32 "\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
     printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
 }
 
@@ -346,19 +346,19 @@ void printAVXInfo(ZydisDecodedInstruction* instruction)
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);
         printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
         printf("\n       MASK: %s [%5s]%s", ZydisRegisterGetString(instruction->avx.mask.reg), 
             maskModeStrings[instruction->avx.mask.mode], 
             instruction->avx.mask.isControlMask ? " (control-mask)" : "");
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);
         printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
         printf("\n       MASK: %s [MERGE]", ZydisRegisterGetString(instruction->avx.mask.reg));
         printf("\n         EH: %s", instruction->avx.hasEvictionHint ? "Y" : "N");
-        printf("\n    SWIZZLE: %s", swizzleModeStrings[instruction->avx.swizzleMode]);
-        printf("\n    CONVERT: %s", conversionModeStrings[instruction->avx.conversionMode]);
+        printf("\n    SWIZZLE: %s", swizzleModeStrings[instruction->avx.swizzle.mode]);
+        printf("\n    CONVERT: %s", conversionModeStrings[instruction->avx.conversion.mode]);
         break;
     default:
         break;

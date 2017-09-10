@@ -480,7 +480,7 @@ enum ZydisCPUFlagActions
 /**
  * @brief   Defines the @c ZydisExceptionClass datatype.
  */
-typedef uint16_t ZydisExceptionClass;
+typedef uint8_t ZydisExceptionClass;
 
 /**
  * @brief   Values that represent exception-classes.
@@ -583,7 +583,7 @@ enum ZydisMaskModes
 /**
  * @brief   Defines the @c ZydisBroadcastMode datatype.
  */
-typedef uint16_t ZydisBroadcastMode;
+typedef uint8_t ZydisBroadcastMode;
 
 /**
  * @brief   Values that represent AVX broadcast-modes.
@@ -645,7 +645,7 @@ enum ZydisRoundingModes
 /**
  * @brief   Defines the @c ZydisSwizzleMode datatype.
  */
-typedef uint16_t ZydisSwizzleMode;
+typedef uint8_t ZydisSwizzleMode;
 
 /**
  * @brief   Values that represent swizzle-modes.
@@ -670,7 +670,7 @@ enum ZydisSwizzleModes
 /**
  * @brief   Defines the @c ZydisConversionMode datatype.
  */
-typedef uint16_t ZydisConversionMode;
+typedef uint8_t ZydisConversionMode;
 
 /**
  * @brief   Values that represent conversion-modes.
@@ -766,11 +766,11 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   The CPU-flag action.
          * 
-         * You can call `ZydisGetCPUFlagsByAction` to get a mask with all flags matching a specific
-         * action.
+         * You can call `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a 
+         * specific action.
          */
         ZydisCPUFlagAction action;
-    } flags[ZYDIS_CPUFLAG_ENUM_COUNT];
+    } accessedFlags[ZYDIS_CPUFLAG_ENUM_COUNT];
     /**
      * @brief   Extended info for AVX instructions.
      */
@@ -799,7 +799,7 @@ typedef struct ZydisDecodedInstruction_
             ZydisBool isControlMask;
         } mask;
         /**
-         * @brief   Contains info about the AVX broadcast-factor.
+         * @brief   Contains info about the AVX broadcast.
          */
         struct
         {
@@ -816,17 +816,35 @@ typedef struct ZydisDecodedInstruction_
             ZydisBroadcastMode mode;
         } broadcast;
         /**
-         * @brief   The AVX rounding-mode.
+         * @brief   Contains info about the AVX rounding.
          */
-        ZydisRoundingMode roundingMode;
+        struct
+        {
+            /**
+             * @brief   The AVX rounding-mode.
+             */
+            ZydisRoundingMode mode;    
+        } rounding;
         /**
-         * @brief   The AVX register-swizzle mode (MVEX only).
+         * @brief   Contains info about the AVX register-swizzle (MVEX only).
          */
-        ZydisSwizzleMode swizzleMode;
+        struct
+        {
+            /**
+             * @brief   The AVX register-swizzle mode (MVEX only).
+             */
+            ZydisSwizzleMode mode;   
+        } swizzle;
         /**
-         * @brief   The AVX data-conversion mode (MVEX only).
+         * @brief   Contains info about the AVX data-conversion (MVEX only).
          */
-        ZydisConversionMode conversionMode;
+        struct
+        {
+            /**
+             * @brief   The AVX data-conversion mode (MVEX only).
+             */
+            ZydisConversionMode mode;  
+        } conversion;
         /**
          * @brief   Signals, if the sae functionality is enabled for the instruction.
          */

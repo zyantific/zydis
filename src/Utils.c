@@ -97,7 +97,7 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* i
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags)
 {
     if (!instruction)
@@ -105,9 +105,9 @@ ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction,
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
     *flags = 0;
-    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
     {
-        if (instruction->flags[i].action == action)
+        if (instruction->accessedFlags[i].action == action)
         {
             *flags |= (1 << i);
         }

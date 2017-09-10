@@ -728,7 +728,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     case ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL:
         if (instruction->avx.hasSAE)
         {
-            switch (instruction->avx.roundingMode)
+            switch (instruction->avx.rounding.mode)
             {
             case ZYDIS_ROUNDING_MODE_INVALID:   
                 break;
@@ -753,7 +753,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
             }   
         } else
         {
-            switch (instruction->avx.roundingMode)
+            switch (instruction->avx.rounding.mode)
             {
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
@@ -779,14 +779,14 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
         }
         break;
     case ZYDIS_DECORATOR_TYPE_SAE:
-        if (instruction->avx.hasSAE && !instruction->avx.roundingMode)
+        if (instruction->avx.hasSAE && !instruction->avx.rounding.mode)
         {
             ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
                 ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sae}")); 
         }
         break;
     case ZYDIS_DECORATOR_TYPE_SWIZZLE:
-        switch (instruction->avx.swizzleMode)
+        switch (instruction->avx.swizzle.mode)
         {
         case ZYDIS_SWIZZLE_MODE_INVALID:
         case ZYDIS_SWIZZLE_MODE_DCBA:
@@ -825,7 +825,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
         }
         break;
     case ZYDIS_DECORATOR_TYPE_CONVERSION:
-        switch (instruction->avx.conversionMode)
+        switch (instruction->avx.conversion.mode)
         {
         case ZYDIS_CONVERSION_MODE_INVALID:
             break;

@@ -1,3 +1,5 @@
+typedef uint8_t ZydisISAExt;
+
 enum ZydisISAExts
 {
     ZYDIS_ISA_EXT_INVALID,

@@ -30,7 +30,7 @@
 /* Enum strings                                                                                   */
 /* ============================================================================================== */
 
-#include <Generated/EnumCategoryStrings.inc>
+#include <Generated/EnumInstructionCategoryStrings.inc>
 #include <Generated/EnumISASetStrings.inc>
 #include <Generated/EnumISAExtStrings.inc>
 
@@ -40,11 +40,11 @@
 
 const char* ZydisCategoryGetString(ZydisInstructionCategory category)
 {
-    if (category > ZYDIS_ARRAY_SIZE(zydisCategoryStrings) - 1)
+    if (category > ZYDIS_ARRAY_SIZE(zydisInstructionCategoryStrings) - 1)
     {
         return NULL;
     }
-    return zydisCategoryStrings[category];    
+    return zydisInstructionCategoryStrings[category];    
 }
 
 const char* ZydisISASetGetString(ZydisISASet isaSet)

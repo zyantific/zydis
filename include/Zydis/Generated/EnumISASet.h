@@ -1,3 +1,5 @@
+typedef uint8_t ZydisISASet;
+
 enum ZydisISASets
 {
     ZYDIS_ISA_SET_INVALID,

@@ -1,4 +1,6 @@
-enum ZydisCategories
+typedef uint8_t ZydisInstructionCategory;
+
+enum ZydisInstructionCategories
 {
     ZYDIS_CATEGORY_INVALID,
     ZYDIS_CATEGORY_AES,

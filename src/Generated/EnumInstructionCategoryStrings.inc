@@ -1,4 +1,4 @@
-static const char* zydisCategoryStrings[] =
+static const char* zydisInstructionCategoryStrings[] =
 {
     "INVALID",
     "AES",

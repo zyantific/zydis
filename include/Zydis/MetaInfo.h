@@ -46,22 +46,16 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisInstructionCategory datatype.
  */
-typedef uint16_t ZydisInstructionCategory;
-
-#include <Zydis/Generated/EnumCategory.h> 
+#include <Zydis/Generated/EnumInstructionCategory.h> 
 
 /**
  * @brief   Defines the @c ZydisISASet datatype.
  */
-typedef uint16_t ZydisISASet;
-
 #include <Zydis/Generated/EnumISASet.h>
 
 /**
  * @brief   Defines the @c ZydisISAExt datatype.
  */
-typedef uint16_t ZydisISAExt;
-
 #include <Zydis/Generated/EnumISAExt.h>
 
 /* ============================================================================================== */
