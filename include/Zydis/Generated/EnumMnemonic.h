@@ -1,5 +1,11 @@
+/**
+ * @brief   Defines the `ZydisMnemonic` datatype.
+ */
 typedef uint16_t ZydisMnemonic;
 
+/**
+ * @brief   Values that represent `ZydisMnemonic` elements.
+ */
 enum ZydisMnemonics
 {
     ZYDIS_MNEMONIC_INVALID,

@@ -43,19 +43,8 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-/**
- * @brief   Defines the @c ZydisInstructionCategory datatype.
- */
 #include <Zydis/Generated/EnumInstructionCategory.h> 
-
-/**
- * @brief   Defines the @c ZydisISASet datatype.
- */
 #include <Zydis/Generated/EnumISASet.h>
-
-/**
- * @brief   Defines the @c ZydisISAExt datatype.
- */
 #include <Zydis/Generated/EnumISAExt.h>
 
 /* ============================================================================================== */

@@ -1,5 +1,11 @@
+/**
+ * @brief   Defines the `ZydisISASet` datatype.
+ */
 typedef uint8_t ZydisISASet;
 
+/**
+ * @brief   Values that represent `ZydisISASet` elements.
+ */
 enum ZydisISASets
 {
     ZYDIS_ISA_SET_INVALID,
