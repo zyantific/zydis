@@ -127,9 +127,11 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
         PRIVATE 
             "src/DecoderData.h"
+            "src/FormatHelper.h"
             "src/Decoder.c"
             "src/DecoderData.c"
-            "src/Formatter.c")
+            "src/Formatter.c"
+            "src/FormatHelper.c")
 endif ()
 
 if (ZYDIS_FEATURE_ENCODER)
