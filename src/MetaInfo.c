@@ -30,9 +30,9 @@
 /* Enum strings                                                                                   */
 /* ============================================================================================== */
 
-#include <Generated/EnumInstructionCategoryStrings.inc>
-#include <Generated/EnumISASetStrings.inc>
-#include <Generated/EnumISAExtStrings.inc>
+#include <Generated/EnumInstructionCategory.inc>
+#include <Generated/EnumISASet.inc>
+#include <Generated/EnumISAExt.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

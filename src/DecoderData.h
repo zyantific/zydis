@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_INSTRUCTIONTABLE_H
-#define ZYDIS_INSTRUCTIONTABLE_H
+#ifndef ZYDIS_DECODERDATA_H
+#define ZYDIS_DECODERDATA_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/DecoderTypes.h>
@@ -241,6 +241,8 @@ typedef struct ZydisInstructionEncodingInfo_
     } imm[2];
 } ZydisInstructionEncodingInfo;
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Functions                                                                                      */
 /* ============================================================================================== */
@@ -285,4 +287,4 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode*
 }
 #endif
 
-#endif /* ZYDIS_INSTRUCTIONTABLE_H */
+#endif /* ZYDIS_DECODERDATA_H */

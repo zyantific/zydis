@@ -30,7 +30,7 @@
 /* Mnemonic strings                                                                               */
 /* ============================================================================================== */
 
-#include <Generated/EnumMnemonicStrings.inc>
+#include <Generated/EnumMnemonic.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
