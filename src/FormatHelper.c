@@ -111,7 +111,6 @@ ZydisStatus ZydisPrintDec32U(char** buffer, size_t bufferLen, uint32_t value, ui
 #else
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen > 0);
-    ZYDIS_ASSERT(paddingLength <= sizeof(ZYDIS_PADDING_STRING) / sizeof(ZYDIS_PADDING_STRING[0]));
 
     char temp[ZYDIS_MAXCHARS_DEC_32 + 1];
     char *p = &temp[ZYDIS_MAXCHARS_DEC_32];
@@ -150,7 +149,6 @@ ZydisStatus ZydisPrintDec64U(char** buffer, size_t bufferLen, uint64_t value, ui
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen > 0);
-    ZYDIS_ASSERT(paddingLength <= sizeof(ZYDIS_PADDING_STRING) / sizeof(ZYDIS_PADDING_STRING[0]));
 
     char temp[ZYDIS_MAXCHARS_DEC_64 + 1];
     char *p = &temp[ZYDIS_MAXCHARS_DEC_64];
