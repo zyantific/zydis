@@ -39,7 +39,7 @@
 #   include <mach/mach_time.h>
 #elif defined(ZYDIS_LINUX)
 #   include <sys/time.h>
-#   inlcude <pthread.h>
+#   include <pthread.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -61,7 +61,7 @@ void StartCounter()
     LARGE_INTEGER li;
     if (!QueryPerformanceFrequency(&li))
     {
-        fputs("QueryPerformanceFrequency failed!\n", stderr);
+        fputs("Error: QueryPerformanceFrequency failed!\n", stderr);
     }
     CounterFreq = (double)li.QuadPart / 1000.0;
     QueryPerformanceCounter(&li);
@@ -95,7 +95,21 @@ double GetCounter()
     return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
 }
 #elif defined(ZYDIS_LINUX)
-// TODO:
+struct timeval t1;
+
+void StartCounter()
+{
+    gettimeofday(&t1, NULL);
+}
+
+double GetCounter()
+{
+    struct timeval t2;
+    gettimeofday(&t2, NULL);
+
+    double t = (t2.tv_sec - t1.tv_sec) * 1000.0;
+    return t + (t2.tv_usec - t1.tv_usec) / 1000.0;
+}
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -127,7 +141,7 @@ void adjustProcessAndThreadPriority()
     pthread_t thread = pthread_self();
     cpu_set_t cpus;
     CPU_ZERO(&cpus);
-    CPU_SET(cpu, &cpus);
+    CPU_SET(0, &cpus);
     pthread_setaffinity_np(thread, sizeof(cpus), &cpus);
 #endif
 }
@@ -364,16 +378,29 @@ int main(int argc, char** argv)
             fseek(file, 0L, SEEK_END);
             long length = ftell(file);
             void* buffer = malloc(length);
+            if (!buffer)
+            {
+                fprintf(stderr, "Failed to allocate %" PRIu64 " on the heap", (uint64_t)length); 
+                goto NextFile2;
+            }
+
             rewind(file);
-            fread(buffer, 1, length, file);
+            if (fread(buffer, 1, length, file) != length)
+            {
+                fprintf(stderr, 
+                    "Could not read %" PRIu64 " bytes from file \"%s\"", (uint64_t)length, &buf[0]);  
+                goto NextFile1;
+            }
 
             printf("Testing %s ...\n", tests[i].encoding);
             testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_MINIMAL, ZYDIS_FALSE);
             testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_FALSE);
             testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
-
             puts("");
+
+NextFile1:            
             free(buffer);
+NextFile2:
             fclose(file);
         }
     }

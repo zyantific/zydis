@@ -73,11 +73,11 @@ target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPO
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
 if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
-	message(
-		FATAL_ERROR
-		"\nIt's dangerous to go alone! Take at least one of these:\n"
-		"[ ] ZYDIS_FEATURE_ENCODER [ ] ZYDIS_FEATURE_DECODER"
-	)
+    message(
+        FATAL_ERROR
+        "\nIt's dangerous to go alone! Take at least one of these:\n"
+        "[ ] ZYDIS_FEATURE_ENCODER [ ] ZYDIS_FEATURE_DECODER"
+    )
 endif ()
 
 if (ZYDIS_FEATURE_EVEX)
@@ -160,26 +160,29 @@ install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_EXAMPLES)
-	if (ZYDIS_FEATURE_DECODER)
-		add_executable("FormatterHooks" 
-			"examples/FormatterHooks.c"
-			"examples/FormatHelper.h")
-		target_link_libraries("FormatterHooks" "Zydis")
-		set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
-		target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    if (ZYDIS_FEATURE_DECODER)
+        add_executable("FormatterHooks" 
+            "examples/FormatterHooks.c"
+            "examples/FormatHelper.h")
+        target_link_libraries("FormatterHooks" "Zydis")
+        set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
+        target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
         add_executable("ZydisFuzzIn" "examples/ZydisFuzzIn.c")
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
-        if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" OR ${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-            add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
-            target_link_libraries("ZydisPerfTest" "Zydis")
-            set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
-            target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
+        target_link_libraries("ZydisPerfTest" "Zydis")
+        set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
+        target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+            target_compile_definitions("ZydisPerfTest" PRIVATE "_GNU_SOURCE")
+            find_package(Threads REQUIRED)
+            target_link_libraries("ZydisPerfTest" Threads::Threads)
         endif ()
-	endif ()
+    endif ()
 endif ()
 
 # =============================================================================================== #
@@ -187,15 +190,15 @@ endif ()
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_TOOLS)
-	if (ZYDIS_FEATURE_DECODER)
-		add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
-		target_link_libraries("ZydisDisasm" "Zydis")
-		set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
-		target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+    if (ZYDIS_FEATURE_DECODER)
+        add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+        target_link_libraries("ZydisDisasm" "Zydis")
+        set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-	endif ()
+    endif ()
 endif ()
