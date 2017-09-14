@@ -137,6 +137,13 @@
 #       endif
 #   elif defined(ZYDIS_GCC) && ((__GNUC__ == 4 && __GNUC_MINOR__ > 4) || __GNUC__ > 4)
 #       define ZYDIS_UNREACHABLE __builtin_unreachable()
+#   elif defined(ZYDIS_ICC)
+#       ifdef ZYDIS_WINDOWS
+#           include <stdlib.h> // "missing return statement" workaround
+#           define ZYDIS_UNREACHABLE __assume(0); (void)abort()
+#       else
+#           define ZYDIS_UNREACHABLE __builtin_unreachable()
+#       endif
 #   elif defined(ZYDIS_MSVC)
 #       define ZYDIS_UNREACHABLE __assume(0)
 #   else
