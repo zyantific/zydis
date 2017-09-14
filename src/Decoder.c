@@ -3176,6 +3176,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
                 default:
                     ZYDIS_UNREACHABLE;
                 }
+                break;
             case 32:
             case 64:
                 hasSIB = 
