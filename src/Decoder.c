@@ -320,7 +320,7 @@ static ZydisStatus ZydisInputNextBytes(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction); 
     ZYDIS_ASSERT(value);
 
-    if (instruction->length >= ZYDIS_MAX_INSTRUCTION_LENGTH) 
+    if (instruction->length + numberOfBytes > ZYDIS_MAX_INSTRUCTION_LENGTH) 
     { 
         return ZYDIS_STATUS_INSTRUCTION_TOO_LONG; 
     } 
