@@ -99,8 +99,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Formats the given unsigned 64-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
+ * @brief   Formats the given unsigned ordinal @c value to its decimal text-representation and  
+ *          appends it to the @c buffer.
  *
  * @param   buffer          A pointer to the string-buffer.
  * @param   bufferLen       The length of the string-buffer.
@@ -115,32 +115,12 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec64U(char** buffer, size_t bufferLen, uint64_t value,
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value,
     uint8_t paddingLength);
 
 /**
- * @brief   Formats the given unsigned 32-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec32U(char** buffer, size_t bufferLen, uint32_t value, 
-    uint8_t paddingLength);
-
-/**
- * @brief   Formats the given signed 64-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
+ * @brief   Formats the given signed ordinal @c value to its decimal text-representation and   
+ *          appends it to the @c buffer.
  *
  * @param   buffer          A pointer to the string-buffer.
  * @param   bufferLen       The length of the string-buffer.
@@ -155,67 +135,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec32U(char** buffer, size_t bufferLen, ui
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec64S(char** buffer, size_t bufferLen, int64_t value, 
-    uint8_t paddingLength);
-
-/**
- * @brief   Formats the given signed 32-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec32S(char** buffer, size_t bufferLen, int32_t value, 
-    uint8_t paddingLength);
-
-/**
- * @brief   Formats the given signed 16-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec16S(char** buffer, size_t bufferLen, int16_t value, 
-    uint8_t paddingLength);
-    
-/**
- * @brief   Formats the given signed 8-bit ordinal @c value to its decimal text-representation  
- *          and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec8S(char** buffer, size_t bufferLen, int8_t value, 
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int64_t value, 
     uint8_t paddingLength);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -223,8 +143,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec8S(char** buffer, size_t bufferLen, int
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Formats the given unsigned 64-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
+ * @brief   Formats the given unsigned ordinal @c value to its hexadecimal text-representation and 
+ *          appends it to the @c buffer.
  *
  * @param   buffer          A pointer to the string-buffer.
  * @param   bufferLen       The length of the string-buffer.
@@ -242,35 +162,12 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDec8S(char** buffer, size_t bufferLen, int
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex64U(char** buffer, size_t bufferLen, uint64_t value,
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value,
     uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
 
 /**
- * @brief   Formats the given unsigned 32-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength.
- * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
- *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex32U(char** buffer, size_t bufferLen, uint32_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
-
-/**
- * @brief   Formats the given signed 64-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
+ * @brief   Formats the given signed ordinal @c value to its hexadecimal text-representation and 
+ *          appends it to the @c buffer.
  *
  * @param   buffer          A pointer to the string-buffer.
  * @param   bufferLen       The length of the string-buffer.
@@ -288,76 +185,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex32U(char** buffer, size_t bufferLen, ui
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex64S(char** buffer, size_t bufferLen, int64_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
-
-/**
- * @brief   Formats the given signed 32-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
- *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex32S(char** buffer, size_t bufferLen, int32_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
-
-/**
- * @brief   Formats the given signed 16-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
- *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex16S(char** buffer, size_t bufferLen, int16_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
-    
-/**
- * @brief   Formats the given signed 8-bit ordinal @c value to its hexadecimal text-
- *          representation and appends it to the @c buffer.
- *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
- * @param   value           The value.
- * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
- *                          less than the @c paddingLength (the sign char is ignored).
- * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
- *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c value.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
- */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHex8S(char** buffer, size_t bufferLen, int8_t value, 
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(char** buffer, size_t bufferLen, int64_t value, 
     uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
 
 /* ---------------------------------------------------------------------------------------------- */

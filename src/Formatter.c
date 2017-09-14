@@ -193,7 +193,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 ZYDIS_CHECK(
                     ZydisPrintStr(buffer, bufEnd - *buffer, "*", ZYDIS_LETTER_CASE_DEFAULT));
-                ZYDIS_CHECK(ZydisPrintDec32U(buffer, bufEnd - *buffer, operand->mem.scale, 0));
+                ZYDIS_CHECK(ZydisPrintDecU(buffer, bufEnd - *buffer, operand->mem.scale, 0));
                 //ZYDIS_CHECK(ZydisPrintStrFormat(buffer, bufEnd - *buffer, 
                 //    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "*%d", operand->mem.scale));    
             }
@@ -215,10 +215,10 @@ static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisFormatter* for
     }
 
     char* bufEnd = *buffer + bufferLen;
-    ZYDIS_CHECK(ZydisPrintHex32U(
+    ZYDIS_CHECK(ZydisPrintHexU(
         buffer, bufEnd - *buffer, operand->ptr.segment, 4, ZYDIS_TRUE, ZYDIS_TRUE));
     ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT));
-    return ZydisPrintHex32U(
+    return ZydisPrintHexU(
         buffer, bufEnd - *buffer, operand->ptr.offset, 8, ZYDIS_TRUE, ZYDIS_TRUE);
     //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
     //    "0x%04"PRIX16":0x%08"PRIX32, operand->ptr.segment, operand->ptr.offset);
@@ -256,7 +256,7 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
         
-        return ZydisPrintHex32S(
+        return ZydisPrintHexS(
             buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         /*if (printSignedHEX && (operand->imm.value.s < 0))
         {
@@ -287,11 +287,11 @@ static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisFormatter* formatt
     {
     case 16:
     case 32:
-        return ZydisPrintHex64U(buffer, bufferLen, address, 8, ZYDIS_TRUE, ZYDIS_TRUE);
+        return ZydisPrintHexU(buffer, bufferLen, (uint32_t)address, 8, ZYDIS_TRUE, ZYDIS_TRUE);
         //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
         //    "0x%08"PRIX64, address);
     case 64:
-        return ZydisPrintHex64U(buffer, bufferLen, address, 16, ZYDIS_TRUE, ZYDIS_TRUE);
+        return ZydisPrintHexU(buffer, bufferLen, address, 16, ZYDIS_TRUE, ZYDIS_TRUE);
         //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
         //    "0x%016"PRIX64, address);   
     default:
@@ -318,7 +318,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
             (operand->mem.base != ZYDIS_REGISTER_NONE) || 
             (operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
-            return ZydisPrintHex64S(
+            return ZydisPrintHexS(
                 buffer, bufferLen, operand->mem.disp.value, 2, ZYDIS_TRUE, ZYDIS_TRUE);     
         }
         char* bufEnd = *buffer + bufferLen;
@@ -327,8 +327,8 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
         {
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "+", ZYDIS_LETTER_CASE_DEFAULT));
         }
-        return ZydisPrintHex64U(
-            buffer, bufEnd - *buffer, operand->mem.disp.value, 2, ZYDIS_TRUE, ZYDIS_TRUE); 
+        return ZydisPrintHexU(
+            buffer, bufEnd - *buffer, (uint64_t)operand->mem.disp.value, 2, ZYDIS_TRUE, ZYDIS_TRUE); 
     }
     return ZYDIS_STATUS_SUCCESS; 
 }
@@ -353,17 +353,17 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
         switch (operand->size)
         {
         case 8:
-            return ZydisPrintHex8S(
+            return ZydisPrintHexS(
                 buffer, bufferLen, (int8_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 16:
-            return ZydisPrintHex16S(
+            return ZydisPrintHexS(
                 buffer, bufferLen, (int16_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 32:
-            return ZydisPrintHex32S(
+            return ZydisPrintHexS(
                 buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 64:
-            return ZydisPrintHex64S(
-                buffer, bufferLen, (int64_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
+            return ZydisPrintHexS(
+                buffer, bufferLen, operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }    
@@ -371,14 +371,14 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
     switch (instruction->operandSize)
     {
     case 16:
-        return ZydisPrintHex32U(
+        return ZydisPrintHexU(
             buffer, bufferLen, (uint16_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 32:
-        return ZydisPrintHex32U(
+        return ZydisPrintHexU(
             buffer, bufferLen, (int32_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 64:
-        return ZydisPrintHex64U(
-            buffer, bufferLen, (int64_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
+        return ZydisPrintHexU(
+            buffer, bufferLen, operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
