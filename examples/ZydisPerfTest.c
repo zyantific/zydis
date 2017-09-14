@@ -39,6 +39,7 @@
 #   include <mach/mach_time.h>
 #elif defined(ZYDIS_LINUX)
 #   include <sys/time.h>
+#   inlcude <pthread.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -46,6 +47,10 @@
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Time measurement                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
 
 #if defined(ZYDIS_WINDOWS)
 double   CounterFreq  = 0.0;
@@ -92,6 +97,42 @@ double GetCounter()
 #elif defined(ZYDIS_LINUX)
 // TODO:
 #endif
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Process & Thread Priority                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+void adjustProcessAndThreadPriority()
+{
+#ifdef ZYDIS_WINDOWS
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    if (info.dwNumberOfProcessors > 1)
+    {
+        if (!SetThreadAffinityMask(GetCurrentThread(), (DWORD_PTR)1))
+        {
+            fputs("Warning: Could not set thread affinity mask.", stderr);
+        }
+        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+        {
+            fputs("Warning: Could not set process priority class.", stderr);
+        }
+        if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
+        {
+            fputs("Warning: Could not set thread priority class.", stderr);
+        }
+    }
+#endif
+#ifdef ZYDIS_LINUX
+    pthread_t thread = pthread_self();
+    cpu_set_t cpus;
+    CPU_ZERO(&cpus);
+    CPU_SET(cpu, &cpus);
+    pthread_setaffinity_np(thread, sizeof(cpus), &cpus);
+#endif
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */
@@ -150,6 +191,10 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
 void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
     ZydisBool format)
 {
+    // Cache warmup
+    processBuffer(buffer, length, granularity, format);
+
+    // Testing
     uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
@@ -286,8 +331,10 @@ int main(int argc, char** argv)
     if (generate)
     {
         time_t t;
-        srand((unsigned) time(&t));
+        srand((unsigned)time(&t));
     }
+
+    adjustProcessAndThreadPriority();
 
     for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(tests); ++i)
     {
