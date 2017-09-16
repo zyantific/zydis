@@ -136,7 +136,6 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    char temp[ZYDIS_MAXCHARS_HEX_32];
     uint8_t n = 0;
     for (int8_t i = ZYDIS_MAXCHARS_HEX_32 - 1; i >= 0; --i)
     {
@@ -150,27 +149,24 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
             if (bufferLen <= (uint8_t)(i + 1))
             {
                 return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-            }    
+            } 
+            if (paddingLength > i)
+            {
+                n = paddingLength - i - 1;
+                memset(*buffer, '0', n);
+            }
         }
         if (uppercase)
         {
-            temp[n++] = "0123456789ABCDEF"[v];    
+            (*buffer)[n++] = "0123456789ABCDEF"[v];    
         } else
         {
-            temp[n++] = "0123456789abcdef"[v];
+            (*buffer)[n++] = "0123456789abcdef"[v];
         }     
     }
+    (*buffer)[n] = '\0';
 
-    uint8_t offset = 0;
-    if (paddingLength > n)
-    {
-        offset = paddingLength - n;
-        memset(*buffer, '0', offset);
-    }
-    memcpy(&(*buffer)[offset], temp, n);
-    (*buffer)[offset + n] = '\0';
-
-    *buffer += n + offset;
+    *buffer += n;
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -244,7 +240,6 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    char temp[ZYDIS_MAXCHARS_HEX_64];
     uint8_t n = 0;
     uint8_t c = ((value & 0xFFFFFFFF00000000) ? ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32);
     for (int8_t i = c - 1; i >= 0; --i)
@@ -259,27 +254,24 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
             if (bufferLen <= (uint8_t)(i + 1))
             {
                 return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-            }    
+            }  
+            if (paddingLength > i)
+            {
+                n = paddingLength - i - 1;
+                memset(*buffer, '0', n);
+            }
         }
         if (uppercase)
         {
-            temp[n++] = "0123456789ABCDEF"[v];    
+            (*buffer)[n++] = "0123456789ABCDEF"[v];    
         } else
         {
-            temp[n++] = "0123456789abcdef"[v];
+            (*buffer)[n++] = "0123456789abcdef"[v];
         }     
     }
+    (*buffer)[n] = '\0';
 
-    uint8_t offset = 0;
-    if (paddingLength > n)
-    {
-        offset = paddingLength - n;
-        memset(*buffer, '0', offset);
-    }
-    memcpy(&(*buffer)[offset], temp, n);
-    (*buffer)[offset + n] = '\0';
-
-    *buffer += n + offset;
+    *buffer += n;
 
     return ZYDIS_STATUS_SUCCESS;
 }
