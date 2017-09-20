@@ -214,6 +214,11 @@ void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, Zydi
 
 int main()
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
 
     uint8_t data[] = 
     {

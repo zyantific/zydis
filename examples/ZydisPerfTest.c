@@ -125,15 +125,15 @@ void adjustProcessAndThreadPriority()
     {
         if (!SetThreadAffinityMask(GetCurrentThread(), (DWORD_PTR)1))
         {
-            fputs("Warning: Could not set thread affinity mask.", stderr);
+            fputs("Warning: Could not set thread affinity mask\n", stderr);
         }
         if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
         {
-            fputs("Warning: Could not set process priority class.", stderr);
+            fputs("Warning: Could not set process priority class\n", stderr);
         }
         if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
         {
-            fputs("Warning: Could not set thread priority class.", stderr);
+            fputs("Warning: Could not set thread priority class\n", stderr);
         }
     }
 #endif
@@ -187,7 +187,7 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
         ZYDIS_ASSERT(ZYDIS_SUCCESS(status));
         if (!ZYDIS_SUCCESS(status))
         {
-            puts("Unexpected decoding error");
+            fputs("Unexpected decoding error\n", stderr);
             exit(EXIT_FAILURE);
         }
         ++count;
@@ -314,6 +314,12 @@ void generateTestData(FILE* file, uint8_t encoding)
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     if (argc < 3 || (strcmp(argv[1], "-test") && strcmp(argv[1], "-generate")))
     {
         fputs("Usage: PerfTest -[test|generate] [directory]\n", stderr);
@@ -380,7 +386,8 @@ int main(int argc, char** argv)
             void* buffer = malloc(length);
             if (!buffer)
             {
-                fprintf(stderr, "Failed to allocate %" PRIu64 " on the heap", (uint64_t)length); 
+                fprintf(stderr, 
+                    "Failed to allocate %" PRIu64 " bytes on the heap", (uint64_t)length); 
                 goto NextFile2;
             }
 

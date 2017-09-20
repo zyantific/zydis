@@ -90,7 +90,14 @@ typedef struct ZydisDecodedOperand_
     /**
      * @brief   Extended info for register-operands.
      */
-    ZydisRegister reg;
+    struct
+    {
+        /**
+         * @brief   The register value.
+         */
+        ZydisRegister value; 
+        // TODO: AVX512_4VNNIW MULTISOURCE registers
+    } reg;
     /**
      * @brief   Extended info for memory-operands.
      */

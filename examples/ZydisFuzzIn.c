@@ -56,6 +56,12 @@ typedef struct ZydisFuzzControlBlock_ {
 
 int main()
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     ZydisFuzzControlBlock controlBlock;
     if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
     {

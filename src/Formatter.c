@@ -121,7 +121,7 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    const char* reg = ZydisRegisterGetString(operand->reg);
+    const char* reg = ZydisRegisterGetString(operand->reg.value);
     if (!reg)
     {
         reg = "invalid";
@@ -416,7 +416,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
                     instruction->operands[0].size : 0;
             if (!typecast && 
                 (instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) && 
-                (instruction->operands[1].reg == ZYDIS_REGISTER_CL))
+                (instruction->operands[1].reg.value == ZYDIS_REGISTER_CL))
             {
                 switch (instruction->mnemonic)
                 {

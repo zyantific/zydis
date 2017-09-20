@@ -1358,7 +1358,7 @@ ZydisStatus ZydisEncoderDecodedInstructionToRequest(
         switch (inOp->type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            outOp->reg = inOp->reg;
+            outOp->reg = inOp->reg.value;
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
             outOp->mem.segment = inOp->mem.segment;

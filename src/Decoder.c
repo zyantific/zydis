@@ -1082,7 +1082,8 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         } else
         {
             operand->size = (context->decoder->machineMode == 64) ? 
-                ZydisRegisterGetWidth64(operand->reg) : ZydisRegisterGetWidth(operand->reg);
+                ZydisRegisterGetWidth64(operand->reg.value) : 
+                ZydisRegisterGetWidth(operand->reg.value);
         }
         operand->elementType = ZYDIS_ELEMENT_TYPE_INT;
         operand->elementSize = operand->size;
@@ -1305,30 +1306,33 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instructi
     {
         if ((instruction->attributes & ZYDIS_ATTRIB_HAS_REX) && (registerId >= 4)) 
         {
-            operand->reg = ZYDIS_REGISTER_SPL + (registerId - 4);
+            operand->reg.value = ZYDIS_REGISTER_SPL + (registerId - 4);
         } else 
         {
-            operand->reg = ZYDIS_REGISTER_AL + registerId;
+            operand->reg.value = ZYDIS_REGISTER_AL + registerId;
         }
-        if (operand->reg > ZYDIS_REGISTER_R15B)
+        if (operand->reg.value > ZYDIS_REGISTER_R15B)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
     } else
     {
-        operand->reg = ZydisRegisterEncode(registerClass, registerId);
-        if (!operand->reg)
+        operand->reg.value = ZydisRegisterEncode(registerClass, registerId);
+        if (!operand->reg.value)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
-        if ((operand->reg == ZYDIS_REGISTER_CR1) ||
-           ((operand->reg >= ZYDIS_REGISTER_CR5) && (operand->reg <= ZYDIS_REGISTER_CR15) &&
-            (operand->reg != ZYDIS_REGISTER_CR8)))
+        if ((operand->reg.value == ZYDIS_REGISTER_CR1) ||
+           ((operand->reg.value >= ZYDIS_REGISTER_CR5) && 
+            (operand->reg.value <= ZYDIS_REGISTER_CR15) &&
+            (operand->reg.value != ZYDIS_REGISTER_CR8)))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
-        if ((operand->reg == ZYDIS_REGISTER_DR4) || (operand->reg == ZYDIS_REGISTER_DR5) ||
-           ((operand->reg >= ZYDIS_REGISTER_DR8) && (operand->reg <= ZYDIS_REGISTER_DR15)))
+        if ((operand->reg.value == ZYDIS_REGISTER_DR4) || 
+            (operand->reg.value == ZYDIS_REGISTER_DR5) ||
+           ((operand->reg.value >= ZYDIS_REGISTER_DR8) && 
+            (operand->reg.value <= ZYDIS_REGISTER_DR15)))
         {
             return ZYDIS_STATUS_BAD_REGISTER;    
         }
@@ -1550,7 +1554,7 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
     switch (definition->op.reg.type)
     {
     case ZYDIS_IMPLREG_TYPE_STATIC:
-        operand->reg = definition->op.reg.reg.reg;
+        operand->reg.value = definition->op.reg.reg.reg;
         break;
     case ZYDIS_IMPLREG_TYPE_GPR_OSZ:
     {
@@ -1560,33 +1564,33 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
             ZYDIS_REGCLASS_GPR32,
             ZYDIS_REGCLASS_GPR64
         };
-        operand->reg = ZydisRegisterEncode(lookup[context->eoszIndex], definition->op.reg.reg.id);
+        operand->reg.value = ZydisRegisterEncode(lookup[context->eoszIndex], definition->op.reg.reg.id);
         break;
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
-        operand->reg = ZydisRegisterEncode(
+        operand->reg.value = ZydisRegisterEncode(
             (instruction->addressWidth      == 16) ? ZYDIS_REGCLASS_GPR16  : 
             (instruction->addressWidth      == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64, 
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
-        operand->reg = ZydisRegisterEncode(
+        operand->reg.value = ZydisRegisterEncode(
             (context->decoder->addressWidth == 16) ? ZYDIS_REGCLASS_GPR16  : 
             (context->decoder->addressWidth == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64, 
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
-        operand->reg =
+        operand->reg.value =
             (instruction->addressWidth      == 16) ? ZYDIS_REGISTER_IP     :
             (instruction->addressWidth      == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
-        operand->reg =
+        operand->reg.value =
             (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_EIP    :
             (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
-        operand->reg =
+        operand->reg.value =
             (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_FLAGS  :
             (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EFLAGS : ZYDIS_REGISTER_RFLAGS;
         break;
@@ -1961,8 +1965,8 @@ FinalizeOperand:
         (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         (instruction->operandCount >= 3) &&
         (instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-        (instruction->operands[1].reg >= ZYDIS_REGISTER_K1) &&
-        (instruction->operands[1].reg <= ZYDIS_REGISTER_K7))
+        (instruction->operands[1].reg.value >= ZYDIS_REGISTER_K1) &&
+        (instruction->operands[1].reg.value <= ZYDIS_REGISTER_K7))
     {
         switch (instruction->operands[0].type)
         {
@@ -4298,7 +4302,8 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    ZydisRegister reg = instruction->operands[instruction->operandCount - 1].reg;
+                    ZydisRegister reg = 
+                        instruction->operands[instruction->operandCount - 1].reg.value;
                     if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
                         (reg == ZYDIS_REGISTER_RFLAGS))
                     {

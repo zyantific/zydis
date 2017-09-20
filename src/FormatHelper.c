@@ -76,7 +76,7 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
     char temp[ZYDIS_MAXCHARS_DEC_32 + 1];
     char *p = &temp[ZYDIS_MAXCHARS_DEC_32];
     *p = '\0';
-    while(value >= 100)
+    while (value >= 100)
     {
         uint32_t const old = value;
         p -= 2;
@@ -180,7 +180,7 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     char temp[ZYDIS_MAXCHARS_DEC_64 + 1];
     char *p = &temp[ZYDIS_MAXCHARS_DEC_64];
     *p = '\0';
-    while(value >= 100)
+    while (value >= 100)
     {
         uint64_t const old = value;
         p -= 2;

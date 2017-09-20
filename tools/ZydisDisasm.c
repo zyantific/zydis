@@ -39,6 +39,12 @@
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     if (argc < 1 || argc > 2)
     {
         fprintf(stderr, "Usage: %s [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));

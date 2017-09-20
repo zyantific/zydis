@@ -168,7 +168,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
         switch (instruction->operands[i].type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg));
+            printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg.value));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
             printf("  SEG   =%20s\n", ZydisRegisterGetString(instruction->operands[i].mem.segment));
@@ -458,7 +458,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     }
     
     if (ZydisRegisterGetClass(
-        instruction->operands[instruction->operandCount - 1].reg) == ZYDIS_REGCLASS_FLAGS)
+        instruction->operands[instruction->operandCount - 1].reg.value) == ZYDIS_REGCLASS_FLAGS)
     {
         puts("");
         printFlags(instruction);
@@ -490,6 +490,12 @@ void printInstruction(ZydisDecodedInstruction* instruction)
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return ZYDIS_STATUS_INVALID_OPERATION;
+    }
+
     if (argc < 3)
     {
         fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
