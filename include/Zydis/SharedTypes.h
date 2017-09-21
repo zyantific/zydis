@@ -320,6 +320,20 @@ enum ZydisOperandActions
      * @brief   The operand is written and conditionally read by the instruction (must write).
      */
     ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+
+    /**
+     * @brief   Mask combining all writing access flags.
+     */
+    ZYDIS_OPERAND_ACTION_MASK_WRITE = ZYDIS_OPERAND_ACTION_WRITE |
+        ZYDIS_OPERAND_ACTION_READWRITE | ZYDIS_OPERAND_ACTION_CONDWRITE | 
+        ZYDIS_OPERAND_ACTION_READ_CONDWRITE | ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    /**
+     * @brief   Mask combining all reading access flags.
+     */
+    ZYDIS_OPERAND_ACTION_MASK_READ = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_READWRITE | 
+        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_READ_CONDWRITE | 
+        ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+
     /**
      * @brief   Maximum value of this enum.
      */
