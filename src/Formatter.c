@@ -375,7 +375,7 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
             buffer, bufferLen, (uint16_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 32:
         return ZydisPrintHexU(
-            buffer, bufferLen, (int32_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
+            buffer, bufferLen, (uint32_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 64:
         return ZydisPrintHexU(
             buffer, bufferLen, operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
