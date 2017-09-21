@@ -455,11 +455,10 @@ enum ZydisCPUFlags
      * @brief   FPU condition-code flag 3.
      */
     ZYDIS_CPUFLAG_C3,
-
     /**
-     * @brief   Marker value.
+     * @brief   Maximum value of this enum.
      */
-    ZYDIS_CPUFLAG_ENUM_COUNT
+    ZYDIS_CPUFLAG_MAX_VALUE = ZYDIS_CPUFLAG_C3
 };
 
 /**
@@ -477,7 +476,11 @@ enum ZydisCPUFlagActions
     ZYDIS_CPUFLAG_ACTION_MODIFIED,
     ZYDIS_CPUFLAG_ACTION_SET_0,
     ZYDIS_CPUFLAG_ACTION_SET_1,
-    ZYDIS_CPUFLAG_ACTION_UNDEFINED
+    ZYDIS_CPUFLAG_ACTION_UNDEFINED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_CPUFLAG_ACTION_MAX_VALUE = ZYDIS_CPUFLAG_ACTION_UNDEFINED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -534,7 +537,11 @@ enum ZydisExceptionClasses
     ZYDIS_EXCEPTION_CLASS_E12,
     ZYDIS_EXCEPTION_CLASS_E12NP,
     ZYDIS_EXCEPTION_CLASS_K20,
-    ZYDIS_EXCEPTION_CLASS_K21
+    ZYDIS_EXCEPTION_CLASS_K21,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_EXCEPTION_CLASS_MAX_VALUE = ZYDIS_EXCEPTION_CLASS_K21
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -554,7 +561,11 @@ enum ZydisVectorLengths
     ZYDIS_VECTOR_LENGTH_INVALID =   0,
     ZYDIS_VECTOR_LENGTH_128     = 128,
     ZYDIS_VECTOR_LENGTH_256     = 256,
-    ZYDIS_VECTOR_LENGTH_512     = 512
+    ZYDIS_VECTOR_LENGTH_512     = 512,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_VECTOR_LENGTH_MAX_VALUE = ZYDIS_VECTOR_LENGTH_512
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -580,7 +591,11 @@ enum ZydisMaskModes
     /**
      * @brief   The embedded mask register is used as a zero-mask.
      */
-    ZYDIS_MASK_MODE_ZERO
+    ZYDIS_MASK_MODE_ZERO,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_ZERO
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -609,7 +624,11 @@ enum ZydisBroadcastModes
     ZYDIS_BROADCAST_MODE_2_TO_16,
     ZYDIS_BROADCAST_MODE_4_TO_8,
     ZYDIS_BROADCAST_MODE_4_TO_16,
-    ZYDIS_BROADCAST_MODE_8_TO_16
+    ZYDIS_BROADCAST_MODE_8_TO_16,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_BROADCAST_MODE_MAX_VALUE = ZYDIS_BROADCAST_MODE_8_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -642,7 +661,11 @@ enum ZydisRoundingModes
     /**
      * @brief   Round towards zero.
      */
-    ZYDIS_ROUNDING_MODE_RZ
+    ZYDIS_ROUNDING_MODE_RZ,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_ROUNDING_MODE_MAX_VALUE = ZYDIS_ROUNDING_MODE_RZ
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -667,7 +690,11 @@ enum ZydisSwizzleModes
     ZYDIS_SWIZZLE_MODE_AAAA,
     ZYDIS_SWIZZLE_MODE_BBBB,
     ZYDIS_SWIZZLE_MODE_CCCC,
-    ZYDIS_SWIZZLE_MODE_DDDD
+    ZYDIS_SWIZZLE_MODE_DDDD,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_SWIZZLE_MODE_MAX_VALUE = ZYDIS_SWIZZLE_MODE_DDDD
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -689,7 +716,11 @@ enum ZydisConversionModes
     ZYDIS_CONVERSION_MODE_SINT8,
     ZYDIS_CONVERSION_MODE_UINT8,
     ZYDIS_CONVERSION_MODE_SINT16,
-    ZYDIS_CONVERSION_MODE_UINT16
+    ZYDIS_CONVERSION_MODE_UINT16,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_CONVERSION_MODE_MAX_VALUE = ZYDIS_CONVERSION_MODE_UINT16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -777,7 +808,7 @@ typedef struct ZydisDecodedInstruction_
          * specific action.
          */
         ZydisCPUFlagAction action;
-    } accessedFlags[ZYDIS_CPUFLAG_ENUM_COUNT];
+    } accessedFlags[ZYDIS_CPUFLAG_MAX_VALUE + 1];
     /**
      * @brief   Extended info for AVX instructions.
      */

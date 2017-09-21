@@ -73,7 +73,11 @@ enum ZydisDecodeGranularities
     /**
      * @brief   Full physical and semantic instruction-decoding.
      */
-    ZYDIS_DECODE_GRANULARITY_FULL
+    ZYDIS_DECODE_GRANULARITY_FULL,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_DECODE_GRANULARITY_MAX_VALUE = ZYDIS_DECODE_GRANULARITY_FULL,
 };
 
 /**
