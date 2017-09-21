@@ -730,13 +730,13 @@ typedef struct ZydisDecodedInstruction_
      */
     uint8_t opcode;
     /**
-     * @brief   The effective operand size.
-     */
-    uint8_t operandSize;
-    /**
      * @brief   The stack width.
      */
     uint8_t stackWidth;
+    /**
+     * @brief   The effective operand width.
+     */
+    uint8_t operandWidth;
     /**
      * @brief   The effective address width.
      */

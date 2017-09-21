@@ -368,8 +368,11 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }    
     }
-    switch (instruction->operandSize)
+    switch (instruction->operandWidth)
     {
+    case 8:
+        return ZydisPrintHexU(
+            buffer, bufferLen, (uint8_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 16:
         return ZydisPrintHexU(
             buffer, bufferLen, (uint16_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);

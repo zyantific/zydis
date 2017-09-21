@@ -444,7 +444,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         instruction->opcode);
     printf("     LENGTH: %2d\n", instruction->length);
     printf("        SSZ: %2d\n", instruction->stackWidth);
-    printf("       EOSZ: %2d\n", instruction->operandSize);
+    printf("       EOSZ: %2d\n", instruction->operandWidth);
     printf("       EASZ: %2d\n", instruction->addressWidth);
     printf("   CATEGORY: %s\n", ZydisCategoryGetString(instruction->meta.category));
     printf("    ISA-SET: %s\n", ZydisISASetGetString(instruction->meta.isaSet));

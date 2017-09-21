@@ -1564,7 +1564,8 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
             ZYDIS_REGCLASS_GPR32,
             ZYDIS_REGCLASS_GPR64
         };
-        operand->reg.value = ZydisRegisterEncode(lookup[context->eoszIndex], definition->op.reg.reg.id);
+        operand->reg.value = 
+            ZydisRegisterEncode(lookup[context->eoszIndex], definition->op.reg.reg.id);
         break;
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
@@ -1723,19 +1724,25 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             registerClass = ZYDIS_REGCLASS_GPR64;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64:
+            ZYDIS_ASSERT((instruction->operandWidth == 16) || (instruction->operandWidth == 32) ||
+                         (instruction->operandWidth == 64));
             registerClass = 
-                (instruction->operandSize == 16) ? ZYDIS_REGCLASS_GPR16 : (
-                (instruction->operandSize == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
+                (instruction->operandWidth == 16) ? ZYDIS_REGCLASS_GPR16 : (
+                (instruction->operandWidth == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
             break; 
         case ZYDIS_SEMANTIC_OPTYPE_GPR32_32_64:
+            ZYDIS_ASSERT((instruction->operandWidth == 16) || (instruction->operandWidth == 32) ||
+                         (instruction->operandWidth == 64));
             registerClass = 
-                (instruction->operandSize == 16) ? ZYDIS_REGCLASS_GPR32 : (
-                (instruction->operandSize == 32) ? ZYDIS_REGCLASS_GPR32: ZYDIS_REGCLASS_GPR64);
+                (instruction->operandWidth == 16) ? ZYDIS_REGCLASS_GPR32 : (
+                (instruction->operandWidth == 32) ? ZYDIS_REGCLASS_GPR32: ZYDIS_REGCLASS_GPR64);
             break; 
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32:
+            ZYDIS_ASSERT((instruction->operandWidth == 16) || (instruction->operandWidth == 32) ||
+                         (instruction->operandWidth == 64));
             registerClass = 
-                (instruction->operandSize == 16) ? ZYDIS_REGCLASS_GPR16 : (
-                (instruction->operandSize == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR32);
+                (instruction->operandWidth == 16) ? ZYDIS_REGCLASS_GPR16 : (
+                (instruction->operandWidth == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR32);
             break;  
         case ZYDIS_SEMANTIC_OPTYPE_FPR:
             registerClass = ZYDIS_REGCLASS_X87;
@@ -3271,9 +3278,20 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(definition);
 
-    static const uint8_t operandSizeMap[7][8] =
+    static const uint8_t operandSizeMap[8][8] =
     {
         // Default for most instructions
+        {
+            16, // 16 __ W0
+            32, // 16 66 W0
+            32, // 32 __ W0
+            16, // 32 66 W0
+            32, // 64 __ W0
+            16, // 64 66 W0
+            64, // 64 __ W1
+            64  // 64 66 W1
+        },
+        // Operand size is forced to 8-bit (this is done later to preserve the `eoszIndex`)
         {
             16, // 16 __ W0
             32, // 16 66 W0
@@ -3373,9 +3391,9 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
     ZYDIS_ASSERT(definition->operandSizeMap < ZYDIS_ARRAY_SIZE(operandSizeMap));
     ZYDIS_ASSERT(index < ZYDIS_ARRAY_SIZE(operandSizeMap[definition->operandSizeMap]));
 
-    instruction->operandSize = operandSizeMap[definition->operandSizeMap][index];
+    instruction->operandWidth = operandSizeMap[definition->operandSizeMap][index];
     
-    switch (instruction->operandSize)
+    switch (instruction->operandWidth)
     {
     case 16:
         context->eoszIndex = 0;
@@ -3388,6 +3406,12 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
         break;
     default:
         ZYDIS_UNREACHABLE;
+    }
+
+    // TODO: Cleanup code and remove hardcoded condition
+    if (definition->operandSizeMap == 1)
+    {
+        instruction->operandWidth = 8;
     }
 }
 
