@@ -2030,6 +2030,10 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         {
             instruction->attributes |= ZYDIS_ATTRIB_IS_PRIVILEGED;
         }
+        if (def->isFarBranch)
+        {
+            instruction->attributes |= ZYDIS_ATTRIB_IS_FAR_BRANCH;
+        }
         if (def->acceptsLock)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;

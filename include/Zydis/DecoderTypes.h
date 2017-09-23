@@ -222,6 +222,12 @@ typedef uint64_t ZydisInstructionAttributes;
  * Priviliged instructions are any instructions that require a current ring level below 3.
  */
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000100 // (1 <<  8)
+
+/**
+ * @brief   The instruction is a far JMP/CALL/RET.
+ */
+#define ZYDIS_ATTRIB_IS_FAR_BRANCH              0x0000001000000000 // (1 << 36) // TODO: rebase
+
 /**
  * @brief   The instruction accepts the lock prefix (0xF0). 
  */
@@ -346,11 +352,11 @@ typedef uint64_t ZydisInstructionAttributes;
 /**
  * @brief   The instruction has the operand-size prefix (0x66). 
  */
-#define ZYDIS_ATTRIB_HAS_OPERANDSIZE            0x0000000400000000 // (1 << 34)
+#define ZYDIS_ATTRIB_HAS_OPERANDSIZE            0x0000000400000000 // (1 << 34) // TODO: rename
 /**
  * @brief   The instruction has the address-size prefix (0x67). 
  */
-#define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000000800000000 // (1 << 35)
+#define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000000800000000 // (1 << 35) // TODO: rename
 
 /* ---------------------------------------------------------------------------------------------- */
 /* R/E/FLAGS info                                                                                 */

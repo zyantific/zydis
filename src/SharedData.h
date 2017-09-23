@@ -572,6 +572,7 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
     ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
+    ZydisBool isFarBranch                   ZYDIS_BITFIELD( 1);
     ZydisBool acceptsLock                   ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
