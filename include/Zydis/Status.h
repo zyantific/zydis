@@ -59,7 +59,7 @@ enum ZydisStatusCode
     /**
      * @brief   The operation completed successfully.
      */
-    ZYDIS_STATUS_SUCCESS                                                            = 0x00000000,
+    ZYDIS_STATUS_SUCCESS                                                              = 0x00000000,
     /**
      * @brief   An invalid parameter was passed to a function.
      */
@@ -139,7 +139,7 @@ enum ZydisStatusCode
     /**
      * @brief   The base value for user-defined status codes.
      */
-    ZYDIS_STATUS_USER                                                               = 0x10000000
+    ZYDIS_STATUS_USER                                                                 = 0x10000000
 
     // Max value entry intentionally omitted since users might 
     // define custom error codes for formatter hooks.
