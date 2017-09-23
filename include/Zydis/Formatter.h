@@ -57,7 +57,11 @@ enum ZydisFormatterStyles
     /**
      * @brief   Generates intel-style disassembly.
      */
-    ZYDIS_FORMATTER_STYLE_INTEL
+    ZYDIS_FORMATTER_STYLE_INTEL,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -117,6 +121,10 @@ enum ZydisFormatterAddressFormats
      * "JMP 0xE0"
      */
     ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_ADDR_MAX_VALUE = ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -150,7 +158,11 @@ enum ZydisFormatterDisplacementFormats
      * "MOV EAX, DWORD PTR SS:[ESP+0x400]"
      * "MOV EAX, DWORD PTR SS:[ESP+0xFFFFFC00]"
      */
-    ZYDIS_FORMATTER_DISP_HEX_UNSIGNED
+    ZYDIS_FORMATTER_DISP_HEX_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_DISP_MAX_VALUE = ZYDIS_FORMATTER_DISP_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -189,7 +201,11 @@ enum ZydisFormatterImmediateFormats
      * "MOV EAX, 0x400"
      * "MOV EAX, 0xFFFFFC00"
      */
-    ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
+    ZYDIS_FORMATTER_IMM_HEX_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_IMM_MAX_VALUE = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -277,7 +293,11 @@ enum ZydisFormatterHookTypes
     /**
      * @brief   This function is called to print an immediate value.
      */
-    ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
+    ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -299,7 +319,11 @@ enum ZydisDecoratorTypes
     ZYDIS_DECORATOR_TYPE_SAE,
     ZYDIS_DECORATOR_TYPE_SWIZZLE,
     ZYDIS_DECORATOR_TYPE_CONVERSION,
-    ZYDIS_DECORATOR_TYPE_EVICTION_HINT
+    ZYDIS_DECORATOR_TYPE_EVICTION_HINT,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_DECORATOR_TYPE_MAX_VALUE = ZYDIS_DECORATOR_TYPE_EVICTION_HINT
 };
 
 typedef struct ZydisFormatter_  ZydisFormatter;

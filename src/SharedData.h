@@ -629,7 +629,7 @@ typedef struct ZydisInstructionDefinitionMVEX_
 
 typedef struct ZydisAccessedFlags_
 {
-    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_ENUM_COUNT];
+    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_MAX_VALUE + 1];
 } ZydisAccessedFlags;
 
 /* ---------------------------------------------------------------------------------------------- */

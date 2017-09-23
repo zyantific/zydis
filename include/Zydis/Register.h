@@ -142,7 +142,16 @@ enum ZydisRegisters
     ZYDIS_REGISTER_K4,     ZYDIS_REGISTER_K5,     ZYDIS_REGISTER_K6,    ZYDIS_REGISTER_K7,
     // Bound registers
     ZYDIS_REGISTER_BND0,   ZYDIS_REGISTER_BND1,   ZYDIS_REGISTER_BND2,  ZYDIS_REGISTER_BND3,
-    ZYDIS_REGISTER_BNDCFG, ZYDIS_REGISTER_BNDSTATUS
+    ZYDIS_REGISTER_BNDCFG, ZYDIS_REGISTER_BNDSTATUS,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_BNDSTATUS,
+    /**
+     * @brief   Maximum amount of bits occupied by an integer from this enum.
+     */
+    ZYDIS_REGISTER_MAX_BITS = 8
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -227,7 +236,11 @@ enum ZydisRegisterClasses
     /**
      * @brief   Bound registers.
      */
-    ZYDIS_REGCLASS_BOUND
+    ZYDIS_REGCLASS_BOUND,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_REGCLASS_MAX_VALUE = ZYDIS_REGCLASS_BOUND
 };
 
 /* ---------------------------------------------------------------------------------------------- */

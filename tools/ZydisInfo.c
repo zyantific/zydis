@@ -435,6 +435,55 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         "K21"
     };
 
+    struct
+    {
+        ZydisInstructionAttributes attrMask;
+        const char* str;
+    } attributeMap[] = 
+    {
+        {ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                 },
+        {ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                   },        
+        {ZYDIS_ATTRIB_HAS_REX,                  "HAS_REX"                   },
+        {ZYDIS_ATTRIB_HAS_XOP,                  "HAS_XOP"                   },
+        {ZYDIS_ATTRIB_HAS_VEX,                  "HAS_VEX"                   },
+        {ZYDIS_ATTRIB_HAS_EVEX,                 "HAS_EVEX"                  },
+        {ZYDIS_ATTRIB_HAS_MVEX,                 "HAS_MVEX"                  },
+        {ZYDIS_ATTRIB_IS_RELATIVE,              "IS_RELATIVE"               },
+        {ZYDIS_ATTRIB_IS_PRIVILEGED,            "IS_PRIVILEGED"             },
+        {ZYDIS_ATTRIB_ACCEPTS_LOCK,             "ACCEPTS_LOCK"              },
+        {ZYDIS_ATTRIB_ACCEPTS_REP,              "ACCEPTS_REP"               },
+        {ZYDIS_ATTRIB_ACCEPTS_REPE,             "ACCEPTS_REPE"              },
+        {ZYDIS_ATTRIB_ACCEPTS_REPZ,             "ACCEPTS_REPZ"              },
+        {ZYDIS_ATTRIB_ACCEPTS_REPNE,            "ACCEPTS_REPNE"             },
+        {ZYDIS_ATTRIB_ACCEPTS_REPNZ,            "ACCEPTS_REPNZ"             },
+        {ZYDIS_ATTRIB_ACCEPTS_BOUND,            "ACCEPTS_BOUND"             },
+        {ZYDIS_ATTRIB_ACCEPTS_XACQUIRE,         "ACCEPTS_XACQUIRE"          },
+        {ZYDIS_ATTRIB_ACCEPTS_XRELEASE,         "ACCEPTS_XRELEASE"          },
+        {ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK, "ACCEPTS_HLE_WITHOUT_LOCK"  },
+        {ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS,     "ACCEPTS_BRANCH_HINTS"      },
+        {ZYDIS_ATTRIB_ACCEPTS_SEGMENT,          "ACCEPTS_SEGMENT"           },
+        {ZYDIS_ATTRIB_HAS_LOCK,                 "HAS_LOCK"                  },
+        {ZYDIS_ATTRIB_HAS_REP,                  "HAS_REP"                   },
+        {ZYDIS_ATTRIB_HAS_REPE,                 "HAS_REPE"                  },
+        {ZYDIS_ATTRIB_HAS_REPZ,                 "HAS_REPZ"                  },
+        {ZYDIS_ATTRIB_HAS_REPNE,                "HAS_REPNE"                 },
+        {ZYDIS_ATTRIB_HAS_REPNZ,                "HAS_REPNZ"                 },
+        {ZYDIS_ATTRIB_HAS_BOUND,                "HAS_BOUND"                 },
+        {ZYDIS_ATTRIB_HAS_XACQUIRE,             "HAS_XACQUIRE"              },
+        {ZYDIS_ATTRIB_HAS_XRELEASE,             "HAS_XRELEASE"              },
+        {ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN,     "HAS_BRANCH_NOT_TAKEN"      },
+        {ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,         "HAS_BRANCH_TAKEN"          },
+        {ZYDIS_ATTRIB_HAS_SEGMENT,              "HAS_SEGMENT"               },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_CS,           "HAS_SEGMENT_CS"            },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_SS,           "HAS_SEGMENT_SS"            },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_DS,           "HAS_SEGMENT_DS"            },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_ES,           "HAS_SEGMENT_ES"            },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_FS,           "HAS_SEGMENT_FS"            },
+        {ZYDIS_ATTRIB_HAS_SEGMENT_GS,           "HAS_SEGMENT_GS"            },
+        {ZYDIS_ATTRIB_HAS_OPERANDSIZE,          "HAS_OPERANDSIZE"           },
+        {ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"           }
+    };
+
     fputs("== [    BASIC ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
     printf("   MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
@@ -450,6 +499,17 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     printf("    ISA-SET: %s\n", ZydisISASetGetString(instruction->meta.isaSet));
     printf("    ISA-EXT: %s\n", ZydisISAExtGetString(instruction->meta.isaExt));
     printf(" EXCEPTIONS: %s\n", exceptionClassStrings[instruction->meta.exceptionClass]);
+    fputs (" ATTRIBUTES: ", stdout);
+
+    for (size_t i = 0; i < ZYDIS_ARRAY_SIZE(attributeMap); ++i)
+    {
+        if (instruction->attributes & attributeMap[i].attrMask)
+        {
+            printf("%s ", attributeMap[i].str);
+        }
+    }
+
+    fputs("\n", stdout);
     
     if (instruction->operandCount > 0)
     {
