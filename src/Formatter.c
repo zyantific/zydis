@@ -97,12 +97,21 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* format
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
+    char* bufEnd = *buffer + bufferLen;
+
     const char* mnemonic = ZydisMnemonicGetString(instruction->mnemonic);
     if (!mnemonic)
     {
         mnemonic = "invalid";
     }
-    return ZydisPrintStr(buffer, bufferLen, mnemonic, ZYDIS_LETTER_CASE);    
+    ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, mnemonic, ZYDIS_LETTER_CASE));
+    
+    if (instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
+    {
+        return ZydisPrintStr(buffer, bufEnd - *buffer, " far", ZYDIS_LETTER_CASE);
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

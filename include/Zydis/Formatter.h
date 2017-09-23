@@ -70,16 +70,16 @@ typedef uint32_t ZydisFormatterFlags;
 /**
  * @brief   Formats the instruction in uppercase instead of lowercase.
  */
-#define ZYDIS_FMTFLAG_UPPERCASE         0x00000001
+#define ZYDIS_FMTFLAG_UPPERCASE         0x00000001 // (1 << 0)
 /**
  * @brief   Forces the formatter to always print the segment register of memory-operands, instead
  *          of ommiting implicit DS/SS segments.
  */
-#define ZYDIS_FMTFLAG_FORCE_SEGMENTS    0x00000002
+#define ZYDIS_FMTFLAG_FORCE_SEGMENTS    0x00000002 // (1 << 1)
 /**
  * @brief   Forces the formatter to always print the size of memory-operands. 
  */
-#define ZYDIS_FMTFLAG_FORCE_OPERANDSIZE 0x00000004
+#define ZYDIS_FMTFLAG_FORCE_OPERANDSIZE 0x00000004 // (1 << 2)
 
 /* ---------------------------------------------------------------------------------------------- */
 

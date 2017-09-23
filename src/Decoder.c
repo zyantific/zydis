@@ -2032,6 +2032,10 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         }
         if (def->isFarBranch)
         {
+            ZYDIS_ASSERT((instruction->meta.category == ZYDIS_CATEGORY_CALL) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_COND_BR) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_UNCOND_BR) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_RET));
             instruction->attributes |= ZYDIS_ATTRIB_IS_FAR_BRANCH;
         }
         if (def->acceptsLock)
