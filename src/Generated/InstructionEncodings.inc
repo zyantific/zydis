@@ -1,8 +1,9 @@
 static const ZydisInstructionEncodingInfo instructionEncodings[] =
 {
     { 0, { { 0, 0, 0 } }, { { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
-    { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_TRUE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
+    { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_MODRM, { { 0, 0, 0 } }, { { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
+    { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_TRUE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 16, 32, 32 }, ZYDIS_TRUE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_MODRM | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_TRUE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_MODRM | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 16, 32, 32 }, ZYDIS_TRUE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
@@ -11,7 +12,6 @@ static const ZydisInstructionEncodingInfo instructionEncodings[] =
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 32, 32, 32 }, ZYDIS_TRUE, ZYDIS_TRUE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 16, 32, 32 }, ZYDIS_TRUE, ZYDIS_TRUE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM1, { { 0, 0, 0 } }, { { { 16, 16, 16 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 8, 8, 8 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
-    { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 8, 8, 8 }, ZYDIS_TRUE, ZYDIS_TRUE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_DISP, { { 16, 32, 64 } }, { { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
     { 0 | ZYDIS_INSTR_ENC_FLAG_HAS_IMM0, { { 0, 0, 0 } }, { { { 16, 32, 64 }, ZYDIS_FALSE, ZYDIS_FALSE }, { { 0, 0, 0 }, ZYDIS_FALSE, ZYDIS_FALSE } } }, 
