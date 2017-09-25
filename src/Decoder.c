@@ -3247,7 +3247,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
     if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_DISP)
     {
         ZYDIS_CHECK(ZydisReadDisplacement(
-            context, instruction, info->disp.size[context->easzIndex])); 
+            context, instruction, info->disp.size[context->easzIndex]));
     }
 
     if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_IMM0)

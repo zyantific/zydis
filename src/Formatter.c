@@ -195,16 +195,11 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
                     ZydisPrintStr(buffer, bufEnd - *buffer, "+", ZYDIS_LETTER_CASE_DEFAULT));
             }
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE));
-            //const char* c = (operand->mem.base != ZYDIS_REGISTER_NONE) ? "+" : "";
-            //ZYDIS_CHECK(ZydisPrintStrFormat(buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, 
-            //    "%s%s", c, reg));
             if (operand->mem.scale)
             {
                 ZYDIS_CHECK(
                     ZydisPrintStr(buffer, bufEnd - *buffer, "*", ZYDIS_LETTER_CASE_DEFAULT));
-                ZYDIS_CHECK(ZydisPrintDecU(buffer, bufEnd - *buffer, operand->mem.scale, 0));
-                //ZYDIS_CHECK(ZydisPrintStrFormat(buffer, bufEnd - *buffer, 
-                //    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "*%d", operand->mem.scale));    
+                ZYDIS_CHECK(ZydisPrintDecU(buffer, bufEnd - *buffer, operand->mem.scale, 0));   
             }
         }
         ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
@@ -229,8 +224,6 @@ static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisFormatter* for
     ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT));
     return ZydisPrintHexU(
         buffer, bufEnd - *buffer, operand->ptr.offset, 8, ZYDIS_TRUE, ZYDIS_TRUE);
-    //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-    //    "0x%04"PRIX16":0x%08"PRIX32, operand->ptr.segment, operand->ptr.offset);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* formatter, 
@@ -267,13 +260,6 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         
         return ZydisPrintHexS(
             buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
-        /*if (printSignedHEX && (operand->imm.value.s < 0))
-        {
-            return ZydisPrintStrFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -(int32_t)operand->imm.value.s);
-        }
-        return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%02"PRIX32, (int32_t)operand->imm.value.s);*/
     }
 
     // The immediate operand contains an actual ordinal value
@@ -292,17 +278,14 @@ static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisFormatter* formatt
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    switch (instruction->machineMode)
+    switch (instruction->addressWidth)
     {
     case 16:
+        return ZydisPrintHexU(buffer, bufferLen, (uint16_t)address, 4, ZYDIS_TRUE, ZYDIS_TRUE);
     case 32:
         return ZydisPrintHexU(buffer, bufferLen, (uint32_t)address, 8, ZYDIS_TRUE, ZYDIS_TRUE);
-        //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-        //    "0x%08"PRIX64, address);
     case 64:
-        return ZydisPrintHexU(buffer, bufferLen, address, 16, ZYDIS_TRUE, ZYDIS_TRUE);
-        //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-        //    "0x%016"PRIX64, address);   
+        return ZydisPrintHexU(buffer, bufferLen, address, 16, ZYDIS_TRUE, ZYDIS_TRUE);  
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -516,8 +499,6 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
             ZydisPrintStr(buffer, bufEnd - *buffer, 
                 ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
         return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
-        //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-        //    ZydisRegisterGetString(operand->mem.segment));
     case ZYDIS_REGISTER_SS:
         if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
@@ -526,8 +507,6 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
                 ZydisPrintStr(buffer, bufEnd - *buffer, 
                     ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
             return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
-            //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-            //    ZydisRegisterGetString(operand->mem.segment));
         }
         break;
     case ZYDIS_REGISTER_DS:
@@ -538,8 +517,6 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
                 ZydisPrintStr(buffer, bufEnd - *buffer, 
                     ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
             return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
-            //return ZydisPrintStrFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-            //    ZydisRegisterGetString(operand->mem.segment));
         }
         break;
     default:
