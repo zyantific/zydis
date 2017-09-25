@@ -1741,8 +1741,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             ZYDIS_ASSERT((instruction->operandWidth == 16) || (instruction->operandWidth == 32) ||
                          (instruction->operandWidth == 64));
             registerClass = 
-                (instruction->operandWidth == 16) ? ZYDIS_REGCLASS_GPR16 : (
-                (instruction->operandWidth == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR32);
+                (instruction->operandWidth == 16) ? ZYDIS_REGCLASS_GPR16 : ZYDIS_REGCLASS_GPR32;
             break;  
         case ZYDIS_SEMANTIC_OPTYPE_FPR:
             registerClass = ZYDIS_REGCLASS_X87;

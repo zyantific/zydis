@@ -158,18 +158,48 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         (operand->mem.index == ZYDIS_REGISTER_NONE) && (operand->mem.scale == 0))
     {
         // Address operand
-        uint64_t address;
+        uint64_t address = 0;
+        ZydisBool absolute = ZYDIS_TRUE;
         if (operand->mem.base == ZYDIS_REGISTER_NONE)
         {
             // MOFFS8/16/32/64
             address = (uint64_t)operand->mem.disp.value;
+            switch (instruction->addressWidth)
+            {
+            case 16:
+                address &= 0xFFFF;
+                break;
+            case 32:
+                address &= 0xFFFFFFFF;
+                break;
+            case 64:
+                break;
+            default:
+                return ZYDIS_STATUS_INVALID_PARAMETER;
+            }
         } else
         {
             // EIP/RIP-relative
-            ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));
+            if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_DEFAULT) ||
+                (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE))
+            {
+                ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));  
+            } else
+            {
+                absolute = ZYDIS_FALSE;
+            }
         }
-        ZYDIS_CHECK(formatter->funcPrintAddress(formatter, buffer, bufEnd - *buffer, 
-            instruction, operand, address));   
+        if (absolute)
+        {
+            ZYDIS_CHECK(formatter->funcPrintAddress(formatter, buffer, bufEnd - *buffer, 
+                instruction, operand, address));  
+        } else
+        {
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, 
+                ZydisRegisterGetString(operand->mem.base), ZYDIS_LETTER_CASE));
+            ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
+                instruction, operand)); 
+        }
     } else
     {
         // Regular memory operand
@@ -258,8 +288,12 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
         
-        return ZydisPrintHexS(
-            buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
+        if (printSignedHEX)
+        {
+            return ZydisPrintHexS(
+                buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
+        }
+        return ZydisPrintHexU(buffer, bufferLen, operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     }
 
     // The immediate operand contains an actual ordinal value
@@ -270,15 +304,14 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
 
 static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisFormatter* formatter, 
     char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operand, 
-    uint64_t address)
+    ZydisDecodedOperand* operand, uint64_t address)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    switch (instruction->addressWidth)
+    switch (instruction->stackWidth)
     {
     case 16:
         return ZydisPrintHexU(buffer, bufferLen, (uint16_t)address, 4, ZYDIS_TRUE, ZYDIS_TRUE);
