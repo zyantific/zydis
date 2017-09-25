@@ -45,17 +45,22 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Calculates the absolute target-address of an relative instruction operand.
+ * @brief   Calculates the absolute target-address for the given instruction operand.
  *
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   address     A pointer to the memory that receives the absolute target-address.
  *
- * @return  A zydis status code
+ * @return  A zydis status code.
+ * 
+ * You should use this function in the following cases:
+ * - `IMM` operands with relative address (e.g. `JMP`, `CALL`, ...)
+ * - `MEM` operands with RIP/EIP-relative address (e.g. `MOV RAX, [RIP+0x12345678]`)
+ * - `MEM` operands with absolute address (e.g. `MOV RAX, [0x12345678]`)
+ *   - The displacement needs to get truncated and zero extended
  */
-ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
-    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand, 
-    uint64_t* address);
+ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, uint64_t* address);
 
 /* ============================================================================================== */
 /* Flags                                                                                          */
@@ -68,7 +73,7 @@ ZYDIS_EXPORT ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(
  * @param   action      The CPU-flag action.
  * @param   flags       A pointer to the variable that receives the flag mask.
  *
- * @return  A zydis status code
+ * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags);

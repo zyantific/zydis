@@ -34,7 +34,7 @@
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, uint64_t* address)
 {
     if (!instruction || !operand || !address)
@@ -58,6 +58,24 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* i
         {
             *address = (uint64_t)(instruction->instrPointer + operand->mem.disp.value);
             return ZYDIS_STATUS_SUCCESS;   
+        }
+        if ((operand->mem.base == ZYDIS_REGISTER_NONE) &&
+            (operand->mem.index == ZYDIS_REGISTER_NONE))
+        {
+            switch (instruction->addressWidth)
+            {
+            case 16:
+                *address = (uint64_t)operand->mem.disp.value & 0x000000000000FFFF;
+                return ZYDIS_STATUS_SUCCESS;
+            case 32:
+                *address = (uint64_t)operand->mem.disp.value & 0x00000000FFFFFFFF;
+                return ZYDIS_STATUS_SUCCESS;
+            case 64:
+                *address = (uint64_t)operand->mem.disp.value;
+                return ZYDIS_STATUS_SUCCESS;
+            default:
+                return ZYDIS_STATUS_INVALID_PARAMETER;
+            }    
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:

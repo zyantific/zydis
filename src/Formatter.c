@@ -157,40 +157,13 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         (operand->mem.base == ZYDIS_REGISTER_RIP)) &&
         (operand->mem.index == ZYDIS_REGISTER_NONE) && (operand->mem.scale == 0))
     {
-        // Address operand
-        uint64_t address = 0;
-        ZydisBool absolute = ZYDIS_TRUE;
-        if (operand->mem.base == ZYDIS_REGISTER_NONE)
+        // EIP/RIP-relative or absolute-displacement address operand
+        if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_DEFAULT) ||
+            (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE) ||
+            (operand->mem.base == ZYDIS_REGISTER_NONE))
         {
-            // MOFFS8/16/32/64
-            address = (uint64_t)operand->mem.disp.value;
-            switch (instruction->addressWidth)
-            {
-            case 16:
-                address &= 0xFFFF;
-                break;
-            case 32:
-                address &= 0xFFFFFFFF;
-                break;
-            case 64:
-                break;
-            default:
-                return ZYDIS_STATUS_INVALID_PARAMETER;
-            }
-        } else
-        {
-            // EIP/RIP-relative
-            if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_DEFAULT) ||
-                (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE))
-            {
-                ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));  
-            } else
-            {
-                absolute = ZYDIS_FALSE;
-            }
-        }
-        if (absolute)
-        {
+            uint64_t address;
+            ZYDIS_CHECK(ZydisCalcAbsoluteAddress(instruction, operand, &address));
             ZYDIS_CHECK(formatter->funcPrintAddress(formatter, buffer, bufEnd - *buffer, 
                 instruction, operand, address));  
         } else
@@ -275,7 +248,7 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         case ZYDIS_FORMATTER_ADDR_ABSOLUTE:
         {
             uint64_t address;
-            ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));
+            ZYDIS_CHECK(ZydisCalcAbsoluteAddress(instruction, operand, &address));
             return formatter->funcPrintAddress(formatter, buffer, bufferLen, instruction, operand, 
                 address);
         }

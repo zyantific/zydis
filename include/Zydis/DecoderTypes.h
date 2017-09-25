@@ -157,7 +157,7 @@ typedef struct ZydisDecodedOperand_
         ZydisBool isSigned;
         /**
          * @brief   Signals, if the immediate value contains a relative offset. You can use 
-         *          @c ZydisUtilsCalcAbsoluteTargetAddress to determine the absolute address value.
+         *          @c ZydisCalcAbsoluteAddress to determine the absolute address value.
          */
         ZydisBool isRelative;
         /**
@@ -1251,8 +1251,7 @@ typedef struct ZydisDecodedInstruction_
             ZydisBool isSigned;  
             /**
              * @brief   Signals, if the immediate value contains a relative offset. You can use 
-             *          @c ZydisUtilsCalcAbsoluteTargetAddress to determine the absolute address 
-             *          value.
+             *          @c ZydisCalcAbsoluteAddress to determine the absolute address value.
              */
             ZydisBool isRelative;
             /**
