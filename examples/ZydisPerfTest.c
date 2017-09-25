@@ -360,14 +360,15 @@ int main(int argc, char** argv)
     {
         FILE* file;
 
-        char buf[256];
-        strcpy(&buf[0], directory);
+        size_t len = strlen(directory);
+        char buf[1024];
+        strncpy(&buf[0], directory, sizeof(buf) - 1);
         if (generate)
         {
-            file = fopen(strcat(buf, tests[i].filename), "wb");   
+            file = fopen(strncat(buf, tests[i].filename, sizeof(buf) - len - 1), "wb");   
         } else
         {
-            file = fopen(strcat(buf, tests[i].filename), "rb");
+            file = fopen(strncat(buf, tests[i].filename, sizeof(buf) - len - 1), "rb");
         }
         if (!file)
         {

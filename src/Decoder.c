@@ -2326,7 +2326,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             (const ZydisInstructionDefinitionEVEX*)definition;
     
         // Vector length
-        uint8_t vectorLength = vectorLength = context->cache.LL;;
+        uint8_t vectorLength = context->cache.LL;
         if (def->vectorLength)
         {
             vectorLength = def->vectorLength - 1;
