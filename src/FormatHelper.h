@@ -94,15 +94,6 @@ enum ZydisLetterCases
 ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     ZydisLetterCase letterCase);
 
-/**
- * @brief   Rewrites the letter case of a given string.
- *
- * @param   buffer      The string to rewrite.
- * @param   bufferLen   The number of bytes in the buffer to case-rewrite. 
- * @param   letterCase  The desired letter case.
- */     
-ZYDIS_NO_EXPORT void ZydisChangeCase(char* buffer, size_t bufferLen, ZydisLetterCase letterCase);
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Decimal values                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */

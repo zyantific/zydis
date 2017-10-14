@@ -67,6 +67,38 @@ static const char* decimalLookup =
 /* Internal Functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
+void ZydisToLowerCase(char* buffer, size_t bufferLen)
+{
+    ZYDIS_ASSERT(buffer);
+    ZYDIS_ASSERT(bufferLen);
+
+    const signed char rebase = 'a' - 'A';
+    for (size_t i = 0; i < bufferLen; ++i)
+    {
+        char* c = buffer + i;
+        if ((*c >= 'A') && (*c <= 'Z'))
+        {
+            *c += rebase;
+        }
+    }
+}
+
+void ZydisToUpperCase(char* buffer, size_t bufferLen)
+{
+    ZYDIS_ASSERT(buffer);
+    ZYDIS_ASSERT(bufferLen);
+
+    const signed char rebase = 'A' - 'a';
+    for (size_t i = 0; i < bufferLen; ++i)
+    {
+        char* c = buffer + i;
+        if ((*c >= 'a') && (*c <= 'z'))
+        {
+            *c += rebase;
+        }
+    }
+}
+
 #ifdef ZYDIS_X86
 ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, uint8_t paddingLength)
 {
@@ -294,41 +326,19 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     }
 
     memcpy(*buffer, text, strLen + 1);
-    ZydisChangeCase(*buffer, strLen, letterCase);
-    *buffer += strLen;
-    return ZYDIS_STATUS_SUCCESS;
-}
-
-void ZydisChangeCase(char* buffer, size_t bufferLen, ZydisLetterCase letterCase)
-{
-    char rewriteRangeStart;
-    char rewriteRangeEnd;
-    signed char rebase;
-
     switch (letterCase)
     {
+    case ZYDIS_LETTER_CASE_DEFAULT:
+        break;
     case ZYDIS_LETTER_CASE_LOWER:
-        rewriteRangeStart = 'A';
-        rewriteRangeEnd = 'Z';
-        rebase = 'a' - 'A';
-        break;
+        ZydisToLowerCase(*buffer, strLen);
     case ZYDIS_LETTER_CASE_UPPER:
-        rewriteRangeStart = 'a';
-        rewriteRangeEnd = 'z';
-        rebase = 'A' - 'a';
-        break;
+        ZydisToUpperCase(*buffer, strLen);
     default:
-        return;
+        ZYDIS_UNREACHABLE;
     }
-
-    for (size_t i = 0; i < bufferLen; ++i)
-    {
-        char* c = buffer + i;
-        if (*c >= rewriteRangeStart && *c <= rewriteRangeEnd)
-        {
-            *c += rebase;
-        }
-    }
+    *buffer += strLen;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength)
