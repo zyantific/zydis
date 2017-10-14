@@ -2,7 +2,7 @@
 
   Zyan Disassembler Library (Zydis)
 
-  Original Author : Florian Bernd
+  Original Author : Florian Bernd, Joel Höner
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -292,27 +292,43 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
+
     memcpy(*buffer, text, strLen + 1);
+    ZydisChangeCase(*buffer, strLen, letterCase);
+    *buffer += strLen;
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+void ZydisChangeCase(char* buffer, size_t bufferLen, ZydisLetterCase letterCase)
+{
+    char rewriteRangeStart;
+    char rewriteRangeEnd;
+    signed char rebase;
+
     switch (letterCase)
     {
     case ZYDIS_LETTER_CASE_LOWER:
-        for (size_t i = 0; i < strLen; ++i)
-        {
-            (*buffer)[i] = (char)tolower((*buffer)[i]);    
-        }
+        rewriteRangeStart = 'A';
+        rewriteRangeEnd = 'Z';
+        rebase = 'a' - 'A';
         break;
     case ZYDIS_LETTER_CASE_UPPER:
-        for (size_t i = 0; i < strLen; ++i)
-        {
-            (*buffer)[i] = (char)toupper((*buffer)[i]);    
-        }
+        rewriteRangeStart = 'a';
+        rewriteRangeEnd = 'z';
+        rebase = 'A' - 'a';
         break;
     default:
-        break;
+        return;
     }
-    *buffer += strLen;
 
-    return ZYDIS_STATUS_SUCCESS;
+    for (size_t i = 0; i < bufferLen; ++i)
+    {
+        char* c = buffer + i;
+        if (*c >= rewriteRangeStart && *c <= rewriteRangeEnd)
+        {
+            *c += rebase;
+        }
+    }
 }
 
 ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength)
