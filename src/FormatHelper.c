@@ -321,7 +321,7 @@ void ZydisChangeCase(char* buffer, size_t bufferLen, ZydisLetterCase letterCase)
         return;
     }
 
-    for (size_t i; i < bufferLen; ++i)
+    for (size_t i = 0; i < bufferLen; ++i)
     {
         char* c = buffer + i;
         if (*c >= rewriteRangeStart && *c <= rewriteRangeEnd)
