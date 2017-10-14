@@ -4420,13 +4420,11 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     context.lastSegmentPrefix = 0;
     context.mandatoryCandidate = 0;
 
-    void* userData = instruction->userData;
     memset(instruction, 0, sizeof(*instruction));   
     instruction->machineMode = decoder->machineMode;
     instruction->stackWidth = decoder->addressWidth;
     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
     instruction->instrAddress = instructionPointer;
-    instruction->userData = userData;
 
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYDIS_CHECK(ZydisDecodeInstruction(&context, instruction));
