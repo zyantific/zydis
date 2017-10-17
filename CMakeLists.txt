@@ -12,9 +12,9 @@ project(Zydis VERSION 2.0)
 option(ZYDIS_FEATURE_DECODER
     "Enable instruction decoding and formtting functionality"
     ON)
-option(ZYDIS_FEATURE_ENCODER
-    "Enable instruction encoding functionality"
-    OFF)
+#option(ZYDIS_FEATURE_ENCODER
+#    "Enable instruction encoding functionality"
+#    OFF)
 option(ZYDIS_FEATURE_EVEX 
     "Enable support for EVEX instructions" 
     ON)
@@ -95,9 +95,9 @@ endif ()
 if (ZYDIS_FEATURE_DECODER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_DECODER")
 endif ()
-if (ZYDIS_FEATURE_ENCODER)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_ENCODER")
-endif ()
+#if (ZYDIS_FEATURE_ENCODER)
+#    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_ENCODER")
+#endif ()
 
 target_sources("Zydis"
     PUBLIC
@@ -134,15 +134,15 @@ if (ZYDIS_FEATURE_DECODER)
             "src/FormatHelper.c")
 endif ()
 
-if (ZYDIS_FEATURE_ENCODER)
-    target_sources("Zydis" 
-        PUBLIC 
-            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h" 
-        PRIVATE 
-            "src/EncoderData.h"
-            "src/Encoder.c"
-            "src/EncoderData.c")
-endif ()
+#if (ZYDIS_FEATURE_ENCODER)
+#    target_sources("Zydis" 
+#        PUBLIC 
+#            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h" 
+#        PRIVATE 
+#            "src/EncoderData.h"
+#            "src/Encoder.c"
+#            "src/EncoderData.c")
+#endif ()
 
 if (BUILD_SHARED_LIBS AND WIN32)
     target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
