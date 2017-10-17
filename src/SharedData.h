@@ -541,12 +541,16 @@ enum ZydisMaskPolicies
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(11); \
+    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(ZYDIS_MNEMONIC_MAX_BITS); \
     uint8_t operandCount                    ZYDIS_BITFIELD( 4); \
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3); \
     uint8_t flagsReference                  ZYDIS_BITFIELD( 7); \
-    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1)
+    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
+    ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MAX_BITS); \
+    ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MAX_BITS); \
+    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MAX_BITS); \
+    ZydisExceptionClass exceptionClass      ZYDIS_BITFIELD( 6)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
@@ -568,6 +572,7 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
     ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
+    ZydisBool isFarBranch                   ZYDIS_BITFIELD( 1);
     ZydisBool acceptsLock                   ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
@@ -624,7 +629,7 @@ typedef struct ZydisInstructionDefinitionMVEX_
 
 typedef struct ZydisAccessedFlags_
 {
-    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_ENUM_COUNT];
+    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_MAX_VALUE + 1];
 } ZydisAccessedFlags;
 
 /* ---------------------------------------------------------------------------------------------- */

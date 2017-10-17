@@ -31,6 +31,7 @@
 #include <string.h>
 #include <errno.h>
 #include <Zydis/Zydis.h>
+//#include "Zydis/Encoder.h"
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
@@ -38,6 +39,12 @@
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     if (argc < 1 || argc > 2)
     {
         fprintf(stderr, "Usage: %s [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
@@ -95,16 +102,23 @@ int main(int argc, char** argv)
             // TODO: Remove
             // DEBUG CODE START
 #if 0
-            for (size_t i = 0; i < info.length; ++i)
+            for (size_t i = 0; i < instruction.length; ++i)
             {
                 printf("%02X ", *(readBuf + readOffs + i));
             }
             putchar('\n');
 
+            ZydisEncoderRequest req;
+            ZydisStatus transStatus = ZydisEncoderDecodedInstructionToRequest(
+                &instruction, &req
+            );
+            (void)transStatus;
+            ZYDIS_ASSERT(ZYDIS_SUCCESS(transStatus));
+
             uint8_t encBuffer[15];
             size_t encBufferSize = sizeof(encBuffer);
             ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
-                encBuffer, &encBufferSize, &info
+                encBuffer, &encBufferSize, &req
             );
             (void)encStatus;
             ZYDIS_ASSERT(ZYDIS_SUCCESS(encStatus));
@@ -113,7 +127,7 @@ int main(int argc, char** argv)
                 printf("%02X ", encBuffer[i]);
             }
             putchar('\n');
-            ZYDIS_ASSERT(encBufferSize == info.length);
+            ZYDIS_ASSERT(encBufferSize == instruction.length);
             ZYDIS_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
 #endif
             // DEBUG CODE END

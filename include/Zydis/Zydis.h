@@ -37,6 +37,7 @@
 #include <Zydis/DecoderTypes.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Formatter.h>
+#include <Zydis/MetaInfo.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>   
 #include <Zydis/SharedTypes.h>

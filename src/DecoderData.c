@@ -239,7 +239,7 @@ extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 /* Physical instruction encodings                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
-#include <Generated/PhysicalEncodings.inc>
+#include <Generated/InstructionEncodings.inc>
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoder tree                                                                                   */
@@ -252,7 +252,7 @@ extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 #define ZYDIS_DEFINITION(encoding_id, id) \
     { ZYDIS_NODETYPE_DEFINITION_MASK | encoding_id, id }
 
-#include <Generated/InstructionFilters.inc>
+#include <Generated/DecoderTables.inc>
 
 #undef ZYDIS_INVALID
 #undef ZYDIS_FILTER
@@ -335,9 +335,7 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
         return &filtersMVEXE[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
-    }
-    static const ZydisDecoderTreeNode invalid = { ZYDIS_NODETYPE_INVALID, 0x00000000 }; 
-    return &invalid;    
+    } 
 }
 
 void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node, 
@@ -345,8 +343,10 @@ void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
     uint8_t class = (node->type) & 0x7F;
-    ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(physicalEncodings));
-    *info = &physicalEncodings[class];
+    ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionEncodings));
+    *info = &instructionEncodings[class];
 }
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

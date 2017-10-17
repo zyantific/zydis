@@ -24,146 +24,11 @@
 
 ***************************************************************************************************/
 
-#include <stdio.h>
-#include <stdarg.h>
 #include <string.h>
-#include <ctype.h>
-#include <inttypes.h>
+#include <Zydis/CommonTypes.h>
 #include <Zydis/Formatter.h>
 #include <Zydis/Utils.h>
-
-/* ============================================================================================== */
-/* String formatting                                                                              */
-/* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Enums and types                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- *  @brief  Defines the @c ZydisStringBufferAppendMode datatype.
- */
-typedef uint8_t ZydisStringBufferAppendMode;
-
-/**
- * @brief   Values that represent zydis string-buffer append-modes.
- */
-enum ZydisStringBufferAppendModes
-{
-    /**
-     *  @brief  Appends the string as it is.
-     */
-    ZYDIS_STRBUF_APPEND_MODE_DEFAULT,
-    /**
-     *  @brief  Converts the string to lowercase characters.
-     */
-    ZYDIS_STRBUF_APPEND_MODE_LOWERCASE,
-    /**
-     *  @brief  Converts the string to uppercase characters.
-     */
-    ZYDIS_STRBUF_APPEND_MODE_UPPERCASE
-};
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Internal functions                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Appends the @c text to the given @c buffer and increases the string-buffer pointer by
- *          the number of chars written.
- *
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
- * @param   mode        The append-mode.
- * @param   text        The text to append.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c text.
- */
-static ZydisStatus ZydisStringBufferAppend(char** buffer, size_t bufferLen, 
-    ZydisStringBufferAppendMode mode, const char* text)
-{
-    ZYDIS_ASSERT(buffer);
-    ZYDIS_ASSERT(bufferLen != 0);
-    ZYDIS_ASSERT(text);
-
-    size_t strLen = strlen(text);
-    if (strLen >= bufferLen)
-    {
-        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-    strncpy(*buffer, text, strLen + 1);
-    switch (mode)
-    {
-    case ZYDIS_STRBUF_APPEND_MODE_LOWERCASE:
-        for (size_t i = 0; i < strLen; ++i)
-        {
-            (*buffer[i]) = (char)tolower((*buffer)[i]);    
-        }
-        break;
-    case ZYDIS_STRBUF_APPEND_MODE_UPPERCASE:
-        for (size_t i = 0; i < strLen; ++i)
-        {
-            (*buffer)[i] = (char)toupper((*buffer)[i]);    
-        }
-        break;
-    default:
-        break;
-    }
-    *buffer += strLen;
-    return ZYDIS_STATUS_SUCCESS;
-}
-
-/**
- * @brief   Appends formatted text to the given @c buffer and increases the string-buffer pointer 
- *          by the number of chars written.
- *
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
- * @param   mode        The append-mode.
- * @param   format      The format string.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given text.
- */
-static ZydisStatus ZydisStringBufferAppendFormat(char** buffer, size_t bufferLen, 
-    ZydisStringBufferAppendMode mode, const char* format, ...)
-{
-    ZYDIS_ASSERT(buffer);
-    ZYDIS_ASSERT(bufferLen != 0);
-    ZYDIS_ASSERT(format);
-
-    va_list arglist;
-    va_start(arglist, format);
-    int w = vsnprintf(*buffer, bufferLen, format, arglist);
-    if ((w < 0) || ((size_t)w >= bufferLen))
-    {
-        va_end(arglist);
-        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-    switch (mode)
-    {
-    case ZYDIS_STRBUF_APPEND_MODE_LOWERCASE:
-        for (size_t i = 0; i < (size_t)w; ++i)
-        {
-            (*buffer)[i] = (char)tolower((*buffer)[i]);    
-        }
-        break;
-    case ZYDIS_STRBUF_APPEND_MODE_UPPERCASE:
-        for (size_t i = 0; i < (size_t)w; ++i)
-        {
-            (*buffer)[i] = (char)toupper((*buffer)[i]);    
-        }
-        break;
-    default:
-        break;
-    }
-    *buffer += (size_t)w;
-    va_end(arglist);
-    return ZYDIS_STATUS_SUCCESS;
-}
+#include <FormatHelper.h>
 
 /* ============================================================================================== */
 /* Instruction formatter                                                                          */
@@ -173,17 +38,19 @@ static ZydisStatus ZydisStringBufferAppendFormat(char** buffer, size_t bufferLen
 /* Internal macros                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-#define ZYDIS_APPENDMODE \
+#define ZYDIS_LETTER_CASE \
     (formatter->flags & ZYDIS_FMTFLAG_UPPERCASE) ? \
-        ZYDIS_STRBUF_APPEND_MODE_UPPERCASE : ZYDIS_STRBUF_APPEND_MODE_DEFAULT
+        ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Intel style                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisFormatterPrintPrefixesIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -191,61 +58,74 @@ static ZydisStatus ZydisFormatterPrintPrefixesIntel(const ZydisFormatter* format
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "lock ");
+        return ZydisPrintStr(buffer, bufferLen, "lock ", ZYDIS_LETTER_CASE);
     }
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "rep ");
+        return ZydisPrintStr(buffer, bufferLen, "rep ", ZYDIS_LETTER_CASE);
     }
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "repe ");
+        return ZydisPrintStr(buffer, bufferLen, "repe ", ZYDIS_LETTER_CASE);
     }
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "repne ");
+        return ZydisPrintStr(buffer, bufferLen, "repne ", ZYDIS_LETTER_CASE);
     } 
    
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_BOUND)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "bnd ");
+        return ZydisPrintStr(buffer, bufferLen, "bnd ", ZYDIS_LETTER_CASE);
     }
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "xacquire ");
+        return ZydisPrintStr(buffer, bufferLen, "xacquire ", ZYDIS_LETTER_CASE);
     } 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
     {
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, "xrelease ");
+        return ZydisPrintStr(buffer, bufferLen, "xrelease ", ZYDIS_LETTER_CASE);
     } 
 
     return ZYDIS_STATUS_SUCCESS;   
 }
 
 static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
+
+    char* bufEnd = *buffer + bufferLen;
 
     const char* mnemonic = ZydisMnemonicGetString(instruction->mnemonic);
     if (!mnemonic)
     {
         mnemonic = "invalid";
     }
-    return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, mnemonic);    
+    ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, mnemonic, ZYDIS_LETTER_CASE));
+    
+    if (instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
+    {
+        return ZydisPrintStr(buffer, bufEnd - *buffer, " far", ZYDIS_LETTER_CASE);
+    }
+
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -256,17 +136,17 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    const char* reg = ZydisRegisterGetString(operand->reg);
+    const char* reg = ZydisRegisterGetString(operand->reg.value);
     if (!reg)
     {
         reg = "invalid";
     }
-    return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, reg);
+    return ZydisPrintStr(buffer, bufferLen, reg, ZYDIS_LETTER_CASE);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
@@ -275,8 +155,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
 
     char* bufEnd = *buffer + bufferLen;
 
-    ZYDIS_CHECK(
-        ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "["));
+    ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, "[", ZYDIS_LETTER_CASE_DEFAULT));
  
     if (operand->mem.disp.hasDisplacement && (
         (operand->mem.base == ZYDIS_REGISTER_NONE) ||
@@ -284,19 +163,22 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         (operand->mem.base == ZYDIS_REGISTER_RIP)) &&
         (operand->mem.index == ZYDIS_REGISTER_NONE) && (operand->mem.scale == 0))
     {
-        // Address operand
-        uint64_t address;
-        if (operand->mem.base == ZYDIS_REGISTER_NONE)
+        // EIP/RIP-relative or absolute-displacement address operand
+        if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_DEFAULT) ||
+            (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE) ||
+            (operand->mem.base == ZYDIS_REGISTER_NONE))
         {
-            // MOFFS8/16/32/64
-            address = (uint64_t)operand->mem.disp.value;
+            uint64_t address;
+            ZYDIS_CHECK(ZydisCalcAbsoluteAddress(instruction, operand, &address));
+            ZYDIS_CHECK(formatter->funcPrintAddress(formatter, buffer, bufEnd - *buffer, 
+                instruction, operand, address, userData));  
         } else
         {
-            // EIP/RIP-relative
-            ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, 
+                ZydisRegisterGetString(operand->mem.base), ZYDIS_LETTER_CASE));
+            ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
+                instruction, operand, userData)); 
         }
-        ZYDIS_CHECK(formatter->funcPrintAddress(formatter, buffer, bufEnd - *buffer, 
-            instruction, operand, address));   
     } else
     {
         // Regular memory operand
@@ -307,7 +189,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, reg)); 
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE)); 
         }
         if (operand->mem.index != ZYDIS_REGISTER_NONE)
         {
@@ -316,38 +198,48 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            const char* c = (operand->mem.base != ZYDIS_REGISTER_NONE) ? "+" : "";
-            ZYDIS_CHECK(ZydisStringBufferAppendFormat(buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, 
-                "%s%s", c, reg));
+            if (operand->mem.base != ZYDIS_REGISTER_NONE)
+            {
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, "+", ZYDIS_LETTER_CASE_DEFAULT));
+            }
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE));
             if (operand->mem.scale)
             {
-                ZYDIS_CHECK(ZydisStringBufferAppendFormat(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "*%d", operand->mem.scale));    
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, "*", ZYDIS_LETTER_CASE_DEFAULT));
+                ZYDIS_CHECK(ZydisPrintDecU(buffer, bufEnd - *buffer, operand->mem.scale, 0));   
             }
         }
         ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
-            instruction, operand)); 
+            instruction, operand, userData)); 
     }
 
-    return ZydisStringBufferAppend(buffer, bufEnd - *buffer, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "]");
+    return ZydisPrintStr(buffer, bufEnd - *buffer, "]", ZYDIS_LETTER_CASE_DEFAULT);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-        "0x%04"PRIX16":0x%08"PRIX32, operand->ptr.segment, operand->ptr.offset);
+    char* bufEnd = *buffer + bufferLen;
+    ZYDIS_CHECK(ZydisPrintHexU(
+        buffer, bufEnd - *buffer, operand->ptr.segment, 4, ZYDIS_TRUE, ZYDIS_TRUE));
+    ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT));
+    return ZydisPrintHexU(
+        buffer, bufEnd - *buffer, operand->ptr.offset, 8, ZYDIS_TRUE, ZYDIS_TRUE);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
@@ -364,9 +256,9 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         case ZYDIS_FORMATTER_ADDR_ABSOLUTE:
         {
             uint64_t address;
-            ZYDIS_CHECK(ZydisUtilsCalcAbsoluteTargetAddress(instruction, operand, &address));
+            ZYDIS_CHECK(ZydisCalcAbsoluteAddress(instruction, operand, &address));
             return formatter->funcPrintAddress(formatter, buffer, bufferLen, instruction, operand, 
-                address);
+                address, userData);
         }
         case ZYDIS_FORMATTER_ADDR_RELATIVE_SIGNED:
             printSignedHEX = ZYDIS_TRUE;
@@ -376,49 +268,52 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
-        if (printSignedHEX && (operand->imm.value.s < 0))
+        
+        if (printSignedHEX)
         {
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -(int32_t)operand->imm.value.s);
+            return ZydisPrintHexS(
+                buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         }
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%02"PRIX32, (int32_t)operand->imm.value.s);
+        return ZydisPrintHexU(buffer, bufferLen, operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     }
 
     // The immediate operand contains an actual ordinal value
-    return formatter->funcPrintImmediate(formatter, buffer, bufferLen, instruction, operand);
+    return formatter->funcPrintImmediate(
+        formatter, buffer, bufferLen, instruction, operand, userData);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operand, 
-    uint64_t address)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction,
+    const ZydisDecodedOperand* operand, uint64_t address, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    switch (instruction->machineMode)
+    switch (instruction->stackWidth)
     {
     case 16:
+        return ZydisPrintHexU(buffer, bufferLen, (uint16_t)address, 4, ZYDIS_TRUE, ZYDIS_TRUE);
     case 32:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%08"PRIX64, address);
+        return ZydisPrintHexU(buffer, bufferLen, (uint32_t)address, 8, ZYDIS_TRUE, ZYDIS_TRUE);
     case 64:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "0x%016"PRIX64, address);   
+        return ZydisPrintHexU(buffer, bufferLen, address, 16, ZYDIS_TRUE, ZYDIS_TRUE);  
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 }
 
 static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -434,22 +329,27 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
             (operand->mem.base != ZYDIS_REGISTER_NONE) || 
             (operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -operand->mem.disp.value);     
+            return ZydisPrintHexS(
+                buffer, bufferLen, operand->mem.disp.value, 2, ZYDIS_TRUE, ZYDIS_TRUE);     
         }
-        const char* sign = 
-            ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
-            (operand->mem.index == ZYDIS_REGISTER_NONE)) ? "" : "+";
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_STRBUF_APPEND_MODE_DEFAULT, 
-            "%s0x%02"PRIX32, sign, operand->mem.disp.value);
+        char* bufEnd = *buffer + bufferLen;
+        if ((operand->mem.base != ZYDIS_REGISTER_NONE) || 
+            (operand->mem.index != ZYDIS_REGISTER_NONE))
+        {
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "+", ZYDIS_LETTER_CASE_DEFAULT));
+        }
+        return ZydisPrintHexU(
+            buffer, bufEnd - *buffer, (uint64_t)operand->mem.disp.value, 2, ZYDIS_TRUE, ZYDIS_TRUE); 
     }
     return ZYDIS_STATUS_SUCCESS; 
 }
 
 static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -460,37 +360,41 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
     {
         printSignedHEX = operand->imm.isSigned;    
     }
+
     if (printSignedHEX && (operand->imm.value.s < 0))
     {
         switch (operand->size)
         {
         case 8:
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX8, -(int8_t)operand->imm.value.s);
+            return ZydisPrintHexS(
+                buffer, bufferLen, (int8_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 16:
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX16, -(int16_t)operand->imm.value.s);
+            return ZydisPrintHexS(
+                buffer, bufferLen, (int16_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 32:
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX32, -(int32_t)operand->imm.value.s);
+            return ZydisPrintHexS(
+                buffer, bufferLen, (int32_t)operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         case 64:
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "-0x%02"PRIX64, -operand->imm.value.s);
+            return ZydisPrintHexS(
+                buffer, bufferLen, operand->imm.value.s, 2, ZYDIS_TRUE, ZYDIS_TRUE);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }    
     }
-    switch (instruction->operandSize)
+    switch (instruction->operandWidth)
     {
+    case 8:
+        return ZydisPrintHexU(
+            buffer, bufferLen, (uint8_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 16:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX16, (uint16_t)operand->imm.value.u);
+        return ZydisPrintHexU(
+            buffer, bufferLen, (uint16_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 32:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX32, (uint32_t)operand->imm.value.u);
+        return ZydisPrintHexU(
+            buffer, bufferLen, (uint32_t)operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     case 64:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, 
-            ZYDIS_STRBUF_APPEND_MODE_DEFAULT, "0x%02"PRIX64, operand->imm.value.u);
+        return ZydisPrintHexU(
+            buffer, bufferLen, operand->imm.value.u, 2, ZYDIS_TRUE, ZYDIS_TRUE);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -499,9 +403,11 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
 /* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* formatter,
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -528,7 +434,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
                     instruction->operands[0].size : 0;
             if (!typecast && 
                 (instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) && 
-                (instruction->operands[1].reg == ZYDIS_REGISTER_CL))
+                (instruction->operands[1].reg.value == ZYDIS_REGISTER_CL))
             {
                 switch (instruction->mnemonic)
                 {
@@ -558,7 +464,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
     }
     if (typecast)
     {
-        char* str = "";
+        const char* str = NULL;
         switch (typecast)
         {
         case 8:
@@ -591,42 +497,55 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
         default:
             break;
         }
-        return ZydisStringBufferAppend(buffer, bufferLen, ZYDIS_APPENDMODE, str);
+
+        if (str)
+        {
+            return ZydisPrintStr(buffer, bufferLen, str, ZYDIS_LETTER_CASE);
+        }
     }
     return ZYDIS_STATUS_SUCCESS;
 }
 
 static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatter,
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
+    char* bufEnd = *buffer + bufferLen;
     switch (operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
     case ZYDIS_REGISTER_CS:
     case ZYDIS_REGISTER_FS:
     case ZYDIS_REGISTER_GS:
-        return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-            ZydisRegisterGetString(operand->mem.segment));
+        ZYDIS_CHECK(
+            ZydisPrintStr(buffer, bufEnd - *buffer, 
+                ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+        return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
     case ZYDIS_REGISTER_SS:
         if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-                ZydisRegisterGetString(operand->mem.segment));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, 
+                    ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+            return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
         }
         break;
     case ZYDIS_REGISTER_DS:
         if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
         {
-            return ZydisStringBufferAppendFormat(buffer, bufferLen, ZYDIS_APPENDMODE, "%s:", 
-                ZydisRegisterGetString(operand->mem.segment));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, 
+                    ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+            return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
         }
         break;
     default:
@@ -636,9 +555,11 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
 }
 
 static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* formatter,
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, ZydisDecoratorType type)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData)
 {
+    (void)userData;
+
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction || !operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -656,12 +577,13 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            ZYDIS_CHECK(ZydisStringBufferAppendFormat(
-                buffer, bufEnd - *buffer, ZYDIS_APPENDMODE, " {%s}", reg)); 
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, " {", ZYDIS_LETTER_CASE_DEFAULT)); 
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE));
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, "}", ZYDIS_LETTER_CASE_DEFAULT));
             if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
             {
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {z}"));    
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {z}", ZYDIS_LETTER_CASE_DEFAULT));    
             } 
         }
         break;
@@ -674,28 +596,28 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
             case ZYDIS_BROADCAST_MODE_INVALID:
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_2:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {1to2}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {1to2}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_4:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {1to4}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {1to4}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_8:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {1to8}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {1to8}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_16:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {1to16}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {1to16}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_8:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {4to8}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {4to8}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_16:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {4to16}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {4to16}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -705,50 +627,50 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     case ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL:
         if (instruction->avx.hasSAE)
         {
-            switch (instruction->avx.roundingMode)
+            switch (instruction->avx.rounding.mode)
             {
             case ZYDIS_ROUNDING_MODE_INVALID:   
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn-sae}"));
+                ZYDIS_CHECK(ZydisPrintStr(
+                    buffer, bufEnd - *buffer, " {rn-sae}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd-sae}"));
+                ZYDIS_CHECK(ZydisPrintStr(
+                    buffer, bufEnd - *buffer, " {rd-sae}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru-sae}"));
+                ZYDIS_CHECK(ZydisPrintStr(
+                        buffer, bufEnd - *buffer, " {ru-sae}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz-sae}"));
+                ZYDIS_CHECK(ZydisPrintStr(
+                        buffer, bufEnd - *buffer, " {rz-sae}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }   
         } else
         {
-            switch (instruction->avx.roundingMode)
+            switch (instruction->avx.rounding.mode)
             {
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rn}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {rn}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rd}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {rd}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {ru}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {ru}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                    ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {rz}"));
+                ZYDIS_CHECK(
+                    ZydisPrintStr(buffer, bufEnd - *buffer, " {rz}", ZYDIS_LETTER_CASE_DEFAULT));
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -756,75 +678,75 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
         }
         break;
     case ZYDIS_DECORATOR_TYPE_SAE:
-        if (instruction->avx.hasSAE && !instruction->avx.roundingMode)
+        if (instruction->avx.hasSAE && !instruction->avx.rounding.mode)
         {
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sae}")); 
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {sae}", ZYDIS_LETTER_CASE_DEFAULT)); 
         }
         break;
     case ZYDIS_DECORATOR_TYPE_SWIZZLE:
-        switch (instruction->avx.swizzleMode)
+        switch (instruction->avx.swizzle.mode)
         {
         case ZYDIS_SWIZZLE_MODE_INVALID:
         case ZYDIS_SWIZZLE_MODE_DCBA:
             // Nothing to do here
             break;   
         case ZYDIS_SWIZZLE_MODE_CDAB:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {cdab}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {cdab}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_BADC:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {badc}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {badc}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_DACB:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {dacb}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {dacb}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_AAAA:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {aaaa}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {aaaa}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_BBBB:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {bbbb}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {bbbb}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_CCCC:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {cccc}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {cccc}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_SWIZZLE_MODE_DDDD:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {dddd}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {dddd}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
         break;
     case ZYDIS_DECORATOR_TYPE_CONVERSION:
-        switch (instruction->avx.conversionMode)
+        switch (instruction->avx.conversion.mode)
         {
         case ZYDIS_CONVERSION_MODE_INVALID:
             break;
         case ZYDIS_CONVERSION_MODE_FLOAT16:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {float16}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {float16}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_CONVERSION_MODE_SINT8:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sint8}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {sint8}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_CONVERSION_MODE_UINT8:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {uint8}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {uint8}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_CONVERSION_MODE_SINT16:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {sint16}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {sint16}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         case ZYDIS_CONVERSION_MODE_UINT16:
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {uint16}"));
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {uint16}", ZYDIS_LETTER_CASE_DEFAULT));
             break;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -833,8 +755,8 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     case ZYDIS_DECORATOR_TYPE_EVICTION_HINT:
         if (instruction->avx.hasEvictionHint)
         {
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 
-                ZYDIS_STRBUF_APPEND_MODE_DEFAULT, " {eh}"));     
+            ZYDIS_CHECK(
+                ZydisPrintStr(buffer, bufEnd - *buffer, " {eh}", ZYDIS_LETTER_CASE_DEFAULT));     
         }
         break;
     default:
@@ -845,7 +767,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
 }
 
 static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatter,
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction)
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, void* userData)
 {
     if (!formatter || !buffer || !*buffer || (bufferLen <= 0) || !instruction)
     {
@@ -853,15 +775,12 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
     }
 
     char* bufEnd = *buffer + bufferLen;
-    ZYDIS_CHECK(formatter->funcPrintPrefixes(formatter, buffer, bufEnd - *buffer, instruction));
-    ZYDIS_CHECK(formatter->funcPrintMnemonic(formatter, buffer, bufEnd - *buffer, instruction));
+    ZYDIS_CHECK(
+        formatter->funcPrintPrefixes(formatter, buffer, bufEnd - *buffer, instruction, userData));
+    ZYDIS_CHECK(
+        formatter->funcPrintMnemonic(formatter, buffer, bufEnd - *buffer, instruction, userData));
 
     char* bufRestore = *buffer;
-    if (instruction->operandCount > 0)
-    {
-        ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 0, " "));
-    }
-
     for (uint8_t i = 0; i < instruction->operandCount; ++i)
     {
         if (instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
@@ -869,10 +788,13 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
             break;
         }
 
-        if (i != 0)
+        if (i == 0)
+        {
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, " ", ZYDIS_LETTER_CASE_DEFAULT));
+        } else
         {
             bufRestore = *buffer;
-            ZYDIS_CHECK(ZydisStringBufferAppend(buffer, bufEnd - *buffer, 0, ", "));
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ", ", ZYDIS_LETTER_CASE_DEFAULT));
         }
 
         const char* bufPreOperand = *buffer;
@@ -880,17 +802,17 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
             ZYDIS_CHECK(formatter->funcFormatOperandReg(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
         {
             ZYDIS_CHECK(formatter->funcPrintOperandSize(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             ZYDIS_CHECK(formatter->funcPrintSegment(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             const char* bufTemp = *buffer;
             ZYDIS_CHECK(formatter->funcFormatOperandMem(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             if (bufTemp == *buffer)
             {
                 *buffer = (char*)bufPreOperand;
@@ -899,11 +821,11 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
         }
         case ZYDIS_OPERAND_TYPE_POINTER:
             ZYDIS_CHECK(formatter->funcFormatOperandPtr(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             ZYDIS_CHECK(formatter->funcFormatOperandImm(formatter, buffer, bufEnd - *buffer, 
-                instruction, &instruction->operands[i]));
+                instruction, &instruction->operands[i], userData));
             break;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -924,21 +846,21 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
                 {
                     ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                         bufEnd - *buffer, instruction, &instruction->operands[i], 
-                        ZYDIS_DECORATOR_TYPE_MASK));    
+                        ZYDIS_DECORATOR_TYPE_MASK, userData));    
                 }
                 if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
                 {
                     ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                         bufEnd - *buffer, instruction, &instruction->operands[i], 
-                        ZYDIS_DECORATOR_TYPE_BROADCAST));
+                        ZYDIS_DECORATOR_TYPE_BROADCAST, userData));
                     if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
                     {
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_CONVERSION)); 
+                            ZYDIS_DECORATOR_TYPE_CONVERSION, userData)); 
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_EVICTION_HINT));
+                            ZYDIS_DECORATOR_TYPE_EVICTION_HINT, userData));
                     }
                 } else
                 {
@@ -949,14 +871,14 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
                         {
                             ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                                 bufEnd - *buffer, instruction, &instruction->operands[i], 
-                                ZYDIS_DECORATOR_TYPE_SWIZZLE)); 
+                                ZYDIS_DECORATOR_TYPE_SWIZZLE, userData)); 
                         }
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL));
+                            ZYDIS_DECORATOR_TYPE_ROUNDING_CONTROL, userData));
                         ZYDIS_CHECK(formatter->funcPrintDecorator(formatter, buffer, 
                             bufEnd - *buffer, instruction, &instruction->operands[i], 
-                            ZYDIS_DECORATOR_TYPE_SAE));
+                            ZYDIS_DECORATOR_TYPE_SAE, userData));
                     }
                 }
             }
@@ -1145,14 +1067,20 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
         formatter->funcPrintImmediate = *(ZydisFormatterFormatOperandFunc*)&temp;
         break;
     default:
-        break;
+        return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    return ZYDIS_STATUS_INVALID_PARAMETER;
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
     ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen)
+{
+    return ZydisFormatterFormatInstructionEx(formatter, instruction, buffer, bufferLen, NULL);
+}
+
+ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
+    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData)
 {
     if (!formatter || !instruction || !buffer || (bufferLen == 0))
     {
@@ -1161,12 +1089,13 @@ ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter,
 
     if (formatter->funcPre)
     {
-        ZYDIS_CHECK(formatter->funcPre(formatter, instruction));
+        ZYDIS_CHECK(formatter->funcPre(formatter, instruction, userData));
     }
-    ZYDIS_CHECK(formatter->funcFormatInstruction(formatter, &buffer, bufferLen, instruction));
+    ZYDIS_CHECK(
+        formatter->funcFormatInstruction(formatter, &buffer, bufferLen, instruction, userData));
     if (formatter->funcPost)
     {
-        return formatter->funcPost(formatter, instruction);
+        return formatter->funcPost(formatter, instruction, userData);
     }
     return ZYDIS_STATUS_SUCCESS;
 }

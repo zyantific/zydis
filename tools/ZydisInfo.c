@@ -168,7 +168,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
         switch (instruction->operands[i].type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg));
+            printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg.value));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
             printf("  SEG   =%20s\n", ZydisRegisterGetString(instruction->operands[i].mem.segment));
@@ -251,30 +251,30 @@ void printFlags(ZydisDecodedInstruction* instruction)
     fputs("=======================================\n", stdout);
     printf("    ACTIONS: ");
     uint8_t c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
     {
-        if (instruction->flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
+        if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
             if (c && (c % 8 == 0))
             {
                 printf("\n             ");
             }
             ++c;
-            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->flags[i].action]);
+            printf("[%-4s: %s] ", flagNames[i], flagActions[instruction->accessedFlags[i].action]);
         }
     }
     puts(c ? "" : "none");
 
     ZydisCPUFlagMask flags, temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
     printf("       READ: 0x%08" PRIX32 "\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
     flags |= temp;
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
     flags |= temp;
     printf("    WRITTEN: 0x%08" PRIX32 "\n", flags);
-    ZydisGetCPUFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
     printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
 }
 
@@ -346,19 +346,19 @@ void printAVXInfo(ZydisDecodedInstruction* instruction)
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);
         printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
         printf("\n       MASK: %s [%5s]%s", ZydisRegisterGetString(instruction->avx.mask.reg), 
             maskModeStrings[instruction->avx.mask.mode], 
             instruction->avx.mask.isControlMask ? " (control-mask)" : "");
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.roundingMode]);
+        printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);
         printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
         printf("\n       MASK: %s [MERGE]", ZydisRegisterGetString(instruction->avx.mask.reg));
         printf("\n         EH: %s", instruction->avx.hasEvictionHint ? "Y" : "N");
-        printf("\n    SWIZZLE: %s", swizzleModeStrings[instruction->avx.swizzleMode]);
-        printf("\n    CONVERT: %s", conversionModeStrings[instruction->avx.conversionMode]);
+        printf("\n    SWIZZLE: %s", swizzleModeStrings[instruction->avx.swizzle.mode]);
+        printf("\n    CONVERT: %s", conversionModeStrings[instruction->avx.conversion.mode]);
         break;
     default:
         break;
@@ -391,6 +391,100 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         "MVEX"
     };
 
+    static const char* exceptionClassStrings[] =
+    {
+        "NONE",
+        "SSE1",
+        "SSE2",
+        "SSE3",
+        "SSE4",
+        "SSE5",
+        "SSE7",
+        "AVX1",
+        "AVX2",
+        "AVX3",
+        "AVX4",
+        "AVX5",
+        "AVX6",
+        "AVX7",
+        "AVX8",
+        "AVX11",
+        "AVX12",
+        "E1",
+        "E1NF",
+        "E2",
+        "E2NF",
+        "E3",
+        "E3NF",
+        "E4",
+        "E4NF",
+        "E5",
+        "E5NF",
+        "E6",
+        "E6NF",
+        "E7NM",
+        "E7NM128",
+        "E9NF",
+        "E10",
+        "E10NF",
+        "E11",
+        "E11NF",
+        "E12",
+        "E12NP",
+        "K20",
+        "K21"
+    };
+
+    struct
+    {
+        ZydisInstructionAttributes attrMask;
+        const char* str;
+    } attributeMap[] = 
+    {
+        { ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                },
+        { ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                  },        
+        { ZYDIS_ATTRIB_HAS_REX,                  "HAS_REX"                  },
+        { ZYDIS_ATTRIB_HAS_XOP,                  "HAS_XOP"                  },
+        { ZYDIS_ATTRIB_HAS_VEX,                  "HAS_VEX"                  },
+        { ZYDIS_ATTRIB_HAS_EVEX,                 "HAS_EVEX"                 },
+        { ZYDIS_ATTRIB_HAS_MVEX,                 "HAS_MVEX"                 },
+        { ZYDIS_ATTRIB_IS_RELATIVE,              "IS_RELATIVE"              },
+        { ZYDIS_ATTRIB_IS_PRIVILEGED,            "IS_PRIVILEGED"            },
+        { ZYDIS_ATTRIB_IS_FAR_BRANCH,            "IS_FAR_BRANCH"            },
+        { ZYDIS_ATTRIB_ACCEPTS_LOCK,             "ACCEPTS_LOCK"             },
+        { ZYDIS_ATTRIB_ACCEPTS_REP,              "ACCEPTS_REP"              },
+        { ZYDIS_ATTRIB_ACCEPTS_REPE,             "ACCEPTS_REPE"             },
+        { ZYDIS_ATTRIB_ACCEPTS_REPZ,             "ACCEPTS_REPZ"             },
+        { ZYDIS_ATTRIB_ACCEPTS_REPNE,            "ACCEPTS_REPNE"            },
+        { ZYDIS_ATTRIB_ACCEPTS_REPNZ,            "ACCEPTS_REPNZ"            },
+        { ZYDIS_ATTRIB_ACCEPTS_BOUND,            "ACCEPTS_BOUND"            },
+        { ZYDIS_ATTRIB_ACCEPTS_XACQUIRE,         "ACCEPTS_XACQUIRE"         },
+        { ZYDIS_ATTRIB_ACCEPTS_XRELEASE,         "ACCEPTS_XRELEASE"         },
+        { ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK, "ACCEPTS_HLE_WITHOUT_LOCK" },
+        { ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS,     "ACCEPTS_BRANCH_HINTS"     },
+        { ZYDIS_ATTRIB_ACCEPTS_SEGMENT,          "ACCEPTS_SEGMENT"          },
+        { ZYDIS_ATTRIB_HAS_LOCK,                 "HAS_LOCK"                 },
+        { ZYDIS_ATTRIB_HAS_REP,                  "HAS_REP"                  },
+        { ZYDIS_ATTRIB_HAS_REPE,                 "HAS_REPE"                 },
+        { ZYDIS_ATTRIB_HAS_REPZ,                 "HAS_REPZ"                 },
+        { ZYDIS_ATTRIB_HAS_REPNE,                "HAS_REPNE"                },
+        { ZYDIS_ATTRIB_HAS_REPNZ,                "HAS_REPNZ"                },
+        { ZYDIS_ATTRIB_HAS_BOUND,                "HAS_BOUND"                },
+        { ZYDIS_ATTRIB_HAS_XACQUIRE,             "HAS_XACQUIRE"             },
+        { ZYDIS_ATTRIB_HAS_XRELEASE,             "HAS_XRELEASE"             },
+        { ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN,     "HAS_BRANCH_NOT_TAKEN"     },
+        { ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,         "HAS_BRANCH_TAKEN"         },
+        { ZYDIS_ATTRIB_HAS_SEGMENT,              "HAS_SEGMENT"              },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_CS,           "HAS_SEGMENT_CS"           },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_SS,           "HAS_SEGMENT_SS"           },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_DS,           "HAS_SEGMENT_DS"           },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_ES,           "HAS_SEGMENT_ES"           },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_FS,           "HAS_SEGMENT_FS"           },
+        { ZYDIS_ATTRIB_HAS_SEGMENT_GS,           "HAS_SEGMENT_GS"           },
+        { ZYDIS_ATTRIB_HAS_OPERANDSIZE,          "HAS_OPERANDSIZE"          },
+        { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          }
+    };
+
     fputs("== [    BASIC ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
     printf("   MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n", 
@@ -400,8 +494,25 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         instruction->opcode);
     printf("     LENGTH: %2d\n", instruction->length);
     printf("        SSZ: %2d\n", instruction->stackWidth);
-    printf("       EOSZ: %2d\n", instruction->operandSize);
+    printf("       EOSZ: %2d\n", instruction->operandWidth);
     printf("       EASZ: %2d\n", instruction->addressWidth);
+    printf("   CATEGORY: %s\n", ZydisCategoryGetString(instruction->meta.category));
+    printf("    ISA-SET: %s\n", ZydisISASetGetString(instruction->meta.isaSet));
+    printf("    ISA-EXT: %s\n", ZydisISAExtGetString(instruction->meta.isaExt));
+    printf(" EXCEPTIONS: %s\n", exceptionClassStrings[instruction->meta.exceptionClass]);
+    
+    if (instruction->attributes)
+    {
+        fputs (" ATTRIBUTES: ", stdout);
+        for (size_t i = 0; i < ZYDIS_ARRAY_SIZE(attributeMap); ++i)
+        {
+            if (instruction->attributes & attributeMap[i].attrMask)
+            {
+                printf("%s ", attributeMap[i].str);
+            }
+        }
+        fputs("\n", stdout);
+    }
     
     if (instruction->operandCount > 0)
     {
@@ -410,7 +521,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     }
     
     if (ZydisRegisterGetClass(
-        instruction->operands[instruction->operandCount - 1].reg) == ZYDIS_REGCLASS_FLAGS)
+        instruction->operands[instruction->operandCount - 1].reg.value) == ZYDIS_REGCLASS_FLAGS)
     {
         puts("");
         printFlags(instruction);
@@ -442,6 +553,12 @@ void printInstruction(ZydisDecodedInstruction* instruction)
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return ZYDIS_STATUS_INVALID_OPERATION;
+    }
+
     if (argc < 3)
     {
         fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);

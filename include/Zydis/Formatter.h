@@ -57,7 +57,11 @@ enum ZydisFormatterStyles
     /**
      * @brief   Generates intel-style disassembly.
      */
-    ZYDIS_FORMATTER_STYLE_INTEL
+    ZYDIS_FORMATTER_STYLE_INTEL,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -70,16 +74,16 @@ typedef uint32_t ZydisFormatterFlags;
 /**
  * @brief   Formats the instruction in uppercase instead of lowercase.
  */
-#define ZYDIS_FMTFLAG_UPPERCASE         0x00000001
+#define ZYDIS_FMTFLAG_UPPERCASE         0x00000001 // (1 << 0)
 /**
  * @brief   Forces the formatter to always print the segment register of memory-operands, instead
  *          of ommiting implicit DS/SS segments.
  */
-#define ZYDIS_FMTFLAG_FORCE_SEGMENTS    0x00000002
+#define ZYDIS_FMTFLAG_FORCE_SEGMENTS    0x00000002 // (1 << 1)
 /**
  * @brief   Forces the formatter to always print the size of memory-operands. 
  */
-#define ZYDIS_FMTFLAG_FORCE_OPERANDSIZE 0x00000004
+#define ZYDIS_FMTFLAG_FORCE_OPERANDSIZE 0x00000004 // (1 << 2)
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -117,6 +121,10 @@ enum ZydisFormatterAddressFormats
      * "JMP 0xE0"
      */
     ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_ADDR_MAX_VALUE = ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -150,7 +158,11 @@ enum ZydisFormatterDisplacementFormats
      * "MOV EAX, DWORD PTR SS:[ESP+0x400]"
      * "MOV EAX, DWORD PTR SS:[ESP+0xFFFFFC00]"
      */
-    ZYDIS_FORMATTER_DISP_HEX_UNSIGNED
+    ZYDIS_FORMATTER_DISP_HEX_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_DISP_MAX_VALUE = ZYDIS_FORMATTER_DISP_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -189,7 +201,11 @@ enum ZydisFormatterImmediateFormats
      * "MOV EAX, 0x400"
      * "MOV EAX, 0xFFFFFC00"
      */
-    ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
+    ZYDIS_FORMATTER_IMM_HEX_UNSIGNED,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_IMM_MAX_VALUE = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -277,7 +293,11 @@ enum ZydisFormatterHookTypes
     /**
      * @brief   This function is called to print an immediate value.
      */
-    ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
+    ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -299,16 +319,21 @@ enum ZydisDecoratorTypes
     ZYDIS_DECORATOR_TYPE_SAE,
     ZYDIS_DECORATOR_TYPE_SWIZZLE,
     ZYDIS_DECORATOR_TYPE_CONVERSION,
-    ZYDIS_DECORATOR_TYPE_EVICTION_HINT
+    ZYDIS_DECORATOR_TYPE_EVICTION_HINT,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_DECORATOR_TYPE_MAX_VALUE = ZYDIS_DECORATOR_TYPE_EVICTION_HINT
 };
 
-typedef struct ZydisFormatter_  ZydisFormatter;
+typedef struct ZydisFormatter_ ZydisFormatter;
 
 /**
  * @brief   Defines the @c ZydisFormatterNotifyFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -317,7 +342,7 @@ typedef struct ZydisFormatter_  ZydisFormatter;
  * @c ZYDIS_FORMATTER_HOOK_POST hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter, 
-    ZydisDecodedInstruction* instruction);
+    const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatFunc function pointer.
@@ -326,6 +351,7 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter,
  * @param   buffer      A pointer to the string-buffer.
  * @param   bufferLen   The length of the string-buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -337,7 +363,7 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter,
  * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction);
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatOperandFunc function pointer.
@@ -347,6 +373,7 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * @param   bufferLen   The length of the string-buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
+ * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -373,8 +400,8 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand);
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, void* userData);
 
  /**
  * @brief   Defines the @c ZydisFormatterFormatAddressFunc function pointer.
@@ -384,6 +411,7 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* for
  * @param   bufferLen   The length of the string-buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
+ * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -395,8 +423,8 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, uint64_t address);
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, uint64_t address, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
@@ -407,6 +435,7 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   type        The decorator type.
+ * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
@@ -420,8 +449,8 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, ZydisDecoratorType type);
+    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatter struct.
@@ -508,6 +537,21 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
     ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen);
+
+/**
+ * @brief   Formats the given instruction and writes it into the output buffer.
+ *
+ * @param   formatter   A pointer to the @c ZydisFormatter instance.
+ * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   buffer      A pointer to the output buffer.
+ * @param   bufferLen   The length of the output buffer.
+ * @param   userData    A pointer to user-defined data which can be used in custom formatter 
+ *                      callbacks.
+ *
+ * @return  A zydis status code.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
+    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData);
 
 /* ============================================================================================== */
 

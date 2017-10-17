@@ -24,25 +24,45 @@
 
 ***************************************************************************************************/
 
-#include <Zydis/Mnemonic.h>
+#include <Zydis/MetaInfo.h>
 
 /* ============================================================================================== */
-/* Mnemonic strings                                                                               */
+/* Enum strings                                                                                   */
 /* ============================================================================================== */
 
-#include <Generated/EnumMnemonic.inc>
+#include <Generated/EnumInstructionCategory.inc>
+#include <Generated/EnumISASet.inc>
+#include <Generated/EnumISAExt.inc>
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
+const char* ZydisCategoryGetString(ZydisInstructionCategory category)
 {
-    if (mnemonic > ZYDIS_ARRAY_SIZE(zydisMnemonicStrings) - 1)
+    if (category > ZYDIS_ARRAY_SIZE(zydisInstructionCategoryStrings) - 1)
     {
         return NULL;
     }
-    return zydisMnemonicStrings[mnemonic];
+    return zydisInstructionCategoryStrings[category];    
+}
+
+const char* ZydisISASetGetString(ZydisISASet isaSet)
+{
+    if (isaSet > ZYDIS_ARRAY_SIZE(zydisISASetStrings) - 1)
+    {
+        return NULL;
+    }
+    return zydisISASetStrings[isaSet];    
+}
+
+const char* ZydisISAExtGetString(ZydisISAExt isaExt)
+{
+    if (isaExt > ZYDIS_ARRAY_SIZE(zydisISAExtStrings) - 1)
+    {
+        return NULL;
+    }
+    return zydisISAExtStrings[isaExt];     
 }
 
 /* ============================================================================================== */

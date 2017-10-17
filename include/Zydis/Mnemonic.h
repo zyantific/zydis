@@ -43,12 +43,7 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-/**
- * @brief   Defines the @c ZydisMnemonic datatype.
- */
-typedef uint16_t ZydisMnemonic;
-
-#include <Zydis/Generated/MnemonicDefines.h>    
+#include <Zydis/Generated/EnumMnemonic.h>    
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

@@ -39,6 +39,7 @@
 #   include <mach/mach_time.h>
 #elif defined(ZYDIS_LINUX)
 #   include <sys/time.h>
+#   include <pthread.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -46,6 +47,10 @@
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Time measurement                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
 
 #if defined(ZYDIS_WINDOWS)
 double   CounterFreq  = 0.0;
@@ -56,7 +61,7 @@ void StartCounter()
     LARGE_INTEGER li;
     if (!QueryPerformanceFrequency(&li))
     {
-        fputs("QueryPerformanceFrequency failed!\n", stderr);
+        fputs("Error: QueryPerformanceFrequency failed!\n", stderr);
     }
     CounterFreq = (double)li.QuadPart / 1000.0;
     QueryPerformanceCounter(&li);
@@ -90,8 +95,58 @@ double GetCounter()
     return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
 }
 #elif defined(ZYDIS_LINUX)
-// TODO:
+struct timeval t1;
+
+void StartCounter()
+{
+    gettimeofday(&t1, NULL);
+}
+
+double GetCounter()
+{
+    struct timeval t2;
+    gettimeofday(&t2, NULL);
+
+    double t = (t2.tv_sec - t1.tv_sec) * 1000.0;
+    return t + (t2.tv_usec - t1.tv_usec) / 1000.0;
+}
 #endif
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Process & Thread Priority                                                                      */
+/* ---------------------------------------------------------------------------------------------- */
+
+void adjustProcessAndThreadPriority()
+{
+#ifdef ZYDIS_WINDOWS
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    if (info.dwNumberOfProcessors > 1)
+    {
+        if (!SetThreadAffinityMask(GetCurrentThread(), (DWORD_PTR)1))
+        {
+            fputs("Warning: Could not set thread affinity mask\n", stderr);
+        }
+        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+        {
+            fputs("Warning: Could not set process priority class\n", stderr);
+        }
+        if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
+        {
+            fputs("Warning: Could not set thread priority class\n", stderr);
+        }
+    }
+#endif
+#ifdef ZYDIS_LINUX
+    pthread_t thread = pthread_self();
+    cpu_set_t cpus;
+    CPU_ZERO(&cpus);
+    CPU_SET(0, &cpus);
+    pthread_setaffinity_np(thread, sizeof(cpus), &cpus);
+#endif
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Internal functions                                                                             */
@@ -132,7 +187,7 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
         ZYDIS_ASSERT(ZYDIS_SUCCESS(status));
         if (!ZYDIS_SUCCESS(status))
         {
-            puts("Unexpected decoding error");
+            fputs("Unexpected decoding error\n", stderr);
             exit(EXIT_FAILURE);
         }
         ++count;
@@ -150,13 +205,17 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
 void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
     ZydisBool format)
 {
+    // Cache warmup
+    processBuffer(buffer, length, granularity, format);
+
+    // Testing
     uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
     {
         count += processBuffer(buffer, length, granularity, format);
     }
-    printf("Granularity %d, Formatting %d, Instructions: ~%6.2fM, Time: %8.2f msec\n", 
+    printf("Granularity %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
         granularity, format, (double)count / 1000000, GetCounter());  
 }
 
@@ -171,9 +230,9 @@ void generateTestData(FILE* file, uint8_t encoding)
     }
     
     uint8_t last = 0;
-    double size = 0;
+    uint32_t count = 0;
     ZydisDecodedInstruction instruction;
-    while (size < 1024 * 1024)
+    while (count < 100000)
     {
         uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
         for (int i = 0; i < ZYDIS_MAX_INSTRUCTION_LENGTH; ++i)
@@ -235,13 +294,13 @@ void generateTestData(FILE* file, uint8_t encoding)
             if (b)
             {
                 fwrite(&instruction.data[0], 1, instruction.length, file);
-                size += instruction.length;
+                ++count;
 
-                double p = (size / (1024 * 1024) * 100);
-                if (last < (uint8_t)p)
+                uint8_t p = (uint8_t)((double)count / 100000 * 100);
+                if (last < p)
                 {
-                    last = (uint8_t)p;
-                    printf("%3.0f%%\n", p);
+                    last = p;
+                    printf("%3.0d%%\n", p);
                 }
                 
             }
@@ -255,6 +314,12 @@ void generateTestData(FILE* file, uint8_t encoding)
 
 int main(int argc, char** argv)
 {
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
     if (argc < 3 || (strcmp(argv[1], "-test") && strcmp(argv[1], "-generate")))
     {
         fputs("Usage: PerfTest -[test|generate] [directory]\n", stderr);
@@ -286,21 +351,24 @@ int main(int argc, char** argv)
     if (generate)
     {
         time_t t;
-        srand((unsigned) time(&t));
+        srand((unsigned)time(&t));
     }
+
+    adjustProcessAndThreadPriority();
 
     for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(tests); ++i)
     {
         FILE* file;
 
-        char buf[256];
-        strcpy(&buf[0], directory);
+        size_t len = strlen(directory);
+        char buf[1024];
+        strncpy(&buf[0], directory, sizeof(buf) - 1);
         if (generate)
         {
-            file = fopen(strcat(buf, tests[i].filename), "wb");   
+            file = fopen(strncat(buf, tests[i].filename, sizeof(buf) - len - 1), "wb");   
         } else
         {
-            file = fopen(strcat(buf, tests[i].filename), "rb");
+            file = fopen(strncat(buf, tests[i].filename, sizeof(buf) - len - 1), "rb");
         }
         if (!file)
         {
@@ -317,16 +385,30 @@ int main(int argc, char** argv)
             fseek(file, 0L, SEEK_END);
             long length = ftell(file);
             void* buffer = malloc(length);
+            if (!buffer)
+            {
+                fprintf(stderr, 
+                    "Failed to allocate %" PRIu64 " bytes on the heap", (uint64_t)length); 
+                goto NextFile2;
+            }
+
             rewind(file);
-            fread(buffer, 1, length, file);
+            if (fread(buffer, 1, length, file) != length)
+            {
+                fprintf(stderr, 
+                    "Could not read %" PRIu64 " bytes from file \"%s\"", (uint64_t)length, &buf[0]);  
+                goto NextFile1;
+            }
 
             printf("Testing %s ...\n", tests[i].encoding);
             testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_MINIMAL, ZYDIS_FALSE);
             testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_FALSE);
-            // testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
-
+            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
             puts("");
+
+NextFile1:            
             free(buffer);
+NextFile2:
             fclose(file);
         }
     }

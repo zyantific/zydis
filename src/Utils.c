@@ -24,7 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <stdint.h>
 #include <Zydis/Utils.h>
 
 /* ============================================================================================== */
@@ -35,7 +34,7 @@
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, uint64_t* address)
 {
     if (!instruction || !operand || !address)
@@ -59,6 +58,24 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* i
         {
             *address = (uint64_t)(instruction->instrPointer + operand->mem.disp.value);
             return ZYDIS_STATUS_SUCCESS;   
+        }
+        if ((operand->mem.base == ZYDIS_REGISTER_NONE) &&
+            (operand->mem.index == ZYDIS_REGISTER_NONE))
+        {
+            switch (instruction->addressWidth)
+            {
+            case 16:
+                *address = (uint64_t)operand->mem.disp.value & 0x000000000000FFFF;
+                return ZYDIS_STATUS_SUCCESS;
+            case 32:
+                *address = (uint64_t)operand->mem.disp.value & 0x00000000FFFFFFFF;
+                return ZYDIS_STATUS_SUCCESS;
+            case 64:
+                *address = (uint64_t)operand->mem.disp.value;
+                return ZYDIS_STATUS_SUCCESS;
+            default:
+                return ZYDIS_STATUS_INVALID_PARAMETER;
+            }    
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
@@ -98,7 +115,7 @@ ZydisStatus ZydisUtilsCalcAbsoluteTargetAddress(const ZydisDecodedInstruction* i
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags)
 {
     if (!instruction)
@@ -106,9 +123,9 @@ ZydisStatus ZydisGetCPUFlagsByAction(const ZydisDecodedInstruction* instruction,
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
     *flags = 0;
-    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(instruction->flags); ++i)
+    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
     {
-        if (instruction->flags[i].action == action)
+        if (instruction->accessedFlags[i].action == action)
         {
             *flags |= (1 << i);
         }

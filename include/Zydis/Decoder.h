@@ -48,7 +48,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisDecodeGranularity datatype.
  */
-typedef uint32_t ZydisDecodeGranularity;
+typedef uint8_t ZydisDecodeGranularity;
 
 /**
  * @brief   Decoder modes defining how granular the instruction should be decoded.
@@ -73,7 +73,11 @@ enum ZydisDecodeGranularities
     /**
      * @brief   Full physical and semantic instruction-decoding.
      */
-    ZYDIS_DECODE_GRANULARITY_FULL
+    ZYDIS_DECODE_GRANULARITY_FULL,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_DECODE_GRANULARITY_MAX_VALUE = ZYDIS_DECODE_GRANULARITY_FULL,
 };
 
 /**
@@ -83,7 +87,7 @@ typedef struct ZydisDecoder_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisDecodeGranularity decodeGranularity;
+    ZydisDecodeGranularity granularity;
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -107,15 +111,15 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMod
 /**
  * @brief   Initializes the given @c ZydisDecoder instance.
  *
- * @param   decoder             A pointer to the @c ZydisDecoder instance.
- * @param   machineMode         The machine mode.
- * @param   addressWidth        The address width.
- * @param   decodeGranularity   The decode granularity.
+ * @param   decoder         A pointer to the @c ZydisDecoder instance.
+ * @param   machineMode     The machine mode.
+ * @param   addressWidth    The address width.
+ * @param   granularity     The decode granularity.
  *
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
-    ZydisAddressWidth addressWidth, ZydisDecodeGranularity decodeGranularity);
+    ZydisAddressWidth addressWidth, ZydisDecodeGranularity granularity);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
