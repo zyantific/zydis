@@ -332,8 +332,10 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
         break;
     case ZYDIS_LETTER_CASE_LOWER:
         ZydisToLowerCase(*buffer, strLen);
+        break;
     case ZYDIS_LETTER_CASE_UPPER:
         ZydisToUpperCase(*buffer, strLen);
+        break;
     default:
         ZYDIS_UNREACHABLE;
     }

@@ -464,7 +464,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
     }
     if (typecast)
     {
-        char* str = "";
+        const char* str = NULL;
         switch (typecast)
         {
         case 8:
@@ -497,7 +497,11 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
         default:
             break;
         }
-        return ZydisPrintStr(buffer, bufferLen, str, ZYDIS_LETTER_CASE);
+
+        if (str)
+        {
+            return ZydisPrintStr(buffer, bufferLen, str, ZYDIS_LETTER_CASE);
+        }
     }
     return ZYDIS_STATUS_SUCCESS;
 }
