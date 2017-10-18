@@ -220,7 +220,8 @@ enum ZydisInternalElementSizes
     ZYDIS_IELEMENT_SIZE_8,
     ZYDIS_IELEMENT_SIZE_16,
     ZYDIS_IELEMENT_SIZE_32,
-    ZYDIS_IELEMENT_SIZE_64
+    ZYDIS_IELEMENT_SIZE_64,
+    ZYDIS_IELEMENT_SIZE_128
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -606,7 +607,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
     ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD( 2);
     ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD( 4);
-    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 4);
+    ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 3);
     ZydisEVEXFunctionality functionality    ZYDIS_BITFIELD( 2);
     ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
     ZydisBool acceptsZeroMask               ZYDIS_BITFIELD( 1);
