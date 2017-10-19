@@ -4155,7 +4155,7 @@ const ZydisDecoderTreeNode filtersVectorLength[][3] =
 
 const ZydisDecoderTreeNode filtersREXW[][2] =
 {
-    { ZYDIS_INVALID, ZYDIS_DEFINITION(0x1, 0x5C9) }, 
+    { ZYDIS_INVALID, ZYDIS_DEFINITION(0x1, 0x3AD) }, 
     { ZYDIS_DEFINITION(0x1, 0x12B), ZYDIS_DEFINITION(0x1, 0x12C) }, 
     { ZYDIS_DEFINITION(0x1, 0x127), ZYDIS_DEFINITION(0x1, 0x128) }, 
     { ZYDIS_DEFINITION(0x1, 0x12D), ZYDIS_DEFINITION(0x1, 0x12E) }, 

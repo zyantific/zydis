@@ -154,7 +154,6 @@ typedef struct ZydisOperandDefinition_
         {
             uint8_t seg                     ZYDIS_BITFIELD(3);
             uint8_t base                    ZYDIS_BITFIELD(3); 
-            ZydisOperandAction baseAction   ZYDIS_BITFIELD(3);
         } mem;
     } op;
 } ZydisOperandDefinition;
@@ -179,6 +178,7 @@ enum ZydisImplicitRegisterType
 enum ZydisImplicitMemBase
 {
     ZYDIS_IMPLMEM_BASE_ABX,
+    ZYDIS_IMPLMEM_BASE_ASP,
     ZYDIS_IMPLMEM_BASE_ABP,
     ZYDIS_IMPLMEM_BASE_ASI,
     ZYDIS_IMPLMEM_BASE_ADI    

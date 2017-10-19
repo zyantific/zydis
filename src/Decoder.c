@@ -1623,11 +1623,13 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
 
-    // TODO: Base action
     switch (definition->op.mem.base)
     {
     case ZYDIS_IMPLMEM_BASE_ABX:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 3);
+        break;
+    case ZYDIS_IMPLMEM_BASE_ASP:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 4);
         break;
     case ZYDIS_IMPLMEM_BASE_ABP:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easzIndex], 5);
