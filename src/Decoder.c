@@ -1674,7 +1674,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
     const ZydisOperandDefinition* operand;
     instruction->operandCount = ZydisGetOperandDefinitions(definition, &operand);
 
-    ZYDIS_ASSERT(instruction->operandCount < ZYDIS_ARRAY_SIZE(instruction->operands));
+    ZYDIS_ASSERT(instruction->operandCount <= ZYDIS_ARRAY_SIZE(instruction->operands));
 
     for (uint8_t i = 0; i < instruction->operandCount; ++i)
     {
