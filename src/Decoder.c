@@ -2361,6 +2361,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case ZYDIS_IELEMENT_SIZE_64:
                 context->evex.elementSize = 64;
                 break;
+            case ZYDIS_IELEMENT_SIZE_128:
+                context->evex.elementSize = 128;
+                break;
             default:
                 ZYDIS_UNREACHABLE;
             }
