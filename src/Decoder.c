@@ -1096,7 +1096,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
         case ZYDIS_INSTRUCTION_ENCODING_XOP:
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
-            if (operand->mem.type != ZYDIS_MEMOP_TYPE_MEM)
+            if (operand->mem.type == ZYDIS_MEMOP_TYPE_AGEN)
             {
                 ZYDIS_ASSERT(definition->size[context->eoszIndex] == 0);
                 operand->size = instruction->addressWidth; 
