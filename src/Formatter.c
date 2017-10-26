@@ -1078,13 +1078,13 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
 }
 
 ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
-    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen)
+    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen)
 {
     return ZydisFormatterFormatInstructionEx(formatter, instruction, buffer, bufferLen, NULL);
 }
 
 ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
-    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData)
+    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData)
 {
     if (!formatter || !instruction || !buffer || (bufferLen == 0))
     {

@@ -536,7 +536,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
-    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen);
+    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen);
 
 /**
  * @brief   Formats the given instruction and writes it into the output buffer.
@@ -551,7 +551,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* f
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
-    ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData);
+    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData);
 
 /* ============================================================================================== */
 

@@ -393,7 +393,7 @@ int main(int argc, char** argv)
             }
 
             rewind(file);
-            if (fread(buffer, 1, length, file) != length)
+            if (fread(buffer, 1, length, file) != (size_t)length)
             {
                 fprintf(stderr, 
                     "Could not read %" PRIu64 " bytes from file \"%s\"", (uint64_t)length, &buf[0]);  
