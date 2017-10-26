@@ -46,6 +46,41 @@ extern "C" {
 /* Decoded operand                                                                                */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Memory type                                                                                    */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the @c ZydisMemoryOperandType datatype.
+ */
+typedef uint8_t ZydisMemoryOperandType;
+
+/**
+ * @brief   Values that represent memory-operand types.
+ */
+enum ZydisMemoryOperandTypes
+{
+    ZYDIS_MEMOP_TYPE_INVALID,
+    /**
+     * @brief   Normal memory operand.
+     */
+    ZYDIS_MEMOP_TYPE_MEM,
+    /**
+     * @brief   The memory operand is only used for address-generation. No real memory-access is
+     *          caused.
+     */
+    ZYDIS_MEMOP_TYPE_AGEN,
+    /**
+     * @brief   A memory operand using `SIB` addressing form, where the index register is not used  
+     *          in address calculation and scale is ignored. 
+     */
+    ZYDIS_MEMOP_TYPE_MIB
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Decoded operand                                                                                */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Defines the @c ZydisDecodedOperand struct.
  */
@@ -104,9 +139,9 @@ typedef struct ZydisDecodedOperand_
     struct
     {
         /**
-         * @brief   Signals, if the memory operand is only used for address generation.
+         * @brief   The type of the memory operand.
          */
-        ZydisBool isAddressGenOnly;
+        ZydisMemoryOperandType type;
         /**
          * @brief   The segment register.
          */
@@ -170,6 +205,8 @@ typedef struct ZydisDecodedOperand_
         } value;
     } imm;
 } ZydisDecodedOperand;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Decoded instruction                                                                            */

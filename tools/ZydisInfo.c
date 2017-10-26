@@ -155,6 +155,13 @@ void printOperands(ZydisDecodedInstruction* instruction)
             "JIMM32_32_64",
             "JIMM16_32_32"
         };
+        static const char* memopTypes[] =
+        {
+            "INVALID",
+            "MEM",
+            "AGEN",
+            "MIB"
+        };
         printf("%2d  %9s  %10s  %6s  %12s  %5d   %4d  %6d  %8s", 
             i,
             operandTypes[instruction->operands[i].type],
@@ -171,7 +178,9 @@ void printOperands(ZydisDecodedInstruction* instruction)
             printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg.value));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
-            printf("  SEG   =%20s\n", ZydisRegisterGetString(instruction->operands[i].mem.segment));
+            printf("  TYPE  =%20s\n", memopTypes[instruction->operands[i].mem.type]);
+            printf("  %84s =%20s\n", 
+                "SEG  ", ZydisRegisterGetString(instruction->operands[i].mem.segment));
             printf("  %84s =%20s\n", 
                 "BASE ", ZydisRegisterGetString(instruction->operands[i].mem.base));
             printf("  %84s =%20s\n", 

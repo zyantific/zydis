@@ -1096,7 +1096,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
         case ZYDIS_INSTRUCTION_ENCODING_XOP:
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
-            if (operand->mem.isAddressGenOnly)
+            if (operand->mem.type != ZYDIS_MEMOP_TYPE_MEM)
             {
                 ZYDIS_ASSERT(definition->size[context->eoszIndex] == 0);
                 operand->size = instruction->addressWidth; 
@@ -1365,6 +1365,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         ((instruction->addressWidth == 32) || (instruction->addressWidth == 64))));
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
+    operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
     uint8_t modrm_rm = instruction->raw.modrm.rm;
     uint8_t displacementSize = 0;
@@ -1864,16 +1865,29 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
             instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
-            instruction->operands[i].mem.isAddressGenOnly = ZYDIS_TRUE;
             ZYDIS_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGISTER_NONE)); 
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_AGEN;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYDIS_ASSERT(instruction->raw.disp.size);
             instruction->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
             instruction->operands[i].mem.disp.hasDisplacement = ZYDIS_TRUE;
             instruction->operands[i].mem.disp.value = instruction->raw.disp.value;
+            break;
+        case ZYDIS_SEMANTIC_OPTYPE_MIB:
+            instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
+            ZYDIS_CHECK(
+                ZydisDecodeOperandMemory(
+                    context, instruction, &instruction->operands[i], ZYDIS_REGISTER_NONE)); 
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_MIB;
+            // Relative addressing is not allowed for this type of memory-operand
+            if ((instruction->operands[i].mem.base == ZYDIS_REGISTER_EIP) ||
+                (instruction->operands[i].mem.base == ZYDIS_REGISTER_RIP))
+            {
+                return ZYDIS_STATUS_DECODING_ERROR;
+            }
             break;
         default:
             break;
@@ -4283,7 +4297,14 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             break;  
         case ZYDIS_NODETYPE_FILTER_MVEX_E:
             status = ZydisNodeHandlerMvexE(instruction, &index);
-            break;                           
+            break;   
+        case ZYDIS_NODETYPE_FILTER_FEATURE_MPX:
+        case ZYDIS_NODETYPE_FILTER_FEATURE_CET:
+        case ZYDIS_NODETYPE_FILTER_FEATURE_LZCNT:
+        case ZYDIS_NODETYPE_FILTER_FEATURE_TZCNT:
+            // TODO: Make configurable by option
+            index = 1;
+            break;
         default:
             if (nodeType & ZYDIS_NODETYPE_DEFINITION_MASK)
             { 

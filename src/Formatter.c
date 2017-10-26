@@ -191,7 +191,8 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             }
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE)); 
         }
-        if (operand->mem.index != ZYDIS_REGISTER_NONE)
+        if ((operand->mem.index != ZYDIS_REGISTER_NONE) && 
+            (operand->mem.type != ZYDIS_MEMOP_TYPE_MIB))
         {
             const char* reg = ZydisRegisterGetString(operand->mem.index);
             if (!reg)
@@ -418,11 +419,14 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
     uint32_t typecast = 0;
     if (formatter->flags & ZYDIS_FMTFLAG_FORCE_OPERANDSIZE)
     {
-        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && (!operand->mem.isAddressGenOnly))
+        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && 
+            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
         {
             typecast = instruction->operands[operand->id].size;
         }
-    } else if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && (!operand->mem.isAddressGenOnly)) 
+    } else 
+    if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && 
+        (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM)) 
     {
         switch (operand->id)
         {

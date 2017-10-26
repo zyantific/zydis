@@ -333,6 +333,18 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYDIS_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_FEATURE_MPX:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersFeatureMPX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_FEATURE_CET:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersFeatureCET[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_FEATURE_LZCNT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersFeatureLZCNT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_FEATURE_TZCNT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersFeatureTZCNT[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
     } 

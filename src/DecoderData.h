@@ -136,7 +136,23 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * @brief   Reference to an MVEX.E filter.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12
+    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12,
+    /**
+     * @brief   Reference to a MPX-feature filter.
+     */
+    ZYDIS_NODETYPE_FILTER_FEATURE_MPX       = 0x13,
+    /**
+     * @brief   Reference to a CET-feature filter.
+     */
+    ZYDIS_NODETYPE_FILTER_FEATURE_CET       = 0x14,
+    /**
+     * @brief   Reference to a LZCNT-feature filter.
+     */
+    ZYDIS_NODETYPE_FILTER_FEATURE_LZCNT     = 0x15,
+    /**
+     * @brief   Reference to a TZCNT-feature filter.
+     */
+    ZYDIS_NODETYPE_FILTER_FEATURE_TZCNT     = 0x16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
