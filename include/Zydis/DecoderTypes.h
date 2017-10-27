@@ -72,7 +72,8 @@ enum ZydisMemoryOperandTypes
     ZYDIS_MEMOP_TYPE_AGEN,
     /**
      * @brief   A memory operand using `SIB` addressing form, where the index register is not used  
-     *          in address calculation and scale is ignored. 
+     *          in address calculation and scale is ignored. No real memory-access is
+     *          caused.
      */
     ZYDIS_MEMOP_TYPE_MIB
 };
