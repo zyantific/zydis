@@ -60,7 +60,7 @@ typedef struct ZydisDecoderContext_
      */
     uint8_t lastSegmentPrefix;
     /**
-     * @brief   Contains the prefix that should be traited as the mandatory-prefix, if the current
+     * @brief   Contains the prefix that should be treated as the mandatory-prefix, if the current
      *          instruction needs one.
      *          
      *          The last 0xF3/0xF2 prefix has precedence over previous ones and 0xF3/0xF2 in 
@@ -4383,7 +4383,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         }
         ZYDIS_CHECK(status);
         node = ZydisDecoderTreeGetChildNode(node, index);
-    } while((nodeType != ZYDIS_NODETYPE_INVALID) && !(nodeType & ZYDIS_NODETYPE_DEFINITION_MASK));
+    } while ((nodeType != ZYDIS_NODETYPE_INVALID) && !(nodeType & ZYDIS_NODETYPE_DEFINITION_MASK));
     return ZYDIS_STATUS_SUCCESS;
 }
 
@@ -4447,7 +4447,7 @@ ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
 ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buffer, 
     size_t bufferLen, uint64_t instructionPointer, ZydisDecodedInstruction* instruction)
 {
-    if (!decoder)
+    if (!decoder || !instruction)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
