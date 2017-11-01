@@ -152,15 +152,20 @@ void adjustProcessAndThreadPriority()
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
-    ZydisBool format)
+uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
 {
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitEx(&decoder, 
-        ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64, granularity)))
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         exit(EXIT_FAILURE);
+    }
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
+    {
+        fputs("Failed to adjust decoder-mode\n", stderr);
+        exit(EXIT_FAILURE);    
     }
 
     ZydisFormatter formatter;
@@ -202,21 +207,20 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
     return count;
 }
 
-void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
-    ZydisBool format)
+void testPerformance(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
 {
     // Cache warmup
-    processBuffer(buffer, length, granularity, format);
+    processBuffer(buffer, length, minimalMode, format);
 
     // Testing
     uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
     {
-        count += processBuffer(buffer, length, granularity, format);
+        count += processBuffer(buffer, length, minimalMode, format);
     }
-    printf("Granularity %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
-        granularity, format, (double)count / 1000000, GetCounter());  
+    printf("Minimal-Mode %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
+        minimalMode, format, (double)count / 1000000, GetCounter());  
 }
 
 void generateTestData(FILE* file, uint8_t encoding)
@@ -401,9 +405,9 @@ int main(int argc, char** argv)
             }
 
             printf("Testing %s ...\n", tests[i].encoding);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_MINIMAL, ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
+            testPerformance(buffer, length, ZYDIS_TRUE , ZYDIS_FALSE);
+            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_FALSE);
+            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_TRUE );
             puts("");
 
 NextFile1:            

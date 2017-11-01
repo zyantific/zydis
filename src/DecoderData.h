@@ -138,21 +138,25 @@ enum ZydisDecoderTreeNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12,
     /**
-     * @brief   Reference to a MPX-feature filter.
+     * @brief   Reference to a AMD-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_FEATURE_MPX       = 0x13,
+    ZYDIS_NODETYPE_FILTER_MODE_AMD          = 0x13,
     /**
-     * @brief   Reference to a CET-feature filter.
+     * @brief   Reference to a MPX-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_FEATURE_CET       = 0x14,
+    ZYDIS_NODETYPE_FILTER_MODE_MPX          = 0x14,
     /**
-     * @brief   Reference to a LZCNT-feature filter.
+     * @brief   Reference to a CET-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_FEATURE_LZCNT     = 0x15,
+    ZYDIS_NODETYPE_FILTER_MODE_CET          = 0x15,
     /**
-     * @brief   Reference to a TZCNT-feature filter.
+     * @brief   Reference to a LZCNT-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_FEATURE_TZCNT     = 0x16
+    ZYDIS_NODETYPE_FILTER_MODE_LZCNT        = 0x16,
+    /**
+     * @brief   Reference to a TZCNT-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x17
 };
 
 /* ---------------------------------------------------------------------------------------------- */

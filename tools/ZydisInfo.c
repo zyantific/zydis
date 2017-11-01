@@ -590,7 +590,7 @@ int main(int argc, char** argv)
     {
         fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
         return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
+    }  
 
     uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
     uint8_t length = 0;

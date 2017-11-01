@@ -333,18 +333,21 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYDIS_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_FEATURE_MPX:
+    case ZYDIS_NODETYPE_FILTER_MODE_AMD:
         ZYDIS_ASSERT(index <   2);
-        return &filtersFeatureMPX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_FEATURE_CET:
+        return &filtersModeAMD[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_MPX:
         ZYDIS_ASSERT(index <   2);
-        return &filtersFeatureCET[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_FEATURE_LZCNT:
+        return &filtersModeMPX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_CET:
         ZYDIS_ASSERT(index <   2);
-        return &filtersFeatureLZCNT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_FEATURE_TZCNT:
+        return &filtersModeCET[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
         ZYDIS_ASSERT(index <   2);
-        return &filtersFeatureTZCNT[parent->value][index];
+        return &filtersModeLZCNT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeTZCNT[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
     } 
