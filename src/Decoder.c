@@ -2107,8 +2107,8 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
                     break;
                 }
             }
-            if ((context->decoder->flags & ZYDIS_DECODER_FLAG_MPX) && 
-                (instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_BOUND))
+            if (context->decoder->decoderMode[ZYDIS_DECODER_MODE_MPX] && 
+                instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_BOUND)
             {
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_BOUND;
                 break;
@@ -4300,19 +4300,19 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             status = ZydisNodeHandlerMvexE(instruction, &index);
             break;   
         case ZYDIS_NODETYPE_FILTER_MODE_AMD:
-            index = context->decoder->flags & ZYDIS_DECODER_FLAG_AMD_BRANCHES ? 1 : 0;
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_AMD_BRANCHES] ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_MPX:
-            index = context->decoder->flags & ZYDIS_DECODER_FLAG_MPX ? 1 : 0;
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_MPX] ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_CET:
-            index = context->decoder->flags & ZYDIS_DECODER_FLAG_CET ? 1 : 0;
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_CET] ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
-            index = context->decoder->flags & ZYDIS_DECODER_FLAG_LZCNT ? 1 : 0;
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_LZCNT] ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
-            index = context->decoder->flags & ZYDIS_DECODER_FLAG_TZCNT ? 1 : 0;
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_TZCNT] ? 1 : 0;
             break;
         default:
             if (nodeType & ZYDIS_NODETYPE_DEFINITION_MASK)
@@ -4353,7 +4353,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 instruction->meta.isaExt = definition->isaExt;
                 instruction->meta.exceptionClass = definition->exceptionClass;
 
-                if (!(context->decoder->flags & ZYDIS_DECODER_FLAG_MINIMAL))
+                if (!context->decoder->decoderMode[ZYDIS_DECODER_MODE_MINIMAL])
                 {
                     ZydisSetAttributes(context, instruction, definition);
                     switch (instruction->encoding)
@@ -4396,12 +4396,17 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
     ZydisAddressWidth addressWidth)
 {
-    return ZydisDecoderInitEx(decoder, machineMode, addressWidth, ZYDIS_DECODER_FLAG_DEFAULT_MASK);
-}
+    static const ZydisBool decoderModes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
+    {
+        ZYDIS_FALSE, // ZYDIS_DECODER_MODE_INVALID
+        ZYDIS_FALSE, // ZYDIS_DECODER_MODE_MINIMAL
+        ZYDIS_FALSE, // ZYDIS_DECODER_MODE_AMD_BRANCHES
+        ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MPX
+        ZYDIS_TRUE , // ZYDIS_DECODER_MODE_CET
+        ZYDIS_TRUE , // ZYDIS_DECODER_MODE_LZCNT
+        ZYDIS_TRUE   // ZYDIS_DECODER_MODE_TZCNT
+    };
 
-ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
-    ZydisAddressWidth addressWidth, ZydisDecoderFlags flags)
-{
     if (!decoder || ((machineMode != 16) && (machineMode != 32) && (machineMode != 64)))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -4422,9 +4427,21 @@ ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMo
 
     decoder->machineMode = machineMode;
     decoder->addressWidth = addressWidth;
-    decoder->flags = flags;
+    memcpy(&decoder->decoderMode, &decoderModes, sizeof(decoderModes));
 
-    return ZYDIS_STATUS_SUCCESS;    
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode, ZydisBool enabled)
+{
+    if (!decoder || !mode || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    decoder->decoderMode[mode] = enabled;
+
+    return ZYDIS_STATUS_SUCCESS;
 }
 
 ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buffer, 
