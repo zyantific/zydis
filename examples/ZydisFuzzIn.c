@@ -43,7 +43,7 @@ typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZydisDecoderFlags decoderFlags;
     ZydisFormatterStyle formatterStyle;
     ZydisFormatterFlags formatterFlags;
     ZydisFormatterAddressFormat formatterAddrFormat;
@@ -71,20 +71,11 @@ int main()
     }
 
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(
-        ZydisDecoderInit(&decoder, controlBlock.machineMode, controlBlock.addressWidth)))
+    if (!ZYDIS_SUCCESS(ZydisDecoderInitEx(&decoder, controlBlock.machineMode, 
+        controlBlock.addressWidth, controlBlock.decoderFlags)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
-    }
-    for (ZydisDecoderMode mode = 1; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
-    {
-        if (!ZYDIS_SUCCESS(
-            ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
-        {
-            fputs("Failed to adjust decoder-mode\n", stderr);
-            return EXIT_FAILURE;
-        }
     }
 
     ZydisFormatter formatter;

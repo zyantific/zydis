@@ -154,18 +154,18 @@ void adjustProcessAndThreadPriority()
 
 uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
 {
+    ZydisDecoderFlags flags = ZYDIS_DECODER_FLAG_DEFAULT_MASK;
+    if (minimalMode)
+    {
+        flags |= ZYDIS_DECODER_FLAG_MINIMAL;
+    }
+
     ZydisDecoder decoder;
     if (!ZYDIS_SUCCESS(
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+        ZydisDecoderInitEx(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64, flags)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         exit(EXIT_FAILURE);
-    }
-    if (!ZYDIS_SUCCESS(
-        ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
-    {
-        fputs("Failed to adjust decoder-mode\n", stderr);
-        exit(EXIT_FAILURE);    
     }
 
     ZydisFormatter formatter;

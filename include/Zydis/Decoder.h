@@ -46,77 +46,74 @@ extern "C" {
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Decoder mode                                                                                   */
+/* Decoder flags                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecoderMode datatype.
+ * @brief   Defines the @c ZydisDecoderFlags datatype.
  */
-typedef uint8_t ZydisDecoderMode;
+typedef uint8_t ZydisDecoderFlags;
 
 /**
- * @brief   Values that represent decoder-modes.
+ * @brief   Enables minimal instruction decoding without semantic analysis.
+ * 
+ * This mode provides access to the mnemonic, the instruction-length, the effective 
+ * operand-size, the effective address-width, some attributes (e.g. `ZYDIS_ATTRIB_IS_RELATIVE`) 
+ * and all of the information in the `raw` field of the `ZydisDecodedInstruction` struct.
+ * 
+ * Operands, most attributes and other specific information (like AVX info) are not 
+ * accessible in this mode.
  */
-enum ZydisDecoderModes
-{
-    ZYDIS_DECODER_MODE_INVALID,
-    /**
-     * @brief   Enables minimal instruction decoding without semantic analysis.
-     * 
-     * This mode provides access to the mnemonic, the instruction-length, the effective 
-     * operand-size, the effective address-width, some attributes (e.g. `ZYDIS_ATTRIB_IS_RELATIVE`) 
-     * and all of the information in the `raw` field of the `ZydisDecodedInstruction` struct.
-     * 
-     * Operands, most attributes and other specific information (like AVX info) are not 
-     * accessible in this mode.
-     */
-    ZYDIS_DECODER_MODE_MINIMAL,
-    /**
-     * @brief   Enables the AMD-branch mode.
-     * 
-     * Intel ignores the operand-size override-prefix (`0x66`) for all branches with 32-bit 
-     * immediates and forces the operand-size of the instruction to 64-bit in 64-bit mode.
-     * In AMD-branch mode `0x66` is not ignored and changes the operand-size and the size of the
-     * immediate to 16-bit.
-     */
-    ZYDIS_DECODER_MODE_AMD_BRANCHES,
-    /**
-     * @brief   Enables the MPX mode.
-     * 
-     * The MPX isa-extension reuses (overrides) some of the widenop instruction opcodes. 
-     * 
-     * This mode is enabled by default. 
-     */
-    ZYDIS_DECODER_MODE_MPX,
-    /**
-     * @brief   Enables the CET mode.
-     * 
-     * The CET isa-extension reuses (overrides) some of the widenop instruction opcodes. 
-     * 
-     * This mode is enabled by default.  
-     */
-    ZYDIS_DECODER_MODE_CET,
-    /**
-     * @brief   Enables the LZCNT mode.
-     * 
-     * The LZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.
-     * 
-     * This mode is enabled by default.   
-     */
-    ZYDIS_DECODER_MODE_LZCNT,
-    /**
-     * @brief   Enables the TZCNT mode.
-     * 
-     * The TZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.  
-     * 
-     * This mode is enabled by default. 
-     */
-    ZYDIS_DECODER_MODE_TZCNT,
-    /**
-     * @brief   Maximum value of this enum.
-     */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_TZCNT
-};
+#define ZYDIS_DECODER_FLAG_MINIMAL      0x01 // (1 << 0)
+/**
+ * @brief   Enables the AMD-branch mode.
+ * 
+ * Intel ignores the operand-size override-prefix (`0x66`) for all branches with 32-bit 
+ * immediates and forces the operand-size of the instruction to 64-bit in 64-bit mode.
+ * In AMD-branch mode `0x66` is not ignored and changes the operand-size and the size of the
+ * immediate to 16-bit.
+ */
+#define ZYDIS_DECODER_FLAG_AMD_BRANCHES 0x02 // (1 << 1)
+/**
+ * @brief   Enables the MPX mode.
+ * 
+ * The MPX ISA-extension reuses (overrides) some of the widenop instruction opcodes. 
+ * 
+ * This mode is enabled by default. 
+ */
+#define ZYDIS_DECODER_FLAG_MPX          0x04 // (1 << 2)
+/**
+ * @brief   Enables the CET mode.
+ * 
+ * The CET ISA-extension reuses (overrides) some of the widenop instruction opcodes. 
+ * 
+ * This mode is enabled by default.  
+ */
+#define ZYDIS_DECODER_FLAG_CET          0x08 // (1 << 3)
+/**
+ * @brief   Enables the LZCNT mode.
+ * 
+ * The LZCNT ISA-extension reuses (overrides) some of the widenop instruction opcodes.
+ * 
+ * This mode is enabled by default.   
+ */
+#define ZYDIS_DECODER_FLAG_LZCNT        0x10 // (1 << 4)
+/**
+ * @brief   Enables the TZCNT mode.
+ * 
+ * The TZCNT ISA-extension reuses (overrides) some of the widenop instruction opcodes.  
+ * 
+ * This mode is enabled by default. 
+ */
+#define ZYDIS_DECODER_FLAG_TZCNT        0x20 // (1 << 5)
+
+/**
+ * @brief   The default set of decoder-flags.
+ */
+#define ZYDIS_DECODER_FLAG_DEFAULT_MASK ZYDIS_DECODER_FLAG_MPX | \
+                                        ZYDIS_DECODER_FLAG_CET | \
+                                        ZYDIS_DECODER_FLAG_LZCNT | \
+                                        ZYDIS_DECODER_FLAG_TZCNT
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoder struct                                                                                 */
@@ -129,7 +126,7 @@ typedef struct ZydisDecoder_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZydisDecoderFlags flags;
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -151,16 +148,17 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMod
     ZydisAddressWidth addressWidth);
 
 /**
- * @brief   Enables or disables the specified decoder-mode.
+ * @brief   Initializes the given @c ZydisDecoder instance.
  *
- * @param   decoder A pointer to the @c ZydisDecoder instance.
- * @param   mode    The decoder mode.
- * @param   enabled `ZYDIS_TRUE` to enable, or `ZYDIS_FALSE` to disable the specified decoder-mode.
+ * @param   decoder         A pointer to the @c ZydisDecoder instance.
+ * @param   machineMode     The machine mode.
+ * @param   addressWidth    The address width.
+ * @param   flags           Additional decoder flags.
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
-    ZydisBool enabled);
+ZYDIS_EXPORT ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
+    ZydisAddressWidth addressWidth, ZydisDecoderFlags flags);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
