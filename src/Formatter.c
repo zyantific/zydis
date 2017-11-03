@@ -35,14 +35,6 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Internal macros                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-#define ZYDIS_LETTER_CASE \
-    (formatter->flags & ZYDIS_FMTFLAG_UPPERCASE) ? \
-        ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Intel style                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -58,34 +50,34 @@ static ZydisStatus ZydisFormatterPrintPrefixesIntel(const ZydisFormatter* format
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
-        return ZydisPrintStr(buffer, bufferLen, "lock ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "lock ", formatter->letterCase);
     }
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
     {
-        return ZydisPrintStr(buffer, bufferLen, "rep ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "rep ", formatter->letterCase);
     }
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
     {
-        return ZydisPrintStr(buffer, bufferLen, "repe ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "repe ", formatter->letterCase);
     }
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
-        return ZydisPrintStr(buffer, bufferLen, "repne ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "repne ", formatter->letterCase);
     } 
    
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_BOUND)
     {
-        return ZydisPrintStr(buffer, bufferLen, "bnd ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "bnd ", formatter->letterCase);
     }
 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
     {
-        return ZydisPrintStr(buffer, bufferLen, "xacquire ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "xacquire ", formatter->letterCase);
     } 
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
     {
-        return ZydisPrintStr(buffer, bufferLen, "xrelease ", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufferLen, "xrelease ", formatter->letterCase);
     } 
 
     return ZYDIS_STATUS_SUCCESS;   
@@ -108,11 +100,11 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* format
     {
         mnemonic = "invalid";
     }
-    ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, mnemonic, ZYDIS_LETTER_CASE));
+    ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, mnemonic, formatter->letterCase));
     
     if (instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
     {
-        return ZydisPrintStr(buffer, bufEnd - *buffer, " far", ZYDIS_LETTER_CASE);
+        return ZydisPrintStr(buffer, bufEnd - *buffer, " far", formatter->letterCase);
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -141,7 +133,7 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* for
     {
         reg = "invalid";
     }
-    return ZydisPrintStr(buffer, bufferLen, reg, ZYDIS_LETTER_CASE);
+    return ZydisPrintStr(buffer, bufferLen, reg, formatter->letterCase);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* formatter, 
@@ -164,8 +156,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         (operand->mem.index == ZYDIS_REGISTER_NONE) && (operand->mem.scale == 0))
     {
         // EIP/RIP-relative or absolute-displacement address operand
-        if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_DEFAULT) ||
-            (formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE) ||
+        if ((formatter->addressFormat == ZYDIS_FORMATTER_ADDR_ABSOLUTE) ||
             (operand->mem.base == ZYDIS_REGISTER_NONE))
         {
             uint64_t address;
@@ -175,7 +166,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         } else
         {
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, 
-                ZydisRegisterGetString(operand->mem.base), ZYDIS_LETTER_CASE));
+                ZydisRegisterGetString(operand->mem.base), formatter->letterCase));
             ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, buffer, bufEnd - *buffer,
                 instruction, operand, userData)); 
         }
@@ -189,7 +180,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE)); 
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, formatter->letterCase)); 
         }
         if ((operand->mem.index != ZYDIS_REGISTER_NONE) && 
             (operand->mem.type != ZYDIS_MEMOP_TYPE_MIB))
@@ -204,7 +195,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
                 ZYDIS_CHECK(
                     ZydisPrintStr(buffer, bufEnd - *buffer, "+", ZYDIS_LETTER_CASE_DEFAULT));
             }
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE));
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, formatter->letterCase));
             if (operand->mem.scale)
             {
                 ZYDIS_CHECK(
@@ -253,7 +244,6 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         ZydisBool printSignedHEX = ZYDIS_FALSE;
         switch (formatter->addressFormat)
         {
-        case ZYDIS_FORMATTER_ADDR_DEFAULT:
         case ZYDIS_FORMATTER_ADDR_ABSOLUTE:
         {
             uint64_t address;
@@ -417,7 +407,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
     // TODO: refactor
 
     uint32_t typecast = 0;
-    if (formatter->flags & ZYDIS_FMTFLAG_FORCE_OPERANDSIZE)
+    if (formatter->forceOperandSize)
     {
         if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) && 
             (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
@@ -504,7 +494,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
 
         if (str)
         {
-            return ZydisPrintStr(buffer, bufferLen, str, ZYDIS_LETTER_CASE);
+            return ZydisPrintStr(buffer, bufferLen, str, formatter->letterCase);
         }
     }
     return ZYDIS_STATUS_SUCCESS;
@@ -530,25 +520,25 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
     case ZYDIS_REGISTER_GS:
         ZYDIS_CHECK(
             ZydisPrintStr(buffer, bufEnd - *buffer, 
-                ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+                ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
         return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
     case ZYDIS_REGISTER_SS:
-        if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
+        if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
             ZYDIS_CHECK(
                 ZydisPrintStr(buffer, bufEnd - *buffer, 
-                    ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+                    ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
             return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
         }
         break;
     case ZYDIS_REGISTER_DS:
-        if ((formatter->flags & ZYDIS_FMTFLAG_FORCE_SEGMENTS) || 
+        if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
         {
             ZYDIS_CHECK(
                 ZydisPrintStr(buffer, bufEnd - *buffer, 
-                    ZydisRegisterGetString(operand->mem.segment), ZYDIS_LETTER_CASE));
+                    ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
             return ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT);
         }
         break;
@@ -582,7 +572,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, " {", ZYDIS_LETTER_CASE_DEFAULT)); 
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, ZYDIS_LETTER_CASE));
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, reg, formatter->letterCase));
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, "}", ZYDIS_LETTER_CASE_DEFAULT));
             if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
             {
@@ -896,39 +886,20 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, 
-    ZydisFormatterStyle style)
+ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle style)
 {
-    return ZydisFormatterInitEx(formatter, style, 0, ZYDIS_FORMATTER_ADDR_DEFAULT, 
-        ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);    
-}
-
-ZydisStatus ZydisFormatterInitEx(ZydisFormatter* formatter, 
-    ZydisFormatterStyle style, ZydisFormatterFlags flags, ZydisFormatterAddressFormat addressFormat, 
-    ZydisFormatterDisplacementFormat displacementFormat,
-    ZydisFormatterImmediateFormat immmediateFormat)
-{
-    if (!formatter || 
-        ((addressFormat != ZYDIS_FORMATTER_ADDR_DEFAULT) && 
-         (addressFormat != ZYDIS_FORMATTER_ADDR_ABSOLUTE) &&
-         (addressFormat != ZYDIS_FORMATTER_ADDR_RELATIVE_SIGNED) &&
-         (addressFormat != ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED)) ||
-        ((displacementFormat != ZYDIS_FORMATTER_DISP_DEFAULT) && 
-         (displacementFormat != ZYDIS_FORMATTER_DISP_HEX_SIGNED) &&
-         (displacementFormat != ZYDIS_FORMATTER_DISP_HEX_UNSIGNED)) ||
-        ((immmediateFormat != ZYDIS_FORMATTER_IMM_DEFAULT) && 
-         (immmediateFormat != ZYDIS_FORMATTER_IMM_HEX_AUTO) && 
-         (immmediateFormat != ZYDIS_FORMATTER_IMM_HEX_SIGNED) &&
-         (immmediateFormat != ZYDIS_FORMATTER_IMM_HEX_UNSIGNED)))
+    if (!formatter)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
     memset(formatter, 0, sizeof(ZydisFormatter));
-    formatter->flags = flags;
-    formatter->addressFormat = addressFormat;
-    formatter->displacementFormat = displacementFormat;
-    formatter->immediateFormat = immmediateFormat;
+    formatter->letterCase         = ZYDIS_LETTER_CASE_DEFAULT;
+    formatter->forceSegments      = ZYDIS_FALSE;
+    formatter->forceOperandSize   = ZYDIS_FALSE;
+    formatter->addressFormat      = ZYDIS_FORMATTER_ADDR_ABSOLUTE;
+    formatter->displacementFormat = ZYDIS_FORMATTER_DISP_HEX_SIGNED;
+    formatter->immediateFormat    = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED;
 
     switch (style)
     {
@@ -946,6 +917,83 @@ ZydisStatus ZydisFormatterInitEx(ZydisFormatter* formatter,
         formatter->funcPrintAddress         = &ZydisFormatterPrintAddressIntel;
         formatter->funcPrintDisplacement    = &ZydisFormatterPrintDisplacementIntel;
         formatter->funcPrintImmediate       = &ZydisFormatterPrintImmediateIntel;
+        break;
+    default:
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    return ZYDIS_STATUS_SUCCESS;   
+}
+
+ZydisStatus ZydisFormatterSetAttribute(ZydisFormatter* formatter, 
+    ZydisFormatterAttribute attribute, uintptr_t value)
+{
+    if (!formatter)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+    
+    switch (attribute)
+    {
+    case ZYDIS_FORMATTER_ATTRIB_UPPERCASE:
+        switch (value)
+        {
+        case ZYDIS_FALSE:
+            formatter->letterCase = ZYDIS_LETTER_CASE_DEFAULT;
+            break;
+        case ZYDIS_TRUE:
+            formatter->letterCase = ZYDIS_LETTER_CASE_UPPER;
+            break;
+        default:
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        break;
+    case ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS:
+        switch (value)
+        {
+        case ZYDIS_FALSE:
+            formatter->forceSegments = ZYDIS_LETTER_CASE_DEFAULT;
+            break;
+        case ZYDIS_TRUE:
+            formatter->forceSegments = ZYDIS_LETTER_CASE_UPPER;
+            break;
+        default:
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        break;
+    case ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE:
+        switch (value)
+        {
+        case ZYDIS_FALSE:
+            formatter->forceOperandSize = ZYDIS_LETTER_CASE_DEFAULT;
+            break;
+        case ZYDIS_TRUE:
+            formatter->forceOperandSize = ZYDIS_LETTER_CASE_UPPER;
+            break;
+        default:
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        break;
+    case ZYDIS_FORMATTER_ATTRIB_ADDR_FORMAT:
+        if (value > ZYDIS_FORMATTER_ADDR_MAX_VALUE)
+        {
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        formatter->addressFormat = (uint8_t)value;
+        break;
+    case ZYDIS_FORMATTER_ATTRIB_DISP_FORMAT:
+        if (value > ZYDIS_FORMATTER_DISP_MAX_VALUE)
+        {
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        formatter->displacementFormat = (uint8_t)value;
+        break;
+    case ZYDIS_FORMATTER_ATTRIB_IMM_FORMAT: 
+        if (value > ZYDIS_FORMATTER_IMM_MAX_VALUE)
+        {
+            return ZYDIS_STATUS_INVALID_PARAMETER;
+        }
+        formatter->immediateFormat = (uint8_t)value;
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;

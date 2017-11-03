@@ -59,7 +59,6 @@ typedef uint8_t ZydisDecoderMode;
  */
 enum ZydisDecoderModes
 {
-    ZYDIS_DECODER_MODE_INVALID,
     /**
      * @brief   Enables minimal instruction decoding without semantic analysis.
      * 

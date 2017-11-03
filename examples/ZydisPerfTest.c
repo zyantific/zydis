@@ -171,12 +171,13 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
     ZydisFormatter formatter;
     if (format)
     {
-        if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL, 
-            ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-            ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, 
-            ZYDIS_FORMATTER_IMM_DEFAULT)))
+        if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+            !ZYDIS_SUCCESS(ZydisFormatterSetAttribute(&formatter, 
+                ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS, ZYDIS_TRUE)) ||
+            !ZYDIS_SUCCESS(ZydisFormatterSetAttribute(&formatter, 
+                ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE, ZYDIS_TRUE)))
         {
-            fputs("Failed to initialized instruction-formatter\n", stderr);
+            fputs("Failed to initialize instruction-formatter\n", stderr);
             exit(EXIT_FAILURE);
         }
     }

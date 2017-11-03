@@ -29,6 +29,7 @@
  * @brief   TODO
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
@@ -545,10 +546,17 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         printAVXInfo(instruction);
     }
 
+    ZydisStatus status;
     ZydisFormatter formatter;
-    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
-        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
+    if (!ZYDIS_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetAttribute(&formatter, 
+            ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS, ZYDIS_TRUE))) ||
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetAttribute(&formatter, 
+            ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE, ZYDIS_TRUE))))
+    {
+        fputs("Failed to initialize instruction-formatter\n", stderr);
+        exit(status);
+    }
     char buffer[256];
     ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer));
     fputs("\n== [   DISASM ] =====================================================", stdout);

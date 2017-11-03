@@ -4398,7 +4398,6 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
 {
     static const ZydisBool decoderModes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
     {
-        ZYDIS_FALSE, // ZYDIS_DECODER_MODE_INVALID
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_MINIMAL
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_AMD_BRANCHES
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MPX

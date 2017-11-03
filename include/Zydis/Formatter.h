@@ -44,6 +44,10 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Formatter style                                                                                */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Defines the @c ZydisFormatterStyle datatype.
  */
@@ -65,42 +69,78 @@ enum ZydisFormatterStyles
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisFormatFlags datatype.
- */
-typedef uint32_t ZydisFormatterFlags;
-
-/**
- * @brief   Formats the instruction in uppercase instead of lowercase.
- */
-#define ZYDIS_FMTFLAG_UPPERCASE         0x00000001 // (1 << 0)
-/**
- * @brief   Forces the formatter to always print the segment register of memory-operands, instead
- *          of ommiting implicit DS/SS segments.
- */
-#define ZYDIS_FMTFLAG_FORCE_SEGMENTS    0x00000002 // (1 << 1)
-/**
- * @brief   Forces the formatter to always print the size of memory-operands. 
- */
-#define ZYDIS_FMTFLAG_FORCE_OPERANDSIZE 0x00000004 // (1 << 2)
-
+/* Attributes                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisFormatterAddressFormat datatype.
+ * @brief   Defines the @c ZydisFormatterAttribute datatype.
  */
-typedef uint8_t ZydisFormatterAddressFormat;
+typedef uint8_t ZydisFormatterAttribute;
+
+/**
+ * @brief   Values that represent formatter-attributes.
+ */
+enum ZydisFormatterAttributes
+{
+    /**
+     * @brief   Controls the letter-case. 
+     * 
+     * Pass `ZYDIS_TRUE` as value to format in uppercase and `ZYDIS_FALSE` to format in lowercase.
+     * 
+     * The default value is `ZYDIS_FALSE`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_UPPERCASE,
+    /**
+     * @brief   Controls the printing of segment prefixes. 
+     * 
+     * Pass `ZYDIS_TRUE` as value to force the formatter to always print the segment register of 
+     * memory-operands or `ZYDIS_FALSE` to ommit implicit DS/SS segments.
+     * 
+     * The default value is `ZYDIS_FALSE`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS,
+    /**
+     * @brief   Controls the printing of operand-sizes. 
+     * 
+     * Pass `ZYDIS_TRUE` as value to force the formatter to always print the size of memory-operands 
+     * or `ZYDIS_FALSE` to only print it on demand.
+     * 
+     * The default value is `ZYDIS_FALSE`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE,
+    /**
+     * @brief   Controls the format of addresses.
+     * 
+     * The default value is `ZYDIS_FORMATTER_ADDR_ABSOLUTE`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_ADDR_FORMAT,
+    /**
+     * @brief   Controls the format of displacement values.
+     * 
+     * The default value is `ZYDIS_FORMATTER_DISP_HEX_SIGNED`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_DISP_FORMAT,
+    /**
+     * @brief   Controls the format of immediate values.
+     * 
+     * The default value is `ZYDIS_FORMATTER_IMM_HEX_UNSIGNED`.
+     */
+    ZYDIS_FORMATTER_ATTRIB_IMM_FORMAT,
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FORMATTER_ATTRIB_MAX_VALUE = ZYDIS_FORMATTER_ATTRIB_IMM_FORMAT
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Address format constants                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Values that represent address-formats.
  */
 enum ZydisFormatterAddressFormats
 {   
-    /**
-     * @brief   Currently defaults to @c ZYDIS_FORMATTER_ADDR_ABSOLUTE.
-     */
-    ZYDIS_FORMATTER_ADDR_DEFAULT,
     /**
      * @brief   Displays absolute addresses instead of relative ones.
      */
@@ -128,21 +168,14 @@ enum ZydisFormatterAddressFormats
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisFormatterDisplacementFormat datatype.
- */
-typedef uint8_t ZydisFormatterDisplacementFormat;
+/* Displacement formats                                                                           */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Values that represent displacement-formats.
  */
 enum ZydisFormatterDisplacementFormats
 {
-    /**
-     * @brief   Currently defaults to @c ZYDIS_FORMATTER_DISP_HEX_SIGNED.
-     */
-    ZYDIS_FORMATTER_DISP_DEFAULT,
     /**
      * @brief   Formats displacements as signed hexadecimal values.
      *          
@@ -166,21 +199,14 @@ enum ZydisFormatterDisplacementFormats
 };
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the @c ZydisFormatterImmediateFormat datatype.
- */
-typedef uint8_t ZydisFormatterImmediateFormat;
+/* Immediate formats                                                                              */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Values that represent formatter immediate-formats.
  */
 enum ZydisFormatterImmediateFormats
 {
-    /**
-     * @brief   Currently defaults to @c ZYDIS_FORMATTER_IMM_HEX_UNSIGNED.
-     */
-    ZYDIS_FORMATTER_IMM_DEFAULT,
     /**
      * @brief   Automatically chooses the most suitable formatting-mode based on the operands
      *          @c ZydisOperandInfo.imm.isSigned attribute.
@@ -208,6 +234,8 @@ enum ZydisFormatterImmediateFormats
     ZYDIS_FORMATTER_IMM_MAX_VALUE = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
 };
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Hooks                                                                                          */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -325,6 +353,8 @@ enum ZydisDecoratorTypes
      */
     ZYDIS_DECORATOR_TYPE_MAX_VALUE = ZYDIS_DECORATOR_TYPE_EVICTION_HINT
 };
+
+/* ---------------------------------------------------------------------------------------------- */
 
 typedef struct ZydisFormatter_ ZydisFormatter;
 
@@ -452,15 +482,21 @@ typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* f
     char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Formatter struct                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Defines the @c ZydisFormatter struct.
  */
 struct ZydisFormatter_
 {
-    ZydisFormatterFlags flags;
-    ZydisFormatterAddressFormat addressFormat;
-    ZydisFormatterDisplacementFormat displacementFormat;
-    ZydisFormatterImmediateFormat immediateFormat;
+    uint8_t letterCase;
+    ZydisBool forceSegments;
+    ZydisBool forceOperandSize;
+    uint8_t addressFormat;
+    uint8_t displacementFormat;
+    uint8_t immediateFormat;
     ZydisFormatterNotifyFunc funcPre;
     ZydisFormatterNotifyFunc funcPost;
     ZydisFormatterFormatFunc funcFormatInstruction;
@@ -478,6 +514,8 @@ struct ZydisFormatter_
     ZydisFormatterFormatOperandFunc funcPrintImmediate; 
 };
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
@@ -493,20 +531,16 @@ struct ZydisFormatter_
 ZYDIS_EXPORT ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle style);
 
 /**
- * @brief   Initializes the given @c ZydisFormatter instance.
+ * @brief   Sets the value of the specified formatter `attribute`.
  *
- * @param   formatter           A pointer to the @c ZydisFormatter instance.
- * @param   style               The formatter style.
- * @param   addressFormat       The address format.
- * @param   displacementFormat  The displacement format.
- * @param   immmediateFormat    The immediate format.
+ * @param   formatter   A pointer to the @c ZydisFormatter instance.
+ * @param   attribute   The id of the formatter-attribute.
+ * @param   value       The new value.
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisFormatterInitEx(ZydisFormatter* formatter, ZydisFormatterStyle style, 
-    ZydisFormatterFlags flags, ZydisFormatterAddressFormat addressFormat, 
-    ZydisFormatterDisplacementFormat displacementFormat,
-    ZydisFormatterImmediateFormat immmediateFormat);
+ZYDIS_EXPORT ZydisStatus ZydisFormatterSetAttribute(ZydisFormatter* formatter,
+    ZydisFormatterAttribute attribute, uintptr_t value);
 
 /**
  * @brief   Replaces a formatter function with a custom callback and/or retrieves the currently

@@ -188,9 +188,9 @@ static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatte
 void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, ZydisBool installHooks)
 {
     ZydisFormatter formatter;
-    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
-        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
+    ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
+    ZydisFormatterSetAttribute(&formatter, ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS, ZYDIS_TRUE);
+    ZydisFormatterSetAttribute(&formatter, ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE, ZYDIS_TRUE);
 
     if (installHooks)
     {

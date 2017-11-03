@@ -45,10 +45,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisAddressWidth addressWidth;
     ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
-    ZydisFormatterFlags formatterFlags;
-    ZydisFormatterAddressFormat formatterAddrFormat;
-    ZydisFormatterDisplacementFormat formatterDispFormat;
-    ZydisFormatterImmediateFormat formatterImmFormat;
+    uintptr_t formatterAttributes[ZYDIS_FORMATTER_ATTRIB_MAX_VALUE + 1];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -77,7 +74,7 @@ int main()
         fputs("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
     }
-    for (ZydisDecoderMode mode = 1; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
+    for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
     {
         if (!ZYDIS_SUCCESS(
             ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
@@ -88,12 +85,19 @@ int main()
     }
 
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, controlBlock.formatterStyle, 
-        controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
-        controlBlock.formatterDispFormat, controlBlock.formatterImmFormat)))
+    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
     {
-        fputs("failed to initialize instruction-formatter\n", stderr);
+        fputs("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
+    }
+    for (ZydisFormatterAttribute attrib = 0; attrib <= ZYDIS_FORMATTER_ATTRIB_MAX_VALUE; ++attrib)
+    {
+        if (!ZYDIS_SUCCESS(ZydisFormatterSetAttribute(&formatter, attrib, 
+            controlBlock.formatterAttributes[attrib])))
+        {
+            fputs("Failed to set formatter-attribute\n", stderr);
+            return EXIT_FAILURE;
+        }
     }
 
     uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
