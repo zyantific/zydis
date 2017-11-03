@@ -4433,7 +4433,7 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
 
 ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode, ZydisBool enabled)
 {
-    if (!decoder || !mode || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
+    if (!decoder || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
