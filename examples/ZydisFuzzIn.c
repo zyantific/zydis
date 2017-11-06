@@ -45,7 +45,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisAddressWidth addressWidth;
     ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
-    uintptr_t formatterAttributes[ZYDIS_FORMATTER_ATTRIB_MAX_VALUE + 1];
+    uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -90,10 +90,10 @@ int main()
         fputs("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
     }
-    for (ZydisFormatterAttribute attrib = 0; attrib <= ZYDIS_FORMATTER_ATTRIB_MAX_VALUE; ++attrib)
+    for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
     {
-        if (!ZYDIS_SUCCESS(ZydisFormatterSetAttribute(&formatter, attrib, 
-            controlBlock.formatterAttributes[attrib])))
+        if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop, 
+            controlBlock.formatterProperties[prop])))
         {
             fputs("Failed to set formatter-attribute\n", stderr);
             return EXIT_FAILURE;

@@ -73,14 +73,14 @@ enum ZydisFormatterStyles
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisFormatterAttribute datatype.
+ * @brief   Defines the @c ZydisFormatterProperty datatype.
  */
-typedef uint8_t ZydisFormatterAttribute;
+typedef uint8_t ZydisFormatterProperty;
 
 /**
- * @brief   Values that represent formatter-attributes.
+ * @brief   Values that represent formatter-properties.
  */
-enum ZydisFormatterAttributes
+enum ZydisFormatterProperties
 {
     /**
      * @brief   Controls the letter-case. 
@@ -89,7 +89,7 @@ enum ZydisFormatterAttributes
      * 
      * The default value is `ZYDIS_FALSE`.
      */
-    ZYDIS_FORMATTER_ATTRIB_UPPERCASE,
+    ZYDIS_FORMATTER_PROP_UPPERCASE,
     /**
      * @brief   Controls the printing of segment prefixes. 
      * 
@@ -98,7 +98,7 @@ enum ZydisFormatterAttributes
      * 
      * The default value is `ZYDIS_FALSE`.
      */
-    ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS,
+    ZYDIS_FORMATTER_PROP_FORCE_SEGMENTS,
     /**
      * @brief   Controls the printing of operand-sizes. 
      * 
@@ -107,29 +107,50 @@ enum ZydisFormatterAttributes
      * 
      * The default value is `ZYDIS_FALSE`.
      */
-    ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE,
+    ZYDIS_FORMATTER_PROP_FORCE_OPERANDSIZE,
+
     /**
      * @brief   Controls the format of addresses.
      * 
-     * The default value is `ZYDIS_FORMATTER_ADDR_ABSOLUTE`.
+     * The default value is `ZYDIS_ADDR_FORMAT_ABSOLUTE`.
      */
-    ZYDIS_FORMATTER_ATTRIB_ADDR_FORMAT,
+    ZYDIS_FORMATTER_PROP_ADDR_FORMAT,
     /**
      * @brief   Controls the format of displacement values.
      * 
-     * The default value is `ZYDIS_FORMATTER_DISP_HEX_SIGNED`.
+     * The default value is `ZYDIS_DISP_FORMAT_HEX_SIGNED`.
      */
-    ZYDIS_FORMATTER_ATTRIB_DISP_FORMAT,
+    ZYDIS_FORMATTER_PROP_DISP_FORMAT,
     /**
      * @brief   Controls the format of immediate values.
      * 
-     * The default value is `ZYDIS_FORMATTER_IMM_HEX_UNSIGNED`.
+     * The default value is `ZYDIS_IMM_FORMAT_HEX_UNSIGNED`.
      */
-    ZYDIS_FORMATTER_ATTRIB_IMM_FORMAT,
+    ZYDIS_FORMATTER_PROP_IMM_FORMAT,
+
+    /**
+     * @brief   Controls the padding (minimum number of chars) of address values.
+     * 
+     * The default value is `2`.
+     */
+    ZYDIS_FORMATTER_PROP_ADDR_PADDING,
+    /**
+     * @brief   Controls the padding (minimum number of chars) of displacement values.
+     * 
+     * The default value is `2`.
+     */
+    ZYDIS_FORMATTER_PROP_DISP_PADDING,
+    /**
+     * @brief   Controls the padding (minimum number of chars) of immediate values.
+     * 
+     * The default value is `2`.
+     */
+    ZYDIS_FORMATTER_PROP_IMM_PADDING,
+
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_ATTRIB_MAX_VALUE = ZYDIS_FORMATTER_ATTRIB_IMM_FORMAT
+    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_IMM_PADDING
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -139,12 +160,12 @@ enum ZydisFormatterAttributes
 /**
  * @brief   Values that represent address-formats.
  */
-enum ZydisFormatterAddressFormats
+enum ZydisAddressFormat
 {   
     /**
      * @brief   Displays absolute addresses instead of relative ones.
      */
-    ZYDIS_FORMATTER_ADDR_ABSOLUTE,
+    ZYDIS_ADDR_FORMAT_ABSOLUTE,
     /**
      * @brief   Uses signed hexadecimal values to display relative addresses.
      *          
@@ -152,7 +173,7 @@ enum ZydisFormatterAddressFormats
      * "JMP  0x20"
      * "JMP -0x20"
      */
-    ZYDIS_FORMATTER_ADDR_RELATIVE_SIGNED,
+    ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED,
     /**
      * @brief   Uses unsigned hexadecimal values to display relative addresses.
      *          
@@ -160,11 +181,11 @@ enum ZydisFormatterAddressFormats
      * "JMP 0x20"
      * "JMP 0xE0"
      */
-    ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED,
+    ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_ADDR_MAX_VALUE = ZYDIS_FORMATTER_ADDR_RELATIVE_UNSIGNED
+    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -174,7 +195,7 @@ enum ZydisFormatterAddressFormats
 /**
  * @brief   Values that represent displacement-formats.
  */
-enum ZydisFormatterDisplacementFormats
+enum ZydisDisplacementFormat
 {
     /**
      * @brief   Formats displacements as signed hexadecimal values.
@@ -183,7 +204,7 @@ enum ZydisFormatterDisplacementFormats
      * "MOV EAX, DWORD PTR SS:[ESP+0x400]"
      * "MOV EAX, DWORD PTR SS:[ESP-0x400]"
      */
-    ZYDIS_FORMATTER_DISP_HEX_SIGNED,
+    ZYDIS_DISP_FORMAT_HEX_SIGNED,
     /**
      * @brief   Formats displacements as unsigned hexadecimal values.
      *          
@@ -191,11 +212,11 @@ enum ZydisFormatterDisplacementFormats
      * "MOV EAX, DWORD PTR SS:[ESP+0x400]"
      * "MOV EAX, DWORD PTR SS:[ESP+0xFFFFFC00]"
      */
-    ZYDIS_FORMATTER_DISP_HEX_UNSIGNED,
+    ZYDIS_DISP_FORMAT_HEX_UNSIGNED,
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_DISP_MAX_VALUE = ZYDIS_FORMATTER_DISP_HEX_UNSIGNED
+    ZYDIS_DISP_FORMAT_MAX_VALUE = ZYDIS_DISP_FORMAT_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -205,13 +226,13 @@ enum ZydisFormatterDisplacementFormats
 /**
  * @brief   Values that represent formatter immediate-formats.
  */
-enum ZydisFormatterImmediateFormats
+enum ZydisImmediateFormat
 {
     /**
      * @brief   Automatically chooses the most suitable formatting-mode based on the operands
      *          @c ZydisOperandInfo.imm.isSigned attribute.
      */
-    ZYDIS_FORMATTER_IMM_HEX_AUTO,
+    ZYDIS_IMM_FORMAT_HEX_AUTO,
     /**
      * @brief   Formats immediates as signed hexadecimal values.
      *          
@@ -219,7 +240,7 @@ enum ZydisFormatterImmediateFormats
      * "MOV EAX, 0x400"
      * "MOV EAX, -0x400"
      */
-    ZYDIS_FORMATTER_IMM_HEX_SIGNED,
+    ZYDIS_IMM_FORMAT_HEX_SIGNED,
     /**
      * @brief   Formats immediates as unsigned hexadecimal values.
      *          
@@ -227,11 +248,11 @@ enum ZydisFormatterImmediateFormats
      * "MOV EAX, 0x400"
      * "MOV EAX, 0xFFFFFC00"
      */
-    ZYDIS_FORMATTER_IMM_HEX_UNSIGNED,
+    ZYDIS_IMM_FORMAT_HEX_UNSIGNED,
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_IMM_MAX_VALUE = ZYDIS_FORMATTER_IMM_HEX_UNSIGNED
+    ZYDIS_IMM_FORMAT_MAX_VALUE = ZYDIS_IMM_FORMAT_HEX_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -497,6 +518,9 @@ struct ZydisFormatter_
     uint8_t addressFormat;
     uint8_t displacementFormat;
     uint8_t immediateFormat;
+    uint8_t addressPadding;
+    uint8_t displacementPadding;
+    uint8_t immediatePadding;
     ZydisFormatterNotifyFunc funcPre;
     ZydisFormatterNotifyFunc funcPost;
     ZydisFormatterFormatFunc funcFormatInstruction;
@@ -534,13 +558,13 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisForm
  * @brief   Sets the value of the specified formatter `attribute`.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   attribute   The id of the formatter-attribute.
+ * @param   property    The id of the formatter-property.
  * @param   value       The new value.
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisFormatterSetAttribute(ZydisFormatter* formatter,
-    ZydisFormatterAttribute attribute, uintptr_t value);
+ZYDIS_EXPORT ZydisStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
+    ZydisFormatterProperty property, uintptr_t value);
 
 /**
  * @brief   Replaces a formatter function with a custom callback and/or retrieves the currently

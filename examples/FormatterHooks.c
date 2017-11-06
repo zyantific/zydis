@@ -189,8 +189,8 @@ void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, Zydi
 {
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
-    ZydisFormatterSetAttribute(&formatter, ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS, ZYDIS_TRUE);
-    ZydisFormatterSetAttribute(&formatter, ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE, ZYDIS_TRUE);
+    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SEGMENTS, ZYDIS_TRUE);
+    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_OPERANDSIZE, ZYDIS_TRUE);
 
     if (installHooks)
     {

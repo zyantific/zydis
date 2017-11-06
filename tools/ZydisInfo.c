@@ -549,10 +549,10 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     ZydisStatus status;
     ZydisFormatter formatter;
     if (!ZYDIS_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
-        !ZYDIS_SUCCESS((status = ZydisFormatterSetAttribute(&formatter, 
-            ZYDIS_FORMATTER_ATTRIB_FORCE_SEGMENTS, ZYDIS_TRUE))) ||
-        !ZYDIS_SUCCESS((status = ZydisFormatterSetAttribute(&formatter, 
-            ZYDIS_FORMATTER_ATTRIB_FORCE_OPERANDSIZE, ZYDIS_TRUE))))
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter, 
+            ZYDIS_FORMATTER_PROP_FORCE_SEGMENTS, ZYDIS_TRUE))) ||
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter, 
+            ZYDIS_FORMATTER_PROP_FORCE_OPERANDSIZE, ZYDIS_TRUE))))
     {
         fputs("Failed to initialize instruction-formatter\n", stderr);
         exit(status);
