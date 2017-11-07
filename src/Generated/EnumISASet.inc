@@ -1,6 +1,7 @@
 static const char* zydisISASetStrings[] =
 {
     "INVALID",
+    "ADOX_ADCX",
     "AES",
     "AMD3DNOW",
     "AVX",
@@ -10,7 +11,6 @@ static const char* zydisISASetStrings[] =
     "AVX512VEX",
     "AVXAES",
     "BASE",
-    "BDW",
     "BMI1",
     "BMI2",
     "CET",

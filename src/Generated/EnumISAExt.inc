@@ -1,6 +1,7 @@
 static const char* zydisISAExtStrings[] =
 {
     "INVALID",
+    "ADOX_ADCX",
     "AES",
     "AMD",
     "AMD3DNOW",
@@ -59,7 +60,6 @@ static const char* zydisISAExtStrings[] =
     "AVX512_VPCLMULQDQ_512",
     "AVX512_VPOPCNTDQ_512",
     "AVXAES",
-    "BDW",
     "BMI1",
     "BMI2",
     "CET",

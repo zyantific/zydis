@@ -1,6 +1,7 @@
 static const char* zydisInstructionCategoryStrings[] =
 {
     "INVALID",
+    "ADOX_ADCX",
     "AES",
     "AMD3DNOW",
     "AVX",
@@ -11,7 +12,6 @@ static const char* zydisInstructionCategoryStrings[] =
     "AVX512_4VNNIW",
     "AVX512_BITALG",
     "AVX512_VBMI",
-    "BDW",
     "BINARY",
     "BITBYTE",
     "BLEND",
