@@ -129,28 +129,40 @@ enum ZydisFormatterProperties
     ZYDIS_FORMATTER_PROP_IMM_FORMAT,
 
     /**
-     * @brief   Controls the padding (minimum number of chars) of address values.
+     * @brief   Sets the prefix for hexadecimal values.
      * 
-     * The default value is `2`.
+     * The default value is `0x`.
      */
-    ZYDIS_FORMATTER_PROP_ADDR_PADDING,
+    ZYDIS_FORMATTER_PROP_HEX_PREFIX,
     /**
-     * @brief   Controls the padding (minimum number of chars) of displacement values.
+     * @brief   Sets the suffix for hexadecimal values.
      * 
-     * The default value is `2`.
+     * The default value is `NULL`.
      */
-    ZYDIS_FORMATTER_PROP_DISP_PADDING,
+    ZYDIS_FORMATTER_PROP_HEX_SUFFIX,
     /**
-     * @brief   Controls the padding (minimum number of chars) of immediate values.
+     * @brief   Controls the padding (minimum number of chars) of hexadecimal address values.
      * 
      * The default value is `2`.
      */
-    ZYDIS_FORMATTER_PROP_IMM_PADDING,
+    ZYDIS_FORMATTER_PROP_HEX_PADDING_ADDR,
+    /**
+     * @brief   Controls the padding (minimum number of chars) of hexadecimal displacement values.
+     * 
+     * The default value is `2`.
+     */
+    ZYDIS_FORMATTER_PROP_HEX_PADDING_DISP,
+    /**
+     * @brief   Controls the padding (minimum number of chars) of hexadecimal immediate values.
+     * 
+     * The default value is `2`.
+     */
+    ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_IMM_PADDING
+    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -518,9 +530,11 @@ struct ZydisFormatter_
     uint8_t addressFormat;
     uint8_t displacementFormat;
     uint8_t immediateFormat;
-    uint8_t addressPadding;
-    uint8_t displacementPadding;
-    uint8_t immediatePadding;
+    char* hexPrefix;
+    char* hexSuffix;
+    uint8_t hexPaddingAddress;
+    uint8_t hexPaddingDisplacement;
+    uint8_t hexPaddingImmediate;
     ZydisFormatterNotifyFunc funcPre;
     ZydisFormatterNotifyFunc funcPost;
     ZydisFormatterFormatFunc funcFormatInstruction;

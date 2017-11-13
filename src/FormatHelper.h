@@ -153,7 +153,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int6
  *                          less than the @c paddingLength.
  * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
  *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
+ * @param   prefix          The string to use as prefix or `NULL`, if not needed.
+ * @param   suffix          The string to use as suffix or `NULL`, if not needed.
  *
  * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
@@ -163,7 +164,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int6
  * successfull.
  */
 ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value,
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
+    uint8_t paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its hexadecimal text-representation and 
@@ -176,7 +177,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint
  *                          less than the @c paddingLength (the sign char is ignored).
  * @param   uppercase       Set @c TRUE to print the hexadecimal value in uppercase letters instead 
  *                          of lowercase ones.
- * @param   prefix          Set @c TRUE to add the "0x" prefix to the hexadecimal value.
+ * @param   prefix          The string to use as prefix or `NULL`, if not needed.
+ * @param   suffix          The string to use as suffix or `NULL`, if not needed.
  *
  * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
@@ -186,7 +188,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint
  * successfull.
  */
 ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(char** buffer, size_t bufferLen, int64_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, ZydisBool prefix);
+    uint8_t paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /* ---------------------------------------------------------------------------------------------- */
 

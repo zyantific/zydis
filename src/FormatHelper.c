@@ -138,15 +138,16 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
 }
 
 ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, uint8_t paddingLength, 
-    ZydisBool uppercase, ZydisBool prefix)
+    ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen);
 
     if (prefix)
     {
-        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "0x", ZYDIS_LETTER_CASE_DEFAULT));
-        bufferLen -= 2;
+        const char* bufEnd = *buffer + bufferLen;
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, prefix, ZYDIS_LETTER_CASE_DEFAULT));
+        bufferLen = bufEnd - *buffer;
     }
     if (bufferLen < (size_t)(paddingLength + 1))
     {
@@ -197,8 +198,12 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
         }     
     }
     (*buffer)[n] = '\0';
-
     *buffer += n;
+
+    if (suffix)
+    {
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen - n, suffix, ZYDIS_LETTER_CASE_DEFAULT));    
+    }
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -242,15 +247,16 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
 }
 
 ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength,
-    ZydisBool uppercase, ZydisBool prefix)
+    ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen);
 
     if (prefix)
     {
-        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "0x", ZYDIS_LETTER_CASE_DEFAULT));
-        bufferLen -= 2;
+        const char* bufEnd = *buffer + bufferLen;
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, prefix, ZYDIS_LETTER_CASE_DEFAULT));
+        bufferLen = bufEnd - *buffer;
     }
     if (bufferLen < (size_t)(paddingLength + 1))
     {
@@ -302,8 +308,12 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
         }     
     }
     (*buffer)[n] = '\0';
-
     *buffer += n;
+
+    if (suffix)
+    {
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen - n, suffix, ZYDIS_LETTER_CASE_DEFAULT));    
+    }
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -369,39 +379,37 @@ ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int64_t value, uint8
 }
 
 ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength,
-    ZydisBool uppercase, ZydisBool prefix)
+    ZydisBool uppercase, const char* prefix, const char* suffix)
 {
 #ifdef ZYDIS_X64
-    return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix);
+    return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);
 #else
    if (value & 0xFFFFFFFF00000000)
    {
-       return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix);
+       return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);
    } else
    {
-       return ZydisPrintHexU32(
-           buffer, bufferLen, (uint32_t)value, paddingLength, uppercase, prefix);
+       return ZydisPrintHexU32(buffer, bufferLen, (uint32_t)value, paddingLength, uppercase, 
+           prefix, suffix);
    }
 #endif
 }
 
 ZydisStatus ZydisPrintHexS(char** buffer, size_t bufferLen, int64_t value, uint8_t paddingLength,
-    ZydisBool uppercase, ZydisBool prefix)
+    ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     if (value < 0)
     {
+        const char* bufEnd = *buffer + bufferLen;
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "-", ZYDIS_LETTER_CASE_DEFAULT));
         if (prefix)
         {
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "-0x", ZYDIS_LETTER_CASE_DEFAULT));
-            bufferLen -= 3;
-        } else
-        {
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "-", ZYDIS_LETTER_CASE_DEFAULT));
-            --bufferLen;
+            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, prefix, ZYDIS_LETTER_CASE_DEFAULT));
         }
-        return ZydisPrintHexU(buffer, bufferLen, -value, paddingLength, uppercase, ZYDIS_FALSE);
+        return ZydisPrintHexU(buffer, bufEnd - *buffer, -value, paddingLength, uppercase, 
+            NULL, suffix);
     }
-    return ZydisPrintHexU(buffer, bufferLen, value, paddingLength, uppercase, prefix);  
+    return ZydisPrintHexU(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);  
 }
 
 /* ---------------------------------------------------------------------------------------------- */
