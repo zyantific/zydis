@@ -46,6 +46,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
     uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
+    char* string[16];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -66,6 +67,7 @@ int main()
         fputs("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
+    controlBlock.string[ZYDIS_ARRAY_SIZE(controlBlock.string) - 1] = 0;
 
     ZydisDecoder decoder;
     if (!ZYDIS_SUCCESS(
@@ -92,6 +94,16 @@ int main()
     }
     for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
     {
+        switch (prop)
+        {
+        case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
+        case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
+            controlBlock.formatterProperties[prop] = 
+                controlBlock.formatterProperties[prop] ? (uintptr_t)&controlBlock.string : 0;
+            break;
+        default:
+            break;
+        }
         if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop, 
             controlBlock.formatterProperties[prop])))
         {
