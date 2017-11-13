@@ -69,35 +69,35 @@ typedef uint8_t ZydisMachineMode;
  */
 enum ZydisMachineModes
 {
-    ZYDIS_MACHINE_MODE_INVALID          =  0,
+    ZYDIS_MACHINE_MODE_INVALID,
     /**
      * @brief 64 bit mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_64          = 64,
+    ZYDIS_MACHINE_MODE_LONG_64,
     /**
      * @brief 32 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_COMPAT_32   = 32,
+    ZYDIS_MACHINE_MODE_LONG_COMPAT_32,
     /**
      * @brief 16 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_COMPAT_16   = 16,
+    ZYDIS_MACHINE_MODE_LONG_COMPAT_16,
     /**
      * @brief 32 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LEGACY_32        = 32,
+    ZYDIS_MACHINE_MODE_LEGACY_32,
     /**
      * @brief 16 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LEGACY_16        = 16,
+    ZYDIS_MACHINE_MODE_LEGACY_16,
     /**
      * @brief 16 bit real mode.
      */
-    ZYDIS_MACHINE_MODE_REAL_16          = 16,
+    ZYDIS_MACHINE_MODE_REAL_16,
      /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MACHINE_MODE_MAX_VALUE        = ZYDIS_MACHINE_MODE_LONG_64
+    ZYDIS_MACHINE_MODE_MAX_VALUE = ZYDIS_MACHINE_MODE_REAL_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */

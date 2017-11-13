@@ -548,6 +548,7 @@ enum ZydisMaskPolicies
     uint16_t operandReference               ZYDIS_BITFIELD(15); \
     uint8_t operandSizeMap                  ZYDIS_BITFIELD( 3); \
     uint8_t flagsReference                  ZYDIS_BITFIELD( 7); \
+    ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
     ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
     ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MAX_BITS); \
     ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MAX_BITS); \

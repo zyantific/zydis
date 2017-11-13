@@ -564,7 +564,7 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
         ((0x01 & ~instruction->raw.evex.V2) << 4) | (0x0F & ~instruction->raw.evex.vvvv);
     context->cache.mask = instruction->raw.evex.aaa;
 
-    if (!instruction->raw.evex.V2 && (context->decoder->machineMode != 64))
+    if (!instruction->raw.evex.V2 && (context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
@@ -846,8 +846,11 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
 {
     switch (context->decoder->machineMode)
     {
-    case 16:
-    case 32:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
         switch (encoding)
         {
         case ZYDIS_REG_ENCODING_OPCODE:
@@ -900,7 +903,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
         default:
             ZYDIS_UNREACHABLE;
         }
-    case 64:
+    case ZYDIS_MACHINE_MODE_LONG_64:
         switch (encoding)
         {
         case ZYDIS_REG_ENCODING_OPCODE:
@@ -1081,7 +1084,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             operand->size = definition->size[context->eoszIndex] * 8;     
         } else
         {
-            operand->size = (context->decoder->machineMode == 64) ? 
+            operand->size = (context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) ? 
                 ZydisRegisterGetWidth64(operand->reg.value) : 
                 ZydisRegisterGetWidth(operand->reg.value);
         }
@@ -1385,7 +1388,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         };
         operand->mem.base = bases[modrm_rm];
         operand->mem.index = indices[modrm_rm];
-        operand->mem.scale = 0;
+        operand->mem.scale = (operand->mem.index == ZYDIS_REGISTER_NONE) ? 0 : 1;
         switch (instruction->raw.modrm.mod)
         {
         case 0:
@@ -3224,7 +3227,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
                 case 0:
                     if (instruction->raw.modrm.rm == 5)
                     {
-                        if (context->decoder->machineMode == 64)
+                        if (context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64)
                         {
                             instruction->attributes |= ZYDIS_ATTRIB_IS_RELATIVE;
                         }
@@ -3401,13 +3404,16 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
     uint8_t index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
     switch (context->decoder->machineMode)
     {
-    case 16:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
         index += 0;
         break;
-    case 32:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
         index += 2;
         break;
-    case 64:
+    case ZYDIS_MACHINE_MODE_LONG_64:
         index += 4;
         index += (context->cache.W & 0x01) << 1;
         break;
@@ -3738,13 +3744,16 @@ static ZydisStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, uint16_t* 
 
     switch (context->decoder->machineMode)
     {
-    case 16:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
         *index = 0;
         break;
-    case 32:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
         *index = 1;
         break;
-    case 64:
+    case ZYDIS_MACHINE_MODE_LONG_64:
         *index = 2;
         break;
     default:
@@ -3856,18 +3865,21 @@ static ZydisStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
 
-    if ((context->decoder->machineMode == 64) && (context->cache.W))
+    if ((context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) && (context->cache.W))
     {
         *index = 2;
     } else
     {
         switch (context->decoder->machineMode)
         {
-        case 16:
+        case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+        case ZYDIS_MACHINE_MODE_LEGACY_16:
+        case ZYDIS_MACHINE_MODE_REAL_16:
             *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
             break;
-        case 32:
-        case 64:
+        case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+        case ZYDIS_MACHINE_MODE_LEGACY_32:
+        case ZYDIS_MACHINE_MODE_LONG_64:
             *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 0 : 1;
             break;
         default:
@@ -4044,6 +4056,11 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     {
         const ZydisInstructionDefinitionDEFAULT* def = 
             (const ZydisInstructionDefinitionDEFAULT*)definition;
+        if (def->requiresProtectedMode && 
+            (context->decoder->machineMode == ZYDIS_MACHINE_MODE_REAL_16))
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
         acceptsLock = def->acceptsLock;
         break;
     }
@@ -4319,6 +4336,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             { 
                 const ZydisInstructionDefinition* definition;
                 ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
+                ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
                 ZydisSetEffectiveOperandSize(context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(context, instruction, definition);
 
@@ -4344,8 +4362,6 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
                     ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
                 }
-
-                ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
 
                 instruction->mnemonic = definition->mnemonic;
                 instruction->meta.category = definition->category;
@@ -4406,11 +4422,12 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
         ZYDIS_TRUE   // ZYDIS_DECODER_MODE_TZCNT
     };
 
-    if (!decoder || ((machineMode != 16) && (machineMode != 32) && (machineMode != 64)))
+    if (!decoder || 
+        (machineMode == ZYDIS_MACHINE_MODE_INVALID) || (machineMode > ZYDIS_MACHINE_MODE_MAX_VALUE))
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
-    if (machineMode == 64)
+    if (machineMode == ZYDIS_MACHINE_MODE_LONG_64)
     {
         if (addressWidth != 64)
         {
