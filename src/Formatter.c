@@ -222,11 +222,11 @@ static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisFormatter* for
     }
 
     char* bufEnd = *buffer + bufferLen;
-    ZYDIS_CHECK(ZydisPrintHexU(buffer, bufEnd - *buffer, operand->ptr.segment, 4, ZYDIS_TRUE, 
-        formatter->hexPrefix, formatter->hexSuffix));
+    ZYDIS_CHECK(ZydisPrintHexU(buffer, bufEnd - *buffer, operand->ptr.segment, 4, 
+        formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix));
     ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT));
-    return ZydisPrintHexU(buffer, bufEnd - *buffer, operand->ptr.offset, 8, ZYDIS_TRUE, 
-        formatter->hexPrefix, formatter->hexSuffix);
+    return ZydisPrintHexU(buffer, bufEnd - *buffer, operand->ptr.offset, 8, 
+        formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* formatter, 
@@ -263,11 +263,11 @@ static ZydisStatus ZydisFormatterFormatOperandImmIntel(const ZydisFormatter* for
         if (printSignedHEX)
         {
             return ZydisPrintHexS(buffer, bufferLen, (int32_t)operand->imm.value.s, 
-                formatter->hexPaddingAddress, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingAddress, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         }
         return ZydisPrintHexU(buffer, bufferLen, operand->imm.value.u, 
-            formatter->hexPaddingAddress, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingAddress, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     }
 
@@ -292,14 +292,14 @@ static ZydisStatus ZydisFormatterPrintAddressIntel(const ZydisFormatter* formatt
     switch (instruction->stackWidth)
     {
     case 16:
-        return ZydisPrintHexU(buffer, bufferLen, (uint16_t)address, 4, ZYDIS_TRUE, 
-            formatter->hexPrefix, formatter->hexSuffix);
+        return ZydisPrintHexU(buffer, bufferLen, (uint16_t)address, 4, 
+            formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 32:
-        return ZydisPrintHexU(buffer, bufferLen, (uint32_t)address, 8, ZYDIS_TRUE, 
-            formatter->hexPrefix, formatter->hexSuffix);
+        return ZydisPrintHexU(buffer, bufferLen, (uint32_t)address, 8, 
+            formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 64:
-        return ZydisPrintHexU(buffer, bufferLen, address, 16, ZYDIS_TRUE, 
-            formatter->hexPrefix, formatter->hexSuffix);  
+        return ZydisPrintHexU(buffer, bufferLen, address, 16, 
+            formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);  
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -327,7 +327,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
             (operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
             return ZydisPrintHexS(buffer, bufferLen, operand->mem.disp.value, 
-                formatter->hexPaddingDisplacement, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingDisplacement, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);     
         }
         char* bufEnd = *buffer + bufferLen;
@@ -337,7 +337,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, "+", ZYDIS_LETTER_CASE_DEFAULT));
         }
         return ZydisPrintHexU(buffer, bufEnd - *buffer, (uint64_t)operand->mem.disp.value, 
-            formatter->hexPaddingDisplacement, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingDisplacement, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix); 
     }
     return ZYDIS_STATUS_SUCCESS; 
@@ -366,19 +366,19 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
         {
         case 8:
             return ZydisPrintHexS(buffer, bufferLen, (int8_t)operand->imm.value.s, 
-                formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         case 16:
             return ZydisPrintHexS(buffer, bufferLen, (int16_t)operand->imm.value.s, 
-                formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         case 32:
             return ZydisPrintHexS(buffer, bufferLen, (int32_t)operand->imm.value.s, 
-                formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         case 64:
             return ZydisPrintHexS(buffer, bufferLen, operand->imm.value.s, 
-                formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+                formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -388,19 +388,19 @@ static ZydisStatus ZydisFormatterPrintImmediateIntel(const ZydisFormatter* forma
     {
     case 8:
         return ZydisPrintHexU(buffer, bufferLen, (uint8_t)operand->imm.value.u, 
-            formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     case 16:
         return ZydisPrintHexU(buffer, bufferLen, (uint16_t)operand->imm.value.u, 
-            formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     case 32:
         return ZydisPrintHexU(buffer, bufferLen, (uint32_t)operand->imm.value.u, 
-            formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     case 64:
         return ZydisPrintHexU(buffer, bufferLen, operand->imm.value.u, 
-            formatter->hexPaddingImmediate, ZYDIS_TRUE, formatter->hexPrefix, 
+            formatter->hexPaddingImmediate, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -916,6 +916,7 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
     formatter->addressFormat            = ZYDIS_ADDR_FORMAT_ABSOLUTE;
     formatter->displacementFormat       = ZYDIS_DISP_FORMAT_HEX_SIGNED;
     formatter->immediateFormat          = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
+    formatter->hexUppercase             = ZYDIS_TRUE;
     formatter->hexPrefix                = "0x";
     formatter->hexSuffix                = NULL;
     formatter->hexPaddingAddress        = 2;
@@ -957,43 +958,13 @@ ZydisStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
     switch (property)
     {
     case ZYDIS_FORMATTER_PROP_UPPERCASE:
-        switch (value)
-        {
-        case ZYDIS_FALSE:
-            formatter->letterCase = ZYDIS_LETTER_CASE_DEFAULT;
-            break;
-        case ZYDIS_TRUE:
-            formatter->letterCase = ZYDIS_LETTER_CASE_UPPER;
-            break;
-        default:
-            return ZYDIS_STATUS_INVALID_PARAMETER;
-        }
+        formatter->letterCase = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
         break;
     case ZYDIS_FORMATTER_PROP_FORCE_SEGMENTS:
-        switch (value)
-        {
-        case ZYDIS_FALSE:
-            formatter->forceSegments = ZYDIS_LETTER_CASE_DEFAULT;
-            break;
-        case ZYDIS_TRUE:
-            formatter->forceSegments = ZYDIS_LETTER_CASE_UPPER;
-            break;
-        default:
-            return ZYDIS_STATUS_INVALID_PARAMETER;
-        }
+        formatter->forceSegments = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
         break;
     case ZYDIS_FORMATTER_PROP_FORCE_OPERANDSIZE:
-        switch (value)
-        {
-        case ZYDIS_FALSE:
-            formatter->forceOperandSize = ZYDIS_LETTER_CASE_DEFAULT;
-            break;
-        case ZYDIS_TRUE:
-            formatter->forceOperandSize = ZYDIS_LETTER_CASE_UPPER;
-            break;
-        default:
-            return ZYDIS_STATUS_INVALID_PARAMETER;
-        }
+        formatter->forceOperandSize = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
         break;
     case ZYDIS_FORMATTER_PROP_ADDR_FORMAT:
         if (value > ZYDIS_ADDR_FORMAT_MAX_VALUE)
@@ -1015,6 +986,9 @@ ZydisStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
         formatter->immediateFormat = (uint8_t)value;
+        break;
+    case ZYDIS_FORMATTER_PROP_HEX_UPPERCASE:
+        formatter->hexUppercase = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
         break;
     case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
         formatter->hexPrefix = (char*)value;

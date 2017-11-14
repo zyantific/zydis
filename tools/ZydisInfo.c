@@ -583,6 +583,10 @@ int main(int argc, char** argv)
     }
 
     ZydisDecoder decoder;
+    if (!strcmp(argv[1], "-real"))
+    {
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);   
+    } else
     if (!strcmp(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);   
@@ -596,7 +600,7 @@ int main(int argc, char** argv)
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);   
     } else
     {
-        fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
+        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }  
 

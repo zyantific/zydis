@@ -129,6 +129,14 @@ enum ZydisFormatterProperties
     ZYDIS_FORMATTER_PROP_IMM_FORMAT,
 
     /**
+     * @brief   Controls the letter-case of hexadecimal values. 
+     * 
+     * Pass `ZYDIS_TRUE` as value to format in uppercase and `ZYDIS_FALSE` to format in lowercase.
+     * 
+     * The default value is `ZYDIS_TRUE`.
+     */
+    ZYDIS_FORMATTER_PROP_HEX_UPPERCASE,
+    /**
      * @brief   Sets the prefix for hexadecimal values.
      * 
      * The default value is `0x`.
@@ -530,6 +538,7 @@ struct ZydisFormatter_
     uint8_t addressFormat;
     uint8_t displacementFormat;
     uint8_t immediateFormat;
+    ZydisBool hexUppercase;
     char* hexPrefix;
     char* hexSuffix;
     uint8_t hexPaddingAddress;

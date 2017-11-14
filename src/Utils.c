@@ -84,14 +84,17 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             *address = (uint64_t)((int64_t)instruction->instrPointer + operand->imm.value.s);
             switch (instruction->machineMode)
             {
-            case 16:
-            case 32:
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+            case ZYDIS_MACHINE_MODE_LEGACY_16:
+            case ZYDIS_MACHINE_MODE_REAL_16:
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+            case ZYDIS_MACHINE_MODE_LEGACY_32:
                 if (operand->size == 16)
                 {
                     *address &= 0xFFFF;
                 }
                 break;
-            case 64:
+            case ZYDIS_MACHINE_MODE_LONG_64:
                 break;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
