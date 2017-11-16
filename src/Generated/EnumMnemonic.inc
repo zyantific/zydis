@@ -336,6 +336,7 @@ static const char* zydisMnemonicStrings[] =
     "korb",
     "kord",
     "korq",
+    "kortest",
     "kortestb",
     "kortestd",
     "kortestq",

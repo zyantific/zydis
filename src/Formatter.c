@@ -93,7 +93,7 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* format
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    char* bufEnd = *buffer + bufferLen;
+    const char* bufEnd = *buffer + bufferLen;
 
     const char* mnemonic = ZydisMnemonicGetString(instruction->mnemonic);
     if (!mnemonic)
@@ -145,7 +145,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    char* bufEnd = *buffer + bufferLen;
+    const char* bufEnd = *buffer + bufferLen;
 
     ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, "[", ZYDIS_LETTER_CASE_DEFAULT));
  
@@ -221,7 +221,7 @@ static ZydisStatus ZydisFormatterFormatOperandPtrIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    char* bufEnd = *buffer + bufferLen;
+    const char* bufEnd = *buffer + bufferLen;
     ZYDIS_CHECK(ZydisPrintHexU(buffer, bufEnd - *buffer, operand->ptr.segment, 4, 
         formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix));
     ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ":", ZYDIS_LETTER_CASE_DEFAULT));
@@ -320,7 +320,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
         ((operand->mem.base == ZYDIS_REGISTER_NONE) && 
         (operand->mem.index == ZYDIS_REGISTER_NONE))))
     {
-        ZydisBool printSignedHEX = 
+        const ZydisBool printSignedHEX = 
             (formatter->displacementFormat != ZYDIS_DISP_FORMAT_HEX_UNSIGNED);
         if (printSignedHEX && (operand->mem.disp.value < 0) && (
             (operand->mem.base != ZYDIS_REGISTER_NONE) || 
@@ -330,7 +330,7 @@ static ZydisStatus ZydisFormatterPrintDisplacementIntel(const ZydisFormatter* fo
                 formatter->hexPaddingDisplacement, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);     
         }
-        char* bufEnd = *buffer + bufferLen;
+        const char* bufEnd = *buffer + bufferLen;
         if ((operand->mem.base != ZYDIS_REGISTER_NONE) || 
             (operand->mem.index != ZYDIS_REGISTER_NONE))
         {
@@ -527,7 +527,7 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    char* bufEnd = *buffer + bufferLen;
+    const char* bufEnd = *buffer + bufferLen;
     switch (operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
@@ -784,7 +784,7 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    char* bufEnd = *buffer + bufferLen;
+    const char* bufEnd = *buffer + bufferLen;
     ZYDIS_CHECK(
         formatter->funcPrintPrefixes(formatter, buffer, bufEnd - *buffer, instruction, userData));
     ZYDIS_CHECK(

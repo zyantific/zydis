@@ -118,7 +118,7 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
     p -= 2;
     memcpy(p, &decimalLookup[value * 2], sizeof(uint16_t));
 
-    size_t n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
+    const size_t n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
     if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
@@ -156,7 +156,7 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
 
     if (!value)
     {
-        uint8_t n = (paddingLength ? paddingLength : 1);
+        const uint8_t n = (paddingLength ? paddingLength : 1);
 
         if (bufferLen < (size_t)(n + 1))
         {
@@ -172,7 +172,7 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
     uint8_t n = 0;
     for (int8_t i = ZYDIS_MAXCHARS_HEX_32 - 1; i >= 0; --i)
     {
-        uint8_t v = (value >> i * 4) & 0x0F;
+        const uint8_t v = (value >> i * 4) & 0x0F;
         if (!n)
         {
             if (!v)
@@ -227,7 +227,7 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     p -= 2;
     memcpy(p, &decimalLookup[value * 2], 2);
 
-    size_t n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
+    const size_t n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
     if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
@@ -265,7 +265,7 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
 
     if (!value)
     {
-        uint8_t n = (paddingLength ? paddingLength : 1);
+        const uint8_t n = (paddingLength ? paddingLength : 1);
 
         if (bufferLen < (size_t)(n + 1))
         {
@@ -279,10 +279,10 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
     }
 
     uint8_t n = 0;
-    uint8_t c = ((value & 0xFFFFFFFF00000000) ? ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32);
+    const uint8_t c = ((value & 0xFFFFFFFF00000000) ? ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32);
     for (int8_t i = c - 1; i >= 0; --i)
     {
-        uint8_t v = (value >> i * 4) & 0x0F;
+        const uint8_t v = (value >> i * 4) & 0x0F;
         if (!n)
         {
             if (!v)
@@ -329,7 +329,7 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     ZYDIS_ASSERT(bufferLen > 0);
     ZYDIS_ASSERT(text);
 
-    size_t strLen = strlen(text);
+    const size_t strLen = strlen(text);
     if (strLen >= bufferLen)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;

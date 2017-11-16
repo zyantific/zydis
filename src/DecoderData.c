@@ -336,6 +336,9 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_MODE_AMD:
         ZYDIS_ASSERT(index <   2);
         return &filtersModeAMD[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_KNC:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeKNC[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_MPX:
         ZYDIS_ASSERT(index <   2);
         return &filtersModeMPX[parent->value][index];

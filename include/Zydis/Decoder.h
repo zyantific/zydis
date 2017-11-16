@@ -68,6 +68,8 @@ enum ZydisDecoderModes
      * 
      * Operands, most attributes and other specific information (like AVX info) are not 
      * accessible in this mode.
+     * 
+     * This mode is NOT enabled by default.
      */
     ZYDIS_DECODER_MODE_MINIMAL,
     /**
@@ -77,8 +79,19 @@ enum ZydisDecoderModes
      * immediates and forces the operand-size of the instruction to 64-bit in 64-bit mode.
      * In AMD-branch mode `0x66` is not ignored and changes the operand-size and the size of the
      * immediate to 16-bit.
+     * 
+     * This mode is NOT enabled by default.
      */
     ZYDIS_DECODER_MODE_AMD_BRANCHES,
+    /**
+     * @brief   Enables KNC compatibility-mode.
+     * 
+     * KNC and KNL+ chips are sharing opcodes and encodings for some mask-related instructions.
+     * Enable this mode to use the old KNC specifications (different mnemonics, operands, ..).
+     * 
+     * This mode is NOT enabled by default.
+     */
+    ZYDIS_DECODER_MODE_KNC,
     /**
      * @brief   Enables the MPX mode.
      * 

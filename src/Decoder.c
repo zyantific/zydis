@@ -1370,7 +1370,7 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
-    uint8_t modrm_rm = instruction->raw.modrm.rm;
+    const uint8_t modrm_rm = instruction->raw.modrm.rm;
     uint8_t displacementSize = 0;
     switch (instruction->addressWidth)
     {
@@ -4319,6 +4319,9 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_MODE_AMD:
             index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_AMD_BRANCHES] ? 1 : 0;
             break;
+        case ZYDIS_NODETYPE_FILTER_MODE_KNC:
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_KNC] ? 1 : 0;
+            break;
         case ZYDIS_NODETYPE_FILTER_MODE_MPX:
             index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_MPX] ? 1 : 0;
             break;
@@ -4384,7 +4387,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    ZydisRegister reg = 
+                    const ZydisRegister reg = 
                         instruction->operands[instruction->operandCount - 1].reg.value;
                     if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
                         (reg == ZYDIS_REGISTER_RFLAGS))
@@ -4416,6 +4419,7 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
     {
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_MINIMAL
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_AMD_BRANCHES
+        ZYDIS_FALSE, // ZYDIS_DECODER_MODE_KNC
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MPX
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_CET
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_LZCNT
