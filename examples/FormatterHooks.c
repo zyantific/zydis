@@ -33,10 +33,10 @@
  * the condition encoded in the immediate operand).
  */
 
+#include <stdlib.h>
 #include <inttypes.h>
 #include <Zydis/Zydis.h>
 #include "FormatHelper.h"
-#include <stdlib.h>
 
 /* ============================================================================================== */
 /* Static data                                                                                    */

@@ -26,7 +26,8 @@
 
 /**
  * @file
- * @brief   TODO
+ * @brief   Disassembles a given hex-buffer and prints detailed information about the decoded
+ *          instruction, the operands and additional attributes.
  */
 
 #include <stdlib.h>
@@ -578,7 +579,7 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
+        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 

@@ -50,7 +50,7 @@ typedef uint32_t ZydisStatus;
 /**
  * @brief   Values that represent a zydis status-codes.
  */
-enum ZydisStatusCode
+enum ZydisStatusCodes
 {
     /* ------------------------------------------------------------------------------------------ */
     /* General                                                                                    */

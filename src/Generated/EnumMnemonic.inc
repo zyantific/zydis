@@ -580,7 +580,7 @@ static const char* zydisMnemonicStrings[] =
     "popfd",
     "popfq",
     "por",
-    "prefetch_exclusive",
+    "prefetch",
     "prefetchnta",
     "prefetcht0",
     "prefetcht1",
