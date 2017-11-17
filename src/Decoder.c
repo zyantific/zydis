@@ -3605,9 +3605,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     case 0xC4:
                         // Read additional 3-byte VEX-prefix data
                         ZYDIS_ASSERT(!instruction->raw.vex.isDecoded);
-                        ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[1]));
-                        ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[2]));
-                        //ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 2));
+                        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 2));
                         break;
                     case 0xC5:
                         // Read additional 2-byte VEX-prefix data
@@ -3618,10 +3616,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                         // Read additional EVEX/MVEX-prefix data
                         ZYDIS_ASSERT(!instruction->raw.evex.isDecoded);
                         ZYDIS_ASSERT(!instruction->raw.mvex.isDecoded);
-                        ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[1]));
-                        ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[2]));
-                        ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[3]));
-                        //ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 3));
+                        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 3));
                         break;
                     default:
                         ZYDIS_UNREACHABLE;
@@ -3640,6 +3635,14 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                         switch ((prefixBytes[2] >> 2) & 0x01)
                         {
                         case 0:
+                            // `KNC` instructions are only valid in 64-bit mode.
+                            // This condition catches the `MVEX` encoded ones to omit a bunch of
+                            // `mode` filters in the data-tables.
+                            // `KNC` instructions with `VEX` encoding stil require a `mode` filter.
+                            if (context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64)
+                            {
+                                return ZYDIS_STATUS_DECODING_ERROR;
+                            }
                             // Decode MVEX-prefix
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_MVEX;
                             ZYDIS_CHECK(ZydisDecodeMVEX(context, instruction, prefixBytes));
@@ -3679,10 +3682,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     }
                     uint8_t prefixBytes[3] = { 0x8F, 0x00, 0x00 };
                     // Read additional xop-prefix data
-                    ZYDIS_ASSERT(!instruction->raw.xop.isDecoded);
-                    ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[1]));
-                    ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[2]));
-                    //ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 2));
+                    ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 2));
                     // Decode xop-prefix
                     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_XOP;
                     ZYDIS_CHECK(ZydisDecodeXOP(context, instruction, prefixBytes));
