@@ -40,33 +40,32 @@ ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature)
     switch (feature)
     {
     case ZYDIS_FEATURE_EVEX:
-#ifdef ZYDIS_ENABLE_FEATURE_EVEX
+#ifndef ZYDIS_DISABLE_EVEX
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
     case ZYDIS_FEATURE_MVEX:
-#ifdef ZYDIS_ENABLE_FEATURE_MVEX
+#ifndef ZYDIS_DISABLE_MVEX
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
     case ZYDIS_FEATURE_FLAGS:
-#ifdef ZYDIS_ENABLE_FEATURE_FLAGS
+#ifndef ZYDIS_DISABLE_FLAGS
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
     case ZYDIS_FEATURE_CPUID:
-#ifdef ZYDIS_ENABLE_FEATURE_CPUID
+#ifndef ZYDIS_DISABLE_CPUID
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
     default:
-        break;
+        return ZYDIS_FALSE;
     }
-    return ZYDIS_FALSE;    
 }
 
 /* ============================================================================================== */

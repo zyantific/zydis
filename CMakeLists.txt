@@ -10,7 +10,10 @@ project(Zydis VERSION 2.0)
 
 # Features
 option(ZYDIS_FEATURE_DECODER
-    "Enable instruction decoding and formtting functionality"
+    "Enable instruction decoding functionality"
+    ON)
+option(ZYDIS_FEATURE_FORMATTER
+    "Enable instruction formatting functionality"
     ON)
 #option(ZYDIS_FEATURE_ENCODER
 #    "Enable instruction encoding functionality"
@@ -80,24 +83,18 @@ if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
     )
 endif ()
 
-if (ZYDIS_FEATURE_EVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_EVEX")
+if (NOT ZYDIS_FEATURE_DECODER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_DECODER")
 endif ()
-if (ZYDIS_FEATURE_MVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_MVEX")
+if (NOT ZYDIS_FEATURE_FORMATTER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_FORMATTER")
 endif ()
-if (ZYDIS_FEATURE_FLAGS)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_FLAGS")
+if (NOT ZYDIS_FEATURE_EVEX)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_EVEX")
 endif ()
-if (ZYDIS_FEATURE_CPUID)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_CPUID")
+if (NOT ZYDIS_FEATURE_MVEX)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_MVEX")
 endif ()
-if (ZYDIS_FEATURE_DECODER)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_DECODER")
-endif ()
-#if (ZYDIS_FEATURE_ENCODER)
-#    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_ENCODER")
-#endif ()
 
 target_sources("Zydis"
     PUBLIC
@@ -133,16 +130,6 @@ if (ZYDIS_FEATURE_DECODER)
             "src/Formatter.c"
             "src/FormatHelper.c")
 endif ()
-
-#if (ZYDIS_FEATURE_ENCODER)
-#    target_sources("Zydis" 
-#        PUBLIC 
-#            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h" 
-#        PRIVATE 
-#            "src/EncoderData.h"
-#            "src/Encoder.c"
-#            "src/EncoderData.c")
-#endif ()
 
 if (BUILD_SHARED_LIBS AND WIN32)
     target_sources("Zydis" PRIVATE "src/VersionInfo.rc")

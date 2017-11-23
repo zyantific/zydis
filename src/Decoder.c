@@ -470,10 +470,10 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     }  
 
     // Map 0 is only valid for some KNC instructions
-#ifdef ZYDIS_ENABLE_FEATURE_MVEX
-    if (instruction->raw.vex.m_mmmm > 0x03)
-#else
+#ifdef ZYDIS_DISABLE_MVEX
     if ((instruction->raw.vex.m_mmmm == 0) || (instruction->raw.vex.m_mmmm > 0x03))
+#else
+    if (instruction->raw.vex.m_mmmm > 0x03)
 #endif
     {
         // Invalid according to the intel documentation
