@@ -15,25 +15,19 @@ option(ZYDIS_FEATURE_DECODER
 option(ZYDIS_FEATURE_FORMATTER
     "Enable instruction formatting functionality"
     ON)
-#option(ZYDIS_FEATURE_ENCODER
-#    "Enable instruction encoding functionality"
-#    OFF)
 option(ZYDIS_FEATURE_EVEX 
     "Enable support for EVEX instructions" 
     ON)
 option(ZYDIS_FEATURE_MVEX 
     "Enable support for MVEX instructions" 
     ON)
-option(ZYDIS_FEATURE_FLAGS 
-    "Include information about affected flags"
-    ON)
-option(ZYDIS_FEATURE_CPUID 
-    "Include information about CPUID feature-flags"
-    OFF)
 
 # Build configuration
 option(BUILD_SHARED_LIBS
     "Build shared libraries"
+    OFF)
+option(ZYDIS_NO_LIBC
+    "Don't use any C standard library functions (for exotic build-envs like kernel drivers)"
     OFF)
 option(ZYDIS_BUILD_EXAMPLES 
     "Build examples" 
@@ -94,6 +88,9 @@ if (NOT ZYDIS_FEATURE_EVEX)
 endif ()
 if (NOT ZYDIS_FEATURE_MVEX)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_MVEX")
+endif ()
+if (ZYDIS_NO_LIBC)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_NO_LIBC")
 endif ()
 
 target_sources("Zydis"

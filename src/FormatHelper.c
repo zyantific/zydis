@@ -27,6 +27,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <FormatHelper.h>
+#include <LibC.h>
 
 /* ============================================================================================== */
 /* Constants                                                                                      */
@@ -113,10 +114,10 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
         uint32_t const old = value;
         p -= 2;
         value /= 100;
-        memcpy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(uint16_t));
+        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(uint16_t));
     }
     p -= 2;
-    memcpy(p, &decimalLookup[value * 2], sizeof(uint16_t));
+    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(uint16_t));
 
     const size_t n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
     if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
@@ -128,10 +129,10 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
     if (n <= paddingLength)
     {
         offset = paddingLength - n + 1;
-        memset(*buffer, '0', offset);
+        ZydisMemorySet(*buffer, '0', offset);
     }
 
-    memcpy(&(*buffer)[offset], &p[value < 10], n + 1);
+    ZydisMemoryCopy(&(*buffer)[offset], &p[value < 10], n + 1);
     *buffer += n + offset - (uint8_t)(value < 10);
 
     return ZYDIS_STATUS_SUCCESS;
@@ -163,7 +164,7 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
             return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
         }
 
-        memset(*buffer, '0', n);
+        ZydisMemorySet(*buffer, '0', n);
         (*buffer)[n] = '\0'; 
         *buffer += n;    
         return ZYDIS_STATUS_SUCCESS;
@@ -186,7 +187,7 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
             if (paddingLength > i)
             {
                 n = paddingLength - i - 1;
-                memset(*buffer, '0', n);
+                ZydisMemorySet(*buffer, '0', n);
             }
         }
         if (uppercase)
@@ -222,10 +223,10 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
         uint64_t const old = value;
         p -= 2;
         value /= 100;
-        memcpy(p, &decimalLookup[(old - (value * 100)) * 2], 2);
+        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], 2);
     }
     p -= 2;
-    memcpy(p, &decimalLookup[value * 2], 2);
+    ZydisMemoryCopy(p, &decimalLookup[value * 2], 2);
 
     const size_t n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
     if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
@@ -237,10 +238,10 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     if (n <= paddingLength)
     {
         offset = paddingLength - n + 1;
-        memset(*buffer, '0', offset);
+        ZydisMemorySet(*buffer, '0', offset);
     }
 
-    memcpy(&(*buffer)[offset], &p[value < 10], n + 1);
+    ZydisMemoryCopy(&(*buffer)[offset], &p[value < 10], n + 1);
     *buffer += n + offset - (uint8_t)(value < 10);
 
     return ZYDIS_STATUS_SUCCESS;
@@ -272,7 +273,7 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
             return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
         }
 
-        memset(*buffer, '0', n);
+        ZydisMemorySet(*buffer, '0', n);
         (*buffer)[n] = '\0'; 
         *buffer += n;    
         return ZYDIS_STATUS_SUCCESS;
@@ -296,7 +297,7 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
             if (paddingLength > i)
             {
                 n = paddingLength - i - 1;
-                memset(*buffer, '0', n);
+                ZydisMemorySet(*buffer, '0', n);
             }
         }
         if (uppercase)
@@ -329,13 +330,13 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     ZYDIS_ASSERT(bufferLen > 0);
     ZYDIS_ASSERT(text);
 
-    const size_t strLen = strlen(text);
+    const size_t strLen = ZydisStrLen(text);
     if (strLen >= bufferLen)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    memcpy(*buffer, text, strLen + 1);
+    ZydisMemoryCopy(*buffer, text, strLen + 1);
     switch (letterCase)
     {
     case ZYDIS_LETTER_CASE_DEFAULT:

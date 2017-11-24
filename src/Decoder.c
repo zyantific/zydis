@@ -29,6 +29,7 @@
 #include <Zydis/Status.h>
 #include <DecoderData.h>
 #include <SharedData.h>
+#include <LibC.h>
 
 /* ============================================================================================== */
 /* Internal enums and types                                                                       */
@@ -327,10 +328,10 @@ static ZydisStatus ZydisInputNextBytes(ZydisDecoderContext* context,
 
     if (context->bufferLen >= numberOfBytes)
     {
-        memcpy(&instruction->data[instruction->length], context->buffer, numberOfBytes);
+        ZydisMemoryCopy(&instruction->data[instruction->length], context->buffer, numberOfBytes);
         instruction->length += numberOfBytes;
 
-        memcpy(value, context->buffer, numberOfBytes);
+        ZydisMemoryCopy(value, context->buffer, numberOfBytes);
         context->buffer += numberOfBytes;
         context->bufferLen -= numberOfBytes;
 
@@ -2243,7 +2244,7 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
 
     ZYDIS_ASSERT(ZYDIS_ARRAY_SIZE(instruction->accessedFlags) == ZYDIS_ARRAY_SIZE(flags->action));
 
-    memcpy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
+    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
 }
 
 /**
@@ -4447,7 +4448,7 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
 
     decoder->machineMode = machineMode;
     decoder->addressWidth = addressWidth;
-    memcpy(&decoder->decoderMode, &decoderModes, sizeof(decoderModes));
+    ZydisMemoryCopy(&decoder->decoderMode, &decoderModes, sizeof(decoderModes));
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -4478,14 +4479,14 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     }
 
     ZydisDecoderContext context;
-    memset(&context.cache, 0, sizeof(context.cache));
+    ZydisMemorySet(&context.cache, 0, sizeof(context.cache));
     context.decoder = decoder;
     context.buffer = (uint8_t*)buffer;
     context.bufferLen = bufferLen;
     context.lastSegmentPrefix = 0;
     context.mandatoryCandidate = 0;
 
-    memset(instruction, 0, sizeof(*instruction));   
+    ZydisMemorySet(instruction, 0, sizeof(*instruction));   
     instruction->machineMode = decoder->machineMode;
     instruction->stackWidth = decoder->addressWidth;
     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
