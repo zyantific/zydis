@@ -29,6 +29,7 @@
 #include <Zydis/Formatter.h>
 #include <Zydis/Utils.h>
 #include <FormatHelper.h>
+#include <LibC.h>
 
 /* ============================================================================================== */
 /* Instruction formatter                                                                          */
@@ -909,7 +910,7 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    memset(formatter, 0, sizeof(ZydisFormatter));
+    ZydisMemorySet(formatter, 0, sizeof(ZydisFormatter));
     formatter->letterCase               = ZYDIS_LETTER_CASE_DEFAULT;
     formatter->forceSegments            = ZYDIS_FALSE;
     formatter->forceOperandSize         = ZYDIS_FALSE;
