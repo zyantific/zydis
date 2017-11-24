@@ -1,5 +1,5 @@
-# Zyan Disassembler Engine (Zydis)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Gitter](https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg)](https://gitter.im/zyantific/zyan-disassembler-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
+![zydis logo](https://mainframe.pw/u/P94JAqY9XSDdPedv.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Gitter](https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg)](https://gitter.im/zyantific/zyan-disassembler-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Build status](https://ci.appveyor.com/api/projects/status/2tad27q0b9v6qtga/branch/master?svg=true)](https://ci.appveyor.com/project/athre0z/zydis/branch/master)
 
 Fast and lightweight x86/x86-64 disassembler library.
 
@@ -116,6 +116,7 @@ make
 - Intel (for open-sourcing XED, allowing for automatic comparision of our tables against theirs, improving both)
 - LLVM (for providing pretty solid instruction data as well)
 - Christian Ludloff (http://sandpile.org, insanely helpful)
+- [LekoArts](https://https://www.lekoarts.de/) (for creating the project logo)
 - Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
 
 ## License
