@@ -55,7 +55,7 @@
 ZYDIS_INLINE void* ZydisMemorySet(void* ptr, int value, size_t num)
 {
     uint8_t c = value & 0xff;
-    for (uint8_t* p = (uint8_t*)ptr; *p; ++p) *p = c;
+    for (size_t i = 0; i < num; ++i) ((uint8_t*)ptr)[i] = c;
     return ptr;
 }
 
