@@ -111,8 +111,6 @@ enum ZydisFeatures
 {
     ZYDIS_FEATURE_EVEX,
     ZYDIS_FEATURE_MVEX,
-    ZYDIS_FEATURE_FLAGS,
-    ZYDIS_FEATURE_CPUID
 };
 
 /* ============================================================================================== */
