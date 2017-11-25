@@ -52,23 +52,23 @@
  * but towards providing a last resort fallback for environments without a working libc.
  */
 
-ZYDIS_INLINE void* ZydisMemorySet(void* ptr, int value, size_t num)
+ZYDIS_INLINE void* ZydisMemorySet(void* ptr, int value, ZydisUSize num)
 {
-    uint8_t c = value & 0xff;
-    for (size_t i = 0; i < num; ++i) ((uint8_t*)ptr)[i] = c;
+    ZydisU8 c = value & 0xff;
+    for (ZydisUSize i = 0; i < num; ++i) ((ZydisU8*)ptr)[i] = c;
     return ptr;
 }
 
-ZYDIS_INLINE void* ZydisMemoryCopy(void* dst, const void* src, size_t num)
+ZYDIS_INLINE void* ZydisMemoryCopy(void* dst, const void* src, ZydisUSize num)
 {
-    for (size_t i = 0; i < num; ++i)
+    for (ZydisUSize i = 0; i < num; ++i)
     {
-        ((uint8_t*)dst)[i] = ((const uint8_t*)src)[i];
+        ((ZydisU8*)dst)[i] = ((const ZydisU8*)src)[i];
     }
     return dst;
 }
 
-ZYDIS_INLINE size_t ZydisStrLen(const char* str)
+ZYDIS_INLINE ZydisUSize ZydisStrLen(const char* str)
 {
     const char *s;
     for (s = str; *s; ++s);

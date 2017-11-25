@@ -1,7 +1,7 @@
 /**
  * @brief   Defines the `ZydisISASet` datatype.
  */
-typedef uint8_t ZydisISASet;
+typedef ZydisU8 ZydisISASet;
 
 /**
  * @brief   Values that represent `ZydisISASet` elements.

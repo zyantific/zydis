@@ -51,15 +51,15 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   The input buffer.
      */
-    const uint8_t* buffer;
+    const ZydisU8* buffer;
     /**
      * @brief   The input buffer length.
      */
-    size_t bufferLen;
+    ZydisUSize bufferLen;
     /**
      * @brief   Contains the last (significant) segment prefix.
      */
-    uint8_t lastSegmentPrefix;
+    ZydisU8 lastSegmentPrefix;
     /**
      * @brief   Contains the prefix that should be treated as the mandatory-prefix, if the current
      *          instruction needs one.
@@ -67,37 +67,37 @@ typedef struct ZydisDecoderContext_
      *          The last 0xF3/0xF2 prefix has precedence over previous ones and 0xF3/0xF2 in 
      *          general has precedence over 0x66.
      */
-    uint8_t mandatoryCandidate;
+    ZydisU8 mandatoryCandidate;
 
-    uint8_t prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZydisU8 prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
 
     /**
      * @brief   Contains the effective operand-size index.
      * 
      * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
      */
-    uint8_t eoszIndex;
+    ZydisU8 eoszIndex;
     /**
      * @brief   Contains the effective address-size index.
      * 
      * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
      */
-    uint8_t easzIndex;
+    ZydisU8 easzIndex;
     /**
      * @brief   Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
      */
     struct
     {
-        uint8_t W;
-        uint8_t R;
-        uint8_t X;
-        uint8_t B;
-        uint8_t L;
-        uint8_t LL;
-        uint8_t R2;
-        uint8_t V2;
-        uint8_t v_vvvv;
-        uint8_t mask;
+        ZydisU8 W;
+        ZydisU8 R;
+        ZydisU8 X;
+        ZydisU8 B;
+        ZydisU8 L;
+        ZydisU8 LL;
+        ZydisU8 R2;
+        ZydisU8 V2;
+        ZydisU8 v_vvvv;
+        ZydisU8 mask;
     } cache;
     /**
      * @brief   Internal EVEX-specific information.
@@ -111,7 +111,7 @@ typedef struct ZydisDecoderContext_
         /**
          * @brief   The EVEX element-size.
          */
-        uint8_t elementSize;
+        ZydisU8 elementSize;
     } evex;
     /**
      * @brief   Internal MVEX-specific information.
@@ -126,7 +126,7 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   The scale factor for EVEX/MVEX compressed 8-bit displacement values.
      */
-    uint8_t cd8scale;
+    ZydisU8 cd8scale;
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -136,7 +136,7 @@ typedef struct ZydisDecoderContext_
 /**
  * @brief   Defines the @c ZydisRegisterEncoding struct.
  */
-typedef uint8_t ZydisRegisterEncoding;
+typedef ZydisU8 ZydisRegisterEncoding;
 
 /**
  * @brief   Values that represent register-encodings.
@@ -224,7 +224,7 @@ enum ZydisRegisterEncodings
  * data is available.
  */
 static ZydisStatus ZydisInputPeek(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t* value)
+    ZydisDecodedInstruction* instruction, ZydisU8* value)
 { 
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction); 
@@ -278,7 +278,7 @@ static void ZydisInputSkip(ZydisDecoderContext* context, ZydisDecodedInstruction
  * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
  */
 static ZydisStatus ZydisInputNext(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t* value)
+    ZydisDecodedInstruction* instruction, ZydisU8* value)
 { 
     ZYDIS_ASSERT(context); 
     ZYDIS_ASSERT(instruction); 
@@ -315,7 +315,7 @@ static ZydisStatus ZydisInputNext(ZydisDecoderContext* context,
  * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
  */
 static ZydisStatus ZydisInputNextBytes(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t* value, uint8_t numberOfBytes)
+    ZydisDecodedInstruction* instruction, ZydisU8* value, ZydisU8 numberOfBytes)
 { 
     ZYDIS_ASSERT(context); 
     ZYDIS_ASSERT(instruction); 
@@ -353,7 +353,7 @@ static ZydisStatus ZydisInputNextBytes(ZydisDecoderContext* context,
  * @param   data        The REX byte.
  */
 static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction, 
-    uint8_t data)
+    ZydisU8 data)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT((data & 0xF0) == 0x40);
@@ -383,7 +383,7 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeXOP(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t data[3])
+    ZydisDecodedInstruction* instruction, ZydisU8 data[3])
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(data[0] == 0x8F);
@@ -432,7 +432,7 @@ static ZydisStatus ZydisDecodeXOP(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t data[3])
+    ZydisDecodedInstruction* instruction, ZydisU8 data[3])
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT((data[0] == 0xC4) || (data[0] == 0xC5));
@@ -503,7 +503,7 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t data[4])
+    ZydisDecodedInstruction* instruction, ZydisU8 data[4])
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(data[0] == 0x62);
@@ -588,7 +588,7 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t data[4])
+    ZydisDecodedInstruction* instruction, ZydisU8 data[4])
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(data[0] == 0x62);
@@ -643,7 +643,7 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   data        The modrm byte.
  */
-static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, uint8_t data)
+static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, ZydisU8 data)
 {
     ZYDIS_ASSERT(instruction);
 
@@ -661,7 +661,7 @@ static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, uint8_t data)
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct
  * @param   data        The sib byte.
  */
-static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, uint8_t data)
+static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, ZydisU8 data)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(instruction->raw.modrm.isDecoded);
@@ -687,7 +687,7 @@ static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, uint8_t data)
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t size)
+    ZydisDecodedInstruction* instruction, ZydisU8 size)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -700,30 +700,30 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context,
     {
     case 8:
     {
-        uint8_t value;
+        ZydisU8 value;
         ZYDIS_CHECK(ZydisInputNext(context, instruction, &value));
-        instruction->raw.disp.value = *(int8_t*)&value;
+        instruction->raw.disp.value = *(ZydisI8*)&value;
         break;
     }
     case 16:
     {
-        uint16_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 2));
-        instruction->raw.disp.value = *(int16_t*)&value;
+        ZydisU16 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 2));
+        instruction->raw.disp.value = *(ZydisI16*)&value;
         break;
     }
     case 32:
     {
-        uint32_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 4));
-        instruction->raw.disp.value = *(int32_t*)&value;
+        ZydisU32 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 4));
+        instruction->raw.disp.value = *(ZydisI32*)&value;
         break;
     }
     case 64:
     {
-        uint64_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 8));
-        instruction->raw.disp.value = *(int64_t*)&value;
+        ZydisU64 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 8));
+        instruction->raw.disp.value = *(ZydisI64*)&value;
         break;
     }
     default:
@@ -748,7 +748,7 @@ static ZydisStatus ZydisReadDisplacement(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint8_t id, uint8_t size, ZydisBool isSigned, 
+    ZydisDecodedInstruction* instruction, ZydisU8 id, ZydisU8 size, ZydisBool isSigned, 
     ZydisBool isRelative)
 {
     ZYDIS_ASSERT(context);
@@ -765,11 +765,11 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
     {
     case 8:
     {
-        uint8_t value;
+        ZydisU8 value;
         ZYDIS_CHECK(ZydisInputNext(context, instruction, &value));
         if (isSigned)
         {
-            instruction->raw.imm[id].value.s = (int8_t)value;
+            instruction->raw.imm[id].value.s = (ZydisI8)value;
         } else
         {
             instruction->raw.imm[id].value.u = value;    
@@ -778,11 +778,11 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
     }
     case 16:
     {
-        uint16_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 2));
+        ZydisU16 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 2));
         if (isSigned)
         {
-            instruction->raw.imm[id].value.s = (int16_t)value;
+            instruction->raw.imm[id].value.s = (ZydisI16)value;
         } else
         {
             instruction->raw.imm[id].value.u = value;    
@@ -791,11 +791,11 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
     }
     case 32:
     {
-        uint32_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 4));
+        ZydisU32 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 4));
         if (isSigned)
         {
-            instruction->raw.imm[id].value.s = (int32_t)value;
+            instruction->raw.imm[id].value.s = (ZydisI32)value;
         } else
         {
             instruction->raw.imm[id].value.u = value;    
@@ -804,11 +804,11 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
     }
     case 64:
     {
-        uint64_t value;
-        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (uint8_t*)&value, 8));
+        ZydisU64 value;
+        ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, (ZydisU8*)&value, 8));
         if (isSigned)
         {
-            instruction->raw.imm[id].value.s = (int64_t)value;
+            instruction->raw.imm[id].value.s = (ZydisI64)value;
         } else
         {
             instruction->raw.imm[id].value.u = value;    
@@ -841,7 +841,7 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
  * This function calculates the register-id by combining different fields and flags of previously
  * decoded structs.
  */
-static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context, 
+static ZydisU8 ZydisCalcRegisterId(ZydisDecoderContext* context, 
     ZydisDecodedInstruction* instruction, ZydisRegisterEncoding encoding, 
     ZydisRegisterClass registerClass)
 {
@@ -860,7 +860,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
                          (registerClass == ZYDIS_REGCLASS_GPR16) ||
                          (registerClass == ZYDIS_REGCLASS_GPR32) ||
                          (registerClass == ZYDIS_REGCLASS_GPR64));
-            uint8_t value = (instruction->opcode & 0x0F);
+            ZydisU8 value = (instruction->opcode & 0x0F);
             if (value > 7)
             {
                 value = value - 8;
@@ -913,7 +913,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
                          (registerClass == ZYDIS_REGCLASS_GPR16) ||
                          (registerClass == ZYDIS_REGCLASS_GPR32) ||
                          (registerClass == ZYDIS_REGCLASS_GPR64));
-            uint8_t value = (instruction->opcode & 0x0F);
+            ZydisU8 value = (instruction->opcode & 0x0F);
             if (value > 7)
             {
                 value = value - 8;
@@ -923,7 +923,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
         case ZYDIS_REG_ENCODING_REG:
         {
             ZYDIS_ASSERT(instruction->raw.modrm.isDecoded);
-            uint8_t value = instruction->raw.modrm.reg;
+            ZydisU8 value = instruction->raw.modrm.reg;
             switch (registerClass)
             {
             case ZYDIS_REGCLASS_GPR8:
@@ -969,7 +969,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
         case ZYDIS_REG_ENCODING_RM:
         {
             ZYDIS_ASSERT(instruction->raw.modrm.isDecoded);
-            uint8_t value = instruction->raw.modrm.rm;
+            ZydisU8 value = instruction->raw.modrm.rm;
             switch (registerClass)
             {
             case ZYDIS_REGCLASS_GPR8:
@@ -1030,7 +1030,7 @@ static uint8_t ZydisCalcRegisterId(ZydisDecoderContext* context,
                 (context->cache.V2 << 4);
         case ZYDIS_REG_ENCODING_IS4:
         {
-            uint8_t value = (instruction->raw.imm[0].value.u >> 4) & 0x0F;
+            ZydisU8 value = (instruction->raw.imm[0].value.u >> 4) & 0x0F;
             // We have to check the instruction-encoding, because the extension by bit [3] is only 
             // valid for EVEX and MVEX instructions
             if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
@@ -1299,7 +1299,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
  * @return  A zydis status code.
  */
 static ZydisStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instruction, 
-    ZydisDecodedOperand* operand, ZydisRegisterClass registerClass, uint8_t registerId)
+    ZydisDecodedOperand* operand, ZydisRegisterClass registerClass, ZydisU8 registerId)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(operand);
@@ -1371,8 +1371,8 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
-    const uint8_t modrm_rm = instruction->raw.modrm.rm;
-    uint8_t displacementSize = 0;
+    const ZydisU8 modrm_rm = instruction->raw.modrm.rm;
+    ZydisU8 displacementSize = 0;
     switch (instruction->addressWidth)
     {
     case 16:
@@ -1675,13 +1675,13 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(definition);
 
-    uint8_t immId = 0;
+    ZydisU8 immId = 0;
     const ZydisOperandDefinition* operand;
     instruction->operandCount = ZydisGetOperandDefinitions(definition, &operand);
 
     ZYDIS_ASSERT(instruction->operandCount <= ZYDIS_ARRAY_SIZE(instruction->operands));
 
-    for (uint8_t i = 0; i < instruction->operandCount; ++i)
+    for (ZydisU8 i = 0; i < instruction->operandCount; ++i)
     {
         instruction->operands[i].id = i;
         instruction->operands[i].visibility = operand->visibility;
@@ -1864,8 +1864,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                          (instruction->raw.imm[0].size == 32));
             ZYDIS_ASSERT( instruction->raw.imm[1].size == 16);
             instruction->operands[i].type = ZYDIS_OPERAND_TYPE_POINTER;
-            instruction->operands[i].ptr.offset  = (uint32_t)instruction->raw.imm[0].value.u;
-            instruction->operands[i].ptr.segment = (uint16_t)instruction->raw.imm[1].value.u;
+            instruction->operands[i].ptr.offset  = (ZydisU32)instruction->raw.imm[0].value.u;
+            instruction->operands[i].ptr.segment = (ZydisU16)instruction->raw.imm[1].value.u;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
             instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
@@ -1923,7 +1923,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                 // The upper half of the 8-bit immediate is used to encode a register specifier
                 ZYDIS_ASSERT(instruction->raw.imm[immId].size == 8);
                 instruction->operands[i].imm.value.u = 
-                    (uint8_t)instruction->raw.imm[immId].value.u & 0x0F;   
+                    (ZydisU8)instruction->raw.imm[immId].value.u & 0x0F;   
             } else
             {
                 instruction->operands[i].imm.value.u = instruction->raw.imm[immId].value.u;
@@ -2347,7 +2347,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             (const ZydisInstructionDefinitionEVEX*)definition;
     
         // Vector length
-        uint8_t vectorLength = context->cache.LL;
+        ZydisU8 vectorLength = context->cache.LL;
         if (def->vectorLength)
         {
             vectorLength = def->vectorLength - 1;
@@ -2749,7 +2749,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             (const ZydisInstructionDefinitionMVEX*)definition; 
 
         // Static broadcast-factor
-        uint8_t index = def->hasElementGranularity;
+        ZydisU8 index = def->hasElementGranularity;
         ZYDIS_ASSERT(!index || !def->broadcast);
         if (!index && def->broadcast)
         {
@@ -2799,7 +2799,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
         case ZYDIS_MVEX_FUNC_UF_32:
         {    
-            static const uint8_t lookup[3][8] = 
+            static const ZydisU8 lookup[3][8] = 
             {
                 { 64,  4, 16, 32, 16, 16, 32, 32 },
                 { 4,   0,  0,  2,  1,  1,  2,  2 },
@@ -2814,7 +2814,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SI_32_BCST:
         case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
         {    
-            static const uint8_t lookup[3][8] = 
+            static const ZydisU8 lookup[3][8] = 
             {
                 { 64,  4, 16,  0, 16, 16, 32, 32 },
                 {  4,  0,  0,  0,  1,  1,  2,  2 },
@@ -2829,7 +2829,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SI_64:
         case ZYDIS_MVEX_FUNC_UI_64:
         {    
-            static const uint8_t lookup[3][3] = 
+            static const ZydisU8 lookup[3][3] = 
             {
                 { 64,  8, 32 },
                 {  8,  0,  0 },
@@ -2842,7 +2842,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_DF_32:
         case ZYDIS_MVEX_FUNC_DI_32:
         {    
-            static const uint8_t lookup[2][8] = 
+            static const ZydisU8 lookup[2][8] = 
             {
                 { 64,  0,  0, 32, 16, 16, 32, 32 },
                 {  4,  0,  0,  2,  1,  1,  2,  2 }
@@ -2854,7 +2854,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_DF_64:
         case ZYDIS_MVEX_FUNC_DI_64:
         {
-            static const uint8_t lookup[2][1] = 
+            static const ZydisU8 lookup[2][1] = 
             {
                 { 64 },
                 {  8 }
@@ -3069,7 +3069,7 @@ static ZydisStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
     ZydisBool done = ZYDIS_FALSE;
     do
     {
-        uint8_t prefixByte;
+        ZydisU8 prefixByte;
         ZYDIS_CHECK(ZydisInputPeek(context, instruction, &prefixByte));
         switch (prefixByte)
         {
@@ -3188,12 +3188,12 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
     {
         if (!instruction->raw.modrm.isDecoded)
         {
-            uint8_t modrmByte;
+            ZydisU8 modrmByte;
             ZYDIS_CHECK(ZydisInputNext(context, instruction, &modrmByte));
             ZydisDecodeModRM(instruction, modrmByte);               
         }
-        uint8_t hasSIB = 0;
-        uint8_t displacementSize = 0;
+        ZydisU8 hasSIB = 0;
+        ZydisU8 displacementSize = 0;
         if (!(info->flags & ZYDIS_INSTR_ENC_FLAG_FORCE_REG_FORM))
         {
             switch (instruction->addressWidth)
@@ -3252,7 +3252,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
             }
             if (hasSIB)
             {
-                uint8_t sibByte;
+                ZydisU8 sibByte;
                 ZYDIS_CHECK(ZydisInputNext(context, instruction, &sibByte)); 
                 ZydisDecodeSIB(instruction, sibByte);
                 if (instruction->raw.sib.base == 5)
@@ -3309,7 +3309,7 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(definition);
 
-    static const uint8_t operandSizeMap[8][8] =
+    static const ZydisU8 operandSizeMap[8][8] =
     {
         // Default for most instructions
         {
@@ -3402,7 +3402,7 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
         }
     };
     
-    uint8_t index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
+    ZydisU8 index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
     switch (context->decoder->machineMode)
     {
     case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
@@ -3498,7 +3498,7 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
@@ -3518,7 +3518,7 @@ static ZydisStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, uin
     return ZYDIS_STATUS_SUCCESS;      
 }
 
-static ZydisStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
@@ -3538,7 +3538,7 @@ static ZydisStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, uin
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
@@ -3563,7 +3563,7 @@ static ZydisStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, u
 }
 
 static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3586,7 +3586,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
             case 0xC5:
             case 0x62:
             {
-                uint8_t nextInput;
+                ZydisU8 nextInput;
                 ZYDIS_CHECK(ZydisInputPeek(context, instruction, &nextInput)); 
                 if (((nextInput & 0xF0) >= 0xC0) || 
                     (context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64))
@@ -3599,7 +3599,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
-                    uint8_t prefixBytes[4] = { 0, 0, 0, 0 };
+                    ZydisU8 prefixBytes[4] = { 0, 0, 0, 0 };
                     prefixBytes[0] = instruction->opcode;
                     switch (instruction->opcode)
                     {
@@ -3669,7 +3669,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
             } 
             case 0x8F:
             {
-                uint8_t nextInput;
+                ZydisU8 nextInput;
                 ZYDIS_CHECK(ZydisInputPeek(context, instruction, &nextInput));
                 if ((nextInput & 0x1F) >= 8)
                 {
@@ -3681,7 +3681,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
-                    uint8_t prefixBytes[3] = { 0x8F, 0x00, 0x00 };
+                    ZydisU8 prefixBytes[3] = { 0x8F, 0x00, 0x00 };
                     // Read additional xop-prefix data
                     ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 2));
                     // Decode xop-prefix
@@ -3738,7 +3738,7 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(index);
@@ -3763,7 +3763,7 @@ static ZydisStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, uint16_t* 
     return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisStatus ZydisNodeHandlerModeCompact(ZydisDecoderContext* context, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerModeCompact(ZydisDecoderContext* context, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(index);
@@ -3773,7 +3773,7 @@ static ZydisStatus ZydisNodeHandlerModeCompact(ZydisDecoderContext* context, uin
 }
 
 static ZydisStatus ZydisNodeHandlerModrmMod(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3781,7 +3781,7 @@ static ZydisStatus ZydisNodeHandlerModrmMod(ZydisDecoderContext* context,
 
     if (!instruction->raw.modrm.isDecoded)
     {
-        uint8_t modrmByte;
+        ZydisU8 modrmByte;
         ZYDIS_CHECK(ZydisInputNext(context, instruction, &modrmByte));
         ZydisDecodeModRM(instruction, modrmByte);               
     }
@@ -3790,7 +3790,7 @@ static ZydisStatus ZydisNodeHandlerModrmMod(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerModrmModCompact(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_CHECK(ZydisNodeHandlerModrmMod(context, instruction, index));
     *index = (*index == 0x3) ? 0 : 1;
@@ -3798,7 +3798,7 @@ static ZydisStatus ZydisNodeHandlerModrmModCompact(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerModrmReg(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3806,7 +3806,7 @@ static ZydisStatus ZydisNodeHandlerModrmReg(ZydisDecoderContext* context,
 
     if (!instruction->raw.modrm.isDecoded)
     {
-        uint8_t modrmByte;
+        ZydisU8 modrmByte;
         ZYDIS_CHECK(ZydisInputNext(context, instruction, &modrmByte));
         ZydisDecodeModRM(instruction, modrmByte);               
     }
@@ -3815,7 +3815,7 @@ static ZydisStatus ZydisNodeHandlerModrmReg(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3823,7 +3823,7 @@ static ZydisStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context,
 
     if (!instruction->raw.modrm.isDecoded)
     {
-        uint8_t modrmByte;
+        ZydisU8 modrmByte;
         ZYDIS_CHECK(ZydisInputNext(context, instruction, &modrmByte));
         ZydisDecodeModRM(instruction, modrmByte);                
     }
@@ -3832,7 +3832,7 @@ static ZydisStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerMandatoryPrefix(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3860,7 +3860,7 @@ static ZydisStatus ZydisNodeHandlerMandatoryPrefix(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3892,7 +3892,7 @@ static ZydisStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3916,7 +3916,7 @@ static ZydisStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3948,7 +3948,7 @@ static ZydisStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -3979,7 +3979,7 @@ static ZydisStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context,
 }
 
 static ZydisStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, uint16_t* index)
+    ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
@@ -4009,7 +4009,7 @@ static ZydisStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
     return ZYDIS_STATUS_SUCCESS;
 }
 
-static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
@@ -4020,7 +4020,7 @@ static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, u
     return ZYDIS_STATUS_SUCCESS;   
 }
 
-static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, uint16_t* index)
+static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
     ZYDIS_ASSERT(index);
@@ -4108,7 +4108,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         maskPolicy = def->maskPolicy;
 
         // Check for invalid MVEX.SSS values
-        static const uint8_t lookup[26][8] =
+        static const ZydisU8 lookup[26][8] =
         {
             // ZYDIS_MVEX_FUNC_IGNORED
             { 1, 1, 1, 1, 1, 1, 1, 1 },
@@ -4242,7 +4242,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
     do
     {
         nodeType = node->type;
-        uint16_t index = 0;
+        ZydisU16 index = 0;
         ZydisStatus status = 0;
         switch (nodeType)
         {
@@ -4466,7 +4466,7 @@ ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
 }
 
 ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buffer, 
-    size_t bufferLen, uint64_t instructionPointer, ZydisDecodedInstruction* instruction)
+    ZydisUSize bufferLen, ZydisU64 instructionPointer, ZydisDecodedInstruction* instruction)
 {
     if (!decoder || !instruction)
     {
@@ -4481,7 +4481,7 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     ZydisDecoderContext context;
     ZydisMemorySet(&context.cache, 0, sizeof(context.cache));
     context.decoder = decoder;
-    context.buffer = (uint8_t*)buffer;
+    context.buffer = (ZydisU8*)buffer;
     context.bufferLen = bufferLen;
     context.lastSegmentPrefix = 0;
     context.mandatoryCandidate = 0;

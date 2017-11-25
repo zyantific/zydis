@@ -53,7 +53,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeType datatype.
  */                                 
-typedef uint8_t ZydisDecoderTreeNodeType;
+typedef ZydisU8 ZydisDecoderTreeNodeType;
 
 /**
  * @brief   Values that represent zydis decoder tree node types.
@@ -168,7 +168,7 @@ enum ZydisDecoderTreeNodeTypes
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeValue datatype.
  */
-typedef uint16_t ZydisDecoderTreeNodeValue;
+typedef ZydisU16 ZydisDecoderTreeNodeValue;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -196,7 +196,7 @@ typedef struct ZydisDecoderTreeNode_
 /**
  * @brief   Defines the @c ZydisInstructionEncodingFlags datatype.
  */
-typedef uint8_t ZydisInstructionEncodingFlags;
+typedef ZydisU8 ZydisInstructionEncodingFlags;
 
 /**
  * @brief   The instruction has an optional modrm byte.
@@ -243,7 +243,7 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the displacement value.
          */
-        uint8_t size[3];
+        ZydisU8 size[3];
     } disp;
     /**
      * @brief   Immediate info.
@@ -253,7 +253,7 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the immediate value.
          */
-        uint8_t size[3];
+        ZydisU8 size[3];
         /**
          * @brief   Signals, if the value is signed.
          */
@@ -291,7 +291,7 @@ ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode();
  * @return  The specified child node.
  */
 ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(
-    const ZydisDecoderTreeNode* parent, uint16_t index);
+    const ZydisDecoderTreeNode* parent, ZydisU16 index);
 
 /**
  * @brief   Returns information about optional instruction parts (like modrm, displacement or 

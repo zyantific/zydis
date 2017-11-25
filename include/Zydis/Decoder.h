@@ -52,7 +52,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisDecoderMode datatype.
  */
-typedef uint8_t ZydisDecoderMode;
+typedef ZydisU8 ZydisDecoderMode;
 
 /**
  * @brief   Values that represent decoder-modes.
@@ -187,7 +187,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDeco
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, 
-    const void* buffer, size_t bufferLen, uint64_t instructionPointer, 
+    const void* buffer, ZydisUSize bufferLen, ZydisU64 instructionPointer, 
     ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */

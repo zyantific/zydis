@@ -45,7 +45,7 @@ extern "C" {
 /**
  * @brief   Defines the `ZydisLetterCase` datatype.
  */
-typedef uint8_t ZydisLetterCase;
+typedef ZydisU8 ZydisLetterCase;
 
 /**
  * @brief   Values that represent letter cases.
@@ -91,7 +91,7 @@ enum ZydisLetterCases
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, const char* text,
     ZydisLetterCase letterCase);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -115,8 +115,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value,
-    uint8_t paddingLength);
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, ZydisUSize bufferLen, ZydisU64 value,
+    ZydisU8 paddingLength);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its decimal text-representation and   
@@ -135,8 +135,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int64_t value, 
-    uint8_t paddingLength);
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
+    ZydisU8 paddingLength);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Hexadecimal values                                                                             */
@@ -163,8 +163,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int6
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value,
-    uint8_t paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, ZydisUSize bufferLen, ZydisU64 value,
+    ZydisU8 paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its hexadecimal text-representation and 
@@ -187,8 +187,8 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(char** buffer, size_t bufferLen, int64_t value, 
-    uint8_t paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
+    ZydisU8 paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /* ---------------------------------------------------------------------------------------------- */
 

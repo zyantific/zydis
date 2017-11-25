@@ -68,13 +68,13 @@ static const char* decimalLookup =
 /* Internal Functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisToLowerCase(char* buffer, size_t bufferLen)
+void ZydisToLowerCase(char* buffer, ZydisUSize bufferLen)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen);
 
     const signed char rebase = 'a' - 'A';
-    for (size_t i = 0; i < bufferLen; ++i)
+    for (ZydisUSize i = 0; i < bufferLen; ++i)
     {
         char* c = buffer + i;
         if ((*c >= 'A') && (*c <= 'Z'))
@@ -84,13 +84,13 @@ void ZydisToLowerCase(char* buffer, size_t bufferLen)
     }
 }
 
-void ZydisToUpperCase(char* buffer, size_t bufferLen)
+void ZydisToUpperCase(char* buffer, ZydisUSize bufferLen)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen);
 
     const signed char rebase = 'A' - 'a';
-    for (size_t i = 0; i < bufferLen; ++i)
+    for (ZydisUSize i = 0; i < bufferLen; ++i)
     {
         char* c = buffer + i;
         if ((*c >= 'a') && (*c <= 'z'))
@@ -101,7 +101,7 @@ void ZydisToUpperCase(char* buffer, size_t bufferLen)
 }
 
 #ifdef ZYDIS_X86
-ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, uint8_t paddingLength)
+ZydisStatus ZydisPrintDecU32(char** buffer, ZydisUSize bufferLen, ZydisU32 value, ZydisU8 paddingLength)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen > 0);
@@ -111,21 +111,21 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
     *p = '\0';
     while (value >= 100)
     {
-        uint32_t const old = value;
+        ZydisU32 const old = value;
         p -= 2;
         value /= 100;
-        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(uint16_t));
+        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(ZydisU16));
     }
     p -= 2;
-    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(uint16_t));
+    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(ZydisU16));
 
-    const size_t n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
-    if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
+    const ZydisUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
+    if ((bufferLen < (ZydisUSize)(n + 1)) || (bufferLen < (ZydisUSize)(paddingLength + 1)))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    uintptr_t offset = 0;
+    ZydisUSize offset = 0;
     if (n <= paddingLength)
     {
         offset = paddingLength - n + 1;
@@ -133,12 +133,12 @@ ZydisStatus ZydisPrintDecU32(char** buffer, size_t bufferLen, uint32_t value, ui
     }
 
     ZydisMemoryCopy(&(*buffer)[offset], &p[value < 10], n + 1);
-    *buffer += n + offset - (uint8_t)(value < 10);
+    *buffer += n + offset - (ZydisU8)(value < 10);
 
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, uint8_t paddingLength, 
+ZydisStatus ZydisPrintHexU32(char** buffer, ZydisUSize bufferLen, ZydisU32 value, ZydisU8 paddingLength, 
     ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     ZYDIS_ASSERT(buffer);
@@ -150,16 +150,16 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
         ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, prefix, ZYDIS_LETTER_CASE_DEFAULT));
         bufferLen = bufEnd - *buffer;
     }
-    if (bufferLen < (size_t)(paddingLength + 1))
+    if (bufferLen < (ZydisUSize)(paddingLength + 1))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     if (!value)
     {
-        const uint8_t n = (paddingLength ? paddingLength : 1);
+        const ZydisU8 n = (paddingLength ? paddingLength : 1);
 
-        if (bufferLen < (size_t)(n + 1))
+        if (bufferLen < (ZydisUSize)(n + 1))
         {
             return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
         }
@@ -170,17 +170,17 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    uint8_t n = 0;
-    for (int8_t i = ZYDIS_MAXCHARS_HEX_32 - 1; i >= 0; --i)
+    ZydisU8 n = 0;
+    for (ZydisI8 i = ZYDIS_MAXCHARS_HEX_32 - 1; i >= 0; --i)
     {
-        const uint8_t v = (value >> i * 4) & 0x0F;
+        const ZydisU8 v = (value >> i * 4) & 0x0F;
         if (!n)
         {
             if (!v)
             {
                 continue;
             }
-            if (bufferLen <= (uint8_t)(i + 1))
+            if (bufferLen <= (ZydisU8)(i + 1))
             {
                 return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
             } 
@@ -210,7 +210,7 @@ ZydisStatus ZydisPrintHexU32(char** buffer, size_t bufferLen, uint32_t value, ui
 }
 #endif
 
-ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength)
+ZydisStatus ZydisPrintDecU64(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen > 0);
@@ -220,7 +220,7 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     *p = '\0';
     while (value >= 100)
     {
-        uint64_t const old = value;
+        ZydisU64 const old = value;
         p -= 2;
         value /= 100;
         ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], 2);
@@ -228,13 +228,13 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     p -= 2;
     ZydisMemoryCopy(p, &decimalLookup[value * 2], 2);
 
-    const size_t n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
-    if ((bufferLen < (size_t)(n + 1)) || (bufferLen < (size_t)(paddingLength + 1)))
+    const ZydisUSize n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
+    if ((bufferLen < (ZydisUSize)(n + 1)) || (bufferLen < (ZydisUSize)(paddingLength + 1)))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    uintptr_t offset = 0;
+    ZydisUSize offset = 0;
     if (n <= paddingLength)
     {
         offset = paddingLength - n + 1;
@@ -242,12 +242,12 @@ ZydisStatus ZydisPrintDecU64(char** buffer, size_t bufferLen, uint64_t value, ui
     }
 
     ZydisMemoryCopy(&(*buffer)[offset], &p[value < 10], n + 1);
-    *buffer += n + offset - (uint8_t)(value < 10);
+    *buffer += n + offset - (ZydisU8)(value < 10);
 
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength,
+ZydisStatus ZydisPrintHexU64(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength,
     ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     ZYDIS_ASSERT(buffer);
@@ -259,16 +259,16 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
         ZYDIS_CHECK(ZydisPrintStr(buffer, bufferLen, prefix, ZYDIS_LETTER_CASE_DEFAULT));
         bufferLen = bufEnd - *buffer;
     }
-    if (bufferLen < (size_t)(paddingLength + 1))
+    if (bufferLen < (ZydisUSize)(paddingLength + 1))
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     if (!value)
     {
-        const uint8_t n = (paddingLength ? paddingLength : 1);
+        const ZydisU8 n = (paddingLength ? paddingLength : 1);
 
-        if (bufferLen < (size_t)(n + 1))
+        if (bufferLen < (ZydisUSize)(n + 1))
         {
             return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
         }
@@ -279,18 +279,18 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    uint8_t n = 0;
-    const uint8_t c = ((value & 0xFFFFFFFF00000000) ? ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32);
-    for (int8_t i = c - 1; i >= 0; --i)
+    ZydisU8 n = 0;
+    const ZydisU8 c = ((value & 0xFFFFFFFF00000000) ? ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32);
+    for (ZydisI8 i = c - 1; i >= 0; --i)
     {
-        const uint8_t v = (value >> i * 4) & 0x0F;
+        const ZydisU8 v = (value >> i * 4) & 0x0F;
         if (!n)
         {
             if (!v)
             {
                 continue;
             }
-            if (bufferLen <= (uint8_t)(i + 1))
+            if (bufferLen <= (ZydisU8)(i + 1))
             {
                 return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }  
@@ -323,14 +323,14 @@ ZydisStatus ZydisPrintHexU64(char** buffer, size_t bufferLen, uint64_t value, ui
 /* Public Functions                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text, 
+ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, const char* text, 
     ZydisLetterCase letterCase)
 {
     ZYDIS_ASSERT(buffer);
     ZYDIS_ASSERT(bufferLen > 0);
     ZYDIS_ASSERT(text);
 
-    const size_t strLen = ZydisStrLen(text);
+    const ZydisUSize strLen = ZydisStrLen(text);
     if (strLen >= bufferLen)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
@@ -354,7 +354,7 @@ ZydisStatus ZydisPrintStr(char** buffer, size_t bufferLen, const char* text,
     return ZYDIS_STATUS_SUCCESS;
 }
 
-ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength)
+ZydisStatus ZydisPrintDecU(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength)
 {
 #ifdef ZYDIS_X64
     return ZydisPrintDecU64(buffer, bufferLen, value, paddingLength);
@@ -364,12 +364,12 @@ ZydisStatus ZydisPrintDecU(char** buffer, size_t bufferLen, uint64_t value, uint
        return ZydisPrintDecU64(buffer, bufferLen, value, paddingLength);
    } else
    {
-       return ZydisPrintDecU32(buffer, bufferLen, (uint32_t)value, paddingLength);
+       return ZydisPrintDecU32(buffer, bufferLen, (ZydisU32)value, paddingLength);
    }
 #endif    
 }
 
-ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int64_t value, uint8_t paddingLength)
+ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, ZydisU8 paddingLength)
 {
     if (value < 0)
     {
@@ -379,7 +379,7 @@ ZydisStatus ZydisPrintDecS(char** buffer, size_t bufferLen, int64_t value, uint8
     return ZydisPrintDecU(buffer, bufferLen, value, paddingLength);
 }
 
-ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value, uint8_t paddingLength,
+ZydisStatus ZydisPrintHexU(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength,
     ZydisBool uppercase, const char* prefix, const char* suffix)
 {
 #ifdef ZYDIS_X64
@@ -390,13 +390,13 @@ ZydisStatus ZydisPrintHexU(char** buffer, size_t bufferLen, uint64_t value, uint
        return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);
    } else
    {
-       return ZydisPrintHexU32(buffer, bufferLen, (uint32_t)value, paddingLength, uppercase, 
+       return ZydisPrintHexU32(buffer, bufferLen, (ZydisU32)value, paddingLength, uppercase, 
            prefix, suffix);
    }
 #endif
 }
 
-ZydisStatus ZydisPrintHexS(char** buffer, size_t bufferLen, int64_t value, uint8_t paddingLength,
+ZydisStatus ZydisPrintHexS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, ZydisU8 paddingLength,
     ZydisBool uppercase, const char* prefix, const char* suffix)
 {
     if (value < 0)

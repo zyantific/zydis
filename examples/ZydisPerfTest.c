@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <time.h>
 #include <Zydis/Zydis.h>
+#include <inttypes.h>
 
 #if defined(ZYDIS_WINDOWS)
 #   include <Windows.h>

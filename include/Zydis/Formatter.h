@@ -51,7 +51,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisFormatterStyle datatype.
  */
-typedef uint8_t ZydisFormatterStyle;
+typedef ZydisU8 ZydisFormatterStyle;
 
 /**
  * @brief   Values that represent formatter-styles.
@@ -75,7 +75,7 @@ enum ZydisFormatterStyles
 /**
  * @brief   Defines the @c ZydisFormatterProperty datatype.
  */
-typedef uint8_t ZydisFormatterProperty;
+typedef ZydisU8 ZydisFormatterProperty;
 
 /**
  * @brief   Values that represent formatter-properties.
@@ -282,7 +282,7 @@ enum ZydisImmediateFormat
 /**
  * @brief   Defines the @c ZydisFormatterHookType datatype.
  */
-typedef uint8_t ZydisFormatterHookType;
+typedef ZydisU8 ZydisFormatterHookType;
 
 /**
  * @brief   Values that represent formatter hook-types.
@@ -374,7 +374,7 @@ enum ZydisFormatterHookTypes
 /**
  * @brief   Defines the @c ZydisDecoratorType datatype.
  */
-typedef uint8_t ZydisDecoratorType;
+typedef ZydisU8 ZydisDecoratorType;
 
 /**
  * @brief   Values that represent decorator-types.
@@ -434,7 +434,7 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter,
  * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
+    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatOperandFunc function pointer.
@@ -471,7 +471,7 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, void* userData);
 
  /**
@@ -494,8 +494,8 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
-    const ZydisDecodedOperand* operand, uint64_t address, void* userData);
+    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
+    const ZydisDecodedOperand* operand, ZydisU64 address, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
@@ -520,7 +520,7 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
-    char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
+    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -532,18 +532,18 @@ typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* f
  */
 struct ZydisFormatter_
 {
-    uint8_t letterCase;
+    ZydisU8 letterCase;
     ZydisBool forceSegments;
     ZydisBool forceOperandSize;
-    uint8_t addressFormat;
-    uint8_t displacementFormat;
-    uint8_t immediateFormat;
+    ZydisU8 addressFormat;
+    ZydisU8 displacementFormat;
+    ZydisU8 immediateFormat;
     ZydisBool hexUppercase;
     char* hexPrefix;
     char* hexSuffix;
-    uint8_t hexPaddingAddress;
-    uint8_t hexPaddingDisplacement;
-    uint8_t hexPaddingImmediate;
+    ZydisU8 hexPaddingAddress;
+    ZydisU8 hexPaddingDisplacement;
+    ZydisU8 hexPaddingImmediate;
     ZydisFormatterNotifyFunc funcPre;
     ZydisFormatterNotifyFunc funcPost;
     ZydisFormatterFormatFunc funcFormatInstruction;
@@ -587,7 +587,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisForm
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
-    ZydisFormatterProperty property, uintptr_t value);
+    ZydisFormatterProperty property, ZydisUSize value);
 
 /**
  * @brief   Replaces a formatter function with a custom callback and/or retrieves the currently
@@ -617,7 +617,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
-    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen);
+    const ZydisDecodedInstruction* instruction, char* buffer, ZydisUSize bufferLen);
 
 /**
  * @brief   Formats the given instruction and writes it into the output buffer.
@@ -632,7 +632,7 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* f
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
-    const ZydisDecodedInstruction* instruction, char* buffer, size_t bufferLen, void* userData);
+    const ZydisDecodedInstruction* instruction, char* buffer, ZydisUSize bufferLen, void* userData);
 
 /* ============================================================================================== */
 

@@ -51,7 +51,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisRegister datatype.
  */
-typedef uint8_t ZydisRegister;
+typedef ZydisU8 ZydisRegister;
 
 /**
  * @brief   Values that represent zydis registers.
@@ -161,7 +161,7 @@ enum ZydisRegisters
 /**
  * @brief   Defines the @c ZydisRegisterClass datatype.
  */
-typedef uint8_t ZydisRegisterClass;
+typedef ZydisU8 ZydisRegisterClass;
 
 /**
  * @brief   Values that represent zydis register-classes.
@@ -250,7 +250,7 @@ enum ZydisRegisterClasses
 /**
  * @brief   Defines the @c ZydisRegisterWidth datatype. 
  */
-typedef uint16_t ZydisRegisterWidth;
+typedef ZydisU16 ZydisRegisterWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -267,7 +267,7 @@ typedef uint16_t ZydisRegisterWidth;
  * @return  The register specified by the @c registerClass and the @c id or @c ZYDIS_REGISTER_NONE,
  *          if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id);
 
 /**
  * @brief   Returns the id of the specified register.
@@ -276,7 +276,7 @@ ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass,
  *
  * @return  The id of the specified register, or -1 if an invalid parameter was passed.
  */
-ZYDIS_EXPORT int16_t ZydisRegisterGetId(ZydisRegister reg);
+ZYDIS_EXPORT ZydisI16 ZydisRegisterGetId(ZydisRegister reg);
 
 /**
  * @brief   Returns the register-class of the specified register.

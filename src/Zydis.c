@@ -30,7 +30,7 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-uint64_t ZydisGetVersion()
+ZydisU64 ZydisGetVersion()
 {
     return ZYDIS_VERSION;
 }
@@ -45,24 +45,14 @@ ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature)
 #else
         return ZYDIS_FALSE;
 #endif
+
     case ZYDIS_FEATURE_MVEX:
 #ifndef ZYDIS_DISABLE_MVEX
         return ZYDIS_TRUE;
 #else
         return ZYDIS_FALSE;
 #endif
-    case ZYDIS_FEATURE_FLAGS:
-#ifndef ZYDIS_DISABLE_FLAGS
-        return ZYDIS_TRUE;
-#else
-        return ZYDIS_FALSE;
-#endif
-    case ZYDIS_FEATURE_CPUID:
-#ifndef ZYDIS_DISABLE_CPUID
-        return ZYDIS_TRUE;
-#else
-        return ZYDIS_FALSE;
-#endif
+
     default:
         return ZYDIS_FALSE;
     }

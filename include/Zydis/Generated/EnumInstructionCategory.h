@@ -1,7 +1,7 @@
 /**
  * @brief   Defines the `ZydisInstructionCategory` datatype.
  */
-typedef uint8_t ZydisInstructionCategory;
+typedef ZydisU8 ZydisInstructionCategory;
 
 /**
  * @brief   Values that represent `ZydisInstructionCategory` elements.
