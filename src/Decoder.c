@@ -24,7 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <string.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Status.h>
 #include <DecoderData.h>
@@ -4237,7 +4236,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 
     // Iterate through the decoder tree
     const ZydisDecoderTreeNode* node = ZydisDecoderTreeGetRootNode();
-    const ZydisDecoderTreeNode* temp = NULL;
+    const ZydisDecoderTreeNode* temp = ZYDIS_NULL;
     ZydisDecoderTreeNodeType nodeType;
     do
     {
@@ -4250,7 +4249,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             if (temp)
             {
                 node = temp;
-                temp = NULL;
+                temp = ZYDIS_NULL;
                 nodeType = ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX;
                 if (context->mandatoryCandidate == 0x66)
                 {

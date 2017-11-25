@@ -270,7 +270,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
 {
     if (reg > (sizeof(registerStrings) / sizeof(registerStrings[0])) - 1)
     {
-        return NULL;
+        return ZYDIS_NULL;
     }
     return registerStrings[reg];    
 }

@@ -36,6 +36,7 @@
 /* LibC is available                                                                              */
 /* ============================================================================================== */
 
+#   include <string.h>
 #   define ZydisMemoryCopy memcpy
 #   define ZydisMemorySet  memset
 #   define ZydisStrLen     strlen

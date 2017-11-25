@@ -24,8 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <string.h>
-#include <ctype.h>
 #include <FormatHelper.h>
 #include <LibC.h>
 
@@ -408,7 +406,7 @@ ZydisStatus ZydisPrintHexS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
             ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, prefix, ZYDIS_LETTER_CASE_DEFAULT));
         }
         return ZydisPrintHexU(buffer, bufEnd - *buffer, -value, paddingLength, uppercase, 
-            NULL, suffix);
+            ZYDIS_NULL, suffix);
     }
     return ZydisPrintHexU(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);  
 }
