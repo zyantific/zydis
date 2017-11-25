@@ -152,13 +152,13 @@ static const struct ZydisRegisterMapItem registerMap[] =
     { ZYDIS_REGCLASS_BOUND    , ZYDIS_REGISTER_BND0   , ZYDIS_REGISTER_BND3   , 128   , 128 }
 };
 
-static const uint8_t registerMapCount = sizeof(registerMap) / sizeof(struct ZydisRegisterMapItem);
+static const ZydisU8 registerMapCount = sizeof(registerMap) / sizeof(struct ZydisRegisterMapItem);
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id)
+ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
 {
     switch (registerClass)
     {
@@ -176,7 +176,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id)
     return ZYDIS_REGISTER_NONE;
 }
 
-int16_t ZydisRegisterGetId(ZydisRegister reg)
+ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
 {
     for (unsigned i = 0; i < registerMapCount; ++i)
     {

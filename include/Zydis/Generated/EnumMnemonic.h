@@ -1,7 +1,7 @@
 /**
  * @brief   Defines the `ZydisMnemonic` datatype.
  */
-typedef uint16_t ZydisMnemonic;
+typedef ZydisU16 ZydisMnemonic;
 
 /**
  * @brief   Values that represent `ZydisMnemonic` elements.

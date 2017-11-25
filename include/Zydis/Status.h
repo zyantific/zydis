@@ -45,7 +45,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisStatus datatype.
  */
-typedef uint32_t ZydisStatus;
+typedef ZydisU32 ZydisStatus;
 
 /**
  * @brief   Values that represent a zydis status-codes.

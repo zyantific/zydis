@@ -275,7 +275,7 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode()
 }
 
 const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent, 
-    uint16_t index)
+    ZydisU16 index)
 {
     switch (parent->type)
     {
@@ -360,7 +360,7 @@ void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    uint8_t class = (node->type) & 0x7F;
+    ZydisU8 class = (node->type) & 0x7F;
     ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionEncodings));
     *info = &instructionEncodings[class];
 }

@@ -104,7 +104,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, uint16_t id,
+void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 id,
     const ZydisInstructionDefinition** definition)
 {
     switch (encoding)
@@ -136,7 +136,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, uint16_t i
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
+ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
     const ZydisOperandDefinition** operand)
 {
     if (definition->operandCount == 0)

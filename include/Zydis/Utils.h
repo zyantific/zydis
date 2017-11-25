@@ -60,7 +60,7 @@ extern "C" {
  *   - The displacement needs to get truncated and zero extended
  */
 ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
-    const ZydisDecodedOperand* operand, uint64_t* address);
+    const ZydisDecodedOperand* operand, ZydisU64* address);
 
 /* ============================================================================================== */
 /* Flags                                                                                          */

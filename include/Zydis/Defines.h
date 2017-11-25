@@ -81,8 +81,10 @@
 
 #if defined (_M_AMD64) || defined (__x86_64__)
 #   define ZYDIS_X64
+#   define ZYDIS_WORD_SIZE 64
 #elif defined (_M_IX86) || defined (__i386__)
 #   define ZYDIS_X86
+#   define ZYDIS_WORD_SIZE 32
 #else
 #   error "Unsupported architecture detected"
 #endif
@@ -121,7 +123,7 @@
 /* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
 
-#if defined(ZYDIS_WINKERNEL)
+#if defined(ZYDIS_NO_LIBC)
 #   define ZYDIS_ASSERT(condition)
 #else
 #   include <assert.h>
@@ -149,7 +151,7 @@
 #   else
 #       define ZYDIS_UNREACHABLE
 #   endif
-#elif defined(ZYDIS_WINKERNEL)
+#elif defined(ZYDIS_NO_LIBC)
 #   define ZYDIS_UNREACHABLE
 #else
 #   include <stdlib.h>

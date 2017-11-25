@@ -59,7 +59,7 @@ extern "C" {
 /**
  * @brief   A macro that defines the zydis version.
  */
-#define ZYDIS_VERSION (uint64_t)0x0002000000000000
+#define ZYDIS_VERSION (ZydisU64)0x0002000000000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
@@ -70,28 +70,28 @@ extern "C" {
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_MAJOR(version) (uint16_t)((version & 0xFFFF000000000000) >> 48)
+#define ZYDIS_VERSION_MAJOR(version) (ZydisU16)((version & 0xFFFF000000000000) >> 48)
 
 /**
  * @brief   Extracts the minor-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_MINOR(version) (uint16_t)((version & 0x0000FFFF00000000) >> 32)
+#define ZYDIS_VERSION_MINOR(version) (ZydisU16)((version & 0x0000FFFF00000000) >> 32)
 
 /**
  * @brief   Extracts the patch-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_PATCH(version) (uint16_t)((version & 0x00000000FFFF0000) >> 16)
+#define ZYDIS_VERSION_PATCH(version) (ZydisU16)((version & 0x00000000FFFF0000) >> 16)
 
 /**
  * @brief   Extracts the build-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_BUILD(version) (uint16_t)(version & 0x000000000000FFFF)
+#define ZYDIS_VERSION_BUILD(version) (ZydisU16)(version & 0x000000000000FFFF)
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -102,7 +102,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisFeature datatype.
  */
-typedef uint8_t ZydisFeature;
+typedef ZydisU8 ZydisFeature;
 
 /**
  * @brief   Values that represent zydis features.
@@ -125,7 +125,7 @@ enum ZydisFeatures
  * Use the macros provided in this file to extract the major, minor, patch and build part from the 
  * returned version value.
  */
-ZYDIS_EXPORT uint64_t ZydisGetVersion();
+ZYDIS_EXPORT ZydisU64 ZydisGetVersion();
 
 /**
  * @brief   Checks, if the specified feature is enabled in the current zydis library instance.
