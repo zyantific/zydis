@@ -141,7 +141,7 @@ ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
 {
     if (definition->operandCount == 0)
     {
-        *operand = NULL;
+        *operand = ZYDIS_NULL;
         return 0;
     }
     ZYDIS_ASSERT(definition->operandReference != 0xFFFF);

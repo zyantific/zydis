@@ -24,7 +24,6 @@
 
 ***************************************************************************************************/
 
-#include <string.h>
 #include <Zydis/CommonTypes.h>
 #include <Zydis/Formatter.h>
 #include <Zydis/Utils.h>
@@ -475,7 +474,7 @@ static ZydisStatus ZydisFormatterPrintOperandSizeIntel(const ZydisFormatter* for
     }
     if (typecast)
     {
-        const char* str = NULL;
+        const char* str = ZYDIS_NULL;
         switch (typecast)
         {
         case 8:
@@ -919,7 +918,7 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
     formatter->immediateFormat          = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
     formatter->hexUppercase             = ZYDIS_TRUE;
     formatter->hexPrefix                = "0x";
-    formatter->hexSuffix                = NULL;
+    formatter->hexSuffix                = ZYDIS_NULL;
     formatter->hexPaddingAddress        = 2;
     formatter->hexPaddingDisplacement   = 2;
     formatter->hexPaddingImmediate      = 2;
@@ -1151,7 +1150,7 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
 ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter, 
     const ZydisDecodedInstruction* instruction, char* buffer, ZydisUSize bufferLen)
 {
-    return ZydisFormatterFormatInstructionEx(formatter, instruction, buffer, bufferLen, NULL);
+    return ZydisFormatterFormatInstructionEx(formatter, instruction, buffer, bufferLen, ZYDIS_NULL);
 }
 
 ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
