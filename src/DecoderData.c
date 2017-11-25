@@ -221,19 +221,23 @@ extern const ZydisDecoderTreeNode filtersREXW[][2];
  */
 extern const ZydisDecoderTreeNode filtersREXB[][2];
 
+#ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Contains all EVEX.b filters.
  *          
  *          Indexed by the numeric value of the EVEX.b field.
  */
 extern const ZydisDecoderTreeNode filtersEVEXB[][2];
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Contains all MVEX.E filters.
  *          
  *          Indexed by the numeric value of the MVEX.E field.
  */
 extern const ZydisDecoderTreeNode filtersMVEXE[][2];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Physical instruction encodings                                                                 */
@@ -327,12 +331,16 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_REX_B:
         ZYDIS_ASSERT(index <   2);
         return &filtersREXB[parent->value][index];
+#ifndef ZYDIS_DISABLE_EVEX
     case ZYDIS_NODETYPE_FILTER_EVEX_B:
         ZYDIS_ASSERT(index <   2);
         return &filtersEVEXB[parent->value][index];
+#endif
+#ifndef ZYDIS_DISABLE_MVEX
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYDIS_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];
+#endif
     case ZYDIS_NODETYPE_FILTER_MODE_AMD:
         ZYDIS_ASSERT(index <   2);
         return &filtersModeAMD[parent->value][index];

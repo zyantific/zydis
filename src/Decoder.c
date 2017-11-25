@@ -98,6 +98,7 @@ typedef struct ZydisDecoderContext_
         ZydisU8 v_vvvv;
         ZydisU8 mask;
     } cache;
+#ifndef ZYDIS_DISABLE_EVEX
     /**
      * @brief   Internal EVEX-specific information.
      */
@@ -112,6 +113,8 @@ typedef struct ZydisDecoderContext_
          */
         ZydisU8 elementSize;
     } evex;
+#endif
+#ifndef ZYDIS_DISABLE_MVEX
     /**
      * @brief   Internal MVEX-specific information.
      */
@@ -122,10 +125,13 @@ typedef struct ZydisDecoderContext_
          */
         ZydisMVEXFunctionality functionality;
     } mvex;
+#endif
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     /**
      * @brief   The scale factor for EVEX/MVEX compressed 8-bit displacement values.
      */
     ZydisU8 cd8scale;
+#endif
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -492,6 +498,7 @@ static ZydisStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     return ZYDIS_STATUS_SUCCESS;
 }
 
+#ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Decodes the EVEX-prefix.
  *
@@ -576,7 +583,9 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     return ZYDIS_STATUS_SUCCESS;
 }
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Decodes the MVEX-prefix.
  *
@@ -635,6 +644,7 @@ static ZydisStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
 
     return ZYDIS_STATUS_SUCCESS;
 }
+#endif
 
 /**
  * @brief   Decodes the ModRM-byte.
@@ -1111,6 +1121,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             }
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+#ifndef ZYDIS_DISABLE_EVEX
             if (definition->size[context->eoszIndex])
             {
                 // Operand size is hardcoded
@@ -1146,8 +1157,12 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                 }
             }
             ZYDIS_ASSERT(operand->size);
+#else
+            ZYDIS_UNREACHABLE;
+#endif
             break;
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+#ifndef ZYDIS_DISABLE_MVEX
             if (definition->size[context->eoszIndex])
             {
                 // Operand size is hardcoded
@@ -1249,6 +1264,9 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                     ZYDIS_UNREACHABLE;
                 }
             }
+#else
+            ZYDIS_UNREACHABLE;
+#endif
             break;
         default:
             ZYDIS_UNREACHABLE;
@@ -1897,6 +1915,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         }
         if (instruction->operands[i].type)
         {
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
             // Handle compressed 8-bit displacement
             if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                  (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
@@ -1904,6 +1923,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             {
                 instruction->operands[i].mem.disp.value *= context->cd8scale;
             }
+#endif
 
             goto FinalizeOperand;
         }
@@ -1984,6 +2004,7 @@ FinalizeOperand:
         ++operand;
     }
 
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Fix operand-action for EVEX instructions with merge-mask
     if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) || 
          (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) && 
@@ -2019,6 +2040,7 @@ FinalizeOperand:
             break;
         }
     }
+#endif
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -2342,6 +2364,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
+#ifndef ZYDIS_DISABLE_EVEX
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
     
@@ -2736,11 +2759,14 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
         instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
         instruction->avx.mask.isControlMask = def->isControlMask;
-
+#else
+        ZYDIS_UNREACHABLE;
+#endif
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
     {
+#ifndef ZYDIS_DISABLE_MVEX
         // Vector length
         instruction->avx.vectorLength = ZYDIS_VECTOR_LENGTH_512;
 
@@ -3034,7 +3060,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         // Mask
         instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE;
         instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.mvex.kkk;
-
+#else
+        ZYDIS_UNREACHABLE;
+#endif
         break;
     }
     default:
@@ -3613,11 +3641,15 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                         ZYDIS_CHECK(ZydisInputNext(context, instruction, &prefixBytes[1]));
                         break;
                     case 0x62:
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
                         // Read additional EVEX/MVEX-prefix data
                         ZYDIS_ASSERT(!instruction->raw.evex.isDecoded);
                         ZYDIS_ASSERT(!instruction->raw.mvex.isDecoded);
                         ZYDIS_CHECK(ZydisInputNextBytes(context, instruction, &prefixBytes[1], 3));
                         break;
+#else
+                        return ZYDIS_STATUS_DECODING_ERROR;
+#endif                     
                     default:
                         ZYDIS_UNREACHABLE;
                     }
@@ -3632,9 +3664,13 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.vex.m_mmmm;
                         break;
                     case 0x62:
+#if defined(ZYDIS_DISABLE_EVEX) && defined(ZYDIS_DISABLE_MVEX)
+                        return ZYDIS_STATUS_DECODING_ERROR;
+#else
                         switch ((prefixBytes[2] >> 2) & 0x01)
                         {
                         case 0:
+#ifndef ZYDIS_DISABLE_MVEX
                             // `KNC` instructions are only valid in 64-bit mode.
                             // This condition catches the `MVEX` encoded ones to omit a bunch of
                             // `mode` filters in the data-tables.
@@ -3649,17 +3685,25 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             instruction->opcodeMap = 
                                 ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.mvex.mmmm;
                             break;
+#else
+                            return ZYDIS_STATUS_DECODING_ERROR;
+#endif
                         case 1:
+#ifndef ZYDIS_DISABLE_EVEX
                             // Decode EVEX-prefix
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
                             ZYDIS_CHECK(ZydisDecodeEVEX(context, instruction, prefixBytes));
                             instruction->opcodeMap = 
                                 ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.evex.mm;
                             break;
+#else
+                            return ZYDIS_STATUS_DECODING_ERROR;
+#endif
                         default:
                             ZYDIS_UNREACHABLE;
                         }
                         break;
+#endif
                     default:
                         ZYDIS_UNREACHABLE;
                     }
@@ -4008,6 +4052,7 @@ static ZydisStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
     return ZYDIS_STATUS_SUCCESS;
 }
 
+#ifndef ZYDIS_DISABLE_EVEX
 static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
@@ -4018,7 +4063,9 @@ static ZydisStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, Z
     *index = instruction->raw.evex.b;
     return ZYDIS_STATUS_SUCCESS;   
 }
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, ZydisU16* index)
 {
     ZYDIS_ASSERT(instruction);
@@ -4029,6 +4076,7 @@ static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Z
     *index = instruction->raw.mvex.E;
     return ZYDIS_STATUS_SUCCESS;   
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -4049,7 +4097,9 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     ZydisBool acceptsLock = ZYDIS_FALSE;
     ZydisBool hasNDSNDDOperand = ZYDIS_FALSE;
     ZydisBool hasVSIB = ZYDIS_FALSE;
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
+#endif
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
@@ -4084,6 +4134,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
+#ifndef ZYDIS_DISABLE_EVEX
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
         hasNDSNDDOperand = def->hasNDSNDDOperand;
@@ -4095,11 +4146,14 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         {
             return ZYDIS_STATUS_INVALID_MASK; // TODO: Dedicated status code
         }
-
+#else
+        ZYDIS_UNREACHABLE;
+#endif
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
     {
+#ifndef ZYDIS_DISABLE_MVEX
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;
         hasNDSNDDOperand = def->hasNDSNDDOperand;
@@ -4168,6 +4222,9 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         {
             return ZYDIS_STATUS_DECODING_ERROR;
         }
+#else
+        ZYDIS_UNREACHABLE;
+#endif
         break;
     }
     default:
@@ -4192,6 +4249,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         return ZYDIS_STATUS_DECODING_ERROR;
     }
 
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Check for invalid MASK registers
     switch (maskPolicy)
     {
@@ -4214,6 +4272,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     default:
         ZYDIS_UNREACHABLE;
     }
+#endif
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -4310,12 +4369,16 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_REX_B:
             status = ZydisNodeHandlerRexB(context, instruction, &index);
             break;
+#ifndef ZYDIS_DISABLE_EVEX
         case ZYDIS_NODETYPE_FILTER_EVEX_B:
             status = ZydisNodeHandlerEvexB(instruction, &index);
             break;  
+#endif
+#ifndef ZYDIS_DISABLE_MVEX          
         case ZYDIS_NODETYPE_FILTER_MVEX_E:
             status = ZydisNodeHandlerMvexE(instruction, &index);
-            break;   
+            break;  
+#endif
         case ZYDIS_NODETYPE_FILTER_MODE_AMD:
             index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_AMD_BRANCHES] ? 1 : 0;
             break;

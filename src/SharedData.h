@@ -615,7 +615,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZydisBool acceptsZeroMask               ZYDIS_BITFIELD( 1);
     ZydisBool isControlMask                 ZYDIS_BITFIELD( 1);
     ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 4);
-} ZydisInstructionDefinitionEVEX;                           
+} ZydisInstructionDefinitionEVEX;
 
 typedef struct ZydisInstructionDefinitionMVEX_
 {

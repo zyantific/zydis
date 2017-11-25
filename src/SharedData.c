@@ -61,15 +61,19 @@ extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
  */
 extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
 
+#ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Contains all instruction-definitions with @c EVEX encoding.
  */
 extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Contains all instruction-definitions with @c MVEX encoding.
  */
 extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction definitions                                                                        */
@@ -121,12 +125,16 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsVEX[id];
         break;
+#ifndef ZYDIS_DISABLE_EVEX
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[id];
         break;
+#endif
+#ifndef ZYDIS_DISABLE_MVEX
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[id];
         break;
+#endif
     default:
         ZYDIS_UNREACHABLE;
     }
