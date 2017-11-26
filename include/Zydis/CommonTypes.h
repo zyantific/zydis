@@ -39,40 +39,46 @@
 /* ============================================================================================== */
 
 #if !defined(ZYDIS_NO_LIBC)
-    // LibC present, use stdint types.
+    // If is LibC present, we use stdint types.
 #   include <stdint.h>
-    typedef uint8_t  ZydisU8;
-    typedef uint16_t ZydisU16;
-    typedef uint32_t ZydisU32;
-    typedef uint64_t ZydisU64;
-    typedef int8_t   ZydisI8;
-    typedef int16_t  ZydisI16;
-    typedef int32_t  ZydisI32;
-    typedef int64_t  ZydisI64;
+#   include <stddef.h>
+    typedef uint8_t   ZydisU8;
+    typedef uint16_t  ZydisU16;
+    typedef uint32_t  ZydisU32;
+    typedef uint64_t  ZydisU64;
+    typedef int8_t    ZydisI8;
+    typedef int16_t   ZydisI16;
+    typedef int32_t   ZydisI32;
+    typedef int64_t   ZydisI64;
+    typedef size_t    ZydisUSize;
+    typedef ptrdiff_t ZydisISize;
 #else 
-    // No LibC, roll our own int sizes ...
+    // No LibC, use compiler built-in types / macros.
 #   if defined(ZYDIS_MSVC)
-        typedef unsigned __int8  ZydisU8;
-        typedef unsigned __int16 ZydisU16;
-        typedef unsigned __int32 ZydisU32;
-        typedef unsigned __int64 ZydisU64;
-        typedef __int8           ZydisI8;
-        typedef __int16          ZydisI16;
-        typedef __int32          ZydisI32;
-        typedef __int64          ZydisI64;
+        typedef unsigned __int8     ZydisU8;
+        typedef unsigned __int16    ZydisU16;
+        typedef unsigned __int32    ZydisU32;
+        typedef unsigned __int64    ZydisU64;
+        typedef __int8              ZydisI8;
+        typedef __int16             ZydisI16;
+        typedef __int32             ZydisI32;
+        typedef __int64             ZydisI64;
+        typedef ZydisU64            ZydisUSize;
+        typedef ZydisI64            ZydisISize;
+#   elif defined(ZYDIS_GNUC)
+        typedef __UINT8_TYPE__      ZydisU8;
+        typedef __UINT16_TYPE__     ZydisU16;
+        typedef __UINT32_TYPE__     ZydisU32;
+        typedef __UINT64_TYPE__     ZydisU64;
+        typedef __INT8_TYPE__       ZydisI8;
+        typedef __INT16_TYPE__      ZydisI16;
+        typedef __INT32_TYPE__      ZydisI32;
+        typedef __INT64_TYPE__      ZydisI64;
+        typedef __SIZE_TYPE__       ZydisUSize;
+        typedef __PTRDIFF_TYPE__    ZydisISize;
 #   else
-#       error "Unsupported compiler for NO_LIBC mode."
+#       error "Unsupported compiler for no-libc mode."
 #   endif
-#endif
-
-#if ZYDIS_WORD_SIZE == 32
-    typedef ZydisU32 ZydisUSize;
-    typedef ZydisI32 ZydisISize;
-#elif ZYDIS_WORD_SIZE == 64
-    typedef ZydisU64 ZydisUSize;
-    typedef ZydisI64 ZydisISize;
-#else
-#   error "Unsupported word size."
 #endif
 
 /* ============================================================================================== */
@@ -91,7 +97,7 @@
 /**
  * @briefs  Defines the @c ZydisBool datatype.
  */
-typedef uint8_t ZydisBool;
+typedef ZydisU8 ZydisBool;
 
 /* ============================================================================================== */
 
