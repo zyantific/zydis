@@ -165,6 +165,15 @@
 /* ============================================================================================== */
 
 /**
+ * @brief   Compiler-time assertion.
+ */
+#if __STDC_VERSION__ >= 201112L
+#   define ZYDIS_STATIC_ASSERT(x) _Static_assert(x, #x)
+#else
+#   define ZYDIS_STATIC_ASSERT(x) typedef int ZYDIS_SASSERT_IMPL[(x) ? 1 : -1]
+#endif
+
+/**
  * @brief   Declares a bitfield.
  */
 #define ZYDIS_BITFIELD(x) : x

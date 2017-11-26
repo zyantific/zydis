@@ -86,6 +86,17 @@
 #   endif
 #endif
 
+// Verify assumptions.
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU8)  == 1);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU16) == 2);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU32) == 4);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU64) == 8);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI8)  == 1);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI16) == 2);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI32) == 4);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI64) == 8);
+ZYDIS_STATIC_ASSERT(sizeof(ZydisUSize) == sizeof(ZydisISize));
+
 /* ============================================================================================== */
 /* NULL                                                                                           */
 /* ============================================================================================== */
