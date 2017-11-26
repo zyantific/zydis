@@ -35,6 +35,9 @@ option(ZYDIS_BUILD_EXAMPLES
 option(ZYDIS_BUILD_TOOLS 
     "Build tools" 
     ON)
+option(ZYDIS_FUZZ_AFL_FAST
+	"Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
+	OFF)
 option(ZYDIS_DEV_MODE
     "Enable developer mode (-Wall, -Werror, ...)"
     OFF)
@@ -156,6 +159,9 @@ if (ZYDIS_BUILD_EXAMPLES)
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+		if (ZYDIS_FUZZ_AFL_FAST)
+			target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+		endif ()
 
         add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
         target_link_libraries("ZydisPerfTest" "Zydis")

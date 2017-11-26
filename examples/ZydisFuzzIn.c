@@ -53,6 +53,8 @@ typedef struct ZydisFuzzControlBlock_
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
+int doIteration();
+
 int main()
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
@@ -61,10 +63,30 @@ int main()
         return EXIT_FAILURE;
     }
 
+#ifdef ZYDIS_FUZZ_AFL_FAST
+    int finalRet;
+    while (__AFL_LOOP(1000))
+    {
+        finalRet = doIteration();
+    }
+    return finalRet;
+#else
+    return doIteration();
+#endif
+}
+
+#ifdef ZYDIS_FUZZ_AFL_FAST
+#   define ZYDIS_MAYBE_FPUTS(x, y)
+#else
+#   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
+#endif
+
+int doIteration()
+{
     ZydisFuzzControlBlock controlBlock;
     if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
     {
-        fputs("not enough bytes to fuzz\n", stderr);
+        ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
     controlBlock.string[ZYDIS_ARRAY_SIZE(controlBlock.string) - 1] = 0;
@@ -73,7 +95,7 @@ int main()
     if (!ZYDIS_SUCCESS(
         ZydisDecoderInit(&decoder, controlBlock.machineMode, controlBlock.addressWidth)))
     {
-        fputs("Failed to initialize decoder\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
     }
     for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
@@ -81,7 +103,7 @@ int main()
         if (!ZYDIS_SUCCESS(
             ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
         {
-            fputs("Failed to adjust decoder-mode\n", stderr);
+            ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", stderr);
             return EXIT_FAILURE;
         }
     }
@@ -89,7 +111,7 @@ int main()
     ZydisFormatter formatter;
     if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
     {
-        fputs("Failed to initialize instruction-formatter\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
     }
     for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
@@ -107,7 +129,7 @@ int main()
         if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop, 
             controlBlock.formatterProperties[prop])))
         {
-            fputs("Failed to set formatter-attribute\n", stderr);
+            ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
             return EXIT_FAILURE;
         }
     }
@@ -142,7 +164,7 @@ int main()
         }
     } while (numBytesRead == sizeof(readBuf));
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 /* ============================================================================================== */
