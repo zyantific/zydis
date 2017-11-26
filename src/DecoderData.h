@@ -280,7 +280,7 @@ typedef struct ZydisInstructionEncodingInfo_
  *
  * @return  The root node of the instruction tree.
  */
-ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode();
+ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void);
 
 /**
  * @brief   Returns the child node of @c parent specified by @c index.

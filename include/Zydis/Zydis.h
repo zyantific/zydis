@@ -125,7 +125,7 @@ enum ZydisFeatures
  * Use the macros provided in this file to extract the major, minor, patch and build part from the 
  * returned version value.
  */
-ZYDIS_EXPORT ZydisU64 ZydisGetVersion();
+ZYDIS_EXPORT ZydisU64 ZydisGetVersion(void);
 
 /**
  * @brief   Checks, if the specified feature is enabled in the current zydis library instance.

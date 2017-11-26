@@ -137,7 +137,7 @@
 #       if __has_builtin(__builtin_unreachable)
 #           define ZYDIS_UNREACHABLE __builtin_unreachable()
 #       else
-#           define ZYDIS_UNREACHABLE
+#           define ZYDIS_UNREACHABLE for(;;)
 #       endif
 #   elif defined(ZYDIS_GCC) && ((__GNUC__ == 4 && __GNUC_MINOR__ > 4) || __GNUC__ > 4)
 #       define ZYDIS_UNREACHABLE __builtin_unreachable()
@@ -151,10 +151,10 @@
 #   elif defined(ZYDIS_MSVC)
 #       define ZYDIS_UNREACHABLE __assume(0)
 #   else
-#       define ZYDIS_UNREACHABLE
+#       define ZYDIS_UNREACHABLE for(;;)
 #   endif
 #elif defined(ZYDIS_NO_LIBC)
-#   define ZYDIS_UNREACHABLE
+#   define ZYDIS_UNREACHABLE for(;;)
 #else
 #   include <stdlib.h>
 #   define ZYDIS_UNREACHABLE { assert(0); abort(); }

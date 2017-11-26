@@ -30,7 +30,7 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisU64 ZydisGetVersion()
+ZydisU64 ZydisGetVersion(void)
 {
     return ZYDIS_VERSION;
 }

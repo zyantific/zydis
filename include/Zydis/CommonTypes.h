@@ -55,47 +55,54 @@
 #else 
     // No LibC, use compiler built-in types / macros.
 #   if defined(ZYDIS_MSVC)
-        typedef unsigned __int8     ZydisU8;
-        typedef unsigned __int16    ZydisU16;
-        typedef unsigned __int32    ZydisU32;
-        typedef unsigned __int64    ZydisU64;
-        typedef __int8              ZydisI8;
-        typedef __int16             ZydisI16;
-        typedef __int32             ZydisI32;
-        typedef __int64             ZydisI64;
-#       if _WIN64
-           typedef ZydisU64         ZydisUSize;
-           typedef ZydisI64         ZydisISize;
-#       else
-           typedef ZydisU32         ZydisUSize;
-           typedef ZydisI32         ZydisISize;
-#       endif
-#   elif defined(ZYDIS_GNUC)
-        typedef __UINT8_TYPE__      ZydisU8;
-        typedef __UINT16_TYPE__     ZydisU16;
-        typedef __UINT32_TYPE__     ZydisU32;
-        typedef __UINT64_TYPE__     ZydisU64;
-        typedef __INT8_TYPE__       ZydisI8;
-        typedef __INT16_TYPE__      ZydisI16;
-        typedef __INT32_TYPE__      ZydisI32;
-        typedef __INT64_TYPE__      ZydisI64;
-        typedef __SIZE_TYPE__       ZydisUSize;
-        typedef __PTRDIFF_TYPE__    ZydisISize;
+        typedef unsigned __int8  ZydisU8;
+        typedef unsigned __int16 ZydisU16;
+        typedef unsigned __int32 ZydisU32;
+        typedef unsigned __int64 ZydisU64;
+        typedef   signed __int8  ZydisI8;
+        typedef   signed __int16 ZydisI16;
+        typedef   signed __int32 ZydisI32;
+        typedef   signed __int64 ZydisI64;
+#       if _WIN64                
+           typedef ZydisU64      ZydisUSize;
+           typedef ZydisI64      ZydisISize;
+#       else                     
+           typedef ZydisU32      ZydisUSize;
+           typedef ZydisI32      ZydisISize;
+#       endif                    
+#   elif defined(ZYDIS_GNUC)     
+        typedef __UINT8_TYPE__   ZydisU8;
+        typedef __UINT16_TYPE__  ZydisU16;
+        typedef __UINT32_TYPE__  ZydisU32;
+        typedef __UINT64_TYPE__  ZydisU64;
+        typedef __INT8_TYPE__    ZydisI8;
+        typedef __INT16_TYPE__   ZydisI16;
+        typedef __INT32_TYPE__   ZydisI32;
+        typedef __INT64_TYPE__   ZydisI64;
+        typedef __SIZE_TYPE__    ZydisUSize;
+        typedef __PTRDIFF_TYPE__ ZydisISize;
 #   else
 #       error "Unsupported compiler for no-libc mode."
 #   endif
 #endif
 
-// Verify assumptions.
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU8)  == 1);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU16) == 2);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU32) == 4);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU64) == 8);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI8)  == 1);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI16) == 2);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI32) == 4);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI64) == 8);
-ZYDIS_STATIC_ASSERT(sizeof(ZydisUSize) == sizeof(ZydisISize));
+// Verify size assumptions.
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU8   ) == 1            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU16  ) == 2            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU32  ) == 4            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU64  ) == 8            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI8   ) == 1            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI16  ) == 2            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI32  ) == 4            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI64  ) == 8            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisUSize) == sizeof(void*));
+ZYDIS_STATIC_ASSERT(sizeof(ZydisISize) == sizeof(void*));
+
+// Verify signedness assumptions (relies on size checks above).
+ZYDIS_STATIC_ASSERT((ZydisI8 )-1 >> 1 < (ZydisI8 )((ZydisU8 )-1 >> 1));
+ZYDIS_STATIC_ASSERT((ZydisI16)-1 >> 1 < (ZydisI16)((ZydisU16)-1 >> 1));
+ZYDIS_STATIC_ASSERT((ZydisI32)-1 >> 1 < (ZydisI32)((ZydisU32)-1 >> 1));
+ZYDIS_STATIC_ASSERT((ZydisI64)-1 >> 1 < (ZydisI64)((ZydisU64)-1 >> 1));
 
 /* ============================================================================================== */
 /* NULL                                                                                           */

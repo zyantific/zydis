@@ -272,9 +272,9 @@ extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode()
+const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
 {
-    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
+    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x0000 };  
     return &root;
 }
 
