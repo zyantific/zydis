@@ -72,19 +72,21 @@
 #elif defined(__posix)
 #   define ZYDIS_POSIX
 #else
-#   error "Unsupported platform detected"
+#   define ZYDIS_UNKNOWN_PLATFORM
 #endif
 
 /* ============================================================================================== */
 /* Architecture detection                                                                         */
 /* ============================================================================================== */
 
-#if defined (_M_AMD64) || defined (__x86_64__)
+#if defined(_M_AMD64) || defined(__x86_64__)
 #   define ZYDIS_X64
-#   define ZYDIS_WORD_SIZE 64
-#elif defined (_M_IX86) || defined (__i386__)
+#elif defined(_M_IX86) || defined(__i386__)
 #   define ZYDIS_X86
-#   define ZYDIS_WORD_SIZE 32
+#elif defined(_M_ARM64) || defined(__aarch64__)
+#   define ZYDIS_AARCH64
+#elif defined(_M_ARM) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb__)
+#   define ZYDIS_ARM
 #else
 #   error "Unsupported architecture detected"
 #endif
@@ -106,7 +108,7 @@
 #       define ZYDIS_DEBUG
 #   endif
 #else
-#   error "Unsupported compiler detected"
+#   define ZYDIS_RELEASE
 #endif
 
 /* ============================================================================================== */

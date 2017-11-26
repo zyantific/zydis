@@ -63,8 +63,13 @@
         typedef __int16             ZydisI16;
         typedef __int32             ZydisI32;
         typedef __int64             ZydisI64;
-        typedef ZydisU64            ZydisUSize;
-        typedef ZydisI64            ZydisISize;
+#       if _WIN64
+           typedef ZydisU64         ZydisUSize;
+           typedef ZydisI64         ZydisISize;
+#       else
+           typedef ZydisU32         ZydisUSize;
+           typedef ZydisI32         ZydisISize;
+#       endif
 #   elif defined(ZYDIS_GNUC)
         typedef __UINT8_TYPE__      ZydisU8;
         typedef __UINT16_TYPE__     ZydisU16;

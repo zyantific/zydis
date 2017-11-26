@@ -98,7 +98,7 @@ void ZydisToUpperCase(char* buffer, ZydisUSize bufferLen)
     }
 }
 
-#ifdef ZYDIS_X86
+#if defined(ZYDIS_X86) || defined(ZYDIS_ARM)
 ZydisStatus ZydisPrintDecU32(char** buffer, ZydisUSize bufferLen, ZydisU32 value, ZydisU8 paddingLength)
 {
     ZYDIS_ASSERT(buffer);
@@ -354,7 +354,7 @@ ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, const char* text,
 
 ZydisStatus ZydisPrintDecU(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength)
 {
-#ifdef ZYDIS_X64
+#if defined(ZYDIS_X64) || defined(ZYDIS_AARCH64)
     return ZydisPrintDecU64(buffer, bufferLen, value, paddingLength);
 #else
    if (value & 0xFFFFFFFF00000000)
@@ -380,7 +380,7 @@ ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
 ZydisStatus ZydisPrintHexU(char** buffer, ZydisUSize bufferLen, ZydisU64 value, ZydisU8 paddingLength,
     ZydisBool uppercase, const char* prefix, const char* suffix)
 {
-#ifdef ZYDIS_X64
+#if defined(ZYDIS_X64) || defined(ZYDIS_AARCH64)
     return ZydisPrintHexU64(buffer, bufferLen, value, paddingLength, uppercase, prefix, suffix);
 #else
    if (value & 0xFFFFFFFF00000000)
