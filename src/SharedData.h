@@ -604,6 +604,7 @@ typedef struct ZydisInstructionDefinitionVEX_
     ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionVEX;
 
+#ifndef ZYDIS_DISABLE_EVEX
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
@@ -616,7 +617,9 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZydisBool isControlMask                 ZYDIS_BITFIELD( 1);
     ZydisEVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 4);
 } ZydisInstructionDefinitionEVEX;
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
@@ -625,6 +628,7 @@ typedef struct ZydisInstructionDefinitionMVEX_
     ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);
     ZydisMVEXStaticBroadcast broadcast      ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionMVEX;
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Accessed CPU flags                                                                             */

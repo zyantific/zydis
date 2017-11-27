@@ -5665,6 +5665,7 @@ const ZydisDecoderTreeNode filtersREXB[][2] =
     { ZYDIS_DEFINITION(0x0, 0x38A), ZYDIS_DEFINITION(0x0, 0x723) }
 };
 
+#ifndef ZYDIS_DISABLE_EVEX
 const ZydisDecoderTreeNode filtersEVEXB[][2] =
 {
     { ZYDIS_FILTER(ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH, 0x0), ZYDIS_INVALID }, 
@@ -6573,7 +6574,9 @@ const ZydisDecoderTreeNode filtersEVEXB[][2] =
     { ZYDIS_FILTER(ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH, 0x3AE), ZYDIS_INVALID }, 
     { ZYDIS_DEFINITION(0x1, 0x3), ZYDIS_INVALID }
 };
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 const ZydisDecoderTreeNode filtersMVEXE[][2] =
 {
     { ZYDIS_DEFINITION(0x1, 0xC7), ZYDIS_DEFINITION(0x1, 0xC8) }, 
@@ -6696,6 +6699,7 @@ const ZydisDecoderTreeNode filtersMVEXE[][2] =
     { ZYDIS_DEFINITION(0xB, 0x2E), ZYDIS_DEFINITION(0xB, 0x2F) }, 
     { ZYDIS_DEFINITION(0xB, 0x2B), ZYDIS_DEFINITION(0xB, 0x2C) }
 };
+#endif
 
 const ZydisDecoderTreeNode filtersModeAMD[][2] =
 {
