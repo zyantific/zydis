@@ -58,10 +58,13 @@ RtlImageNtHeader(
     _In_ PVOID ImageBase
     );
 
+#if defined(ZYDIS_CLANG) || defined(ZYDIS_GNUC)
+__attribute__((section("INIT")))
+#endif
 DRIVER_INITIALIZE
 DriverEntry;
 
-#ifdef ALLOC_PRAGMA
+#if defined(ALLOC_PRAGMA) && !(defined(ZYDIS_CLANG) || defined(ZYDIS_GNUC))
 #pragma alloc_text(INIT, DriverEntry)
 #endif
 
