@@ -559,6 +559,11 @@ static ZydisStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     instruction->raw.evex.aaa       = (data[3] >> 0) & 0x07;
     
+    if (instruction->raw.evex.z && !instruction->raw.evex.aaa)
+    {
+        return ZYDIS_STATUS_INVALID_MASK; // TODO: Dedicated status code
+    }
+
     // Update internal fields
     context->cache.W = instruction->raw.evex.W;
     context->cache.R = 0x01 & ~instruction->raw.evex.R;
