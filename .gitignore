@@ -81,6 +81,16 @@ CTestTestfile.cmake
 .DS_Store
 
 build*
+
+# MSVC
 .vs
+*.vcxproj.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+msvc/**/obj/
+msvc/**/bin/
 
 doc/html
