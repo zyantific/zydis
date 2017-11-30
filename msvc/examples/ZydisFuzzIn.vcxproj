@@ -278,7 +278,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)../include;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Gw</AdditionalOptions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -289,7 +288,6 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>ZYDIS_STATIC_DEFINE;WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitFramePointers>true</OmitFramePointers>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
@@ -311,7 +309,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)../include;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Gw</AdditionalOptions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -322,7 +319,6 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>Zydis_EXPORTS;WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitFramePointers>true</OmitFramePointers>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
@@ -344,7 +340,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)../include;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Gw</AdditionalOptions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -355,7 +350,6 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>ZYDIS_STATIC_DEFINE;WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitFramePointers>true</OmitFramePointers>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
@@ -377,7 +371,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)../include;$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/Gw</AdditionalOptions>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>false</ExceptionHandling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -388,7 +381,6 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>Zydis_EXPORTS;WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OmitFramePointers>true</OmitFramePointers>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
     </ClCompile>
     <Link>
