@@ -28,7 +28,6 @@
 #define ZYDIS_LIBC_H
 
 #include <Zydis/Defines.h>
-#include <stdint.h>
 
 #ifndef ZYDIS_NO_LIBC
 
