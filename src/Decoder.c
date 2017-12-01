@@ -4562,13 +4562,9 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYDIS_CHECK(ZydisDecodeInstruction(&context, instruction));
 
-    instruction->instrPointer = instruction->instrAddress + instruction->length;
-
     // TODO: The index, dest and mask regs for AVX2 gathers must be different.
 
     // TODO: More EVEX UD conditions (page 81)
-
-    // TODO: Set AVX-512 info
 
     return ZYDIS_STATUS_SUCCESS;
 }

@@ -829,17 +829,10 @@ typedef struct ZydisDecodedInstruction_
      */
     ZydisInstructionAttributes attributes;
     /**
-     * @brief   The instruction address points at the current instruction (relative to the 
-     *          initial instruction pointer).
+     * @brief   The instruction address points at the current instruction (based on the initial
+     *          instruction pointer).
      */
     ZydisU64 instrAddress;
-    /**
-     * @brief   The instruction pointer points at the address of the next instruction (relative
-     *          to the initial instruction pointer). 
-     *          
-     * This field is used to properly format relative instructions.
-     */
-    ZydisU64 instrPointer;
     /**
      * @brief   Information about accessed CPU flags.
      */
