@@ -29,6 +29,8 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
+#include <Zydis/String.h>
+#include <LibC.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,22 +79,44 @@ enum ZydisLetterCases
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Appends the given @c text to the @c buffer.
+ * @brief   Appends the @c ZydisString to another @c ZydisString.
  *
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   buffer      The string to append to.
+ * @param   text        The string to append.
+ * @param   letterCase  The desired letter-case.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_NO_EXPORT ZydisStatus ZydisStringAppend(
+    ZydisString* s, const ZydisString* text, ZydisLetterCase letterCase);
+
+/**
+ * @brief   Appends the given C string to the @c ZydisString.
+ *
+ * @param   s           The string to append to.
  * @param   text        The text to append.
  * @param   letterCase  The desired letter-case.
  *
  * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
  *          sufficient to append the given @c text.
- *          
- * The string-buffer pointer is increased by the number of chars written, if the call was 
- * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, const char* text,
-    ZydisLetterCase letterCase);
+ZYDIS_INLINE ZydisStatus ZydisStringAppendC(
+    ZydisString* s, const char* text, ZydisLetterCase letterCase)
+{
+    ZYDIS_ASSERT(text);
+
+    ZydisUSize len = ZydisStrLen(text);
+    ZydisString zyStr = {
+        .s          = (char*)text,
+        .length     = len,
+        .capacity   = len
+    };
+    
+    return ZydisStringAppend(s, &zyStr, letterCase);
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decimal values                                                                                 */
@@ -100,10 +124,9 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, c
 
 /**
  * @brief   Formats the given unsigned ordinal @c value to its decimal text-representation and  
- *          appends it to the @c buffer.
+ *          appends it to @c s.
  *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
+ * @param   s               A pointer to the string.
  * @param   value           The value.
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength.
@@ -115,15 +138,13 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintStr(char** buffer, ZydisUSize bufferLen, c
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, ZydisUSize bufferLen, ZydisU64 value,
-    ZydisU8 paddingLength);
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(ZydisString* s, ZydisU64 value, ZydisU8 paddingLength);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its decimal text-representation and   
- *          appends it to the @c buffer.
+ *          appends it to @c s.
  *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
+ * @param   s               A pointer to the string.
  * @param   value           The value.
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength (the sign char is ignored).
@@ -135,7 +156,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecU(char** buffer, ZydisUSize bufferLen, 
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(ZydisString* s, ZydisI64 value, 
     ZydisU8 paddingLength);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -146,8 +167,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, 
  * @brief   Formats the given unsigned ordinal @c value to its hexadecimal text-representation and 
  *          appends it to the @c buffer.
  *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
+ * @param   s               A pointer to the string.
  * @param   value           The value.
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength.
@@ -163,15 +183,14 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintDecS(char** buffer, ZydisUSize bufferLen, 
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, ZydisUSize bufferLen, ZydisU64 value,
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(ZydisString* s, ZydisU64 value,
     ZydisU8 paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its hexadecimal text-representation and 
  *          appends it to the @c buffer.
  *
- * @param   buffer          A pointer to the string-buffer.
- * @param   bufferLen       The length of the string-buffer.
+ * @param   s               A pointer to the string.
  * @param   value           The value.
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength (the sign char is ignored).
@@ -187,7 +206,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexU(char** buffer, ZydisUSize bufferLen, 
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(char** buffer, ZydisUSize bufferLen, ZydisI64 value, 
+ZYDIS_NO_EXPORT ZydisStatus ZydisPrintHexS(ZydisString* s, ZydisI64 value, 
     ZydisU8 paddingLength, ZydisBool uppercase, const char* prefix, const char* suffix);
 
 /* ---------------------------------------------------------------------------------------------- */

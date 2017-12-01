@@ -164,10 +164,10 @@ enum ZydisStatusCodes
 #define ZYDIS_CHECK(status) \
     do \
     { \
-        ZydisStatus s = status; \
-        if (!ZYDIS_SUCCESS(s)) \
+        ZydisStatus status_w4587ntvmEgDG = status; \
+        if (!ZYDIS_SUCCESS(status_w4587ntvmEgDG)) \
         { \
-            return s; \
+            return status_w4587ntvmEgDG; \
         } \
     } while (0)
 

@@ -35,6 +35,7 @@
 #include <Zydis/DecoderTypes.h>
 #include <Zydis/Defines.h>
 #include <Zydis/Status.h>
+#include <Zydis/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -413,14 +414,13 @@ typedef struct ZydisFormatter_ ZydisFormatter;
  * @c ZYDIS_FORMATTER_HOOK_POST hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter, 
-    const ZydisDecodedInstruction* instruction, void* userData);
+    ZydisString* buffer, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   str         A pointer to the string buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   userData    A pointer to user-defined data.
  * 
@@ -434,14 +434,13 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter,
  * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter, 
-    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
+    ZydisString* buffer, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatOperandFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   str         A pointer to the string buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   userData    A pointer to user-defined data.
@@ -471,15 +470,14 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* formatter, 
-    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
+    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, void* userData);
 
  /**
  * @brief   Defines the @c ZydisFormatterFormatAddressFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   str         A pointer to the string buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   userData    A pointer to user-defined data.
@@ -494,15 +492,14 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* formatter, 
-    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
+    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisU64 address, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   buffer      A pointer to the string-buffer.
- * @param   bufferLen   The length of the string-buffer.
+ * @param   str         A pointer to the string buffer.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   type        The decorator type.
@@ -520,7 +517,7 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
-    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
+    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
