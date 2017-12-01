@@ -776,6 +776,21 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     return ZYDIS_STATUS_SUCCESS;
 }
 
+static ZydisStatus ZydisFormatterPrintOperandSeperatorIntel(const ZydisFormatter* formatter,
+    char** buffer, ZydisUSize bufferLen, ZydisU8 index, void* userData)
+{
+    const char* bufEnd = *buffer + bufferLen;
+    if (index == 0)
+    {
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, " ", ZYDIS_LETTER_CASE_DEFAULT));
+    }
+    else
+    {
+        ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ", ", ZYDIS_LETTER_CASE_DEFAULT));
+    }
+    return ZYDIS_STATUS_SUCCESS;
+}
+
 static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatter,
     char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, void* userData)
 {
@@ -798,14 +813,8 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
             break;
         }
 
-        if (i == 0)
-        {
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, " ", ZYDIS_LETTER_CASE_DEFAULT));
-        } else
-        {
-            bufRestore = *buffer;
-            ZYDIS_CHECK(ZydisPrintStr(buffer, bufEnd - *buffer, ", ", ZYDIS_LETTER_CASE_DEFAULT));
-        }
+        bufRestore = *buffer;
+        ZYDIS_CHECK(formatter->funcPrintOperandSeperator(formatter, buffer, bufEnd - *buffer, i, userData));
 
         const char* bufPreOperand = *buffer;
         switch (instruction->operands[i].type)
@@ -926,19 +935,20 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
     switch (style)
     {
     case ZYDIS_FORMATTER_STYLE_INTEL:
-        formatter->funcFormatInstruction    = &ZydisFormatterFormatInstrIntel;
-        formatter->funcPrintPrefixes        = &ZydisFormatterPrintPrefixesIntel; 
-        formatter->funcPrintMnemonic        = &ZydisFormatterPrintMnemonicIntel;
-        formatter->funcFormatOperandReg     = &ZydisFormatterFormatOperandRegIntel;
-        formatter->funcFormatOperandMem     = &ZydisFormatterFormatOperandMemIntel;
-        formatter->funcFormatOperandPtr     = &ZydisFormatterFormatOperandPtrIntel;
-        formatter->funcFormatOperandImm     = &ZydisFormatterFormatOperandImmIntel;
-        formatter->funcPrintOperandSize     = &ZydisFormatterPrintOperandSizeIntel;
-        formatter->funcPrintSegment         = &ZydisFormatterPrintSegmentIntel;
-        formatter->funcPrintDecorator       = &ZydisFormatterPrintDecoratorIntel;
-        formatter->funcPrintAddress         = &ZydisFormatterPrintAddressIntel;
-        formatter->funcPrintDisplacement    = &ZydisFormatterPrintDisplacementIntel;
-        formatter->funcPrintImmediate       = &ZydisFormatterPrintImmediateIntel;
+        formatter->funcFormatInstruction     = &ZydisFormatterFormatInstrIntel;
+        formatter->funcPrintPrefixes         = &ZydisFormatterPrintPrefixesIntel; 
+        formatter->funcPrintMnemonic         = &ZydisFormatterPrintMnemonicIntel;
+        formatter->funcFormatOperandReg      = &ZydisFormatterFormatOperandRegIntel;
+        formatter->funcFormatOperandMem      = &ZydisFormatterFormatOperandMemIntel;
+        formatter->funcFormatOperandPtr      = &ZydisFormatterFormatOperandPtrIntel;
+        formatter->funcFormatOperandImm      = &ZydisFormatterFormatOperandImmIntel;
+        formatter->funcPrintOperandSize      = &ZydisFormatterPrintOperandSizeIntel;
+        formatter->funcPrintSegment          = &ZydisFormatterPrintSegmentIntel;
+        formatter->funcPrintDecorator        = &ZydisFormatterPrintDecoratorIntel;
+        formatter->funcPrintAddress          = &ZydisFormatterPrintAddressIntel;
+        formatter->funcPrintDisplacement     = &ZydisFormatterPrintDisplacementIntel;
+        formatter->funcPrintImmediate        = &ZydisFormatterPrintImmediateIntel;
+        formatter->funcPrintOperandSeperator = &ZydisFormatterPrintOperandSeperatorIntel;
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -1082,6 +1092,9 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
     case ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE:
         *callback = *(const void**)&formatter->funcPrintImmediate;
         break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPERATOR:
+        *callback = *(const void**)&formatter->funcPrintOperandSeperator;
+        break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
@@ -1139,6 +1152,9 @@ ZydisStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterHookT
         break;
     case ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE:
         formatter->funcPrintImmediate = *(ZydisFormatterFormatOperandFunc*)&temp;
+        break;
+    case ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPERATOR:
+        formatter->funcPrintOperandSeperator = *(ZydisFormatterPrintOperandSeperatorFunc*)&temp;
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
