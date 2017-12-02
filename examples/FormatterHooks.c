@@ -97,7 +97,7 @@ typedef struct ZydisCustomUserData_
 /* Hook callbacks                                                                                 */
 /* ============================================================================================== */
 
-ZydisFormatterFormatFunc defaultPrintMnemonic;
+ZydisFormatterFunc defaultPrintMnemonic;
 
 static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, 
     char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
@@ -160,7 +160,7 @@ static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisFormatterFormatOperandFunc defaultFormatOperandImm;
+ZydisFormatterOperandFunc defaultFormatOperandImm;
 
 static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
     char** buffer, size_t bufferLen, const ZydisDecodedInstruction* instruction, 
@@ -194,10 +194,10 @@ void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, Zydi
 
     if (installHooks)
     {
-        defaultPrintMnemonic = (ZydisFormatterFormatFunc)&ZydisFormatterPrintMnemonic;
+        defaultPrintMnemonic = (ZydisFormatterFunc)&ZydisFormatterPrintMnemonic;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC, 
             (const void**)&defaultPrintMnemonic);
-        defaultFormatOperandImm = (ZydisFormatterFormatOperandFunc)&ZydisFormatterFormatOperandImm;
+        defaultFormatOperandImm = (ZydisFormatterOperandFunc)&ZydisFormatterFormatOperandImm;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, 
             (const void**)&defaultFormatOperandImm);
     }

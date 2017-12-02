@@ -294,7 +294,7 @@ enum ZydisFormatterHookTypes
      */
     ZYDIS_FORMATTER_HOOK_PRE,
     /**
-     * @brief   This function is called before the formatter finished formatting an instruction.
+     * @brief   This function is called after the formatter finished formatting an instruction.
      */
     ZYDIS_FORMATTER_HOOK_POST,
     /**
@@ -314,6 +314,14 @@ enum ZydisFormatterHookTypes
      * @brief   This function is called to print the instruction mnemonic.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC,
+    /**
+     * @brief   This function is called before the formatter starts formatting an operand.
+     */
+    ZYDIS_FORMATTER_HOOK_PRE_OPERAND,
+    /**
+     * @brief   This function is called after the formatter finished formatting an operand.
+     */
+    ZYDIS_FORMATTER_HOOK_POST_OPERAND,
     /**
      * @brief   This function is called to format an register operand.
      */
@@ -363,14 +371,11 @@ enum ZydisFormatterHookTypes
      * @brief   This function is called to print an immediate value.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE,
-    /**
-     * @brief   This function is called before each operand is formatted, to print a separator.
-     */
-    ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR,
+
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -404,23 +409,7 @@ enum ZydisDecoratorTypes
 typedef struct ZydisFormatter_ ZydisFormatter;
 
 /**
- * @brief   Defines the @c ZydisFormatterNotifyFunc function pointer.
- *
- * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
- * @param   userData    A pointer to user-defined data.
- * 
- * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
- *          formatting process to fail.
- * 
- * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRE and
- * @c ZYDIS_FORMATTER_HOOK_POST hook-types.
- */
-typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter, 
-    const ZydisDecodedInstruction* instruction, void* userData);
-
-/**
- * @brief   Defines the @c ZydisFormatterFormatFunc function pointer.
+ * @brief   Defines the @c ZydisFormatterFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   buffer      A pointer to the string-buffer.
@@ -434,14 +423,15 @@ typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter,
  * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
  * number of chars written. Not increasing the buffer-pointer will cause unexpected behavior.
  *
- * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_INSTRUCTION, 
- * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
+ * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRE, @c ZYDIS_FORMATTER_HOOK_POST, 
+ * @c ZYDIS_FORMATTER_HOOK_FORMAT_INSTRUCTION, @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and 
+ * @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
-typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter, 
-    char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
+typedef ZydisStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter, char** buffer, 
+    ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
- * @brief   Defines the @c ZydisFormatterFormatOperandFunc function pointer.
+ * @brief   Defines the @c ZydisFormatterOperandFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   buffer      A pointer to the string-buffer.
@@ -467,19 +457,20 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * 
  * Not increasing the buffer-pointer for any other hook-type will cause unexpected behavior.
  *
- * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG,
+ * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRE_OPERAND, 
+ * @c ZYDIS_FORMATTER_HOOK_POST_OPERAND, @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM, @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR, 
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE,
  * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT, @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
  * @c ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT and @c ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE 
  * hook-types.
  */
-typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* formatter, 
+typedef ZydisStatus (*ZydisFormatterOperandFunc)(const ZydisFormatter* formatter, 
     char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, void* userData);
 
  /**
- * @brief   Defines the @c ZydisFormatterFormatAddressFunc function pointer.
+ * @brief   Defines the @c ZydisFormatterAddressFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   buffer      A pointer to the string-buffer.
@@ -497,12 +488,12 @@ typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* for
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
-typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* formatter, 
+typedef ZydisStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter, 
     char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisU64 address, void* userData);
 
 /**
- * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
+ * @brief   Defines the @c ZydisFormatterDecoratorFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
  * @param   buffer      A pointer to the string-buffer.
@@ -523,32 +514,9 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
  */
-typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
+typedef ZydisStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatter, 
     char** buffer, ZydisUSize bufferLen, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
-
-/**
- * @brief   Defines the @c ZydisFormatterPrintOperandSeparatorFunc function pointer.
- * 
- * @param   formatter  A pointer to the @c ZydisFormatter instance.
- * @param   buffer     A pointer to the string-buffer.
- * @param   bufferLen  The length of the string-buffer.
- * @param   index      The current index of the operand.
- * @param   userData   A pointer to user-defined data.
- * 
- * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
- *          formatting process to fail.
- *
- * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
- * number of chars written.
- *
- * Returning @c ZYDIS_STATUS_SUCCESS without increasing the buffer-pointer is valid and will cause 
- * the formatter to omit separator.
- * 
- * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR hook-type.
- */
-typedef ZydisStatus(*ZydisFormatterPrintOperandSeparatorFunc)(const ZydisFormatter* formatter,
-    char** buffer, ZydisUSize bufferLen, ZydisU8 index, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter struct                                                                               */
@@ -571,22 +539,23 @@ struct ZydisFormatter_
     ZydisU8 hexPaddingAddress;
     ZydisU8 hexPaddingDisplacement;
     ZydisU8 hexPaddingImmediate;
-    ZydisFormatterNotifyFunc funcPre;
-    ZydisFormatterNotifyFunc funcPost;
-    ZydisFormatterFormatFunc funcFormatInstruction;
-    ZydisFormatterFormatFunc funcPrintPrefixes;
-    ZydisFormatterFormatFunc funcPrintMnemonic;
-    ZydisFormatterFormatOperandFunc funcFormatOperandReg;
-    ZydisFormatterFormatOperandFunc funcFormatOperandMem;
-    ZydisFormatterFormatOperandFunc funcFormatOperandPtr;
-    ZydisFormatterFormatOperandFunc funcFormatOperandImm;
-    ZydisFormatterFormatOperandFunc funcPrintOperandSize;
-    ZydisFormatterFormatOperandFunc funcPrintSegment;
-    ZydisFormatterFormatDecoratorFunc funcPrintDecorator;
-    ZydisFormatterFormatAddressFunc funcPrintAddress;
-    ZydisFormatterFormatOperandFunc funcPrintDisplacement;
-    ZydisFormatterFormatOperandFunc funcPrintImmediate;
-    ZydisFormatterPrintOperandSeparatorFunc funcPrintOperandSeparator;
+    ZydisFormatterFunc funcPre;
+    ZydisFormatterFunc funcPost;
+    ZydisFormatterFunc funcFormatInstruction;
+    ZydisFormatterFunc funcPrintPrefixes;
+    ZydisFormatterFunc funcPrintMnemonic;
+    ZydisFormatterOperandFunc funcPreOperand;
+    ZydisFormatterOperandFunc funcPostOperand;
+    ZydisFormatterOperandFunc funcFormatOperandReg;
+    ZydisFormatterOperandFunc funcFormatOperandMem;
+    ZydisFormatterOperandFunc funcFormatOperandPtr;
+    ZydisFormatterOperandFunc funcFormatOperandImm;
+    ZydisFormatterOperandFunc funcPrintOperandSize;
+    ZydisFormatterOperandFunc funcPrintSegment;
+    ZydisFormatterDecoratorFunc funcPrintDecorator;
+    ZydisFormatterAddressFunc funcPrintAddress;
+    ZydisFormatterOperandFunc funcPrintDisplacement;
+    ZydisFormatterOperandFunc funcPrintImmediate;
 };
 
 /* ---------------------------------------------------------------------------------------------- */
