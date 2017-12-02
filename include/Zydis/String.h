@@ -58,7 +58,6 @@ typedef struct ZydisString_
     ZydisUSize capacity;
 } ZydisString;
 
-
 /* ---------------------------------------------------------------------------------------------- */
 /* Letter Case                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
@@ -74,7 +73,7 @@ typedef ZydisU8 ZydisLetterCase;
 enum ZydisLetterCases
 {
     /**
-     * @brief   Uses the given text "as it is".
+     * @brief   Uses the given text "as is".
      */
     ZYDIS_LETTER_CASE_DEFAULT,
     /**
@@ -135,9 +134,10 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringInit(ZydisString* string, ch
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
+    ZydisUSize length = ZydisStrLen(value);
     string->buffer   = value;
-    string->length   = ZydisStrLen(value);
-    string->capacity = ZydisStrLen(value); 
+    string->length   = length;
+    string->capacity = length; 
     
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -145,7 +145,7 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringInit(ZydisString* string, ch
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Appends a `ZydisString` to another `ZydisString` after converting it to the specified
+ * @brief   Appends a `ZydisString` to another `ZydisString`, converting it to the specified
  *          letter-case.
  *
  * @param   string      The string to append to.
@@ -160,7 +160,7 @@ ZYDIS_NO_EXPORT ZydisStatus ZydisStringAppendEx(ZydisString* string, const Zydis
     ZydisLetterCase letterCase);
 
 /**
- * @brief   Appends the given C-string to a `ZydisString` after converting it to the specified
+ * @brief   Appends the given C-string to a `ZydisString`, converting it to the specified
  *          letter-case.
  *
  * @param   string      The string to append to.
