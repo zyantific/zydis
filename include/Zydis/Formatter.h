@@ -63,6 +63,7 @@ enum ZydisFormatterStyles
      * @brief   Generates intel-style disassembly.
      */
     ZYDIS_FORMATTER_STYLE_INTEL,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -185,10 +186,17 @@ enum ZydisAddressFormat
 {   
     /**
      * @brief   Displays absolute addresses instead of relative ones.
+     * 
+     * Using this value will cause the formatter to invoke `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS`
+     * for every address.
      */
     ZYDIS_ADDR_FORMAT_ABSOLUTE,
     /**
      * @brief   Uses signed hexadecimal values to display relative addresses.
+     *          
+     * Using this value will cause the formatter to invoke either 
+     * `ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT` or `ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE` to
+     * format addresses.
      *          
      * Examples:
      * "JMP  0x20"
@@ -197,12 +205,17 @@ enum ZydisAddressFormat
     ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED,
     /**
      * @brief   Uses unsigned hexadecimal values to display relative addresses.
-     *          
+     * 
+     * Using this value will cause the formatter to invoke either 
+     * `ZYDIS_FORMATTER_HOOK_PRINT_DISPLACEMENT` or `ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE` to
+     * format addresses.          
+     *                            
      * Examples:
      * "JMP 0x20"
      * "JMP 0xE0"
      */
     ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -234,6 +247,7 @@ enum ZydisDisplacementFormat
      * "MOV EAX, DWORD PTR SS:[ESP+0xFFFFFC00]"
      */
     ZYDIS_DISP_FORMAT_HEX_UNSIGNED,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -270,6 +284,7 @@ enum ZydisImmediateFormat
      * "MOV EAX, 0xFFFFFC00"
      */
     ZYDIS_IMM_FORMAT_HEX_UNSIGNED,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -364,6 +379,7 @@ enum ZydisFormatterHookTypes
      * @brief   This function is called to print an immediate value.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -390,6 +406,7 @@ enum ZydisDecoratorTypes
     ZYDIS_DECORATOR_TYPE_SWIZZLE,
     ZYDIS_DECORATOR_TYPE_CONVERSION,
     ZYDIS_DECORATOR_TYPE_EVICTION_HINT,
+
     /**
      * @brief   Maximum value of this enum.
      */

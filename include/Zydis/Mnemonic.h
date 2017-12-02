@@ -65,6 +65,8 @@ ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
  * @param   mnemonic    The mnemonic.
  *                      
  * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
+ * 
+ * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
  */
 ZYDIS_EXPORT const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic);
 

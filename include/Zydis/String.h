@@ -103,7 +103,7 @@ enum ZydisLetterCases
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Creates a `ZydisString` struct from a constant C-string.
+ * @brief   Creates a `ZydisString` struct from a static C-string.
  * 
  * @param   string  The C-string constant. 
  */
@@ -211,7 +211,7 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendC(ZydisString* string,
     ZydisString other;
     ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
     
-    return ZydisStringAppend(string, &other);
+    return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
