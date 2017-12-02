@@ -91,12 +91,12 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* format
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    const ZydisString* mnemonic = ZydisMnemonicGetStringEx(instruction->mnemonic);
+    const ZydisStaticString* mnemonic = ZydisMnemonicGetStaticString(instruction->mnemonic);
     if (!mnemonic)
     {
         return ZydisStringAppendExC(string, "invalid", formatter->letterCase);
     }
-    ZYDIS_CHECK(ZydisStringAppendEx(string, mnemonic, formatter->letterCase));
+    ZYDIS_CHECK(ZydisStringAppendStaticEx(string, mnemonic, formatter->letterCase));
     
     if (instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
     {
@@ -124,12 +124,12 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* for
         return ZYDIS_STATUS_SUCCESS;
     }
 
-    const char* reg = ZydisRegisterGetString(operand->reg.value);
+    const ZydisStaticString* reg = ZydisRegisterGetStaticString(operand->reg.value);
     if (!reg)
     {
         return ZydisStringAppendExC(string, "invalid", formatter->letterCase);
     }
-    return ZydisStringAppendExC(string, reg, formatter->letterCase);
+    return ZydisStringAppendStaticEx(string, reg, formatter->letterCase);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* formatter, 
@@ -159,8 +159,8 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
                 address, userData));  
         } else
         {
-            ZYDIS_CHECK(ZydisStringAppendExC(string, ZydisRegisterGetString(operand->mem.base), 
-                formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+                ZydisRegisterGetStaticString(operand->mem.base), formatter->letterCase));
             ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, string, instruction, operand, 
                 userData)); 
         }
@@ -169,17 +169,17 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
         // Regular memory operand
         if (operand->mem.base != ZYDIS_REGISTER_NONE)
         {
-            const char* reg = ZydisRegisterGetString(operand->mem.base);
+            const ZydisStaticString* reg = ZydisRegisterGetStaticString(operand->mem.base);
             if (!reg)
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            ZYDIS_CHECK(ZydisStringAppendExC(string, reg, formatter->letterCase)); 
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase)); 
         }
         if ((operand->mem.index != ZYDIS_REGISTER_NONE) && 
             (operand->mem.type != ZYDIS_MEMOP_TYPE_MIB))
         {
-            const char* reg = ZydisRegisterGetString(operand->mem.index);
+            const ZydisStaticString* reg = ZydisRegisterGetStaticString(operand->mem.index);
             if (!reg)
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -188,7 +188,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 ZYDIS_CHECK(ZydisStringAppendC(string, "+"));
             }
-            ZYDIS_CHECK(ZydisStringAppendExC(string, reg, formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase));
             if (operand->mem.scale)
             {
                 ZYDIS_CHECK(ZydisStringAppendC(string, "*"));
@@ -523,15 +523,15 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
     case ZYDIS_REGISTER_CS:
     case ZYDIS_REGISTER_FS:
     case ZYDIS_REGISTER_GS:
-        ZYDIS_CHECK(ZydisStringAppendExC(string, 
-            ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
+        ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+            ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
         return ZydisStringAppendC(string, ":");
     case ZYDIS_REGISTER_SS:
         if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
-            ZYDIS_CHECK(ZydisStringAppendExC(string, 
-                ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+                ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
             return ZydisStringAppendC(string, ":");
         }
         break;
@@ -539,8 +539,8 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
         if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
         {
-            ZYDIS_CHECK(ZydisStringAppendExC(string, 
-                ZydisRegisterGetString(operand->mem.segment), formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+                ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
             return ZydisStringAppendC(string, ":");
         }
         break;
@@ -568,13 +568,13 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
     {
         if (instruction->avx.mask.reg != ZYDIS_REGISTER_K0)
         {
-            const char* reg = ZydisRegisterGetString(instruction->avx.mask.reg);
+            const ZydisStaticString* reg = ZydisRegisterGetStaticString(instruction->avx.mask.reg);
             if (!reg)
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
             ZYDIS_CHECK(ZydisStringAppendC(string, " {")); 
-            ZYDIS_CHECK(ZydisStringAppendExC(string, reg, formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase));
             ZYDIS_CHECK(ZydisStringAppendC(string, "}"));
             if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
             {
@@ -1132,7 +1132,7 @@ ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
         return formatter->funcPost(formatter, &string, instruction, userData);
     }
 
-    buffer[string.length] = 0;
+    buffer[string.length] = 0; // TODO: Should we add 0-termination in error case?
 
     return ZYDIS_STATUS_SUCCESS;
 }

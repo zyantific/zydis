@@ -33,7 +33,6 @@
 #define ZYDIS_MNEMONIC_H
 
 #include <Zydis/CommonTypes.h>
-#include <Zydis/Defines.h>
 #include <Zydis/String.h>
 
 #ifdef __cplusplus
@@ -60,7 +59,7 @@ extern "C" {
 ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
 
 /**
- * @brief   Returns the specified instruction mnemonic as `ZydisString`.
+ * @brief   Returns the specified instruction mnemonic as `ZydisStaticString`.
  *          
  * @param   mnemonic    The mnemonic.
  *                      
@@ -68,7 +67,7 @@ ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
  * 
  * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
  */
-ZYDIS_EXPORT const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic);
+ZYDIS_EXPORT const ZydisStaticString* ZydisMnemonicGetStaticString(ZydisMnemonic mnemonic);
 
 /* ============================================================================================== */
 

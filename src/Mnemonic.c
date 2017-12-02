@@ -25,17 +25,7 @@
 ***************************************************************************************************/
 
 #include <Zydis/Mnemonic.h>
-#include <Zydis/Internal/InternalTypes.h>
-
 #include <Generated/EnumMnemonic.inc>
-
-/**
- * @brief   Caches all strings that were accessed by `ZydisMnemonicGetStringEx`.
- * 
- * We could store `ZydisString` structs instead of `ZydisGeneratedString` ones in the 
- * `zydisMnemonicStrings` array, but this would significantly increase the table-size.  
- */
-static ZydisString zydisMnemonicStringCache[ZYDIS_MNEMONIC_MAX_VALUE + 1];
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -50,18 +40,13 @@ const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
     return (const char*)zydisMnemonicStrings[mnemonic].buffer;
 }
 
-const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic)
+const ZydisStaticString* ZydisMnemonicGetStaticString(ZydisMnemonic mnemonic)
 {
     if (mnemonic > ZYDIS_ARRAY_SIZE(zydisMnemonicStrings) - 1)
     {
         return ZYDIS_NULL;
     }
-    if (!zydisMnemonicStringCache[mnemonic].buffer)
-    {
-        ZydisStringInitWithGeneratedString(&zydisMnemonicStringCache[mnemonic], 
-            &zydisMnemonicStrings[mnemonic]);
-    }
-    return &zydisMnemonicStringCache[mnemonic];
+    return &zydisMnemonicStrings[mnemonic];
 }
 
 /* ============================================================================================== */

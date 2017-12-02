@@ -34,7 +34,7 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/CommonTypes.h>
-#include <Zydis/Status.h>
+#include <Zydis/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -313,6 +313,17 @@ ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg);
  * @return  The register string or @c NULL, if an invalid register was passed.
  */
 ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
+
+/**
+ * @brief   Returns the specified register string as `ZydisStaticString`.
+ *
+ * @param   reg The register.
+ *
+ * @return  The register string or @c NULL, if an invalid register was passed.
+ * 
+ * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
+ */
+ZYDIS_EXPORT const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg);
 
 /* ============================================================================================== */
 

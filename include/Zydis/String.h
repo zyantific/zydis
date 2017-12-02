@@ -49,7 +49,7 @@ typedef struct ZydisString_
      */
     char *buffer;
     /**
-     * @brief   The length of the string (without any optional 0).
+     * @brief   The length of the string (without 0-termination).
      */
     ZydisUSize length;
     /**
@@ -57,6 +57,31 @@ typedef struct ZydisString_
      */
     ZydisUSize capacity;
 } ZydisString;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Static string                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+#pragma pack(push, 1)
+
+/**
+ * @brief   Defines the `ZydisStaticString` struct. 
+ * 
+ * This more compact struct is mainly used for internal string-tables to save up some bytes.
+ */
+typedef struct ZydisStaticString_
+{
+    /**
+     * @brief   The buffer that contains the actual string (0-termination is optional!).
+    */
+    const char* buffer;
+    /**
+     * @brief   The length of the string (without 0-termination).
+    */
+    ZydisU8 length;
+} ZydisStaticString;
+
+#pragma pack(pop)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Letter Case                                                                                    */
@@ -109,6 +134,14 @@ enum ZydisLetterCases
 #define ZYDIS_MAKE_STRING(string) \
     { (char*)string, sizeof(string) - 1, sizeof(string) - 1 }
 
+/**
+ * @brief   Creates a `ZydisStaticString` from a static C-string.
+ * 
+ * @param   string  The C-string constant. 
+ */
+#define ZYDIS_MAKE_STATIC_STRING(string) \
+    { string, sizeof(string) - 1 }
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -134,11 +167,33 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringInit(ZydisString* string, ch
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    ZydisUSize length = ZydisStrLen(value);
+    const ZydisUSize length = ZydisStrLen(value);
     string->buffer   = value;
     string->length   = length;
     string->capacity = length; 
     
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+/**
+ * @brief   Finalizes a `ZydisString` struct by adding a terminating zero byte.
+ * 
+ * @param   string  The string to finalize.
+ * 
+ * @return  A zydis status code.
+ */
+ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringFinalize(ZydisString* string)
+{
+    if (!string)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+    if (string->length >= string->capacity)
+    {
+        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
+    }
+
+    string->buffer[string->length] = 0;
     return ZYDIS_STATUS_SUCCESS;
 }
 
@@ -181,6 +236,33 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExC(ZydisString* strin
 }
 
 /**
+ * @brief   Appends the given 'ZydisStaticString' to a `ZydisString`, converting it to the 
+ *          specified letter-case.
+ *
+ * @param   string      The string to append to.
+ * @param   text        The static-string to append.
+ * @param   letterCase  The letter case to use.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStaticEx(ZydisString* string, 
+    const ZydisStaticString* text, ZydisLetterCase letterCase)
+{
+    if (!text || !text->buffer)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    ZydisString other;
+    other.buffer = (char*)text->buffer;
+    other.length = text->length;
+    
+    return ZydisStringAppendEx(string, &other, letterCase);
+}
+
+/**
  * @brief   Appends a `ZydisString` to another `ZydisString`.
  *
  * @param   string      The string to append to.
@@ -212,6 +294,31 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendC(ZydisString* string,
     ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
     
     return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
+}
+
+/**
+ * @brief   Appends the given 'ZydisStaticString' to a `ZydisString`.
+ *
+ * @param   string      The string to append to.
+ * @param   text        The static-string to append.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStatic(ZydisString* string, 
+    const ZydisStaticString* text, ZydisLetterCase letterCase)
+{
+    if (!text || !text->buffer)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    ZydisString other;
+    other.buffer = (char*)text->buffer;
+    other.length = text->length;
+    
+    return ZydisStringAppendEx(string, &other, letterCase);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
