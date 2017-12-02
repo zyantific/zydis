@@ -1,4 +1,4 @@
-static const ZydisInternalString zydisMnemonicStrings[] =
+static const ZydisGeneratedString zydisMnemonicStrings[] =
 {
     { "invalid", 0x07 },
     { "aaa", 0x03 },

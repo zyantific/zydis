@@ -33,9 +33,9 @@
 #pragma pack(push, 1)
 
 /**
- * @brief   Defines the `ZydisInternalString` struct. 
+ * @brief   Defines the `ZydisGeneratedString` struct. 
  */
-typedef struct ZydisInternalString_
+typedef struct ZydisGeneratedString_
 {
     /**
      * @brief   Contains the actual string.
@@ -45,7 +45,7 @@ typedef struct ZydisInternalString_
      * @brief   The length of the string (without 0-termination).
     */
     ZydisU8 length;
-} ZydisInternalString;
+} ZydisGeneratedString;
 
 #pragma pack(pop)
 
