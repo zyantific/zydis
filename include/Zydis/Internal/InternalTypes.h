@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_INTERNALTYPES_H
-#define ZYDIS_INTERNALTYPES_H
+#ifndef ZYDIS_INTERNAL_INTERNALTYPES_H
+#define ZYDIS_INTERNAL_INTERNALTYPES_H
 
 #include <Zydis/CommonTypes.h>
 #include <Zydis/Defines.h>
@@ -100,4 +100,4 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE void ZydisStringInitWithGeneratedString(ZydisString
 }
 #endif
 
-#endif /* ZYDIS_INTERNALTYPES_H */
+#endif /* ZYDIS_INTERNAL_INTERNALTYPES_H */

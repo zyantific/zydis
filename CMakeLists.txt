@@ -109,12 +109,12 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/LibC.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/InternalTypes.h"
     PRIVATE
-        "src/InternalTypes.h"
         "src/MetaInfo.c"
         "src/Mnemonic.c"
         "src/Register.c"
-        "src/SharedData.h"
         "src/SharedData.c"
         "src/String.c"
         "src/Utils.c"
@@ -126,9 +126,9 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
         PRIVATE 
             "src/Decoder.c"
-            "src/DecoderData.h"
             "src/DecoderData.c"
             "src/Formatter.c")
 endif ()

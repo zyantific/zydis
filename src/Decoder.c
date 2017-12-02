@@ -27,8 +27,8 @@
 #include <Zydis/Decoder.h>
 #include <Zydis/Status.h>
 #include <Zydis/Internal/LibC.h>
-#include <DecoderData.h>
-#include <SharedData.h>
+#include <Zydis/Internal/DecoderData.h>
+#include <Zydis/Internal/SharedData.h>
 
 /* ============================================================================================== */
 /* Internal enums and types                                                                       */

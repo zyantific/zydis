@@ -25,7 +25,7 @@
 ***************************************************************************************************/
 
 #include <Zydis/Mnemonic.h>
-#include <InternalTypes.h>
+#include <Zydis/Internal/InternalTypes.h>
 
 #include <Generated/EnumMnemonic.inc>
 

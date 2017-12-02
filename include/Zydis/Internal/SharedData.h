@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_SHAREDDATA_H
-#define ZYDIS_SHAREDDATA_H
+#ifndef ZYDIS_INTERNAL_SHAREDDATA_H
+#define ZYDIS_INTERNAL_SHAREDDATA_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/Mnemonic.h>
@@ -717,4 +717,4 @@ ZYDIS_NO_EXPORT void ZydisGetAccessedFlags(const ZydisInstructionDefinition* def
 }
 #endif
 
-#endif /* ZYDIS_SHAREDDATA_H */
+#endif /* ZYDIS_INTERNAL_SHAREDDATA_H */
