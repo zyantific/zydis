@@ -32,8 +32,9 @@
 #ifndef ZYDIS_MNEMONIC_H
 #define ZYDIS_MNEMONIC_H
 
-#include <Zydis/Defines.h>
 #include <Zydis/CommonTypes.h>
+#include <Zydis/Defines.h>
+#include <Zydis/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,15 @@ extern "C" {
  * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
  */
 ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
+
+/**
+ * @brief   Returns the specified instruction mnemonic as `ZydisString`.
+ *          
+ * @param   mnemonic    The mnemonic.
+ *                      
+ * @return  The instruction mnemonic string or @c NULL, if an invalid mnemonic was passed.
+ */
+ZYDIS_EXPORT const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic);
 
 /* ============================================================================================== */
 

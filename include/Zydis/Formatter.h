@@ -404,6 +404,7 @@ typedef struct ZydisFormatter_ ZydisFormatter;
  * @brief   Defines the @c ZydisFormatterNotifyFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
+ * @param   string      A pointer to the string.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   userData    A pointer to user-defined data.
  * 
@@ -414,33 +415,30 @@ typedef struct ZydisFormatter_ ZydisFormatter;
  * @c ZYDIS_FORMATTER_HOOK_POST hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterNotifyFunc)(const ZydisFormatter* formatter, 
-    ZydisString* buffer, const ZydisDecodedInstruction* instruction, void* userData);
+    ZydisString* string, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   str         A pointer to the string buffer.
+ * @param   string      A pointer to the string.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
- * 
- * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
- * number of chars written. Not increasing the buffer-pointer will cause unexpected behavior.
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_INSTRUCTION, 
  * @c ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES and @c ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter, 
-    ZydisString* buffer, const ZydisDecodedInstruction* instruction, void* userData);
+    ZydisString* string, const ZydisDecodedInstruction* instruction, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatOperandFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   str         A pointer to the string buffer.
+ * @param   string      A pointer to the string.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   userData    A pointer to user-defined data.
@@ -448,19 +446,14 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
  * 
- * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
- * number of chars written.
- * 
  * Returning @c ZYDIS_STATUS_SUCCESS in one of the @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_X hooks 
- * without increasing the buffer-pointer is valid and will cause the formatter to omit the current 
+ * without writing to the string is valid and will cause the formatter to omit the current 
  * operand.
  * 
  * Returning @c ZYDIS_STATUS_SUCCESS in @c ZYDIS_FORMATTER_HOOK_PRINT_OPERANDSIZE, 
  * @c ZYDIS_FORMATTER_HOOK_PRINT_SEGMENT or @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR without 
- * increasing the buffer-pointer is valid and signals that the corresponding element should not be 
+ * writing to the string is valid and signals that the corresponding element should not be 
  * printed for the current operand.
- * 
- * Not increasing the buffer-pointer for any other hook-type will cause unexpected behavior.
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG,
  * @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM, @c ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR, 
@@ -470,36 +463,32 @@ typedef ZydisStatus (*ZydisFormatterFormatFunc)(const ZydisFormatter* formatter,
  * hook-types.
  */
 typedef ZydisStatus (*ZydisFormatterFormatOperandFunc)(const ZydisFormatter* formatter, 
-    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
+    ZydisString* string, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, void* userData);
 
  /**
  * @brief   Defines the @c ZydisFormatterFormatAddressFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   str         A pointer to the string buffer.
+ * @param   string      A pointer to the string.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
- * 
- * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
- * number of chars written.
- * Not increasing the buffer-pointer will cause unexpected behavior.
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* formatter, 
-    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
+    ZydisString* string, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisU64 address, void* userData);
 
 /**
  * @brief   Defines the @c ZydisFormatterFormatDecoratorFunc function pointer.
  *
  * @param   formatter   A pointer to the @c ZydisFormatter instance.
- * @param   str         A pointer to the string buffer.
+ * @param   string      A pointer to the string.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
  * @param   type        The decorator type.
@@ -508,16 +497,13 @@ typedef ZydisStatus (*ZydisFormatterFormatAddressFunc)(const ZydisFormatter* for
  * @return  Returning a status code other than @c ZYDIS_STATUS_SUCCESS will immediately cause the 
  *          formatting process to fail.
  * 
- * After appending text to the @c buffer you MUST increase the buffer-pointer by the size of the
- * number of chars written.
- * 
- * Returning @c ZYDIS_STATUS_SUCCESS without increasing the buffer-pointer is valid and will cause 
- * the formatter to omit the current decorator.
+ * Returning @c ZYDIS_STATUS_SUCCESS without writing to the string is valid and will cause the
+ * formatter to omit the current decorator.
  *
  * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR hook-type.
  */
 typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* formatter, 
-    ZydisString* buffer, const ZydisDecodedInstruction* instruction, 
+    ZydisString* string, const ZydisDecodedInstruction* instruction, 
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -536,8 +522,10 @@ struct ZydisFormatter_
     ZydisU8 displacementFormat;
     ZydisU8 immediateFormat;
     ZydisBool hexUppercase;
-    char* hexPrefix;
-    char* hexSuffix;
+    ZydisString* hexPrefix;
+    ZydisString hexPrefixData;
+    ZydisString* hexSuffix;
+    ZydisString hexSuffixData;
     ZydisU8 hexPaddingAddress;
     ZydisU8 hexPaddingDisplacement;
     ZydisU8 hexPaddingImmediate;

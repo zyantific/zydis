@@ -30,7 +30,34 @@
 /* Mnemonic strings                                                                               */
 /* ============================================================================================== */
 
+#pragma pack(push, 1)
+
+/**
+ * @brief   Defines the `ZydisInternalString` struct. 
+ */
+typedef struct ZydisInternalString_
+{
+    /**
+     * @brief   Contains the actual string.
+    */
+    char* buffer;
+    /**
+     * @brief   The length of the string (without 0-termination).
+    */
+    ZydisU8 length;
+} ZydisInternalString;
+
+#pragma pack(pop)
+
 #include <Generated/EnumMnemonic.inc>
+
+/**
+ * @brief   Contains all strings that were accessed by `ZydisMnemonicGetStringEx`.
+ * 
+ * We could store `ZydisString` structs instead of `ZydisInternalString` ones in the 
+ * `zydisMnemonicStrings` array, but this would significantly increase the table-size.  
+ */
+static ZydisString stringTable[ZYDIS_MNEMONIC_MAX_VALUE + 1];
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -42,7 +69,22 @@ const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
     {
         return ZYDIS_NULL;
     }
-    return zydisMnemonicStrings[mnemonic];
+    return (const char*)zydisMnemonicStrings[mnemonic].buffer;
+}
+
+const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic)
+{
+    if (mnemonic > ZYDIS_ARRAY_SIZE(zydisMnemonicStrings) - 1)
+    {
+        return ZYDIS_NULL;
+    }
+    if (!stringTable[mnemonic].buffer)
+    {
+        stringTable[mnemonic].buffer   = zydisMnemonicStrings[mnemonic].buffer;
+        stringTable[mnemonic].length   = zydisMnemonicStrings[mnemonic].length;
+        stringTable[mnemonic].capacity = zydisMnemonicStrings[mnemonic].length;
+    }
+    return &stringTable[mnemonic];
 }
 
 /* ============================================================================================== */

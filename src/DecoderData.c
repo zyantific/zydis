@@ -368,7 +368,7 @@ void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    ZydisU8 class = (node->type) & 0x7F;
+    const ZydisU8 class = (node->type) & 0x7F;
     ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionEncodings));
     *info = &instructionEncodings[class];
 }
