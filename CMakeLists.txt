@@ -110,7 +110,6 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/LibC.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/InternalTypes.h"
     PRIVATE
         "src/MetaInfo.c"
         "src/Mnemonic.c"
