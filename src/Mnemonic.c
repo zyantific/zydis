@@ -25,39 +25,17 @@
 ***************************************************************************************************/
 
 #include <Zydis/Mnemonic.h>
-
-/* ============================================================================================== */
-/* Mnemonic strings                                                                               */
-/* ============================================================================================== */
-
-#pragma pack(push, 1)
-
-/**
- * @brief   Defines the `ZydisGeneratedString` struct. 
- */
-typedef struct ZydisGeneratedString_
-{
-    /**
-     * @brief   Contains the actual string.
-    */
-    char* buffer;
-    /**
-     * @brief   The length of the string (without 0-termination).
-    */
-    ZydisU8 length;
-} ZydisGeneratedString;
-
-#pragma pack(pop)
+#include <InternalTypes.h>
 
 #include <Generated/EnumMnemonic.inc>
 
 /**
- * @brief   Contains all strings that were accessed by `ZydisMnemonicGetStringEx`.
+ * @brief   Caches all strings that were accessed by `ZydisMnemonicGetStringEx`.
  * 
- * We could store `ZydisString` structs instead of `ZydisInternalString` ones in the 
+ * We could store `ZydisString` structs instead of `ZydisGeneratedString` ones in the 
  * `zydisMnemonicStrings` array, but this would significantly increase the table-size.  
  */
-static ZydisString stringTable[ZYDIS_MNEMONIC_MAX_VALUE + 1];
+static ZydisString zydisMnemonicStringCache[ZYDIS_MNEMONIC_MAX_VALUE + 1];
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
@@ -78,13 +56,12 @@ const ZydisString* ZydisMnemonicGetStringEx(ZydisMnemonic mnemonic)
     {
         return ZYDIS_NULL;
     }
-    if (!stringTable[mnemonic].buffer)
+    if (!zydisMnemonicStringCache[mnemonic].buffer)
     {
-        stringTable[mnemonic].buffer   = zydisMnemonicStrings[mnemonic].buffer;
-        stringTable[mnemonic].length   = zydisMnemonicStrings[mnemonic].length;
-        stringTable[mnemonic].capacity = zydisMnemonicStrings[mnemonic].length;
+        ZydisStringInitWithGeneratedString(&zydisMnemonicStringCache[mnemonic], 
+            &zydisMnemonicStrings[mnemonic]);
     }
-    return &stringTable[mnemonic];
+    return &zydisMnemonicStringCache[mnemonic];
 }
 
 /* ============================================================================================== */
