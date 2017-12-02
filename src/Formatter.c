@@ -805,7 +805,7 @@ static ZydisStatus ZydisFormatterFormatInstrIntel(const ZydisFormatter* formatte
     ZYDIS_CHECK(
         formatter->funcPrintMnemonic(formatter, buffer, bufEnd - *buffer, instruction, userData));
 
-    char* bufRestore = *buffer;
+    char* bufRestore;
     for (ZydisU8 i = 0; i < instruction->operandCount; ++i)
     {
         if (instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
