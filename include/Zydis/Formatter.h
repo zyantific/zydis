@@ -364,13 +364,13 @@ enum ZydisFormatterHookTypes
      */
     ZYDIS_FORMATTER_HOOK_PRINT_IMMEDIATE,
     /**
-     * @brief   This function is called after each operand is formatted, to print a seperator.
+     * @brief   This function is called before each operand is formatted, to print a separator.
      */
-    ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPERATOR,
+    ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR,
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPERATOR
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -528,7 +528,7 @@ typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* f
     const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
 
 /**
- * @brief   Defines the @c ZydisFormatterPrintOperandSeperatorFunc function pointer.
+ * @brief   Defines the @c ZydisFormatterPrintOperandSeparatorFunc function pointer.
  * 
  * @param   formatter  A pointer to the @c ZydisFormatter instance.
  * @param   buffer     A pointer to the string-buffer.
@@ -543,11 +543,11 @@ typedef ZydisStatus (*ZydisFormatterFormatDecoratorFunc)(const ZydisFormatter* f
  * number of chars written.
  *
  * Returning @c ZYDIS_STATUS_SUCCESS without increasing the buffer-pointer is valid and will cause 
- * the formatter to omit the current decorator.
+ * the formatter to omit separator.
  * 
- * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPERATOR hook-type.
+ * This function type is used for the @c ZYDIS_FORMATTER_HOOK_PRINT_OPERAND_SEPARATOR hook-type.
  */
-typedef ZydisStatus(*ZydisFormatterPrintOperandSeperatorFunc)(const ZydisFormatter* formatter,
+typedef ZydisStatus(*ZydisFormatterPrintOperandSeparatorFunc)(const ZydisFormatter* formatter,
     char** buffer, ZydisUSize bufferLen, ZydisU8 index, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -586,7 +586,7 @@ struct ZydisFormatter_
     ZydisFormatterFormatAddressFunc funcPrintAddress;
     ZydisFormatterFormatOperandFunc funcPrintDisplacement;
     ZydisFormatterFormatOperandFunc funcPrintImmediate;
-    ZydisFormatterPrintOperandSeperatorFunc funcPrintOperandSeperator;
+    ZydisFormatterPrintOperandSeparatorFunc funcPrintOperandSeparator;
 };
 
 /* ---------------------------------------------------------------------------------------------- */
