@@ -133,7 +133,7 @@ typedef struct ZydisCustomUserData_
 /* Hook callbacks                                                                                 */
 /* ============================================================================================== */
 
-ZydisFormatterFormatFunc defaultPrintMnemonic;
+ZydisFormatterFunc defaultPrintMnemonic;
 
 static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, 
     ZydisString* string, const ZydisDecodedInstruction* instruction, ZydisCustomUserData* userData)
@@ -191,7 +191,7 @@ static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisFormatterFormatOperandFunc defaultFormatOperandImm;
+ZydisFormatterOperandFunc defaultFormatOperandImm;
 
 static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
     ZydisString* string, const ZydisDecodedInstruction* instruction, 
@@ -220,15 +220,15 @@ void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, Zydi
 {
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
-    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SEGMENTS, ZYDIS_TRUE);
-    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_OPERANDSIZE, ZYDIS_TRUE);
+    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE);
+    ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE);
 
     if (installHooks)
     {
-        defaultPrintMnemonic = (ZydisFormatterFormatFunc)&ZydisFormatterPrintMnemonic;
+        defaultPrintMnemonic = (ZydisFormatterFunc)&ZydisFormatterPrintMnemonic;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC, 
             (const void**)&defaultPrintMnemonic);
-        defaultFormatOperandImm = (ZydisFormatterFormatOperandFunc)&ZydisFormatterFormatOperandImm;
+        defaultFormatOperandImm = (ZydisFormatterOperandFunc)&ZydisFormatterFormatOperandImm;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM, 
             (const void**)&defaultFormatOperandImm);
     }
