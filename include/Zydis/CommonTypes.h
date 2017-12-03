@@ -52,6 +52,8 @@
     typedef int64_t   ZydisI64;
     typedef size_t    ZydisUSize;
     typedef ptrdiff_t ZydisISize;
+    typedef uintptr_t ZydisUPointer;
+    typedef intptr_t  ZydisIPointer;
 #else 
     // No LibC, use compiler built-in types / macros.
 #   if defined(ZYDIS_MSVC)
@@ -66,9 +68,13 @@
 #       if _WIN64                
            typedef ZydisU64      ZydisUSize;
            typedef ZydisI64      ZydisISize;
+           typedef ZydisU64      ZydisUPointer;
+           typedef ZydisI64      ZydisIPointer;
 #       else                     
            typedef ZydisU32      ZydisUSize;
            typedef ZydisI32      ZydisISize;
+           typedef ZydisU32      ZydisUPointer;
+           typedef ZydisI32      ZydisIPointer;
 #       endif                    
 #   elif defined(ZYDIS_GNUC)     
         typedef __UINT8_TYPE__   ZydisU8;
@@ -81,22 +87,26 @@
         typedef __INT64_TYPE__   ZydisI64;
         typedef __SIZE_TYPE__    ZydisUSize;
         typedef __PTRDIFF_TYPE__ ZydisISize;
+        typedef __UINTPTR_TYPE__ ZydisUPointer;
+        typedef __INTPTR_TYPE__  ZydisIPointer;
 #   else
 #       error "Unsupported compiler for no-libc mode."
 #   endif
 #endif
 
 // Verify size assumptions.
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU8   ) == 1            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU16  ) == 2            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU32  ) == 4            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisU64  ) == 8            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI8   ) == 1            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI16  ) == 2            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI32  ) == 4            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisI64  ) == 8            );
-ZYDIS_STATIC_ASSERT(sizeof(ZydisUSize) == sizeof(void*));
-ZYDIS_STATIC_ASSERT(sizeof(ZydisISize) == sizeof(void*));
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU8      ) == 1            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU16     ) == 2            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU32     ) == 4            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisU64     ) == 8            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI8      ) == 1            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI16     ) == 2            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI32     ) == 4            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisI64     ) == 8            );
+ZYDIS_STATIC_ASSERT(sizeof(ZydisUSize   ) == sizeof(void*)); // TODO: This one is incorrect!
+ZYDIS_STATIC_ASSERT(sizeof(ZydisISize   ) == sizeof(void*)); // TODO: This one is incorrect!
+ZYDIS_STATIC_ASSERT(sizeof(ZydisUPointer) == sizeof(void*));
+ZYDIS_STATIC_ASSERT(sizeof(ZydisIPointer) == sizeof(void*));
 
 // Verify signedness assumptions (relies on size checks above).
 ZYDIS_STATIC_ASSERT((ZydisI8 )-1 >> 1 < (ZydisI8 )((ZydisU8 )-1 >> 1));

@@ -179,6 +179,11 @@
 #define ZYDIS_BITFIELD(x) : x
 
 /**
+ * @brief   Marks the specified parameter as unused.
+ */
+#define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
+
+/**
  * @brief   Calculates the size of an array.
  */
 #define ZYDIS_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))

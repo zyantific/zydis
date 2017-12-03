@@ -25,11 +25,6 @@
 ***************************************************************************************************/
 
 #include <Zydis/Mnemonic.h>
-
-/* ============================================================================================== */
-/* Mnemonic strings                                                                               */
-/* ============================================================================================== */
-
 #include <Generated/EnumMnemonic.inc>
 
 /* ============================================================================================== */
@@ -38,11 +33,20 @@
 
 const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 {
-    if (mnemonic > ZYDIS_ARRAY_SIZE(zydisMnemonicStrings) - 1)
+    if (mnemonic >= ZYDIS_ARRAY_SIZE(zydisMnemonicStrings))
     {
         return ZYDIS_NULL;
     }
-    return zydisMnemonicStrings[mnemonic];
+    return (const char*)zydisMnemonicStrings[mnemonic].buffer;
+}
+
+const ZydisStaticString* ZydisMnemonicGetStaticString(ZydisMnemonic mnemonic)
+{
+    if (mnemonic >= ZYDIS_ARRAY_SIZE(zydisMnemonicStrings))
+    {
+        return ZYDIS_NULL;
+    }
+    return &zydisMnemonicStrings[mnemonic];
 }
 
 /* ============================================================================================== */

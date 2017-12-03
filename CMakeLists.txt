@@ -104,15 +104,18 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"       
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/String.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/LibC.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
     PRIVATE
         "src/MetaInfo.c"
         "src/Mnemonic.c"
         "src/Register.c"
-        "src/SharedData.h"
         "src/SharedData.c"
+        "src/String.c"
         "src/Utils.c"
         "src/Zydis.c")
 
@@ -122,13 +125,11 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
         PRIVATE 
-            "src/DecoderData.h"
-            "src/FormatHelper.h"
             "src/Decoder.c"
             "src/DecoderData.c"
-            "src/Formatter.c"
-            "src/FormatHelper.c")
+            "src/Formatter.c")
 endif ()
 
 if (BUILD_SHARED_LIBS AND WIN32)
@@ -148,9 +149,7 @@ install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (ZYDIS_BUILD_EXAMPLES)
     if (ZYDIS_FEATURE_DECODER)
-        add_executable("FormatterHooks" 
-            "examples/FormatterHooks.c"
-            "examples/FormatHelper.h")
+        add_executable("FormatterHooks" "examples/FormatterHooks.c")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
         target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")

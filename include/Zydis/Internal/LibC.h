@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_LIBC_H
-#define ZYDIS_LIBC_H
+#ifndef ZYDIS_INTERNAL_LIBC_H
+#define ZYDIS_INTERNAL_LIBC_H
 
 #include <Zydis/Defines.h>
 
@@ -79,4 +79,4 @@ ZYDIS_INLINE ZydisUSize ZydisStrLen(const char* str)
 
 #endif
 
-#endif /* ZYDIS_LIBC_H */
+#endif /* ZYDIS_INTERNAL_LIBC_H */

@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_DECODERDATA_H
-#define ZYDIS_DECODERDATA_H
+#ifndef ZYDIS_INTERNAL_DECODERDATA_H
+#define ZYDIS_INTERNAL_DECODERDATA_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/DecoderTypes.h>
@@ -311,4 +311,4 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode*
 }
 #endif
 
-#endif /* ZYDIS_DECODERDATA_H */
+#endif /* ZYDIS_INTERNAL_DECODERDATA_H */
