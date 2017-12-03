@@ -147,7 +147,7 @@ typedef struct ZydisOperandDefinition_
             ZydisU8 type                    ZYDIS_BITFIELD(3);
             union
             {
-                ZydisRegister reg;
+                ZydisRegister reg           ZYDIS_BITFIELD(ZYDIS_REGISTER_MIN_BITS);
                 ZydisU8 id                  ZYDIS_BITFIELD(6);
             } reg;
         } reg;
@@ -543,16 +543,16 @@ enum ZydisMaskPolicies
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(ZYDIS_MNEMONIC_MAX_BITS); \
+    ZydisMnemonic mnemonic                  ZYDIS_BITFIELD(ZYDIS_MNEMONIC_MIN_BITS); \
     ZydisU8 operandCount                    ZYDIS_BITFIELD( 4); \
     ZydisU16 operandReference               ZYDIS_BITFIELD(15); \
     ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
     ZydisU8 flagsReference                  ZYDIS_BITFIELD( 7); \
     ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
     ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
-    ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MAX_BITS); \
-    ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MAX_BITS); \
-    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MAX_BITS); \
+    ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MIN_BITS); \
+    ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MIN_BITS); \
+    ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MIN_BITS); \
     ZydisExceptionClass exceptionClass      ZYDIS_BITFIELD( 6)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \

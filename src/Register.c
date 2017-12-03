@@ -71,16 +71,6 @@ static const ZydisStaticString registerStrings[] =
     ZYDIS_MAKE_STATIC_STRING("r10"),      ZYDIS_MAKE_STATIC_STRING("r11"),
     ZYDIS_MAKE_STATIC_STRING("r12"),      ZYDIS_MAKE_STATIC_STRING("r13"),
     ZYDIS_MAKE_STATIC_STRING("r14"),      ZYDIS_MAKE_STATIC_STRING("r15"),
-    // Address-size scaling general purpose pseudo-registers
-    ZYDIS_MAKE_STATIC_STRING("aszax"),    ZYDIS_MAKE_STATIC_STRING("aszcx"),
-    ZYDIS_MAKE_STATIC_STRING("aszdx"),    ZYDIS_MAKE_STATIC_STRING("aszbx"),
-    ZYDIS_MAKE_STATIC_STRING("aszsp"),    ZYDIS_MAKE_STATIC_STRING("aszbp"),
-    ZYDIS_MAKE_STATIC_STRING("aszsi"),    ZYDIS_MAKE_STATIC_STRING("aszdi"),
-    // Stack-size scaling general purpose pseudo-registers
-    ZYDIS_MAKE_STATIC_STRING("sszax"),    ZYDIS_MAKE_STATIC_STRING("sszcx"),
-    ZYDIS_MAKE_STATIC_STRING("sszdx"),    ZYDIS_MAKE_STATIC_STRING("sszbx"),
-    ZYDIS_MAKE_STATIC_STRING("sszsp"),    ZYDIS_MAKE_STATIC_STRING("sszbp"),
-    ZYDIS_MAKE_STATIC_STRING("sszsi"),    ZYDIS_MAKE_STATIC_STRING("sszdi"),
     // Floating point legacy registers
     ZYDIS_MAKE_STATIC_STRING("st0"),      ZYDIS_MAKE_STATIC_STRING("st1"),
     ZYDIS_MAKE_STATIC_STRING("st2"),      ZYDIS_MAKE_STATIC_STRING("st3"),
@@ -149,9 +139,12 @@ static const ZydisStaticString registerStrings[] =
     ZYDIS_MAKE_STATIC_STRING("ip"),       ZYDIS_MAKE_STATIC_STRING("eip"),
     ZYDIS_MAKE_STATIC_STRING("rip"),
     // Segment registers
-    ZYDIS_MAKE_STATIC_STRING("es"),       ZYDIS_MAKE_STATIC_STRING("ss"),
-    ZYDIS_MAKE_STATIC_STRING("cs"),       ZYDIS_MAKE_STATIC_STRING("ds"),
+    ZYDIS_MAKE_STATIC_STRING("es"),       ZYDIS_MAKE_STATIC_STRING("cs"),
+    ZYDIS_MAKE_STATIC_STRING("ss"),       ZYDIS_MAKE_STATIC_STRING("ds"),
     ZYDIS_MAKE_STATIC_STRING("fs"),       ZYDIS_MAKE_STATIC_STRING("gs"),
+    // Table registers
+    ZYDIS_MAKE_STATIC_STRING("gdtr"),     ZYDIS_MAKE_STATIC_STRING("ldtr"),   
+    ZYDIS_MAKE_STATIC_STRING("idtr"),     ZYDIS_MAKE_STATIC_STRING("tr"),
     // Test registers
     ZYDIS_MAKE_STATIC_STRING("tr0"),      ZYDIS_MAKE_STATIC_STRING("tr1"),
     ZYDIS_MAKE_STATIC_STRING("tr2"),      ZYDIS_MAKE_STATIC_STRING("tr3"),
@@ -183,12 +176,10 @@ static const ZydisStaticString registerStrings[] =
     // Bound registers
     ZYDIS_MAKE_STATIC_STRING("bnd0"),     ZYDIS_MAKE_STATIC_STRING("bnd1"),
     ZYDIS_MAKE_STATIC_STRING("bnd2"),     ZYDIS_MAKE_STATIC_STRING("bnd3"),
+    ZYDIS_MAKE_STATIC_STRING("bndcfg"),   ZYDIS_MAKE_STATIC_STRING("bndstatus"),
     // Misc registers
     ZYDIS_MAKE_STATIC_STRING("mxcsr"),    ZYDIS_MAKE_STATIC_STRING("pkru"),
-    ZYDIS_MAKE_STATIC_STRING("xcr0"),     ZYDIS_MAKE_STATIC_STRING("gdtr"),
-    ZYDIS_MAKE_STATIC_STRING("ldtr"),     ZYDIS_MAKE_STATIC_STRING("idtr"),
-    ZYDIS_MAKE_STATIC_STRING("tr"),       ZYDIS_MAKE_STATIC_STRING("bndcfg"),
-    ZYDIS_MAKE_STATIC_STRING("bndstatus")
+    ZYDIS_MAKE_STATIC_STRING("xcr0")
 };
 
 /* ============================================================================================== */
@@ -342,7 +333,7 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if (reg > (sizeof(registerStrings) / sizeof(registerStrings[0])) - 1)
+    if (reg >= ZYDIS_ARRAY_SIZE(registerStrings))
     {
         return ZYDIS_NULL;
     }
@@ -351,7 +342,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
 
 const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
 {
-    if (reg > (sizeof(registerStrings) / sizeof(registerStrings[0])) - 1)
+    if (reg >= ZYDIS_ARRAY_SIZE(registerStrings))
     {
         return ZYDIS_NULL;
     }
