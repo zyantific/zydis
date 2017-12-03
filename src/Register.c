@@ -49,20 +49,20 @@ static const ZydisStaticString registerStrings[] =
     ZYDIS_MAKE_STATIC_STRING("dx"),       ZYDIS_MAKE_STATIC_STRING("bx"),
     ZYDIS_MAKE_STATIC_STRING("sp"),       ZYDIS_MAKE_STATIC_STRING("bp"),
     ZYDIS_MAKE_STATIC_STRING("si"),       ZYDIS_MAKE_STATIC_STRING("di"),
+    ZYDIS_MAKE_STATIC_STRING("r8w"),      ZYDIS_MAKE_STATIC_STRING("r9w"),
+    ZYDIS_MAKE_STATIC_STRING("r10w"),     ZYDIS_MAKE_STATIC_STRING("r11w"),
+    ZYDIS_MAKE_STATIC_STRING("r12w"),     ZYDIS_MAKE_STATIC_STRING("r13w"),
+    ZYDIS_MAKE_STATIC_STRING("r14w"),     ZYDIS_MAKE_STATIC_STRING("r15w"),
+    // General purpose registers 32-bit
+    ZYDIS_MAKE_STATIC_STRING("eax"),      ZYDIS_MAKE_STATIC_STRING("ecx"),
+    ZYDIS_MAKE_STATIC_STRING("edx"),      ZYDIS_MAKE_STATIC_STRING("ebx"),
+    ZYDIS_MAKE_STATIC_STRING("esp"),      ZYDIS_MAKE_STATIC_STRING("ebp"),
+    ZYDIS_MAKE_STATIC_STRING("esi"),      ZYDIS_MAKE_STATIC_STRING("edi"),
     ZYDIS_MAKE_STATIC_STRING("r8d"),      ZYDIS_MAKE_STATIC_STRING("r9d"),
     ZYDIS_MAKE_STATIC_STRING("r10d"),     ZYDIS_MAKE_STATIC_STRING("r11d"),
     ZYDIS_MAKE_STATIC_STRING("r12d"),     ZYDIS_MAKE_STATIC_STRING("r13d"),
     ZYDIS_MAKE_STATIC_STRING("r14d"),     ZYDIS_MAKE_STATIC_STRING("r15d"),
-    // General purpose registers 32-bit
-    ZYDIS_MAKE_STATIC_STRING("rax"),      ZYDIS_MAKE_STATIC_STRING("rcx"),
-    ZYDIS_MAKE_STATIC_STRING("rdx"),      ZYDIS_MAKE_STATIC_STRING("rbx"),
-    ZYDIS_MAKE_STATIC_STRING("rsp"),      ZYDIS_MAKE_STATIC_STRING("rbp"),
-    ZYDIS_MAKE_STATIC_STRING("rsi"),      ZYDIS_MAKE_STATIC_STRING("rdi"),
-    ZYDIS_MAKE_STATIC_STRING("r8"),       ZYDIS_MAKE_STATIC_STRING("r9"),
-    ZYDIS_MAKE_STATIC_STRING("r10"),      ZYDIS_MAKE_STATIC_STRING("r11"),
-    ZYDIS_MAKE_STATIC_STRING("r12"),      ZYDIS_MAKE_STATIC_STRING("r13"),
-    ZYDIS_MAKE_STATIC_STRING("r14"),      ZYDIS_MAKE_STATIC_STRING("r15"),
-    // General purpose registers 64-bit
+    // General purpose registers 64-bi
     ZYDIS_MAKE_STATIC_STRING("rax"),      ZYDIS_MAKE_STATIC_STRING("rcx"),
     ZYDIS_MAKE_STATIC_STRING("rdx"),      ZYDIS_MAKE_STATIC_STRING("rbx"),
     ZYDIS_MAKE_STATIC_STRING("rsp"),      ZYDIS_MAKE_STATIC_STRING("rbp"),
@@ -143,7 +143,7 @@ static const ZydisStaticString registerStrings[] =
     ZYDIS_MAKE_STATIC_STRING("ss"),       ZYDIS_MAKE_STATIC_STRING("ds"),
     ZYDIS_MAKE_STATIC_STRING("fs"),       ZYDIS_MAKE_STATIC_STRING("gs"),
     // Table registers
-    ZYDIS_MAKE_STATIC_STRING("gdtr"),     ZYDIS_MAKE_STATIC_STRING("ldtr"),   
+    ZYDIS_MAKE_STATIC_STRING("gdtr"),     ZYDIS_MAKE_STATIC_STRING("ldtr"),
     ZYDIS_MAKE_STATIC_STRING("idtr"),     ZYDIS_MAKE_STATIC_STRING("tr"),
     // Test registers
     ZYDIS_MAKE_STATIC_STRING("tr0"),      ZYDIS_MAKE_STATIC_STRING("tr1"),
@@ -232,7 +232,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
     case ZYDIS_REGCLASS_IP:
         break;
     default:
-        if ((registerClass < registerMapCount) && 
+        if ((registerClass < registerMapCount) &&
             (id <= (registerMap[registerClass].hi - registerMap[registerClass].lo)))
         {
             return registerMap[registerClass].lo + id;
@@ -270,7 +270,7 @@ ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
             return registerMap[i].class;
         }
     }
-    return ZYDIS_REGCLASS_INVALID;    
+    return ZYDIS_REGCLASS_INVALID;
 }
 
 ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
@@ -298,7 +298,7 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
         {
             return registerMap[i].width;
         }
-    }    
+    }
     return 0;
 }
 
@@ -327,8 +327,8 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
         {
             return registerMap[i].width64;
         }
-    }    
-    return 0;    
+    }
+    return 0;
 }
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
@@ -337,7 +337,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
     {
         return ZYDIS_NULL;
     }
-    return registerStrings[reg].buffer;    
+    return registerStrings[reg].buffer;
 }
 
 const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
@@ -346,7 +346,7 @@ const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
     {
         return ZYDIS_NULL;
     }
-    return &registerStrings[reg];    
+    return &registerStrings[reg];
 }
 
 /* ============================================================================================== */
