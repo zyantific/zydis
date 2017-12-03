@@ -247,7 +247,7 @@ ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExC(ZydisString* strin
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
  *          sufficient to append the given @c text.
  */
-ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStaticEx(ZydisString* string, 
+ZYDIS_NO_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExStatic(ZydisString* string, 
     const ZydisStaticString* text, ZydisLetterCase letterCase)
 {
     if (!text || !text->buffer)

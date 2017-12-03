@@ -96,7 +96,7 @@ static ZydisStatus ZydisFormatterPrintMnemonicIntel(const ZydisFormatter* format
     {
         return ZydisStringAppendExC(string, "invalid", formatter->letterCase);
     }
-    ZYDIS_CHECK(ZydisStringAppendStaticEx(string, mnemonic, formatter->letterCase));
+    ZYDIS_CHECK(ZydisStringAppendExStatic(string, mnemonic, formatter->letterCase));
     
     if (instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
     {
@@ -129,7 +129,7 @@ static ZydisStatus ZydisFormatterFormatOperandRegIntel(const ZydisFormatter* for
     {
         return ZydisStringAppendExC(string, "invalid", formatter->letterCase);
     }
-    return ZydisStringAppendStaticEx(string, reg, formatter->letterCase);
+    return ZydisStringAppendExStatic(string, reg, formatter->letterCase);
 }
 
 static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* formatter, 
@@ -159,7 +159,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
                 address, userData));  
         } else
         {
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, 
                 ZydisRegisterGetStaticString(operand->mem.base), formatter->letterCase));
             ZYDIS_CHECK(formatter->funcPrintDisplacement(formatter, string, instruction, operand, 
                 userData)); 
@@ -174,7 +174,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase)); 
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, reg, formatter->letterCase)); 
         }
         if ((operand->mem.index != ZYDIS_REGISTER_NONE) && 
             (operand->mem.type != ZYDIS_MEMOP_TYPE_MIB))
@@ -188,7 +188,7 @@ static ZydisStatus ZydisFormatterFormatOperandMemIntel(const ZydisFormatter* for
             {
                 ZYDIS_CHECK(ZydisStringAppendC(string, "+"));
             }
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, reg, formatter->letterCase));
             if (operand->mem.scale)
             {
                 ZYDIS_CHECK(ZydisStringAppendC(string, "*"));
@@ -523,14 +523,14 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
     case ZYDIS_REGISTER_CS:
     case ZYDIS_REGISTER_FS:
     case ZYDIS_REGISTER_GS:
-        ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+        ZYDIS_CHECK(ZydisStringAppendExStatic(string, 
             ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
         return ZydisStringAppendC(string, ":");
     case ZYDIS_REGISTER_SS:
         if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, 
                 ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
             return ZydisStringAppendC(string, ":");
         }
@@ -539,7 +539,7 @@ static ZydisStatus ZydisFormatterPrintSegmentIntel(const ZydisFormatter* formatt
         if ((formatter->forceSegments) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
         {
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, 
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, 
                 ZydisRegisterGetStaticString(operand->mem.segment), formatter->letterCase));
             return ZydisStringAppendC(string, ":");
         }
@@ -574,7 +574,7 @@ static ZydisStatus ZydisFormatterPrintDecoratorIntel(const ZydisFormatter* forma
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
             ZYDIS_CHECK(ZydisStringAppendC(string, " {")); 
-            ZYDIS_CHECK(ZydisStringAppendStaticEx(string, reg, formatter->letterCase));
+            ZYDIS_CHECK(ZydisStringAppendExStatic(string, reg, formatter->letterCase));
             ZYDIS_CHECK(ZydisStringAppendC(string, "}"));
             if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
             {
