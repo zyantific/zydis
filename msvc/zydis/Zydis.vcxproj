@@ -509,12 +509,12 @@
     <ClCompile Include="..\..\src\Mnemonic.c" />
     <ClCompile Include="..\..\src\Register.c" />
     <ClCompile Include="..\..\src\SharedData.c" />
+    <ClCompile Include="..\..\src\String.c" />
     <ClCompile Include="..\..\src\Utils.c" />
     <ClCompile Include="..\..\src\Zydis.c" />
     <ClCompile Include="..\..\src\Decoder.c" />
     <ClCompile Include="..\..\src\DecoderData.c" />
     <ClCompile Include="..\..\src\Formatter.c" />
-    <ClCompile Include="..\..\src\FormatHelper.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Zydis\CommonTypes.h" />
@@ -524,15 +524,15 @@
     <ClInclude Include="..\..\include\Zydis\Register.h" />
     <ClInclude Include="..\..\include\Zydis\SharedTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Status.h" />
+    <ClInclude Include="..\..\include\Zydis\String.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />
     <ClInclude Include="..\..\include\Zydis\DecoderTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Formatter.h" />
-    <ClInclude Include="..\..\src\DecoderData.h" />
-    <ClInclude Include="..\..\src\FormatHelper.h" />
-    <ClInclude Include="..\..\src\LibC.h" />
-    <ClInclude Include="..\..\src\SharedData.h" />
+    <ClInclude Include="..\..\include\Zydis\Internal\LibC.h" />
+    <ClInclude Include="..\..\include\Zydis\Internal\SharedData.h" />
+    <ClInclude Include="..\..\include\Zydis\Internal\DecoderData.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\VersionInfo.rc">

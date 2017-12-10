@@ -214,6 +214,7 @@
     <ClInclude Include="..\..\include\Zydis\Register.h" />
     <ClInclude Include="..\..\include\Zydis\SharedTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Status.h" />
+    <ClInclude Include="..\..\include\Zydis\String.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />

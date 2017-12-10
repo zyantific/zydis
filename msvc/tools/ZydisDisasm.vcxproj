@@ -400,6 +400,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\ZydisDisasm.c" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\include\Zydis\CommonTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Defines.h" />
     <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
@@ -407,6 +409,7 @@
     <ClInclude Include="..\..\include\Zydis\Register.h" />
     <ClInclude Include="..\..\include\Zydis\SharedTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Status.h" />
+    <ClInclude Include="..\..\include\Zydis\String.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />

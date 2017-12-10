@@ -32,6 +32,9 @@
     <ClInclude Include="..\..\include\Zydis\Status.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
