@@ -58,48 +58,6 @@ static ZydisStatus ZydisFormatInstruction(const ZydisFormatter* formatter, const
 /* Intel style                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZydisStatus ZydisPrintSegmentIntel(const ZydisFormatter* formatter, ZydisString* string, 
-    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand, void* userData)
-{
-    ZYDIS_ASSERT(formatter);
-    ZYDIS_ASSERT(string);
-    ZYDIS_ASSERT(instruction);
-    ZYDIS_ASSERT(operand);
-
-    switch (operand->mem.segment)
-    {
-    case ZYDIS_REGISTER_ES:
-    case ZYDIS_REGISTER_CS:
-    case ZYDIS_REGISTER_FS:
-    case ZYDIS_REGISTER_GS:
-        ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
-            operand->mem.segment, userData));
-        return ZydisStringAppendC(string, ":");
-    case ZYDIS_REGISTER_SS:
-        if ((formatter->forceMemorySegment) || 
-            (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
-        {
-            ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
-                operand->mem.segment, userData));
-            return ZydisStringAppendC(string, ":");
-        }
-        break;
-    case ZYDIS_REGISTER_DS:
-        if ((formatter->forceMemorySegment) || 
-            (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
-        {
-            ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
-                operand->mem.segment, userData));
-            return ZydisStringAppendC(string, ":");
-        }
-        break;
-    default:
-        break;
-    }
-
-    return ZYDIS_STATUS_SUCCESS;
-}
-
 /* ---------------------------------------------------------------------------------------------- */
 
 static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisString* string, 
@@ -255,7 +213,37 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    ZYDIS_CHECK(ZydisPrintSegmentIntel(formatter, string, instruction, operand, userData));
+    switch (operand->mem.segment)
+    {
+    case ZYDIS_REGISTER_ES:
+    case ZYDIS_REGISTER_CS:
+    case ZYDIS_REGISTER_FS:
+    case ZYDIS_REGISTER_GS:
+        ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
+            operand->mem.segment, userData));
+        ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
+    case ZYDIS_REGISTER_SS:
+        if ((formatter->forceMemorySegment) || 
+            (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
+        {
+            ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
+                operand->mem.segment, userData));
+            ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
+        }
+        break;
+    case ZYDIS_REGISTER_DS:
+        if ((formatter->forceMemorySegment) || 
+            (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
+        {
+            ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
+                operand->mem.segment, userData));
+            ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
+        }
+        break;
+    default:
+        break;
+    }
+
     ZYDIS_CHECK(ZydisStringAppendC(string, "["));
  
     if (operand->mem.disp.hasDisplacement && (
