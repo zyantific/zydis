@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <time.h>
 #include <Zydis/Zydis.h>
+#include <inttypes.h>
 
 #if defined(ZYDIS_WINDOWS)
 #   include <Windows.h>
@@ -152,26 +153,32 @@ void adjustProcessAndThreadPriority()
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
-    ZydisBool format)
+uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
 {
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitEx(&decoder, 
-        ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64, granularity)))
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         exit(EXIT_FAILURE);
+    }
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
+    {
+        fputs("Failed to adjust decoder-mode\n", stderr);
+        exit(EXIT_FAILURE);    
     }
 
     ZydisFormatter formatter;
     if (format)
     {
-        if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL, 
-            ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-            ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, 
-            ZYDIS_FORMATTER_IMM_DEFAULT)))
+        if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+            !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, 
+                ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE)) ||
+            !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, 
+                ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)))
         {
-            fputs("Failed to initialized instruction-formatter\n", stderr);
+            fputs("Failed to initialize instruction-formatter\n", stderr);
             exit(EXIT_FAILURE);
         }
     }
@@ -202,21 +209,20 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisDecodeGranularity
     return count;
 }
 
-void testPerformance(const char* buffer, size_t length, ZydisDecodeGranularity granularity, 
-    ZydisBool format)
+void testPerformance(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
 {
     // Cache warmup
-    processBuffer(buffer, length, granularity, format);
+    processBuffer(buffer, length, minimalMode, format);
 
     // Testing
     uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
     {
-        count += processBuffer(buffer, length, granularity, format);
+        count += processBuffer(buffer, length, minimalMode, format);
     }
-    printf("Granularity %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
-        granularity, format, (double)count / 1000000, GetCounter());  
+    printf("Minimal-Mode %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n", 
+        minimalMode, format, (double)count / 1000000, GetCounter());  
 }
 
 void generateTestData(FILE* file, uint8_t encoding)
@@ -393,7 +399,7 @@ int main(int argc, char** argv)
             }
 
             rewind(file);
-            if (fread(buffer, 1, length, file) != length)
+            if (fread(buffer, 1, length, file) != (size_t)length)
             {
                 fprintf(stderr, 
                     "Could not read %" PRIu64 " bytes from file \"%s\"", (uint64_t)length, &buf[0]);  
@@ -401,9 +407,9 @@ int main(int argc, char** argv)
             }
 
             printf("Testing %s ...\n", tests[i].encoding);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_MINIMAL, ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_DECODE_GRANULARITY_FULL   , ZYDIS_TRUE );
+            testPerformance(buffer, length, ZYDIS_TRUE , ZYDIS_FALSE);
+            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_FALSE);
+            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_TRUE );
             puts("");
 
 NextFile1:            

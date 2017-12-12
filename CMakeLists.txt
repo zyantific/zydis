@@ -10,27 +10,24 @@ project(Zydis VERSION 2.0)
 
 # Features
 option(ZYDIS_FEATURE_DECODER
-    "Enable instruction decoding and formtting functionality"
+    "Enable instruction decoding functionality"
     ON)
-#option(ZYDIS_FEATURE_ENCODER
-#    "Enable instruction encoding functionality"
-#    OFF)
+option(ZYDIS_FEATURE_FORMATTER
+    "Enable instruction formatting functionality"
+    ON)
 option(ZYDIS_FEATURE_EVEX 
     "Enable support for EVEX instructions" 
     ON)
 option(ZYDIS_FEATURE_MVEX 
     "Enable support for MVEX instructions" 
     ON)
-option(ZYDIS_FEATURE_FLAGS 
-    "Include information about affected flags"
-    ON)
-option(ZYDIS_FEATURE_CPUID 
-    "Include information about CPUID feature-flags"
-    OFF)
 
 # Build configuration
 option(BUILD_SHARED_LIBS
     "Build shared libraries"
+    OFF)
+option(ZYDIS_NO_LIBC
+    "Don't use any C standard library functions (for exotic build-envs like kernel drivers)"
     OFF)
 option(ZYDIS_BUILD_EXAMPLES 
     "Build examples" 
@@ -38,6 +35,9 @@ option(ZYDIS_BUILD_EXAMPLES
 option(ZYDIS_BUILD_TOOLS 
     "Build tools" 
     ON)
+option(ZYDIS_FUZZ_AFL_FAST
+	"Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
+	OFF)
 option(ZYDIS_DEV_MODE
     "Enable developer mode (-Wall, -Werror, ...)"
     OFF)
@@ -80,24 +80,21 @@ if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
     )
 endif ()
 
-if (ZYDIS_FEATURE_EVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_EVEX")
+if (NOT ZYDIS_FEATURE_DECODER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_DECODER")
 endif ()
-if (ZYDIS_FEATURE_MVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_MVEX")
+if (NOT ZYDIS_FEATURE_FORMATTER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_FORMATTER")
 endif ()
-if (ZYDIS_FEATURE_FLAGS)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_FLAGS")
+if (NOT ZYDIS_FEATURE_EVEX)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_EVEX")
 endif ()
-if (ZYDIS_FEATURE_CPUID)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_CPUID")
+if (NOT ZYDIS_FEATURE_MVEX)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_MVEX")
 endif ()
-if (ZYDIS_FEATURE_DECODER)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_DECODER")
+if (ZYDIS_NO_LIBC)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_NO_LIBC")
 endif ()
-#if (ZYDIS_FEATURE_ENCODER)
-#    target_compile_definitions("Zydis" PUBLIC "ZYDIS_ENABLE_FEATURE_ENCODER")
-#endif ()
 
 target_sources("Zydis"
     PUBLIC
@@ -107,15 +104,18 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"       
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/String.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/LibC.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
     PRIVATE
         "src/MetaInfo.c"
         "src/Mnemonic.c"
         "src/Register.c"
-        "src/SharedData.h"
         "src/SharedData.c"
+        "src/String.c"
         "src/Utils.c"
         "src/Zydis.c")
 
@@ -125,24 +125,12 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
         PRIVATE 
-            "src/DecoderData.h"
-            "src/FormatHelper.h"
             "src/Decoder.c"
             "src/DecoderData.c"
-            "src/Formatter.c"
-            "src/FormatHelper.c")
+            "src/Formatter.c")
 endif ()
-
-#if (ZYDIS_FEATURE_ENCODER)
-#    target_sources("Zydis" 
-#        PUBLIC 
-#            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h" 
-#        PRIVATE 
-#            "src/EncoderData.h"
-#            "src/Encoder.c"
-#            "src/EncoderData.c")
-#endif ()
 
 if (BUILD_SHARED_LIBS AND WIN32)
     target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
@@ -161,9 +149,7 @@ install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if (ZYDIS_BUILD_EXAMPLES)
     if (ZYDIS_FEATURE_DECODER)
-        add_executable("FormatterHooks" 
-            "examples/FormatterHooks.c"
-            "examples/FormatHelper.h")
+        add_executable("FormatterHooks" "examples/FormatterHooks.c")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
         target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -172,6 +158,9 @@ if (ZYDIS_BUILD_EXAMPLES)
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+		if (ZYDIS_FUZZ_AFL_FAST)
+			target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+		endif ()
 
         add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
         target_link_libraries("ZydisPerfTest" "Zydis")

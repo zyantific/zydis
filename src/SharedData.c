@@ -24,7 +24,7 @@
 
 ***************************************************************************************************/
 
-#include <SharedData.h>
+#include <Zydis/Internal/SharedData.h>
 
 /* ============================================================================================== */
 /* Data tables                                                                                    */
@@ -61,15 +61,19 @@ extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
  */
 extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
 
+#ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Contains all instruction-definitions with @c EVEX encoding.
  */
 extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Contains all instruction-definitions with @c MVEX encoding.
  */
 extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction definitions                                                                        */
@@ -104,7 +108,7 @@ extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, uint16_t id,
+void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 id,
     const ZydisInstructionDefinition** definition)
 {
     switch (encoding)
@@ -121,12 +125,16 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, uint16_t i
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsVEX[id];
         break;
+#ifndef ZYDIS_DISABLE_EVEX
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[id];
         break;
+#endif
+#ifndef ZYDIS_DISABLE_MVEX
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[id];
         break;
+#endif
     default:
         ZYDIS_UNREACHABLE;
     }
@@ -136,12 +144,12 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, uint16_t i
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-uint8_t ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
+ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
     const ZydisOperandDefinition** operand)
 {
     if (definition->operandCount == 0)
     {
-        *operand = NULL;
+        *operand = ZYDIS_NULL;
         return 0;
     }
     ZYDIS_ASSERT(definition->operandReference != 0xFFFF);

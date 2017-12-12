@@ -45,12 +45,12 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisStatus datatype.
  */
-typedef uint32_t ZydisStatus;
+typedef ZydisU32 ZydisStatus;
 
 /**
  * @brief   Values that represent a zydis status-codes.
  */
-enum ZydisStatusCode
+enum ZydisStatusCodes
 {
     /* ------------------------------------------------------------------------------------------ */
     /* General                                                                                    */
@@ -164,10 +164,10 @@ enum ZydisStatusCode
 #define ZYDIS_CHECK(status) \
     do \
     { \
-        ZydisStatus s = status; \
-        if (!ZYDIS_SUCCESS(s)) \
+        ZydisStatus status_038560234 = status; \
+        if (!ZYDIS_SUCCESS(status_038560234)) \
         { \
-            return s; \
+            return status_038560234; \
         } \
     } while (0)
 

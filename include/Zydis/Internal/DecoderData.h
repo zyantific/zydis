@@ -24,8 +24,8 @@
 
 ***************************************************************************************************/
 
-#ifndef ZYDIS_DECODERDATA_H
-#define ZYDIS_DECODERDATA_H
+#ifndef ZYDIS_INTERNAL_DECODERDATA_H
+#define ZYDIS_INTERNAL_DECODERDATA_H
 
 #include <Zydis/Defines.h>
 #include <Zydis/DecoderTypes.h>
@@ -53,7 +53,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeType datatype.
  */                                 
-typedef uint8_t ZydisDecoderTreeNodeType;
+typedef ZydisU8 ZydisDecoderTreeNodeType;
 
 /**
  * @brief   Values that represent zydis decoder tree node types.
@@ -136,7 +136,31 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * @brief   Reference to an MVEX.E filter.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12
+    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x12,
+    /**
+     * @brief   Reference to a AMD-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_AMD          = 0x13,
+    /**
+     * @brief   Reference to a KNC-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_KNC          = 0x14,
+    /**
+     * @brief   Reference to a MPX-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_MPX          = 0x15,
+    /**
+     * @brief   Reference to a CET-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_CET          = 0x16,
+    /**
+     * @brief   Reference to a LZCNT-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_LZCNT        = 0x17,
+    /**
+     * @brief   Reference to a TZCNT-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x18
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -144,7 +168,7 @@ enum ZydisDecoderTreeNodeTypes
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeValue datatype.
  */
-typedef uint16_t ZydisDecoderTreeNodeValue;
+typedef ZydisU16 ZydisDecoderTreeNodeValue;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -172,7 +196,7 @@ typedef struct ZydisDecoderTreeNode_
 /**
  * @brief   Defines the @c ZydisInstructionEncodingFlags datatype.
  */
-typedef uint8_t ZydisInstructionEncodingFlags;
+typedef ZydisU8 ZydisInstructionEncodingFlags;
 
 /**
  * @brief   The instruction has an optional modrm byte.
@@ -219,7 +243,7 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the displacement value.
          */
-        uint8_t size[3];
+        ZydisU8 size[3];
     } disp;
     /**
      * @brief   Immediate info.
@@ -229,7 +253,7 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the immediate value.
          */
-        uint8_t size[3];
+        ZydisU8 size[3];
         /**
          * @brief   Signals, if the value is signed.
          */
@@ -256,7 +280,7 @@ typedef struct ZydisInstructionEncodingInfo_
  *
  * @return  The root node of the instruction tree.
  */
-ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode();
+ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void);
 
 /**
  * @brief   Returns the child node of @c parent specified by @c index.
@@ -267,7 +291,7 @@ ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode();
  * @return  The specified child node.
  */
 ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(
-    const ZydisDecoderTreeNode* parent, uint16_t index);
+    const ZydisDecoderTreeNode* parent, ZydisU16 index);
 
 /**
  * @brief   Returns information about optional instruction parts (like modrm, displacement or 
@@ -287,4 +311,4 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode*
 }
 #endif
 
-#endif /* ZYDIS_DECODERDATA_H */
+#endif /* ZYDIS_INTERNAL_DECODERDATA_H */

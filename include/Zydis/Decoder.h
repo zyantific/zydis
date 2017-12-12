@@ -45,22 +45,22 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-/**
- * @brief   Defines the @c ZydisDecodeGranularity datatype.
- */
-typedef uint8_t ZydisDecodeGranularity;
+/* ---------------------------------------------------------------------------------------------- */
+/* Decoder mode                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Decoder modes defining how granular the instruction should be decoded.
+ * @brief   Defines the @c ZydisDecoderMode datatype.
  */
-enum ZydisDecodeGranularities
+typedef ZydisU8 ZydisDecoderMode;
+
+/**
+ * @brief   Values that represent decoder-modes.
+ */
+enum ZydisDecoderModes
 {
     /**
-     * @brief   Defaults to `ZYDIS_DECODE_GRANULARITY_FULL`. 
-     */
-    ZYDIS_DECODE_GRANULARITY_DEFAULT,
-    /**
-     * @brief   Minimal instruction decoding without semantic analysis.
+     * @brief   Enables minimal instruction decoding without semantic analysis.
      * 
      * This mode provides access to the mnemonic, the instruction-length, the effective 
      * operand-size, the effective address-width, some attributes (e.g. `ZYDIS_ATTRIB_IS_RELATIVE`) 
@@ -68,17 +68,71 @@ enum ZydisDecodeGranularities
      * 
      * Operands, most attributes and other specific information (like AVX info) are not 
      * accessible in this mode.
+     * 
+     * This mode is NOT enabled by default.
      */
-    ZYDIS_DECODE_GRANULARITY_MINIMAL,
+    ZYDIS_DECODER_MODE_MINIMAL,
     /**
-     * @brief   Full physical and semantic instruction-decoding.
+     * @brief   Enables the AMD-branch mode.
+     * 
+     * Intel ignores the operand-size override-prefix (`0x66`) for all branches with 32-bit 
+     * immediates and forces the operand-size of the instruction to 64-bit in 64-bit mode.
+     * In AMD-branch mode `0x66` is not ignored and changes the operand-size and the size of the
+     * immediate to 16-bit.
+     * 
+     * This mode is NOT enabled by default.
      */
-    ZYDIS_DECODE_GRANULARITY_FULL,
+    ZYDIS_DECODER_MODE_AMD_BRANCHES,
+    /**
+     * @brief   Enables KNC compatibility-mode.
+     * 
+     * KNC and KNL+ chips are sharing opcodes and encodings for some mask-related instructions.
+     * Enable this mode to use the old KNC specifications (different mnemonics, operands, ..).
+     * 
+     * This mode is NOT enabled by default.
+     */
+    ZYDIS_DECODER_MODE_KNC,
+    /**
+     * @brief   Enables the MPX mode.
+     * 
+     * The MPX isa-extension reuses (overrides) some of the widenop instruction opcodes. 
+     * 
+     * This mode is enabled by default. 
+     */
+    ZYDIS_DECODER_MODE_MPX,
+    /**
+     * @brief   Enables the CET mode.
+     * 
+     * The CET isa-extension reuses (overrides) some of the widenop instruction opcodes. 
+     * 
+     * This mode is enabled by default.  
+     */
+    ZYDIS_DECODER_MODE_CET,
+    /**
+     * @brief   Enables the LZCNT mode.
+     * 
+     * The LZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     * 
+     * This mode is enabled by default.   
+     */
+    ZYDIS_DECODER_MODE_LZCNT,
+    /**
+     * @brief   Enables the TZCNT mode.
+     * 
+     * The TZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.  
+     * 
+     * This mode is enabled by default. 
+     */
+    ZYDIS_DECODER_MODE_TZCNT,
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DECODE_GRANULARITY_MAX_VALUE = ZYDIS_DECODE_GRANULARITY_FULL,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_TZCNT
 };
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Decoder struct                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Defines the @c ZydisDecoder struct.
@@ -87,7 +141,7 @@ typedef struct ZydisDecoder_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisDecodeGranularity granularity;
+    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -109,17 +163,16 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMod
     ZydisAddressWidth addressWidth);
 
 /**
- * @brief   Initializes the given @c ZydisDecoder instance.
+ * @brief   Enables or disables the specified decoder-mode.
  *
- * @param   decoder         A pointer to the @c ZydisDecoder instance.
- * @param   machineMode     The machine mode.
- * @param   addressWidth    The address width.
- * @param   granularity     The decode granularity.
+ * @param   decoder A pointer to the @c ZydisDecoder instance.
+ * @param   mode    The decoder mode.
+ * @param   enabled `ZYDIS_TRUE` to enable, or `ZYDIS_FALSE` to disable the specified decoder-mode.
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineMode machineMode, 
-    ZydisAddressWidth addressWidth, ZydisDecodeGranularity granularity);
+ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
+    ZydisBool enabled);
 
 /**
  * @brief   Decodes the instruction in the given input @c buffer.
@@ -134,7 +187,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInitEx(ZydisDecoder* decoder, ZydisMachineM
  * @return  A zydis status code. 
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, 
-    const void* buffer, size_t bufferLen, uint64_t instructionPointer, 
+    const void* buffer, ZydisUSize bufferLen, ZydisU64 instructionPointer, 
     ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */

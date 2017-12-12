@@ -47,7 +47,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_MAX_INSTRUCTION_LENGTH 15
-#define ZYDIS_MAX_OPERAND_COUNT       9
+#define ZYDIS_MAX_OPERAND_COUNT      10
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -62,42 +62,42 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisMachineMode datatype.
  */
-typedef uint8_t ZydisMachineMode;
+typedef ZydisU8 ZydisMachineMode;
 
 /**
  * @brief   Values that represent machine modes.
  */
 enum ZydisMachineModes
 {
-    ZYDIS_MACHINE_MODE_INVALID          =  0,
+    ZYDIS_MACHINE_MODE_INVALID,
     /**
      * @brief 64 bit mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_64          = 64,
+    ZYDIS_MACHINE_MODE_LONG_64,
     /**
      * @brief 32 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_COMPAT_32   = 32,
+    ZYDIS_MACHINE_MODE_LONG_COMPAT_32,
     /**
      * @brief 16 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LONG_COMPAT_16   = 16,
+    ZYDIS_MACHINE_MODE_LONG_COMPAT_16,
     /**
      * @brief 32 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LEGACY_32        = 32,
+    ZYDIS_MACHINE_MODE_LEGACY_32,
     /**
      * @brief 16 bit protected mode.
      */
-    ZYDIS_MACHINE_MODE_LEGACY_16        = 16,
+    ZYDIS_MACHINE_MODE_LEGACY_16,
     /**
      * @brief 16 bit real mode.
      */
-    ZYDIS_MACHINE_MODE_REAL_16          = 16,
+    ZYDIS_MACHINE_MODE_REAL_16,
      /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MACHINE_MODE_MAX_VALUE        = ZYDIS_MACHINE_MODE_LONG_64
+    ZYDIS_MACHINE_MODE_MAX_VALUE = ZYDIS_MACHINE_MODE_REAL_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -107,7 +107,7 @@ enum ZydisMachineModes
 /**
  * @brief   Defines the @c ZydisAddressWidth datatype.
  */
-typedef uint8_t ZydisAddressWidth;
+typedef ZydisU8 ZydisAddressWidth;
 
 /**
  * @brief   Values that represent address widths.
@@ -128,7 +128,7 @@ enum ZydisAddressWidths
 /**
  * @brief   Defines the @c ZydisElementType datatype.
  */
-typedef uint8_t ZydisElementType;
+typedef ZydisU8 ZydisElementType;
 
 /**
  * @brief   Values that represent element-types.
@@ -150,7 +150,7 @@ enum ZydisElementTypes
 /**
  * @brief   Defines the @c ZydisElementSize datatype.
  */
-typedef uint16_t ZydisElementSize;
+typedef ZydisU16 ZydisElementSize;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand type                                                                                   */
@@ -159,7 +159,7 @@ typedef uint16_t ZydisElementSize;
 /**
  * @brief   Defines the @c ZydisOperandType datatype.
  */
-typedef uint8_t ZydisOperandType;
+typedef ZydisU8 ZydisOperandType;
 
 /**
  * @brief   Values that represent operand-types.
@@ -199,7 +199,7 @@ enum ZydisOperandTypes
 /**
  * @brief   Defines the @c ZydisOperandEncoding datatype.
  */
-typedef uint8_t ZydisOperandEncoding;
+typedef ZydisU8 ZydisOperandEncoding;
 
 /**
  * @brief   Values that represent operand-encodings.
@@ -251,7 +251,7 @@ enum ZydisOperandEncodings
 /**
  * @brief   Defines the @c ZydisOperandVisibility datatype.
  */
-typedef uint8_t ZydisOperandVisibility;
+typedef ZydisU8 ZydisOperandVisibility;
 
 /**
  * @brief   Values that represent operand-visibilities.
@@ -284,7 +284,7 @@ enum ZydisOperandVisibilities
 /**
  * @brief   Defines the @c ZydisOperandAction datatype.
  */
-typedef uint8_t ZydisOperandAction;
+typedef ZydisU8 ZydisOperandAction;
 
 /**
  * @brief   Values that represent operand-actions.
@@ -347,7 +347,7 @@ enum ZydisOperandActions
 /**
  * @brief   Defines the @c ZydisInstructionEncoding datatype.
  */
-typedef uint8_t ZydisInstructionEncoding;
+typedef ZydisU8 ZydisInstructionEncoding;
 
 /**
  * @brief   Values that represent instruction-encodings.
@@ -392,7 +392,7 @@ enum ZydisInstructionEncodings
 /**
  * @brief   Defines the @c ZydisOpcodeMap map.
  */
-typedef uint8_t ZydisOpcodeMap;
+typedef ZydisU8 ZydisOpcodeMap;
 
 /**
  * @brief   Values that represent opcode-maps.

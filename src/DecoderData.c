@@ -24,7 +24,7 @@
 
 ***************************************************************************************************/
 
-#include <DecoderData.h>
+#include <Zydis/Internal/DecoderData.h>
 
 /* ============================================================================================== */
 /* Data tables                                                                                    */
@@ -221,19 +221,23 @@ extern const ZydisDecoderTreeNode filtersREXW[][2];
  */
 extern const ZydisDecoderTreeNode filtersREXB[][2];
 
+#ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Contains all EVEX.b filters.
  *          
  *          Indexed by the numeric value of the EVEX.b field.
  */
 extern const ZydisDecoderTreeNode filtersEVEXB[][2];
+#endif
 
+#ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Contains all MVEX.E filters.
  *          
  *          Indexed by the numeric value of the MVEX.E field.
  */
 extern const ZydisDecoderTreeNode filtersMVEXE[][2];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Physical instruction encodings                                                                 */
@@ -268,14 +272,14 @@ extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode()
+const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
 {
-    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x00000000 };  
+    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x0000 };  
     return &root;
 }
 
 const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent, 
-    uint16_t index)
+    ZydisU16 index)
 {
     switch (parent->type)
     {
@@ -327,12 +331,34 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_REX_B:
         ZYDIS_ASSERT(index <   2);
         return &filtersREXB[parent->value][index];
+#ifndef ZYDIS_DISABLE_EVEX
     case ZYDIS_NODETYPE_FILTER_EVEX_B:
         ZYDIS_ASSERT(index <   2);
         return &filtersEVEXB[parent->value][index];
+#endif
+#ifndef ZYDIS_DISABLE_MVEX
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYDIS_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];
+#endif
+    case ZYDIS_NODETYPE_FILTER_MODE_AMD:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeAMD[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_KNC:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeKNC[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_MPX:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeMPX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_CET:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeCET[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeLZCNT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
+        ZYDIS_ASSERT(index <   2);
+        return &filtersModeTZCNT[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
     } 
@@ -342,7 +368,7 @@ void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    uint8_t class = (node->type) & 0x7F;
+    const ZydisU8 class = (node->type) & 0x7F;
     ZYDIS_ASSERT(class < ZYDIS_ARRAY_SIZE(instructionEncodings));
     *info = &instructionEncodings[class];
 }

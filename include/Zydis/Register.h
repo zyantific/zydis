@@ -34,7 +34,7 @@
 
 #include <Zydis/Defines.h>
 #include <Zydis/CommonTypes.h>
-#include <Zydis/Status.h>
+#include <Zydis/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,7 +51,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisRegister datatype.
  */
-typedef uint8_t ZydisRegister;
+typedef ZydisU8 ZydisRegister;
 
 /**
  * @brief   Values that represent zydis registers.
@@ -59,6 +59,7 @@ typedef uint8_t ZydisRegister;
 enum ZydisRegisters
 {
     ZYDIS_REGISTER_NONE,
+
     // General purpose registers  8-bit
     ZYDIS_REGISTER_AL,     ZYDIS_REGISTER_CL,     ZYDIS_REGISTER_DL,    ZYDIS_REGISTER_BL,
     ZYDIS_REGISTER_AH,     ZYDIS_REGISTER_CH,     ZYDIS_REGISTER_DH,    ZYDIS_REGISTER_BH,  
@@ -86,24 +87,6 @@ enum ZydisRegisters
     // Floating point multimedia registers
     ZYDIS_REGISTER_MM0,    ZYDIS_REGISTER_MM1,    ZYDIS_REGISTER_MM2,   ZYDIS_REGISTER_MM3,    
     ZYDIS_REGISTER_MM4,    ZYDIS_REGISTER_MM5,    ZYDIS_REGISTER_MM6,   ZYDIS_REGISTER_MM7,
-    // Floating point vector registers 512-bit
-    ZYDIS_REGISTER_ZMM0,   ZYDIS_REGISTER_ZMM1,   ZYDIS_REGISTER_ZMM2,  ZYDIS_REGISTER_ZMM3,   
-    ZYDIS_REGISTER_ZMM4,   ZYDIS_REGISTER_ZMM5,   ZYDIS_REGISTER_ZMM6,  ZYDIS_REGISTER_ZMM7,
-    ZYDIS_REGISTER_ZMM8,   ZYDIS_REGISTER_ZMM9,   ZYDIS_REGISTER_ZMM10, ZYDIS_REGISTER_ZMM11,  
-    ZYDIS_REGISTER_ZMM12,  ZYDIS_REGISTER_ZMM13,  ZYDIS_REGISTER_ZMM14, ZYDIS_REGISTER_ZMM15,
-    ZYDIS_REGISTER_ZMM16,  ZYDIS_REGISTER_ZMM17,  ZYDIS_REGISTER_ZMM18, ZYDIS_REGISTER_ZMM19,  
-    ZYDIS_REGISTER_ZMM20,  ZYDIS_REGISTER_ZMM21,  ZYDIS_REGISTER_ZMM22, ZYDIS_REGISTER_ZMM23,
-    ZYDIS_REGISTER_ZMM24,  ZYDIS_REGISTER_ZMM25,  ZYDIS_REGISTER_ZMM26, ZYDIS_REGISTER_ZMM27,  
-    ZYDIS_REGISTER_ZMM28,  ZYDIS_REGISTER_ZMM29,  ZYDIS_REGISTER_ZMM30, ZYDIS_REGISTER_ZMM31,
-    // Floating point vector registers 256-bit
-    ZYDIS_REGISTER_YMM0,   ZYDIS_REGISTER_YMM1,   ZYDIS_REGISTER_YMM2,  ZYDIS_REGISTER_YMM3,   
-    ZYDIS_REGISTER_YMM4,   ZYDIS_REGISTER_YMM5,   ZYDIS_REGISTER_YMM6,  ZYDIS_REGISTER_YMM7,
-    ZYDIS_REGISTER_YMM8,   ZYDIS_REGISTER_YMM9,   ZYDIS_REGISTER_YMM10, ZYDIS_REGISTER_YMM11,  
-    ZYDIS_REGISTER_YMM12,  ZYDIS_REGISTER_YMM13,  ZYDIS_REGISTER_YMM14, ZYDIS_REGISTER_YMM15,
-    ZYDIS_REGISTER_YMM16,  ZYDIS_REGISTER_YMM17,  ZYDIS_REGISTER_YMM18, ZYDIS_REGISTER_YMM19,  
-    ZYDIS_REGISTER_YMM20,  ZYDIS_REGISTER_YMM21,  ZYDIS_REGISTER_YMM22, ZYDIS_REGISTER_YMM23,
-    ZYDIS_REGISTER_YMM24,  ZYDIS_REGISTER_YMM25,  ZYDIS_REGISTER_YMM26, ZYDIS_REGISTER_YMM27,  
-    ZYDIS_REGISTER_YMM28,  ZYDIS_REGISTER_YMM29,  ZYDIS_REGISTER_YMM30, ZYDIS_REGISTER_YMM31,
     // Floating point vector registers 128-bit
     ZYDIS_REGISTER_XMM0,   ZYDIS_REGISTER_XMM1,   ZYDIS_REGISTER_XMM2,  ZYDIS_REGISTER_XMM3,   
     ZYDIS_REGISTER_XMM4,   ZYDIS_REGISTER_XMM5,   ZYDIS_REGISTER_XMM6,  ZYDIS_REGISTER_XMM7,
@@ -113,12 +96,28 @@ enum ZydisRegisters
     ZYDIS_REGISTER_XMM20,  ZYDIS_REGISTER_XMM21,  ZYDIS_REGISTER_XMM22, ZYDIS_REGISTER_XMM23,
     ZYDIS_REGISTER_XMM24,  ZYDIS_REGISTER_XMM25,  ZYDIS_REGISTER_XMM26, ZYDIS_REGISTER_XMM27,  
     ZYDIS_REGISTER_XMM28,  ZYDIS_REGISTER_XMM29,  ZYDIS_REGISTER_XMM30, ZYDIS_REGISTER_XMM31,
+    // Floating point vector registers 256-bit
+    ZYDIS_REGISTER_YMM0,   ZYDIS_REGISTER_YMM1,   ZYDIS_REGISTER_YMM2,  ZYDIS_REGISTER_YMM3,   
+    ZYDIS_REGISTER_YMM4,   ZYDIS_REGISTER_YMM5,   ZYDIS_REGISTER_YMM6,  ZYDIS_REGISTER_YMM7,
+    ZYDIS_REGISTER_YMM8,   ZYDIS_REGISTER_YMM9,   ZYDIS_REGISTER_YMM10, ZYDIS_REGISTER_YMM11,  
+    ZYDIS_REGISTER_YMM12,  ZYDIS_REGISTER_YMM13,  ZYDIS_REGISTER_YMM14, ZYDIS_REGISTER_YMM15,
+    ZYDIS_REGISTER_YMM16,  ZYDIS_REGISTER_YMM17,  ZYDIS_REGISTER_YMM18, ZYDIS_REGISTER_YMM19,  
+    ZYDIS_REGISTER_YMM20,  ZYDIS_REGISTER_YMM21,  ZYDIS_REGISTER_YMM22, ZYDIS_REGISTER_YMM23,
+    ZYDIS_REGISTER_YMM24,  ZYDIS_REGISTER_YMM25,  ZYDIS_REGISTER_YMM26, ZYDIS_REGISTER_YMM27,  
+    ZYDIS_REGISTER_YMM28,  ZYDIS_REGISTER_YMM29,  ZYDIS_REGISTER_YMM30, ZYDIS_REGISTER_YMM31,
+    // Floating point vector registers 512-bit
+    ZYDIS_REGISTER_ZMM0,   ZYDIS_REGISTER_ZMM1,   ZYDIS_REGISTER_ZMM2,  ZYDIS_REGISTER_ZMM3,   
+    ZYDIS_REGISTER_ZMM4,   ZYDIS_REGISTER_ZMM5,   ZYDIS_REGISTER_ZMM6,  ZYDIS_REGISTER_ZMM7,
+    ZYDIS_REGISTER_ZMM8,   ZYDIS_REGISTER_ZMM9,   ZYDIS_REGISTER_ZMM10, ZYDIS_REGISTER_ZMM11,  
+    ZYDIS_REGISTER_ZMM12,  ZYDIS_REGISTER_ZMM13,  ZYDIS_REGISTER_ZMM14, ZYDIS_REGISTER_ZMM15,
+    ZYDIS_REGISTER_ZMM16,  ZYDIS_REGISTER_ZMM17,  ZYDIS_REGISTER_ZMM18, ZYDIS_REGISTER_ZMM19,  
+    ZYDIS_REGISTER_ZMM20,  ZYDIS_REGISTER_ZMM21,  ZYDIS_REGISTER_ZMM22, ZYDIS_REGISTER_ZMM23,
+    ZYDIS_REGISTER_ZMM24,  ZYDIS_REGISTER_ZMM25,  ZYDIS_REGISTER_ZMM26, ZYDIS_REGISTER_ZMM27,  
+    ZYDIS_REGISTER_ZMM28,  ZYDIS_REGISTER_ZMM29,  ZYDIS_REGISTER_ZMM30, ZYDIS_REGISTER_ZMM31,
     // Flags registers
-    ZYDIS_REGISTER_RFLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_FLAGS,
-    // Instruction-pointer registers
-    ZYDIS_REGISTER_RIP,    ZYDIS_REGISTER_EIP,    ZYDIS_REGISTER_IP,     
-    // Special registers
-    ZYDIS_REGISTER_MXCSR,  ZYDIS_REGISTER_PKRU,   ZYDIS_REGISTER_XCR0,
+    ZYDIS_REGISTER_FLAGS,  ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_RFLAGS,
+    // IP registers
+    ZYDIS_REGISTER_IP,     ZYDIS_REGISTER_EIP,    ZYDIS_REGISTER_RIP,     
     // Segment registers
     ZYDIS_REGISTER_ES,     ZYDIS_REGISTER_CS,     ZYDIS_REGISTER_SS,    ZYDIS_REGISTER_DS,     
     ZYDIS_REGISTER_FS,     ZYDIS_REGISTER_GS,
@@ -143,15 +142,17 @@ enum ZydisRegisters
     // Bound registers
     ZYDIS_REGISTER_BND0,   ZYDIS_REGISTER_BND1,   ZYDIS_REGISTER_BND2,  ZYDIS_REGISTER_BND3,
     ZYDIS_REGISTER_BNDCFG, ZYDIS_REGISTER_BNDSTATUS,
+    // Misc registers
+    ZYDIS_REGISTER_MXCSR,  ZYDIS_REGISTER_PKRU,   ZYDIS_REGISTER_XCR0,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_BNDSTATUS,
+    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_XCR0,
     /**
-     * @brief   Maximum amount of bits occupied by an integer from this enum.
+     * @brief   Minimum amount of bits required to store a value of this enum.
      */
-    ZYDIS_REGISTER_MAX_BITS = 8
+    ZYDIS_REGISTER_MIN_BITS  = 0x0008
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -161,7 +162,7 @@ enum ZydisRegisters
 /**
  * @brief   Defines the @c ZydisRegisterClass datatype.
  */
-typedef uint8_t ZydisRegisterClass;
+typedef ZydisU8 ZydisRegisterClass;
 
 /**
  * @brief   Values that represent zydis register-classes.
@@ -250,7 +251,7 @@ enum ZydisRegisterClasses
 /**
  * @brief   Defines the @c ZydisRegisterWidth datatype. 
  */
-typedef uint16_t ZydisRegisterWidth;
+typedef ZydisU16 ZydisRegisterWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -267,7 +268,7 @@ typedef uint16_t ZydisRegisterWidth;
  * @return  The register specified by the @c registerClass and the @c id or @c ZYDIS_REGISTER_NONE,
  *          if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, uint8_t id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id);
 
 /**
  * @brief   Returns the id of the specified register.
@@ -276,7 +277,7 @@ ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass,
  *
  * @return  The id of the specified register, or -1 if an invalid parameter was passed.
  */
-ZYDIS_EXPORT int16_t ZydisRegisterGetId(ZydisRegister reg);
+ZYDIS_EXPORT ZydisI16 ZydisRegisterGetId(ZydisRegister reg);
 
 /**
  * @brief   Returns the register-class of the specified register.
@@ -313,6 +314,17 @@ ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg);
  * @return  The register string or @c NULL, if an invalid register was passed.
  */
 ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
+
+/**
+ * @brief   Returns the specified register string as `ZydisStaticString`.
+ *
+ * @param   reg The register.
+ *
+ * @return  The register string or @c NULL, if an invalid register was passed.
+ * 
+ * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
+ */
+ZYDIS_EXPORT const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg);
 
 /* ============================================================================================== */
 

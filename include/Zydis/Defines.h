@@ -72,17 +72,21 @@
 #elif defined(__posix)
 #   define ZYDIS_POSIX
 #else
-#   error "Unsupported platform detected"
+#   define ZYDIS_UNKNOWN_PLATFORM
 #endif
 
 /* ============================================================================================== */
 /* Architecture detection                                                                         */
 /* ============================================================================================== */
 
-#if defined (_M_AMD64) || defined (__x86_64__)
+#if defined(_M_AMD64) || defined(__x86_64__)
 #   define ZYDIS_X64
-#elif defined (_M_IX86) || defined (__i386__)
+#elif defined(_M_IX86) || defined(__i386__)
 #   define ZYDIS_X86
+#elif defined(_M_ARM64) || defined(__aarch64__)
+#   define ZYDIS_AARCH64
+#elif defined(_M_ARM) || defined(_M_ARMT) || defined(__arm__) || defined(__thumb__)
+#   define ZYDIS_ARM
 #else
 #   error "Unsupported architecture detected"
 #endif
@@ -104,7 +108,7 @@
 #       define ZYDIS_DEBUG
 #   endif
 #else
-#   error "Unsupported compiler detected"
+#   define ZYDIS_RELEASE
 #endif
 
 /* ============================================================================================== */
@@ -121,7 +125,7 @@
 /* Debugging and optimization macros                                                              */
 /* ============================================================================================== */
 
-#if defined(ZYDIS_WINKERNEL)
+#if defined(ZYDIS_NO_LIBC)
 #   define ZYDIS_ASSERT(condition)
 #else
 #   include <assert.h>
@@ -133,7 +137,7 @@
 #       if __has_builtin(__builtin_unreachable)
 #           define ZYDIS_UNREACHABLE __builtin_unreachable()
 #       else
-#           define ZYDIS_UNREACHABLE
+#           define ZYDIS_UNREACHABLE for(;;)
 #       endif
 #   elif defined(ZYDIS_GCC) && ((__GNUC__ == 4 && __GNUC_MINOR__ > 4) || __GNUC__ > 4)
 #       define ZYDIS_UNREACHABLE __builtin_unreachable()
@@ -147,10 +151,10 @@
 #   elif defined(ZYDIS_MSVC)
 #       define ZYDIS_UNREACHABLE __assume(0)
 #   else
-#       define ZYDIS_UNREACHABLE
+#       define ZYDIS_UNREACHABLE for(;;)
 #   endif
-#elif defined(ZYDIS_WINKERNEL)
-#   define ZYDIS_UNREACHABLE
+#elif defined(ZYDIS_NO_LIBC)
+#   define ZYDIS_UNREACHABLE for(;;)
 #else
 #   include <stdlib.h>
 #   define ZYDIS_UNREACHABLE { assert(0); abort(); }
@@ -161,9 +165,23 @@
 /* ============================================================================================== */
 
 /**
+ * @brief   Compiler-time assertion.
+ */
+#if __STDC_VERSION__ >= 201112L
+#   define ZYDIS_STATIC_ASSERT(x) _Static_assert(x, #x)
+#else
+#   define ZYDIS_STATIC_ASSERT(x) typedef int ZYDIS_SASSERT_IMPL[(x) ? 1 : -1]
+#endif
+
+/**
  * @brief   Declares a bitfield.
  */
 #define ZYDIS_BITFIELD(x) : x
+
+/**
+ * @brief   Marks the specified parameter as unused.
+ */
+#define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
 
 /**
  * @brief   Calculates the size of an array.

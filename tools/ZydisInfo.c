@@ -26,9 +26,11 @@
 
 /**
  * @file
- * @brief   TODO
+ * @brief   Disassembles a given hex-buffer and prints detailed information about the decoded
+ *          instruction, the operands and additional attributes.
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
@@ -155,6 +157,13 @@ void printOperands(ZydisDecodedInstruction* instruction)
             "JIMM32_32_64",
             "JIMM16_32_32"
         };
+        static const char* memopTypes[] =
+        {
+            "INVALID",
+            "MEM",
+            "AGEN",
+            "MIB"
+        };
         printf("%2d  %9s  %10s  %6s  %12s  %5d   %4d  %6d  %8s", 
             i,
             operandTypes[instruction->operands[i].type],
@@ -171,7 +180,9 @@ void printOperands(ZydisDecodedInstruction* instruction)
             printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg.value));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
-            printf("  SEG   =%20s\n", ZydisRegisterGetString(instruction->operands[i].mem.segment));
+            printf("  TYPE  =%20s\n", memopTypes[instruction->operands[i].mem.type]);
+            printf("  %84s =%20s\n", 
+                "SEG  ", ZydisRegisterGetString(instruction->operands[i].mem.segment));
             printf("  %84s =%20s\n", 
                 "BASE ", ZydisRegisterGetString(instruction->operands[i].mem.base));
             printf("  %84s =%20s\n", 
@@ -536,10 +547,17 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         printAVXInfo(instruction);
     }
 
+    ZydisStatus status;
     ZydisFormatter formatter;
-    ZydisFormatterInitEx(&formatter, ZYDIS_FORMATTER_STYLE_INTEL,
-        ZYDIS_FMTFLAG_FORCE_SEGMENTS | ZYDIS_FMTFLAG_FORCE_OPERANDSIZE,
-        ZYDIS_FORMATTER_ADDR_ABSOLUTE, ZYDIS_FORMATTER_DISP_DEFAULT, ZYDIS_FORMATTER_IMM_DEFAULT);
+    if (!ZYDIS_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter, 
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE))) ||
+        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter, 
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE))))
+    {
+        fputs("Failed to initialize instruction-formatter\n", stderr);
+        exit(status);
+    }
     char buffer[256];
     ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer));
     fputs("\n== [   DISASM ] =====================================================", stdout);
@@ -561,11 +579,15 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
+        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
     ZydisDecoder decoder;
+    if (!strcmp(argv[1], "-real"))
+    {
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);   
+    } else
     if (!strcmp(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);   
@@ -579,7 +601,7 @@ int main(int argc, char** argv)
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);   
     } else
     {
-        fputs("Usage: ZydisInfo -[16|32|64] [hexbytes]\n", stderr);
+        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 

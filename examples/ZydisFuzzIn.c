@@ -39,20 +39,21 @@
 #include <stdlib.h>
 #include <Zydis/Zydis.h>
 
-typedef struct ZydisFuzzControlBlock_ {
+typedef struct ZydisFuzzControlBlock_ 
+{
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisDecodeGranularity granularity;
+    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
-    ZydisFormatterFlags formatterFlags;
-    ZydisFormatterAddressFormat formatterAddrFormat;
-    ZydisFormatterDisplacementFormat formatterDispFormat;
-    ZydisFormatterImmediateFormat formatterImmFormat;
+    uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
+    char* string[16];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
+
+int doIteration();
 
 int main()
 {
@@ -62,28 +63,75 @@ int main()
         return EXIT_FAILURE;
     }
 
+#ifdef ZYDIS_FUZZ_AFL_FAST
+    int finalRet;
+    while (__AFL_LOOP(1000))
+    {
+        finalRet = doIteration();
+    }
+    return finalRet;
+#else
+    return doIteration();
+#endif
+}
+
+#ifdef ZYDIS_FUZZ_AFL_FAST
+#   define ZYDIS_MAYBE_FPUTS(x, y)
+#else
+#   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
+#endif
+
+int doIteration()
+{
     ZydisFuzzControlBlock controlBlock;
     if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
     {
-        fputs("not enough bytes to fuzz\n", stderr);
+        ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
+    controlBlock.string[ZYDIS_ARRAY_SIZE(controlBlock.string) - 1] = 0;
 
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitEx(&decoder, controlBlock.machineMode, 
-        controlBlock.addressWidth, controlBlock.granularity)))
+    if (!ZYDIS_SUCCESS(
+        ZydisDecoderInit(&decoder, controlBlock.machineMode, controlBlock.addressWidth)))
     {
-        fputs("Failed to initialize decoder\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
+    }
+    for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
+    {
+        if (!ZYDIS_SUCCESS(
+            ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
+        {
+            ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", stderr);
+            return EXIT_FAILURE;
+        }
     }
 
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitEx(&formatter, controlBlock.formatterStyle, 
-        controlBlock.formatterFlags, controlBlock.formatterAddrFormat,
-        controlBlock.formatterDispFormat, controlBlock.formatterImmFormat)))
+    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
     {
-        fputs("failed to initialize instruction-formatter\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
+    }
+    for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
+    {
+        switch (prop)
+        {
+        case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
+        case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
+            controlBlock.formatterProperties[prop] = 
+                controlBlock.formatterProperties[prop] ? (uintptr_t)&controlBlock.string : 0;
+            break;
+        default:
+            break;
+        }
+        if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop, 
+            controlBlock.formatterProperties[prop])))
+        {
+            ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
+            return EXIT_FAILURE;
+        }
     }
 
     uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
@@ -116,7 +164,7 @@ int main()
         }
     } while (numBytesRead == sizeof(readBuf));
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 /* ============================================================================================== */
