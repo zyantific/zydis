@@ -13,6 +13,7 @@ Fast and lightweight x86/x86-64 disassembler library.
   - ADX, BMI1, BMI2, FMA, FMA4
 - Optimized for high performance
 - No dynamic memory allocation ("malloc")
+- Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
 - [Complete doxygen documentation](https://www.zyantific.com/doc/zydis/index.html)
 - No dependencies on platform specific APIs
