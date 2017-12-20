@@ -52,6 +52,7 @@ static const char* zydisInstructionCategoryStrings[] =
     "MPX",
     "NOP",
     "PCLMULQDQ",
+    "PCONFIG",
     "PKU",
     "POP",
     "PREFETCH",

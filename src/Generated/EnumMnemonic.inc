@@ -500,6 +500,7 @@ static const ZydisStaticString zydisMnemonicStrings[] =
     ZYDIS_MAKE_STATIC_STRING("pcmpgtw"),
     ZYDIS_MAKE_STATIC_STRING("pcmpistri"),
     ZYDIS_MAKE_STATIC_STRING("pcmpistrm"),
+    ZYDIS_MAKE_STATIC_STRING("pconfig"),
     ZYDIS_MAKE_STATIC_STRING("pdep"),
     ZYDIS_MAKE_STATIC_STRING("pext"),
     ZYDIS_MAKE_STATIC_STRING("pextrb"),

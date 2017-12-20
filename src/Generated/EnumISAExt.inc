@@ -99,6 +99,7 @@ static const char* zydisISAExtStrings[] =
     "MPX",
     "PAUSE",
     "PCLMULQDQ",
+    "PCONFIG",
     "PENTIUMMMX",
     "PENTIUMREAL",
     "PKU",

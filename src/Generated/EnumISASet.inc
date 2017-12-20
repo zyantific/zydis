@@ -34,6 +34,7 @@ static const char* zydisISASetStrings[] =
     "MPX",
     "PAUSE",
     "PCLMULQDQ",
+    "PCONFIG",
     "PKU",
     "PREFETCHWT1",
     "PT",
