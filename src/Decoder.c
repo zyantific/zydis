@@ -3494,7 +3494,7 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
     ZYDIS_ASSERT(context);
     ZYDIS_ASSERT(instruction);
 
-    ZydisBool hasOverride = definition->acceptsAddressSizeOverride && 
+    const ZydisBool hasOverride = definition->acceptsAddressSizeOverride && 
         (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE); 
 
     switch (context->decoder->addressWidth)

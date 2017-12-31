@@ -50,7 +50,7 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
         }
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            *address = (ZydisU64)((ZydisU32)instruction->instrAddress + instruction->length + 
+            *address = ((ZydisU32)instruction->instrAddress + instruction->length + 
                 (ZydisU32)operand->mem.disp.value);
             return ZYDIS_STATUS_SUCCESS;   
         }
