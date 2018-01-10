@@ -412,11 +412,12 @@ int main(int argc, char** argv)
             testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_TRUE );
             puts("");
 
-NextFile1:            
+        NextFile1:            
             free(buffer);
-NextFile2:
-            fclose(file);
         }
+
+    NextFile2:
+        fclose(file);
     }
 
     return 0;
