@@ -114,7 +114,7 @@ typedef ZydisU8 ZydisAddressWidth;
  */
 enum ZydisAddressWidths
 {
-    ZYDIS_ADDRESS_WIDTH_INVALID         =  0,
+    ZYDIS_ADDRESS_WIDTH_INVALID         =  0, // TODO: Don't manually initialize values
     ZYDIS_ADDRESS_WIDTH_16              = 16,
     ZYDIS_ADDRESS_WIDTH_32              = 32,
     ZYDIS_ADDRESS_WIDTH_64              = 64,

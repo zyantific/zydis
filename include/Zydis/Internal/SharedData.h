@@ -222,7 +222,9 @@ enum ZydisInternalElementSizes
     ZYDIS_IELEMENT_SIZE_16,
     ZYDIS_IELEMENT_SIZE_32,
     ZYDIS_IELEMENT_SIZE_64,
-    ZYDIS_IELEMENT_SIZE_128
+    ZYDIS_IELEMENT_SIZE_128,
+
+    ZYDIS_IELEMENT_SIZE_MAX_VALUE = ZYDIS_IELEMENT_SIZE_128
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -463,7 +465,9 @@ enum ZydisVEXStaticBroadcasts
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_8,  
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_16,
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_32,
-    ZYDIS_VEX_STATIC_BROADCAST_2_TO_4   
+    ZYDIS_VEX_STATIC_BROADCAST_2_TO_4,
+    
+    ZYDIS_VEX_STATIC_BROADCAST_MAX_VALUE = ZYDIS_VEX_STATIC_BROADCAST_2_TO_4
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -490,7 +494,9 @@ enum ZydisEVEXStaticBroadcasts
     ZYDIS_EVEX_STATIC_BROADCAST_2_TO_16,
     ZYDIS_EVEX_STATIC_BROADCAST_4_TO_8,
     ZYDIS_EVEX_STATIC_BROADCAST_4_TO_16,
-    ZYDIS_EVEX_STATIC_BROADCAST_8_TO_16   
+    ZYDIS_EVEX_STATIC_BROADCAST_8_TO_16,
+
+    ZYDIS_EVEX_STATIC_BROADCAST_MAX_VALUE = ZYDIS_EVEX_STATIC_BROADCAST_8_TO_16
 };
 
 /* ---------------------------------------------------------------------------------------------- */

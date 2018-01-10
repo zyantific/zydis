@@ -856,7 +856,7 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisVectorLength vectorLength;
         /**
-         * @brief   Info about the embedded writemask-register.
+         * @brief   Info about the embedded writemask-register (`EVEX` and `MVEX` only).
          */
         struct
         {
@@ -901,22 +901,22 @@ typedef struct ZydisDecodedInstruction_
             ZydisRoundingMode mode;    
         } rounding;
         /**
-         * @brief   Contains info about the AVX register-swizzle (MVEX only).
+         * @brief   Contains info about the AVX register-swizzle (`MVEX` only).
          */
         struct
         {
             /**
-             * @brief   The AVX register-swizzle mode (MVEX only).
+             * @brief   The AVX register-swizzle mode (`MVEX` only).
              */
             ZydisSwizzleMode mode;   
         } swizzle;
         /**
-         * @brief   Contains info about the AVX data-conversion (MVEX only).
+         * @brief   Contains info about the AVX data-conversion (`MVEX` only).
          */
         struct
         {
             /**
-             * @brief   The AVX data-conversion mode (MVEX only).
+             * @brief   The AVX data-conversion mode (`MVEX` only).
              */
             ZydisConversionMode mode;  
         } conversion;
@@ -925,9 +925,10 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisBool hasSAE;
         /**
-         * @brief   Signals, if the instruction has a memory eviction-hint (MVEX only).
+         * @brief   Signals, if the instruction has a memory eviction-hint (`MVEX` only).
          */
         ZydisBool hasEvictionHint;
+        // TODO: publish EVEX tuple-type and MVEX functionality
     } avx;
     /**
      * @brief   Meta info.
@@ -1265,6 +1266,7 @@ typedef struct ZydisDecodedInstruction_
              * @brief   The physical displacement size, in bits.
              */
             ZydisU8 size;
+            // TODO: publish cd8 scale
             /**
              * @brief   The offset of the displacement data, relative to the beginning of the
              *          instruction, in bytes.
