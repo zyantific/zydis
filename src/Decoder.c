@@ -2083,7 +2083,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
                          (instruction->meta.category == ZYDIS_CATEGORY_RET));
             instruction->attributes |= ZYDIS_ATTRIB_IS_FAR_BRANCH;
         }
-        if (def->acceptsLock)
+        if (def->acceptsLOCK)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;
             if (instruction->raw.prefixes.hasF0)
@@ -3446,7 +3446,7 @@ static ZydisStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, Zyd
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
         ZYDIS_ASSERT(instruction->raw.xop.isDecoded);
-        *index = (instruction->raw.xop.m_mmmm - 0x08) + 1;
+        *index = (instruction->raw.xop.m_mmmm - 0x08) + (instruction->raw.xop.pp * 3) + 1;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -3530,6 +3530,10 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
+                    }
+                    if (instruction->raw.prefixes.hasF0)
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_LOCK;
                     }
                     if (context->mandatoryCandidate)
                     {
@@ -3628,6 +3632,10 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
+                    }
+                    if (instruction->raw.prefixes.hasF0)
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_LOCK;
                     }
                     if (context->mandatoryCandidate)
                     {
@@ -4003,8 +4011,9 @@ static ZydisStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Z
 static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context, 
     ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
-    ZydisBool acceptsLock = ZYDIS_FALSE;
-    ZydisBool hasNDSNDDOperand = ZYDIS_FALSE;
+    const ZydisRegisterConstraint constrREG = definition->constrREG;
+    const ZydisRegisterConstraint constrRM  = definition->constrRM;
+    ZydisRegisterConstraint constrNDSNDD = ZYDIS_REG_CONSTRAINTS_NONE;
     ZydisBool hasVSIB = ZYDIS_FALSE;
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
@@ -4015,12 +4024,17 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     {
         const ZydisInstructionDefinitionDEFAULT* def = 
             (const ZydisInstructionDefinitionDEFAULT*)definition;
+
         if (def->requiresProtectedMode && 
             (context->decoder->machineMode == ZYDIS_MACHINE_MODE_REAL_16))
         {
             return ZYDIS_STATUS_DECODING_ERROR;
         }
-        acceptsLock = def->acceptsLock;
+
+        if (instruction->raw.prefixes.hasF0 && !def->acceptsLOCK)
+        {
+            return ZYDIS_STATUS_ILLEGAL_LOCK;
+        }
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
@@ -4031,14 +4045,14 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     {
         const ZydisInstructionDefinitionXOP* def = 
             (const ZydisInstructionDefinitionXOP*)definition;
-        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        constrNDSNDD = def->constrNDSNDD;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     {
         const ZydisInstructionDefinitionVEX* def = 
             (const ZydisInstructionDefinitionVEX*)definition;
-        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        constrNDSNDD = def->constrNDSNDD;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
@@ -4046,7 +4060,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 #ifndef ZYDIS_DISABLE_EVEX
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
-        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        constrNDSNDD = def->constrNDSNDD;
         hasVSIB = def->hasVSIB;
         maskPolicy = def->maskPolicy;
 
@@ -4065,7 +4079,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 #ifndef ZYDIS_DISABLE_MVEX
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;
-        hasNDSNDDOperand = def->hasNDSNDDOperand;
+        constrNDSNDD = def->constrNDSNDD;
         hasVSIB = def->hasVSIB;
         maskPolicy = def->maskPolicy;
 
@@ -4140,22 +4154,139 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 
-    // Check for illegal LOCK-prefix
-    if (instruction->raw.prefixes.hasF0 && !acceptsLock)
+    // Validate register constraints
+    switch (constrREG)
     {
-        return ZYDIS_STATUS_ILLEGAL_LOCK;
+    case ZYDIS_REG_CONSTRAINTS_NONE:
+    case ZYDIS_REG_CONSTRAINTS_UNUSED:
+        break;
+    case ZYDIS_REG_CONSTRAINTS_GPR:
+        if (context->cache.R2)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    case ZYDIS_REG_CONSTRAINTS_SR_DEST:
+        // `ZYDIS_REGISTER_CR` is not allowed as `MOV` target
+        if (instruction->raw.modrm.reg == 1)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        ZYDIS_FALLTHROUGH;
+    case ZYDIS_REG_CONSTRAINTS_SR:
+    {
+        if (instruction->raw.modrm.reg > 6)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break; 
     }
-
-    // Check for invalid `XOP/VEX/EVEX/MVEX.vvvv` value
-    if (!hasNDSNDDOperand && (context->cache.v_vvvv & 0x0F))
+    case ZYDIS_REG_CONSTRAINTS_CR:
     {
-        return ZYDIS_STATUS_DECODING_ERROR;
+        // Attempts to reference CR1, CR5, CR6, CR7, and CR9–CR15 result in undefined opcode (#UD) 
+        // exceptions.
+        const ZydisU8 value = instruction->raw.modrm.reg | (context->cache.R << 3);
+        static const ZydisU8 lookup[16] =
+        {
+            1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+        };
+        ZYDIS_ASSERT(value < ZYDIS_ARRAY_SIZE(lookup));
+        if (!lookup[value])
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break; 
     }
-
-    // Check for invalid `EVEX/MVEX.v'` value
-    if (!hasNDSNDDOperand && !hasVSIB && context->cache.V2)
+    case ZYDIS_REG_CONSTRAINTS_DR:
+        // Attempts to reference DR8–DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
+        // are only valid, if the debug extension (DE) flag in CR4 is set. As we can't check this,
+        // we just allow them.
+        if (context->cache.R)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break; 
+    case ZYDIS_REG_CONSTRAINTS_MASK:
+        // TODO: ZYDIS_ASSERT(!context->cache.R2) ?
+        if (context->cache.R || context->cache.R2)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    case ZYDIS_REG_CONSTRAINTS_BND:
+        ZYDIS_ASSERT(!context->cache.R2);
+        if (context->cache.R || instruction->raw.modrm.reg > 3)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+    switch (constrRM)
     {
-        return ZYDIS_STATUS_DECODING_ERROR;
+    case ZYDIS_REG_CONSTRAINTS_NONE:
+    case ZYDIS_REG_CONSTRAINTS_UNUSED:
+        break;
+    case ZYDIS_REG_CONSTRAINTS_SR_DEST:
+        // `ZYDIS_REGISTER_CR` is not allowed as `MOV` target
+        if (instruction->raw.modrm.rm == 1)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        ZYDIS_FALLTHROUGH;
+    case ZYDIS_REG_CONSTRAINTS_SR:
+    {
+        if (instruction->raw.modrm.rm > 6)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break; 
+    }
+    case ZYDIS_REG_CONSTRAINTS_MASK:
+        // TODO: `.X`?
+        break;
+    case ZYDIS_REG_CONSTRAINTS_BND:
+        ZYDIS_ASSERT(!context->cache.X);
+        if (context->cache.B || instruction->raw.modrm.rm > 3)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
+    }
+    switch (constrNDSNDD)
+    {
+    case ZYDIS_REG_CONSTRAINTS_NONE:
+        break;
+    case ZYDIS_REG_CONSTRAINTS_UNUSED:
+        // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
+        if (context->cache.v_vvvv & 0x0F)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        // `.v'` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
+        if (!hasVSIB && context->cache.V2)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    case ZYDIS_REG_CONSTRAINTS_GPR:
+        // `.v'` is invalid for GPR-registers
+        if (context->cache.V2)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    case ZYDIS_REG_CONSTRAINTS_MASK:
+        if (context->cache.v_vvvv > 7)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
+    default:
+        ZYDIS_UNREACHABLE;
     }
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)

@@ -38,12 +38,21 @@
  * @brief   Contains all XOP-map filters.
  *          
  *          Index values:
- *          0 = POP instruction (default encoding)
- *          1 = xop8
- *          2 = xop9
- *          3 = xopA
+ *          00 = POP instruction (default encoding)
+ *          01 = XOP8
+ *          02 = XOP9
+ *          03 = XOPA
+ *          04 = 66_XOP8
+ *          05 = 66_XOP9
+ *          06 = 66_XOPA
+ *          07 = F3_XOP8
+ *          08 = F3_XOP9
+ *          09 = F3_XOPA
+ *          0A = F2_XOP8
+ *          0B = F2_XOP9
+ *          0C = F2_XOPA
  */
-extern const ZydisDecoderTreeNode filtersXOP[][4];
+extern const ZydisDecoderTreeNode filtersXOP[][13];
 
 /**
  * @brief   Contains all VEX-map filters.
@@ -284,7 +293,7 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     switch (parent->type)
     {
     case ZYDIS_NODETYPE_FILTER_XOP:
-        ZYDIS_ASSERT(index <   4);
+        ZYDIS_ASSERT(index <  13);
         return &filtersXOP[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_VEX:
         ZYDIS_ASSERT(index <  17);

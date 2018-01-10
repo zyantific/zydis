@@ -58,6 +58,8 @@ static const char* zydisISAExtStrings[] =
     "AVX512_VPCLMULQDQ_128",
     "AVX512_VPCLMULQDQ_256",
     "AVX512_VPCLMULQDQ_512",
+    "AVX512_VPOPCNTDQ_128",
+    "AVX512_VPOPCNTDQ_256",
     "AVX512_VPOPCNTDQ_512",
     "AVXAES",
     "BMI1",

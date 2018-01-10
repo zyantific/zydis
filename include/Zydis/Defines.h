@@ -184,6 +184,11 @@
 #define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
 
 /**
+ * @brief   Intentional fallthrough.
+ */
+#define ZYDIS_FALLTHROUGH
+
+/**
  * @brief   Calculates the size of an array.
  */
 #define ZYDIS_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))

@@ -190,6 +190,32 @@ enum ZydisImplicitMemBase
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Defines the `ZydisRegisterConstraint` datatype.
+ */
+typedef ZydisU8 ZydisRegisterConstraint;
+
+/**
+ * @brief   Values that represent register-constraints.
+ */
+enum ZydisRegisterConstraints
+{
+    ZYDIS_REG_CONSTRAINTS_NONE,
+    ZYDIS_REG_CONSTRAINTS_UNUSED,
+    ZYDIS_REG_CONSTRAINTS_GPR,
+    ZYDIS_REG_CONSTRAINTS_SR_DEST,
+    ZYDIS_REG_CONSTRAINTS_SR,
+    ZYDIS_REG_CONSTRAINTS_CR,
+    ZYDIS_REG_CONSTRAINTS_DR,
+    ZYDIS_REG_CONSTRAINTS_MASK,
+    ZYDIS_REG_CONSTRAINTS_BND,
+
+    ZYDIS_REG_CONSTRAINTS_MAX_VALUE = ZYDIS_REG_CONSTRAINTS_BND,
+    ZYDIS_REG_CONSTRAINTS_MIN_BITS  = 4
+};
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
  * @brief   Defines the @c ZydisInternalVectorLength datatype.
  */
 typedef ZydisU8 ZydisInternalVectorLength;
@@ -559,30 +585,35 @@ enum ZydisMaskPolicies
     ZydisInstructionCategory category       ZYDIS_BITFIELD(ZYDIS_CATEGORY_MIN_BITS); \
     ZydisISASet isaSet                      ZYDIS_BITFIELD(ZYDIS_ISA_SET_MIN_BITS); \
     ZydisISAExt isaExt                      ZYDIS_BITFIELD(ZYDIS_ISA_EXT_MIN_BITS); \
-    ZydisExceptionClass exceptionClass      ZYDIS_BITFIELD( 6)
+    ZydisExceptionClass exceptionClass      ZYDIS_BITFIELD( 6); \
+    ZydisRegisterConstraint constrREG       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_MIN_BITS); \
+    ZydisRegisterConstraint constrRM        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_MIN_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
-    ZydisBool hasNDSNDDOperand              ZYDIS_BITFIELD( 1)
+    ZydisRegisterConstraint constrNDSNDD    ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_MIN_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
     ZydisBool hasVSIB                       ZYDIS_BITFIELD( 1)
 
 /**
- * @brief   Defines the @c ZydisInstructionDefinition struct.
+ * @brief   Defines the `ZydisInstructionDefinition` struct.
  */
 typedef struct ZydisInstructionDefinition_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
 } ZydisInstructionDefinition;
 
+/**
+ * @brief   Defines the `ZydisInstructionDefinitionDEFAULT` struct.
+ */
 typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
     ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
     ZydisBool isFarBranch                   ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsLock                   ZYDIS_BITFIELD( 1);
+    ZydisBool acceptsLOCK                   ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD( 1);
@@ -594,16 +625,25 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
     ZydisBool acceptsSegment                ZYDIS_BITFIELD( 1);
 } ZydisInstructionDefinitionDEFAULT;
 
+/**
+ * @brief   Defines the `ZydisInstructionDefinition3DNOW` struct.
+ */
 typedef struct ZydisInstructionDefinition3DNOW_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
 } ZydisInstructionDefinition3DNOW;
 
+/**
+ * @brief   Defines the `ZydisInstructionDefinitionXOP` struct.
+ */
 typedef struct ZydisInstructionDefinitionXOP_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
 } ZydisInstructionDefinitionXOP;
 
+/**
+ * @brief   Defines the `ZydisInstructionDefinitionVEX` struct.
+ */
 typedef struct ZydisInstructionDefinitionVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
@@ -611,6 +651,9 @@ typedef struct ZydisInstructionDefinitionVEX_
 } ZydisInstructionDefinitionVEX;
 
 #ifndef ZYDIS_DISABLE_EVEX
+/**
+ * @brief   Defines the `ZydisInstructionDefinitionEVEX` struct.
+ */
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
@@ -626,6 +669,9 @@ typedef struct ZydisInstructionDefinitionEVEX_
 #endif
 
 #ifndef ZYDIS_DISABLE_MVEX
+/**
+ * @brief   Defines the `ZydisInstructionDefinitionMVEX` struct.
+ */
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
