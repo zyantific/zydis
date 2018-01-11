@@ -1337,31 +1337,14 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instructi
         {
             operand->reg.value = ZYDIS_REGISTER_AL + registerId;
         }
-        if (operand->reg.value > ZYDIS_REGISTER_R15B)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
     } else
     {
         operand->reg.value = ZydisRegisterEncode(registerClass, registerId);
-        if (!operand->reg.value)
+        ZYDIS_ASSERT(operand->reg.value);
+        /*if (!operand->reg.value)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        if ((operand->reg.value == ZYDIS_REGISTER_CR1) ||
-           ((operand->reg.value >= ZYDIS_REGISTER_CR5) && 
-            (operand->reg.value <= ZYDIS_REGISTER_CR15) &&
-            (operand->reg.value != ZYDIS_REGISTER_CR8)))
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        if ((operand->reg.value == ZYDIS_REGISTER_DR4) || 
-            (operand->reg.value == ZYDIS_REGISTER_DR5) ||
-           ((operand->reg.value >= ZYDIS_REGISTER_DR8) && 
-            (operand->reg.value <= ZYDIS_REGISTER_DR15)))
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;    
-        }
+        }*/
     }
 
     return ZYDIS_STATUS_SUCCESS;
@@ -4017,11 +4000,14 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 {
     const ZydisRegisterConstraint constrREG = definition->constrREG;
     const ZydisRegisterConstraint constrRM  = definition->constrRM;
+    // We set this to `NONE` instead of `UNUSED` to save up some unnecessary runtime checks
     ZydisRegisterConstraint constrNDSNDD = ZYDIS_REG_CONSTRAINTS_NONE;
     ZydisBool hasVSIB = ZYDIS_FALSE;
+    ZydisBool isGather = ZYDIS_FALSE;
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     ZydisMaskPolicy maskPolicy = ZYDIS_MASK_POLICY_INVALID;
 #endif
+
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
@@ -4057,7 +4043,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionVEX* def = 
             (const ZydisInstructionDefinitionVEX*)definition;
         constrNDSNDD = def->constrNDSNDD;
-        hasVSIB = def->hasVSIB;
+        isGather = def->isGather;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
@@ -4066,7 +4052,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionEVEX* def = 
             (const ZydisInstructionDefinitionEVEX*)definition;
         constrNDSNDD = def->constrNDSNDD;
-        hasVSIB = def->hasVSIB;
+        isGather = def->isGather;
         maskPolicy = def->maskPolicy;
 
         // Check for invalid zero-mask
@@ -4085,7 +4071,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionMVEX* def = 
             (const ZydisInstructionDefinitionMVEX*)definition;
         constrNDSNDD = def->constrNDSNDD;
-        hasVSIB = def->hasVSIB;
+        isGather = def->isGather;
         maskPolicy = def->maskPolicy;
 
         // Check for invalid MVEX.SSS values
@@ -4162,8 +4148,8 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     // Validate register constraints
     switch (constrREG)
     {
-    case ZYDIS_REG_CONSTRAINTS_NONE:
     case ZYDIS_REG_CONSTRAINTS_UNUSED:
+    case ZYDIS_REG_CONSTRAINTS_NONE:    
         break;
     case ZYDIS_REG_CONSTRAINTS_GPR:
         if (context->cache.R2)
@@ -4180,7 +4166,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         ZYDIS_FALLTHROUGH;
     case ZYDIS_REG_CONSTRAINTS_SR:
     {
-        if (instruction->raw.modrm.reg > 6)
+        if (instruction->raw.modrm.reg > 5)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
@@ -4230,8 +4216,8 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
     switch (constrRM)
     {
-    case ZYDIS_REG_CONSTRAINTS_NONE:
     case ZYDIS_REG_CONSTRAINTS_UNUSED:
+    case ZYDIS_REG_CONSTRAINTS_NONE: 
         break;
     case ZYDIS_REG_CONSTRAINTS_SR_DEST:
         // `ZYDIS_REGISTER_CR` is not allowed as `MOV` target
@@ -4249,7 +4235,6 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         break; 
     }
     case ZYDIS_REG_CONSTRAINTS_MASK:
-        // TODO: `.X`?
         break;
     case ZYDIS_REG_CONSTRAINTS_BND:
         ZYDIS_ASSERT(!context->cache.X);
@@ -4258,13 +4243,14 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             return ZYDIS_STATUS_BAD_REGISTER;
         }
         break;
+    case ZYDIS_REG_CONSTRAINTS_VSIB:
+        hasVSIB = ZYDIS_TRUE;
+        break;
     default:
         ZYDIS_UNREACHABLE;
     }
     switch (constrNDSNDD)
     {
-    case ZYDIS_REG_CONSTRAINTS_NONE:
-        break;
     case ZYDIS_REG_CONSTRAINTS_UNUSED:
         // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
         if (context->cache.v_vvvv & 0x0F)
@@ -4276,6 +4262,10 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
+        break;
+    case ZYDIS_REG_CONSTRAINTS_NONE:
+        ZYDIS_ASSERT(!hasVSIB || ((instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_EVEX) &&
+                                  (instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_MVEX)));
         break;
     case ZYDIS_REG_CONSTRAINTS_GPR:
         // `.v'` is invalid for GPR-registers
@@ -4295,8 +4285,9 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
 
     // Check gather/scatter registers
-    if (hasVSIB)
+    if (isGather)
     {
+        ZYDIS_ASSERT(hasVSIB);
         ZYDIS_ASSERT(instruction->raw.modrm.mod != 3);
         ZYDIS_ASSERT(instruction->raw.modrm.rm  == 4);
         const ZydisU8 dest  = instruction->raw.modrm.reg | (context->cache.R  << 3) | 
@@ -4308,12 +4299,16 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         switch (instruction->encoding)
         {
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
-            ZYDIS_ASSERT(!constrREG && !constrRM && !constrNDSNDD);
+            ZYDIS_ASSERT((constrREG    == ZYDIS_REG_CONSTRAINTS_NONE) && 
+                         (constrRM     == ZYDIS_REG_CONSTRAINTS_VSIB) && 
+                         (constrNDSNDD == ZYDIS_REG_CONSTRAINTS_NONE));
             mask = context->cache.v_vvvv;
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-            ZYDIS_ASSERT(!constrREG && !constrRM && constrNDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED);
+            ZYDIS_ASSERT((constrREG    == ZYDIS_REG_CONSTRAINTS_NONE) && 
+                         (constrRM     == ZYDIS_REG_CONSTRAINTS_VSIB) && 
+                         (constrNDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
             break;
         default:
             ZYDIS_UNREACHABLE;
