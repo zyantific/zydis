@@ -593,7 +593,7 @@ enum ZydisMaskPolicies
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
     ZydisRegisterConstraint constrNDSNDD    ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_MIN_BITS)
 
-#define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX \
+#define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
     ZydisBool hasVSIB                       ZYDIS_BITFIELD( 1)
 
@@ -646,7 +646,7 @@ typedef struct ZydisInstructionDefinitionXOP_
  */
 typedef struct ZydisInstructionDefinitionVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
     ZydisVEXStaticBroadcast broadcast       ZYDIS_BITFIELD( 3);
 } ZydisInstructionDefinitionVEX;
 
@@ -656,7 +656,7 @@ typedef struct ZydisInstructionDefinitionVEX_
  */
 typedef struct ZydisInstructionDefinitionEVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
     ZydisInternalVectorLength vectorLength  ZYDIS_BITFIELD( 2);
     ZydisEVEXTupleType tupleType            ZYDIS_BITFIELD( 4);
     ZydisInternalElementSize elementSize    ZYDIS_BITFIELD( 3);
@@ -674,7 +674,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
  */
 typedef struct ZydisInstructionDefinitionMVEX_
 {
-    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_EX;
+    ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
     ZydisMVEXFunctionality functionality    ZYDIS_BITFIELD( 5);
     ZydisMaskPolicy maskPolicy              ZYDIS_BITFIELD( 2);
     ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);

@@ -52,7 +52,7 @@ static const char* zydisISASetStrings[] =
     "SSE2",
     "SSE3",
     "SSE4",
-    "SSE4a",
+    "SSE4A",
     "SSSE3",
     "SVM",
     "TBM",

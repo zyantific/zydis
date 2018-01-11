@@ -4053,6 +4053,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionVEX* def = 
             (const ZydisInstructionDefinitionVEX*)definition;
         constrNDSNDD = def->constrNDSNDD;
+        hasVSIB = def->hasVSIB;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
@@ -4289,6 +4290,38 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 
+    // Check gather/scatter registers
+    if (hasVSIB)
+    {
+        ZYDIS_ASSERT(instruction->raw.modrm.mod != 3);
+        ZYDIS_ASSERT(instruction->raw.modrm.rm  == 4);
+        const ZydisU8 dest  = instruction->raw.modrm.reg | (context->cache.R  << 3) | 
+                                                           (context->cache.R2 << 4);
+        const ZydisU8 index = instruction->raw.sib.index | (context->cache.X  << 3) |
+                                                           (context->cache.V2 << 4);
+        ZydisU8 mask  = 0xFF;
+
+        switch (instruction->encoding)
+        {
+        case ZYDIS_INSTRUCTION_ENCODING_VEX:
+            ZYDIS_ASSERT(!constrREG && !constrRM && !constrNDSNDD);
+            mask = context->cache.v_vvvv;
+            break;
+        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+        case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+            ZYDIS_ASSERT(!constrREG && !constrRM && constrNDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED);
+            break;
+        default:
+            ZYDIS_UNREACHABLE;
+        }
+        // If any pair of the index, mask, or destination registers are the same, the instruction  
+        // results a UD fault.
+        if (dest == index || dest == mask || index == mask)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+    }
+
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Check for invalid MASK registers
     switch (maskPolicy)
@@ -4442,13 +4475,13 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             { 
                 const ZydisInstructionDefinition* definition;
                 ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
-                ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
                 ZydisSetEffectiveOperandSize(context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(context, instruction, definition);
 
                 const ZydisInstructionEncodingInfo* info;
                 ZydisGetInstructionEncodingInfo(node, &info);
                 ZYDIS_CHECK(ZydisDecodeOptionalInstructionParts(context, instruction, info));
+                ZYDIS_CHECK(ZydisCheckErrorConditions(context, instruction, definition));
 
                 if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
                 {
@@ -4596,8 +4629,6 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
 
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYDIS_CHECK(ZydisDecodeInstruction(&context, instruction));
-
-    // TODO: The index, dest and mask regs for AVX2 gathers must be different.
 
     // TODO: More EVEX UD conditions (page 81)
 
