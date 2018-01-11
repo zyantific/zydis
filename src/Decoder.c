@@ -3660,6 +3660,10 @@ static ZydisStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
             switch (instruction->opcode)
             {
             case 0x0F:
+                if (instruction->raw.prefixes.hasF0)
+                {
+                    return ZYDIS_STATUS_ILLEGAL_LOCK;
+                }
                 instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_3DNOW;
                 instruction->opcodeMap = ZYDIS_OPCODE_MAP_0F0F;
                 break;
