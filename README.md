@@ -113,7 +113,7 @@ make
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
 ## Credits
-- Intel (for open-sourcing XED, allowing for automatic comparision of our tables against theirs, improving both)
+- Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
 - LLVM (for providing pretty solid instruction data as well)
 - Christian Ludloff (http://sandpile.org, insanely helpful)
 - [LekoArts](https://www.lekoarts.de/) (for creating the project logo)
