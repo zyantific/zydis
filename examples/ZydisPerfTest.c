@@ -358,9 +358,10 @@ int main(int argc, char** argv)
     {
         time_t t;
         srand((unsigned)time(&t));
+    } else
+    {
+        adjustProcessAndThreadPriority();
     }
-
-    adjustProcessAndThreadPriority();
 
     for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(tests); ++i)
     {
