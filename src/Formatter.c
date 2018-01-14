@@ -222,6 +222,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand, 
             operand->mem.segment, userData));
         ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
+        break;
     case ZYDIS_REGISTER_SS:
         if ((formatter->forceMemorySegment) || 
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
