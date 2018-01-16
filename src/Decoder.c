@@ -1994,7 +1994,7 @@ FinalizeOperand:
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Fix operand-action for EVEX instructions with merge-mask
-    if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) || 
+    /*if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) || 
          (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) && 
         (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         (instruction->operandCount >= 3) &&
@@ -2023,6 +2023,28 @@ FinalizeOperand:
             default:
                 ZYDIS_UNREACHABLE;
             }
+            break;
+        default:
+            break;
+        }
+    }*/
+    if (instruction->avx.mask.reg && (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) && 
+        !instruction->avx.mask.isControlMask)
+    {
+        ZYDIS_ASSERT(instruction->operandCount >= 2);
+        switch (instruction->operands[0].action)
+        {
+        case ZYDIS_OPERAND_ACTION_WRITE:
+            if (instruction->operands[0].type == ZYDIS_OPERAND_TYPE_MEMORY)
+            {
+                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
+            } else
+            {
+                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+            }
+            break;
+        case ZYDIS_OPERAND_ACTION_READWRITE:
+            instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
             break;
         default:
             break;
@@ -4152,7 +4174,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     case ZYDIS_REG_CONSTRAINTS_NONE:    
         break;
     case ZYDIS_REG_CONSTRAINTS_GPR:
-        if (context->cache.R2)
+        if ((context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) && context->cache.R2)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
@@ -4198,8 +4220,8 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
         break; 
     case ZYDIS_REG_CONSTRAINTS_MASK:
-        // TODO: ZYDIS_ASSERT(!context->cache.R2) ?
-        if (context->cache.R || context->cache.R2)
+        if ((context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) && 
+            (context->cache.R || context->cache.R2))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
