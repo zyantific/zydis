@@ -4297,7 +4297,8 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_REG_CONSTRAINTS_MASK:
-        if (context->cache.v_vvvv > 7)
+        if ((context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) && 
+            (context->cache.v_vvvv > 7))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
