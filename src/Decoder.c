@@ -4325,7 +4325,14 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             ZYDIS_ASSERT((constrREG    == ZYDIS_REG_CONSTRAINTS_NONE) && 
                          (constrRM     == ZYDIS_REG_CONSTRAINTS_VSIB) && 
                          (constrNDSNDD == ZYDIS_REG_CONSTRAINTS_NONE));
-            mask = context->cache.v_vvvv;
+            if (context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64)
+            {
+                mask = context->cache.v_vvvv;
+            } else
+            {
+                // Ignore the high-register bits in 16- and 32-bit mode
+                mask = context->cache.v_vvvv & 0x07;
+            }
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
