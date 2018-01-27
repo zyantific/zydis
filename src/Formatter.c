@@ -692,6 +692,7 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
     {
     case ZYDIS_DECORATOR_TYPE_MASK:
     {
+#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
         if (instruction->avx.mask.reg != ZYDIS_REGISTER_K0)
         {
             ZYDIS_CHECK(ZydisStringAppendC(string, " {")); 
@@ -703,9 +704,11 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
                 ZYDIS_CHECK(ZydisStringAppendC(string, " {z}"));    
             } 
         }
+#endif
         break;
     }
     case ZYDIS_DECORATOR_TYPE_BC:
+#if !defined(ZYDIS_DISABLE_EVEX)
         if (!instruction->avx.broadcast.isStatic)
         {
             switch (instruction->avx.broadcast.mode)
@@ -734,8 +737,10 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
         }
+#endif
         break;
     case ZYDIS_DECORATOR_TYPE_RC:
+#if !defined(ZYDIS_DISABLE_EVEX)
         if (instruction->avx.hasSAE)
         {
             switch (instruction->avx.rounding.mode)
@@ -779,14 +784,18 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }    
         }
+#endif
         break;
     case ZYDIS_DECORATOR_TYPE_SAE:
+#if !defined(ZYDIS_DISABLE_EVEX)
         if (instruction->avx.hasSAE && !instruction->avx.rounding.mode)
         {
             ZYDIS_CHECK(ZydisStringAppendC(string, " {sae}")); 
         }
+#endif
         break;
     case ZYDIS_DECORATOR_TYPE_SWIZZLE:
+#if !defined(ZYDIS_DISABLE_MVEX)
         switch (instruction->avx.swizzle.mode)
         {
         case ZYDIS_SWIZZLE_MODE_INVALID:
@@ -817,8 +826,10 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
+#endif
         break;
     case ZYDIS_DECORATOR_TYPE_CONVERSION:
+#if !defined(ZYDIS_DISABLE_MVEX)
         switch (instruction->avx.conversion.mode)
         {
         case ZYDIS_CONVERSION_MODE_INVALID:
@@ -841,12 +852,15 @@ static ZydisStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyd
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
+#endif
         break;
     case ZYDIS_DECORATOR_TYPE_EH:
+#if !defined(ZYDIS_DISABLE_MVEX)
         if (instruction->avx.hasEvictionHint)
         {
             ZYDIS_CHECK(ZydisStringAppendC(string, " {eh}"));     
         }
+#endif
         break;
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
