@@ -71,6 +71,7 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
     ZYDIS_CHECK(formatter->funcPrintPrefixes(formatter, string, instruction, userData));
     ZYDIS_CHECK(formatter->funcPrintMnemonic(formatter, string, instruction, userData));
 
+    const ZydisUSize strLenMnemonic = string->length;
     for (ZydisU8 i = 0; i < instruction->operandCount; ++i)
     {
         if (instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
@@ -79,7 +80,7 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         }
 
         const ZydisUSize strLenRestore = string->length;
-        if (i == 0)
+        if (string->length == strLenMnemonic)
         {
             ZYDIS_CHECK(ZydisStringAppendC(string, " "));
         } else
