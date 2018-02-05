@@ -88,13 +88,16 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
             ZYDIS_CHECK(ZydisStringAppendC(string, ", "));
         }
 
+        const ZydisUSize strLenPreOperand = string->length;
         if (formatter->funcPreOperand)
         {
-            formatter->funcPreOperand(formatter, string, instruction, &instruction->operands[i], 
-                userData);
+            if (!ZYDIS_SUCCESS(formatter->funcPreOperand(formatter, string, instruction, 
+                &instruction->operands[i], userData)))
+            {
+                goto SkipOperand;
+            }
         }
 
-        const ZydisUSize strLenPreOperand = string->length;
         switch (instruction->operands[i].type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
@@ -125,9 +128,19 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
+
+        if (formatter->funcPostOperand)
+        {
+            if (!ZYDIS_SUCCESS(formatter->funcPostOperand(formatter, string, instruction, 
+                &instruction->operands[i], userData)))
+            {
+                goto SkipOperand;
+            }
+        }
         
         if (strLenPreOperand == string->length)
         {
+SkipOperand:
             // Omit whole operand, if the string did not change during the formatting-callback
             string->length = strLenRestore;
 
@@ -138,12 +151,6 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
             }
 
             continue;
-        }
-
-        if (formatter->funcPostOperand)
-        {
-            formatter->funcPostOperand(formatter, string, instruction, &instruction->operands[i], 
-                userData);
         }
 
         if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
@@ -902,6 +909,10 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
     switch (style)
     {
     case ZYDIS_FORMATTER_STYLE_INTEL:
+        formatter->funcPreInstruction       = ZYDIS_NULL;
+        formatter->funcPostInstruction      = ZYDIS_NULL;
+        formatter->funcPreOperand           = ZYDIS_NULL;
+        formatter->funcPostOperand          = ZYDIS_NULL;
         formatter->funcFormatInstruction    = &ZydisFormatInstrIntel;
         formatter->funcFormatOperandReg     = &ZydisFormatOperandRegIntel;
         formatter->funcFormatOperandMem     = &ZydisFormatOperandMemIntel;
