@@ -456,9 +456,6 @@ typedef struct ZydisFormatter_ ZydisFormatter;
  * 
  * Returning a status code other than `ZYDIS_STATUS_SUCCESS` will immediately cause the formatting 
  * process to fail.
- * 
- * Returning `ZYDIS_STATUS_SUCCESS` in `ZYDIS_FORMATTER_HOOK_PRINT_PREFIXES` without writing to 
- * the string is valid and signals that the corresponding element should not be printed.
  *
  * This function type is used for:
  * - `ZYDIS_FORMATTER_HOOK_PRE_INSTRUCTION`
@@ -482,15 +479,17 @@ typedef ZydisStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
  * @return  A zydis status code. 
  * 
  * Returning a status code other than `ZYDIS_STATUS_SUCCESS` will immediately cause the formatting 
- * process to fail.
+ * process to fail (see exceptions below).
  * 
- * Returning `ZYDIS_STATUS_SUCCESS` in one of the `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_X` hooks 
- * without writing to the string is valid and will cause the formatter to omit the current 
+ * Returning `ZYDIS_STATUS_SKIP_OPERAND` is valid for `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`, 
+ * `ZYDIS_FORMATTER_HOOK_POST_OPERAND` and all of the `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_XXX`
+ * callbacks. This will cause the formatter to omit the current operand.
+ * 
+ * DEPRECATED: 
+ * Returning `ZYDIS_STATUS_SUCCESS` without writing to the string is valid for 
+ * `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`, `ZYDIS_FORMATTER_HOOK_POST_OPERAND` and all of the 
+ * `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_XXX`. This will cause the formatter to omit the current 
  * operand.
- * 
- * Returning `ZYDIS_STATUS_SUCCESS` in `ZYDIS_FORMATTER_HOOK_PRINT_MEMSIZE` or 
- * `ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR` without writing to the string is valid and signals that 
- * the corresponding element should not be printed for the current operand.
  *
  * This function type is used for:
  * - `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`
@@ -559,9 +558,6 @@ typedef ZydisStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter
  * 
  * @return  Returning a status code other than `ZYDIS_STATUS_SUCCESS` will immediately cause the 
  *          formatting process to fail.
- * 
- * Returning `ZYDIS_STATUS_SUCCESS` without writing to the string is valid and will cause the
- * formatter to omit the current decorator.
  *
  * This function type is used for:
  * - `ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR`
@@ -684,6 +680,43 @@ ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstruction(const ZydisFormatter* f
  */
 ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter, 
     const ZydisDecodedInstruction* instruction, char* buffer, ZydisUSize bufferLen, void* userData);
+
+/**
+ * @brief   Formats the given operand and writes it into the output buffer.
+ *
+ * @param   formatter   A pointer to the `ZydisFormatter` instance.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   index       The index of the operand to format.
+ * @param   buffer      A pointer to the output buffer.
+ * @param   bufferLen   The length of the output buffer.
+ *
+ * @return  A zydis status code.
+ * 
+ * Use `ZydisFormatterFormatInstruction` or `ZydisFormatterFormatInstructionEx` to format a
+ * complete instruction.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatOperand(const ZydisFormatter* formatter, 
+    const ZydisDecodedInstruction* instruction, ZydisU8 index, char* buffer, ZydisUSize bufferLen);
+
+/**
+ * @brief   Formats the given operand and writes it into the output buffer.
+ *
+ * @param   formatter   A pointer to the `ZydisFormatter` instance.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   index       The index of the operand to format.
+ * @param   buffer      A pointer to the output buffer.
+ * @param   bufferLen   The length of the output buffer.
+ * @param   userData    A pointer to user-defined data which can be used in custom formatter 
+ *                      callbacks.
+ *
+ * @return  A zydis status code.
+ * 
+ * Use `ZydisFormatterFormatInstruction` or `ZydisFormatterFormatInstructionEx` to format a
+ * complete instruction.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter, 
+    const ZydisDecodedInstruction* instruction, ZydisU8 index, char* buffer, ZydisUSize bufferLen, 
+    void* userData);
 
 /* ============================================================================================== */
 

@@ -89,52 +89,79 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         }
 
         const ZydisUSize strLenPreOperand = string->length;
+
+        // Print embedded-mask registers as decorator instead of a regular operand
+        if ((i == 1) && (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_REGISTER) && 
+            (instruction->operands[i].encoding == ZYDIS_OPERAND_ENCODING_MASK))
+        {
+            goto SkipOperand;
+        }
+
+        ZydisStatus status;
         if (formatter->funcPreOperand)
         {
-            if (!ZYDIS_SUCCESS(formatter->funcPreOperand(formatter, string, instruction, 
-                &instruction->operands[i], userData)))
+            status = formatter->funcPreOperand(formatter, string, instruction, 
+                &instruction->operands[i], userData);
+            if (status == ZYDIS_STATUS_SKIP_OPERAND)
             {
                 goto SkipOperand;
+            }
+            if (status != ZYDIS_STATUS_SUCCESS)
+            {
+                return status;
             }
         }
 
         switch (instruction->operands[i].type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            ZYDIS_CHECK(formatter->funcFormatOperandReg(formatter, string, instruction, 
-                &instruction->operands[i], userData));
+            status = formatter->funcFormatOperandReg(formatter, string, instruction, 
+                &instruction->operands[i], userData);
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
         {
             ZYDIS_CHECK(formatter->funcPrintMemSize(formatter, string, instruction, 
                 &instruction->operands[i], userData));
             const ZydisUSize strLenTemp = string->length;
-            ZYDIS_CHECK(formatter->funcFormatOperandMem(formatter, string, instruction, 
-                &instruction->operands[i], userData));
-            if (strLenTemp == string->length)
+            status = formatter->funcFormatOperandMem(formatter, string, instruction, 
+                &instruction->operands[i], userData);
+            if ((status == ZYDIS_STATUS_SUCCESS) && (strLenTemp == string->length))
             {
                 string->length = strLenPreOperand;
             }
             break;
         }
         case ZYDIS_OPERAND_TYPE_POINTER:
-            ZYDIS_CHECK(formatter->funcFormatOperandPtr(formatter, string, instruction, 
-                &instruction->operands[i], userData));
+            status = formatter->funcFormatOperandPtr(formatter, string, instruction, 
+                &instruction->operands[i], userData);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
-            ZYDIS_CHECK(formatter->funcFormatOperandImm(formatter, string, instruction, 
-                &instruction->operands[i], userData));
+            status = formatter->funcFormatOperandImm(formatter, string, instruction, 
+                &instruction->operands[i], userData);
             break;
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
+        if (status == ZYDIS_STATUS_SKIP_OPERAND)
+        {
+            goto SkipOperand;
+        }
+        if (status != ZYDIS_STATUS_SUCCESS)
+        {
+            return status;
+        }
 
         if (formatter->funcPostOperand)
         {
-            if (!ZYDIS_SUCCESS(formatter->funcPostOperand(formatter, string, instruction, 
-                &instruction->operands[i], userData)))
+            status = formatter->funcPostOperand(formatter, string, instruction, 
+                &instruction->operands[i], userData);
+            if (status == ZYDIS_STATUS_SKIP_OPERAND)
             {
                 goto SkipOperand;
+            }
+            if (status != ZYDIS_STATUS_SUCCESS)
+            {
+                return status;
             }
         }
         
@@ -201,12 +228,6 @@ static ZydisStatus ZydisFormatOperandRegIntel(const ZydisFormatter* formatter, Z
     if (!operand)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-
-    // We want to print embedded-mask registers as decorator instead of a regular operand
-    if ((operand->id == 1) && (operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
-    {
-        return ZYDIS_STATUS_SUCCESS;
     }
 
     return formatter->funcPrintRegister(formatter, string, instruction, operand, 
@@ -1176,7 +1197,91 @@ ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
     const ZydisStatus status = ZydisFormatInstruction(formatter, instruction, &string, userData);
 
     buffer[string.length] = 0;
+    return status;
+}
 
+ZydisStatus ZydisFormatterFormatOperand(const ZydisFormatter* formatter, 
+    const ZydisDecodedInstruction* instruction, ZydisU8 index, char* buffer, ZydisUSize bufferLen)
+{
+    return ZydisFormatterFormatOperandEx(
+        formatter, instruction, index, buffer, bufferLen, ZYDIS_NULL);    
+}
+
+ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter, 
+    const ZydisDecodedInstruction* instruction, ZydisU8 index, char* buffer, ZydisUSize bufferLen, 
+    void* userData)
+{
+    if (!formatter || !instruction || index >= instruction->operandCount || !buffer || 
+        (bufferLen == 0))
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    ZydisString string;
+    string.buffer   = buffer;
+    string.length   = 0;
+    string.capacity = bufferLen - 1;
+
+    ZydisStatus status;
+    const ZydisDecodedOperand* operand = &instruction->operands[index];
+
+    if (formatter->funcPreOperand)
+    {
+        status = formatter->funcPreOperand(formatter, &string, instruction, operand, userData);
+        // We ignore `ZYDIS_STATUS_SKIP_OPERAND` as it does not make any sense to skip the only
+        // operand printed by this function
+        if ((status != ZYDIS_STATUS_SUCCESS) && (status != ZYDIS_STATUS_SKIP_OPERAND))
+        {
+            goto FinalizeString;
+        }
+    }
+
+    switch (operand->type)
+    {
+    case ZYDIS_OPERAND_TYPE_REGISTER:
+        status = formatter->funcFormatOperandReg(formatter, &string, instruction, operand, 
+            userData);
+        break;
+    case ZYDIS_OPERAND_TYPE_MEMORY:
+        status = formatter->funcPrintMemSize(formatter, &string, instruction, operand, userData);
+        if (!ZYDIS_SUCCESS(status))
+        {
+            goto FinalizeString;   
+        }
+        status = formatter->funcFormatOperandMem(formatter, &string, instruction, operand, 
+            userData);
+        break;
+    case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+        status = formatter->funcFormatOperandImm(formatter, &string, instruction, operand, 
+            userData);
+        break;
+    case ZYDIS_OPERAND_TYPE_POINTER:
+        status = formatter->funcFormatOperandPtr(formatter, &string, instruction, operand, 
+            userData);
+        break;
+    default:
+        status = ZYDIS_STATUS_INVALID_PARAMETER;
+        break;
+    }
+    if (!ZYDIS_SUCCESS(status))
+    {
+        goto FinalizeString;
+    }
+
+    // TODO: Print AVX512/KNC decorator
+
+    if (formatter->funcPostOperand)
+    {
+        status = formatter->funcPostOperand(formatter, &string, instruction, operand, userData);
+        // Ignore `ZYDIS_STATUS_SKIP_OPERAND`
+        if (status == ZYDIS_STATUS_SKIP_OPERAND)
+        {
+            status = ZYDIS_STATUS_SUCCESS;
+        }
+    }
+
+FinalizeString:
+    buffer[string.length] = 0;
     return status;
 }
 

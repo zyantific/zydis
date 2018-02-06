@@ -127,6 +127,16 @@ enum ZydisStatusCodes
     ZYDIS_STATUS_INVALID_MASK,
 
     /* ------------------------------------------------------------------------------------------ */
+    /* Formatter                                                                                  */
+    /* ------------------------------------------------------------------------------------------ */
+
+    /**
+     * @brief   Returning this status code in operand-related custom formatter callbacks will cause  
+     *          the formatter to omit the operand.
+     */
+    ZYDIS_STATUS_SKIP_OPERAND,
+
+    /* ------------------------------------------------------------------------------------------ */
     /* Encoder                                                                                    */
     /* ------------------------------------------------------------------------------------------ */
 
@@ -141,8 +151,8 @@ enum ZydisStatusCodes
      */
     ZYDIS_STATUS_USER                                                                 = 0x10000000
 
-    // Max value entry intentionally omitted since users might 
-    // define custom error codes for formatter hooks.
+    // Max value entry intentionally omitted since users might define custom error codes for 
+    // formatter hooks.
 };
 
 /* ============================================================================================== */

@@ -144,8 +144,8 @@ static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
     // Rewrite the instruction-mnemonic for the given instructions
     if (instruction->operands[instruction->operandCount - 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE)
     {    
-        const uint8_t conditionCode = 
-            (uint8_t)instruction->operands[instruction->operandCount - 1].imm.value.u;
+        const ZydisU8 conditionCode = 
+            (ZydisU8)instruction->operands[instruction->operandCount - 1].imm.value.u;
         switch (instruction->mnemonic)
         {
         case ZYDIS_MNEMONIC_CMPPS:
@@ -201,9 +201,7 @@ static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatte
     // operand, because it got replaced by the alias-mnemonic
     if (userData->ommitImmediate)
     {
-        // The formatter will automatically omit the operand, if the buffer remains unchanged 
-        // after the callback returns
-        return ZYDIS_STATUS_SUCCESS;    
+        return ZYDIS_STATUS_SKIP_OPERAND;    
     }
 
     // Default immediate formatting
@@ -216,7 +214,8 @@ static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatte
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, ZydisBool installHooks)
+void disassembleBuffer(ZydisDecoder* decoder, ZydisU8* data, ZydisUSize length, 
+    ZydisBool installHooks)
 {
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
@@ -233,7 +232,7 @@ void disassembleBuffer(ZydisDecoder* decoder, uint8_t* data, size_t length, Zydi
             (const void**)&defaultFormatOperandImm);
     }
 
-    uint64_t instructionPointer = 0x007FFFFFFF400000;
+    ZydisU64 instructionPointer = 0x007FFFFFFF400000;
 
     ZydisDecodedInstruction instruction;
     ZydisCustomUserData userData;
@@ -263,7 +262,7 @@ int main()
         return EXIT_FAILURE;
     }
 
-    uint8_t data[] = 
+    ZydisU8 data[] = 
     {
         // cmpps xmm1, xmm4, 0x03
         0x0F, 0xC2, 0xCC, 0x03, 
