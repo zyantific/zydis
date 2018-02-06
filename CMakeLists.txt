@@ -139,7 +139,7 @@ install(TARGETS "Zydis"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY "include" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # =============================================================================================== #
 # Examples                                                                                        #
