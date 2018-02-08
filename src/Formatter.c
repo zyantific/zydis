@@ -1197,6 +1197,11 @@ ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
     const ZydisStatus status = ZydisFormatInstruction(formatter, instruction, &string, userData);
 
     buffer[string.length] = 0;
+
+    if (status == ZYDIS_STATUS_SKIP_OPERAND)
+    {
+        return ZYDIS_STATUS_SUCCESS;
+    }
     return status;
 }
 
@@ -1262,6 +1267,11 @@ ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     default:
         status = ZYDIS_STATUS_INVALID_PARAMETER;
         break;
+    }
+    // Ignore `ZYDIS_STATUS_SKIP_OPERAND`
+    if (status == ZYDIS_STATUS_SKIP_OPERAND)
+    {
+        status = ZYDIS_STATUS_SUCCESS;
     }
     if (!ZYDIS_SUCCESS(status))
     {
