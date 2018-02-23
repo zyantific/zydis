@@ -553,7 +553,7 @@ typedef ZydisStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter
  * @param   string      A pointer to the string.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand     A pointer to the `ZydisDecodedOperand` struct.
- * @param   type        The decorator type.
+ * @param   decorator   The decorator type.
  * @param   userData    A pointer to user-defined data.
  * 
  * @return  Returning a status code other than `ZYDIS_STATUS_SUCCESS` will immediately cause the 
@@ -564,7 +564,7 @@ typedef ZydisStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter
  */
 typedef ZydisStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatter, 
     ZydisString* string, const ZydisDecodedInstruction* instruction, 
-    const ZydisDecodedOperand* operand, ZydisDecoratorType type, void* userData);
+    const ZydisDecodedOperand* operand, ZydisDecoratorType decorator, void* userData);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter struct                                                                               */

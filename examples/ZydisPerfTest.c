@@ -245,7 +245,7 @@ void generateTestData(FILE* file, uint8_t encoding)
         {
             data[i] = rand() % 256;
         }
-        uint8_t offset = rand() % (ZYDIS_MAX_INSTRUCTION_LENGTH - 2);
+        const uint8_t offset = rand() % (ZYDIS_MAX_INSTRUCTION_LENGTH - 2);
         switch (encoding)
         {
         case 0:
@@ -302,7 +302,7 @@ void generateTestData(FILE* file, uint8_t encoding)
                 fwrite(&instruction.data[0], 1, instruction.length, file);
                 ++count;
 
-                uint8_t p = (uint8_t)((double)count / 100000 * 100);
+                const uint8_t p = (uint8_t)((double)count / 100000 * 100);
                 if (last < p)
                 {
                     last = p;
@@ -367,7 +367,7 @@ int main(int argc, char** argv)
     {
         FILE* file;
 
-        size_t len = strlen(directory);
+        const size_t len = strlen(directory);
         char buf[1024];
         strncpy(&buf[0], directory, sizeof(buf) - 1);
         if (generate)
@@ -390,7 +390,7 @@ int main(int argc, char** argv)
         } else
         {
             fseek(file, 0L, SEEK_END);
-            long length = ftell(file);
+            const long length = ftell(file);
             void* buffer = malloc(length);
             if (!buffer)
             {

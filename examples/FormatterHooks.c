@@ -138,7 +138,7 @@ ZydisFormatterFunc defaultPrintMnemonic;
 static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, 
     ZydisString* string, const ZydisDecodedInstruction* instruction, ZydisCustomUserData* userData)
 {
-    // We use the user-data to pass data to the @c ZydisFormatterFormatOperandImm function.
+    // We use the user-data to pass data to the @c ZydisFormatterFormatOperandImm function
     userData->ommitImmediate = ZYDIS_TRUE;
 
     // Rewrite the instruction-mnemonic for the given instructions
