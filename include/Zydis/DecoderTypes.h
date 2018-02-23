@@ -72,8 +72,7 @@ enum ZydisMemoryOperandTypes
     ZYDIS_MEMOP_TYPE_AGEN,
     /**
      * @brief   A memory operand using `SIB` addressing form, where the index register is not used  
-     *          in address calculation and scale is ignored. No real memory-access is
-     *          caused.
+     *          in address calculation and scale is ignored. No real memory-access is caused.
      */
     ZYDIS_MEMOP_TYPE_MIB
 };
@@ -627,6 +626,11 @@ typedef ZydisU8 ZydisMaskMode;
 enum ZydisMaskModes
 {
     ZYDIS_MASK_MODE_INVALID,
+
+    // TODO: Add `ZYDIS_MASK_MODE_DISABLED` for for `EVEX`/`MVEX` instructions with `K0` mask
+    // TODO: Add `ZYDIS_MASK_MODE_CONTROL` and `ZYDIS_MASK_MODE_CONTROL_ZERO` as replacement for
+    //       the `isControlMask` field
+
     /**
      * @brief   The embedded mask register is used as a merge-mask. This is the default mode for 
      *          all EVEX/MVEX-instructions.

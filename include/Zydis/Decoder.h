@@ -125,9 +125,19 @@ enum ZydisDecoderModes
      */
     ZYDIS_DECODER_MODE_TZCNT,
     /**
+     * @brief   Enables the WBNOINVD mode.
+     * 
+     * The `WBINVD` instruction is interpreted as `WBNOINVD` on ICL chips, if a `F3` prefix is 
+     * used.  
+     * 
+     * This mode is disabled by default. 
+     */
+    ZYDIS_DECODER_MODE_WBNOINVD,
+
+    /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_TZCNT
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_WBNOINVD
 };
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -1632,6 +1632,7 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
     };
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
+    operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
     switch (definition->op.mem.base)
     {
@@ -4588,7 +4589,8 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MPX
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_CET
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_LZCNT
-        ZYDIS_TRUE   // ZYDIS_DECODER_MODE_TZCNT
+        ZYDIS_TRUE , // ZYDIS_DECODER_MODE_TZCNT
+        ZYDIS_FALSE  // ZYDIS_DECODER_MODE_WBNOINVD
     };
 
     if (!decoder || 
@@ -4658,8 +4660,6 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
 
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYDIS_CHECK(ZydisDecodeInstruction(&context, instruction));
-
-    // TODO: More EVEX UD conditions (page 81)
 
     return ZYDIS_STATUS_SUCCESS;
 }
