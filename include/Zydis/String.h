@@ -327,7 +327,7 @@ ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStatic(ZydisString* strin
 
 /**
  * @brief   Formats the given unsigned ordinal @c value to its decimal text-representation and  
- *          appends it to @c s.
+ *          appends it to the @c string.
  *
  * @param   string          A pointer to the string.
  * @param   value           The value.
@@ -341,12 +341,12 @@ ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStatic(ZydisString* strin
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisPrintDecU(ZydisString* string, ZydisU64 value, 
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecU(ZydisString* string, ZydisU64 value, 
     ZydisU8 paddingLength);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its decimal text-representation and   
- *          appends it to @c s.
+ *          appends it to the @c string.
  *
  * @param   string          A pointer to the string.
  * @param   value           The value.
@@ -360,12 +360,12 @@ ZYDIS_EXPORT ZydisStatus ZydisPrintDecU(ZydisString* string, ZydisU64 value,
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisPrintDecS(ZydisString* string, ZydisI64 value, 
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecS(ZydisString* string, ZydisI64 value, 
     ZydisU8 paddingLength);
 
 /**
  * @brief   Formats the given unsigned ordinal @c value to its hexadecimal text-representation and 
- *          appends it to the @c buffer.
+ *          appends it to the @c string.
  *
  * @param   string          A pointer to the string.
  * @param   value           The value.
@@ -383,13 +383,13 @@ ZYDIS_EXPORT ZydisStatus ZydisPrintDecS(ZydisString* string, ZydisI64 value,
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisPrintHexU(ZydisString* string, ZydisU64 value,
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendHexU(ZydisString* string, ZydisU64 value,
     ZydisU8 paddingLength, ZydisBool uppercase, const ZydisString* prefix, 
     const ZydisString* suffix);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its hexadecimal text-representation and 
- *          appends it to the @c buffer.
+ *          appends it to the @c string.
  *
  * @param   string          A pointer to the string.
  * @param   value           The value.
@@ -407,7 +407,7 @@ ZYDIS_EXPORT ZydisStatus ZydisPrintHexU(ZydisString* string, ZydisU64 value,
  * The string-buffer pointer is increased by the number of chars written, if the call was 
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisPrintHexS(ZydisString* string, ZydisI64 value, 
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendHexS(ZydisString* string, ZydisI64 value, 
     ZydisU8 paddingLength, ZydisBool uppercase, const ZydisString* prefix, 
     const ZydisString* suffix);
 

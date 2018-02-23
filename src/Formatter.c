@@ -317,7 +317,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
             if (operand->mem.scale)
             {
                 ZYDIS_CHECK(ZydisStringAppendC(string, "*"));
-                ZYDIS_CHECK(ZydisPrintDecU(string, operand->mem.scale, 0));   
+                ZYDIS_CHECK(ZydisStringAppendDecU(string, operand->mem.scale, 0));   
             }
         }
         ZYDIS_CHECK(formatter->funcPrintDisp(formatter, string, instruction, operand, userData)); 
@@ -337,10 +337,10 @@ static ZydisStatus ZydisFormatOperandPtrIntel(const ZydisFormatter* formatter, Z
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    ZYDIS_CHECK(ZydisPrintHexU(string, operand->ptr.segment, 4, 
+    ZYDIS_CHECK(ZydisStringAppendHexU(string, operand->ptr.segment, 4, 
         formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix));
     ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
-    return ZydisPrintHexU(string, operand->ptr.offset, 8, 
+    return ZydisStringAppendHexU(string, operand->ptr.offset, 8, 
         formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
 }
 
@@ -376,11 +376,11 @@ static ZydisStatus ZydisFormatOperandImmIntel(const ZydisFormatter* formatter, Z
         
         if (printSignedHEX)
         {
-            return ZydisPrintHexS(string, (ZydisI32)operand->imm.value.s, 
+            return ZydisStringAppendHexS(string, (ZydisI32)operand->imm.value.s, 
                 formatter->hexPaddingAddress, formatter->hexUppercase, formatter->hexPrefix, 
                 formatter->hexSuffix);
         }
-        return ZydisPrintHexU(string, operand->imm.value.u, 
+        return ZydisStringAppendHexU(string, operand->imm.value.u, 
             formatter->hexPaddingAddress, formatter->hexUppercase, formatter->hexPrefix, 
             formatter->hexSuffix);
     }
@@ -452,13 +452,13 @@ static ZydisStatus ZydisPrintAddrIntel(const ZydisFormatter* formatter, ZydisStr
     switch (instruction->stackWidth)
     {
     case 16:
-        return ZydisPrintHexU(string, (ZydisU16)address, 4, 
+        return ZydisStringAppendHexU(string, (ZydisU16)address, 4, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 32:
-        return ZydisPrintHexU(string, (ZydisU32)address, 8, 
+        return ZydisStringAppendHexU(string, (ZydisU32)address, 8, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 64:
-        return ZydisPrintHexU(string, address, 16, 
+        return ZydisStringAppendHexU(string, address, 16, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);  
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -485,7 +485,7 @@ static ZydisStatus ZydisPrintDispIntel(const ZydisFormatter* formatter, ZydisStr
             (operand->mem.base != ZYDIS_REGISTER_NONE) || 
             (operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
-            return ZydisPrintHexS(string, operand->mem.disp.value, formatter->hexPaddingDisp, 
+            return ZydisStringAppendHexS(string, operand->mem.disp.value, formatter->hexPaddingDisp, 
                 formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);     
         }
         if ((operand->mem.base != ZYDIS_REGISTER_NONE) || 
@@ -493,8 +493,9 @@ static ZydisStatus ZydisPrintDispIntel(const ZydisFormatter* formatter, ZydisStr
         {
             ZYDIS_CHECK(ZydisStringAppendC(string, "+"));
         }
-        return ZydisPrintHexU(string, (ZydisU64)operand->mem.disp.value, formatter->hexPaddingDisp, 
-            formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix); 
+        return ZydisStringAppendHexU(string, (ZydisU64)operand->mem.disp.value, 
+            formatter->hexPaddingDisp, formatter->hexUppercase, formatter->hexPrefix, 
+            formatter->hexSuffix); 
     }
     return ZYDIS_STATUS_SUCCESS; 
 }
@@ -520,16 +521,19 @@ static ZydisStatus ZydisPrintImmIntel(const ZydisFormatter* formatter, ZydisStri
         switch (operand->size)
         {
         case 8:
-            return ZydisPrintHexS(string, (ZydisI8)operand->imm.value.s, formatter->formatImm, 
-                formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
+            return ZydisStringAppendHexS(string, (ZydisI8)operand->imm.value.s, 
+                formatter->formatImm, formatter->hexUppercase, formatter->hexPrefix,
+                formatter->hexSuffix);
         case 16:
-            return ZydisPrintHexS(string, (ZydisI16)operand->imm.value.s, formatter->formatImm, 
-                formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
+            return ZydisStringAppendHexS(string, (ZydisI16)operand->imm.value.s, 
+                formatter->formatImm, formatter->hexUppercase, formatter->hexPrefix, 
+                formatter->hexSuffix);
         case 32:
-            return ZydisPrintHexS(string, (ZydisI32)operand->imm.value.s, formatter->formatImm, 
-                formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
+            return ZydisStringAppendHexS(string, (ZydisI32)operand->imm.value.s, 
+                formatter->formatImm, formatter->hexUppercase, formatter->hexPrefix, 
+                formatter->hexSuffix);
         case 64:
-            return ZydisPrintHexS(string, operand->imm.value.s, formatter->formatImm, 
+            return ZydisStringAppendHexS(string, operand->imm.value.s, formatter->formatImm, 
                 formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
@@ -538,16 +542,16 @@ static ZydisStatus ZydisPrintImmIntel(const ZydisFormatter* formatter, ZydisStri
     switch (instruction->operandWidth)
     {
     case 8:
-        return ZydisPrintHexU(string, (ZydisU8)operand->imm.value.u, formatter->formatImm, 
+        return ZydisStringAppendHexU(string, (ZydisU8)operand->imm.value.u, formatter->formatImm, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 16:
-        return ZydisPrintHexU(string, (ZydisU16)operand->imm.value.u, formatter->formatImm, 
+        return ZydisStringAppendHexU(string, (ZydisU16)operand->imm.value.u, formatter->formatImm, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 32:
-        return ZydisPrintHexU(string, (ZydisU32)operand->imm.value.u, formatter->formatImm, 
+        return ZydisStringAppendHexU(string, (ZydisU32)operand->imm.value.u, formatter->formatImm, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     case 64:
-        return ZydisPrintHexU(string, operand->imm.value.u, formatter->formatImm, 
+        return ZydisStringAppendHexU(string, operand->imm.value.u, formatter->formatImm, 
             formatter->hexUppercase, formatter->hexPrefix, formatter->hexSuffix);
     default:
         return ZYDIS_STATUS_INVALID_PARAMETER;
