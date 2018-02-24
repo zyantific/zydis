@@ -10,7 +10,7 @@ enum ZydisRegisters
 {
     ZYDIS_REGISTER_NONE,
 
-    // General purpose registers  8-bit,
+    // General purpose registers  8-bit
     ZYDIS_REGISTER_AL,
     ZYDIS_REGISTER_CL,
     ZYDIS_REGISTER_DL,
@@ -31,7 +31,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_R13B,
     ZYDIS_REGISTER_R14B,
     ZYDIS_REGISTER_R15B,
-    // General purpose registers 16-bit,
+    // General purpose registers 16-bit
     ZYDIS_REGISTER_AX,
     ZYDIS_REGISTER_CX,
     ZYDIS_REGISTER_DX,
@@ -48,7 +48,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_R13W,
     ZYDIS_REGISTER_R14W,
     ZYDIS_REGISTER_R15W,
-    // General purpose registers 32-bit,
+    // General purpose registers 32-bit
     ZYDIS_REGISTER_EAX,
     ZYDIS_REGISTER_ECX,
     ZYDIS_REGISTER_EDX,
@@ -65,7 +65,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_R13D,
     ZYDIS_REGISTER_R14D,
     ZYDIS_REGISTER_R15D,
-    // General purpose registers 64-bit,
+    // General purpose registers 64-bit
     ZYDIS_REGISTER_RAX,
     ZYDIS_REGISTER_RCX,
     ZYDIS_REGISTER_RDX,
@@ -82,7 +82,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_R13,
     ZYDIS_REGISTER_R14,
     ZYDIS_REGISTER_R15,
-    // Floating point legacy registers,
+    // Floating point legacy registers
     ZYDIS_REGISTER_ST0,
     ZYDIS_REGISTER_ST1,
     ZYDIS_REGISTER_ST2,
@@ -91,7 +91,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_ST5,
     ZYDIS_REGISTER_ST6,
     ZYDIS_REGISTER_ST7,
-    // Floating point multimedia registers,
+    // Floating point multimedia registers
     ZYDIS_REGISTER_MM0,
     ZYDIS_REGISTER_MM1,
     ZYDIS_REGISTER_MM2,
@@ -100,7 +100,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_MM5,
     ZYDIS_REGISTER_MM6,
     ZYDIS_REGISTER_MM7,
-    // Floating point vector registers 128-bit,
+    // Floating point vector registers 128-bit
     ZYDIS_REGISTER_XMM0,
     ZYDIS_REGISTER_XMM1,
     ZYDIS_REGISTER_XMM2,
@@ -133,7 +133,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_XMM29,
     ZYDIS_REGISTER_XMM30,
     ZYDIS_REGISTER_XMM31,
-    // Floating point vector registers 256-bit,
+    // Floating point vector registers 256-bit
     ZYDIS_REGISTER_YMM0,
     ZYDIS_REGISTER_YMM1,
     ZYDIS_REGISTER_YMM2,
@@ -166,7 +166,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_YMM29,
     ZYDIS_REGISTER_YMM30,
     ZYDIS_REGISTER_YMM31,
-    // Floating point vector registers 512-bit,
+    // Floating point vector registers 512-bit
     ZYDIS_REGISTER_ZMM0,
     ZYDIS_REGISTER_ZMM1,
     ZYDIS_REGISTER_ZMM2,
@@ -199,27 +199,27 @@ enum ZydisRegisters
     ZYDIS_REGISTER_ZMM29,
     ZYDIS_REGISTER_ZMM30,
     ZYDIS_REGISTER_ZMM31,
-    // Flags registers,
+    // Flags registers
     ZYDIS_REGISTER_FLAGS,
     ZYDIS_REGISTER_EFLAGS,
     ZYDIS_REGISTER_RFLAGS,
-    // Instruction-pointer registers,
+    // Instruction-pointer registers
     ZYDIS_REGISTER_IP,
     ZYDIS_REGISTER_EIP,
     ZYDIS_REGISTER_RIP,
-    // Segment registers,
+    // Segment registers
     ZYDIS_REGISTER_ES,
     ZYDIS_REGISTER_CS,
     ZYDIS_REGISTER_SS,
     ZYDIS_REGISTER_DS,
     ZYDIS_REGISTER_FS,
     ZYDIS_REGISTER_GS,
-    // Table registers,
+    // Table registers
     ZYDIS_REGISTER_GDTR,
     ZYDIS_REGISTER_LDTR,
     ZYDIS_REGISTER_IDTR,
     ZYDIS_REGISTER_TR,
-    // Test registers,
+    // Test registers
     ZYDIS_REGISTER_TR0,
     ZYDIS_REGISTER_TR1,
     ZYDIS_REGISTER_TR2,
@@ -228,7 +228,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_TR5,
     ZYDIS_REGISTER_TR6,
     ZYDIS_REGISTER_TR7,
-    // Control registers,
+    // Control registers
     ZYDIS_REGISTER_CR0,
     ZYDIS_REGISTER_CR1,
     ZYDIS_REGISTER_CR2,
@@ -245,7 +245,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_CR13,
     ZYDIS_REGISTER_CR14,
     ZYDIS_REGISTER_CR15,
-    // Debug registers,
+    // Debug registers
     ZYDIS_REGISTER_DR0,
     ZYDIS_REGISTER_DR1,
     ZYDIS_REGISTER_DR2,
@@ -262,7 +262,7 @@ enum ZydisRegisters
     ZYDIS_REGISTER_DR13,
     ZYDIS_REGISTER_DR14,
     ZYDIS_REGISTER_DR15,
-    // Mask registers,
+    // Mask registers
     ZYDIS_REGISTER_K0,
     ZYDIS_REGISTER_K1,
     ZYDIS_REGISTER_K2,
@@ -271,14 +271,14 @@ enum ZydisRegisters
     ZYDIS_REGISTER_K5,
     ZYDIS_REGISTER_K6,
     ZYDIS_REGISTER_K7,
-    // Bound registers,
+    // Bound registers
     ZYDIS_REGISTER_BND0,
     ZYDIS_REGISTER_BND1,
     ZYDIS_REGISTER_BND2,
     ZYDIS_REGISTER_BND3,
     ZYDIS_REGISTER_BNDCFG,
     ZYDIS_REGISTER_BNDSTATUS,
-    // Uncategorized,
+    // Uncategorized
     ZYDIS_REGISTER_MXCSR,
     ZYDIS_REGISTER_PKRU,
     ZYDIS_REGISTER_XCR0,

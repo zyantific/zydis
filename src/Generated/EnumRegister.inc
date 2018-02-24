@@ -2,7 +2,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
 {
     ZYDIS_MAKE_STATIC_STRING("none"),
 
-    // General purpose registers  8-bit,
+    // General purpose registers  8-bit
     ZYDIS_MAKE_STATIC_STRING("al"),
     ZYDIS_MAKE_STATIC_STRING("cl"),
     ZYDIS_MAKE_STATIC_STRING("dl"),
@@ -23,7 +23,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("r13b"),
     ZYDIS_MAKE_STATIC_STRING("r14b"),
     ZYDIS_MAKE_STATIC_STRING("r15b"),
-    // General purpose registers 16-bit,
+    // General purpose registers 16-bit
     ZYDIS_MAKE_STATIC_STRING("ax"),
     ZYDIS_MAKE_STATIC_STRING("cx"),
     ZYDIS_MAKE_STATIC_STRING("dx"),
@@ -40,7 +40,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("r13w"),
     ZYDIS_MAKE_STATIC_STRING("r14w"),
     ZYDIS_MAKE_STATIC_STRING("r15w"),
-    // General purpose registers 32-bit,
+    // General purpose registers 32-bit
     ZYDIS_MAKE_STATIC_STRING("eax"),
     ZYDIS_MAKE_STATIC_STRING("ecx"),
     ZYDIS_MAKE_STATIC_STRING("edx"),
@@ -57,7 +57,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("r13d"),
     ZYDIS_MAKE_STATIC_STRING("r14d"),
     ZYDIS_MAKE_STATIC_STRING("r15d"),
-    // General purpose registers 64-bit,
+    // General purpose registers 64-bit
     ZYDIS_MAKE_STATIC_STRING("rax"),
     ZYDIS_MAKE_STATIC_STRING("rcx"),
     ZYDIS_MAKE_STATIC_STRING("rdx"),
@@ -74,7 +74,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("r13"),
     ZYDIS_MAKE_STATIC_STRING("r14"),
     ZYDIS_MAKE_STATIC_STRING("r15"),
-    // Floating point legacy registers,
+    // Floating point legacy registers
     ZYDIS_MAKE_STATIC_STRING("st0"),
     ZYDIS_MAKE_STATIC_STRING("st1"),
     ZYDIS_MAKE_STATIC_STRING("st2"),
@@ -83,7 +83,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("st5"),
     ZYDIS_MAKE_STATIC_STRING("st6"),
     ZYDIS_MAKE_STATIC_STRING("st7"),
-    // Floating point multimedia registers,
+    // Floating point multimedia registers
     ZYDIS_MAKE_STATIC_STRING("mm0"),
     ZYDIS_MAKE_STATIC_STRING("mm1"),
     ZYDIS_MAKE_STATIC_STRING("mm2"),
@@ -92,7 +92,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("mm5"),
     ZYDIS_MAKE_STATIC_STRING("mm6"),
     ZYDIS_MAKE_STATIC_STRING("mm7"),
-    // Floating point vector registers 128-bit,
+    // Floating point vector registers 128-bit
     ZYDIS_MAKE_STATIC_STRING("xmm0"),
     ZYDIS_MAKE_STATIC_STRING("xmm1"),
     ZYDIS_MAKE_STATIC_STRING("xmm2"),
@@ -125,7 +125,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("xmm29"),
     ZYDIS_MAKE_STATIC_STRING("xmm30"),
     ZYDIS_MAKE_STATIC_STRING("xmm31"),
-    // Floating point vector registers 256-bit,
+    // Floating point vector registers 256-bit
     ZYDIS_MAKE_STATIC_STRING("ymm0"),
     ZYDIS_MAKE_STATIC_STRING("ymm1"),
     ZYDIS_MAKE_STATIC_STRING("ymm2"),
@@ -158,7 +158,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("ymm29"),
     ZYDIS_MAKE_STATIC_STRING("ymm30"),
     ZYDIS_MAKE_STATIC_STRING("ymm31"),
-    // Floating point vector registers 512-bit,
+    // Floating point vector registers 512-bit
     ZYDIS_MAKE_STATIC_STRING("zmm0"),
     ZYDIS_MAKE_STATIC_STRING("zmm1"),
     ZYDIS_MAKE_STATIC_STRING("zmm2"),
@@ -191,27 +191,27 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("zmm29"),
     ZYDIS_MAKE_STATIC_STRING("zmm30"),
     ZYDIS_MAKE_STATIC_STRING("zmm31"),
-    // Flags registers,
+    // Flags registers
     ZYDIS_MAKE_STATIC_STRING("flags"),
     ZYDIS_MAKE_STATIC_STRING("eflags"),
     ZYDIS_MAKE_STATIC_STRING("rflags"),
-    // Instruction-pointer registers,
+    // Instruction-pointer registers
     ZYDIS_MAKE_STATIC_STRING("ip"),
     ZYDIS_MAKE_STATIC_STRING("eip"),
     ZYDIS_MAKE_STATIC_STRING("rip"),
-    // Segment registers,
+    // Segment registers
     ZYDIS_MAKE_STATIC_STRING("es"),
     ZYDIS_MAKE_STATIC_STRING("cs"),
     ZYDIS_MAKE_STATIC_STRING("ss"),
     ZYDIS_MAKE_STATIC_STRING("ds"),
     ZYDIS_MAKE_STATIC_STRING("fs"),
     ZYDIS_MAKE_STATIC_STRING("gs"),
-    // Table registers,
+    // Table registers
     ZYDIS_MAKE_STATIC_STRING("gdtr"),
     ZYDIS_MAKE_STATIC_STRING("ldtr"),
     ZYDIS_MAKE_STATIC_STRING("idtr"),
     ZYDIS_MAKE_STATIC_STRING("tr"),
-    // Test registers,
+    // Test registers
     ZYDIS_MAKE_STATIC_STRING("tr0"),
     ZYDIS_MAKE_STATIC_STRING("tr1"),
     ZYDIS_MAKE_STATIC_STRING("tr2"),
@@ -220,7 +220,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("tr5"),
     ZYDIS_MAKE_STATIC_STRING("tr6"),
     ZYDIS_MAKE_STATIC_STRING("tr7"),
-    // Control registers,
+    // Control registers
     ZYDIS_MAKE_STATIC_STRING("cr0"),
     ZYDIS_MAKE_STATIC_STRING("cr1"),
     ZYDIS_MAKE_STATIC_STRING("cr2"),
@@ -237,7 +237,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("cr13"),
     ZYDIS_MAKE_STATIC_STRING("cr14"),
     ZYDIS_MAKE_STATIC_STRING("cr15"),
-    // Debug registers,
+    // Debug registers
     ZYDIS_MAKE_STATIC_STRING("dr0"),
     ZYDIS_MAKE_STATIC_STRING("dr1"),
     ZYDIS_MAKE_STATIC_STRING("dr2"),
@@ -254,7 +254,7 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("dr13"),
     ZYDIS_MAKE_STATIC_STRING("dr14"),
     ZYDIS_MAKE_STATIC_STRING("dr15"),
-    // Mask registers,
+    // Mask registers
     ZYDIS_MAKE_STATIC_STRING("k0"),
     ZYDIS_MAKE_STATIC_STRING("k1"),
     ZYDIS_MAKE_STATIC_STRING("k2"),
@@ -263,14 +263,14 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("k5"),
     ZYDIS_MAKE_STATIC_STRING("k6"),
     ZYDIS_MAKE_STATIC_STRING("k7"),
-    // Bound registers,
+    // Bound registers
     ZYDIS_MAKE_STATIC_STRING("bnd0"),
     ZYDIS_MAKE_STATIC_STRING("bnd1"),
     ZYDIS_MAKE_STATIC_STRING("bnd2"),
     ZYDIS_MAKE_STATIC_STRING("bnd3"),
     ZYDIS_MAKE_STATIC_STRING("bndcfg"),
     ZYDIS_MAKE_STATIC_STRING("bndstatus"),
-    // Uncategorized,
+    // Uncategorized
     ZYDIS_MAKE_STATIC_STRING("mxcsr"),
     ZYDIS_MAKE_STATIC_STRING("pkru"),
     ZYDIS_MAKE_STATIC_STRING("xcr0")
