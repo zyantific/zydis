@@ -156,6 +156,13 @@ enum ZydisISAExts
     ZYDIS_ISA_EXT_XSAVEC,
     ZYDIS_ISA_EXT_XSAVEOPT,
     ZYDIS_ISA_EXT_XSAVES,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_ISA_EXT_MAX_VALUE = ZYDIS_ISA_EXT_XSAVES,
+    /**
+     * @brief   Minimum amount of bits required to store a value of this enum.
+     */
     ZYDIS_ISA_EXT_MIN_BITS  = 0x0008
 };

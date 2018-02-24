@@ -1591,6 +1591,13 @@ enum ZydisMnemonics
     ZYDIS_MNEMONIC_XSAVES64,
     ZYDIS_MNEMONIC_XSETBV,
     ZYDIS_MNEMONIC_XTEST,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_MNEMONIC_MAX_VALUE = ZYDIS_MNEMONIC_XTEST,
+    /**
+     * @brief   Minimum amount of bits required to store a value of this enum.
+     */
     ZYDIS_MNEMONIC_MIN_BITS  = 0x000B
 };

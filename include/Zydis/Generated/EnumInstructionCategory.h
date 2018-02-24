@@ -100,6 +100,13 @@ enum ZydisInstructionCategories
     ZYDIS_CATEGORY_XOP,
     ZYDIS_CATEGORY_XSAVE,
     ZYDIS_CATEGORY_XSAVEOPT,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_CATEGORY_MAX_VALUE = ZYDIS_CATEGORY_XSAVEOPT,
+    /**
+     * @brief   Minimum amount of bits required to store a value of this enum.
+     */
     ZYDIS_CATEGORY_MIN_BITS  = 0x0007
 };
