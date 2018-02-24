@@ -74,7 +74,12 @@ enum ZydisMemoryOperandTypes
      * @brief   A memory operand using `SIB` addressing form, where the index register is not used  
      *          in address calculation and scale is ignored. No real memory-access is caused.
      */
-    ZYDIS_MEMOP_TYPE_MIB
+    ZYDIS_MEMOP_TYPE_MIB,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_MEMOP_TYPE_MAX_VALUE = ZYDIS_MEMOP_TYPE_MIB
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -498,6 +503,7 @@ enum ZydisCPUFlags
      * @brief   FPU condition-code flag 3.
      */
     ZYDIS_CPUFLAG_C3,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -520,6 +526,7 @@ enum ZydisCPUFlagActions
     ZYDIS_CPUFLAG_ACTION_SET_0,
     ZYDIS_CPUFLAG_ACTION_SET_1,
     ZYDIS_CPUFLAG_ACTION_UNDEFINED,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -581,6 +588,7 @@ enum ZydisExceptionClasses
     ZYDIS_EXCEPTION_CLASS_E12NP,
     ZYDIS_EXCEPTION_CLASS_K20,
     ZYDIS_EXCEPTION_CLASS_K21,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -605,6 +613,7 @@ enum ZydisVectorLengths
     ZYDIS_VECTOR_LENGTH_128     = 128,
     ZYDIS_VECTOR_LENGTH_256     = 256,
     ZYDIS_VECTOR_LENGTH_512     = 512,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -640,6 +649,7 @@ enum ZydisMaskModes
      * @brief   The embedded mask register is used as a zero-mask.
      */
     ZYDIS_MASK_MODE_ZERO,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -673,6 +683,7 @@ enum ZydisBroadcastModes
     ZYDIS_BROADCAST_MODE_4_TO_8,
     ZYDIS_BROADCAST_MODE_4_TO_16,
     ZYDIS_BROADCAST_MODE_8_TO_16,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -710,6 +721,7 @@ enum ZydisRoundingModes
      * @brief   Round towards zero.
      */
     ZYDIS_ROUNDING_MODE_RZ,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -739,6 +751,7 @@ enum ZydisSwizzleModes
     ZYDIS_SWIZZLE_MODE_BBBB,
     ZYDIS_SWIZZLE_MODE_CCCC,
     ZYDIS_SWIZZLE_MODE_DDDD,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -765,6 +778,7 @@ enum ZydisConversionModes
     ZYDIS_CONVERSION_MODE_UINT8,
     ZYDIS_CONVERSION_MODE_SINT16,
     ZYDIS_CONVERSION_MODE_UINT16,
+
     /**
      * @brief   Maximum value of this enum.
      */
