@@ -297,6 +297,43 @@ ZydisStatus ZydisStringAppendHexU64(ZydisString* string, ZydisU64 value, ZydisU8
 /* Basic Operations                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
+ZydisStatus ZydisStringInit(ZydisString* string, char* text)
+{
+    if (!string || !text)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    const ZydisUSize length = ZydisStrLen(text);
+    string->buffer   = text;
+    string->length   = length;
+    string->capacity = length; 
+    
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+ZydisStatus ZydisStringFinalize(ZydisString* string)
+{
+    if (!string)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+    if (string->length >= string->capacity)
+    {
+        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
+    }
+
+    string->buffer[string->length] = 0;
+    return ZYDIS_STATUS_SUCCESS;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+ZydisStatus ZydisStringAppend(ZydisString* string, const ZydisString* text)
+{
+    return ZydisStringAppendEx(string, text, ZYDIS_LETTER_CASE_DEFAULT);
+}
+
 ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text, 
     ZydisLetterCase letterCase)
 {
@@ -349,6 +386,52 @@ ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text,
     string->length += text->length;
 
     return ZYDIS_STATUS_SUCCESS;
+}
+
+ZydisStatus ZydisStringAppendC(ZydisString* string, const char* text)
+{
+    ZydisString other;
+    ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
+    
+    return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
+}
+
+ZydisStatus ZydisStringAppendExC(ZydisString* string, const char* text, ZydisLetterCase letterCase)
+{
+    ZydisString other;
+    ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
+    
+    return ZydisStringAppendEx(string, &other, letterCase);
+}
+
+ZydisStatus ZydisStringAppendStatic(ZydisString* string, const ZydisStaticString* text, 
+    ZydisLetterCase letterCase)
+{
+    if (!text || !text->buffer)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    ZydisString other;
+    other.buffer = (char*)text->buffer;
+    other.length = text->length;
+    
+    return ZydisStringAppendEx(string, &other, letterCase);
+}
+
+ZydisStatus ZydisStringAppendExStatic(ZydisString* string, const ZydisStaticString* text, 
+    ZydisLetterCase letterCase)
+{
+    if (!text || !text->buffer)
+    {
+        return ZYDIS_STATUS_INVALID_PARAMETER;
+    }
+
+    ZydisString other;
+    other.buffer = (char*)text->buffer;
+    other.length = text->length;
+    
+    return ZydisStringAppendEx(string, &other, letterCase);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

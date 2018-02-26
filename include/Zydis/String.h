@@ -160,20 +160,7 @@ enum ZydisLetterCases
  * 
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringInit(ZydisString* string, char* text)
-{
-    if (!string || !text)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-
-    const ZydisUSize length = ZydisStrLen(text);
-    string->buffer   = text;
-    string->length   = length;
-    string->capacity = length; 
-    
-    return ZYDIS_STATUS_SUCCESS;
-}
+ZYDIS_EXPORT ZydisStatus ZydisStringInit(ZydisString* string, char* text);
 
 /**
  * @brief   Finalizes a `ZydisString` struct by adding a terminating zero byte.
@@ -182,22 +169,21 @@ ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringInit(ZydisString* string, char*
  * 
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringFinalize(ZydisString* string)
-{
-    if (!string)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    if (string->length >= string->capacity)
-    {
-        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-
-    string->buffer[string->length] = 0;
-    return ZYDIS_STATUS_SUCCESS;
-}
+ZYDIS_EXPORT ZydisStatus ZydisStringFinalize(ZydisString* string);
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Appends a `ZydisString` to another `ZydisString`.
+ *
+ * @param   string      The string to append to.
+ * @param   text        The string to append.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisStringAppend(ZydisString* string, const ZydisString* text);
 
 /**
  * @brief   Appends a `ZydisString` to another `ZydisString`, converting it to the specified
@@ -215,6 +201,18 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisStr
     ZydisLetterCase letterCase);
 
 /**
+ * @brief   Appends the given C-string to a `ZydisString`.
+ *
+ * @param   string      The string to append to.
+ * @param   text        The C-string to append.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendC(ZydisString* string, const char* text);
+
+/**
  * @brief   Appends the given C-string to a `ZydisString`, converting it to the specified
  *          letter-case.
  *
@@ -226,14 +224,21 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisStr
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExC(ZydisString* string, 
-    const char* text, ZydisLetterCase letterCase)
-{
-    ZydisString other;
-    ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
-    
-    return ZydisStringAppendEx(string, &other, letterCase);
-}
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendExC(ZydisString* string, const char* text, 
+    ZydisLetterCase letterCase);
+
+/**
+ * @brief   Appends the given 'ZydisStaticString' to a `ZydisString`.
+ *
+ * @param   string      The string to append to.
+ * @param   text        The static-string to append.
+ *
+ * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
+ *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
+ *          sufficient to append the given @c text.
+ */
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendStatic(ZydisString* string, 
+    const ZydisStaticString* text, ZydisLetterCase letterCase);
 
 /**
  * @brief   Appends the given 'ZydisStaticString' to a `ZydisString`, converting it to the 
@@ -247,79 +252,8 @@ ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExC(ZydisString* string,
  *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendExStatic(ZydisString* string, 
-    const ZydisStaticString* text, ZydisLetterCase letterCase)
-{
-    if (!text || !text->buffer)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-
-    ZydisString other;
-    other.buffer = (char*)text->buffer;
-    other.length = text->length;
-    
-    return ZydisStringAppendEx(string, &other, letterCase);
-}
-
-/**
- * @brief   Appends a `ZydisString` to another `ZydisString`.
- *
- * @param   string      The string to append to.
- * @param   text        The string to append.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c text.
- */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppend(ZydisString* string, 
-    const ZydisString* text)
-{
-    return ZydisStringAppendEx(string, text, ZYDIS_LETTER_CASE_DEFAULT);
-}
-
-/**
- * @brief   Appends the given C-string to a `ZydisString`.
- *
- * @param   string      The string to append to.
- * @param   text        The C-string to append.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c text.
- */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendC(ZydisString* string, const char* text)
-{
-    ZydisString other;
-    ZYDIS_CHECK(ZydisStringInit(&other, (char*)text));
-    
-    return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
-}
-
-/**
- * @brief   Appends the given 'ZydisStaticString' to a `ZydisString`.
- *
- * @param   string      The string to append to.
- * @param   text        The static-string to append.
- *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or 
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not 
- *          sufficient to append the given @c text.
- */
-ZYDIS_EXPORT ZYDIS_INLINE ZydisStatus ZydisStringAppendStatic(ZydisString* string, 
-    const ZydisStaticString* text, ZydisLetterCase letterCase)
-{
-    if (!text || !text->buffer)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-
-    ZydisString other;
-    other.buffer = (char*)text->buffer;
-    other.length = text->length;
-    
-    return ZydisStringAppendEx(string, &other, letterCase);
-}
+ZYDIS_EXPORT ZydisStatus ZydisStringAppendExStatic(ZydisString* string, 
+    const ZydisStaticString* text, ZydisLetterCase letterCase);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatting                                                                                     */
