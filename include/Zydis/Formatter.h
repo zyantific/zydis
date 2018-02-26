@@ -308,7 +308,7 @@ enum ZydisFormatterHookTypes
      */
     ZYDIS_FORMATTER_HOOK_PRE_INSTRUCTION,
     /**
-     * @brief   This function is invoked before the formatter formatted an instruction.
+     * @brief   This function is invoked after the formatter formatted an instruction.
      */
     ZYDIS_FORMATTER_HOOK_POST_INSTRUCTION,
     /**
@@ -316,7 +316,7 @@ enum ZydisFormatterHookTypes
      */
     ZYDIS_FORMATTER_HOOK_PRE_OPERAND,
     /**
-     * @brief   This function is invoked before the formatter formatted an operand.
+     * @brief   This function is invoked after the formatter formatted an operand.
      */
     ZYDIS_FORMATTER_HOOK_POST_OPERAND,
 
@@ -336,7 +336,8 @@ enum ZydisFormatterHookTypes
      * @brief   This function is invoked to format a memory operand.
      *
      * Replacing this function might indirectly disable some specific calls to the 
-     * `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS` and `ZYDIS_FORMATTER_HOOK_PRINT_DISP` functions.
+     * `ZYDIS_FORMATTER_HOOK_PRINT_MEMSIZE`, `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS` and 
+     * `ZYDIS_FORMATTER_HOOK_PRINT_DISP` functions.
      */
     ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM,
     /**

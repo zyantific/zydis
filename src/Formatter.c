@@ -120,15 +120,8 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
         {
-            ZYDIS_CHECK(formatter->funcPrintMemSize(formatter, string, instruction, 
-                &instruction->operands[i], userData));
-            const ZydisUSize strLenTemp = string->length;
             status = formatter->funcFormatOperandMem(formatter, string, instruction, 
                 &instruction->operands[i], userData);
-            if ((status == ZYDIS_STATUS_SUCCESS) && (strLenTemp == string->length))
-            {
-                string->length = strLenPreOperand;
-            }
             break;
         }
         case ZYDIS_OPERAND_TYPE_POINTER:
@@ -241,6 +234,8 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
+
+    ZYDIS_CHECK(formatter->funcPrintMemSize(formatter, string, instruction, operand, userData));
 
     switch (operand->mem.segment)
     {
@@ -1252,11 +1247,6 @@ ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
             userData);
         break;
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        status = formatter->funcPrintMemSize(formatter, &string, instruction, operand, userData);
-        if (!ZYDIS_SUCCESS(status))
-        {
-            goto FinalizeString;   
-        }
         status = formatter->funcFormatOperandMem(formatter, &string, instruction, operand, 
             userData);
         break;
