@@ -133,6 +133,7 @@ enum ZydisRegisterClasses
      * @brief   Bound registers.
      */
     ZYDIS_REGCLASS_BOUND,
+
     /**
      * @brief   Maximum value of this enum.
      */

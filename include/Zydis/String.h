@@ -47,7 +47,7 @@ typedef struct ZydisString_
     /**
      * @brief   The buffer that contains the actual string (0-termination is optional!).
      */
-    char *buffer;
+    char* buffer;
     /**
      * @brief   The length of the string (without 0-termination).
      */
