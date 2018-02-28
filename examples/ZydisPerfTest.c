@@ -1,6 +1,6 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
   Original Author : Florian Bernd
 

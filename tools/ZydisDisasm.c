@@ -1,8 +1,8 @@
 /***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
-  Original Author : Florian Bernd, Joel Höner
+  Original Author : Florian Bernd, Joel Hoener
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
