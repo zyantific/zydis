@@ -15,32 +15,32 @@ option(ZYDIS_FEATURE_DECODER
 option(ZYDIS_FEATURE_FORMATTER
     "Enable instruction formatting functionality"
     ON)
-option(ZYDIS_FEATURE_EVEX 
-    "Enable support for EVEX instructions" 
+option(ZYDIS_FEATURE_EVEX
+    "Enable support for EVEX instructions"
     ON)
-option(ZYDIS_FEATURE_MVEX 
-    "Enable support for MVEX instructions" 
+option(ZYDIS_FEATURE_MVEX
+    "Enable support for MVEX instructions"
     ON)
 
 # Build configuration
 option(BUILD_SHARED_LIBS
     "Build shared libraries"
     OFF)
-option(WHOLE_PROGRAM_OPTIMIZATION
+option(ZYDIS_WHOLE_PROGRAM_OPTIMIZATION
     "Enable whole program optimization"
     OFF)
 option(ZYDIS_NO_LIBC
     "Don't use any C standard library functions (for exotic build-envs like kernel drivers)"
     OFF)
-option(ZYDIS_BUILD_EXAMPLES 
-    "Build examples" 
+option(ZYDIS_BUILD_EXAMPLES
+    "Build examples"
     ON)
-option(ZYDIS_BUILD_TOOLS 
-    "Build tools" 
+option(ZYDIS_BUILD_TOOLS
+    "Build tools"
     ON)
 option(ZYDIS_FUZZ_AFL_FAST
-	"Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
-	OFF)
+    "Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
+    OFF)
 option(ZYDIS_DEV_MODE
     "Enable developer mode (-Wall, -Werror, ...)"
     OFF)
@@ -69,11 +69,11 @@ endif ()
 
 add_library("Zydis")
 
-target_include_directories("Zydis" 
+target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
-if (WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
     set_target_properties("Zydis" PROPERTIES COMPILE_FLAGS "/GL")
     set_target_properties("Zydis" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
     set_target_properties("Zydis" PROPERTIES STATIC_LIBRARY_FLAGS_RELEASE "/LTCG")
@@ -127,12 +127,12 @@ target_sources("Zydis"
         "src/Zydis.c")
 
 if (ZYDIS_FEATURE_DECODER)
-    target_sources("Zydis" 
-        PRIVATE 
+    target_sources("Zydis"
+        PRIVATE
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
-            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h" 
+            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
             "src/Decoder.c"
             "src/DecoderData.c"
             "src/Formatter.c")
@@ -167,19 +167,19 @@ if (ZYDIS_BUILD_EXAMPLES)
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-        if (WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+        if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
             set_target_properties("ZydisFuzzIn" PROPERTIES COMPILE_FLAGS "/GL")
             set_target_properties("ZydisFuzzIn" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
         endif ()
-		if (ZYDIS_FUZZ_AFL_FAST)
-			target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
-		endif ()
+        if (ZYDIS_FUZZ_AFL_FAST)
+            target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+        endif ()
 
         add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
         target_link_libraries("ZydisPerfTest" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-        if (WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+        if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
             set_target_properties("ZydisPerfTest" PROPERTIES COMPILE_FLAGS "/GL")
             set_target_properties("ZydisPerfTest" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
         endif ()
@@ -201,7 +201,7 @@ if (ZYDIS_BUILD_TOOLS)
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-        if (WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+        if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
             set_target_properties("ZydisDisasm" PROPERTIES COMPILE_FLAGS "/GL")
             set_target_properties("ZydisDisasm" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
         endif ()
@@ -210,7 +210,7 @@ if (ZYDIS_BUILD_TOOLS)
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-        if (WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
+        if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
             set_target_properties("ZydisInfo" PROPERTIES COMPILE_FLAGS "/GL")
             set_target_properties("ZydisInfo" PROPERTIES LINK_FLAGS_RELEASE "/LTCG")
         endif ()
