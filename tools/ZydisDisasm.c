@@ -50,7 +50,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "Usage: %s [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
         return EXIT_FAILURE;
     }
-    
+
     FILE* file = argc >= 2 ? fopen(argv[1], "rb") : stdin;
     if (!file)
     {
@@ -68,9 +68,9 @@ int main(int argc, char** argv)
 
     ZydisFormatter formatter;
     if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
-        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, 
+        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE)) ||
-        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, 
+        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)))
     {
         fputs("Failed to initialized instruction-formatter\n", stderr);
@@ -82,11 +82,11 @@ int main(int argc, char** argv)
     do
     {
         numBytesRead = fread(readBuf, 1, sizeof(readBuf), file);
-    
+
         ZydisDecodedInstruction instruction;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs, 
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
             numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))
@@ -133,10 +133,10 @@ int main(int argc, char** argv)
             ZYDIS_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
 #endif
             // DEBUG CODE END
-            
+
             readOffs += instruction.length;
         }
-        
+
         if (readOffs < sizeof(readBuf))
         {
             memmove(readBuf, readBuf + readOffs, sizeof(readBuf) - readOffs);

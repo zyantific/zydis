@@ -52,7 +52,7 @@ extern "C" {
 
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeType datatype.
- */                                 
+ */
 typedef ZydisU8 ZydisDecoderTreeNodeType;
 
 /**
@@ -99,7 +99,7 @@ enum ZydisDecoderTreeNodeTypes
     ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT = 0x08,
     /**
      * @brief   Reference to a ModRM.reg filter.
-     */                                                                                      
+     */
     ZYDIS_NODETYPE_FILTER_MODRM_REG         = 0x09,
     /**
      * @brief   Reference to a ModRM.rm filter.
@@ -221,7 +221,7 @@ typedef ZydisU8 ZydisInstructionEncodingFlags;
 /**
  * @brief   The instruction ignores the value of `modrm.mod` and always assumes `modrm.mod == 3`
  *          ("reg, reg" - form).
- *          
+ *
  *          Instructions with this flag can't have a SIB byte or a displacement value.
  */
 #define ZYDIS_INSTR_ENC_FLAG_FORCE_REG_FORM 0x10
@@ -232,7 +232,7 @@ typedef ZydisU8 ZydisInstructionEncodingFlags;
 typedef struct ZydisInstructionEncodingInfo_
 {
     /**
-     * @brief   Contains flags with information about the physical instruction-encoding.  
+     * @brief   Contains flags with information about the physical instruction-encoding.
      */
     ZydisInstructionEncodingFlags flags;
     /**
@@ -287,20 +287,20 @@ ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void);
  *
  * @param   parent  The parent node.
  * @param   index   The index of the child node to retrieve.
- *                  
+ *
  * @return  The specified child node.
  */
 ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(
     const ZydisDecoderTreeNode* parent, ZydisU16 index);
 
 /**
- * @brief   Returns information about optional instruction parts (like modrm, displacement or 
+ * @brief   Returns information about optional instruction parts (like modrm, displacement or
  *          immediates) for the instruction that is linked to the given @c node.
  *
  * @param   node    The instruction definition node.
- * @param   info    A pointer to the @c ZydisInstructionParts struct.        
+ * @param   info    A pointer to the @c ZydisInstructionParts struct.
  */
-ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node, 
+ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info);
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -54,7 +54,7 @@
     typedef ptrdiff_t ZydisISize;
     typedef uintptr_t ZydisUPointer;
     typedef intptr_t  ZydisIPointer;
-#else 
+#else
     // No LibC, use compiler built-in types / macros.
 #   if defined(ZYDIS_MSVC)
         typedef unsigned __int8  ZydisU8;
@@ -65,18 +65,18 @@
         typedef   signed __int16 ZydisI16;
         typedef   signed __int32 ZydisI32;
         typedef   signed __int64 ZydisI64;
-#       if _WIN64                
+#       if _WIN64
            typedef ZydisU64      ZydisUSize;
            typedef ZydisI64      ZydisISize;
            typedef ZydisU64      ZydisUPointer;
            typedef ZydisI64      ZydisIPointer;
-#       else                     
+#       else
            typedef ZydisU32      ZydisUSize;
            typedef ZydisI32      ZydisISize;
            typedef ZydisU32      ZydisUPointer;
            typedef ZydisI32      ZydisIPointer;
-#       endif                    
-#   elif defined(ZYDIS_GNUC)     
+#       endif
+#   elif defined(ZYDIS_GNUC)
         typedef __UINT8_TYPE__   ZydisU8;
         typedef __UINT16_TYPE__  ZydisU16;
         typedef __UINT32_TYPE__  ZydisU32;

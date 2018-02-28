@@ -143,9 +143,9 @@ enum ZydisRegisterClasses
 /* ---------------------------------------------------------------------------------------------- */
 /* Register width                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
-    
+
 /**
- * @brief   Defines the @c ZydisRegisterWidth datatype. 
+ * @brief   Defines the @c ZydisRegisterWidth datatype.
  */
 typedef ZydisU16 ZydisRegisterWidth;
 
@@ -217,7 +217,7 @@ ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
  * @param   reg The register.
  *
  * @return  The register string or @c NULL, if an invalid register was passed.
- * 
+ *
  * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
  */
 ZYDIS_EXPORT const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg);

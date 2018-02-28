@@ -71,9 +71,9 @@ enum ZydisSemanticOperandTypes
     ZYDIS_SEMANTIC_OPTYPE_GPR16,
     ZYDIS_SEMANTIC_OPTYPE_GPR32,
     ZYDIS_SEMANTIC_OPTYPE_GPR64,
-    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64, 
+    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
     ZYDIS_SEMANTIC_OPTYPE_GPR32_32_64,
-    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32, 
+    ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32,
     ZYDIS_SEMANTIC_OPTYPE_FPR,
     ZYDIS_SEMANTIC_OPTYPE_MMX,
     ZYDIS_SEMANTIC_OPTYPE_XMM,
@@ -141,7 +141,7 @@ typedef struct ZydisOperandDefinition_
     ZydisInternalElementType elementType    ZYDIS_BITFIELD(5);
     union
     {
-        ZydisOperandEncoding encoding; 
+        ZydisOperandEncoding encoding;
         struct
         {
             ZydisU8 type                    ZYDIS_BITFIELD(3);
@@ -151,10 +151,10 @@ typedef struct ZydisOperandDefinition_
                 ZydisU8 id                  ZYDIS_BITFIELD(6);
             } reg;
         } reg;
-        struct 
+        struct
         {
             ZydisU8 seg                     ZYDIS_BITFIELD(3);
-            ZydisU8 base                    ZYDIS_BITFIELD(3); 
+            ZydisU8 base                    ZYDIS_BITFIELD(3);
         } mem;
     } op;
 } ZydisOperandDefinition;
@@ -182,7 +182,7 @@ enum ZydisImplicitMemBase
     ZYDIS_IMPLMEM_BASE_ASP,
     ZYDIS_IMPLMEM_BASE_ABP,
     ZYDIS_IMPLMEM_BASE_ASI,
-    ZYDIS_IMPLMEM_BASE_ADI    
+    ZYDIS_IMPLMEM_BASE_ADI
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -200,7 +200,7 @@ typedef ZydisU8 ZydisRegisterConstraint;
 enum ZydisRegisterConstraints
 {
     ZYDIS_REG_CONSTRAINTS_UNUSED,
-    ZYDIS_REG_CONSTRAINTS_NONE,  
+    ZYDIS_REG_CONSTRAINTS_NONE,
     ZYDIS_REG_CONSTRAINTS_GPR,
     ZYDIS_REG_CONSTRAINTS_SR_DEST,
     ZYDIS_REG_CONSTRAINTS_SR,
@@ -489,11 +489,11 @@ enum ZydisVEXStaticBroadcasts
     ZYDIS_VEX_STATIC_BROADCAST_NONE,
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_2,
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_4,
-    ZYDIS_VEX_STATIC_BROADCAST_1_TO_8,  
+    ZYDIS_VEX_STATIC_BROADCAST_1_TO_8,
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_16,
     ZYDIS_VEX_STATIC_BROADCAST_1_TO_32,
     ZYDIS_VEX_STATIC_BROADCAST_2_TO_4,
-    
+
     ZYDIS_VEX_STATIC_BROADCAST_MAX_VALUE = ZYDIS_VEX_STATIC_BROADCAST_2_TO_4
 };
 
@@ -729,10 +729,10 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
  * @param   definition  A pointer to the instruction-definition.
  * @param   operand     A pointer to the variable that receives a pointer to the first operand-
  *                      definition of the instruction.
- *                          
+ *
  * @return  The number of operands for the given instruction-definition.
  */
-ZYDIS_NO_EXPORT ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
+ZYDIS_NO_EXPORT ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand);
 
 /* ---------------------------------------------------------------------------------------------- */

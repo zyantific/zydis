@@ -36,7 +36,7 @@
 
 /**
  * @brief   Contains all XOP-map filters.
- *          
+ *
  *          Index values:
  *          00 = POP instruction (default encoding)
  *          01 = XOP8
@@ -56,18 +56,18 @@ extern const ZydisDecoderTreeNode filtersXOP[][13];
 
 /**
  * @brief   Contains all VEX-map filters.
- *          
+ *
  *          Index values:
  *          00 = LES or LDS instruction (default encoding)
  *          01 = VEX MAP0
- *          02 = 0F  
- *          03 = 0F38  
- *          04 = 0F3A  
- *          05 = 66  
- *          06 = 66_0F  
- *          07 = 66_0F38  
- *          08 = 66_0F3A  
- *          09 = F3  
+ *          02 = 0F
+ *          03 = 0F38
+ *          04 = 0F3A
+ *          05 = 66
+ *          06 = 66_0F
+ *          07 = 66_0F38
+ *          08 = 66_0F3A
+ *          09 = F3
  *          0A = F3_0F
  *          0B = F3_0F38
  *          0C = F3_0F3A
@@ -80,34 +80,34 @@ extern const ZydisDecoderTreeNode filtersVEX[][17];
 
 /**
  * @brief   Contains all EVEX/MVEX-map filters.
- *          
+ *
  *          Index values:
  *          00 = BOUND instruction (default encoding)
  *          01 = EVEX MAP0
- *          02 = EVEX 0F  
- *          03 = EVEX 0F38  
- *          04 = EVEX 0F3A  
- *          05 = EVEX 66  
- *          06 = EVEX 66_0F  
- *          07 = EVEX 66_0F38  
- *          08 = EVEX 66_0F3A  
- *          09 = EVEX F3  
+ *          02 = EVEX 0F
+ *          03 = EVEX 0F38
+ *          04 = EVEX 0F3A
+ *          05 = EVEX 66
+ *          06 = EVEX 66_0F
+ *          07 = EVEX 66_0F38
+ *          08 = EVEX 66_0F3A
+ *          09 = EVEX F3
  *          0A = EVEX F3_0F
  *          0B = EVEX F3_0F38
  *          0C = EVEX F3_0F3A
  *          0D = EVEX EVEX F2
  *          0E = EVEX F2_0F
- *          0F = EVEX 
+ *          0F = EVEX
  *          10 = EVEX F2_0F3A
  *          11 = MVEX MAP0
- *          12 = MVEX 0F  
- *          13 = MVEX 0F38  
- *          14 = MVEX 0F3A  
- *          15 = MVEX 66  
- *          16 = MVEX 66_0F  
- *          17 = MVEX 66_0F38  
- *          18 = MVEX 66_0F3A  
- *          19 = MVEX F3  
+ *          12 = MVEX 0F
+ *          13 = MVEX 0F38
+ *          14 = MVEX 0F3A
+ *          15 = MVEX 66
+ *          16 = MVEX 66_0F
+ *          17 = MVEX 66_0F38
+ *          18 = MVEX 66_0F3A
+ *          19 = MVEX F3
  *          1A = MVEX F3_0F
  *          1B = MVEX F3_0F38
  *          1C = MVEX F3_0F3A
@@ -120,14 +120,14 @@ extern const ZydisDecoderTreeNode filtersEMVEX[][33];
 
 /**
  * @brief   Contains all opcode filters.
- *          
+ *
  *          Indexed by the numeric value of the opcode.
  */
 extern const ZydisDecoderTreeNode filtersOpcode[][256];
 
 /**
  * @brief   Contains all instruction-mode filters.
- *          
+ *
  *          Index values:
  *          0 = 16 bit mode
  *          1 = 32 bit mode
@@ -137,7 +137,7 @@ extern const ZydisDecoderTreeNode filtersMode[][3];
 
 /**
  * @brief   Contains all compacted instruction-mode filters.
- *          
+ *
  *          Index values:
  *          0 = 64 bit mode
  *          1 = not 64 bit mode
@@ -146,14 +146,14 @@ extern const ZydisDecoderTreeNode filtersModeCompact[][2];
 
 /**
  * @brief   Contains all ModRM.mod filters.
- *          
+ *
  *          Indexed by the ordinal value of the ModRM.mod field.
  */
 extern const ZydisDecoderTreeNode filtersModrmMod[][4];
 
 /**
  * @brief   Contains all compacted ModRM.mod filters.
- *          
+ *
  *          Index values:
  *          0 = [ModRM.mod ==  11] = register
  *          1 = [ModRM.mod == !11] = memory
@@ -162,70 +162,70 @@ extern const ZydisDecoderTreeNode filtersModrmModCompact[][2];
 
 /**
  * @brief   Contains all ModRM.reg filters.
- *          
+ *
  *          Indexed by the numeric value of the ModRM.reg field.
  */
 extern const ZydisDecoderTreeNode filtersModrmReg[][8];
 
 /**
  * @brief   Contains all ModRM.rm filters.
- *          
+ *
  *          Indexed by the numeric value of the ModRM.rm field.
  */
 extern const ZydisDecoderTreeNode filtersModrmRm[][8];
 
 /**
  * @brief   Contains all mandatory-prefix switch tables.
- *          
+ *
  *          Index values:
  *          0 = ignored (prefixes are not interpreted as mandatory-prefix)
  *          1 = none
- *          2 = 66  
- *          3 = F3  
+ *          2 = 66
+ *          3 = F3
  *          4 = F2
  */
 extern const ZydisDecoderTreeNode filtersMandatoryPrefix[][5];
 
 /**
  * @brief   Contains all operand-size filters.
- *          
+ *
  *          Index values:
  *          0 = 16 bit
  *          1 = 32 bit
- *          2 = 64 bit 
+ *          2 = 64 bit
  */
 extern const ZydisDecoderTreeNode filtersOperandSize[][3];
 
 /**
  * @brief   Contains all address-size filters.
- *          
+ *
  *          Index values:
  *          0 = 16 bit
- *          1 = 32 bit 
+ *          1 = 32 bit
  *          2 = 64 bit
  */
 extern const ZydisDecoderTreeNode filtersAddressSize[][3];
 
 /**
  * @brief   Contains all vector-length filters.
- *          
+ *
  *          Index values:
  *          0 = 128 bit
- *          1 = 256 bit 
+ *          1 = 256 bit
  *          2 = 512 bit
  */
 extern const ZydisDecoderTreeNode filtersVectorLength[][3];
 
 /**
  * @brief   Contains all REX/VEX/EVEX.w filters.
- *          
+ *
  *          Indexed by the numeric value of the REX/VEX/EVEX.w field.
  */
 extern const ZydisDecoderTreeNode filtersREXW[][2];
 
 /**
  * @brief   Contains all REX/VEX/EVEX.B filters.
- *          
+ *
  *          Indexed by the numeric value of the REX/VEX/EVEX.B field.
  */
 extern const ZydisDecoderTreeNode filtersREXB[][2];
@@ -233,7 +233,7 @@ extern const ZydisDecoderTreeNode filtersREXB[][2];
 #ifndef ZYDIS_DISABLE_EVEX
 /**
  * @brief   Contains all EVEX.b filters.
- *          
+ *
  *          Indexed by the numeric value of the EVEX.b field.
  */
 extern const ZydisDecoderTreeNode filtersEVEXB[][2];
@@ -242,7 +242,7 @@ extern const ZydisDecoderTreeNode filtersEVEXB[][2];
 #ifndef ZYDIS_DISABLE_MVEX
 /**
  * @brief   Contains all MVEX.E filters.
- *          
+ *
  *          Indexed by the numeric value of the MVEX.E field.
  */
 extern const ZydisDecoderTreeNode filtersMVEXE[][2];
@@ -283,11 +283,11 @@ extern const ZydisDecoderTreeNode filtersMVEXE[][2];
 
 const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
 {
-    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x0000 };  
+    static const ZydisDecoderTreeNode root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x0000 };
     return &root;
 }
 
-const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent, 
+const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent,
     ZydisU16 index)
 {
     switch (parent->type)
@@ -370,10 +370,10 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
         return &filtersModeTZCNT[parent->value][index];
     default:
         ZYDIS_UNREACHABLE;
-    } 
+    }
 }
 
-void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node, 
+void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
     ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);

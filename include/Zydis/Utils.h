@@ -52,14 +52,14 @@ extern "C" {
  * @param   address     A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zydis status code.
- * 
+ *
  * You should use this function in the following cases:
  * - `IMM` operands with relative address (e.g. `JMP`, `CALL`, ...)
  * - `MEM` operands with RIP/EIP-relative address (e.g. `MOV RAX, [RIP+0x12345678]`)
  * - `MEM` operands with absolute address (e.g. `MOV RAX, [0x12345678]`)
  *   - The displacement needs to get truncated and zero extended
  */
-ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
+ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     const ZydisDecodedOperand* operand, ZydisU64* address);
 
 /* ============================================================================================== */
@@ -75,7 +75,7 @@ ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction*
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
+ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags);
 
 /* ============================================================================================== */

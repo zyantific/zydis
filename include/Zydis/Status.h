@@ -78,7 +78,7 @@ enum ZydisStatusCodes
     /* ------------------------------------------------------------------------------------------ */
 
     /**
-     * @brief   An attempt was made to read data from an input data-source that has no more data 
+     * @brief   An attempt was made to read data from an input data-source that has no more data
      *          available.
      */
     ZYDIS_STATUS_NO_MORE_DATA,
@@ -86,7 +86,7 @@ enum ZydisStatusCodes
      * @brief   An general error occured while decoding the current instruction. The instruction
      *          might be undefined.
      */
-    ZYDIS_STATUS_DECODING_ERROR, 
+    ZYDIS_STATUS_DECODING_ERROR,
     /**
      * @brief   The instruction exceeded the maximum length of 15 bytes.
      */
@@ -97,32 +97,32 @@ enum ZydisStatusCodes
     ZYDIS_STATUS_BAD_REGISTER,
     /**
      * @brief   A lock-prefix (F0) was found while decoding an instruction that does not support
-     *          locking. 
+     *          locking.
      */
     ZYDIS_STATUS_ILLEGAL_LOCK,
     /**
-     * @brief   A legacy-prefix (F2, F3, 66) was found while decoding a XOP/VEX/EVEX/MVEX 
-     *          instruction. 
+     * @brief   A legacy-prefix (F2, F3, 66) was found while decoding a XOP/VEX/EVEX/MVEX
+     *          instruction.
      */
     ZYDIS_STATUS_ILLEGAL_LEGACY_PFX,
     /**
-     * @brief   A rex-prefix was found while decoding a XOP/VEX/EVEX/MVEX instruction. 
+     * @brief   A rex-prefix was found while decoding a XOP/VEX/EVEX/MVEX instruction.
      */
     ZYDIS_STATUS_ILLEGAL_REX,
     /**
-     * @brief   An invalid opcode-map value was found while decoding a XOP/VEX/EVEX/MVEX-prefix.  
+     * @brief   An invalid opcode-map value was found while decoding a XOP/VEX/EVEX/MVEX-prefix.
      */
     ZYDIS_STATUS_INVALID_MAP,
     /**
-     * @brief   An error occured while decoding the EVEX-prefix.  
+     * @brief   An error occured while decoding the EVEX-prefix.
      */
     ZYDIS_STATUS_MALFORMED_EVEX,
     /**
-     * @brief   An error occured while decoding the MVEX-prefix.  
+     * @brief   An error occured while decoding the MVEX-prefix.
      */
     ZYDIS_STATUS_MALFORMED_MVEX, // TODO: Do we need this?
     /**
-     * @brief   An invalid write-mask was specified for an EVEX/MVEX instruction.  
+     * @brief   An invalid write-mask was specified for an EVEX/MVEX instruction.
      */
     ZYDIS_STATUS_INVALID_MASK,
 
@@ -131,7 +131,7 @@ enum ZydisStatusCodes
     /* ------------------------------------------------------------------------------------------ */
 
     /**
-     * @brief   Returning this status code in operand-related custom formatter callbacks will cause  
+     * @brief   Returning this status code in operand-related custom formatter callbacks will cause
      *          the formatter to omit the operand.
      */
     ZYDIS_STATUS_SKIP_OPERAND,
@@ -151,7 +151,7 @@ enum ZydisStatusCodes
      */
     ZYDIS_STATUS_USER                                                                 = 0x10000000
 
-    // Max value entry intentionally omitted since users might define custom error codes for 
+    // Max value entry intentionally omitted since users might define custom error codes for
     // formatter hooks.
 };
 
