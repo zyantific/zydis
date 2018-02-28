@@ -5,28 +5,15 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Features
 
-- Supports all x86 and x86-64 (AMD64) instructions.
-- Supports pretty much all ISA extensions (list incomplete):
-  - FPU (x87), MMX
-  - SSE, SSE2, SSE3, SSSE3, SSE4.1, SSE4.2, SSE4A, AESNI
-  - AVX, AVX2, AVX512BW, AVX512CD, AVX512DQ, AVX512ER, AVX512F, AVX512PF, AVX512VL
-  - ADX, BMI1, BMI2, FMA, FMA4
+- Supports all x86 and x86-64 (AMD64) instructions and [extensions](https://github.com/zyantific/zydis/blob/master/include/Zydis/Generated/EnumISAExt.h)
 - Optimized for high performance
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
 - [Complete doxygen documentation](https://www.zyantific.com/doc/zydis/index.html)
-- No dependencies on platform specific APIs
-  - Should compile on any platform with a complete libc and CMake
-  - Tested on Windows, macOS and Linux
-
-## Roadmap
-
-- Language bindings [v2.0 final]
-- Tests [v2.0 final]
-- Graphical editor for the instruction-database [v2.0 final]
-- Implement CMake feature gates. Currently, everything is always included. [v2.0 final]
-- Encoding support [v2.1]
+- Absolutely no dependencies — [not even libc](https://github.com/zyantific/zydis/blob/develop/CMakeLists.txt#L32)
+  - Should compile on any platform with a working C99 compiler
+  - Tested on Windows, macOS, FreeBSD and Linux, both user and kernel mode
 
 ## Quick Example
 
@@ -34,49 +21,52 @@ The following example program uses Zydis to disassemble a given memory buffer an
 
 ```C
 #include <stdio.h>
+#include <inttypes.h>
 #include <Zydis/Zydis.h>
 
 int main()
 {
     uint8_t data[] =
     {
-        0x51, 0x8D, 0x45, 0xFF, 0x50, 0xFF, 0x75, 0x0C, 0xFF, 0x75, 
-        0x08, 0xFF, 0x15, 0xA0, 0xA5, 0x48, 0x76, 0x85, 0xC0, 0x0F, 
+        0x51, 0x8D, 0x45, 0xFF, 0x50, 0xFF, 0x75, 0x0C, 0xFF, 0x75,
+        0x08, 0xFF, 0x15, 0xA0, 0xA5, 0x48, 0x76, 0x85, 0xC0, 0x0F,
         0x88, 0xFC, 0xDA, 0x02, 0x00
     };
 
     // Initialize decoder context.
     ZydisDecoder decoder;
     ZydisDecoderInit(
-        &decoder, 
-        ZYDIS_MACHINE_MODE_LONG_64, 
+        &decoder,
+        ZYDIS_MACHINE_MODE_LONG_64,
         ZYDIS_ADDRESS_WIDTH_64);
 
     // Initialize formatter. Only required when you actually plan to
     // do instruction formatting ("disassembling"), like we do here.
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
-  
+
     // Loop over the instructions in our buffer.
+    // The IP is chosen arbitrary here in order to better visualize
+    // relative addressing.
     uint64_t instructionPointer = 0x007FFFFFFF400000;
-    uint8_t* readPointer = data;
+    size_t offset = 0;
     size_t length = sizeof(data);
     ZydisDecodedInstruction instruction;
     while (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(
-        &decoder, readPointer, length, instructionPointer, &instruction)))
+        &decoder, data + offset, length - offset,
+        instructionPointer, &instruction)))
     {
         // Print current instruction pointer.
         printf("%016" PRIX64 "  ", instructionPointer);
 
-        // Format & print the binary instruction 
+        // Format & print the binary instruction
         // structure to human readable format.
         char buffer[256];
         ZydisFormatterFormatInstruction(
             &formatter, &instruction, buffer, sizeof(buffer));
         puts(buffer);
 
-        readPointer += instruction.length;
-        length -= instruction.length;
+        offset += instruction.length;
         instructionPointer += instruction.length;
     }
 }
@@ -97,12 +87,13 @@ The above example program generates the following output:
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
-## Compilation
+## Build
+
+#### Unix
 
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
 ```bash
-# Linux and OS X
 git clone 'https://github.com/zyantific/zydis.git'
 cd zydis
 mkdir build && cd build
@@ -110,12 +101,16 @@ cmake ..
 make
 ```
 
+#### Windows
+
+Either use the [Visual Studio 2017 project](https://github.com/zyantific/zydis/tree/master/msvc) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
+
 ## `ZydisInfo` tool
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
 ## Credits
-- Intel (for open-sourcing XED, allowing for automatic comparision of our tables against theirs, improving both)
-- LLVM (for providing pretty solid instruction data as well)
+- Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
+- [LLVM](https://llvm.org) (for providing pretty solid instruction data as well)
 - Christian Ludloff (http://sandpile.org, insanely helpful)
 - [LekoArts](https://www.lekoarts.de/) (for creating the project logo)
 - Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
