@@ -33,10 +33,14 @@
 #define ZYDIS_H
 
 #include <Zydis/CommonTypes.h>
+#ifndef ZYDIS_DISABLE_DECODER
 #include <Zydis/Decoder.h>
 #include <Zydis/DecoderTypes.h>
+#endif
 #include <Zydis/Defines.h>
+#ifndef ZYDIS_DISABLE_FORMATTER
 #include <Zydis/Formatter.h>
+#endif
 #include <Zydis/MetaInfo.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>

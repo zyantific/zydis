@@ -88,6 +88,13 @@ if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
     )
 endif ()
 
+if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
+    message(
+        FATAL_ERROR
+        "\nZYDIS_FEATURE_FORMATTER requires ZYDIS_FEATURE_DECODER to be enabled"
+    )
+endif ()
+
 if (NOT ZYDIS_FEATURE_DECODER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_DECODER")
 endif ()
@@ -131,11 +138,15 @@ if (ZYDIS_FEATURE_DECODER)
         PRIVATE
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Decoder.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/DecoderTypes.h"
-            "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
             "src/Decoder.c"
-            "src/DecoderData.c"
-            "src/Formatter.c")
+            "src/DecoderData.c")
+    if (ZYDIS_FEATURE_FORMATTER)
+        target_sources("Zydis"
+            PRIVATE
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
+                "src/Formatter.c")
+    endif ()
 endif ()
 
 if (BUILD_SHARED_LIBS AND WIN32)
@@ -157,7 +168,7 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_EXAMPLES)
-    if (ZYDIS_FEATURE_DECODER)
+    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
         add_executable("FormatterHooks" "examples/FormatterHooks.c")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
@@ -196,7 +207,7 @@ endif ()
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_TOOLS)
-    if (ZYDIS_FEATURE_DECODER)
+    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
