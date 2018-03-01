@@ -1,8 +1,8 @@
 ﻿/***************************************************************************************************
 
-  Zyan Disassembler Engine (Zydis)
+  Zyan Disassembler Library (Zydis)
 
-  Original Author : Joel Höner
+  Original Author : Joel Hoener
 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 
 /**
  * @file
- * 
+ *
  * This file implements a tool that is supposed to be fed as input for fuzzers like AFL,
  * reading a control block from stdin, allowing the fuzzer to reach every possible
  * code-path, testing any possible combination of disassembler configurations.
@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <Zydis/Zydis.h>
 
-typedef struct ZydisFuzzControlBlock_ 
+typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
@@ -120,13 +120,13 @@ int doIteration()
         {
         case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
         case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
-            controlBlock.formatterProperties[prop] = 
+            controlBlock.formatterProperties[prop] =
                 controlBlock.formatterProperties[prop] ? (uintptr_t)&controlBlock.string : 0;
             break;
         default:
             break;
         }
-        if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop, 
+        if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop,
             controlBlock.formatterProperties[prop])))
         {
             ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
@@ -143,7 +143,7 @@ int doIteration()
         ZydisDecodedInstruction instruction;
         ZydisStatus status;
         size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs, 
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
             numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))

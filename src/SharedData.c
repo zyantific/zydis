@@ -144,7 +144,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition, 
+ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand)
 {
     if (definition->operandCount == 0)

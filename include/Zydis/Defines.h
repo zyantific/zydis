@@ -93,7 +93,7 @@
 
 /* ============================================================================================== */
 /* Debug/Release detection                                                                        */
-/* ============================================================================================== */  
+/* ============================================================================================== */
 
 #if defined(ZYDIS_MSVC) || defined(ZYDIS_BORLAND)
 #   ifdef _DEBUG
@@ -116,7 +116,7 @@
 /* ============================================================================================== */
 
 #if defined(ZYDIS_MSVC) || defined(ZYDIS_BORLAND)
-#   define ZYDIS_INLINE __inline 
+#   define ZYDIS_INLINE __inline
 #else
 #   define ZYDIS_INLINE static inline
 #endif
@@ -182,6 +182,11 @@
  * @brief   Marks the specified parameter as unused.
  */
 #define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
+
+/**
+ * @brief   Intentional fallthrough.
+ */
+#define ZYDIS_FALLTHROUGH
 
 /**
  * @brief   Calculates the size of an array.

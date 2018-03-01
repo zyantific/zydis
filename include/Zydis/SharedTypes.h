@@ -94,6 +94,7 @@ enum ZydisMachineModes
      * @brief 16 bit real mode.
      */
     ZYDIS_MACHINE_MODE_REAL_16,
+
      /**
      * @brief   Maximum value of this enum.
      */
@@ -114,10 +115,14 @@ typedef ZydisU8 ZydisAddressWidth;
  */
 enum ZydisAddressWidths
 {
-    ZYDIS_ADDRESS_WIDTH_INVALID         =  0,
+    ZYDIS_ADDRESS_WIDTH_INVALID         =  0, // TODO: Don't manually initialize values
     ZYDIS_ADDRESS_WIDTH_16              = 16,
     ZYDIS_ADDRESS_WIDTH_32              = 32,
     ZYDIS_ADDRESS_WIDTH_64              = 64,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_ADDRESS_WIDTH_MAX_VALUE       = ZYDIS_ADDRESS_WIDTH_64
 };
 
@@ -144,6 +149,10 @@ enum ZydisElementTypes
     ZYDIS_ELEMENT_TYPE_FLOAT64,
     ZYDIS_ELEMENT_TYPE_FLOAT80,
     ZYDIS_ELEMENT_TYPE_LONGBCD,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_ELEMENT_TYPE_MAX_VALUE = ZYDIS_ELEMENT_TYPE_LONGBCD
 };
 
@@ -186,6 +195,7 @@ enum ZydisOperandTypes
      * @brief   The operand is an immediate operand.
      */
     ZYDIS_OPERAND_TYPE_IMMEDIATE,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -241,6 +251,10 @@ enum ZydisOperandEncodings
     ZYDIS_OPERAND_ENCODING_JIMM16_32_64,
     ZYDIS_OPERAND_ENCODING_JIMM32_32_64,
     ZYDIS_OPERAND_ENCODING_JIMM16_32_32,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_OPERAND_ENCODING_MAX_VALUE = ZYDIS_OPERAND_ENCODING_JIMM16_32_32
 };
 
@@ -260,7 +274,7 @@ enum ZydisOperandVisibilities
 {
     ZYDIS_OPERAND_VISIBILITY_INVALID,
     /**
-     * @brief   The operand is explicitly encoded in the instruction. 
+     * @brief   The operand is explicitly encoded in the instruction.
      */
     ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
     /**
@@ -271,6 +285,7 @@ enum ZydisOperandVisibilities
      * @brief   The operand is part of the opcode, and not typically listed as an operand.
      */
     ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -325,13 +340,13 @@ enum ZydisOperandActions
      * @brief   Mask combining all writing access flags.
      */
     ZYDIS_OPERAND_ACTION_MASK_WRITE = ZYDIS_OPERAND_ACTION_WRITE |
-        ZYDIS_OPERAND_ACTION_READWRITE | ZYDIS_OPERAND_ACTION_CONDWRITE | 
+        ZYDIS_OPERAND_ACTION_READWRITE | ZYDIS_OPERAND_ACTION_CONDWRITE |
         ZYDIS_OPERAND_ACTION_READ_CONDWRITE | ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
     /**
      * @brief   Mask combining all reading access flags.
      */
-    ZYDIS_OPERAND_ACTION_MASK_READ = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_READWRITE | 
-        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_READ_CONDWRITE | 
+    ZYDIS_OPERAND_ACTION_MASK_READ = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_READWRITE |
+        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_READ_CONDWRITE |
         ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
 
     /**
@@ -379,6 +394,7 @@ enum ZydisInstructionEncodings
      * @brief   The instruction uses the MVEX-encoding.
      */
     ZYDIS_INSTRUCTION_ENCODING_MVEX,
+
     /**
      * @brief   Maximum value of this enum.
      */
@@ -407,7 +423,11 @@ enum ZydisOpcodeMaps
     ZYDIS_OPCODE_MAP_XOP8,
     ZYDIS_OPCODE_MAP_XOP9,
     ZYDIS_OPCODE_MAP_XOPA,
-    ZYDIS_OPCODE_MAP_MAX_VALUE = ZYDIS_OPCODE_MAP_XOP9
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_OPCODE_MAP_MAX_VALUE = ZYDIS_OPCODE_MAP_XOPA
 };
 
 /* ---------------------------------------------------------------------------------------------- */

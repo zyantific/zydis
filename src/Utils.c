@@ -34,7 +34,7 @@
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     const ZydisDecodedOperand* operand, ZydisU64* address)
 {
     if (!instruction || !operand || !address)
@@ -50,15 +50,15 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
         }
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            *address = (ZydisU64)((ZydisU32)instruction->instrAddress + instruction->length + 
+            *address = ((ZydisU32)instruction->instrAddress + instruction->length +
                 (ZydisU32)operand->mem.disp.value);
-            return ZYDIS_STATUS_SUCCESS;   
+            return ZYDIS_STATUS_SUCCESS;
         }
         if (operand->mem.base == ZYDIS_REGISTER_RIP)
         {
-            *address = (ZydisU64)(instruction->instrAddress + instruction->length + 
+            *address = (ZydisU64)(instruction->instrAddress + instruction->length +
                 operand->mem.disp.value);
-            return ZYDIS_STATUS_SUCCESS;   
+            return ZYDIS_STATUS_SUCCESS;
         }
         if ((operand->mem.base == ZYDIS_REGISTER_NONE) &&
             (operand->mem.index == ZYDIS_REGISTER_NONE))
@@ -76,13 +76,13 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
                 return ZYDIS_STATUS_SUCCESS;
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
-            }    
+            }
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         if (operand->imm.isSigned && operand->imm.isRelative)
         {
-            *address = (ZydisU64)((ZydisI64)instruction->instrAddress + instruction->length + 
+            *address = (ZydisU64)((ZydisI64)instruction->instrAddress + instruction->length +
                 operand->imm.value.s);
             switch (instruction->machineMode)
             {
@@ -101,7 +101,7 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             default:
                 return ZYDIS_STATUS_INVALID_PARAMETER;
             }
-            return ZYDIS_STATUS_SUCCESS;     
+            return ZYDIS_STATUS_SUCCESS;
         }
         break;
     default:
@@ -120,7 +120,7 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction, 
+ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlagMask* flags)
 {
     if (!instruction)

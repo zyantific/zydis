@@ -44,7 +44,7 @@ const char* ZydisCategoryGetString(ZydisInstructionCategory category)
     {
         return ZYDIS_NULL;
     }
-    return zydisInstructionCategoryStrings[category];    
+    return zydisInstructionCategoryStrings[category];
 }
 
 const char* ZydisISASetGetString(ZydisISASet isaSet)
@@ -53,7 +53,7 @@ const char* ZydisISASetGetString(ZydisISASet isaSet)
     {
         return ZYDIS_NULL;
     }
-    return zydisISASetStrings[isaSet];    
+    return zydisISASetStrings[isaSet];
 }
 
 const char* ZydisISAExtGetString(ZydisISAExt isaExt)
@@ -62,7 +62,7 @@ const char* ZydisISAExtGetString(ZydisISAExt isaExt)
     {
         return ZYDIS_NULL;
     }
-    return zydisISAExtStrings[isaExt];     
+    return zydisISAExtStrings[isaExt];
 }
 
 /* ============================================================================================== */

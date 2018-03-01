@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   
+ * @brief
  */
 
 #ifndef ZYDIS_METAINFO_H
@@ -43,7 +43,7 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-#include <Zydis/Generated/EnumInstructionCategory.h> 
+#include <Zydis/Generated/EnumInstructionCategory.h>
 #include <Zydis/Generated/EnumISASet.h>
 #include <Zydis/Generated/EnumISAExt.h>
 
@@ -53,27 +53,27 @@ extern "C" {
 
  /**
  * @brief   Returns the specified instruction category string.
- *          
+ *
  * @param   category    The instruction category.
- *                      
+ *
  * @return  The instruction category string or @c NULL, if an invalid category was passed.
  */
 ZYDIS_EXPORT const char* ZydisCategoryGetString(ZydisInstructionCategory category);
 
 /**
  * @brief   Returns the specified isa-set string.
- *          
+ *
  * @param   isaSet  The isa-set.
- *                      
+ *
  * @return  The isa-set string or @c NULL, if an invalid isa-set was passed.
  */
 ZYDIS_EXPORT const char* ZydisISASetGetString(ZydisISASet isaSet);
 
 /**
  * @brief   Returns the specified isa-extension string.
- *          
+ *
  * @param   isaExt  The isa-extension.
- *                      
+ *
  * @return  The isa-extension string or @c NULL, if an invalid isa-extension was passed.
  */
 ZYDIS_EXPORT const char* ZydisISAExtGetString(ZydisISAExt isaExt);

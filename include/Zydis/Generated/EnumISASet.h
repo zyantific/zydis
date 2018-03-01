@@ -38,10 +38,12 @@ enum ZydisISASets
     ZYDIS_ISA_SET_LZCNT,
     ZYDIS_ISA_SET_MMX,
     ZYDIS_ISA_SET_MONITOR,
+    ZYDIS_ISA_SET_MONITORX,
     ZYDIS_ISA_SET_MOVBE,
     ZYDIS_ISA_SET_MPX,
     ZYDIS_ISA_SET_PAUSE,
     ZYDIS_ISA_SET_PCLMULQDQ,
+    ZYDIS_ISA_SET_PCONFIG,
     ZYDIS_ISA_SET_PKU,
     ZYDIS_ISA_SET_PREFETCHWT1,
     ZYDIS_ISA_SET_PT,
@@ -52,6 +54,7 @@ enum ZydisISASets
     ZYDIS_ISA_SET_RDWRFSGS,
     ZYDIS_ISA_SET_RTM,
     ZYDIS_ISA_SET_SGX,
+    ZYDIS_ISA_SET_SGX_ENCLV,
     ZYDIS_ISA_SET_SHA,
     ZYDIS_ISA_SET_SMAP,
     ZYDIS_ISA_SET_SMX,
@@ -59,6 +62,7 @@ enum ZydisISASets
     ZYDIS_ISA_SET_SSE2,
     ZYDIS_ISA_SET_SSE3,
     ZYDIS_ISA_SET_SSE4,
+    ZYDIS_ISA_SET_SSE4A,
     ZYDIS_ISA_SET_SSSE3,
     ZYDIS_ISA_SET_SVM,
     ZYDIS_ISA_SET_TBM,
@@ -72,6 +76,13 @@ enum ZydisISASets
     ZYDIS_ISA_SET_XSAVEC,
     ZYDIS_ISA_SET_XSAVEOPT,
     ZYDIS_ISA_SET_XSAVES,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
     ZYDIS_ISA_SET_MAX_VALUE = ZYDIS_ISA_SET_XSAVES,
-    ZYDIS_ISA_SET_MIN_BITS  = 0x0006
+    /**
+     * @brief   Minimum amount of bits required to store a value of this enum.
+     */
+    ZYDIS_ISA_SET_MIN_BITS  = 0x0007
 };

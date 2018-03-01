@@ -33,13 +33,17 @@
 #define ZYDIS_H
 
 #include <Zydis/CommonTypes.h>
+#ifndef ZYDIS_DISABLE_DECODER
 #include <Zydis/Decoder.h>
 #include <Zydis/DecoderTypes.h>
+#endif
 #include <Zydis/Defines.h>
+#ifndef ZYDIS_DISABLE_FORMATTER
 #include <Zydis/Formatter.h>
+#endif
 #include <Zydis/MetaInfo.h>
 #include <Zydis/Mnemonic.h>
-#include <Zydis/Register.h>   
+#include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
 #include <Zydis/Status.h>
 #include <Zydis/String.h>
@@ -122,8 +126,8 @@ enum ZydisFeatures
  * @brief   Returns the zydis version.
  *
  * @return  The zydis version.
- *          
- * Use the macros provided in this file to extract the major, minor, patch and build part from the 
+ *
+ * Use the macros provided in this file to extract the major, minor, patch and build part from the
  * returned version value.
  */
 ZYDIS_EXPORT ZydisU64 ZydisGetVersion(void);
