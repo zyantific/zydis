@@ -1689,6 +1689,8 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
 
     for (ZydisU8 i = 0; i < instruction->operandCount; ++i)
     {
+        ZydisRegisterClass registerClass = ZYDIS_REGCLASS_INVALID;
+
         instruction->operands[i].id = i;
         instruction->operands[i].visibility = operand->visibility;
         instruction->operands[i].action = operand->action;
@@ -1721,7 +1723,6 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         instruction->operands[i].encoding = operand->op.encoding;
 
         // Register operands
-        ZydisRegisterClass registerClass = ZYDIS_REGCLASS_INVALID;
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_GPR8:
@@ -1883,6 +1884,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYDIS_ASSERT(instruction->raw.disp.size);
             instruction->operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_MEM;
             instruction->operands[i].mem.disp.hasDisplacement = ZYDIS_TRUE;
             instruction->operands[i].mem.disp.value = instruction->raw.disp.value;
             break;
@@ -1974,18 +1976,21 @@ FinalizeOperand:
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_GS;
             } else
             {
-                if ((instruction->operands[i].mem.base == ZYDIS_REGISTER_RSP) ||
-                    (instruction->operands[i].mem.base == ZYDIS_REGISTER_RBP) ||
-                    (instruction->operands[i].mem.base == ZYDIS_REGISTER_ESP) ||
-                    (instruction->operands[i].mem.base == ZYDIS_REGISTER_EBP) ||
-                    (instruction->operands[i].mem.base == ZYDIS_REGISTER_SP)  ||
-                    (instruction->operands[i].mem.base == ZYDIS_REGISTER_BP))
+                if (instruction->operands[i].mem.segment == ZYDIS_REGISTER_NONE)
                 {
-                    instruction->operands[i].mem.segment = ZYDIS_REGISTER_SS;
-                } else
-                {
-                    instruction->operands[i].mem.segment = ZYDIS_REGISTER_DS;
-                };
+                    if ((instruction->operands[i].mem.base == ZYDIS_REGISTER_RSP) ||
+                        (instruction->operands[i].mem.base == ZYDIS_REGISTER_RBP) ||
+                        (instruction->operands[i].mem.base == ZYDIS_REGISTER_ESP) ||
+                        (instruction->operands[i].mem.base == ZYDIS_REGISTER_EBP) ||
+                        (instruction->operands[i].mem.base == ZYDIS_REGISTER_SP)  ||
+                        (instruction->operands[i].mem.base == ZYDIS_REGISTER_BP))
+                    {
+                        instruction->operands[i].mem.segment = ZYDIS_REGISTER_SS;
+                    } else
+                    {
+                        instruction->operands[i].mem.segment = ZYDIS_REGISTER_DS;
+                    }
+                }
             }
         }
 
