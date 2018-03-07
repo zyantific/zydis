@@ -237,6 +237,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
 
     ZYDIS_CHECK(formatter->funcPrintMemSize(formatter, string, instruction, operand, userData));
 
+    const ZydisUSize lenPreSegment = string->length;
     switch (operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
@@ -245,7 +246,6 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
     case ZYDIS_REGISTER_GS:
         ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand,
             operand->mem.segment, userData));
-        ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
         break;
     case ZYDIS_REGISTER_SS:
         if ((formatter->forceMemorySegment) ||
@@ -253,7 +253,6 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         {
             ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand,
                 operand->mem.segment, userData));
-            ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
         }
         break;
     case ZYDIS_REGISTER_DS:
@@ -262,11 +261,15 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         {
             ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand,
                 operand->mem.segment, userData));
-            ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
         }
         break;
     default:
         break;
+    }
+    // TODO: Rename ZYDIS_STATUS_SKIP_OPERAND to ZYDIS_STATUS_SKIP_TOKEN and use it in this case
+    if (string->length > lenPreSegment)
+    {
+        ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
     }
 
     ZYDIS_CHECK(ZydisStringAppendC(string, "["));
@@ -677,6 +680,15 @@ static ZydisStatus ZydisPrintPrefixesIntel(const ZydisFormatter* formatter, Zydi
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
+    {
+        ZYDIS_CHECK(ZydisStringAppendExC(string, "xacquire ", formatter->letterCase));
+    }
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
+    {
+        ZYDIS_CHECK(ZydisStringAppendExC(string, "xrelease ", formatter->letterCase));
+    }
+
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
         return ZydisStringAppendExC(string, "lock ", formatter->letterCase);
@@ -698,15 +710,6 @@ static ZydisStatus ZydisPrintPrefixesIntel(const ZydisFormatter* formatter, Zydi
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_BOUND)
     {
         return ZydisStringAppendExC(string, "bnd ", formatter->letterCase);
-    }
-
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
-    {
-        return ZydisStringAppendExC(string, "xacquire ", formatter->letterCase);
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
-    {
-        return ZydisStringAppendExC(string, "xrelease ", formatter->letterCase);
     }
 
     return ZYDIS_STATUS_SUCCESS;

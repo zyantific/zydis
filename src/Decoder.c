@@ -912,7 +912,7 @@ static ZydisU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
                          (registerClass == ZYDIS_REGCLASS_ZMM));
             return instruction->raw.sib.index;
         case ZYDIS_REG_ENCODING_IS4:
-            return (instruction->raw.imm[0].value.u >> 5) & 0x07;
+            return (instruction->raw.imm[0].value.u >> 4) & 0x07;
         case ZYDIS_REG_ENCODING_MASK:
             return context->cache.mask;
         default:
@@ -2000,40 +2000,6 @@ FinalizeOperand:
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Fix operand-action for EVEX instructions with merge-mask
-    /*if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
-         (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
-        (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
-        (instruction->operandCount >= 3) &&
-        (instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-        (instruction->operands[1].reg.value >= ZYDIS_REGISTER_K1) &&
-        (instruction->operands[1].reg.value <= ZYDIS_REGISTER_K7))
-    {
-        switch (instruction->operands[0].type)
-        {
-        case ZYDIS_OPERAND_TYPE_REGISTER:
-            ZYDIS_ASSERT((instruction->operands[0].action == ZYDIS_OPERAND_ACTION_WRITE) ||
-                         (instruction->operands[0].action == ZYDIS_OPERAND_ACTION_READWRITE));
-            instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
-            break;
-        case ZYDIS_OPERAND_TYPE_MEMORY:
-            switch (instruction->operands[0].action)
-            {
-            case ZYDIS_OPERAND_ACTION_READ:
-                break;
-            case ZYDIS_OPERAND_ACTION_WRITE:
-                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
-                break;
-            case ZYDIS_OPERAND_ACTION_READWRITE:
-                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
-                break;
-            default:
-                ZYDIS_UNREACHABLE;
-            }
-            break;
-        default:
-            break;
-        }
-    }*/
     if (instruction->avx.mask.reg && (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         !instruction->avx.mask.isControlMask)
     {
