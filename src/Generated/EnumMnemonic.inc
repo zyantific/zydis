@@ -673,7 +673,7 @@ static const ZydisStaticString zydisMnemonicStrings[] =
     ZYDIS_MAKE_STATIC_STRING("salc"),
     ZYDIS_MAKE_STATIC_STRING("sar"),
     ZYDIS_MAKE_STATIC_STRING("sarx"),
-    ZYDIS_MAKE_STATIC_STRING("savessp"),
+    ZYDIS_MAKE_STATIC_STRING("saveprevssp"),
     ZYDIS_MAKE_STATIC_STRING("sbb"),
     ZYDIS_MAKE_STATIC_STRING("scasb"),
     ZYDIS_MAKE_STATIC_STRING("scasd"),
