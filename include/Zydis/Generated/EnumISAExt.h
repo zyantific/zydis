@@ -1,12 +1,7 @@
 /**
- * @brief   Defines the `ZydisISAExt` datatype.
+ * @brief   Defines the `ZydisISAExt` enum.
  */
-typedef ZydisU8 ZydisISAExt;
-
-/**
- * @brief   Values that represent `ZydisISAExt` elements.
- */
-enum ZydisISAExts
+typedef enum ZydisISAExt_
 {
     ZYDIS_ISA_EXT_INVALID,
     ZYDIS_ISA_EXT_ADOX_ADCX,
@@ -82,7 +77,7 @@ enum ZydisISAExts
      */
     ZYDIS_ISA_EXT_MAX_VALUE = ZYDIS_ISA_EXT_XSAVES,
     /**
-     * @brief   Minimum amount of bits required to store a value of this enum.
+     * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ISA_EXT_MIN_BITS  = 0x0007
-};
+    ZYDIS_ISA_EXT_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ISA_EXT_MAX_VALUE)
+} ZydisISAExt;

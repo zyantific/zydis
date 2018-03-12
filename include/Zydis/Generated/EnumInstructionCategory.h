@@ -1,12 +1,7 @@
 /**
- * @brief   Defines the `ZydisInstructionCategory` datatype.
+ * @brief   Defines the `ZydisInstructionCategory` enum.
  */
-typedef ZydisU8 ZydisInstructionCategory;
-
-/**
- * @brief   Values that represent `ZydisInstructionCategory` elements.
- */
-enum ZydisInstructionCategories
+typedef enum ZydisInstructionCategory_
 {
     ZYDIS_CATEGORY_INVALID,
     ZYDIS_CATEGORY_ADOX_ADCX,
@@ -106,7 +101,7 @@ enum ZydisInstructionCategories
      */
     ZYDIS_CATEGORY_MAX_VALUE = ZYDIS_CATEGORY_XSAVEOPT,
     /**
-     * @brief   Minimum amount of bits required to store a value of this enum.
+     * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_CATEGORY_MIN_BITS  = 0x0007
-};
+    ZYDIS_CATEGORY_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_CATEGORY_MAX_VALUE)
+} ZydisInstructionCategory;

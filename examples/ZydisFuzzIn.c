@@ -89,7 +89,7 @@ int doIteration()
         ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
-    controlBlock.string[ZYDIS_ARRAY_SIZE(controlBlock.string) - 1] = 0;
+    controlBlock.string[ZYDIS_ARRAY_LENGTH(controlBlock.string) - 1] = 0;
 
     ZydisDecoder decoder;
     if (!ZYDIS_SUCCESS(

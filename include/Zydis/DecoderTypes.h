@@ -51,14 +51,9 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisMemoryOperandType datatype.
+ * @brief   Defines the `ZydisMemoryOperandType` enum.
  */
-typedef ZydisU8 ZydisMemoryOperandType;
-
-/**
- * @brief   Values that represent memory-operand types.
- */
-enum ZydisMemoryOperandTypes
+typedef enum ZydisMemoryOperandType_
 {
     ZYDIS_MEMOP_TYPE_INVALID,
     /**
@@ -79,15 +74,19 @@ enum ZydisMemoryOperandTypes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MEMOP_TYPE_MAX_VALUE = ZYDIS_MEMOP_TYPE_MIB
-};
+    ZYDIS_MEMOP_TYPE_MAX_VALUE = ZYDIS_MEMOP_TYPE_MIB,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_MEMOP_TYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MEMOP_TYPE_MAX_VALUE)
+} ZydisMemoryOperandType;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoded operand                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecodedOperand struct.
+ * @brief   Defines the `ZydisDecodedOperand` struct.
  */
 typedef struct ZydisDecodedOperand_
 {
@@ -222,7 +221,7 @@ typedef struct ZydisDecodedOperand_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisInstructionAttributes datatype.
+ * @brief   Defines the `ZydisInstructionAttributes` datatype.
  */
 typedef ZydisU64 ZydisInstructionAttributes;
 
@@ -405,19 +404,14 @@ typedef ZydisU64 ZydisInstructionAttributes;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisCPUFlag datatype.
+ * @brief   Defines the `ZydisCPUFlags` datatype.
  */
-typedef ZydisU8 ZydisCPUFlag;
+typedef ZydisU32 ZydisCPUFlags;
 
 /**
- * @brief   Defines the @c ZydisCPUFlagMask datatype.
+ * @brief   Defines the `ZydisCPUFlag` enum.
  */
-typedef ZydisU32 ZydisCPUFlagMask;
-
-/**
- * @brief   Values that represent CPU-flags.
- */
-enum ZydisCPUFlags
+typedef enum ZydisCPUFlag_
 {
     /**
      * @brief   Carry flag.
@@ -507,18 +501,17 @@ enum ZydisCPUFlags
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_CPUFLAG_MAX_VALUE = ZYDIS_CPUFLAG_C3
-};
+    ZYDIS_CPUFLAG_MAX_VALUE = ZYDIS_CPUFLAG_C3,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_CPUFLAG_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_MAX_VALUE)
+} ZydisCPUFlag;
 
 /**
- * @brief   Defines the @c ZydisCPUFlagAction datatype.
+ * @brief   Defines the `ZydisCPUFlagAction` enum.
  */
-typedef ZydisU8 ZydisCPUFlagAction;
-
-/**
- * @brief   Values that represent CPU-flag actions.
- */
-enum ZydisCPUFlagActions
+typedef enum ZydisCPUFlagAction_
 {
     ZYDIS_CPUFLAG_ACTION_NONE,
     ZYDIS_CPUFLAG_ACTION_TESTED,
@@ -530,22 +523,21 @@ enum ZydisCPUFlagActions
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_CPUFLAG_ACTION_MAX_VALUE = ZYDIS_CPUFLAG_ACTION_UNDEFINED
-};
+    ZYDIS_CPUFLAG_ACTION_MAX_VALUE = ZYDIS_CPUFLAG_ACTION_UNDEFINED,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_CPUFLAG_ACTION_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_ACTION_MAX_VALUE)
+} ZydisCPUFlagAction;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* SSE/AVX exception-class                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisExceptionClass datatype.
+ * @brief   Defines the `ZydisExceptionClass` enum.
  */
-typedef ZydisU8 ZydisExceptionClass;
-
-/**
- * @brief   Values that represent exception-classes.
- */
-enum ZydisExceptionClasses
+typedef enum ZydisExceptionClass_
 {
     ZYDIS_EXCEPTION_CLASS_NONE,
     // TODO: FP Exceptions
@@ -592,22 +584,21 @@ enum ZydisExceptionClasses
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_EXCEPTION_CLASS_MAX_VALUE = ZYDIS_EXCEPTION_CLASS_K21
-};
+    ZYDIS_EXCEPTION_CLASS_MAX_VALUE = ZYDIS_EXCEPTION_CLASS_K21,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_EXCEPTION_CLASS_MAX_VALUE)
+} ZydisExceptionClass;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* AVX vector-length                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisVectorLength datatype.
+ * @brief   Defines the `ZydisVectorLength` enum.
  */
-typedef ZydisU16 ZydisVectorLength;
-
-/**
- * @brief   Values that represent vector-lengths.
- */
-enum ZydisVectorLengths
+typedef enum ZydisVectorLength_
 {
     ZYDIS_VECTOR_LENGTH_INVALID =   0,
     ZYDIS_VECTOR_LENGTH_128     = 128,
@@ -617,22 +608,21 @@ enum ZydisVectorLengths
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_VECTOR_LENGTH_MAX_VALUE = ZYDIS_VECTOR_LENGTH_512
-};
+    ZYDIS_VECTOR_LENGTH_MAX_VALUE = ZYDIS_VECTOR_LENGTH_512,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_VECTOR_LENGTH_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_VECTOR_LENGTH_MAX_VALUE)
+} ZydisVectorLength;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* AVX mask mode                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisMaskMode datatype.
+ * @brief   Defines the `ZydisMaskMode` enum.
  */
-typedef ZydisU8 ZydisMaskMode;
-
-/**
- * @brief   Values that represent AVX mask-modes.
- */
-enum ZydisMaskModes
+typedef enum ZydisMaskMode_
 {
     ZYDIS_MASK_MODE_INVALID,
 
@@ -653,22 +643,21 @@ enum ZydisMaskModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_ZERO
-};
+    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_ZERO,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_MASK_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MASK_MODE_MAX_VALUE)
+} ZydisMaskMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* AVX broadcast-mode                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisBroadcastMode datatype.
+ * @brief   Defines the `ZydisBroadcastMode` enum.
  */
-typedef ZydisU8 ZydisBroadcastMode;
-
-/**
- * @brief   Values that represent AVX broadcast-modes.
- */
-enum ZydisBroadcastModes
+typedef enum ZydisBroadcastMode_
 {
     ZYDIS_BROADCAST_MODE_INVALID,
     ZYDIS_BROADCAST_MODE_1_TO_2,
@@ -687,22 +676,21 @@ enum ZydisBroadcastModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_BROADCAST_MODE_MAX_VALUE = ZYDIS_BROADCAST_MODE_8_TO_16
-};
+    ZYDIS_BROADCAST_MODE_MAX_VALUE = ZYDIS_BROADCAST_MODE_8_TO_16,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_BROADCAST_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_BROADCAST_MODE_MAX_VALUE)
+} ZydisBroadcastMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* AVX rounding-mode                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisRoundingMode datatype.
+ * @brief   Defines the `ZydisRoundingMode` enum.
  */
-typedef ZydisU8 ZydisRoundingMode;
-
-/**
- * @brief   Values that represent AVX rounding-modes.
- */
-enum ZydisRoundingModes
+typedef enum ZydisRoundingMode_
 {
     ZYDIS_ROUNDING_MODE_INVALID,
     /**
@@ -725,22 +713,21 @@ enum ZydisRoundingModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ROUNDING_MODE_MAX_VALUE = ZYDIS_ROUNDING_MODE_RZ
-};
+    ZYDIS_ROUNDING_MODE_MAX_VALUE = ZYDIS_ROUNDING_MODE_RZ,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_ROUNDING_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ROUNDING_MODE_MAX_VALUE)
+} ZydisRoundingMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* KNC swizzle-mode                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisSwizzleMode datatype.
+ * @brief   Defines the `ZydisSwizzleMode` enum.
  */
-typedef ZydisU8 ZydisSwizzleMode;
-
-/**
- * @brief   Values that represent swizzle-modes.
- */
-enum ZydisSwizzleModes
+typedef enum ZydisSwizzleMode_
 {
     ZYDIS_SWIZZLE_MODE_INVALID,
     ZYDIS_SWIZZLE_MODE_DCBA,
@@ -755,22 +742,21 @@ enum ZydisSwizzleModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_SWIZZLE_MODE_MAX_VALUE = ZYDIS_SWIZZLE_MODE_DDDD
-};
+    ZYDIS_SWIZZLE_MODE_MAX_VALUE = ZYDIS_SWIZZLE_MODE_DDDD,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_SWIZZLE_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_SWIZZLE_MODE_MAX_VALUE)
+} ZydisSwizzleMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* KNC conversion-mode                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisConversionMode datatype.
+ * @brief   Defines the `ZydisConversionMode` enum.
  */
-typedef ZydisU8 ZydisConversionMode;
-
-/**
- * @brief   Values that represent conversion-modes.
- */
-enum ZydisConversionModes
+typedef enum ZydisConversionMode_
 {
     ZYDIS_CONVERSION_MODE_INVALID,
     ZYDIS_CONVERSION_MODE_FLOAT16,
@@ -782,15 +768,19 @@ enum ZydisConversionModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_CONVERSION_MODE_MAX_VALUE = ZYDIS_CONVERSION_MODE_UINT16
-};
+    ZYDIS_CONVERSION_MODE_MAX_VALUE = ZYDIS_CONVERSION_MODE_UINT16,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_CONVERSION_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_CONVERSION_MODE_MAX_VALUE)
+} ZydisConversionMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoded instruction                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecodedInstruction struct.
+ * @brief   Defines the `ZydisDecodedInstruction` struct.
  */
 typedef struct ZydisDecodedInstruction_
 {

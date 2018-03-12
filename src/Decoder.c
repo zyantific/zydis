@@ -1154,7 +1154,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                         operand->size = context->evex.elementSize;
                     } else
                     {
-                        operand->size = instruction->avx.vectorLength / 2;
+                        operand->size = (ZydisU16)instruction->avx.vectorLength / 2;
                     }
                     break;
                 default:
@@ -2247,7 +2247,7 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
 
     ZYDIS_ASSERT(ZYDIS_ARRAY_SIZE(instruction->accessedFlags) == ZYDIS_ARRAY_SIZE(flags->action));
 
-    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_SIZE(flags->action));
+    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_LENGTH(flags->action));
 }
 
 /**

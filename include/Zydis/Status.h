@@ -43,14 +43,9 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the @c ZydisStatus datatype.
+ * @brief   Defines the `ZydisStatus` enum.
  */
-typedef ZydisU32 ZydisStatus;
-
-/**
- * @brief   Values that represent a zydis status-codes.
- */
-enum ZydisStatusCodes
+typedef enum ZydisStatus_
 {
     /* ------------------------------------------------------------------------------------------ */
     /* General                                                                                    */
@@ -151,9 +146,8 @@ enum ZydisStatusCodes
      */
     ZYDIS_STATUS_USER                                                                 = 0x10000000
 
-    // Max value entry intentionally omitted since users might define custom error codes for
-    // formatter hooks.
-};
+    // Max value entry intentionally omitted since users might define custom error codes
+} ZydisStatus;
 
 /* ============================================================================================== */
 /* Macros                                                                                         */
@@ -163,11 +157,13 @@ enum ZydisStatusCodes
  * @brief   Checks if a zydis operation was successfull.
  *
  * @param   status  The zydis status-code to check.
+ *
+ * @return  `ZYDIS_TRUE`, if the status was `ZYDIS_STATUS_SUCCESS` or `ZYDIS_FALSE`, if not.
  */
 #define ZYDIS_SUCCESS(status) (status == ZYDIS_STATUS_SUCCESS)
 
 /**
- * @brief   Checks if a zydis operation was successfull and returns the status-code, if not.
+ * @brief   Checks if a zydis operation was successfull and returns with the status-code, if not.
  *
  * @param   status  The zydis status-code to check.
  */

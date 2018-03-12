@@ -363,7 +363,7 @@ int main(int argc, char** argv)
         adjustProcessAndThreadPriority();
     }
 
-    for (uint8_t i = 0; i < ZYDIS_ARRAY_SIZE(tests); ++i)
+    for (uint8_t i = 0; i < ZYDIS_ARRAY_LENGTH(tests); ++i)
     {
         FILE* file;
 

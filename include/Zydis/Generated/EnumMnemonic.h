@@ -1,12 +1,7 @@
 /**
- * @brief   Defines the `ZydisMnemonic` datatype.
+ * @brief   Defines the `ZydisMnemonic` enum.
  */
-typedef ZydisU16 ZydisMnemonic;
-
-/**
- * @brief   Values that represent `ZydisMnemonic` elements.
- */
-enum ZydisMnemonics
+typedef enum ZydisMnemonic_
 {
     ZYDIS_MNEMONIC_INVALID,
     ZYDIS_MNEMONIC_AAA,
@@ -1597,7 +1592,7 @@ enum ZydisMnemonics
      */
     ZYDIS_MNEMONIC_MAX_VALUE = ZYDIS_MNEMONIC_XTEST,
     /**
-     * @brief   Minimum amount of bits required to store a value of this enum.
+     * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_MNEMONIC_MIN_BITS  = 0x000B
-};
+    ZYDIS_MNEMONIC_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MNEMONIC_MAX_VALUE)
+} ZydisMnemonic;

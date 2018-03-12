@@ -50,14 +50,9 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecoderMode datatype.
+ * @brief   Defines the @c ZydisDecoderMode enum.
  */
-typedef ZydisU8 ZydisDecoderMode;
-
-/**
- * @brief   Values that represent decoder-modes.
- */
-enum ZydisDecoderModes
+typedef enum ZydisDecoderMode_
 {
     /**
      * @brief   Enables minimal instruction decoding without semantic analysis.
@@ -137,8 +132,12 @@ enum ZydisDecoderModes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_WBNOINVD
-};
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_WBNOINVD,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_DECODER_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_DECODER_MODE_MAX_VALUE)
+} ZydisDecoderMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoder struct                                                                                 */

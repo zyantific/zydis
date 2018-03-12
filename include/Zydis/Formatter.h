@@ -50,14 +50,9 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisFormatterStyle` datatype.
+ * @brief   Defines the `ZydisFormatterStyle` enum.
  */
-typedef ZydisU8 ZydisFormatterStyle;
-
-/**
- * @brief   Values that represent formatter-styles.
- */
-enum ZydisFormatterStyles
+typedef enum ZydisFormatterStyle_
 {
     /**
      * @brief   Generates intel-style disassembly.
@@ -67,22 +62,21 @@ enum ZydisFormatterStyles
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL
-};
+    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_FORMATTER_STYLE_REQUIRED_BITS = 1
+} ZydisFormatterStyle;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Attributes                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisFormatterProperty` datatype.
+ * @brief   Defines the `ZydisFormatterProperty` enum.
  */
-typedef ZydisU8 ZydisFormatterProperty;
-
-/**
- * @brief   Values that represent formatter-properties.
- */
-enum ZydisFormatterProperties
+typedef enum ZydisFormatterProperty_
 {
     /**
      * @brief   Controls the letter-case.
@@ -110,6 +104,15 @@ enum ZydisFormatterProperties
      * The default value is `ZYDIS_FALSE`.
      */
     ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE,
+    /**
+     * @brief   Controls the printing of instruction prefixes.
+     *
+     * Pass `ZYDIS_TRUE` as value to print all instruction-prefixes (even ignored or duplicate
+     * ones) or `ZYDIS_FALSE` to only print prefixes that are effectively used by the instruction.
+     *
+     * The default value is `ZYDIS_FALSE`.
+     */
+    //ZYDIS_FORMATTER_PROP_DETAILED_PREFIXES, // TODO: implement
 
     /**
      * @brief   Controls the format of addresses.
@@ -172,17 +175,21 @@ enum ZydisFormatterProperties
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM
-};
+    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_FORMATTER_PROP_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_FORMATTER_PROP_MAX_VALUE)
+} ZydisFormatterProperty;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Address format                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Values that represent address-formats.
+ * @brief   Defines the `ZydisAddressFormat` enum.
  */
-enum ZydisAddressFormat
+typedef enum ZydisAddressFormat_
 {
     /**
      * @brief   Displays absolute addresses instead of relative ones.
@@ -217,17 +224,21 @@ enum ZydisAddressFormat
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED
-};
+    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_ADDR_FORMAT_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ADDR_FORMAT_MAX_VALUE)
+} ZydisAddressFormat;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Displacement format                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Values that represent displacement-formats.
+ * @brief   Defines the `ZydisDisplacementFormat` enum.
  */
-enum ZydisDisplacementFormat
+typedef enum ZydisDisplacementFormat_
 {
     /**
      * @brief   Formats displacements as signed hexadecimal values.
@@ -249,17 +260,21 @@ enum ZydisDisplacementFormat
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DISP_FORMAT_MAX_VALUE = ZYDIS_DISP_FORMAT_HEX_UNSIGNED
-};
+    ZYDIS_DISP_FORMAT_MAX_VALUE = ZYDIS_DISP_FORMAT_HEX_UNSIGNED,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_DISP_FORMAT_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_DISP_FORMAT_MAX_VALUE)
+} ZydisDisplacementFormat;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Immediate format                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Values that represent formatter immediate-formats.
+ * @brief   Defines the `ZydisImmediateFormat` enum.
  */
-enum ZydisImmediateFormat
+typedef enum ZydisImmediateFormat_
 {
     /**
      * @brief   Automatically chooses the most suitable formatting-mode based on the operands
@@ -286,22 +301,21 @@ enum ZydisImmediateFormat
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_IMM_FORMAT_MAX_VALUE = ZYDIS_IMM_FORMAT_HEX_UNSIGNED
-};
+    ZYDIS_IMM_FORMAT_MAX_VALUE = ZYDIS_IMM_FORMAT_HEX_UNSIGNED,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_IMM_FORMAT_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IMM_FORMAT_MAX_VALUE)
+} ZydisImmediateFormat;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Hooks                                                                                          */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisFormatterHookType` datatype.
+ * @brief   Defines the `ZydisFormatterHookType` enum.
  */
-typedef ZydisU8 ZydisFormatterHookType;
-
-/**
- * @brief   Values that represent formatter hook-types.
- */
-enum ZydisFormatterHookTypes
+typedef enum ZydisFormatterHookType_
 {
     /**
      * @brief   This function is invoked before the formatter formats an instruction.
@@ -390,20 +404,19 @@ enum ZydisFormatterHookTypes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR
-};
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_FORMATTER_HOOK_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_FORMATTER_HOOK_MAX_VALUE)
+} ZydisFormatterHookType;
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisDecoratorType` datatype.
+ * @brief   Defines the `ZydisDecoratorType` enum.
  */
-typedef ZydisU8 ZydisDecoratorType;
-
-/**
- * @brief   Values that represent decorator-types.
- */
-enum ZydisDecoratorTypes
+typedef enum ZydisDecoratorTypes_
 {
     ZYDIS_DECORATOR_TYPE_INVALID,
     /**
@@ -438,8 +451,12 @@ enum ZydisDecoratorTypes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DECORATOR_TYPE_MAX_VALUE = ZYDIS_DECORATOR_TYPE_EH
-};
+    ZYDIS_DECORATOR_MAX_VALUE = ZYDIS_DECORATOR_TYPE_EH,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_DECORATOR_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_DECORATOR_MAX_VALUE)
+} ZydisDecoratorType;
 
 /* ---------------------------------------------------------------------------------------------- */
 

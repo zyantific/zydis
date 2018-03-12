@@ -92,14 +92,9 @@ typedef struct ZydisStaticString_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisLetterCase` datatype.
+ * @brief   Defines the `ZydisLetterCase` enum.
  */
-typedef ZydisU8 ZydisLetterCase;
-
-/**
- * @brief   Values that represent letter cases.
- */
-enum ZydisLetterCases
+typedef enum ZydisLetterCase_
 {
     /**
      * @brief   Uses the given text "as is".
@@ -117,8 +112,12 @@ enum ZydisLetterCases
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_LETTER_CASE_MAX_VALUE = ZYDIS_LETTER_CASE_UPPER
-};
+    ZYDIS_LETTER_CASE_MAX_VALUE = ZYDIS_LETTER_CASE_UPPER,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_LETTER_CASE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_LETTER_CASE_MAX_VALUE)
+} ZydisLetterCase;
 
 /* ---------------------------------------------------------------------------------------------- */
 

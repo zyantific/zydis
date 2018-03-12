@@ -121,14 +121,14 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
 /* ---------------------------------------------------------------------------------------------- */
 
 ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlagAction action, ZydisCPUFlagMask* flags)
+    ZydisCPUFlagAction action, ZydisCPUFlags* flags)
 {
     if (!instruction)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
     *flags = 0;
-    for (ZydisU8 i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
+    for (ZydisU8 i = 0; i < ZYDIS_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
         if (instruction->accessedFlags[i].action == action)
         {

@@ -105,18 +105,22 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the @c ZydisFeature datatype.
+ * @brief   Defines the `ZydisFeature` enum.
  */
-typedef ZydisU8 ZydisFeature;
-
-/**
- * @brief   Values that represent zydis features.
- */
-enum ZydisFeatures
+typedef enum ZydisFeature_
 {
     ZYDIS_FEATURE_EVEX,
     ZYDIS_FEATURE_MVEX,
-};
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_MVEX,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_FEATURE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_FEATURE_MAX_VALUE)
+} ZydisFeature;
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

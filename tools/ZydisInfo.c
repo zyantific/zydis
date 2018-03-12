@@ -262,7 +262,7 @@ void printFlags(ZydisDecodedInstruction* instruction)
     fputs("=======================================\n", stdout);
     printf("    ACTIONS: ");
     uint8_t c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_SIZE(instruction->accessedFlags); ++i)
+    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
         if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
@@ -276,7 +276,7 @@ void printFlags(ZydisDecodedInstruction* instruction)
     }
     puts(c ? "" : "none");
 
-    ZydisCPUFlagMask flags, temp;
+    ZydisCPUFlags flags, temp;
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
     printf("       READ: 0x%08" PRIX32 "\n", flags);
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
@@ -515,7 +515,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     if (instruction->attributes)
     {
         fputs (" ATTRIBUTES: ", stdout);
-        for (size_t i = 0; i < ZYDIS_ARRAY_SIZE(attributeMap); ++i)
+        for (size_t i = 0; i < ZYDIS_ARRAY_LENGTH(attributeMap); ++i)
         {
             if (instruction->attributes & attributeMap[i].attrMask)
             {

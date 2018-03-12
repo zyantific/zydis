@@ -60,14 +60,9 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisMachineMode datatype.
+ * @brief   Defines the `ZydisMachineMode` enum.
  */
-typedef ZydisU8 ZydisMachineMode;
-
-/**
- * @brief   Values that represent machine modes.
- */
-enum ZydisMachineModes
+typedef enum ZydisMachineMode_
 {
     ZYDIS_MACHINE_MODE_INVALID,
     /**
@@ -95,25 +90,24 @@ enum ZydisMachineModes
      */
     ZYDIS_MACHINE_MODE_REAL_16,
 
-     /**
+    /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MACHINE_MODE_MAX_VALUE = ZYDIS_MACHINE_MODE_REAL_16
-};
+    ZYDIS_MACHINE_MODE_MAX_VALUE = ZYDIS_MACHINE_MODE_REAL_16,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_MACHINE_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MACHINE_MODE_MAX_VALUE)
+} ZydisMachineMode;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Address width                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisAddressWidth datatype.
+ * @brief   Defines the `ZydisAddressWidth` enum.
  */
-typedef ZydisU8 ZydisAddressWidth;
-
-/**
- * @brief   Values that represent address widths.
- */
-enum ZydisAddressWidths
+typedef enum ZydisAddressWidth_
 {
     ZYDIS_ADDRESS_WIDTH_INVALID         =  0, // TODO: Don't manually initialize values
     ZYDIS_ADDRESS_WIDTH_16              = 16,
@@ -123,22 +117,21 @@ enum ZydisAddressWidths
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ADDRESS_WIDTH_MAX_VALUE       = ZYDIS_ADDRESS_WIDTH_64
-};
+    ZYDIS_ADDRESS_WIDTH_MAX_VALUE = ZYDIS_ADDRESS_WIDTH_64,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_ADDRESS_WIDTH_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ADDRESS_WIDTH_MAX_VALUE)
+} ZydisAddressWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Element types                                                                                  */
+/* Element type                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisElementType datatype.
+ * @brief   Defines the `ZydisElementType` enum.
  */
-typedef ZydisU8 ZydisElementType;
-
-/**
- * @brief   Values that represent element-types.
- */
-enum ZydisElementTypes
+typedef enum ZydisElementType_
 {
     ZYDIS_ELEMENT_TYPE_INVALID,
     ZYDIS_ELEMENT_TYPE_STRUCT,
@@ -153,11 +146,19 @@ enum ZydisElementTypes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ELEMENT_TYPE_MAX_VALUE = ZYDIS_ELEMENT_TYPE_LONGBCD
-};
+    ZYDIS_ELEMENT_TYPE_MAX_VALUE = ZYDIS_ELEMENT_TYPE_LONGBCD,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_ELEMENT_TYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ELEMENT_TYPE_MAX_VALUE)
+} ZydisElementType;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Element size                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisElementSize datatype.
+ * @brief   Defines the `ZydisElementSize` datatype.
  */
 typedef ZydisU16 ZydisElementSize;
 
@@ -166,14 +167,9 @@ typedef ZydisU16 ZydisElementSize;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOperandType datatype.
+ * @brief   Defines the `ZydisOperandType` enum.
  */
-typedef ZydisU8 ZydisOperandType;
-
-/**
- * @brief   Values that represent operand-types.
- */
-enum ZydisOperandTypes
+typedef enum ZydisOperandType_
 {
     /**
      * @brief   The operand is not used.
@@ -199,22 +195,21 @@ enum ZydisOperandTypes
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPERAND_TYPE_MAX_VALUE = ZYDIS_OPERAND_TYPE_IMMEDIATE
-};
+    ZYDIS_OPERAND_TYPE_MAX_VALUE = ZYDIS_OPERAND_TYPE_IMMEDIATE,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_OPERAND_TYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_OPERAND_TYPE_MAX_VALUE)
+} ZydisOperandType;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand encoding                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOperandEncoding datatype.
+ * @brief   Defines the `ZydisOperandEncoding` enum.
  */
-typedef ZydisU8 ZydisOperandEncoding;
-
-/**
- * @brief   Values that represent operand-encodings.
- */
-enum ZydisOperandEncodings
+typedef enum ZydisOperandEncoding_
 {
     ZYDIS_OPERAND_ENCODING_NONE,
     ZYDIS_OPERAND_ENCODING_MODRM_REG,
@@ -255,22 +250,21 @@ enum ZydisOperandEncodings
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPERAND_ENCODING_MAX_VALUE = ZYDIS_OPERAND_ENCODING_JIMM16_32_32
-};
+    ZYDIS_OPERAND_ENCODING_MAX_VALUE = ZYDIS_OPERAND_TYPE_IMMEDIATE,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_OPERAND_ENCODING_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_OPERAND_ENCODING_MAX_VALUE)
+} ZydisOperandEncoding;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand visibility                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOperandVisibility datatype.
+ * @brief   Defines the `ZydisOperandVisibility` enum.
  */
-typedef ZydisU8 ZydisOperandVisibility;
-
-/**
- * @brief   Values that represent operand-visibilities.
- */
-enum ZydisOperandVisibilities
+typedef enum ZydisOperandVisibility_
 {
     ZYDIS_OPERAND_VISIBILITY_INVALID,
     /**
@@ -289,22 +283,22 @@ enum ZydisOperandVisibilities
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPERAND_VISIBILITY_MAX_VALUE = ZYDIS_OPERAND_VISIBILITY_HIDDEN
-};
+    ZYDIS_OPERAND_VISIBILITY_MAX_VALUE = ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS =
+        ZYDIS_BITS_TO_REPRESENT(ZYDIS_OPERAND_VISIBILITY_MAX_VALUE)
+} ZydisOperandVisibility;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand action                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOperandAction datatype.
+ * @brief   Defines the `ZydisOperandVisibility` enum.
  */
-typedef ZydisU8 ZydisOperandAction;
-
-/**
- * @brief   Values that represent operand-actions.
- */
-enum ZydisOperandActions
+typedef enum ZydisOperandAction_
 {
     ZYDIS_OPERAND_ACTION_INVALID,
     /**
@@ -352,22 +346,21 @@ enum ZydisOperandActions
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPERAND_ACTION_MAX_VALUE = ZYDIS_OPERAND_ACTION_CONDREAD_WRITE
-};
+    ZYDIS_OPERAND_ACTION_MAX_VALUE = ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_OPERAND_ACTION_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_OPERAND_ACTION_MAX_VALUE),
+} ZydisOperandAction;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction encoding                                                                           */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisInstructionEncoding datatype.
+ * @brief   Defines the `ZydisInstructionEncoding` enum.
  */
-typedef ZydisU8 ZydisInstructionEncoding;
-
-/**
- * @brief   Values that represent instruction-encodings.
- */
-enum ZydisInstructionEncodings
+typedef enum ZydisInstructionEncoding_
 {
     ZYDIS_INSTRUCTION_ENCODING_INVALID,
     /**
@@ -398,22 +391,22 @@ enum ZydisInstructionEncodings
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_MVEX
-};
+    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_MVEX,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_INSTRUCTION_ENCODING_REQUIRED_BITS =
+        ZYDIS_BITS_TO_REPRESENT(ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE),
+} ZydisInstructionEncoding;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Opcode map                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisOpcodeMap map.
+ * @brief   Defines the `ZydisOpcodeMap` enum.
  */
-typedef ZydisU8 ZydisOpcodeMap;
-
-/**
- * @brief   Values that represent opcode-maps.
- */
-enum ZydisOpcodeMaps
+typedef enum ZydisOpcodeMap_
 {
     ZYDIS_OPCODE_MAP_DEFAULT,
     ZYDIS_OPCODE_MAP_0F,
@@ -427,8 +420,12 @@ enum ZydisOpcodeMaps
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPCODE_MAP_MAX_VALUE = ZYDIS_OPCODE_MAP_XOPA
-};
+    ZYDIS_OPCODE_MAP_MAX_VALUE = ZYDIS_OPCODE_MAP_XOPA,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_OPCODE_MAP_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_OPCODE_MAP_MAX_VALUE),
+} ZydisOpcodeMap;
 
 /* ---------------------------------------------------------------------------------------------- */
 

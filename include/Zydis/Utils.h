@@ -76,7 +76,7 @@ ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction*
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlagAction action, ZydisCPUFlagMask* flags);
+    ZydisCPUFlagAction action, ZydisCPUFlags* flags);
 
 /* ============================================================================================== */
 

@@ -93,6 +93,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
 
 ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
 {
+    ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 8);
     for (unsigned i = 0; i < registerMapCount; ++i)
     {
         switch (registerMap[i].class)
@@ -104,7 +105,7 @@ ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
         default:
             if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
             {
-                return reg - registerMap[i].lo;
+                return (ZydisU16)(reg - registerMap[i].lo);
             }
         }
     }
@@ -183,7 +184,7 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if (reg >= ZYDIS_ARRAY_SIZE(zydisRegisterStrings))
+    if (reg >= ZYDIS_ARRAY_LENGTH(zydisRegisterStrings))
     {
         return ZYDIS_NULL;
     }
@@ -192,7 +193,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
 
 const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
 {
-    if (reg >= ZYDIS_ARRAY_SIZE(zydisRegisterStrings))
+    if (reg >= ZYDIS_ARRAY_LENGTH(zydisRegisterStrings))
     {
         return ZYDIS_NULL;
     }

@@ -132,6 +132,12 @@
 #   define ZYDIS_ASSERT(condition) assert(condition)
 #endif
 
+#if __STDC_VERSION__ >= 201112L
+#   define ZYDIS_STATIC_ASSERT(x) _Static_assert(x, #x)
+#else
+#   define ZYDIS_STATIC_ASSERT(x) typedef int ZYDIS_SASSERT_IMPL[(x) ? 1 : -1]
+#endif
+
 #if defined(ZYDIS_RELEASE)
 #   if defined(ZYDIS_CLANG) // GCC eagerly evals && RHS, we have to use nested ifs.
 #       if __has_builtin(__builtin_unreachable)
@@ -164,24 +170,9 @@
 /* Utils                                                                                          */
 /* ============================================================================================== */
 
-/**
- * @brief   Compiler-time assertion.
- */
-#if __STDC_VERSION__ >= 201112L
-#   define ZYDIS_STATIC_ASSERT(x) _Static_assert(x, #x)
-#else
-#   define ZYDIS_STATIC_ASSERT(x) typedef int ZYDIS_SASSERT_IMPL[(x) ? 1 : -1]
-#endif
-
-/**
- * @brief   Declares a bitfield.
- */
-#define ZYDIS_BITFIELD(x) : x
-
-/**
- * @brief   Marks the specified parameter as unused.
- */
-#define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
+/* ---------------------------------------------------------------------------------------------- */
+/* General purpose                                                                                */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Intentional fallthrough.
@@ -189,9 +180,79 @@
 #define ZYDIS_FALLTHROUGH
 
 /**
- * @brief   Calculates the size of an array.
+ * @brief   Declares a bitfield.
+ *
+ * @param   x   The size (in bits) of the bitfield.
  */
-#define ZYDIS_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+#define ZYDIS_BITFIELD(x) : x
+
+/**
+ * @brief   Marks the specified parameter as unused.
+ *
+ * @param   x   The name of the unused parameter.
+ */
+#define ZYDIS_UNUSED_PARAMETER(x) (void)(x)
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Arrays                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the length (number of elements) of an array.
+ *
+ * @param   a   The name of the array.
+ *
+ * @return  The number of elements of the given array.
+ */
+#define ZYDIS_ARRAY_LENGTH(a) (sizeof(a) / sizeof(a[0]))
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Bit operations                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+
+/*
+ * @brief   Checks, if the bit at index `b` is required to present the ordinal value `n`.
+ *
+ * @param   n   The ordinal value.
+ * @param   b   The bit index.
+ *
+ * @return  `ZYDIS_TRUE`, if the bit at index `b` is required to present the ordinal value `n`, or
+ *          `ZYDIS_FALSE`, if not.
+ *
+ * Note that this macro always returns `ZYDIS_FALSE` for `n == 0`.
+ */
+#define ZYDIS_NEEDS_BIT(n, b) (((unsigned long)n >> b) > 0)
+
+/*
+ * @brief   Returns the number of bits required to represent the ordinal value `n`.
+ *
+ * @param   n   The ordinal value.
+ *
+ * @return  The number of bits required to represent the ordinal value `n`.
+ *
+ * Note that this macro returns `0` for `n == 0`.
+ */
+#define ZYDIS_BITS_TO_REPRESENT(n) \
+    ( \
+        ZYDIS_NEEDS_BIT(n,  0) + ZYDIS_NEEDS_BIT(n,  1) + \
+        ZYDIS_NEEDS_BIT(n,  2) + ZYDIS_NEEDS_BIT(n,  3) + \
+        ZYDIS_NEEDS_BIT(n,  4) + ZYDIS_NEEDS_BIT(n,  5) + \
+        ZYDIS_NEEDS_BIT(n,  6) + ZYDIS_NEEDS_BIT(n,  7) + \
+        ZYDIS_NEEDS_BIT(n,  8) + ZYDIS_NEEDS_BIT(n,  9) + \
+        ZYDIS_NEEDS_BIT(n, 10) + ZYDIS_NEEDS_BIT(n, 11) + \
+        ZYDIS_NEEDS_BIT(n, 12) + ZYDIS_NEEDS_BIT(n, 13) + \
+        ZYDIS_NEEDS_BIT(n, 14) + ZYDIS_NEEDS_BIT(n, 15) + \
+        ZYDIS_NEEDS_BIT(n, 16) + ZYDIS_NEEDS_BIT(n, 17) + \
+        ZYDIS_NEEDS_BIT(n, 18) + ZYDIS_NEEDS_BIT(n, 19) + \
+        ZYDIS_NEEDS_BIT(n, 20) + ZYDIS_NEEDS_BIT(n, 21) + \
+        ZYDIS_NEEDS_BIT(n, 22) + ZYDIS_NEEDS_BIT(n, 23) + \
+        ZYDIS_NEEDS_BIT(n, 24) + ZYDIS_NEEDS_BIT(n, 25) + \
+        ZYDIS_NEEDS_BIT(n, 26) + ZYDIS_NEEDS_BIT(n, 27) + \
+        ZYDIS_NEEDS_BIT(n, 28) + ZYDIS_NEEDS_BIT(n, 29) + \
+        ZYDIS_NEEDS_BIT(n, 30) + ZYDIS_NEEDS_BIT(n, 31)   \
+    )
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 

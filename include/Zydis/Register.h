@@ -55,14 +55,9 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisRegisterClass datatype.
+ * @brief   Defines the `ZydisRegisterClass` enum.
  */
-typedef ZydisU8 ZydisRegisterClass;
-
-/**
- * @brief   Values that represent zydis register-classes.
- */
-enum ZydisRegisterClasses
+typedef enum ZydisRegisterClass
 {
     ZYDIS_REGCLASS_INVALID,
     /**
@@ -137,8 +132,12 @@ enum ZydisRegisterClasses
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_REGCLASS_MAX_VALUE = ZYDIS_REGCLASS_BOUND
-};
+    ZYDIS_REGCLASS_MAX_VALUE = ZYDIS_REGCLASS_BOUND,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_REGCLASS_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_REGCLASS_MAX_VALUE)
+} ZydisRegisterClass;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Register width                                                                                 */

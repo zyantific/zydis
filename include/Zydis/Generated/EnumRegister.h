@@ -1,12 +1,7 @@
 /**
- * @brief   Defines the `ZydisRegister` datatype.
+ * @brief   Defines the `ZydisRegister` enum.
  */
-typedef ZydisU8 ZydisRegister;
-
-/**
- * @brief   Values that represent `ZydisRegister` elements.
- */
-enum ZydisRegisters
+typedef enum ZydisRegister_
 {
     ZYDIS_REGISTER_NONE,
 
@@ -288,7 +283,7 @@ enum ZydisRegisters
      */
     ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_XCR0,
     /**
-     * @brief   Minimum amount of bits required to store a value of this enum.
+     * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_REGISTER_MIN_BITS  = 0x0008
-};
+    ZYDIS_REGISTER_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_REGISTER_MAX_VALUE)
+} ZydisRegister;
