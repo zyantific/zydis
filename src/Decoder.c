@@ -1685,7 +1685,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
     const ZydisOperandDefinition* operand;
     instruction->operandCount = ZydisGetOperandDefinitions(definition, &operand);
 
-    ZYDIS_ASSERT(instruction->operandCount <= ZYDIS_ARRAY_SIZE(instruction->operands));
+    ZYDIS_ASSERT(instruction->operandCount <= ZYDIS_ARRAY_LENGTH(instruction->operands));
 
     for (ZydisU8 i = 0; i < instruction->operandCount; ++i)
     {
@@ -2245,7 +2245,8 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
     const ZydisAccessedFlags* flags;
     ZydisGetAccessedFlags(definition, &flags);
 
-    ZYDIS_ASSERT(ZYDIS_ARRAY_SIZE(instruction->accessedFlags) == ZYDIS_ARRAY_SIZE(flags->action));
+    ZYDIS_ASSERT(
+        ZYDIS_ARRAY_LENGTH(instruction->accessedFlags) == ZYDIS_ARRAY_LENGTH(flags->action));
 
     ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_LENGTH(flags->action));
 }
@@ -2297,7 +2298,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_VECTOR_LENGTH_128,
             ZYDIS_VECTOR_LENGTH_256
         };
-        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[context->cache.LL];
         break;
     }
@@ -2309,7 +2310,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_VECTOR_LENGTH_128,
             ZYDIS_VECTOR_LENGTH_256
         };
-        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[context->cache.LL];
 
         // Static broadcast-factor
@@ -2350,7 +2351,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             ZYDIS_VECTOR_LENGTH_256,
             ZYDIS_VECTOR_LENGTH_512
         };
-        ZYDIS_ASSERT(vectorLength < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(vectorLength < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[vectorLength];
 
         context->evex.tupleType = def->tupleType;
@@ -2364,7 +2365,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             {
                   0,   8,  16,  32,  64, 128
             };
-            ZYDIS_ASSERT(def->elementSize < ZYDIS_ARRAY_SIZE(elementSizes));
+            ZYDIS_ASSERT(def->elementSize < ZYDIS_ARRAY_LENGTH(elementSizes));
             context->evex.elementSize = elementSizes[def->elementSize];
 
             // Compressed disp8 scale and broadcast-factor
@@ -2486,7 +2487,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     /* 64*/  8,
                     /*128*/ 16,
                 };
-                ZYDIS_ASSERT(def->elementSize < ZYDIS_ARRAY_SIZE(scales));
+                ZYDIS_ASSERT(def->elementSize < ZYDIS_ARRAY_LENGTH(scales));
                 context->cd8scale = scales[def->elementSize];
                 break;
             };
@@ -2617,7 +2618,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYDIS_BROADCAST_MODE_4_TO_16,
                 ZYDIS_BROADCAST_MODE_8_TO_16
             };
-            ZYDIS_ASSERT(def->broadcast < ZYDIS_ARRAY_SIZE(broadcasts));
+            ZYDIS_ASSERT(def->broadcast < ZYDIS_ARRAY_LENGTH(broadcasts));
             instruction->avx.broadcast.mode = broadcasts[def->broadcast];
         }
 
@@ -2716,7 +2717,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 4,   0,  0,  2,  1,  1,  2,  2 },
                 { 16,  0,  0,  8,  4,  4,  8,  8 }
             };
-            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_LENGTH(lookup[index]));
             context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
@@ -2731,7 +2732,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {  4,  0,  0,  0,  1,  1,  2,  2 },
                 { 16,  0,  0,  0,  4,  4,  8,  8 }
             };
-            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_LENGTH(lookup[index]));
             context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
@@ -2746,7 +2747,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {  8,  0,  0 },
                 { 32,  0,  0 }
             };
-            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_LENGTH(lookup[index]));
             context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
@@ -2758,7 +2759,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 64,  0,  0, 32, 16, 16, 32, 32 },
                 {  4,  0,  0,  2,  1,  1,  2,  2 }
             };
-            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_LENGTH(lookup[index]));
             context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
@@ -2770,7 +2771,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 64 },
                 {  8 }
             };
-            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_SIZE(lookup[index]));
+            ZYDIS_ASSERT(instruction->raw.mvex.SSS < ZYDIS_ARRAY_LENGTH(lookup[index]));
             context->cd8scale = lookup[index][instruction->raw.mvex.SSS];
             break;
         }
@@ -3335,8 +3336,8 @@ static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 
-    ZYDIS_ASSERT(definition->operandSizeMap < ZYDIS_ARRAY_SIZE(operandSizeMap));
-    ZYDIS_ASSERT(index < ZYDIS_ARRAY_SIZE(operandSizeMap[definition->operandSizeMap]));
+    ZYDIS_ASSERT(definition->operandSizeMap < ZYDIS_ARRAY_LENGTH(operandSizeMap));
+    ZYDIS_ASSERT(index < ZYDIS_ARRAY_LENGTH(operandSizeMap[definition->operandSizeMap]));
 
     instruction->operandWidth = operandSizeMap[definition->operandSizeMap][index];
 
@@ -4124,7 +4125,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             // ZYDIS_MVEX_FUNC_DI_64
             { 1, 0, 0, 0, 0, 0, 0, 0 }
         };
-        ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(def->functionality < ZYDIS_ARRAY_LENGTH(lookup));
         ZYDIS_ASSERT(instruction->raw.mvex.SSS < 8);
         if (!lookup[def->functionality][instruction->raw.mvex.SSS])
         {
@@ -4175,7 +4176,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         {
             1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
         };
-        ZYDIS_ASSERT(value < ZYDIS_ARRAY_SIZE(lookup));
+        ZYDIS_ASSERT(value < ZYDIS_ARRAY_LENGTH(lookup));
         if (!lookup[value])
         {
             return ZYDIS_STATUS_BAD_REGISTER;

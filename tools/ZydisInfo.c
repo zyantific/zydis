@@ -62,7 +62,7 @@ const char* ZydisFormatStatus(ZydisStatus status)
         "IMPOSSIBLE_INSTRUCTION",
         "INSUFFICIENT_BUFFER_SIZE"
     };
-    ZYDIS_ASSERT(status < ZYDIS_ARRAY_SIZE(strings));
+    ZYDIS_ASSERT(status < ZYDIS_ARRAY_LENGTH(strings));
     return strings[status];
 }
 

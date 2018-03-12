@@ -193,7 +193,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
     };
 
-    ZYDIS_ASSERT(element < ZYDIS_ARRAY_SIZE(lookup));
+    ZYDIS_ASSERT(element < ZYDIS_ARRAY_LENGTH(lookup));
 
     *type = lookup[element].type;
     *size = lookup[element].size;
@@ -206,7 +206,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
-    ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_SIZE(accessedFlags));
+    ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_LENGTH(accessedFlags));
     *flags = &accessedFlags[definition->flagsReference];
 }
 
