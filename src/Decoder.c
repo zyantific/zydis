@@ -39,12 +39,12 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecoderContext struct.
+ * @brief   Defines the `ZydisDecoderContext` struct.
  */
 typedef struct ZydisDecoderContext_
 {
     /**
-     * @brief   A pointer to the @c ZydisInstructionDecoder instance.
+     * @brief   A pointer to the `ZydisDecoder` instance.
      */
     const ZydisDecoder* decoder;
     /**
@@ -135,20 +135,13 @@ typedef struct ZydisDecoderContext_
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Register encodings                                                                             */
+/* Register encoding                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisRegisterEncoding datatype.
+ * @brief   Defines the `ZydisRegisterEncoding` enum.
  */
-typedef ZydisU8 ZydisRegisterEncoding;
-
-/**
- * @brief   Values that represent register-encodings.
- *
- * These values are used in the @c ZydisCalcRegisterId function.
- */
-enum ZydisRegisterEncodings
+typedef enum ZydisRegisterEncoding_
 {
     ZYDIS_REG_ENCODING_INVALID,
     /**
@@ -203,8 +196,17 @@ enum ZydisRegisterEncodings
     /**
      * @brief   The register-id is encoded in `EVEX.aaa/MVEX.kkk`.
      */
-    ZYDIS_REG_ENCODING_MASK
-};
+    ZYDIS_REG_ENCODING_MASK,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_REG_ENCODING_MAX_VALUE = ZYDIS_REG_ENCODING_MASK,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_REG_ENCODING_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_REG_ENCODING_MAX_VALUE)
+} ZydisRegisterEncoding;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -1586,8 +1588,9 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         break;
     case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
         operand->reg.value = ZydisRegisterEncode(
-            (context->decoder->addressWidth == 16) ? ZYDIS_REGCLASS_GPR16  :
-            (context->decoder->addressWidth == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGCLASS_GPR16  :
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGCLASS_GPR32  :
+                                                                         ZYDIS_REGCLASS_GPR64,
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
@@ -1597,13 +1600,15 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         break;
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
         operand->reg.value =
-            (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_EIP    :
-            (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
+                                                                         ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
         operand->reg.value =
-            (context->decoder->addressWidth == 16) ? ZYDIS_REGISTER_FLAGS  :
-            (context->decoder->addressWidth == 32) ? ZYDIS_REGISTER_EFLAGS : ZYDIS_REGISTER_RFLAGS;
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
+            (context->decoder->addressWidth == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
+                                                                         ZYDIS_REGISTER_RFLAGS;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -2293,10 +2298,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
     {
         // Vector length
-        static const ZydisVectorLength lookup[2] =
+        static const ZydisU16 lookup[2] =
         {
-            ZYDIS_VECTOR_LENGTH_128,
-            ZYDIS_VECTOR_LENGTH_256
+            128,
+            256
         };
         ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[context->cache.LL];
@@ -2305,10 +2310,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     {
         // Vector length
-        static const ZydisVectorLength lookup[2] =
+        static const ZydisU16 lookup[2] =
         {
-            ZYDIS_VECTOR_LENGTH_128,
-            ZYDIS_VECTOR_LENGTH_256
+            128,
+            256
         };
         ZYDIS_ASSERT(context->cache.LL < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[context->cache.LL];
@@ -2345,11 +2350,11 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         {
             vectorLength = def->vectorLength - 1;
         }
-        static const ZydisVectorLength lookup[3] =
+        static const ZydisU16 lookup[3] =
         {
-            ZYDIS_VECTOR_LENGTH_128,
-            ZYDIS_VECTOR_LENGTH_256,
-            ZYDIS_VECTOR_LENGTH_512
+            128,
+            256,
+            512
         };
         ZYDIS_ASSERT(vectorLength < ZYDIS_ARRAY_LENGTH(lookup));
         instruction->avx.vectorLength = lookup[vectorLength];
@@ -2655,7 +2660,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     {
 #ifndef ZYDIS_DISABLE_MVEX
         // Vector length
-        instruction->avx.vectorLength = ZYDIS_VECTOR_LENGTH_512;
+        instruction->avx.vectorLength = 512;
 
         const ZydisInstructionDefinitionMVEX* def =
             (const ZydisInstructionDefinitionMVEX*)definition;
@@ -3216,7 +3221,7 @@ static ZydisStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* cont
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
  */
-static void ZydisSetEffectiveOperandSize(ZydisDecoderContext* context,
+static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
     ZYDIS_ASSERT(context);
@@ -3381,29 +3386,17 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
 
     switch (context->decoder->addressWidth)
     {
-    case 16:
+    case ZYDIS_ADDRESS_WIDTH_16:
         instruction->addressWidth = hasOverride ? 32 : 16;
+        context->easzIndex = hasOverride ? 1 : 0;
         break;
-    case 32:
+    case ZYDIS_ADDRESS_WIDTH_32:
         instruction->addressWidth = hasOverride ? 16 : 32;
+        context->easzIndex = hasOverride ? 0 : 1;
         break;
-    case 64:
+    case ZYDIS_ADDRESS_WIDTH_64:
         instruction->addressWidth = hasOverride ? 32 : 64;
-        break;
-    default:
-        ZYDIS_UNREACHABLE;
-    }
-
-    switch (instruction->addressWidth)
-    {
-    case 16:
-        context->easzIndex = 0;
-        break;
-    case 32:
-        context->easzIndex = 1;
-        break;
-    case 64:
-        context->easzIndex = 2;
+        context->easzIndex = hasOverride ? 1 : 2;
         break;
     default:
         ZYDIS_UNREACHABLE;
@@ -3842,13 +3835,13 @@ static ZydisStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
 
     switch (context->decoder->addressWidth)
     {
-    case 16:
+    case ZYDIS_ADDRESS_WIDTH_16:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 0;
         break;
-    case 32:
+    case ZYDIS_ADDRESS_WIDTH_32:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 0 : 1;
         break;
-    case 64:
+    case ZYDIS_ADDRESS_WIDTH_64:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 2;
         break;
     default:
@@ -4477,7 +4470,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             {
                 const ZydisInstructionDefinition* definition;
                 ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
-                ZydisSetEffectiveOperandSize(context, instruction, definition);
+                ZydisSetEffectiveOperandWidth(context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(context, instruction, definition);
 
                 const ZydisInstructionEncodingInfo* info;
@@ -4565,23 +4558,30 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
         ZYDIS_FALSE  // ZYDIS_DECODER_MODE_WBNOINVD
     };
 
-    if (!decoder ||
-        (machineMode == ZYDIS_MACHINE_MODE_INVALID) || (machineMode > ZYDIS_MACHINE_MODE_MAX_VALUE))
+    if (!decoder)
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
-    if (machineMode == ZYDIS_MACHINE_MODE_LONG_64)
+    switch (machineMode)
     {
-        if (addressWidth != 64)
+    case ZYDIS_MACHINE_MODE_LONG_64:
+        if (addressWidth != ZYDIS_ADDRESS_WIDTH_64)
         {
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
-    } else
-    {
-        if ((addressWidth != 16) && (addressWidth != 32))
+        break;
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
+        if ((addressWidth != ZYDIS_ADDRESS_WIDTH_16) && (addressWidth != ZYDIS_ADDRESS_WIDTH_32))
         {
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
+        break;
+    default:
+        return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
     decoder->machineMode = machineMode;
@@ -4626,7 +4626,11 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
 
     ZydisMemorySet(instruction, 0, sizeof(*instruction));
     instruction->machineMode = decoder->machineMode;
-    instruction->stackWidth = decoder->addressWidth;
+    static const ZydisU8 lookup[ZYDIS_ADDRESS_WIDTH_MAX_VALUE + 1] =
+    {
+        16, 32, 64
+    };
+    instruction->stackWidth = lookup[decoder->addressWidth];
     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
     instruction->instrAddress = instructionPointer;
 

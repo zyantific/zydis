@@ -592,30 +592,6 @@ typedef enum ZydisExceptionClass_
 } ZydisExceptionClass;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* AVX vector-length                                                                              */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Defines the `ZydisVectorLength` enum.
- */
-typedef enum ZydisVectorLength_
-{
-    ZYDIS_VECTOR_LENGTH_INVALID =   0,
-    ZYDIS_VECTOR_LENGTH_128     = 128,
-    ZYDIS_VECTOR_LENGTH_256     = 256,
-    ZYDIS_VECTOR_LENGTH_512     = 512,
-
-    /**
-     * @brief   Maximum value of this enum.
-     */
-    ZYDIS_VECTOR_LENGTH_MAX_VALUE = ZYDIS_VECTOR_LENGTH_512,
-    /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_VECTOR_LENGTH_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_VECTOR_LENGTH_MAX_VALUE)
-} ZydisVectorLength;
-
-/* ---------------------------------------------------------------------------------------------- */
 /* AVX mask mode                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -862,7 +838,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   The AVX vector-length.
          */
-        ZydisVectorLength vectorLength;
+        ZydisU16 vectorLength;
         /**
          * @brief   Info about the embedded writemask-register (`EVEX` and `MVEX` only).
          */

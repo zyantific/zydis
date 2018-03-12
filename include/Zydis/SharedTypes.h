@@ -64,7 +64,6 @@ extern "C" {
  */
 typedef enum ZydisMachineMode_
 {
-    ZYDIS_MACHINE_MODE_INVALID,
     /**
      * @brief 64 bit mode.
      */
@@ -109,10 +108,9 @@ typedef enum ZydisMachineMode_
  */
 typedef enum ZydisAddressWidth_
 {
-    ZYDIS_ADDRESS_WIDTH_INVALID         =  0, // TODO: Don't manually initialize values
-    ZYDIS_ADDRESS_WIDTH_16              = 16,
-    ZYDIS_ADDRESS_WIDTH_32              = 32,
-    ZYDIS_ADDRESS_WIDTH_64              = 64,
+    ZYDIS_ADDRESS_WIDTH_16,
+    ZYDIS_ADDRESS_WIDTH_32,
+    ZYDIS_ADDRESS_WIDTH_64,
 
     /**
      * @brief   Maximum value of this enum.
@@ -250,7 +248,7 @@ typedef enum ZydisOperandEncoding_
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_OPERAND_ENCODING_MAX_VALUE = ZYDIS_OPERAND_TYPE_IMMEDIATE,
+    ZYDIS_OPERAND_ENCODING_MAX_VALUE = ZYDIS_OPERAND_ENCODING_JIMM16_32_32,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
