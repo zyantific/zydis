@@ -614,7 +614,7 @@ int main(int argc, char** argv)
             fprintf(stderr, "Maximum number of %d bytes exceeded", ZYDIS_MAX_INSTRUCTION_LENGTH);
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
-        size_t len = strlen(argv[i + 2]);
+        const size_t len = strlen(argv[i + 2]);
         if (len % 2)
         {
             fputs("Even number of hex nibbles expected", stderr);
@@ -634,7 +634,7 @@ int main(int argc, char** argv)
     }
 
     ZydisDecodedInstruction instruction;
-    ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, 0, &instruction);
+    const ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, 0, &instruction);
     if (!ZYDIS_SUCCESS(status))
     {
         if (status >= ZYDIS_STATUS_USER)
