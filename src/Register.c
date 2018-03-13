@@ -93,7 +93,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
 
 ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
 {
-    ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 8);
+    ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 16);
     for (unsigned i = 0; i < registerMapCount; ++i)
     {
         switch (registerMap[i].class)
@@ -129,6 +129,10 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
     // Special cases
     switch (reg)
     {
+    case ZYDIS_REGISTER_X87CONTROL:
+    case ZYDIS_REGISTER_X87STATUS:
+    case ZYDIS_REGISTER_X87TAG:
+        return 16;
     case ZYDIS_REGISTER_IP:
     case ZYDIS_REGISTER_FLAGS:
         return 16;
@@ -137,6 +141,9 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
         return 32;
     case ZYDIS_REGISTER_RIP:
     case ZYDIS_REGISTER_RFLAGS:
+        return 64;
+    case ZYDIS_REGISTER_BNDCFG:
+    case ZYDIS_REGISTER_BNDSTATUS:
         return 64;
     default:
         break;
@@ -158,6 +165,10 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
     // Special cases
     switch (reg)
     {
+    case ZYDIS_REGISTER_X87CONTROL:
+    case ZYDIS_REGISTER_X87STATUS:
+    case ZYDIS_REGISTER_X87TAG:
+        return 16;
     case ZYDIS_REGISTER_IP:
     case ZYDIS_REGISTER_FLAGS:
         return 16;
@@ -166,6 +177,9 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
         return 32;
     case ZYDIS_REGISTER_RIP:
     case ZYDIS_REGISTER_RFLAGS:
+        return 64;
+    case ZYDIS_REGISTER_BNDCFG:
+    case ZYDIS_REGISTER_BNDSTATUS:
         return 64;
     default:
         break;

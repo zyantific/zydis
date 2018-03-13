@@ -197,7 +197,7 @@ ZYDIS_STATIC_ASSERT(ZYDIS_OPERAND_ACTION_REQUIRED_BITS      <=  8);
 ZYDIS_STATIC_ASSERT(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS       <=  8);
 ZYDIS_STATIC_ASSERT(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS    <=  8);
 ZYDIS_STATIC_ASSERT(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS        <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS            <=  8);
+ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS            <= 16);
 ZYDIS_STATIC_ASSERT(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS        <=  8);
 
 /**
@@ -218,7 +218,7 @@ typedef struct ZydisOperandDefinition_
             ZydisU8 type                    ZYDIS_BITFIELD(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS);
             union
             {
-                ZydisU8 reg                 ZYDIS_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
+                ZydisU16 reg                ZYDIS_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
                 ZydisU8 id                  ZYDIS_BITFIELD(6);
             } reg;
         } reg;
@@ -867,8 +867,10 @@ ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, Zydis
  *
  * @param   definition  A pointer to the instruction-definition.
  * @param   flags       A pointer to the variable that receives the `ZydisAccessedFlags` struct.
+ *
+ * @return  `ZYDIS_TRUE`, if the instruction accesses any flags, or `ZYDIS_FALSE`, if not.
  */
-ZYDIS_NO_EXPORT void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+ZYDIS_NO_EXPORT ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags);
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -83,6 +83,9 @@ static const ZydisStaticString zydisRegisterStrings[] =
     ZYDIS_MAKE_STATIC_STRING("st5"),
     ZYDIS_MAKE_STATIC_STRING("st6"),
     ZYDIS_MAKE_STATIC_STRING("st7"),
+    ZYDIS_MAKE_STATIC_STRING("x87control"),
+    ZYDIS_MAKE_STATIC_STRING("x87status"),
+    ZYDIS_MAKE_STATIC_STRING("x87tag"),
     // Floating point multimedia registers
     ZYDIS_MAKE_STATIC_STRING("mm0"),
     ZYDIS_MAKE_STATIC_STRING("mm1"),

@@ -203,11 +203,12 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 /* Accessed CPU flags                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
     ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_LENGTH(accessedFlags));
     *flags = &accessedFlags[definition->flagsReference];
+    return (definition->flagsReference != 0);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -86,6 +86,9 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_ST5,
     ZYDIS_REGISTER_ST6,
     ZYDIS_REGISTER_ST7,
+    ZYDIS_REGISTER_X87CONTROL,
+    ZYDIS_REGISTER_X87STATUS,
+    ZYDIS_REGISTER_X87TAG,
     // Floating point multimedia registers
     ZYDIS_REGISTER_MM0,
     ZYDIS_REGISTER_MM1,

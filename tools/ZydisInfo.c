@@ -464,6 +464,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_IS_RELATIVE,              "IS_RELATIVE"              },
         { ZYDIS_ATTRIB_IS_PRIVILEGED,            "IS_PRIVILEGED"            },
         { ZYDIS_ATTRIB_IS_FAR_BRANCH,            "IS_FAR_BRANCH"            },
+        { ZYDIS_ATTRIB_CPUFLAG_ACCESS,           "CPUFLAG_ACCESS"           },
         { ZYDIS_ATTRIB_ACCEPTS_LOCK,             "ACCEPTS_LOCK"             },
         { ZYDIS_ATTRIB_ACCEPTS_REP,              "ACCEPTS_REP"              },
         { ZYDIS_ATTRIB_ACCEPTS_REPE,             "ACCEPTS_REPE"             },
@@ -533,8 +534,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         printOperands(instruction);
     }
 
-    if (ZydisRegisterGetClass(
-        instruction->operands[instruction->operandCount - 1].reg.value) == ZYDIS_REGCLASS_FLAGS)
+    if (instruction->attributes & ZYDIS_ATTRIB_CPUFLAG_ACCESS)
     {
         puts("");
         printFlags(instruction);

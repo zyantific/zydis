@@ -2238,25 +2238,6 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
 }
 
 /**
- * @brief   Sets the accessed CPU-flags for the current instruction.
- *
- * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
- * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
- */
-static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
-    const ZydisInstructionDefinition* definition)
-{
-    const ZydisAccessedFlags* flags;
-    ZydisGetAccessedFlags(definition, &flags);
-
-    ZYDIS_ASSERT(
-        (ZYDIS_ARRAY_LENGTH(instruction->accessedFlags) == ZYDIS_ARRAY_LENGTH(flags->action)) &&
-        (sizeof            (instruction->accessedFlags) == sizeof            (flags->action)));
-
-    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, sizeof(flags->action));
-}
-
-/**
  * @brief   Sets AVX-specific information for the given instruction.
  *
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
@@ -4532,12 +4513,16 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    const ZydisRegister reg =
-                        instruction->operands[instruction->operandCount - 1].reg.value;
-                    if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
-                        (reg == ZYDIS_REGISTER_RFLAGS))
+                    const ZydisAccessedFlags* flags;
+                    if (ZydisGetAccessedFlags(definition, &flags))
                     {
-                        ZydisSetAccessedFlags(instruction, definition);
+                        instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
+                        ZYDIS_ASSERT((ZYDIS_ARRAY_LENGTH(instruction->accessedFlags) ==
+                                      ZYDIS_ARRAY_LENGTH(flags->action             )) &&
+                                     (sizeof            (instruction->accessedFlags) ==
+                                      sizeof            (flags->action             )));
+                        ZydisMemoryCopy(&instruction->accessedFlags, &flags->action,
+                            sizeof(flags->action));
                     }
                 }
 

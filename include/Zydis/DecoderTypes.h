@@ -268,6 +268,10 @@ typedef ZydisU64 ZydisInstructionAttributes;
  * @brief   The instruction is a far JMP/CALL/RET.
  */
 #define ZYDIS_ATTRIB_IS_FAR_BRANCH              0x0000001000000000 // (1 << 36) // TODO: rebase
+/**
+ * @brief   The instruction accesses one or more CPU-flags.
+ */
+#define ZYDIS_ATTRIB_CPUFLAG_ACCESS             0x0000002000000000 // (1 << 37) // TODO: rebase
 
 /**
  * @brief   The instruction accepts the lock prefix (0xF0).
