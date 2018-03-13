@@ -4279,16 +4279,20 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 
-    // Check gather/scatter registers
+    // Check gather registers
     if (isGather)
     {
         ZYDIS_ASSERT(hasVSIB);
         ZYDIS_ASSERT(instruction->raw.modrm.mod != 3);
         ZYDIS_ASSERT(instruction->raw.modrm.rm  == 4);
-        const ZydisU8 dest  = instruction->raw.modrm.reg | (context->cache.R  << 3) |
-                                                           (context->cache.R2 << 4);
-        const ZydisU8 index = instruction->raw.sib.index | (context->cache.X  << 3) |
-                                                           (context->cache.V2 << 4);
+
+        ZydisU8 dest  = instruction->raw.modrm.reg;
+        ZydisU8 index = instruction->raw.sib.index;
+        if (context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64)
+        {
+            dest  = dest  | (context->cache.R << 3) | (context->cache.R2 << 4);
+            index = index | (context->cache.X << 3) | (context->cache.V2 << 4);
+        }
         ZydisU8 mask  = 0xFF;
 
         switch (instruction->encoding)
