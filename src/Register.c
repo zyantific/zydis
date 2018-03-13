@@ -145,6 +145,10 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
     case ZYDIS_REGISTER_BNDCFG:
     case ZYDIS_REGISTER_BNDSTATUS:
         return 64;
+    case ZYDIS_REGISTER_XCR0:
+        return 64;
+    case ZYDIS_REGISTER_MXCSR:
+        return 32;
     default:
         break;
     }
@@ -181,6 +185,10 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
     case ZYDIS_REGISTER_BNDCFG:
     case ZYDIS_REGISTER_BNDSTATUS:
         return 64;
+    case ZYDIS_REGISTER_XCR0:
+        return 64;
+    case ZYDIS_REGISTER_MXCSR:
+        return 32;
     default:
         break;
     }
