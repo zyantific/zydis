@@ -310,9 +310,12 @@ void printAVXInfo(ZydisDecodedInstruction* instruction)
 
     static const char* maskModeStrings[] =
     {
-        "NONE",
+        "INVALID",
+        "DISABLED",
         "MERGE",
-        "ZERO"
+        "ZERO",
+        "CONTROL",
+        "CONTROL_ZERO"
     };
 
     static const char* roundingModeStrings[] =
@@ -359,9 +362,8 @@ void printAVXInfo(ZydisDecodedInstruction* instruction)
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);
         printf("\n        SAE: %s", instruction->avx.hasSAE ? "Y" : "N");
-        printf("\n       MASK: %s [%5s]%s", ZydisRegisterGetString(instruction->avx.mask.reg),
-            maskModeStrings[instruction->avx.mask.mode],
-            instruction->avx.mask.isControlMask ? " (control-mask)" : "");
+        printf("\n       MASK: %s [%5s]", ZydisRegisterGetString(instruction->avx.mask.reg),
+            maskModeStrings[instruction->avx.mask.mode]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         printf("\n   ROUNDING: %s", roundingModeStrings[instruction->avx.rounding.mode]);

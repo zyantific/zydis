@@ -1854,7 +1854,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         case ZYDIS_SEMANTIC_OPTYPE_MEM:
             ZYDIS_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &instruction->operands[i], ZYDIS_REGISTER_NONE));
+                    context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBX:
             ZYDIS_CHECK(
@@ -1883,7 +1883,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
             ZYDIS_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &instruction->operands[i], ZYDIS_REGISTER_NONE));
+                    context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
             instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_AGEN;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
@@ -1897,7 +1897,7 @@ static ZydisStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
             ZYDIS_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &instruction->operands[i], ZYDIS_REGISTER_NONE));
+                    context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
             instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_MIB;
             // Relative addressing is not allowed for this type of memory-operand
             if ((instruction->operands[i].mem.base == ZYDIS_REGISTER_EIP) ||
@@ -2005,8 +2005,7 @@ FinalizeOperand:
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Fix operand-action for EVEX instructions with merge-mask
-    if (instruction->avx.mask.reg && (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
-        !instruction->avx.mask.isControlMask)
+    if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE)
     {
         ZYDIS_ASSERT(instruction->operandCount >= 2);
         switch (instruction->operands[0].action)
@@ -2648,9 +2647,19 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
-        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
-        instruction->avx.mask.isControlMask = def->isControlMask;
+        if (!def->isControlMask)
+        {
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
+            instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        } else
+        {
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_CONTROL + instruction->raw.evex.z;
+            instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        }
+        if (!instruction->raw.evex.aaa)
+        {
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_DISABLED;
+        }
 #else
         ZYDIS_UNREACHABLE;
 #endif

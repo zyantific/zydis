@@ -601,25 +601,31 @@ typedef enum ZydisExceptionClass_
 typedef enum ZydisMaskMode_
 {
     ZYDIS_MASK_MODE_INVALID,
-
-    // TODO: Add `ZYDIS_MASK_MODE_DISABLED` for for `EVEX`/`MVEX` instructions with `K0` mask
-    // TODO: Add `ZYDIS_MASK_MODE_CONTROL` and `ZYDIS_MASK_MODE_CONTROL_ZERO` as replacement for
-    //       the `isControlMask` field
-
     /**
-     * @brief   The embedded mask register is used as a merge-mask. This is the default mode for
-     *          all EVEX/MVEX-instructions.
+     * @brief   Masking is disabled for the current instruction (`K0` register is used).
+     */
+    ZYDIS_MASK_MODE_DISABLED,
+    /**
+     * @brief   The embedded mask register is used as a merge-mask.
      */
     ZYDIS_MASK_MODE_MERGE,
     /**
      * @brief   The embedded mask register is used as a zero-mask.
      */
     ZYDIS_MASK_MODE_ZERO,
+    /**
+     * @brief   The embedded mask register is used as a control-mask (element selector).
+     */
+    ZYDIS_MASK_MODE_CONTROL,
+    /**
+     * @brief   The embedded mask register is used as a zeroing control-mask (element selector).
+     */
+    ZYDIS_MASK_MODE_CONTROL_ZERO,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_ZERO,
+    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_CONTROL_ZERO,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
@@ -852,10 +858,6 @@ typedef struct ZydisDecodedInstruction_
              * @brief   The mask register.
              */
             ZydisRegister reg;
-            /**
-             * @brief   Signals, if the mask-register is used as a control mask.
-             */
-            ZydisBool isControlMask;
         } mask;
         /**
          * @brief   Contains info about the AVX broadcast.
