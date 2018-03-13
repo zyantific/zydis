@@ -2250,9 +2250,10 @@ static void ZydisSetAccessedFlags(ZydisDecodedInstruction* instruction,
     ZydisGetAccessedFlags(definition, &flags);
 
     ZYDIS_ASSERT(
-        ZYDIS_ARRAY_LENGTH(instruction->accessedFlags) == ZYDIS_ARRAY_LENGTH(flags->action));
+        (ZYDIS_ARRAY_LENGTH(instruction->accessedFlags) == ZYDIS_ARRAY_LENGTH(flags->action)) &&
+        (sizeof            (instruction->accessedFlags) == sizeof            (flags->action)));
 
-    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, ZYDIS_ARRAY_LENGTH(flags->action));
+    ZydisMemoryCopy(&instruction->accessedFlags, &flags->action, sizeof(flags->action));
 }
 
 /**
