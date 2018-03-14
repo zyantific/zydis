@@ -573,8 +573,6 @@ void printInstruction(ZydisDecodedInstruction* instruction)
 
 int main(int argc, char** argv)
 {
-    printf("OPERAND   : %2llu\n", sizeof(ZydisDecodedInstruction));
-    getchar();
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
         fputs("Invalid zydis version\n", stderr);
