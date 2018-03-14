@@ -201,7 +201,7 @@ static ZydisStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatte
     // operand, because it got replaced by the alias-mnemonic
     if (userData->ommitImmediate)
     {
-        return ZYDIS_STATUS_SKIP_OPERAND;
+        return ZYDIS_STATUS_SKIP_TOKEN;
     }
 
     // Default immediate formatting

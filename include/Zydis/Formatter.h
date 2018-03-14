@@ -499,15 +499,9 @@ typedef ZydisStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
  * Returning a status code other than `ZYDIS_STATUS_SUCCESS` will immediately cause the formatting
  * process to fail (see exceptions below).
  *
- * Returning `ZYDIS_STATUS_SKIP_OPERAND` is valid for `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`,
- * `ZYDIS_FORMATTER_HOOK_POST_OPERAND` and all of the `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_XXX`
- * callbacks. This will cause the formatter to omit the current operand.
- *
- * DEPRECATED:
- * Returning `ZYDIS_STATUS_SUCCESS` without writing to the string is valid for
- * `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`, `ZYDIS_FORMATTER_HOOK_POST_OPERAND` and all of the
- * `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_XXX`. This will cause the formatter to omit the current
- * operand.
+ * Returning `ZYDIS_STATUS_SKIP_TOKEN` is valid for `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`,
+ * `ZYDIS_FORMATTER_HOOK_POST_OPERAND`, all of the `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_XXX`
+ * callbacks and `ZYDIS_FORMATTER_HOOK_PRINT_MEMSIZE`.
  *
  * This function type is used for:
  * - `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`

@@ -126,10 +126,19 @@ typedef enum ZydisStatus_
     /* ------------------------------------------------------------------------------------------ */
 
     /**
-     * @brief   Returning this status code in operand-related custom formatter callbacks will cause
-     *          the formatter to omit the operand.
+     * @brief   Returning this status code in some specified formatter callbacks will cause the
+     *          formatter to omit the corresponding token.
+     *
+     * Valid callbacks:
+     * - `ZYDIS_FORMATTER_HOOK_PRE_OPERAND`
+     * - `ZYDIS_FORMATTER_HOOK_POST_OPERAND`
+     * - `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_REG`
+     * - `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_MEM`
+     * - `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_PTR`
+     * - `ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM`
+     * - `ZYDIS_FORMATTER_HOOK_PRINT_MEMSIZE`.
      */
-    ZYDIS_STATUS_SKIP_OPERAND,
+    ZYDIS_STATUS_SKIP_TOKEN,
 
     /* ------------------------------------------------------------------------------------------ */
     /* Encoder                                                                                    */

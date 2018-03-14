@@ -88,13 +88,12 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
             ZYDIS_CHECK(ZydisStringAppendC(string, ", "));
         }
 
-        const ZydisUSize strLenPreOperand = string->length;
-
         // Print embedded-mask registers as decorator instead of a regular operand
         if ((i == 1) && (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
             (instruction->operands[i].encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
-            goto SkipOperand;
+            string->length = strLenRestore;
+            continue;
         }
 
         ZydisStatus status;
@@ -102,9 +101,10 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         {
             status = formatter->funcPreOperand(formatter, string, instruction,
                 &instruction->operands[i], userData);
-            if (status == ZYDIS_STATUS_SKIP_OPERAND)
+            if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                goto SkipOperand;
+                string->length = strLenRestore;
+                continue;
             }
             if (status != ZYDIS_STATUS_SUCCESS)
             {
@@ -135,9 +135,10 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         default:
             return ZYDIS_STATUS_INVALID_PARAMETER;
         }
-        if (status == ZYDIS_STATUS_SKIP_OPERAND)
+        if (status == ZYDIS_STATUS_SKIP_TOKEN)
         {
-            goto SkipOperand;
+            string->length = strLenRestore;
+            continue;
         }
         if (status != ZYDIS_STATUS_SUCCESS)
         {
@@ -148,29 +149,15 @@ static ZydisStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZydisS
         {
             status = formatter->funcPostOperand(formatter, string, instruction,
                 &instruction->operands[i], userData);
-            if (status == ZYDIS_STATUS_SKIP_OPERAND)
+            if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                goto SkipOperand;
+                string->length = strLenRestore;
+                continue;
             }
             if (status != ZYDIS_STATUS_SUCCESS)
             {
                 return status;
             }
-        }
-
-        if (strLenPreOperand == string->length)
-        {
-SkipOperand:
-            // Omit whole operand, if the string did not change during the formatting-callback
-            string->length = strLenRestore;
-
-            if (formatter->funcPostOperand)
-            {
-                formatter->funcPostOperand(formatter, string, instruction,
-                    &instruction->operands[i], userData);
-            }
-
-            continue;
         }
 
         if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
@@ -235,9 +222,13 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
 
-    ZYDIS_CHECK(formatter->funcPrintMemSize(formatter, string, instruction, operand, userData));
+    const ZydisStatus status =
+        formatter->funcPrintMemSize(formatter, string, instruction, operand, userData);
+    if ((status != ZYDIS_STATUS_SUCCESS) && (status != ZYDIS_STATUS_SKIP_TOKEN))
+    {
+        return status;
+    }
 
-    const ZydisUSize lenPreSegment = string->length;
     switch (operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
@@ -266,8 +257,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
     default:
         break;
     }
-    // TODO: Rename ZYDIS_STATUS_SKIP_OPERAND to ZYDIS_STATUS_SKIP_TOKEN and use it in this case
-    if (string->length > lenPreSegment)
+    if (ZYDIS_SUCCESS(status))
     {
         ZYDIS_CHECK(ZydisStringAppendC(string, ":"));
     }
@@ -1205,7 +1195,7 @@ ZydisStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
 
     buffer[string.length] = 0;
 
-    if (status == ZYDIS_STATUS_SKIP_OPERAND)
+    if (status == ZYDIS_STATUS_SKIP_TOKEN)
     {
         return ZYDIS_STATUS_SUCCESS;
     }
@@ -1240,9 +1230,9 @@ ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     if (formatter->funcPreOperand)
     {
         status = formatter->funcPreOperand(formatter, &string, instruction, operand, userData);
-        // We ignore `ZYDIS_STATUS_SKIP_OPERAND` as it does not make any sense to skip the only
+        // We ignore `ZYDIS_STATUS_SKIP_TOKEN` as it does not make any sense to skip the only
         // operand printed by this function
-        if ((status != ZYDIS_STATUS_SUCCESS) && (status != ZYDIS_STATUS_SKIP_OPERAND))
+        if ((status != ZYDIS_STATUS_SUCCESS) && (status != ZYDIS_STATUS_SKIP_TOKEN))
         {
             goto FinalizeString;
         }
@@ -1270,8 +1260,8 @@ ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
         status = ZYDIS_STATUS_INVALID_PARAMETER;
         break;
     }
-    // Ignore `ZYDIS_STATUS_SKIP_OPERAND`
-    if (status == ZYDIS_STATUS_SKIP_OPERAND)
+    // Ignore `ZYDIS_STATUS_SKIP_TOKEN`
+    if (status == ZYDIS_STATUS_SKIP_TOKEN)
     {
         status = ZYDIS_STATUS_SUCCESS;
     }
@@ -1285,8 +1275,8 @@ ZydisStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     if (formatter->funcPostOperand)
     {
         status = formatter->funcPostOperand(formatter, &string, instruction, operand, userData);
-        // Ignore `ZYDIS_STATUS_SKIP_OPERAND`
-        if (status == ZYDIS_STATUS_SKIP_OPERAND)
+        // Ignore `ZYDIS_STATUS_SKIP_TOKEN`
+        if (status == ZYDIS_STATUS_SKIP_TOKEN)
         {
             status = ZYDIS_STATUS_SUCCESS;
         }
