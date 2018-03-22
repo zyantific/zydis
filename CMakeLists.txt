@@ -26,8 +26,8 @@ option(ZYDIS_FEATURE_MVEX
     ON)
 
 # Build configuration
-option(BUILD_SHARED_LIBS
-    "Build shared libraries"
+option(ZYDIS_BUILD_SHARED_LIB
+    "Build shared library"
     OFF)
 option(ZYDIS_WHOLE_PROGRAM_OPTIMIZATION
     "Enable whole program optimization"
@@ -70,7 +70,11 @@ endif ()
 # Library configuration                                                                           #
 # =============================================================================================== #
 
-add_library("Zydis")
+if (ZYDIS_BUILD_SHARED_LIB)
+    add_library("Zydis" SHARED)
+else ()
+    add_library("Zydis" STATIC)
+endif ()
 
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
@@ -155,7 +159,7 @@ if (ZYDIS_FEATURE_DECODER)
     endif ()
 endif ()
 
-if (BUILD_SHARED_LIBS AND WIN32)
+if (ZYDIS_BUILD_SHARED_LIB AND WIN32)
     target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
 endif ()
 
