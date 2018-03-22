@@ -850,7 +850,7 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisU16 vectorLength;
         /**
-         * @brief   Info about the embedded writemask-register (`EVEX` and `MVEX` only).
+         * @brief   Info about the embedded writemask-register (`AVX-512` and `KNC` only).
          */
         struct
         {
@@ -872,7 +872,7 @@ typedef struct ZydisDecodedInstruction_
              * @brief   Signals, if the broadcast is a static broadcast.
              *
              * This is the case for instructions with inbuild broadcast functionality, that is
-             * always active and not be controlled by a flag in the XOP/VEX/EVEX/MVEX-prefix.
+             * always active controlled by the `EVEX/MVEX.RC` bits.
              */
             ZydisBool isStatic;
             /**
@@ -891,22 +891,22 @@ typedef struct ZydisDecodedInstruction_
             ZydisRoundingMode mode;
         } rounding;
         /**
-         * @brief   Contains info about the AVX register-swizzle (`MVEX` only).
+         * @brief   Contains info about the AVX register-swizzle (`KNC` only).
          */
         struct
         {
             /**
-             * @brief   The AVX register-swizzle mode (`MVEX` only).
+             * @brief   The AVX register-swizzle mode.
              */
             ZydisSwizzleMode mode;
         } swizzle;
         /**
-         * @brief   Contains info about the AVX data-conversion (`MVEX` only).
+         * @brief   Contains info about the AVX data-conversion (`KNC` only).
          */
         struct
         {
             /**
-             * @brief   The AVX data-conversion mode (`MVEX` only).
+             * @brief   The AVX data-conversion mode.
              */
             ZydisConversionMode mode;
         } conversion;
@@ -915,7 +915,7 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisBool hasSAE;
         /**
-         * @brief   Signals, if the instruction has a memory eviction-hint (`MVEX` only).
+         * @brief   Signals, if the instruction has a memory eviction-hint (`KNC` only).
          */
         ZydisBool hasEvictionHint;
         // TODO: publish EVEX tuple-type and MVEX functionality
