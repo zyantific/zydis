@@ -663,20 +663,30 @@ ZYDIS_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
 ZYDIS_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
 ZYDIS_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
 
-#define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-    ZydisU16 mnemonic                       ZYDIS_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
-    ZydisU8 operandCount                    ZYDIS_BITFIELD( 4); \
-    ZydisU16 operandReference               ZYDIS_BITFIELD(15); \
-    ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
-    ZydisU8 flagsReference                  ZYDIS_BITFIELD( 7); \
-    ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
-    ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
-    ZydisU8 category                        ZYDIS_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
-    ZydisU8 isaSet                          ZYDIS_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
-    ZydisU8 isaExt                          ZYDIS_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
-    ZydisU8 exceptionClass                  ZYDIS_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
-    ZydisU8 constrREG                       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-    ZydisU8 constrRM                        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+#ifndef ZYDIS_MINIMAL_MODE
+#   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
+        ZydisU16 mnemonic                       ZYDIS_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
+        ZydisU8 operandCount                    ZYDIS_BITFIELD( 4); \
+        ZydisU16 operandReference               ZYDIS_BITFIELD(15); \
+        ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
+        ZydisU8 flagsReference                  ZYDIS_BITFIELD( 7); \
+        ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
+        ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
+        ZydisU8 category                        ZYDIS_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
+        ZydisU8 isaSet                          ZYDIS_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
+        ZydisU8 isaExt                          ZYDIS_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
+        ZydisU8 exceptionClass                  ZYDIS_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
+        ZydisU8 constrREG                       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZydisU8 constrRM                        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+#else
+#   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
+        ZydisU16 mnemonic                       ZYDIS_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
+        ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
+        ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
+        ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
+        ZydisU8 constrREG                       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZydisU8 constrRM                        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+#endif
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
@@ -700,9 +710,12 @@ typedef struct ZydisInstructionDefinition_
 typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
     ZydisBool isFarBranch                   ZYDIS_BITFIELD( 1);
+#endif
     ZydisBool acceptsLOCK                   ZYDIS_BITFIELD( 1);
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
     ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD( 1);
@@ -712,6 +725,7 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
     ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD( 1);
     ZydisBool acceptsBranchHints            ZYDIS_BITFIELD( 1);
     ZydisBool acceptsSegment                ZYDIS_BITFIELD( 1);
+#endif
 } ZydisInstructionDefinitionDEFAULT;
 
 /**
@@ -740,7 +754,9 @@ ZYDIS_STATIC_ASSERT(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS  <=  8);
 typedef struct ZydisInstructionDefinitionVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS);
+#endif
 } ZydisInstructionDefinitionVEX;
 
 #ifndef ZYDIS_DISABLE_EVEX
@@ -760,14 +776,18 @@ ZYDIS_STATIC_ASSERT(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
 typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisU8 vectorLength                    ZYDIS_BITFIELD(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS);
     ZydisU8 tupleType                       ZYDIS_BITFIELD(ZYDIS_TUPLETYPE_REQUIRED_BITS);
     ZydisU8 elementSize                     ZYDIS_BITFIELD(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS);
     ZydisU8 functionality                   ZYDIS_BITFIELD(ZYDIS_EVEX_FUNC_REQUIRED_BITS);
+#endif
     ZydisU8 maskPolicy                      ZYDIS_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
     ZydisBool acceptsZeroMask               ZYDIS_BITFIELD( 1);
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisBool isControlMask                 ZYDIS_BITFIELD( 1);
     ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
+#endif
 } ZydisInstructionDefinitionEVEX;
 #endif
 
@@ -787,8 +807,10 @@ typedef struct ZydisInstructionDefinitionMVEX_
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
     ZydisU8 functionality                   ZYDIS_BITFIELD(ZYDIS_MVEX_FUNC_REQUIRED_BITS);
     ZydisU8 maskPolicy                      ZYDIS_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
+#ifndef ZYDIS_MINIMAL_MODE
     ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);
     ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS);
+#endif
 } ZydisInstructionDefinitionMVEX;
 #endif
 

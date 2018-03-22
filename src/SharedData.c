@@ -31,57 +31,18 @@
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Forward declarations                                                                           */
-/* ---------------------------------------------------------------------------------------------- */
-
-#ifndef ZYDIS_MINIMAL_MODE
-/**
- * @brief   Contains all operand-definitions.
- */
-extern const ZydisOperandDefinition operandDefinitions[];
-#endif
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Contains all instruction-definitions with @c DEFAULT encoding.
- */
-extern const ZydisInstructionDefinitionDEFAULT instructionDefinitionsDEFAULT[];
-
-/**
- * @brief   Contains all instruction-definitions with @c 3DNOW encoding.
- */
-extern const ZydisInstructionDefinition3DNOW instructionDefinitions3DNOW[];
-
-/**
- * @brief   Contains all instruction-definitions with @c XOP encoding.
- */
-extern const ZydisInstructionDefinitionXOP instructionDefinitionsXOP[];
-
-/**
- * @brief   Contains all instruction-definitions with @c VEX encoding.
- */
-extern const ZydisInstructionDefinitionVEX instructionDefinitionsVEX[];
-
-#ifndef ZYDIS_DISABLE_EVEX
-/**
- * @brief   Contains all instruction-definitions with @c EVEX encoding.
- */
-extern const ZydisInstructionDefinitionEVEX instructionDefinitionsEVEX[];
-#endif
-
-#ifndef ZYDIS_DISABLE_MVEX
-/**
- * @brief   Contains all instruction-definitions with @c MVEX encoding.
- */
-extern const ZydisInstructionDefinitionMVEX instructionDefinitionsMVEX[];
-#endif
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Instruction definitions                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifdef ZYDIS_MINIMAL_MODE
+#   define ZYDIS_NOTMIN(x)
+#else
+#   define ZYDIS_NOTMIN(x) , x
+#endif
+
 #include <Generated/InstructionDefinitions.inc>
+
+#undef ZYDIS_NOTMIN
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definitions                                                                            */

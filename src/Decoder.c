@@ -4511,12 +4511,12 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 }
 
                 instruction->mnemonic = definition->mnemonic;
+#ifndef ZYDIS_MINIMAL_MODE
                 instruction->meta.category = definition->category;
                 instruction->meta.isaSet = definition->isaSet;
                 instruction->meta.isaExt = definition->isaExt;
                 instruction->meta.exceptionClass = definition->exceptionClass;
 
-#ifndef ZYDIS_MINIMAL_MODE
                 if (!context->decoder->decoderMode[ZYDIS_DECODER_MODE_MINIMAL])
                 {
                     ZydisSetAttributes(context, instruction, definition);
