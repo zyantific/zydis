@@ -34,10 +34,12 @@
 /* Forward declarations                                                                           */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Contains all operand-definitions.
  */
 extern const ZydisOperandDefinition operandDefinitions[];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -144,6 +146,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand)
 {
@@ -156,11 +159,13 @@ ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     *operand = &operandDefinitions[definition->operandReference];
     return definition->operandCount;
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element info                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
     ZydisElementSize* size)
 {
@@ -198,11 +203,13 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     *type = lookup[element].type;
     *size = lookup[element].size;
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Accessed CPU flags                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
@@ -210,6 +217,7 @@ ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     *flags = &accessedFlags[definition->flagsReference];
     return (definition->flagsReference != 0);
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 

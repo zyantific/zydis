@@ -844,6 +844,7 @@ static ZydisStatus ZydisReadImmediate(ZydisDecoderContext* context,
 /* Semantical instruction decoding                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Calculates the register-id for a specific register-encoding and register-class.
  *
@@ -1073,7 +1074,9 @@ static ZydisU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Sets the operand-size and element-specific information for the given operand.
  *
@@ -1311,7 +1314,9 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
         operand->elementCount = operand->size / operand->elementSize;
     }
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Decodes an register-operand.
  *
@@ -1351,7 +1356,9 @@ static ZydisStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instructi
 
     return ZYDIS_STATUS_SUCCESS;
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Decodes a memory operand.
  *
@@ -1543,7 +1550,9 @@ static ZydisStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     }
     return ZYDIS_STATUS_SUCCESS;
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Decodes an implicit register operand.
  *
@@ -1614,7 +1623,9 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         ZYDIS_UNREACHABLE;
     }
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Decodes an implicit memory operand.
  *
@@ -1667,9 +1678,11 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
         ZYDIS_ASSERT(operand->mem.segment);
     }
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Decodes the instruction operands.
  *
@@ -2030,7 +2043,9 @@ FinalizeOperand:
 
     return ZYDIS_STATUS_SUCCESS;
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Sets attributes for the given instruction.
  *
@@ -2236,7 +2251,9 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         ZYDIS_UNREACHABLE;
     }
 }
+#endif
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Sets AVX-specific information for the given instruction.
  *
@@ -2953,6 +2970,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         break;
     }
 }
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Physical instruction decoding                                                                  */
@@ -4498,6 +4516,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 instruction->meta.isaExt = definition->isaExt;
                 instruction->meta.exceptionClass = definition->exceptionClass;
 
+#ifndef ZYDIS_MINIMAL_MODE
                 if (!context->decoder->decoderMode[ZYDIS_DECODER_MODE_MINIMAL])
                 {
                     ZydisSetAttributes(context, instruction, definition);
@@ -4525,6 +4544,7 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                             sizeof(flags->action));
                     }
                 }
+#endif
 
                 return ZYDIS_STATUS_SUCCESS;
             }
@@ -4547,7 +4567,11 @@ ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode
 {
     static const ZydisBool decoderModes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
     {
+#ifdef ZYDIS_MINIMAL_MODE
+        ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MINIMAL
+#else
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_MINIMAL
+#endif
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_AMD_BRANCHES
         ZYDIS_FALSE, // ZYDIS_DECODER_MODE_KNC
         ZYDIS_TRUE , // ZYDIS_DECODER_MODE_MPX
@@ -4596,6 +4620,13 @@ ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
     {
         return ZYDIS_STATUS_INVALID_PARAMETER;
     }
+
+#ifdef ZYDIS_MINIMAL_MODE
+    if ((mode == ZYDIS_DECODER_MODE_MINIMAL) && !enabled)
+    {
+        return ZYDIS_STATUS_INVALID_OPERATION;
+    }
+#endif
 
     decoder->decoderMode[mode] = enabled;
 

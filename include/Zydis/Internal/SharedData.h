@@ -832,6 +832,7 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Returns the the operand-definitions for the given instruction-`definition`.
  *
@@ -843,11 +844,13 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
  */
 ZYDIS_NO_EXPORT ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand);
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element info                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Returns the actual type and size of an internal element-type.
  *
@@ -857,11 +860,13 @@ ZYDIS_NO_EXPORT ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinit
  */
 ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
     ZydisElementSize* size);
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Accessed CPU flags                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
+#ifndef ZYDIS_MINIMAL_MODE
 /**
  * @brief   Returns the the operand-definitions for the given instruction-`definition`.
  *
@@ -872,6 +877,7 @@ ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, Zydis
  */
 ZYDIS_NO_EXPORT ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags);
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 

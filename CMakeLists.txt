@@ -9,6 +9,9 @@ project(Zydis VERSION 2.0)
 # =============================================================================================== #
 
 # Features
+option(ZYDIS_MINIMAL_MODE
+    "Enable minimal mode (forces ZYDIS_DECODER_MODE_MINIMAL)"
+    OFF)
 option(ZYDIS_FEATURE_DECODER
     "Enable instruction decoding functionality"
     ON)
@@ -95,6 +98,9 @@ if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
     )
 endif ()
 
+if (ZYDIS_MINIMAL_MODE)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_MINIMAL_MODE")
+endif ()
 if (NOT ZYDIS_FEATURE_DECODER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_DECODER")
 endif ()
@@ -141,7 +147,7 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
             "src/Decoder.c"
             "src/DecoderData.c")
-    if (ZYDIS_FEATURE_FORMATTER)
+    if (ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         target_sources("Zydis"
             PRIVATE
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
@@ -168,7 +174,7 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_EXAMPLES)
-    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
+    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("FormatterHooks" "examples/FormatterHooks.c")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
@@ -207,7 +213,7 @@ endif ()
 # =============================================================================================== #
 
 if (ZYDIS_BUILD_TOOLS)
-    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
+    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
