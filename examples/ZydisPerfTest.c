@@ -188,7 +188,7 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
     ZydisStatus status;
     ZydisDecodedInstruction instruction;
     char formatBuffer[256];
-    while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset, offset,
+    while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
         ZYDIS_ASSERT(ZYDIS_SUCCESS(status));
@@ -200,8 +200,8 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
         ++count;
         if (format)
         {
-            ZydisFormatterFormatInstruction(
-                &formatter, &instruction, formatBuffer, sizeof(formatBuffer));
+            ZydisFormatterFormatInstruction(&formatter, &instruction, formatBuffer,
+                sizeof(formatBuffer), offset);
         }
         offset += instruction.length;
     }
@@ -270,7 +270,7 @@ void generateTestData(FILE* file, uint8_t encoding)
         default:
             ZYDIS_UNREACHABLE;
         }
-        if (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data, sizeof(data), 0, &instruction)))
+        if (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data, sizeof(data), &instruction)))
         {
             ZydisBool b = ZYDIS_FALSE;
             switch (encoding)

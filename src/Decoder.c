@@ -4634,7 +4634,7 @@ ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
 }
 
 ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buffer,
-    ZydisUSize bufferLen, ZydisU64 instructionPointer, ZydisDecodedInstruction* instruction)
+    ZydisUSize bufferLen, ZydisDecodedInstruction* instruction)
 {
     if (!decoder || !instruction)
     {
@@ -4661,8 +4661,6 @@ ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* bu
         16, 32, 64
     };
     instruction->stackWidth = lookup[decoder->addressWidth];
-    instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_DEFAULT;
-    instruction->instrAddress = instructionPointer;
 
     ZYDIS_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYDIS_CHECK(ZydisDecodeInstruction(&context, instruction));

@@ -360,7 +360,6 @@ typedef enum ZydisOperandAction_
  */
 typedef enum ZydisInstructionEncoding_
 {
-    ZYDIS_INSTRUCTION_ENCODING_INVALID,
     /**
      * @brief   The instruction uses the default encoding.
      */

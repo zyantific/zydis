@@ -561,7 +561,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         exit(status);
     }
     char buffer[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer));
+    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer), 0);
     fputs("\n== [   DISASM ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
     printf("  %s\n", &buffer[0]);
@@ -636,7 +636,7 @@ int main(int argc, char** argv)
     }
 
     ZydisDecodedInstruction instruction;
-    const ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, 0, &instruction);
+    const ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, &instruction);
     if (!ZYDIS_SUCCESS(status))
     {
         if (status >= ZYDIS_STATUS_USER)

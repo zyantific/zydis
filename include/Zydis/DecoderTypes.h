@@ -823,11 +823,6 @@ typedef struct ZydisDecodedInstruction_
      */
     ZydisInstructionAttributes attributes;
     /**
-     * @brief   The instruction address points at the current instruction (based on the initial
-     *          instruction pointer).
-     */
-    ZydisU64 instrAddress;
-    /**
      * @brief   Information about accessed CPU flags.
      */
     struct

@@ -144,7 +144,7 @@ int doIteration()
         ZydisStatus status;
         size_t readOffs = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
-            numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+            numBytesRead - readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYDIS_SUCCESS(status))
             {
@@ -153,8 +153,8 @@ int doIteration()
             }
 
             char printBuffer[256];
-            ZydisFormatterFormatInstruction(
-                &formatter, &instruction, printBuffer, sizeof(printBuffer));
+            ZydisFormatterFormatInstruction(&formatter, &instruction, printBuffer,
+                sizeof(printBuffer), readOffs);
             readOffs += instruction.length;
         }
 

@@ -144,7 +144,7 @@ typedef enum ZydisDecoderMode_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecoder struct.
+ * @brief   Defines the `ZydisDecoder` struct.
  */
 typedef struct ZydisDecoder_
 {
@@ -160,9 +160,9 @@ typedef struct ZydisDecoder_
 /* ============================================================================================== */
 
 /**
- * @brief   Initializes the given @c ZydisDecoder instance.
+ * @brief   Initializes the given `ZydisDecoder` instance.
  *
- * @param   decoder         A pointer to the @c ZydisDecoder instance.
+ * @param   decoder         A pointer to the `ZydisDecoder` instance.
  * @param   machineMode     The machine mode.
  * @param   addressWidth    The address width.
  *
@@ -174,7 +174,7 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMod
 /**
  * @brief   Enables or disables the specified decoder-mode.
  *
- * @param   decoder A pointer to the @c ZydisDecoder instance.
+ * @param   decoder A pointer to the `ZydisDecoder` instance.
  * @param   mode    The decoder mode.
  * @param   enabled `ZYDIS_TRUE` to enable, or `ZYDIS_FALSE` to disable the specified decoder-mode.
  *
@@ -184,20 +184,18 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDeco
     ZydisBool enabled);
 
 /**
- * @brief   Decodes the instruction in the given input @c buffer.
+ * @brief   Decodes the instruction in the given input `buffer`.
  *
- * @param   decoder             A pointer to the @c ZydisDecoder instance.
+ * @param   decoder             A pointer to the `ZydisDecoder` instance.
  * @param   buffer              A pointer to the input buffer.
  * @param   bufferLen           The length of the input buffer.
- * @param   instructionPointer  The instruction-pointer.
- * @param   instruction         A pointer to the @c ZydisDecodedInstruction struct, that receives
+ * @param   instruction         A pointer to the `ZydisDecodedInstruction` struct, that receives
  *                              the details about the decoded instruction.
  *
  * @return  A zydis status code.
  */
 ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
-    const void* buffer, ZydisUSize bufferLen, ZydisU64 instructionPointer,
-    ZydisDecodedInstruction* instruction);
+    const void* buffer, ZydisUSize bufferLen, ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */
 

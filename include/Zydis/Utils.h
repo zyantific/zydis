@@ -47,9 +47,10 @@ extern "C" {
 /**
  * @brief   Calculates the absolute target-address for the given instruction operand.
  *
- * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
- * @param   operand     A pointer to the @c ZydisDecodedOperand struct.
- * @param   address     A pointer to the memory that receives the absolute target-address.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
+ * @param   instrAddress    The runtime address of the instruction.
+ * @param   targetAddress   A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zydis status code.
  *
@@ -60,7 +61,7 @@ extern "C" {
  *   - The displacement needs to get truncated and zero extended
  */
 ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operand, ZydisU64* address);
+    const ZydisDecodedOperand* operand, ZydisU64 instrAddress, ZydisU64* targetAddress);
 
 /* ============================================================================================== */
 /* Flags                                                                                          */
@@ -69,7 +70,7 @@ ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction*
 /**
  * @brief   Returns a mask of accessed CPU-flags matching the given `action`.
  *
- * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   action      The CPU-flag action.
  * @param   flags       A pointer to the variable that receives the flag mask.
  *
