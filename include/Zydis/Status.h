@@ -179,7 +179,7 @@ typedef enum ZydisStatus_
 #define ZYDIS_CHECK(status) \
     do \
     { \
-        ZydisStatus status_038560234 = status; \
+        const ZydisStatus status_038560234 = status; \
         if (!ZYDIS_SUCCESS(status_038560234)) \
         { \
             return status_038560234; \

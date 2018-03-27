@@ -46,7 +46,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
     uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
-    char* string[16];
+    char string[16];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */

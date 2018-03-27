@@ -3316,7 +3316,7 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
             64, // 64 __ W1
             64  // 64 66 W1
         },
-        // Operand size is forced to 64-bit in 64-bit mode and forced to 32-bit in all other nmodes.
+        // Operand size is forced to 64-bit in 64-bit mode and forced to 32-bit in all other modes.
         // This is used for `mov CR, GPR` and `mov GPR, CR`.
         {
             32, // 16 __ W0
