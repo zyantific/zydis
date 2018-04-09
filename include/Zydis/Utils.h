@@ -32,9 +32,9 @@
 #ifndef ZYDIS_UTILS_H
 #define ZYDIS_UTILS_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/Status.h>
+#include <Zycore/Defines.h>
 #include <Zydis/DecoderTypes.h>
+#include <Zydis/Status.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,8 +60,8 @@ extern "C" {
  * - `MEM` operands with absolute address (e.g. `MOV RAX, [0x12345678]`)
  *   - The displacement needs to get truncated and zero extended
  */
-ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operand, ZydisU64 instrAddress, ZydisU64* targetAddress);
+ZYDIS_EXPORT ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
+    const ZydisDecodedOperand* operand, ZyanU64 instrAddress, ZyanU64* targetAddress);
 
 /* ============================================================================================== */
 /* Flags                                                                                          */
@@ -76,7 +76,7 @@ ZYDIS_EXPORT ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction*
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
+ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlags* flags);
 
 /* ============================================================================================== */

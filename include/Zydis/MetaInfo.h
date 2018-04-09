@@ -32,8 +32,8 @@
 #ifndef ZYDIS_METAINFO_H
 #define ZYDIS_METAINFO_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/CommonTypes.h>
+#include <Zycore/Defines.h>
+#include <Zycore/Types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +43,7 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
+#include <ZydisExportConfig.h>
 #include <Zydis/Generated/EnumInstructionCategory.h>
 #include <Zydis/Generated/EnumISASet.h>
 #include <Zydis/Generated/EnumISAExt.h>

@@ -103,5 +103,5 @@ typedef enum ZydisInstructionCategory_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_CATEGORY_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_CATEGORY_MAX_VALUE)
+    ZYDIS_CATEGORY_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CATEGORY_MAX_VALUE)
 } ZydisInstructionCategory;

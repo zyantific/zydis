@@ -71,7 +71,7 @@
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 id,
+void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id,
     const ZydisInstructionDefinition** definition)
 {
     switch (encoding)
@@ -99,7 +99,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
         break;
 #endif
     default:
-        ZYDIS_UNREACHABLE;
+        ZYAN_UNREACHABLE;
     }
 }
 
@@ -108,15 +108,15 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZydisU16 i
 /* ---------------------------------------------------------------------------------------------- */
 
 #ifndef ZYDIS_MINIMAL_MODE
-ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
+ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand)
 {
     if (definition->operandCount == 0)
     {
-        *operand = ZYDIS_NULL;
+        *operand = ZYAN_NULL;
         return 0;
     }
-    ZYDIS_ASSERT(definition->operandReference != 0xFFFF);
+    ZYAN_ASSERT(definition->operandReference != 0xFFFF);
     *operand = &operandDefinitions[definition->operandReference];
     return definition->operandCount;
 }
@@ -159,7 +159,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
     };
 
-    ZYDIS_ASSERT(element < ZYDIS_ARRAY_LENGTH(lookup));
+    ZYAN_ASSERT(element < ZYAN_ARRAY_LENGTH(lookup));
 
     *type = lookup[element].type;
     *size = lookup[element].size;
@@ -171,10 +171,10 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 /* ---------------------------------------------------------------------------------------------- */
 
 #ifndef ZYDIS_MINIMAL_MODE
-ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
-    ZYDIS_ASSERT(definition->flagsReference < ZYDIS_ARRAY_LENGTH(accessedFlags));
+    ZYAN_ASSERT(definition->flagsReference < ZYAN_ARRAY_LENGTH(accessedFlags));
     *flags = &accessedFlags[definition->flagsReference];
     return (definition->flagsReference != 0);
 }

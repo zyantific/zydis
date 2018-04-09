@@ -27,9 +27,10 @@
 #ifndef ZYDIS_STRING_H
 #define ZYDIS_STRING_H
 
-#include <Zydis/CommonTypes.h>
+#include <ZydisExportConfig.h>
+#include <Zycore/LibC.h>
+#include <Zycore/Types.h>
 #include <Zydis/Status.h>
-#include <Zydis/Internal/LibC.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,11 +56,11 @@ typedef struct ZydisString_
     /**
      * @brief   The length of the string (without 0-termination).
      */
-    ZydisUSize length;
+    ZyanUSize length;
     /**
      * @brief   The total buffer capacity.
      */
-    ZydisUSize capacity;
+    ZyanUSize capacity;
 } ZydisString;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -82,7 +83,7 @@ typedef struct ZydisStaticString_
     /**
      * @brief   The length of the string (without 0-termination).
     */
-    ZydisU8 length;
+    ZyanU8 length;
 } ZydisStaticString;
 
 #pragma pack(pop)
@@ -116,7 +117,7 @@ typedef enum ZydisLetterCase_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_LETTER_CASE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_LETTER_CASE_MAX_VALUE)
+    ZYDIS_LETTER_CASE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_LETTER_CASE_MAX_VALUE)
 } ZydisLetterCase;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -148,7 +149,7 @@ typedef enum ZydisLetterCase_
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* Functions                                                                                      */
+/* Exported Functions                                                                             */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -163,7 +164,7 @@ typedef enum ZydisLetterCase_
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringInit(ZydisString* string, char* text);
+ZYDIS_EXPORT ZyanStatus ZydisStringInit(ZydisString* string, char* text);
 
 /**
  * @brief   Finalizes a `ZydisString` struct by adding a terminating zero byte.
@@ -172,7 +173,7 @@ ZYDIS_EXPORT ZydisStatus ZydisStringInit(ZydisString* string, char* text);
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringFinalize(ZydisString* string);
+ZYDIS_EXPORT ZyanStatus ZydisStringFinalize(ZydisString* string);
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -182,11 +183,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringFinalize(ZydisString* string);
  * @param   string      The string to append to.
  * @param   text        The string to append.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppend(ZydisString* string, const ZydisString* text);
+ZYDIS_EXPORT ZyanStatus ZydisStringAppend(ZydisString* string, const ZydisString* text);
 
 /**
  * @brief   Appends a `ZydisString` to another `ZydisString`, converting it to the specified
@@ -196,11 +197,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppend(ZydisString* string, const ZydisStrin
  * @param   text        The string to append.
  * @param   letterCase  The letter case to use.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text,
     ZydisLetterCase letterCase);
 
 /**
@@ -209,11 +210,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendEx(ZydisString* string, const ZydisStr
  * @param   string      The string to append to.
  * @param   text        The C-string to append.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendC(ZydisString* string, const char* text);
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendC(ZydisString* string, const char* text);
 
 /**
  * @brief   Appends the given C-string to a `ZydisString`, converting it to the specified
@@ -223,11 +224,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendC(ZydisString* string, const char* tex
  * @param   text        The C-string to append.
  * @param   letterCase  The letter case to use.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendExC(ZydisString* string, const char* text,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendExC(ZydisString* string, const char* text,
     ZydisLetterCase letterCase);
 
 /**
@@ -236,11 +237,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendExC(ZydisString* string, const char* t
  * @param   string      The string to append to.
  * @param   text        The static-string to append.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendStatic(ZydisString* string,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendStatic(ZydisString* string,
     const ZydisStaticString* text, ZydisLetterCase letterCase);
 
 /**
@@ -251,11 +252,11 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendStatic(ZydisString* string,
  * @param   text        The static-string to append.
  * @param   letterCase  The letter case to use.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c text.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendExStatic(ZydisString* string,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendExStatic(ZydisString* string,
     const ZydisStaticString* text, ZydisLetterCase letterCase);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -271,15 +272,15 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendExStatic(ZydisString* string,
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c value.
  *
  * The string-buffer pointer is increased by the number of chars written, if the call was
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecU(ZydisString* string, ZydisU64 value,
-    ZydisU8 paddingLength);
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value,
+    ZyanU8 paddingLength);
 
 /**
  * @brief   Formats the given signed ordinal @c value to its decimal text-representation and
@@ -290,15 +291,15 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecU(ZydisString* string, ZydisU64 val
  * @param   paddingLength   Padds the converted value with leading zeros, if the number of chars is
  *                          less than the @c paddingLength (the sign char is ignored).
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c value.
  *
  * The string-buffer pointer is increased by the number of chars written, if the call was
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecS(ZydisString* string, ZydisI64 value,
-    ZydisU8 paddingLength);
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value,
+    ZyanU8 paddingLength);
 
 /**
  * @brief   Formats the given unsigned ordinal @c value to its hexadecimal text-representation and
@@ -313,15 +314,15 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendDecS(ZydisString* string, ZydisI64 val
  * @param   prefix          The string to use as prefix or `NULL`, if not needed.
  * @param   suffix          The string to use as suffix or `NULL`, if not needed.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c value.
  *
  * The string-buffer pointer is increased by the number of chars written, if the call was
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendHexU(ZydisString* string, ZydisU64 value,
-    ZydisU8 paddingLength, ZydisBool uppercase, const ZydisString* prefix,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value,
+    ZyanU8 paddingLength, ZyanBool uppercase, const ZydisString* prefix,
     const ZydisString* suffix);
 
 /**
@@ -337,15 +338,15 @@ ZYDIS_EXPORT ZydisStatus ZydisStringAppendHexU(ZydisString* string, ZydisU64 val
  * @param   prefix          The string to use as prefix or `NULL`, if not needed.
  * @param   suffix          The string to use as suffix or `NULL`, if not needed.
  *
- * @return  @c ZYDIS_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
+ * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
+ *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
  *          sufficient to append the given @c value.
  *
  * The string-buffer pointer is increased by the number of chars written, if the call was
  * successfull.
  */
-ZYDIS_EXPORT ZydisStatus ZydisStringAppendHexS(ZydisString* string, ZydisI64 value,
-    ZydisU8 paddingLength, ZydisBool uppercase, const ZydisString* prefix,
+ZYDIS_EXPORT ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value,
+    ZyanU8 paddingLength, ZyanBool uppercase, const ZydisString* prefix,
     const ZydisString* suffix);
 
 /* ---------------------------------------------------------------------------------------------- */

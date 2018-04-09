@@ -40,14 +40,21 @@
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-const char* ZydisFormatStatus(ZydisStatus status)
+const char* ZydisFormatStatus(ZyanStatus status)
 {
-    static const char* strings[] =
+    static const char* strings_zycore[] =
     {
         "SUCCESS",
-        "INVALID_PARAMETER",
+        "TRUE",
+        "FALSE",
+        "INVALID_ARGUMENT",
         "INVALID_OPERATION",
+        "OUT_OF_RANGE",
         "INSUFFICIENT_BUFFER_SIZE",
+        "NOT_ENOUGH_MEMORY",
+    };
+    static const char* strings_zydis[] =
+    {
         "NO_MORE_DATA",
         "DECODING_ERROR",
         "INSTRUCTION_TOO_LONG",
@@ -59,11 +66,23 @@ const char* ZydisFormatStatus(ZydisStatus status)
         "MALFORMED_EVEX",
         "MALFORMED_MVEX",
         "INVALID_MASK",
-        "IMPOSSIBLE_INSTRUCTION",
-        "INSUFFICIENT_BUFFER_SIZE"
     };
-    ZYDIS_ASSERT(status < ZYDIS_ARRAY_LENGTH(strings));
-    return strings[status];
+
+    if (ZYAN_STATUS_FACILITY(status) == ZYAN_FACILITY_ZYCORE_GENERIC)
+    {
+        status = ZYAN_STATUS_CODE(status);
+        ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zycore));
+        return strings_zycore[status];
+    }
+
+    if (ZYAN_STATUS_FACILITY(status) == ZYAN_FACILITY_ZYDIS)
+    {
+        status = ZYAN_STATUS_CODE(status);
+        ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zycore));
+        return strings_zycore[status];
+    }
+
+    ZYAN_UNREACHABLE;
 }
 
 /* ============================================================================================== */
@@ -214,7 +233,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
             ++immId;
             break;
         default:
-            ZYDIS_UNREACHABLE;
+            ZYAN_UNREACHABLE;
         }
         puts("");
     }
@@ -262,7 +281,7 @@ void printFlags(ZydisDecodedInstruction* instruction)
     fputs("=======================================\n", stdout);
     printf("    ACTIONS: ");
     uint8_t c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYDIS_ARRAY_LENGTH(instruction->accessedFlags); ++i)
+    for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
         if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
@@ -518,7 +537,7 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     if (instruction->attributes)
     {
         fputs (" ATTRIBUTES: ", stdout);
-        for (size_t i = 0; i < ZYDIS_ARRAY_LENGTH(attributeMap); ++i)
+        for (size_t i = 0; i < ZYAN_ARRAY_LENGTH(attributeMap); ++i)
         {
             if (instruction->attributes & attributeMap[i].attrMask)
             {
@@ -549,13 +568,13 @@ void printInstruction(ZydisDecodedInstruction* instruction)
         printAVXInfo(instruction);
     }
 
-    ZydisStatus status;
+    ZyanStatus status;
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
-        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE))) ||
-        !ZYDIS_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE))))
+    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
+        !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE))) ||
+        !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE))))
     {
         fputs("Failed to initialize instruction-formatter\n", stderr);
         exit(status);
@@ -576,13 +595,13 @@ int main(int argc, char** argv)
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
         fputs("Invalid zydis version\n", stderr);
-        return ZYDIS_STATUS_INVALID_OPERATION;
+        return ZYAN_STATUS_INVALID_OPERATION;
     }
 
     if (argc < 3)
     {
         fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
-        return ZYDIS_STATUS_INVALID_PARAMETER;
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     ZydisDecoder decoder;
@@ -604,7 +623,7 @@ int main(int argc, char** argv)
     } else
     {
         fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
-        return ZYDIS_STATUS_INVALID_PARAMETER;
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
@@ -614,13 +633,13 @@ int main(int argc, char** argv)
         if (length == ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
             fprintf(stderr, "Maximum number of %d bytes exceeded", ZYDIS_MAX_INSTRUCTION_LENGTH);
-            return ZYDIS_STATUS_INVALID_PARAMETER;
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         const size_t len = strlen(argv[i + 2]);
         if (len % 2)
         {
             fputs("Even number of hex nibbles expected", stderr);
-            return ZYDIS_STATUS_INVALID_PARAMETER;
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         for (uint8_t j = 0; j < len / 2; ++j)
         {
@@ -628,7 +647,7 @@ int main(int argc, char** argv)
             if (!sscanf(&argv[i + 2][j * 2], "%02x", &value))
             {
                 fputs("Invalid hex value", stderr);
-                return ZYDIS_STATUS_INVALID_PARAMETER;
+                return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             data[length] = (uint8_t)value;
             ++length;
@@ -636,10 +655,10 @@ int main(int argc, char** argv)
     }
 
     ZydisDecodedInstruction instruction;
-    const ZydisStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, &instruction);
-    if (!ZYDIS_SUCCESS(status))
+    const ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, &instruction);
+    if (!ZYAN_SUCCESS(status))
     {
-        if (status >= ZYDIS_STATUS_USER)
+        if (ZYAN_STATUS_FACILITY(status) >= ZYAN_FACILITY_USER)
         {
             fprintf(stderr,
                 "Could not decode instruction: User defined status code 0x%" PRIx32, status);
@@ -652,7 +671,7 @@ int main(int argc, char** argv)
 
     printInstruction(&instruction);
 
-    return ZYDIS_STATUS_SUCCESS;
+    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ============================================================================================== */

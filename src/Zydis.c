@@ -30,31 +30,31 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisU64 ZydisGetVersion(void)
+ZyanU64 ZydisGetVersion(void)
 {
     return ZYDIS_VERSION;
 }
 
-ZydisBool ZydisIsFeatureEnabled(ZydisFeature feature)
+ZyanBool ZydisIsFeatureEnabled(ZydisFeature feature)
 {
     switch (feature)
     {
     case ZYDIS_FEATURE_EVEX:
 #ifndef ZYDIS_DISABLE_EVEX
-        return ZYDIS_TRUE;
+        return ZYAN_TRUE;
 #else
-        return ZYDIS_FALSE;
+        return ZYAN_FALSE;
 #endif
 
     case ZYDIS_FEATURE_MVEX:
 #ifndef ZYDIS_DISABLE_MVEX
-        return ZYDIS_TRUE;
+        return ZYAN_TRUE;
 #else
-        return ZYDIS_FALSE;
+        return ZYAN_FALSE;
 #endif
 
     default:
-        return ZYDIS_FALSE;
+        return ZYAN_FALSE;
     }
 }
 

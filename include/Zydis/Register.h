@@ -32,8 +32,8 @@
 #ifndef ZYDIS_REGISTER_H
 #define ZYDIS_REGISTER_H
 
-#include <Zydis/Defines.h>
-#include <Zydis/CommonTypes.h>
+#include <Zycore/Defines.h>
+#include <Zycore/Types.h>
 #include <Zydis/String.h>
 
 #ifdef __cplusplus
@@ -136,7 +136,7 @@ typedef enum ZydisRegisterClass
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_REGCLASS_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_REGCLASS_MAX_VALUE)
+    ZYDIS_REGCLASS_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REGCLASS_MAX_VALUE)
 } ZydisRegisterClass;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -146,7 +146,7 @@ typedef enum ZydisRegisterClass
 /**
  * @brief   Defines the @c ZydisRegisterWidth datatype.
  */
-typedef ZydisU16 ZydisRegisterWidth;
+typedef ZyanU16 ZydisRegisterWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -163,7 +163,7 @@ typedef ZydisU16 ZydisRegisterWidth;
  * @return  The register specified by the @c registerClass and the @c id or @c ZYDIS_REGISTER_NONE,
  *          if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZyanU8 id);
 
 /**
  * @brief   Returns the id of the specified register.
@@ -172,7 +172,7 @@ ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass,
  *
  * @return  The id of the specified register, or -1 if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisI16 ZydisRegisterGetId(ZydisRegister reg);
+ZYDIS_EXPORT ZyanI16 ZydisRegisterGetId(ZydisRegister reg);
 
 /**
  * @brief   Returns the register-class of the specified register.

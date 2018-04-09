@@ -10,7 +10,7 @@ project(Zydis VERSION 2.0)
 
 # Features
 option(ZYDIS_MINIMAL_MODE
-    "Enable minimal mode (forces ZYDIS_DECODER_MODE_MINIMAL)"
+    "Enable minimal mode (forces ZYDIS_DECODER_MODE_MINIMAL runtime option)"
     OFF)
 option(ZYDIS_FEATURE_DECODER
     "Enable instruction decoding functionality"
@@ -32,9 +32,6 @@ option(ZYDIS_BUILD_SHARED_LIB
 option(ZYDIS_WHOLE_PROGRAM_OPTIMIZATION
     "Enable whole program optimization"
     OFF)
-option(ZYDIS_NO_LIBC
-    "Don't use any C standard library functions (for exotic build-envs like kernel drivers)"
-    OFF)
 option(ZYDIS_BUILD_EXAMPLES
     "Build examples"
     ON)
@@ -44,27 +41,6 @@ option(ZYDIS_BUILD_TOOLS
 option(ZYDIS_FUZZ_AFL_FAST
     "Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
     OFF)
-option(ZYDIS_DEV_MODE
-    "Enable developer mode (-Wall, -Werror, ...)"
-    OFF)
-
-# =============================================================================================== #
-# Developer mode                                                                                  #
-# =============================================================================================== #
-
-# If in developer mode, hack global compiler flags.
-if (ZYDIS_DEV_MODE)
-    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
-            "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
-        set(compiler_specific "-pedantic -Wextra -Werror")
-    elseif (MSVC)
-        set(compiler_specific "/WX /W4 /TC")
-    endif ()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_specific}"
-        CACHE STRING "Flags used by the compiler during all build types." FORCE)
-endif ()
 
 # =============================================================================================== #
 # Library configuration                                                                           #
@@ -75,6 +51,9 @@ if (ZYDIS_BUILD_SHARED_LIB)
 else ()
     add_library("Zydis" STATIC)
 endif ()
+
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
+target_link_libraries("Zydis" PRIVATE "Zycore")
 
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
@@ -117,14 +96,9 @@ endif ()
 if (NOT ZYDIS_FEATURE_MVEX)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_MVEX")
 endif ()
-if (ZYDIS_NO_LIBC)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_NO_LIBC")
-endif ()
 
 target_sources("Zydis"
     PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/CommonTypes.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/MetaInfo.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
@@ -133,7 +107,6 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/String.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/LibC.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
         "src/MetaInfo.c"
         "src/Mnemonic.c"
@@ -180,11 +153,13 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 if (ZYDIS_BUILD_EXAMPLES)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("FormatterHooks" "examples/FormatterHooks.c")
+        target_link_libraries("FormatterHooks" "Zycore")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
         target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
         add_executable("ZydisFuzzIn" "examples/ZydisFuzzIn.c")
+        target_link_libraries("ZydisFuzzIn" "Zycore")
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -197,6 +172,7 @@ if (ZYDIS_BUILD_EXAMPLES)
         endif ()
 
         add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
+        target_link_libraries("ZydisPerfTest" "Zycore")
         target_link_libraries("ZydisPerfTest" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -219,6 +195,7 @@ endif ()
 if (ZYDIS_BUILD_TOOLS)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+        target_link_libraries("ZydisDisasm" "Zycore")
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -228,6 +205,7 @@ if (ZYDIS_BUILD_TOOLS)
         endif ()
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
+        target_link_libraries("ZydisInfo" "Zycore")
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")

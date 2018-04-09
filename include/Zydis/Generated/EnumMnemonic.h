@@ -1594,5 +1594,5 @@ typedef enum ZydisMnemonic_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_MNEMONIC_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MNEMONIC_MAX_VALUE)
+    ZYDIS_MNEMONIC_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MNEMONIC_MAX_VALUE)
 } ZydisMnemonic;

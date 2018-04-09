@@ -67,13 +67,13 @@ static const struct ZydisRegisterMapItem registerMap[] =
     { ZYDIS_REGCLASS_BOUND    , ZYDIS_REGISTER_BND0   , ZYDIS_REGISTER_BND3   , 128   , 128 }
 };
 
-static const ZydisU8 registerMapCount = sizeof(registerMap) / sizeof(struct ZydisRegisterMapItem);
+static const ZyanU8 registerMapCount = sizeof(registerMap) / sizeof(struct ZydisRegisterMapItem);
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
+ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZyanU8 id)
 {
     switch (registerClass)
     {
@@ -91,9 +91,9 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZydisU8 id)
     return ZYDIS_REGISTER_NONE;
 }
 
-ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
+ZyanI16 ZydisRegisterGetId(ZydisRegister reg)
 {
-    ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 16);
+    ZYAN_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 16);
     for (unsigned i = 0; i < registerMapCount; ++i)
     {
         switch (registerMap[i].class)
@@ -105,7 +105,7 @@ ZydisI16 ZydisRegisterGetId(ZydisRegister reg)
         default:
             if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
             {
-                return (ZydisU16)(reg - registerMap[i].lo);
+                return (ZyanU16)(reg - registerMap[i].lo);
             }
         }
     }
@@ -206,18 +206,18 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if (reg >= ZYDIS_ARRAY_LENGTH(zydisRegisterStrings))
+    if (reg >= ZYAN_ARRAY_LENGTH(zydisRegisterStrings))
     {
-        return ZYDIS_NULL;
+        return ZYAN_NULL;
     }
     return zydisRegisterStrings[reg].buffer;
 }
 
 const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
 {
-    if (reg >= ZYDIS_ARRAY_LENGTH(zydisRegisterStrings))
+    if (reg >= ZYAN_ARRAY_LENGTH(zydisRegisterStrings))
     {
-        return ZYDIS_NULL;
+        return ZYAN_NULL;
     }
     return &zydisRegisterStrings[reg];
 }

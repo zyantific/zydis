@@ -32,9 +32,9 @@
 #ifndef ZYDIS_DECODER_H
 #define ZYDIS_DECODER_H
 
-#include <Zydis/CommonTypes.h>
+#include <Zycore/Types.h>
+#include <Zycore/Defines.h>
 #include <Zydis/DecoderTypes.h>
-#include <Zydis/Defines.h>
 #include <Zydis/Status.h>
 
 #ifdef __cplusplus
@@ -136,7 +136,7 @@ typedef enum ZydisDecoderMode_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_DECODER_MODE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_DECODER_MODE_MAX_VALUE)
+    ZYDIS_DECODER_MODE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_DECODER_MODE_MAX_VALUE)
 } ZydisDecoderMode;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -145,12 +145,24 @@ typedef enum ZydisDecoderMode_
 
 /**
  * @brief   Defines the `ZydisDecoder` struct.
+ *
+ * All fields in this struct should be considered as "private". Any changes may lead to unexpected
+ * behavior.
  */
 typedef struct ZydisDecoder_
 {
+    /**
+     * @brief   The machine mode.
+     */
     ZydisMachineMode machineMode;
+    /**
+     * @brief   The address width.
+     */
     ZydisAddressWidth addressWidth;
-    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    /**
+     * @brief   The decoder mode array.
+     */
+    ZyanBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -168,7 +180,7 @@ typedef struct ZydisDecoder_
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode,
+ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode,
     ZydisAddressWidth addressWidth);
 
 /**
@@ -176,12 +188,12 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMod
  *
  * @param   decoder A pointer to the `ZydisDecoder` instance.
  * @param   mode    The decoder mode.
- * @param   enabled `ZYDIS_TRUE` to enable, or `ZYDIS_FALSE` to disable the specified decoder-mode.
+ * @param   enabled `ZYAN_TRUE` to enable, or `ZYAN_FALSE` to disable the specified decoder-mode.
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
-    ZydisBool enabled);
+ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
+    ZyanBool enabled);
 
 /**
  * @brief   Decodes the instruction in the given input `buffer`.
@@ -194,8 +206,8 @@ ZYDIS_EXPORT ZydisStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDeco
  *
  * @return  A zydis status code.
  */
-ZYDIS_EXPORT ZydisStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
-    const void* buffer, ZydisUSize bufferLen, ZydisDecodedInstruction* instruction);
+ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
+    const void* buffer, ZyanUSize bufferLen, ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */
 

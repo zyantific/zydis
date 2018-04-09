@@ -34,11 +34,11 @@
 #include <Zydis/Zydis.h>
 #include <inttypes.h>
 
-#if defined(ZYDIS_WINDOWS)
+#if defined(ZYAN_WINDOWS)
 #   include <Windows.h>
-#elif defined(ZYDIS_APPLE)
+#elif defined(ZYAN_APPLE)
 #   include <mach/mach_time.h>
-#elif defined(ZYDIS_LINUX)
+#elif defined(ZYAN_LINUX)
 #   include <sys/time.h>
 #   include <pthread.h>
 #else
@@ -53,7 +53,7 @@
 /* Time measurement                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-#if defined(ZYDIS_WINDOWS)
+#if defined(ZYAN_WINDOWS)
 double   CounterFreq  = 0.0;
 uint64_t CounterStart = 0;
 
@@ -75,7 +75,7 @@ double GetCounter()
     QueryPerformanceCounter(&li);
     return (double)(li.QuadPart - CounterStart) / CounterFreq;
 }
-#elif defined(ZYDIS_APPLE)
+#elif defined(ZYAN_APPLE)
 uint64_t counterStart = 0;
 mach_timebase_info_data_t timebaseInfo;
 
@@ -95,7 +95,7 @@ double GetCounter()
 
     return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
 }
-#elif defined(ZYDIS_LINUX)
+#elif defined(ZYAN_LINUX)
 struct timeval t1;
 
 void StartCounter()
@@ -119,7 +119,7 @@ double GetCounter()
 
 void adjustProcessAndThreadPriority()
 {
-#ifdef ZYDIS_WINDOWS
+#ifdef ZYAN_WINDOWS
     SYSTEM_INFO info;
     GetSystemInfo(&info);
     if (info.dwNumberOfProcessors > 1)
@@ -138,7 +138,7 @@ void adjustProcessAndThreadPriority()
         }
     }
 #endif
-#ifdef ZYDIS_LINUX
+#ifdef ZYAN_LINUX
     pthread_t thread = pthread_self();
     cpu_set_t cpus;
     CPU_ZERO(&cpus);
@@ -153,16 +153,16 @@ void adjustProcessAndThreadPriority()
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
+uint64_t processBuffer(const char* buffer, size_t length, ZyanBool minimalMode, ZyanBool format)
 {
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(
+    if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
         exit(EXIT_FAILURE);
     }
-    if (!ZYDIS_SUCCESS(
+    if (!ZYAN_SUCCESS(
         ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
     {
         fputs("Failed to adjust decoder-mode\n", stderr);
@@ -172,11 +172,11 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
     ZydisFormatter formatter;
     if (format)
     {
-        if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
-            !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
-                ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE)) ||
-            !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
-                ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)))
+        if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+            !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE)) ||
+            !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
         {
             fputs("Failed to initialize instruction-formatter\n", stderr);
             exit(EXIT_FAILURE);
@@ -185,14 +185,14 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
 
     uint64_t count = 0;
     size_t offset = 0;
-    ZydisStatus status;
+    ZyanStatus status;
     ZydisDecodedInstruction instruction;
     char formatBuffer[256];
     while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
-        ZYDIS_ASSERT(ZYDIS_SUCCESS(status));
-        if (!ZYDIS_SUCCESS(status))
+        ZYAN_ASSERT(ZYAN_SUCCESS(status));
+        if (!ZYAN_SUCCESS(status))
         {
             fputs("Unexpected decoding error\n", stderr);
             exit(EXIT_FAILURE);
@@ -209,7 +209,7 @@ uint64_t processBuffer(const char* buffer, size_t length, ZydisBool minimalMode,
     return count;
 }
 
-void testPerformance(const char* buffer, size_t length, ZydisBool minimalMode, ZydisBool format)
+void testPerformance(const char* buffer, size_t length, ZyanBool minimalMode, ZyanBool format)
 {
     // Cache warmup
     processBuffer(buffer, length, minimalMode, format);
@@ -228,7 +228,7 @@ void testPerformance(const char* buffer, size_t length, ZydisBool minimalMode, Z
 void generateTestData(FILE* file, uint8_t encoding)
 {
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(
+    if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
@@ -268,11 +268,11 @@ void generateTestData(FILE* file, uint8_t encoding)
             data[offset    ] = 0x62;
             break;
         default:
-            ZYDIS_UNREACHABLE;
+            ZYAN_UNREACHABLE;
         }
-        if (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data, sizeof(data), &instruction)))
+        if (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data, sizeof(data), &instruction)))
         {
-            ZydisBool b = ZYDIS_FALSE;
+            ZyanBool b = ZYAN_FALSE;
             switch (encoding)
             {
             case 0:
@@ -295,7 +295,7 @@ void generateTestData(FILE* file, uint8_t encoding)
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
                 break;
             default:
-                ZYDIS_UNREACHABLE;
+                ZYAN_UNREACHABLE;
             }
             if (b)
             {
@@ -332,10 +332,10 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    ZydisBool generate = ZYDIS_FALSE;
+    ZyanBool generate = ZYAN_FALSE;
     if (!strcmp(argv[1], "-generate"))
     {
-        generate = ZYDIS_TRUE;
+        generate = ZYAN_TRUE;
     }
     const char* directory = argv[2];
 
@@ -363,7 +363,7 @@ int main(int argc, char** argv)
         adjustProcessAndThreadPriority();
     }
 
-    for (uint8_t i = 0; i < ZYDIS_ARRAY_LENGTH(tests); ++i)
+    for (uint8_t i = 0; i < ZYAN_ARRAY_LENGTH(tests); ++i)
     {
         FILE* file;
 
@@ -408,9 +408,9 @@ int main(int argc, char** argv)
             }
 
             printf("Testing %s ...\n", tests[i].encoding);
-            testPerformance(buffer, length, ZYDIS_TRUE , ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_FALSE);
-            testPerformance(buffer, length, ZYDIS_FALSE, ZYDIS_TRUE );
+            testPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE);
+            testPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE);
+            testPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE );
             puts("");
 
         NextFile1:

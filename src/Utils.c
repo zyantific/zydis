@@ -34,31 +34,31 @@
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operand, ZydisU64 instrAddress, ZydisU64* targetAddress)
+ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
+    const ZydisDecodedOperand* operand, ZyanU64 instrAddress, ZyanU64* targetAddress)
 {
     if (!instruction || !operand || !targetAddress)
     {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
         if (!operand->mem.disp.hasDisplacement)
         {
-            return ZYDIS_STATUS_INVALID_PARAMETER;
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            *targetAddress = ((ZydisU32)instrAddress + instruction->length +
-                (ZydisU32)operand->mem.disp.value);
-            return ZYDIS_STATUS_SUCCESS;
+            *targetAddress = ((ZyanU32)instrAddress + instruction->length +
+                (ZyanU32)operand->mem.disp.value);
+            return ZYAN_STATUS_SUCCESS;
         }
         if (operand->mem.base == ZYDIS_REGISTER_RIP)
         {
-            *targetAddress = (ZydisU64)(instrAddress + instruction->length +
+            *targetAddress = (ZyanU64)(instrAddress + instruction->length +
                 operand->mem.disp.value);
-            return ZYDIS_STATUS_SUCCESS;
+            return ZYAN_STATUS_SUCCESS;
         }
         if ((operand->mem.base == ZYDIS_REGISTER_NONE) &&
             (operand->mem.index == ZYDIS_REGISTER_NONE))
@@ -66,23 +66,23 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             switch (instruction->addressWidth)
             {
             case 16:
-                *targetAddress = (ZydisU64)operand->mem.disp.value & 0x000000000000FFFF;
-                return ZYDIS_STATUS_SUCCESS;
+                *targetAddress = (ZyanU64)operand->mem.disp.value & 0x000000000000FFFF;
+                return ZYAN_STATUS_SUCCESS;
             case 32:
-                *targetAddress = (ZydisU64)operand->mem.disp.value & 0x00000000FFFFFFFF;
-                return ZYDIS_STATUS_SUCCESS;
+                *targetAddress = (ZyanU64)operand->mem.disp.value & 0x00000000FFFFFFFF;
+                return ZYAN_STATUS_SUCCESS;
             case 64:
-                *targetAddress = (ZydisU64)operand->mem.disp.value;
-                return ZYDIS_STATUS_SUCCESS;
+                *targetAddress = (ZyanU64)operand->mem.disp.value;
+                return ZYAN_STATUS_SUCCESS;
             default:
-                return ZYDIS_STATUS_INVALID_PARAMETER;
+                return ZYAN_STATUS_INVALID_ARGUMENT;
             }
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         if (operand->imm.isSigned && operand->imm.isRelative)
         {
-            *targetAddress = (ZydisU64)((ZydisI64)instrAddress + instruction->length +
+            *targetAddress = (ZyanU64)((ZyanI64)instrAddress + instruction->length +
                 operand->imm.value.s);
             switch (instruction->machineMode)
             {
@@ -99,15 +99,15 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             case ZYDIS_MACHINE_MODE_LONG_64:
                 break;
             default:
-                return ZYDIS_STATUS_INVALID_PARAMETER;
+                return ZYAN_STATUS_INVALID_ARGUMENT;
             }
-            return ZYDIS_STATUS_SUCCESS;
+            return ZYAN_STATUS_SUCCESS;
         }
         break;
     default:
         break;
     }
-    return ZYDIS_STATUS_INVALID_PARAMETER;
+    return ZYAN_STATUS_INVALID_ARGUMENT;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -120,22 +120,22 @@ ZydisStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
 /* Exported functions                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
+ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlags* flags)
 {
     if (!instruction)
     {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
     *flags = 0;
-    for (ZydisU8 i = 0; i < ZYDIS_ARRAY_LENGTH(instruction->accessedFlags); ++i)
+    for (ZyanU8 i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
         if (instruction->accessedFlags[i].action == action)
         {
             *flags |= (1 << i);
         }
     }
-    return ZYDIS_STATUS_SUCCESS;
+    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

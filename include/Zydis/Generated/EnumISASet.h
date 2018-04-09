@@ -159,5 +159,5 @@ typedef enum ZydisISASet_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ISA_SET_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_ISA_SET_MAX_VALUE)
+    ZYDIS_ISA_SET_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_ISA_SET_MAX_VALUE)
 } ZydisISASet;

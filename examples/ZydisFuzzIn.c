@@ -43,7 +43,7 @@ typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machineMode;
     ZydisAddressWidth addressWidth;
-    ZydisBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZyanBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatterStyle;
     uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
@@ -89,10 +89,10 @@ int doIteration()
         ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
-    controlBlock.string[ZYDIS_ARRAY_LENGTH(controlBlock.string) - 1] = 0;
+    controlBlock.string[ZYAN_ARRAY_LENGTH(controlBlock.string) - 1] = 0;
 
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(
+    if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, controlBlock.machineMode, controlBlock.addressWidth)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
@@ -100,7 +100,7 @@ int doIteration()
     }
     for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
     {
-        if (!ZYDIS_SUCCESS(
+        if (!ZYAN_SUCCESS(
             ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
         {
             ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", stderr);
@@ -109,7 +109,7 @@ int doIteration()
     }
 
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
+    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
@@ -126,7 +126,7 @@ int doIteration()
         default:
             break;
         }
-        if (!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter, prop,
+        if (!ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter, prop,
             controlBlock.formatterProperties[prop])))
         {
             ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
@@ -141,12 +141,12 @@ int doIteration()
         numBytesRead = fread(readBuf, 1, sizeof(readBuf), stdin);
 
         ZydisDecodedInstruction instruction;
-        ZydisStatus status;
+        ZyanStatus status;
         size_t readOffs = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
             numBytesRead - readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            if (!ZYDIS_SUCCESS(status))
+            if (!ZYAN_SUCCESS(status))
             {
                 ++readOffs;
                 continue;

@@ -27,7 +27,7 @@
 #ifndef ZYDIS_INTERNAL_DECODERDATA_H
 #define ZYDIS_INTERNAL_DECODERDATA_H
 
-#include <Zydis/Defines.h>
+#include <Zycore/Defines.h>
 #include <Zydis/DecoderTypes.h>
 
 #ifdef __cplusplus
@@ -39,7 +39,7 @@ extern "C" {
 /* ============================================================================================== */
 
 // MSVC does not like types other than (un-)signed int for bitfields
-#ifdef ZYDIS_MSVC
+#ifdef ZYAN_MSVC
 #   pragma warning(push)
 #   pragma warning(disable:4214)
 #endif
@@ -53,7 +53,7 @@ extern "C" {
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeType datatype.
  */
-typedef ZydisU8 ZydisDecoderTreeNodeType;
+typedef ZyanU8 ZydisDecoderTreeNodeType;
 
 /**
  * @brief   Values that represent zydis decoder tree node types.
@@ -168,7 +168,7 @@ enum ZydisDecoderTreeNodeTypes
 /**
  * @brief   Defines the @c ZydisDecoderTreeNodeValue datatype.
  */
-typedef ZydisU16 ZydisDecoderTreeNodeValue;
+typedef ZyanU16 ZydisDecoderTreeNodeValue;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -185,7 +185,7 @@ typedef struct ZydisDecoderTreeNode_
 
 #pragma pack(pop)
 
-#ifdef ZYDIS_MSVC
+#ifdef ZYAN_MSVC
 #   pragma warning(pop)
 #endif
 
@@ -196,7 +196,7 @@ typedef struct ZydisDecoderTreeNode_
 /**
  * @brief   Defines the @c ZydisInstructionEncodingFlags datatype.
  */
-typedef ZydisU8 ZydisInstructionEncodingFlags;
+typedef ZyanU8 ZydisInstructionEncodingFlags;
 
 /**
  * @brief   The instruction has an optional modrm byte.
@@ -243,7 +243,7 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the displacement value.
          */
-        ZydisU8 size[3];
+        ZyanU8 size[3];
     } disp;
     /**
      * @brief   Immediate info.
@@ -253,15 +253,15 @@ typedef struct ZydisInstructionEncodingInfo_
         /**
          * @brief   The size of the immediate value.
          */
-        ZydisU8 size[3];
+        ZyanU8 size[3];
         /**
          * @brief   Signals, if the value is signed.
          */
-        ZydisBool isSigned;
+        ZyanBool isSigned;
         /**
          * @brief   Signals, if the value is a relative offset.
          */
-        ZydisBool isRelative;
+        ZyanBool isRelative;
     } imm[2];
 } ZydisInstructionEncodingInfo;
 
@@ -291,7 +291,7 @@ ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void);
  * @return  The specified child node.
  */
 ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(
-    const ZydisDecoderTreeNode* parent, ZydisU16 index);
+    const ZydisDecoderTreeNode* parent, ZyanU16 index);
 
 /**
  * @brief   Returns information about optional instruction parts (like modrm, displacement or

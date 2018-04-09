@@ -70,97 +70,97 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
 }
 
 const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent,
-    ZydisU16 index)
+    ZyanU16 index)
 {
     switch (parent->type)
     {
     case ZYDIS_NODETYPE_FILTER_XOP:
-        ZYDIS_ASSERT(index <  13);
+        ZYAN_ASSERT(index <  13);
         return &filtersXOP[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_VEX:
-        ZYDIS_ASSERT(index <  17);
+        ZYAN_ASSERT(index <  17);
         return &filtersVEX[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_EMVEX:
-        ZYDIS_ASSERT(index <  33);
+        ZYAN_ASSERT(index <  33);
         return &filtersEMVEX[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_OPCODE:
-        ZYDIS_ASSERT(index < 256);
+        ZYAN_ASSERT(index < 256);
         return &filtersOpcode[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE:
-        ZYDIS_ASSERT(index <   4);
+        ZYAN_ASSERT(index <   4);
         return &filtersMode[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_COMPACT:
-        ZYDIS_ASSERT(index <   3);
+        ZYAN_ASSERT(index <   3);
         return &filtersModeCompact[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODRM_MOD:
-        ZYDIS_ASSERT(index <   4);
+        ZYAN_ASSERT(index <   4);
         return &filtersModrmMod[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModrmModCompact[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODRM_REG:
-        ZYDIS_ASSERT(index <   8);
+        ZYAN_ASSERT(index <   8);
         return &filtersModrmReg[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODRM_RM:
-        ZYDIS_ASSERT(index <   8);
+        ZYAN_ASSERT(index <   8);
         return &filtersModrmRm[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
-        ZYDIS_ASSERT(index <   5);
+        ZYAN_ASSERT(index <   5);
         return &filtersMandatoryPrefix[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_OPERAND_SIZE:
-        ZYDIS_ASSERT(index <   3);
+        ZYAN_ASSERT(index <   3);
         return &filtersOperandSize[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE:
-        ZYDIS_ASSERT(index <   3);
+        ZYAN_ASSERT(index <   3);
         return &filtersAddressSize[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH:
-        ZYDIS_ASSERT(index <   3);
+        ZYAN_ASSERT(index <   3);
         return &filtersVectorLength[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_REX_W:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersREXW[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_REX_B:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersREXB[parent->value][index];
 #ifndef ZYDIS_DISABLE_EVEX
     case ZYDIS_NODETYPE_FILTER_EVEX_B:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersEVEXB[parent->value][index];
 #endif
 #ifndef ZYDIS_DISABLE_MVEX
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersMVEXE[parent->value][index];
 #endif
     case ZYDIS_NODETYPE_FILTER_MODE_AMD:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeAMD[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_KNC:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeKNC[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_MPX:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeMPX[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_CET:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeCET[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeLZCNT[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
-        ZYDIS_ASSERT(index <   2);
+        ZYAN_ASSERT(index <   2);
         return &filtersModeTZCNT[parent->value][index];
     default:
-        ZYDIS_UNREACHABLE;
+        ZYAN_UNREACHABLE;
     }
 }
 
 void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
-    ZYDIS_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    const ZydisU8 class = (node->type) & 0x7F;
-    ZYDIS_ASSERT(class < ZYDIS_ARRAY_LENGTH(instructionEncodings));
+    ZYAN_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
+    const ZyanU8 class = (node->type) & 0x7F;
+    ZYAN_ASSERT(class < ZYAN_ARRAY_LENGTH(instructionEncodings));
     *info = &instructionEncodings[class];
 }
 

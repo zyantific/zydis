@@ -27,7 +27,7 @@
 #ifndef ZYDIS_INTERNAL_SHAREDDATA_H
 #define ZYDIS_INTERNAL_SHAREDDATA_H
 
-#include <Zydis/Defines.h>
+#include <Zycore/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
@@ -42,7 +42,7 @@ extern "C" {
 /* ============================================================================================== */
 
 // MSVC does not like types other than (un-)signed int for bitfields
-#ifdef ZYDIS_MSVC
+#ifdef ZYAN_MSVC
 #   pragma warning(push)
 #   pragma warning(disable:4214)
 #endif
@@ -97,7 +97,7 @@ typedef enum ZydisSemanticOperandType_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE)
+    ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE)
 } ZydisSemanticOperandType;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -136,7 +136,7 @@ typedef enum ZydisInternalElementType_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_IELEMENT_TYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IELEMENT_TYPE_MAX_VALUE)
+    ZYDIS_IELEMENT_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_IELEMENT_TYPE_MAX_VALUE)
 } ZydisInternalElementType;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -161,7 +161,7 @@ typedef enum ZydisImplicitRegisterType_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_IMPLREG_TYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IMPLREG_TYPE_MAX_VALUE)
+    ZYDIS_IMPLREG_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_IMPLREG_TYPE_MAX_VALUE)
 } ZydisImplicitRegisterType;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -184,48 +184,48 @@ typedef enum ZydisImplicitMemBase_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_IMPLMEM_BASE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IMPLMEM_BASE_MAX_VALUE)
+    ZYDIS_IMPLMEM_BASE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_IMPLMEM_BASE_MAX_VALUE)
 } ZydisImplicitMemBase;
 
 /* ---------------------------------------------------------------------------------------------- */
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
-ZYDIS_STATIC_ASSERT(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS     <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS  <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_OPERAND_ACTION_REQUIRED_BITS      <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS       <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS    <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS        <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS            <= 16);
-ZYDIS_STATIC_ASSERT(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS        <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS     <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS  <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_OPERAND_ACTION_REQUIRED_BITS      <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS       <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS    <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS        <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS            <= 16);
+ZYAN_STATIC_ASSERT(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS        <=  8);
 
 /**
  * @brief   Defines the `ZydisOperandDefinition` struct.
  */
 typedef struct ZydisOperandDefinition_
 {
-    ZydisU8 type                            ZYDIS_BITFIELD(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS);
-    ZydisU8 visibility                      ZYDIS_BITFIELD(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS);
-    ZydisU8 action                          ZYDIS_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
-    ZydisU16 size[3];
-    ZydisU8 elementType                     ZYDIS_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
+    ZyanU8 type                            ZYAN_BITFIELD(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS);
+    ZyanU8 visibility                      ZYAN_BITFIELD(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS);
+    ZyanU8 action                          ZYAN_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
+    ZyanU16 size[3];
+    ZyanU8 elementType                     ZYAN_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
     union
     {
-        ZydisU8 encoding                    ZYDIS_BITFIELD(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS);
+        ZyanU8 encoding                    ZYAN_BITFIELD(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS);
         struct
         {
-            ZydisU8 type                    ZYDIS_BITFIELD(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS);
+            ZyanU8 type                    ZYAN_BITFIELD(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS);
             union
             {
-                ZydisU16 reg                ZYDIS_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
-                ZydisU8 id                  ZYDIS_BITFIELD(6);
+                ZyanU16 reg                ZYAN_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
+                ZyanU8 id                  ZYAN_BITFIELD(6);
             } reg;
         } reg;
         struct
         {
-            ZydisU8 seg                     ZYDIS_BITFIELD(3);
-            ZydisU8 base                    ZYDIS_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
+            ZyanU8 seg                     ZYAN_BITFIELD(3);
+            ZyanU8 base                    ZYAN_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
         } mem;
     } op;
 } ZydisOperandDefinition;
@@ -257,7 +257,7 @@ typedef enum ZydisRegisterConstraint_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_REG_CONSTRAINTS_MAX_VALUE)
+    ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REG_CONSTRAINTS_MAX_VALUE)
 } ZydisRegisterConstraint;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -279,7 +279,7 @@ typedef enum ZydisInternalVectorLength_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IVECTOR_LENGTH_MAX_VALUE)
+    ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_IVECTOR_LENGTH_MAX_VALUE)
 } ZydisInternalVectorLength;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -303,7 +303,7 @@ typedef enum ZydisInternalElementSize_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_IELEMENT_SIZE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_IELEMENT_SIZE_MAX_VALUE)
+    ZYDIS_IELEMENT_SIZE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_IELEMENT_SIZE_MAX_VALUE)
 } ZydisInternalElementSize;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -334,7 +334,7 @@ typedef enum ZydisEVEXFunctionality_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_EVEX_FUNC_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_EVEX_FUNC_MAX_VALUE)
+    ZYDIS_EVEX_FUNC_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_EVEX_FUNC_MAX_VALUE)
 } ZydisEVEXFunctionality;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -413,7 +413,7 @@ typedef enum ZydisEVEXTupleType_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_TUPLETYPE_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_TUPLETYPE_MAX_VALUE)
+    ZYDIS_TUPLETYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_TUPLETYPE_MAX_VALUE)
 } ZydisEVEXTupleType;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -535,7 +535,7 @@ typedef enum ZydisMVEXFunctionality_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_MVEX_FUNC_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MVEX_FUNC_MAX_VALUE)
+    ZYDIS_MVEX_FUNC_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MVEX_FUNC_MAX_VALUE)
 } ZydisMVEXFunctionality;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -561,7 +561,7 @@ typedef enum ZydisVEXStaticBroadcast
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS =
-        ZYDIS_BITS_TO_REPRESENT(ZYDIS_VEX_STATIC_BROADCAST_MAX_VALUE)
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_VEX_STATIC_BROADCAST_MAX_VALUE)
 } ZydisVEXStaticBroadcast;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -593,7 +593,7 @@ typedef enum ZydisEVEXStaticBroadcast_
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS =
-        ZYDIS_BITS_TO_REPRESENT(ZYDIS_EVEX_STATIC_BROADCAST_MAX_VALUE)
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_EVEX_STATIC_BROADCAST_MAX_VALUE)
 } ZydisEVEXStaticBroadcast;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -617,7 +617,7 @@ typedef enum ZydisMVEXStaticBroadcast_
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS =
-        ZYDIS_BITS_TO_REPRESENT(ZYDIS_MVEX_STATIC_BROADCAST_MAX_VALUE)
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_MVEX_STATIC_BROADCAST_MAX_VALUE)
 } ZydisMVEXStaticBroadcast;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -649,52 +649,52 @@ typedef enum ZydisMaskPolicy_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_MASK_POLICY_REQUIRED_BITS = ZYDIS_BITS_TO_REPRESENT(ZYDIS_MASK_POLICY_MAX_VALUE)
+    ZYDIS_MASK_POLICY_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MASK_POLICY_MAX_VALUE)
 } ZydisMaskPolicy;
 
 /* ---------------------------------------------------------------------------------------------- */
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
-ZYDIS_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
-ZYDIS_STATIC_ASSERT(ZYDIS_CATEGORY_REQUIRED_BITS        <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
+ZYAN_STATIC_ASSERT(ZYDIS_CATEGORY_REQUIRED_BITS        <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
 
 #ifndef ZYDIS_MINIMAL_MODE
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-        ZydisU16 mnemonic                       ZYDIS_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
-        ZydisU8 operandCount                    ZYDIS_BITFIELD( 4); \
-        ZydisU16 operandReference               ZYDIS_BITFIELD(15); \
-        ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
-        ZydisU8 flagsReference                  ZYDIS_BITFIELD( 7); \
-        ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
-        ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
-        ZydisU8 category                        ZYDIS_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
-        ZydisU8 isaSet                          ZYDIS_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
-        ZydisU8 isaExt                          ZYDIS_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
-        ZydisU8 exceptionClass                  ZYDIS_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
-        ZydisU8 constrREG                       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZydisU8 constrRM                        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+        ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
+        ZyanU8 operandCount                    ZYAN_BITFIELD( 4); \
+        ZyanU16 operandReference               ZYAN_BITFIELD(15); \
+        ZyanU8 operandSizeMap                  ZYAN_BITFIELD( 3); \
+        ZyanU8 flagsReference                  ZYAN_BITFIELD( 7); \
+        ZyanBool requiresProtectedMode         ZYAN_BITFIELD( 1); \
+        ZyanBool acceptsAddressSizeOverride    ZYAN_BITFIELD( 1); \
+        ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
+        ZyanU8 isaSet                          ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
+        ZyanU8 isaExt                          ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
+        ZyanU8 exceptionClass                  ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
+        ZyanU8 constrREG                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZyanU8 constrRM                        ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 #else
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
-        ZydisU16 mnemonic                       ZYDIS_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
-        ZydisU8 operandSizeMap                  ZYDIS_BITFIELD( 3); \
-        ZydisBool requiresProtectedMode         ZYDIS_BITFIELD( 1); \
-        ZydisBool acceptsAddressSizeOverride    ZYDIS_BITFIELD( 1); \
-        ZydisU8 constrREG                       ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZydisU8 constrRM                        ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+        ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
+        ZyanU8 operandSizeMap                  ZYAN_BITFIELD( 3); \
+        ZyanBool requiresProtectedMode         ZYAN_BITFIELD( 1); \
+        ZyanBool acceptsAddressSizeOverride    ZYAN_BITFIELD( 1); \
+        ZyanU8 constrREG                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZyanU8 constrRM                        ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 #endif
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
-    ZydisU8 constrNDSNDD                    ZYDIS_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+    ZyanU8 constrNDSNDD                    ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
-    ZydisBool isGather                      ZYDIS_BITFIELD( 1)
+    ZyanBool isGather                      ZYAN_BITFIELD( 1)
 
 /**
  * @brief   Defines the `ZydisInstructionDefinition` struct.
@@ -711,20 +711,20 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisBool isPrivileged                  ZYDIS_BITFIELD( 1);
-    ZydisBool isFarBranch                   ZYDIS_BITFIELD( 1);
+    ZyanBool isPrivileged                  ZYAN_BITFIELD( 1);
+    ZyanBool isFarBranch                   ZYAN_BITFIELD( 1);
 #endif
-    ZydisBool acceptsLOCK                   ZYDIS_BITFIELD( 1);
+    ZyanBool acceptsLOCK                   ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisBool acceptsREP                    ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsREPEREPZ               ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsREPNEREPNZ             ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsBOUND                  ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsXACQUIRE               ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsXRELEASE               ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsHLEWithoutLock         ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsBranchHints            ZYDIS_BITFIELD( 1);
-    ZydisBool acceptsSegment                ZYDIS_BITFIELD( 1);
+    ZyanBool acceptsREP                    ZYAN_BITFIELD( 1);
+    ZyanBool acceptsREPEREPZ               ZYAN_BITFIELD( 1);
+    ZyanBool acceptsREPNEREPNZ             ZYAN_BITFIELD( 1);
+    ZyanBool acceptsBOUND                  ZYAN_BITFIELD( 1);
+    ZyanBool acceptsXACQUIRE               ZYAN_BITFIELD( 1);
+    ZyanBool acceptsXRELEASE               ZYAN_BITFIELD( 1);
+    ZyanBool acceptsHLEWithoutLock         ZYAN_BITFIELD( 1);
+    ZyanBool acceptsBranchHints            ZYAN_BITFIELD( 1);
+    ZyanBool acceptsSegment                ZYAN_BITFIELD( 1);
 #endif
 } ZydisInstructionDefinitionDEFAULT;
 
@@ -746,7 +746,7 @@ typedef struct ZydisInstructionDefinitionXOP_
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
-ZYDIS_STATIC_ASSERT(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS  <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS  <=  8);
 
 /**
  * @brief   Defines the `ZydisInstructionDefinitionVEX` struct.
@@ -755,7 +755,7 @@ typedef struct ZydisInstructionDefinitionVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS);
+    ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_VEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionVEX;
 
@@ -763,12 +763,12 @@ typedef struct ZydisInstructionDefinitionVEX_
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
-ZYDIS_STATIC_ASSERT(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS        <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_TUPLETYPE_REQUIRED_BITS             <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS         <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_EVEX_FUNC_REQUIRED_BITS             <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_MASK_POLICY_REQUIRED_BITS           <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS        <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_TUPLETYPE_REQUIRED_BITS             <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_EVEX_FUNC_REQUIRED_BITS             <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MASK_POLICY_REQUIRED_BITS           <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
 
 /**
  * @brief   Defines the `ZydisInstructionDefinitionEVEX` struct.
@@ -777,16 +777,16 @@ typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisU8 vectorLength                    ZYDIS_BITFIELD(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS);
-    ZydisU8 tupleType                       ZYDIS_BITFIELD(ZYDIS_TUPLETYPE_REQUIRED_BITS);
-    ZydisU8 elementSize                     ZYDIS_BITFIELD(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS);
-    ZydisU8 functionality                   ZYDIS_BITFIELD(ZYDIS_EVEX_FUNC_REQUIRED_BITS);
+    ZyanU8 vectorLength                    ZYAN_BITFIELD(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS);
+    ZyanU8 tupleType                       ZYAN_BITFIELD(ZYDIS_TUPLETYPE_REQUIRED_BITS);
+    ZyanU8 elementSize                     ZYAN_BITFIELD(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS);
+    ZyanU8 functionality                   ZYAN_BITFIELD(ZYDIS_EVEX_FUNC_REQUIRED_BITS);
 #endif
-    ZydisU8 maskPolicy                      ZYDIS_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
-    ZydisBool acceptsZeroMask               ZYDIS_BITFIELD( 1);
+    ZyanU8 maskPolicy                      ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
+    ZyanBool acceptsZeroMask               ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisBool isControlMask                 ZYDIS_BITFIELD( 1);
-    ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
+    ZyanBool isControlMask                 ZYAN_BITFIELD( 1);
+    ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionEVEX;
 #endif
@@ -795,9 +795,9 @@ typedef struct ZydisInstructionDefinitionEVEX_
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
-ZYDIS_STATIC_ASSERT(ZYDIS_MVEX_FUNC_REQUIRED_BITS             <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_MASK_POLICY_REQUIRED_BITS           <=  8);
-ZYDIS_STATIC_ASSERT(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MVEX_FUNC_REQUIRED_BITS             <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MASK_POLICY_REQUIRED_BITS           <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
 
 /**
  * @brief   Defines the `ZydisInstructionDefinitionMVEX` struct.
@@ -805,11 +805,11 @@ ZYDIS_STATIC_ASSERT(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
 typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
-    ZydisU8 functionality                   ZYDIS_BITFIELD(ZYDIS_MVEX_FUNC_REQUIRED_BITS);
-    ZydisU8 maskPolicy                      ZYDIS_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
+    ZyanU8 functionality                   ZYAN_BITFIELD(ZYDIS_MVEX_FUNC_REQUIRED_BITS);
+    ZyanU8 maskPolicy                      ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZydisBool hasElementGranularity         ZYDIS_BITFIELD( 1);
-    ZydisU8 broadcast                       ZYDIS_BITFIELD(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS);
+    ZyanBool hasElementGranularity         ZYAN_BITFIELD( 1);
+    ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionMVEX;
 #endif
@@ -827,7 +827,7 @@ typedef struct ZydisAccessedFlags_
 
 #pragma pack(pop)
 
-#ifdef ZYDIS_MSVC
+#ifdef ZYAN_MSVC
 #   pragma warning(pop)
 #endif
 
@@ -848,7 +848,7 @@ typedef struct ZydisAccessedFlags_
  *                      definition.
  */
 ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding,
-    ZydisU16 id, const ZydisInstructionDefinition** definition);
+    ZyanU16 id, const ZydisInstructionDefinition** definition);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
@@ -864,7 +864,7 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
  *
  * @return  The number of operands for the given instruction-definition.
  */
-ZYDIS_NO_EXPORT ZydisU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
+ZYDIS_NO_EXPORT ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand);
 #endif
 
@@ -895,9 +895,9 @@ ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, Zydis
  * @param   definition  A pointer to the instruction-definition.
  * @param   flags       A pointer to the variable that receives the `ZydisAccessedFlags` struct.
  *
- * @return  `ZYDIS_TRUE`, if the instruction accesses any flags, or `ZYDIS_FALSE`, if not.
+ * @return  `ZYAN_TRUE`, if the instruction accesses any flags, or `ZYAN_FALSE`, if not.
  */
-ZYDIS_NO_EXPORT ZydisBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
+ZYDIS_NO_EXPORT ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags);
 #endif
 

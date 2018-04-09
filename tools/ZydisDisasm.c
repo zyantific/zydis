@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     }
 
     ZydisDecoder decoder;
-    if (!ZYDIS_SUCCESS(
+    if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
         fputs("Failed to initialize decoder\n", stderr);
@@ -67,11 +67,11 @@ int main(int argc, char** argv)
     }
 
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
-        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE)) ||
-        !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)))
+    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+        !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE)) ||
+        !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
     {
         fputs("Failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;
@@ -84,12 +84,12 @@ int main(int argc, char** argv)
         numBytesRead = fread(readBuf, 1, sizeof(readBuf), file);
 
         ZydisDecodedInstruction instruction;
-        ZydisStatus status;
+        ZyanStatus status;
         size_t readOffs = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
             numBytesRead - readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            if (!ZYDIS_SUCCESS(status))
+            if (!ZYAN_SUCCESS(status))
             {
                 ++readOffs;
                 printf("db %02X\n", instruction.data[0]);
@@ -111,26 +111,26 @@ int main(int argc, char** argv)
             putchar('\n');
 
             ZydisEncoderRequest req;
-            ZydisStatus transStatus = ZydisEncoderDecodedInstructionToRequest(
+            ZyanStatus transStatus = ZydisEncoderDecodedInstructionToRequest(
                 &instruction, &req
             );
             (void)transStatus;
-            ZYDIS_ASSERT(ZYDIS_SUCCESS(transStatus));
+            ZYAN_ASSERT(ZYAN_SUCCESS(transStatus));
 
             uint8_t encBuffer[15];
             size_t encBufferSize = sizeof(encBuffer);
-            ZydisStatus encStatus = ZydisEncoderEncodeInstruction(
+            ZyanStatus encStatus = ZydisEncoderEncodeInstruction(
                 encBuffer, &encBufferSize, &req
             );
             (void)encStatus;
-            ZYDIS_ASSERT(ZYDIS_SUCCESS(encStatus));
+            ZYAN_ASSERT(ZYAN_SUCCESS(encStatus));
             for (size_t i = 0; i < encBufferSize; ++i)
             {
                 printf("%02X ", encBuffer[i]);
             }
             putchar('\n');
-            ZYDIS_ASSERT(encBufferSize == instruction.length);
-            ZYDIS_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
+            ZYAN_ASSERT(encBufferSize == instruction.length);
+            ZYAN_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
 #endif
             // DEBUG CODE END
 
