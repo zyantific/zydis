@@ -225,7 +225,7 @@ typedef enum ZydisRegisterEncoding_
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   value       A pointer to the memory that receives the byte from the input data-source.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function may fail, if the @c ZYDIS_MAX_INSTRUCTION_LENGTH limit got exceeded, or no more
  * data is available.
@@ -280,7 +280,7 @@ static void ZydisInputSkip(ZydisDecoderContext* context, ZydisDecodedInstruction
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   value       A pointer to the memory that receives the byte from the input data-source.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
  */
@@ -317,7 +317,7 @@ static ZyanStatus ZydisInputNext(ZydisDecoderContext* context,
  *                          data-source.
  * @param   numberOfBytes   The number of bytes to read from the input data-source.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function acts like a subsequent call of @c ZydisInputPeek and @c ZydisInputSkip.
  */
@@ -387,7 +387,7 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   data        The XOP bytes.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 data[3])
@@ -436,7 +436,7 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   data        The VEX bytes.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 data[3])
@@ -508,7 +508,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   data        The EVEX bytes.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 data[4])
@@ -600,7 +600,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   data        The MVEX bytes.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 data[4])
@@ -700,7 +700,7 @@ static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, ZyanU8 data)
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   size        The physical size of the displacement value.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisReadDisplacement(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 size)
@@ -761,7 +761,7 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderContext* context,
  * @param   isSigned    Signals, if the immediate value is signed.
  * @param   isRelative  Signals, if the immediate value is a relative offset.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU8 id, ZyanU8 size, ZyanBool isSigned,
@@ -853,7 +853,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
  * @param   encoding        The register-encoding.
  * @param   registerClass   The register-class.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function calculates the register-id by combining different fields and flags of previously
  * decoded structs.
@@ -1325,7 +1325,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
  * @param   registerClass   The register class.
  * @param   registerId      The register id.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand* operand, ZydisRegisterClass registerClass, ZyanU8 registerId)
@@ -1368,7 +1368,7 @@ static ZyanStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instructio
  * @param   vidxRegisterClass   The register-class to use as the index register-class for
  *                              instructions with VSIB addressing.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operand,
@@ -1690,7 +1690,7 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
@@ -2982,7 +2982,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
  * @param   context     A pointer to the @c ZydisDecoderContext struct.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function sets the corresponding flag for each prefix and automatically decodes the last
  * REX-prefix (if exists).
@@ -3103,7 +3103,7 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   info        A pointer to the @c ZydisInstructionEncodingInfo struct.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, const ZydisInstructionEncodingInfo* info)
@@ -3988,7 +3988,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Zy
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  * @param   definition  A pointer to the @c ZydisInstructionDefinition struct.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * This function is called immediately after a valid instruction-definition was found.
  */
@@ -4366,7 +4366,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
  * @param   context     A pointer to the @c ZydisDecoderContext instance.
  * @param   instruction A pointer to the @c ZydisDecodedInstruction struct.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction)

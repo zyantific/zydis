@@ -48,6 +48,7 @@
  *
  * @param   string  A pointer to the string.
  * @param   format  The format string.
+ * @param   ...     The format arguments.
  *
  * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
  *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
@@ -62,6 +63,7 @@ static ZyanStatus ZydisStringAppendFormatC(ZydisString* string, const char* form
 
     va_list arglist;
     va_start(arglist, format);
+
     const int w = vsnprintf(string->buffer + string->length, string->capacity - string->length,
         format, arglist);
     if ((w < 0) || ((size_t)w > string->capacity - string->length))
@@ -70,7 +72,9 @@ static ZyanStatus ZydisStringAppendFormatC(ZydisString* string, const char* form
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
     string->length += w;
+
     va_end(arglist);
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -216,7 +220,7 @@ static ZyanStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-void disassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize length,
+static void disassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize length,
     ZyanBool installHooks)
 {
     ZydisFormatter formatter;

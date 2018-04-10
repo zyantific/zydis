@@ -52,7 +52,7 @@ extern "C" {
  * @param   instrAddress    The runtime address of the instruction.
  * @param   targetAddress   A pointer to the memory that receives the absolute target-address.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  *
  * You should use this function in the following cases:
  * - `IMM` operands with relative address (e.g. `JMP`, `CALL`, ...)
@@ -74,7 +74,7 @@ ZYDIS_EXPORT ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* 
  * @param   action      The CPU-flag action.
  * @param   flags       A pointer to the variable that receives the flag mask.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlags* flags);

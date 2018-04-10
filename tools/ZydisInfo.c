@@ -40,7 +40,7 @@
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-const char* ZydisFormatStatus(ZyanStatus status)
+static const char* ZydisFormatStatus(ZyanStatus status)
 {
     static const char* strings_zycore[] =
     {
@@ -89,7 +89,7 @@ const char* ZydisFormatStatus(ZyanStatus status)
 /* Print functions                                                                                */
 /* ============================================================================================== */
 
-void printOperands(ZydisDecodedInstruction* instruction)
+static void printOperands(ZydisDecodedInstruction* instruction)
 {
     fputs("== [ OPERANDS ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
@@ -241,7 +241,7 @@ void printOperands(ZydisDecodedInstruction* instruction)
     fputs("  --------  ---------------------------\n", stdout);
 }
 
-void printFlags(ZydisDecodedInstruction* instruction)
+static void printFlags(ZydisDecodedInstruction* instruction)
 {
     static const char* flagNames[] =
     {
@@ -308,7 +308,7 @@ void printFlags(ZydisDecodedInstruction* instruction)
     printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
 }
 
-void printAVXInfo(ZydisDecodedInstruction* instruction)
+static void printAVXInfo(ZydisDecodedInstruction* instruction)
 {
     static const char* broadcastStrings[] =
     {
@@ -398,7 +398,7 @@ void printAVXInfo(ZydisDecodedInstruction* instruction)
     puts("");
 }
 
-void printInstruction(ZydisDecodedInstruction* instruction)
+static void printInstruction(ZydisDecodedInstruction* instruction)
 {
     static const char* opcodeMapStrings[] =
     {

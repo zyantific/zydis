@@ -162,7 +162,7 @@ typedef enum ZydisLetterCase_
  * @param   string  The string to initialize.
  * @param   text    The C-string constant.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisStringInit(ZydisString* string, char* text);
 
@@ -171,7 +171,7 @@ ZYDIS_EXPORT ZyanStatus ZydisStringInit(ZydisString* string, char* text);
  *
  * @param   string  The string to finalize.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisStringFinalize(ZydisString* string);
 

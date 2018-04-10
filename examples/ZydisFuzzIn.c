@@ -53,7 +53,7 @@ typedef struct ZydisFuzzControlBlock_
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-int doIteration();
+static int doIteration(void);
 
 int main()
 {
@@ -81,7 +81,7 @@ int main()
 #   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
 #endif
 
-int doIteration()
+static int doIteration(void)
 {
     ZydisFuzzControlBlock controlBlock;
     if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))

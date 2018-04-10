@@ -178,7 +178,7 @@ typedef struct ZydisDecoder_
  * @param   machineMode     The machine mode.
  * @param   addressWidth    The address width.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode,
     ZydisAddressWidth addressWidth);
@@ -190,7 +190,7 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode
  * @param   mode    The decoder mode.
  * @param   enabled `ZYAN_TRUE` to enable, or `ZYAN_FALSE` to disable the specified decoder-mode.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode,
     ZyanBool enabled);
@@ -204,7 +204,7 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
  * @param   instruction         A pointer to the `ZydisDecodedInstruction` struct, that receives
  *                              the details about the decoded instruction.
  *
- * @return  A zydis status code.
+ * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize bufferLen, ZydisDecodedInstruction* instruction);
