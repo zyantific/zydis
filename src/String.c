@@ -78,10 +78,10 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
         ZyanU32 const old = value;
         p -= 2;
         value /= 100;
-        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(ZyanU16));
+        ZYAN_MEMCPY(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(ZyanU16));
     }
     p -= 2;
-    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(ZyanU16));
+    ZYAN_MEMCPY(p, &decimalLookup[value * 2], sizeof(ZyanU16));
 
     const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
     if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
@@ -94,10 +94,10 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     if (n <= paddingLength)
     {
         offset = paddingLength - n + 1;
-        ZydisMemorySet(string->buffer + string->length, '0', offset);
+        ZYAN_MEMSET(string->buffer + string->length, '0', offset);
     }
 
-    ZydisMemoryCopy(string->buffer + string->length + offset, &p[value < 10], n + 1);
+    ZYAN_MEMCPY(string->buffer + string->length + offset, &p[value < 10], n + 1);
     string->length += n + offset - (ZyanU8)(value < 10);
 
     return ZYAN_STATUS_SUCCESS;
@@ -131,7 +131,7 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
             return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
         }
 
-        ZydisMemorySet(buffer, '0', n);
+        ZYAN_MEMSET(buffer, '0', n);
         string->length += n;
 
         return ZYAN_STATUS_SUCCESS;
@@ -154,7 +154,7 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
             if (paddingLength > i)
             {
                 n = paddingLength - i - 1;
-                ZydisMemorySet(buffer, '0', n);
+                ZYAN_MEMSET(buffer, '0', n);
             }
         }
         if (uppercase)
