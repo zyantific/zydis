@@ -68,14 +68,14 @@ static const char* ZydisFormatStatus(ZyanStatus status)
         "INVALID_MASK",
     };
 
-    if (ZYAN_STATUS_FACILITY(status) == ZYAN_FACILITY_ZYCORE_GENERIC)
+    if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYCORE)
     {
         status = ZYAN_STATUS_CODE(status);
         ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zycore));
         return strings_zycore[status];
     }
 
-    if (ZYAN_STATUS_FACILITY(status) == ZYAN_FACILITY_ZYDIS)
+    if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYDIS)
     {
         status = ZYAN_STATUS_CODE(status);
         ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zycore));
@@ -658,7 +658,7 @@ int main(int argc, char** argv)
     const ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, &instruction);
     if (!ZYAN_SUCCESS(status))
     {
-        if (ZYAN_STATUS_FACILITY(status) >= ZYAN_FACILITY_USER)
+        if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
         {
             fprintf(stderr,
                 "Could not decode instruction: User defined status code 0x%" PRIx32, status);
