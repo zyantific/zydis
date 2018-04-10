@@ -144,7 +144,7 @@ typedef enum ZydisRegisterClass
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisRegisterWidth datatype.
+ * @brief   Defines the `ZydisRegisterWidth` datatype.
  */
 typedef ZyanU16 ZydisRegisterWidth;
 
@@ -155,15 +155,15 @@ typedef ZyanU16 ZydisRegisterWidth;
 /* ============================================================================================== */
 
 /**
- * @brief   Returns the register specified by the @c registerClass and the @c id.
+ * @brief   Returns the register specified by the `register_class` and `id` tuple.
  *
- * @param   registerClass   The register class.
+ * @param   register_class  The register class.
  * @param   id              The register id.
  *
- * @return  The register specified by the @c registerClass and the @c id or @c ZYDIS_REGISTER_NONE,
+ * @return  The register specified by the `register_class` and `id` tuple or `ZYDIS_REGISTER_NONE`,
  *          if an invalid parameter was passed.
  */
-ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZyanU8 id);
+ZYDIS_EXPORT ZydisRegister ZydisRegisterEncode(ZydisRegisterClass register_class, ZyanU8 id);
 
 /**
  * @brief   Returns the id of the specified register.
@@ -206,7 +206,7 @@ ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg);
  *
  * @param   reg The register.
  *
- * @return  The register string or @c NULL, if an invalid register was passed.
+ * @return  The register string or `ZYAN_NULL`, if an invalid register was passed.
  */
 ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
 
@@ -215,7 +215,7 @@ ZYDIS_EXPORT const char* ZydisRegisterGetString(ZydisRegister reg);
  *
  * @param   reg The register.
  *
- * @return  The register string or @c NULL, if an invalid register was passed.
+ * @return  The register string or `ZYAN_NULL`, if an invalid register was passed.
  *
  * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
  */

@@ -77,28 +77,28 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
-    size_t numBytesRead;
+    uint8_t buffer[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
+    size_t bytes_read;
     do
     {
-        numBytesRead = fread(readBuf, 1, sizeof(readBuf), file);
+        bytes_read = fread(buffer, 1, sizeof(buffer), file);
 
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
-        size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
-            numBytesRead - readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+        size_t read_offset = 0;
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
+            bytes_read - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYAN_SUCCESS(status))
             {
-                ++readOffs;
+                ++read_offset;
                 printf("db %02X\n", instruction.data[0]);
                 continue;
             }
 
             char printBuffer[256];
             ZydisFormatterFormatInstruction(&formatter, &instruction, printBuffer,
-                sizeof(printBuffer), readOffs);
+                sizeof(printBuffer), read_offset);
             puts(printBuffer);
 
             // TODO: Remove
@@ -134,14 +134,14 @@ int main(int argc, char** argv)
 #endif
             // DEBUG CODE END
 
-            readOffs += instruction.length;
+            read_offset += instruction.length;
         }
 
-        if (readOffs < sizeof(readBuf))
+        if (read_offset < sizeof(buffer))
         {
-            memmove(readBuf, readBuf + readOffs, sizeof(readBuf) - readOffs);
+            memmove(buffer, buffer + read_offset, sizeof(buffer) - read_offset);
         }
-    } while (numBytesRead == sizeof(readBuf));
+    } while (bytes_read == sizeof(buffer));
 
     return 0;
 }

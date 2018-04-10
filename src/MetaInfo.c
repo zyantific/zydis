@@ -47,22 +47,22 @@ const char* ZydisCategoryGetString(ZydisInstructionCategory category)
     return zydisInstructionCategoryStrings[category];
 }
 
-const char* ZydisISASetGetString(ZydisISASet isaSet)
+const char* ZydisISASetGetString(ZydisISASet isa_set)
 {
-    if (isaSet >= ZYAN_ARRAY_LENGTH(zydisISASetStrings))
+    if (isa_set >= ZYAN_ARRAY_LENGTH(zydisISASetStrings))
     {
         return ZYAN_NULL;
     }
-    return zydisISASetStrings[isaSet];
+    return zydisISASetStrings[isa_set];
 }
 
-const char* ZydisISAExtGetString(ZydisISAExt isaExt)
+const char* ZydisISAExtGetString(ZydisISAExt isa_ext)
 {
-    if (isaExt >= ZYAN_ARRAY_LENGTH(zydisISAExtStrings))
+    if (isa_ext >= ZYAN_ARRAY_LENGTH(zydisISAExtStrings))
     {
         return ZYAN_NULL;
     }
-    return zydisISAExtStrings[isaExt];
+    return zydisISAExtStrings[isa_ext];
 }
 
 /* ============================================================================================== */

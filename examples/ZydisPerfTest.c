@@ -54,8 +54,8 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 #if defined(ZYAN_WINDOWS)
-double   CounterFreq  = 0.0;
-uint64_t CounterStart = 0;
+double   counter_freq  = 0.0;
+uint64_t counter_start = 0;
 
 static void StartCounter(void)
 {
@@ -64,36 +64,36 @@ static void StartCounter(void)
     {
         fputs("Error: QueryPerformanceFrequency failed!\n", stderr);
     }
-    CounterFreq = (double)li.QuadPart / 1000.0;
+    counter_freq = (double)li.QuadPart / 1000.0;
     QueryPerformanceCounter(&li);
-    CounterStart = li.QuadPart;
+    counter_start = li.QuadPart;
 }
 
 static double GetCounter(void)
 {
     LARGE_INTEGER li;
     QueryPerformanceCounter(&li);
-    return (double)(li.QuadPart - CounterStart) / CounterFreq;
+    return (double)(li.QuadPart - counter_start) / counter_freq;
 }
 #elif defined(ZYAN_APPLE)
-uint64_t counterStart = 0;
-mach_timebase_info_data_t timebaseInfo;
+uint64_t counter_start = 0;
+mach_timebase_info_data_t timebase_info;
 
 static void StartCounter(void)
 {
-    counterStart = mach_absolute_time();
+    counter_start = mach_absolute_time();
 }
 
 static double GetCounter(void)
 {
-    uint64_t elapsed = mach_absolute_time() - counterStart;
+    uint64_t elapsed = mach_absolute_time() - counter_start;
 
-    if (timebaseInfo.denom == 0)
+    if (timebase_info.denom == 0)
     {
-        mach_timebase_info(&timebaseInfo);
+        mach_timebase_info(&timebase_info);
     }
 
-    return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
+    return (double)elapsed * timebase_info.numer / timebase_info.denom / 1000000;
 }
 #elif defined(ZYAN_LINUX)
 struct timeval t1;
@@ -117,7 +117,7 @@ static double GetCounter(void)
 /* Process & Thread Priority                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-static void adjustProcessAndThreadPriority(void)
+static void AdjustProcessAndThreadPriority(void)
 {
 #ifdef ZYAN_WINDOWS
     SYSTEM_INFO info;
@@ -153,7 +153,7 @@ static void adjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-static uint64_t processBuffer(const char* buffer, size_t length, ZyanBool minimalMode,
+static uint64_t ProcessBuffer(const char* buffer, size_t length, ZyanBool minimalMode,
     ZyanBool format)
 {
     ZydisDecoder decoder;
@@ -188,7 +188,7 @@ static uint64_t processBuffer(const char* buffer, size_t length, ZyanBool minima
     size_t offset = 0;
     ZyanStatus status;
     ZydisDecodedInstruction instruction;
-    char formatBuffer[256];
+    char format_buffer[256];
     while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
@@ -201,8 +201,8 @@ static uint64_t processBuffer(const char* buffer, size_t length, ZyanBool minima
         ++count;
         if (format)
         {
-            ZydisFormatterFormatInstruction(&formatter, &instruction, formatBuffer,
-                sizeof(formatBuffer), offset);
+            ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
+                sizeof(format_buffer), offset);
         }
         offset += instruction.length;
     }
@@ -210,24 +210,24 @@ static uint64_t processBuffer(const char* buffer, size_t length, ZyanBool minima
     return count;
 }
 
-static void testPerformance(const char* buffer, size_t length, ZyanBool minimalMode,
+static void TestPerformance(const char* buffer, size_t length, ZyanBool minimalMode,
     ZyanBool format)
 {
     // Cache warmup
-    processBuffer(buffer, length, minimalMode, format);
+    ProcessBuffer(buffer, length, minimalMode, format);
 
     // Testing
     uint64_t count = 0;
     StartCounter();
     for (uint8_t j = 0; j < 100; ++j)
     {
-        count += processBuffer(buffer, length, minimalMode, format);
+        count += ProcessBuffer(buffer, length, minimalMode, format);
     }
     printf("Minimal-Mode %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n",
         minimalMode, format, (double)count / 1000000, GetCounter());
 }
 
-static void generateTestData(FILE* file, uint8_t encoding)
+static void GenerateTestData(FILE* file, uint8_t encoding)
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(
@@ -362,7 +362,7 @@ int main(int argc, char** argv)
         srand((unsigned)time(&t));
     } else
     {
-        adjustProcessAndThreadPriority();
+        AdjustProcessAndThreadPriority();
     }
 
     for (uint8_t i = 0; i < ZYAN_ARRAY_LENGTH(tests); ++i)
@@ -388,7 +388,7 @@ int main(int argc, char** argv)
         if (generate)
         {
             printf("Generating %s ...\n", tests[i].encoding);
-            generateTestData(file, i);
+            GenerateTestData(file, i);
         } else
         {
             fseek(file, 0L, SEEK_END);
@@ -410,9 +410,9 @@ int main(int argc, char** argv)
             }
 
             printf("Testing %s ...\n", tests[i].encoding);
-            testPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE);
-            testPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE);
-            testPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE );
+            TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE );
             puts("");
 
         NextFile1:

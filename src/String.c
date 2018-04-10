@@ -66,7 +66,7 @@ static const char* decimalLookup =
 /* ---------------------------------------------------------------------------------------------- */
 
 #if defined(ZYAN_X86) || defined(ZYAN_ARM)
-ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 paddingLength)
+ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 padding_length)
 {
     ZYAN_ASSERT(string);
     ZYAN_ASSERT(string->buffer);
@@ -85,15 +85,15 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
 
     const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
     if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZyanUSize)(paddingLength + 1)))
+        (string->capacity - string->length < (ZyanUSize)(padding_length + 1)))
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZyanUSize offset = 0;
-    if (n <= paddingLength)
+    if (n <= padding_length)
     {
-        offset = paddingLength - n + 1;
+        offset = padding_length - n + 1;
         ZYAN_MEMSET(string->buffer + string->length, '0', offset);
     }
 
@@ -103,7 +103,7 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 paddingLength,
+ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 padding_length,
     ZyanBool uppercase, const ZydisString* prefix, const ZydisString* suffix)
 {
     ZYAN_ASSERT(string);
@@ -117,14 +117,14 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     char* buffer = string->buffer + string->length;
     const ZyanUSize remaining = string->capacity - string->length;
 
-    if (remaining < (ZyanUSize)paddingLength)
+    if (remaining < (ZyanUSize)padding_length)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     if (!value)
     {
-        const ZyanU8 n = (paddingLength ? paddingLength : 1);
+        const ZyanU8 n = (padding_length ? padding_length : 1);
 
         if (remaining < (ZyanUSize)n)
         {
@@ -151,9 +151,9 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
-            if (paddingLength > i)
+            if (padding_length > i)
             {
-                n = paddingLength - i - 1;
+                n = padding_length - i - 1;
                 ZYAN_MEMSET(buffer, '0', n);
             }
         }
@@ -176,7 +176,7 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
 }
 #endif
 
-ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 paddingLength)
+ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 padding_length)
 {
     ZYAN_ASSERT(string);
     ZYAN_ASSERT(string->buffer);
@@ -195,15 +195,15 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
 
     const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
     if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZyanUSize)(paddingLength + 1)))
+        (string->capacity - string->length < (ZyanUSize)(padding_length + 1)))
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZyanUSize offset = 0;
-    if (n <= paddingLength)
+    if (n <= padding_length)
     {
-        offset = paddingLength - n + 1;
+        offset = padding_length - n + 1;
         ZYAN_MEMSET(string->buffer + string->length, '0', offset);
     }
 
@@ -213,7 +213,7 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisStringAppendHexU64(ZydisString* string, ZyanU64 value, ZyanU8 paddingLength,
+ZyanStatus ZydisStringAppendHexU64(ZydisString* string, ZyanU64 value, ZyanU8 padding_length,
     ZyanBool uppercase, const ZydisString* prefix, const ZydisString* suffix)
 {
     ZYAN_ASSERT(string);
@@ -227,14 +227,14 @@ ZyanStatus ZydisStringAppendHexU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     char* buffer = string->buffer + string->length;
     const ZyanUSize remaining = string->capacity - string->length;
 
-    if (remaining < (ZyanUSize)paddingLength)
+    if (remaining < (ZyanUSize)padding_length)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     if (!value)
     {
-        const ZyanU8 n = (paddingLength ? paddingLength : 1);
+        const ZyanU8 n = (padding_length ? padding_length : 1);
 
         if (remaining < (ZyanUSize)n)
         {
@@ -263,9 +263,9 @@ ZyanStatus ZydisStringAppendHexU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
-            if (paddingLength > i)
+            if (padding_length > i)
             {
-                n = paddingLength - i - 1;
+                n = padding_length - i - 1;
                 ZYAN_MEMSET(buffer, '0', n);
             }
         }
@@ -335,7 +335,7 @@ ZyanStatus ZydisStringAppend(ZydisString* string, const ZydisString* text)
 }
 
 ZyanStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text,
-    ZydisLetterCase letterCase)
+    ZydisLetterCase letter_case)
 {
     if (!string || !text)
     {
@@ -348,7 +348,7 @@ ZyanStatus ZydisStringAppendEx(ZydisString* string, const ZydisString* text,
     }
 
     ZYAN_MEMCPY(string->buffer + string->length, text->buffer, text->length);
-    switch (letterCase)
+    switch (letter_case)
     {
     case ZYDIS_LETTER_CASE_DEFAULT:
         break;
@@ -396,16 +396,15 @@ ZyanStatus ZydisStringAppendC(ZydisString* string, const char* text)
     return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
 }
 
-ZyanStatus ZydisStringAppendExC(ZydisString* string, const char* text, ZydisLetterCase letterCase)
+ZyanStatus ZydisStringAppendExC(ZydisString* string, const char* text, ZydisLetterCase letter_case)
 {
     ZydisString other;
     ZYAN_CHECK(ZydisStringInit(&other, (char*)text));
 
-    return ZydisStringAppendEx(string, &other, letterCase);
+    return ZydisStringAppendEx(string, &other, letter_case);
 }
 
-ZyanStatus ZydisStringAppendStatic(ZydisString* string, const ZydisStaticString* text,
-    ZydisLetterCase letterCase)
+ZyanStatus ZydisStringAppendStatic(ZydisString* string, const ZydisStaticString* text)
 {
     if (!text || !text->buffer)
     {
@@ -416,11 +415,11 @@ ZyanStatus ZydisStringAppendStatic(ZydisString* string, const ZydisStaticString*
     other.buffer = (char*)text->buffer;
     other.length = text->length;
 
-    return ZydisStringAppendEx(string, &other, letterCase);
+    return ZydisStringAppendEx(string, &other, ZYDIS_LETTER_CASE_DEFAULT);
 }
 
 ZyanStatus ZydisStringAppendExStatic(ZydisString* string, const ZydisStaticString* text,
-    ZydisLetterCase letterCase)
+    ZydisLetterCase letter_case)
 {
     if (!text || !text->buffer)
     {
@@ -431,56 +430,56 @@ ZyanStatus ZydisStringAppendExStatic(ZydisString* string, const ZydisStaticStrin
     other.buffer = (char*)text->buffer;
     other.length = text->length;
 
-    return ZydisStringAppendEx(string, &other, letterCase);
+    return ZydisStringAppendEx(string, &other, letter_case);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatting                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value, ZyanU8 paddingLength)
+ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value, ZyanU8 padding_length)
 {
 #if defined(ZYAN_X64) || defined(ZYAN_AARCH64)
-    return ZydisStringAppendDecU64(string, value, paddingLength);
+    return ZydisStringAppendDecU64(string, value, padding_length);
 #else
    if (value & 0xFFFFFFFF00000000)
    {
-       return ZydisStringAppendDecU64(string, value, paddingLength);
+       return ZydisStringAppendDecU64(string, value, padding_length);
    } else
    {
-       return ZydisStringAppendDecU32(string, (ZyanU32)value, paddingLength);
+       return ZydisStringAppendDecU32(string, (ZyanU32)value, padding_length);
    }
 #endif
 }
 
-ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value, ZyanU8 paddingLength)
+ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value, ZyanU8 padding_length)
 {
     if (value < 0)
     {
         ZYAN_CHECK(ZydisStringAppendC(string, "-"));
-        return ZydisStringAppendDecU(string, -value, paddingLength);
+        return ZydisStringAppendDecU(string, -value, padding_length);
     }
-    return ZydisStringAppendDecU(string, value, paddingLength);
+    return ZydisStringAppendDecU(string, value, padding_length);
 }
 
-ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value, ZyanU8 paddingLength,
+ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value, ZyanU8 padding_length,
     ZyanBool uppercase, const ZydisString* prefix, const ZydisString* suffix)
 {
 #if defined(ZYAN_X64) || defined(ZYAN_AARCH64)
-    return ZydisStringAppendHexU64(string, value, paddingLength, uppercase, prefix, suffix);
+    return ZydisStringAppendHexU64(string, value, padding_length, uppercase, prefix, suffix);
 #else
    if (value & 0xFFFFFFFF00000000)
    {
-       return ZydisStringAppendHexU64(string, value, paddingLength, uppercase, prefix, suffix);
+       return ZydisStringAppendHexU64(string, value, padding_length, uppercase, prefix, suffix);
    } else
    {
        return ZydisStringAppendHexU32(
-           string, (ZyanU32)value, paddingLength, uppercase, prefix, suffix);
+           string, (ZyanU32)value, padding_length, uppercase, prefix, suffix);
    }
 #endif
 }
 
-ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value, ZyanU8 paddingLength,
+ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value, ZyanU8 padding_length,
     ZyanBool uppercase, const ZydisString* prefix, const ZydisString* suffix)
 {
     if (value < 0)
@@ -490,9 +489,9 @@ ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value, ZyanU8 padd
         {
             ZYAN_CHECK(ZydisStringAppend(string, prefix));
         }
-        return ZydisStringAppendHexU(string, -value, paddingLength, uppercase, ZYAN_NULL, suffix);
+        return ZydisStringAppendHexU(string, -value, padding_length, uppercase, ZYAN_NULL, suffix);
     }
-    return ZydisStringAppendHexU(string, value, paddingLength, uppercase, prefix, suffix);
+    return ZydisStringAppendHexU(string, value, padding_length, uppercase, prefix, suffix);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

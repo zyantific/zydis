@@ -278,7 +278,7 @@ typedef enum ZydisImmediateFormat_
 {
     /**
      * @brief   Automatically chooses the most suitable formatting-mode based on the operands
-     *          `ZydisOperandInfo.imm.isSigned` attribute.
+     *          `ZydisOperandInfo.imm.is_signed` attribute.
      */
     ZYDIS_IMM_FORMAT_HEX_AUTO,
     /**
@@ -486,7 +486,7 @@ typedef struct ZydisFormatterContext_
     /**
      * @brief   A pointer to user-defined data.
      */
-    void* userData;
+    void* user_data;
 } ZydisFormatterContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -591,37 +591,37 @@ typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatte
  */
 struct ZydisFormatter_
 {
-    ZydisLetterCase letterCase;
-    ZyanBool forceMemorySegment;
-    ZyanBool forceMemorySize;
-    ZyanU8 formatAddress;
-    ZyanU8 formatDisp;
-    ZyanU8 formatImm;
-    ZyanBool hexUppercase;
-    ZydisString* hexPrefix;
-    ZydisString hexPrefixData;
-    ZydisString* hexSuffix;
-    ZydisString hexSuffixData;
-    ZyanU8 hexPaddingAddress;
-    ZyanU8 hexPaddingDisp;
-    ZyanU8 hexPaddingImm;
-    ZydisFormatterFunc funcPreInstruction;
-    ZydisFormatterFunc funcPostInstruction;
-    ZydisFormatterFunc funcPreOperand;
-    ZydisFormatterFunc funcPostOperand;
-    ZydisFormatterFunc funcFormatInstruction;
-    ZydisFormatterFunc funcFormatOperandReg;
-    ZydisFormatterFunc funcFormatOperandMem;
-    ZydisFormatterFunc funcFormatOperandPtr;
-    ZydisFormatterFunc funcFormatOperandImm;
-    ZydisFormatterFunc funcPrintMnemonic;
-    ZydisFormatterRegisterFunc funcPrintRegister;
-    ZydisFormatterAddressFunc funcPrintAddress;
-    ZydisFormatterFunc funcPrintDisp;
-    ZydisFormatterFunc funcPrintImm;
-    ZydisFormatterFunc funcPrintMemSize;
-    ZydisFormatterFunc funcPrintPrefixes;
-    ZydisFormatterDecoratorFunc funcPrintDecorator;
+    ZydisLetterCase letter_case;
+    ZyanBool force_memory_segment;
+    ZyanBool force_memory_size;
+    ZyanU8 format_address;
+    ZyanU8 format_disp;
+    ZyanU8 format_imm;
+    ZyanBool hex_uppercase;
+    ZydisString* hex_prefix;
+    ZydisString hex_prefix_data;
+    ZydisString* hex_suffix;
+    ZydisString hex_suffix_data;
+    ZyanU8 hex_padding_address;
+    ZyanU8 hex_padding_disp;
+    ZyanU8 hex_padding_imm;
+    ZydisFormatterFunc func_pre_instruction;
+    ZydisFormatterFunc func_post_instruction;
+    ZydisFormatterFunc func_pre_operand;
+    ZydisFormatterFunc func_post_operand;
+    ZydisFormatterFunc func_format_instruction;
+    ZydisFormatterFunc func_format_operand_reg;
+    ZydisFormatterFunc func_format_operand_mem;
+    ZydisFormatterFunc func_format_operand_ptr;
+    ZydisFormatterFunc func_format_operand_imm;
+    ZydisFormatterFunc func_print_mnemonic;
+    ZydisFormatterRegisterFunc func_print_register;
+    ZydisFormatterAddressFunc func_print_address;
+    ZydisFormatterFunc func_print_disp;
+    ZydisFormatterFunc func_print_imm;
+    ZydisFormatterFunc func_print_mem_size;
+    ZydisFormatterFunc func_print_prefixes;
+    ZydisFormatterDecoratorFunc func_print_decorator;
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -675,14 +675,13 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   buffer      A pointer to the output buffer.
- * @param   bufferLen   The length of the output buffer.
+ * @param   length   The length of the output buffer.
  * @param   address     The runtime address of the instruction.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, char* buffer, ZyanUSize bufferLen,
-    ZyanU64 address);
+    const ZydisDecodedInstruction* instruction, char* buffer, ZyanUSize length, ZyanU64 address);
 
 /**
  * @brief   Formats the given instruction and writes it into the output buffer.
@@ -690,16 +689,16 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* fo
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   buffer      A pointer to the output buffer.
- * @param   bufferLen   The length of the output buffer.
+ * @param   length      The length of the output buffer.
  * @param   address     The runtime address of the instruction.
- * @param   userData    A pointer to user-defined data which can be used in custom formatter
+ * @param   user_data   A pointer to user-defined data which can be used in custom formatter
  *                      callbacks.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, char* buffer, ZyanUSize bufferLen,
-    ZyanU64 address, void* userData);
+    const ZydisDecodedInstruction* instruction, char* buffer, ZyanUSize length, ZyanU64 address,
+    void* user_data);
 
 /**
  * @brief   Formats the given operand and writes it into the output buffer.
@@ -708,7 +707,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* 
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   index       The index of the operand to format.
  * @param   buffer      A pointer to the output buffer.
- * @param   bufferLen   The length of the output buffer.
+ * @param   length      The length of the output buffer.
  * @param   address     The runtime address of the instruction.
  *
  * @return  A zyan status code.
@@ -717,7 +716,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* 
  * complete instruction.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZyanU8 index, char* buffer, ZyanUSize bufferLen,
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, char* buffer, ZyanUSize length,
     ZyanU64 address);
 
 /**
@@ -727,9 +726,9 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   index       The index of the operand to format.
  * @param   buffer      A pointer to the output buffer.
- * @param   bufferLen   The length of the output buffer.
+ * @param   length      The length of the output buffer.
  * @param   address     The runtime address of the instruction.
- * @param   userData    A pointer to user-defined data which can be used in custom formatter
+ * @param   user_data   A pointer to user-defined data which can be used in custom formatter
  *                      callbacks.
  *
  * @return  A zyan status code.
@@ -738,8 +737,8 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  * complete instruction.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZyanU8 index, char* buffer, ZyanUSize bufferLen,
-    ZyanU64 address, void* userData);
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, char* buffer, ZyanUSize length,
+    ZyanU64 address, void* user_data);
 
 /* ============================================================================================== */
 

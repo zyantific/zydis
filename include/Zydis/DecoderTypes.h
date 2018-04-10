@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Defines the basic @c ZydisDecodedInstruction and @c ZydisDecodedOperand structs.
+ * @brief   Defines the basic `ZydisDecodedInstruction` and `ZydisDecodedOperand` structs.
  */
 
 #ifndef ZYDIS_INSTRUCTIONINFO_H
@@ -117,15 +117,15 @@ typedef struct ZydisDecodedOperand_
     /**
      * @brief   The element-type.
      */
-    ZydisElementType elementType;
+    ZydisElementType element_type;
     /**
      * @brief   The size of a single element.
      */
-    ZydisElementSize elementSize;
+    ZydisElementSize element_size;
     /**
      * @brief   The number of elements.
      */
-    ZyanU16 elementCount;
+    ZyanU16 element_count;
     /**
      * @brief   Extended info for register-operands.
      */
@@ -170,7 +170,7 @@ typedef struct ZydisDecodedOperand_
             /**
              * @brief   Signals, if the displacement value is used.
              */
-            ZyanBool hasDisplacement;
+            ZyanBool has_displacement;
             /**
              * @brief   The displacement value
              */
@@ -193,12 +193,12 @@ typedef struct ZydisDecodedOperand_
         /**
          * @brief   Signals, if the immediate value is signed.
          */
-        ZyanBool isSigned;
+        ZyanBool is_signed;
         /**
          * @brief   Signals, if the immediate value contains a relative offset. You can use
-         *          @c ZydisCalcAbsoluteAddress to determine the absolute address value.
+         *          `ZydisCalcAbsoluteAddress` to determine the absolute address value.
          */
-        ZyanBool isRelative;
+        ZyanBool is_relative;
         /**
          * @brief   The immediate value.
          */
@@ -773,7 +773,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   The machine mode used to decode this instruction.
      */
-    ZydisMachineMode machineMode;
+    ZydisMachineMode machine_mode;
     /**
      * @brief   The instruction-mnemonic.
      */
@@ -793,7 +793,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   The opcode-map.
      */
-    ZydisOpcodeMap opcodeMap;
+    ZydisOpcodeMap opcode_map;
     /**
      * @brief   The instruction-opcode.
      */
@@ -801,19 +801,19 @@ typedef struct ZydisDecodedInstruction_
     /**
      * @brief   The stack width.
      */
-    ZyanU8 stackWidth;
+    ZyanU8 stack_width;
     /**
      * @brief   The effective operand width.
      */
-    ZyanU8 operandWidth;
+    ZyanU8 operand_width;
     /**
      * @brief   The effective address width.
      */
-    ZyanU8 addressWidth;
+    ZyanU8 address_width;
     /**
      * @brief   The number of instruction-operands.
      */
-    ZyanU8 operandCount;
+    ZyanU8 operand_count;
     /**
      * @brief   Detailed info for all instruction operands.
      */
@@ -843,7 +843,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   The AVX vector-length.
          */
-        ZyanU16 vectorLength;
+        ZyanU16 vector_length;
         /**
          * @brief   Info about the embedded writemask-register (`AVX-512` and `KNC` only).
          */
@@ -869,7 +869,7 @@ typedef struct ZydisDecodedInstruction_
              * This is the case for instructions with inbuild broadcast functionality, that is
              * always active controlled by the `EVEX/MVEX.RC` bits.
              */
-            ZyanBool isStatic;
+            ZyanBool is_static;
             /**
              * @brief   The AVX broadcast-mode.
              */
@@ -908,11 +908,11 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   Signals, if the sae functionality is enabled for the instruction.
          */
-        ZyanBool hasSAE;
+        ZyanBool has_SAE;
         /**
          * @brief   Signals, if the instruction has a memory eviction-hint (`KNC` only).
          */
-        ZyanBool hasEvictionHint;
+        ZyanBool has_eviction_hint;
         // TODO: publish EVEX tuple-type and MVEX functionality
     } avx;
     /**
@@ -927,15 +927,15 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   The ISA-set.
          */
-        ZydisISASet isaSet;
+        ZydisISASet isa_set;
         /**
          * @brief   The ISA-set extension.
          */
-        ZydisISAExt isaExt;
+        ZydisISAExt isa_ext;
         /**
          * @brief   The exception class.
          */
-        ZydisExceptionClass exceptionClass;
+        ZydisExceptionClass exception_class;
     } meta;
     /**
      * @brief   Extended info about different instruction-parts like ModRM, SIB or
@@ -968,9 +968,9 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   @c TRUE if the prefix got already decoded.
+             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
              */
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -998,9 +998,9 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   @c TRUE if the prefix got already decoded.
+             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
              */
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1044,9 +1044,9 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   @c TRUE if the prefix got already decoded.
+             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
              */
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1090,9 +1090,9 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   @c TRUE if the prefix got already decoded.
+             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
              */
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1160,9 +1160,9 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   @c TRUE if the prefix got already decoded.
+             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
              */
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1221,7 +1221,7 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             ZyanU8 data[1];
             ZyanU8 mod;
             ZyanU8 reg;
@@ -1232,7 +1232,7 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            ZyanBool isDecoded;
+            ZyanBool is_decoded;
             ZyanU8 data[1];
             ZyanU8 scale;
             ZyanU8 index;
@@ -1266,12 +1266,12 @@ typedef struct ZydisDecodedInstruction_
             /**
              * @brief   Signals, if the immediate value is signed.
              */
-            ZyanBool isSigned;
+            ZyanBool is_signed;
             /**
              * @brief   Signals, if the immediate value contains a relative offset. You can use
-             *          @c ZydisCalcAbsoluteAddress to determine the absolute address value.
+             *          `ZydisCalcAbsoluteAddress` to determine the absolute address value.
              */
-            ZyanBool isRelative;
+            ZyanBool is_relative;
             /**
              * @brief   The immediate value.
              */

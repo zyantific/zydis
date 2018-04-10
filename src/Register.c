@@ -73,19 +73,19 @@ static const ZyanU8 registerMapCount = sizeof(registerMap) / sizeof(struct Zydis
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZydisRegister ZydisRegisterEncode(ZydisRegisterClass registerClass, ZyanU8 id)
+ZydisRegister ZydisRegisterEncode(ZydisRegisterClass register_class, ZyanU8 id)
 {
-    switch (registerClass)
+    switch (register_class)
     {
     case ZYDIS_REGCLASS_INVALID:
     case ZYDIS_REGCLASS_FLAGS:
     case ZYDIS_REGCLASS_IP:
         break;
     default:
-        if ((registerClass < registerMapCount) &&
-            (id <= (registerMap[registerClass].hi - registerMap[registerClass].lo)))
+        if ((register_class < registerMapCount) &&
+            (id <= (registerMap[register_class].hi - registerMap[register_class].lo)))
         {
-            return registerMap[registerClass].lo + id;
+            return registerMap[register_class].lo + id;
         }
     }
     return ZYDIS_REGISTER_NONE;

@@ -26,11 +26,11 @@
 
 /**
  * @file
- * @brief   Demonstrates the hooking functionality of the @c ZydisFormatter class.
+ * @brief   Demonstrates the hooking functionality of the `ZydisFormatter` class.
  *
- * This example demonstrates the hooking functionality of the @c ZydisFormatter class by
- * rewriting the mnemonics of (V)CMPPS and (V)CMPPD to their corresponding alias-forms (based on
- * the condition encoded in the immediate operand).
+ * This example demonstrates the hooking functionality of the `ZydisFormatter` class by
+ * rewriting the mnemonics of `(V)CMPPS` and `(V)CMPPD` to their corresponding alias-forms (based
+ * on the condition encoded in the immediate operand).
  */
 
 #include <stdio.h>
@@ -50,9 +50,9 @@
  * @param   format  The format string.
  * @param   ...     The format arguments.
  *
- * @return  @c ZYAN_STATUS_SUCCESS, if the function succeeded, or
- *          @c ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE, if the size of the buffer was not
- *          sufficient to append the given text.
+ * @return  `ZYAN_STATUS_SUCCESS`, if the function succeeded, or
+ *          `ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE`, if the size of the buffer was not sufficient
+ *          to append the given `text`.
  */
 static ZyanStatus ZydisStringAppendFormatC(ZydisString* string, const char* format, ...)
 {
@@ -130,56 +130,56 @@ static const char* conditionCodeStrings[0x20] =
  */
 typedef struct ZydisCustomUserData_
 {
-    ZyanBool ommitImmediate;
+    ZyanBool ommit_immediate;
 } ZydisCustomUserData;
 
 /* ============================================================================================== */
 /* Hook callbacks                                                                                 */
 /* ============================================================================================== */
 
-ZydisFormatterFunc defaultPrintMnemonic;
+ZydisFormatterFunc default_print_mnemonic;
 
 static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
     ZydisString* string, ZydisFormatterContext* context)
 {
-    // We use the user-data to pass data to the @c ZydisFormatterFormatOperandImm function
-    ZydisCustomUserData* userData = (ZydisCustomUserData*)context->userData;
-    userData->ommitImmediate = ZYAN_TRUE;
+    // We use the user-data to pass data to the `ZydisFormatterFormatOperandImm` function
+    ZydisCustomUserData* user_data = (ZydisCustomUserData*)context->user_data;
+    user_data->ommit_immediate = ZYAN_TRUE;
 
     // Rewrite the instruction-mnemonic for the given instructions
-    if (context->instruction->operands[context->instruction->operandCount - 1].type ==
+    if (context->instruction->operands[context->instruction->operand_count - 1].type ==
         ZYDIS_OPERAND_TYPE_IMMEDIATE)
     {
-        const ZyanU8 conditionCode = (ZyanU8)context->instruction->operands[
-            context->instruction->operandCount - 1].imm.value.u;
+        const ZyanU8 condition_code = (ZyanU8)context->instruction->operands[
+            context->instruction->operand_count - 1].imm.value.u;
         switch (context->instruction->mnemonic)
         {
         case ZYDIS_MNEMONIC_CMPPS:
-            if (conditionCode < 0x08)
+            if (condition_code < 0x08)
             {
                 return ZydisStringAppendFormatC(
-                    string, "cmp%sps", conditionCodeStrings[conditionCode]);
+                    string, "cmp%sps", conditionCodeStrings[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_CMPPD:
-            if (conditionCode < 0x08)
+            if (condition_code < 0x08)
             {
                 return ZydisStringAppendFormatC(
-                    string, "cmp%spd", conditionCodeStrings[conditionCode]);
+                    string, "cmp%spd", conditionCodeStrings[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPS:
-            if (conditionCode < 0x20)
+            if (condition_code < 0x20)
             {
                 return ZydisStringAppendFormatC(
-                    string, "vcmp%sps", conditionCodeStrings[conditionCode]);
+                    string, "vcmp%sps", conditionCodeStrings[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPD:
-            if (conditionCode < 0x20)
+            if (condition_code < 0x20)
             {
                 return ZydisStringAppendFormatC(
-                    string, "vcmp%spd", conditionCodeStrings[conditionCode]);
+                    string, "vcmp%spd", conditionCodeStrings[condition_code]);
             }
             break;
         default:
@@ -187,31 +187,31 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
         }
     }
 
-    // We did not rewrite the instruction-mnemonic. Signal the @c ZydisFormatterFormatOperandImm
+    // We did not rewrite the instruction-mnemonic. Signal the `ZydisFormatterFormatOperandImm`
     // function not to omit the operand
-    userData->ommitImmediate = ZYAN_FALSE;
+    user_data->ommit_immediate = ZYAN_FALSE;
 
     // Default mnemonic printing
-    return defaultPrintMnemonic(formatter, string, context);
+    return default_print_mnemonic(formatter, string, context);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
 
-ZydisFormatterFunc defaultFormatOperandImm;
+ZydisFormatterFunc default_format_operand_imm;
 
 static ZyanStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
     ZydisString* string, ZydisFormatterContext* context)
 {
-    // The @c ZydisFormatterFormatMnemonic sinals us to omit the immediate (condition-code)
+    // The `ZydisFormatterFormatMnemonic` sinals us to omit the immediate (condition-code)
     // operand, because it got replaced by the alias-mnemonic
-    const ZydisCustomUserData* userData = (ZydisCustomUserData*)context->userData;
-    if (userData->ommitImmediate)
+    const ZydisCustomUserData* user_data = (ZydisCustomUserData*)context->user_data;
+    if (user_data->ommit_immediate)
     {
         return ZYDIS_STATUS_SKIP_TOKEN;
     }
 
     // Default immediate formatting
-    return defaultFormatOperandImm(formatter, string, context);
+    return default_format_operand_imm(formatter, string, context);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -220,38 +220,38 @@ static ZyanStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
-static void disassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize length,
-    ZyanBool installHooks)
+static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize length,
+    ZyanBool install_hooks)
 {
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE);
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE);
 
-    if (installHooks)
+    if (install_hooks)
     {
-        defaultPrintMnemonic = (ZydisFormatterFunc)&ZydisFormatterPrintMnemonic;
+        default_print_mnemonic = (ZydisFormatterFunc)&ZydisFormatterPrintMnemonic;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC,
-            (const void**)&defaultPrintMnemonic);
-        defaultFormatOperandImm = (ZydisFormatterFunc)&ZydisFormatterFormatOperandImm;
+            (const void**)&default_print_mnemonic);
+        default_format_operand_imm = (ZydisFormatterFunc)&ZydisFormatterFormatOperandImm;
         ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,
-            (const void**)&defaultFormatOperandImm);
+            (const void**)&default_format_operand_imm);
     }
 
-    ZyanU64 instructionAddress = 0x007FFFFFFF400000;
+    ZyanU64 runtime_address = 0x007FFFFFFF400000;
 
     ZydisDecodedInstruction instruction;
-    ZydisCustomUserData userData;
+    ZydisCustomUserData user_data;
     char buffer[256];
     while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(decoder, data, length, &instruction)))
     {
-        printf("%016" PRIX64 "  ", instructionAddress);
+        printf("%016" PRIX64 "  ", runtime_address);
         ZydisFormatterFormatInstructionEx(&formatter, &instruction, &buffer[0], sizeof(buffer),
-            instructionAddress, &userData);
+            runtime_address, &user_data);
         printf(" %s\n", &buffer[0]);
         data += instruction.length;
         length -= instruction.length;
-        instructionAddress += instruction.length;
+        runtime_address += instruction.length;
     }
 }
 
@@ -282,9 +282,9 @@ int main()
     ZydisDecoder decoder;
     ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
-    disassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
+    DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
     puts("");
-    disassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_TRUE);
+    DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_TRUE);
 
     return 0;
 }

@@ -49,8 +49,8 @@ extern "C" {
  *
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
- * @param   instrAddress    The runtime address of the instruction.
- * @param   targetAddress   A pointer to the memory that receives the absolute target-address.
+ * @param   runtime_address The runtime address of the instruction.
+ * @param   target_address  A pointer to the memory that receives the absolute target-address.
  *
  * @return  A zyan status code.
  *
@@ -61,7 +61,7 @@ extern "C" {
  *   - The displacement needs to get truncated and zero extended
  */
 ZYDIS_EXPORT ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operand, ZyanU64 instrAddress, ZyanU64* targetAddress);
+    const ZydisDecodedOperand* operand, ZyanU64 runtime_address, ZyanU64* target_address);
 
 /* ============================================================================================== */
 /* Flags                                                                                          */

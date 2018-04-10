@@ -50,7 +50,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the @c ZydisDecoderMode enum.
+ * @brief   Defines the `ZydisDecoderMode` enum.
  */
 typedef enum ZydisDecoderMode_
 {
@@ -175,13 +175,13 @@ typedef struct ZydisDecoder_
  * @brief   Initializes the given `ZydisDecoder` instance.
  *
  * @param   decoder         A pointer to the `ZydisDecoder` instance.
- * @param   machineMode     The machine mode.
- * @param   addressWidth    The address width.
+ * @param   machine_mode    The machine mode.
+ * @param   address_width   The address width.
  *
  * @return  A zyan status code.
  */
-ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machineMode,
-    ZydisAddressWidth addressWidth);
+ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
+    ZydisAddressWidth address_width);
 
 /**
  * @brief   Enables or disables the specified decoder-mode.
@@ -198,16 +198,16 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
 /**
  * @brief   Decodes the instruction in the given input `buffer`.
  *
- * @param   decoder             A pointer to the `ZydisDecoder` instance.
- * @param   buffer              A pointer to the input buffer.
- * @param   bufferLen           The length of the input buffer.
- * @param   instruction         A pointer to the `ZydisDecodedInstruction` struct, that receives
- *                              the details about the decoded instruction.
+ * @param   decoder     A pointer to the `ZydisDecoder` instance.
+ * @param   buffer      A pointer to the input buffer.
+ * @param   length      The length of the input buffer.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct, that receives the
+ *                      details about the decoded instruction.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
-    const void* buffer, ZyanUSize bufferLen, ZydisDecodedInstruction* instruction);
+    const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction);
 
 /* ============================================================================================== */
 

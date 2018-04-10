@@ -111,14 +111,14 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
 ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
     const ZydisOperandDefinition** operand)
 {
-    if (definition->operandCount == 0)
+    if (definition->operand_count == 0)
     {
         *operand = ZYAN_NULL;
         return 0;
     }
-    ZYAN_ASSERT(definition->operandReference != 0xFFFF);
-    *operand = &operandDefinitions[definition->operandReference];
-    return definition->operandCount;
+    ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
+    *operand = &operandDefinitions[definition->operand_reference];
+    return definition->operand_count;
 }
 #endif
 
@@ -174,9 +174,9 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
-    ZYAN_ASSERT(definition->flagsReference < ZYAN_ARRAY_LENGTH(accessedFlags));
-    *flags = &accessedFlags[definition->flagsReference];
-    return (definition->flagsReference != 0);
+    ZYAN_ASSERT(definition->flags_reference < ZYAN_ARRAY_LENGTH(accessedFlags));
+    *flags = &accessedFlags[definition->flags_reference];
+    return (definition->flags_reference != 0);
 }
 #endif
 

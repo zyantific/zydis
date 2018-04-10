@@ -35,26 +35,26 @@ ZyanU64 ZydisGetVersion(void)
     return ZYDIS_VERSION;
 }
 
-ZyanBool ZydisIsFeatureEnabled(ZydisFeature feature)
+ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature)
 {
     switch (feature)
     {
     case ZYDIS_FEATURE_EVEX:
 #ifndef ZYDIS_DISABLE_EVEX
-        return ZYAN_TRUE;
+        return ZYAN_STATUS_TRUE;
 #else
-        return ZYAN_FALSE;
+        return ZYAN_STATUS_FALSE;
 #endif
 
     case ZYDIS_FEATURE_MVEX:
 #ifndef ZYDIS_DISABLE_MVEX
-        return ZYAN_TRUE;
+        return ZYAN_STATUS_TRUE;
 #else
-        return ZYAN_FALSE;
+        return ZYAN_STATUS_FALSE;
 #endif
 
     default:
-        return ZYAN_FALSE;
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 }
 

@@ -144,9 +144,10 @@ ZYDIS_EXPORT ZyanU64 ZydisGetVersion(void);
  *
  * @param   feature The feature.
  *
- * @return  @c True if the feature is enabled, @c false if not.
+ * @return  `ZYAN_STATUS_TRUE` if the feature is enabled, `ZYAN_STATUS_FALSE` if not. Another
+ *          zyan status code, if an error occured.
  */
-ZYDIS_EXPORT ZyanBool ZydisIsFeatureEnabled(ZydisFeature feature);
+ZYDIS_EXPORT ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature);
 
 /* ============================================================================================== */
 

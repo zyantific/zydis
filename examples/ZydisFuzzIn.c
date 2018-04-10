@@ -41,11 +41,11 @@
 
 typedef struct ZydisFuzzControlBlock_
 {
-    ZydisMachineMode machineMode;
-    ZydisAddressWidth addressWidth;
-    ZyanBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
-    ZydisFormatterStyle formatterStyle;
-    uintptr_t formatterProperties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
+    ZydisMachineMode machine_mode;
+    ZydisAddressWidth address_width;
+    ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZydisFormatterStyle formatter_style;
+    uintptr_t formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
 } ZydisFuzzControlBlock;
 
@@ -53,7 +53,7 @@ typedef struct ZydisFuzzControlBlock_
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-static int doIteration(void);
+static int DoIteration(void);
 
 int main()
 {
@@ -64,14 +64,14 @@ int main()
     }
 
 #ifdef ZYDIS_FUZZ_AFL_FAST
-    int finalRet;
+    int final_ret;
     while (__AFL_LOOP(1000))
     {
-        finalRet = doIteration();
+        final_ret = DoIteration();
     }
-    return finalRet;
+    return final_ret;
 #else
-    return doIteration();
+    return DoIteration();
 #endif
 }
 
@@ -81,19 +81,19 @@ int main()
 #   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
 #endif
 
-static int doIteration(void)
+static int DoIteration(void)
 {
-    ZydisFuzzControlBlock controlBlock;
-    if (fread(&controlBlock, 1, sizeof(controlBlock), stdin) != sizeof(controlBlock))
+    ZydisFuzzControlBlock control_block;
+    if (fread(&control_block, 1, sizeof(control_block), stdin) != sizeof(control_block))
     {
         ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
-    controlBlock.string[ZYAN_ARRAY_LENGTH(controlBlock.string) - 1] = 0;
+    control_block.string[ZYAN_ARRAY_LENGTH(control_block.string) - 1] = 0;
 
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(
-        ZydisDecoderInit(&decoder, controlBlock.machineMode, controlBlock.addressWidth)))
+        ZydisDecoderInit(&decoder, control_block.machine_mode, control_block.address_width)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
@@ -101,7 +101,7 @@ static int doIteration(void)
     for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
     {
         if (!ZYAN_SUCCESS(
-            ZydisDecoderEnableMode(&decoder, mode, controlBlock.decoderMode[mode] ? 1 : 0)))
+            ZydisDecoderEnableMode(&decoder, mode, control_block.decoder_mode[mode] ? 1 : 0)))
         {
             ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", stderr);
             return EXIT_FAILURE;
@@ -109,7 +109,7 @@ static int doIteration(void)
     }
 
     ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, controlBlock.formatterStyle)))
+    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, control_block.formatter_style)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize instruction-formatter\n", stderr);
         return EXIT_FAILURE;
@@ -120,49 +120,49 @@ static int doIteration(void)
         {
         case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
         case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
-            controlBlock.formatterProperties[prop] =
-                controlBlock.formatterProperties[prop] ? (uintptr_t)&controlBlock.string : 0;
+            control_block.formatter_properties[prop] =
+                control_block.formatter_properties[prop] ? (uintptr_t)&control_block.string : 0;
             break;
         default:
             break;
         }
         if (!ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter, prop,
-            controlBlock.formatterProperties[prop])))
+            control_block.formatter_properties[prop])))
         {
             ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
             return EXIT_FAILURE;
         }
     }
 
-    uint8_t readBuf[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
-    size_t numBytesRead;
+    uint8_t buffer[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
+    size_t bytes_read;
     do
     {
-        numBytesRead = fread(readBuf, 1, sizeof(readBuf), stdin);
+        bytes_read = fread(buffer, 1, sizeof(buffer), stdin);
 
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
-        size_t readOffs = 0;
-        while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
-            numBytesRead - readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+        size_t read_offset = 0;
+        while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
+            bytes_read - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYAN_SUCCESS(status))
             {
-                ++readOffs;
+                ++read_offset;
                 continue;
             }
 
-            char printBuffer[256];
-            ZydisFormatterFormatInstruction(&formatter, &instruction, printBuffer,
-                sizeof(printBuffer), readOffs);
-            readOffs += instruction.length;
+            char format_buffer[256];
+            ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
+                sizeof(format_buffer), read_offset);
+            read_offset += instruction.length;
         }
 
-        if (readOffs < sizeof(readBuf))
+        if (read_offset < sizeof(buffer))
         {
-            memmove(readBuf, readBuf + readOffs, sizeof(readBuf) - readOffs);
+            memmove(buffer, buffer + read_offset, sizeof(buffer) - read_offset);
         }
-    } while (numBytesRead == sizeof(readBuf));
+    } while (bytes_read == sizeof(buffer));
 
     return EXIT_SUCCESS;
 }

@@ -209,7 +209,7 @@ typedef struct ZydisOperandDefinition_
     ZyanU8 visibility                      ZYAN_BITFIELD(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS);
     ZyanU8 action                          ZYAN_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
     ZyanU16 size[3];
-    ZyanU8 elementType                     ZYAN_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
+    ZyanU8 element_type                    ZYAN_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
     union
     {
         ZyanU8 encoding                    ZYAN_BITFIELD(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS);
@@ -315,15 +315,15 @@ typedef enum ZydisEVEXFunctionality_
 {
     ZYDIS_EVEX_FUNC_INVALID,
     /**
-     * @brief   @c EVEX.b enables broadcast functionality.
+     * @brief   `EVEX.b` enables broadcast functionality.
      */
     ZYDIS_EVEX_FUNC_BC,
     /**
-     * @brief   @c EVEX.b enables embedded-rounding functionality.
+     * @brief   `EVEX.b` enables embedded-rounding functionality.
      */
     ZYDIS_EVEX_FUNC_RC,
     /**
-     * @brief   @c EVEX.b enables sae functionality.
+     * @brief   `EVEX.b` enables sae functionality.
      */
     ZYDIS_EVEX_FUNC_SAE,
 
@@ -424,19 +424,19 @@ typedef enum ZydisEVEXTupleType_
 typedef enum ZydisMVEXFunctionality_
 {
     /**
-     * @brief   @c The MVEX.SSS value is ignored.
+     * @brief   The `MVEX.SSS` value is ignored.
      */
     ZYDIS_MVEX_FUNC_IGNORED,
     /**
-     * @brief   @c MVEX.SSS must be 000b.
+     * @brief   `MVEX.SSS` must be `000b`.
      */
     ZYDIS_MVEX_FUNC_INVALID,
     /**
-     * @brief   @c MVEX.SSS controls embedded-rounding functionality.
+     * @brief   `MVEX.SSS` controls embedded-rounding functionality.
      */
     ZYDIS_MVEX_FUNC_RC,
     /**
-     * @brief   @c MVEX.SSS controls sae functionality.
+     * @brief   `MVEX.SSS` controls sae functionality.
      */
     ZYDIS_MVEX_FUNC_SAE,
     /**
@@ -666,35 +666,35 @@ ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
 #ifndef ZYDIS_MINIMAL_MODE
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
         ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
-        ZyanU8 operandCount                    ZYAN_BITFIELD( 4); \
-        ZyanU16 operandReference               ZYAN_BITFIELD(15); \
-        ZyanU8 operandSizeMap                  ZYAN_BITFIELD( 3); \
-        ZyanU8 flagsReference                  ZYAN_BITFIELD( 7); \
-        ZyanBool requiresProtectedMode         ZYAN_BITFIELD( 1); \
-        ZyanBool acceptsAddressSizeOverride    ZYAN_BITFIELD( 1); \
+        ZyanU8 operand_count                   ZYAN_BITFIELD( 4); \
+        ZyanU16 operand_reference              ZYAN_BITFIELD(15); \
+        ZyanU8 operand_size_map                ZYAN_BITFIELD( 3); \
+        ZyanU8 flags_reference                 ZYAN_BITFIELD( 7); \
+        ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
+        ZyanBool accepts_address_size_override ZYAN_BITFIELD( 1); \
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
-        ZyanU8 isaSet                          ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
-        ZyanU8 isaExt                          ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
-        ZyanU8 exceptionClass                  ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
-        ZyanU8 constrREG                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZyanU8 constrRM                        ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+        ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
+        ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
+        ZyanU8 exception_class                 ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
+        ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 #else
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
         ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
-        ZyanU8 operandSizeMap                  ZYAN_BITFIELD( 3); \
-        ZyanBool requiresProtectedMode         ZYAN_BITFIELD( 1); \
-        ZyanBool acceptsAddressSizeOverride    ZYAN_BITFIELD( 1); \
-        ZyanU8 constrREG                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZyanU8 constrRM                        ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+        ZyanU8 operand_size_map                ZYAN_BITFIELD( 3); \
+        ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
+        ZyanBool accepts_address_size_override ZYAN_BITFIELD( 1); \
+        ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 #endif
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
-    ZyanU8 constrNDSNDD                    ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+    ZyanU8 constr_NDSNDD                   ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
-    ZyanBool isGather                      ZYAN_BITFIELD( 1)
+    ZyanBool is_gather                     ZYAN_BITFIELD( 1)
 
 /**
  * @brief   Defines the `ZydisInstructionDefinition` struct.
@@ -711,20 +711,20 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool isPrivileged                  ZYAN_BITFIELD( 1);
-    ZyanBool isFarBranch                   ZYAN_BITFIELD( 1);
+    ZyanBool is_privileged                 ZYAN_BITFIELD( 1);
+    ZyanBool is_far_branch                 ZYAN_BITFIELD( 1);
 #endif
-    ZyanBool acceptsLOCK                   ZYAN_BITFIELD( 1);
+    ZyanBool accepts_LOCK                  ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool acceptsREP                    ZYAN_BITFIELD( 1);
-    ZyanBool acceptsREPEREPZ               ZYAN_BITFIELD( 1);
-    ZyanBool acceptsREPNEREPNZ             ZYAN_BITFIELD( 1);
-    ZyanBool acceptsBOUND                  ZYAN_BITFIELD( 1);
-    ZyanBool acceptsXACQUIRE               ZYAN_BITFIELD( 1);
-    ZyanBool acceptsXRELEASE               ZYAN_BITFIELD( 1);
-    ZyanBool acceptsHLEWithoutLock         ZYAN_BITFIELD( 1);
-    ZyanBool acceptsBranchHints            ZYAN_BITFIELD( 1);
-    ZyanBool acceptsSegment                ZYAN_BITFIELD( 1);
+    ZyanBool accepts_REP                   ZYAN_BITFIELD( 1);
+    ZyanBool accepts_REPEREPZ              ZYAN_BITFIELD( 1);
+    ZyanBool accepts_REPNEREPNZ            ZYAN_BITFIELD( 1);
+    ZyanBool accepts_BOUND                 ZYAN_BITFIELD( 1);
+    ZyanBool accepts_XACQUIRE              ZYAN_BITFIELD( 1);
+    ZyanBool accepts_XRELEASE              ZYAN_BITFIELD( 1);
+    ZyanBool accepts_hle_without_lock      ZYAN_BITFIELD( 1);
+    ZyanBool accepts_branch_hints          ZYAN_BITFIELD( 1);
+    ZyanBool accepts_segment               ZYAN_BITFIELD( 1);
 #endif
 } ZydisInstructionDefinitionDEFAULT;
 
@@ -777,15 +777,15 @@ typedef struct ZydisInstructionDefinitionEVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanU8 vectorLength                    ZYAN_BITFIELD(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS);
-    ZyanU8 tupleType                       ZYAN_BITFIELD(ZYDIS_TUPLETYPE_REQUIRED_BITS);
-    ZyanU8 elementSize                     ZYAN_BITFIELD(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS);
+    ZyanU8 vector_length                   ZYAN_BITFIELD(ZYDIS_IVECTOR_LENGTH_REQUIRED_BITS);
+    ZyanU8 tuple_type                      ZYAN_BITFIELD(ZYDIS_TUPLETYPE_REQUIRED_BITS);
+    ZyanU8 element_size                    ZYAN_BITFIELD(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS);
     ZyanU8 functionality                   ZYAN_BITFIELD(ZYDIS_EVEX_FUNC_REQUIRED_BITS);
 #endif
-    ZyanU8 maskPolicy                      ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
-    ZyanBool acceptsZeroMask               ZYAN_BITFIELD( 1);
+    ZyanU8 mask_policy                     ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
+    ZyanBool accepts_zero_mask             ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool isControlMask                 ZYAN_BITFIELD( 1);
+    ZyanBool is_control_mask               ZYAN_BITFIELD( 1);
     ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionEVEX;
@@ -806,9 +806,9 @@ typedef struct ZydisInstructionDefinitionMVEX_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL;
     ZyanU8 functionality                   ZYAN_BITFIELD(ZYDIS_MVEX_FUNC_REQUIRED_BITS);
-    ZyanU8 maskPolicy                      ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
+    ZyanU8 mask_policy                     ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool hasElementGranularity         ZYAN_BITFIELD( 1);
+    ZyanBool has_element_granularity       ZYAN_BITFIELD( 1);
     ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_MVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionMVEX;
