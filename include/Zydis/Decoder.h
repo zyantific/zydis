@@ -61,66 +61,66 @@ typedef enum ZydisDecoderMode_
      * operand-size, the effective address-width, some attributes (e.g. `ZYDIS_ATTRIB_IS_RELATIVE`)
      * and all of the information in the `raw` field of the `ZydisDecodedInstruction` struct.
      *
-     * Operands, most attributes and other specific information (like AVX info) are not
+     * Operands, most attributes and other specific information (like `AVX` info) are not
      * accessible in this mode.
      *
      * This mode is NOT enabled by default.
      */
     ZYDIS_DECODER_MODE_MINIMAL,
     /**
-     * @brief   Enables the AMD-branch mode.
+     * @brief   Enables the `AMD`-branch mode.
      *
      * Intel ignores the operand-size override-prefix (`0x66`) for all branches with 32-bit
      * immediates and forces the operand-size of the instruction to 64-bit in 64-bit mode.
-     * In AMD-branch mode `0x66` is not ignored and changes the operand-size and the size of the
+     * In `AMD`-branch mode `0x66` is not ignored and changes the operand-size and the size of the
      * immediate to 16-bit.
      *
      * This mode is NOT enabled by default.
      */
     ZYDIS_DECODER_MODE_AMD_BRANCHES,
     /**
-     * @brief   Enables KNC compatibility-mode.
+     * @brief   Enables `KNC` compatibility-mode.
      *
-     * KNC and KNL+ chips are sharing opcodes and encodings for some mask-related instructions.
-     * Enable this mode to use the old KNC specifications (different mnemonics, operands, ..).
+     * `KNC` and `KNL+` chips are sharing opcodes and encodings for some mask-related instructions.
+     * Enable this mode to use the old `KNC` specifications (different mnemonics, operands, ..).
      *
      * This mode is NOT enabled by default.
      */
     ZYDIS_DECODER_MODE_KNC,
     /**
-     * @brief   Enables the MPX mode.
+     * @brief   Enables the `MPX` mode.
      *
-     * The MPX isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     * The `MPX` isa-extension reuses (overrides) some of the widenop instruction opcodes.
      *
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_MPX,
     /**
-     * @brief   Enables the CET mode.
+     * @brief   Enables the `CET` mode.
      *
-     * The CET isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     * The `CET` isa-extension reuses (overrides) some of the widenop instruction opcodes.
      *
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_CET,
     /**
-     * @brief   Enables the LZCNT mode.
+     * @brief   Enables the `LZCNT` mode.
      *
-     * The LZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     * The `LZCNT` isa-extension reuses (overrides) some of the widenop instruction opcodes.
      *
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_LZCNT,
     /**
-     * @brief   Enables the TZCNT mode.
+     * @brief   Enables the `TZCNT` mode.
      *
-     * The TZCNT isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     * The `TZCNT` isa-extension reuses (overrides) some of the widenop instruction opcodes.
      *
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_TZCNT,
     /**
-     * @brief   Enables the WBNOINVD mode.
+     * @brief   Enables the `WBNOINVD` mode.
      *
      * The `WBINVD` instruction is interpreted as `WBNOINVD` on ICL chips, if a `F3` prefix is
      * used.
@@ -128,11 +128,19 @@ typedef enum ZydisDecoderMode_
      * This mode is disabled by default.
      */
     ZYDIS_DECODER_MODE_WBNOINVD,
+     /**
+     * @brief   Enables the `CLDEMOTE` mode.
+     *
+     * The `CLDEMOTE` isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     *
+     * This mode is enabled by default.
+     */
+    ZYDIS_DECODER_MODE_CLDEMOTE,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_WBNOINVD,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_CLDEMOTE,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */

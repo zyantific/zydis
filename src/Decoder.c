@@ -1630,11 +1630,13 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
  * @brief   Decodes an implicit memory operand.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
  * @param   definition      A pointer to the `ZydisOperandDefinition` struct.
  */
 static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
-    ZydisDecodedOperand* operand, const ZydisOperandDefinition* definition)
+    ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operand,
+    const ZydisOperandDefinition* definition)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(operand);
@@ -1652,6 +1654,16 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
 
     switch (definition->op.mem.base)
     {
+    case ZYDIS_IMPLMEM_BASE_AGPR_REG:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index],
+            ZydisCalcRegisterId(context, instruction, ZYDIS_REG_ENCODING_REG,
+                lookup[context->easz_index]));
+        break;
+    case ZYDIS_IMPLMEM_BASE_AGPR_RM:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index],
+            ZydisCalcRegisterId(context, instruction, ZYDIS_REG_ENCODING_RM,
+                lookup[context->easz_index]));
+        break;
     case ZYDIS_IMPLMEM_BASE_ABX:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 3);
         break;
@@ -1717,11 +1729,12 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG:
-            ZydisDecodeOperandImplicitRegister(
-                context, instruction, &instruction->operands[i], operand);
+            ZydisDecodeOperandImplicitRegister(context, instruction, &instruction->operands[i],
+                operand);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
-            ZydisDecodeOperandImplicitMemory(context, &instruction->operands[i], operand);
+            ZydisDecodeOperandImplicitMemory(context, instruction, &instruction->operands[i],
+                operand);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1:
             instruction->operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
@@ -1774,6 +1787,13 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                         (instruction->operand_width == 64));
             registerClass =
                 (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR16 : ZYDIS_REGCLASS_GPR32;
+            break;
+        case ZYDIS_SEMANTIC_OPTYPE_GPR_ASZ:
+            ZYAN_ASSERT((instruction->address_width == 16) || (instruction->address_width == 32) ||
+                        (instruction->address_width == 64));
+            registerClass =
+                (instruction->address_width == 16) ? ZYDIS_REGCLASS_GPR16 : (
+                (instruction->address_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_FPR:
             registerClass = ZYDIS_REGCLASS_X87;
@@ -4478,6 +4498,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
             index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_TZCNT] ? 1 : 0;
             break;
+        case ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD:
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_WBNOINVD] ? 1 : 0;
+            break;
+        case ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE:
+            index = context->decoder->decoderMode[ZYDIS_DECODER_MODE_CLDEMOTE] ? 1 : 0;
+            break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
             {
@@ -4578,7 +4604,8 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_CET
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_LZCNT
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_TZCNT
-        ZYAN_FALSE  // ZYDIS_DECODER_MODE_WBNOINVD
+        ZYAN_FALSE, // ZYDIS_DECODER_MODE_WBNOINVD
+        ZYAN_TRUE   // ZYDIS_DECODER_MODE_CLDEMOTE
     };
 
     if (!decoder)

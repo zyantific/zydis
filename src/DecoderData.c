@@ -150,6 +150,12 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
         ZYAN_ASSERT(index <   2);
         return &filtersModeTZCNT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD:
+        ZYAN_ASSERT(index <   2);
+        return &filtersModeWBNOINVD[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE:
+        ZYAN_ASSERT(index <   2);
+        return &filtersModeCLDEMOTE[parent->value][index];
     default:
         ZYAN_UNREACHABLE;
     }

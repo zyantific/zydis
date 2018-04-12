@@ -160,7 +160,15 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * @brief   Reference to a TZCNT-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x18
+    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x18,
+    /**
+     * @brief   Reference to a WBNOINVD-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD     = 0x19,
+    /**
+     * @brief   Reference to a CLDEMOTE-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1A
 };
 
 /* ---------------------------------------------------------------------------------------------- */
