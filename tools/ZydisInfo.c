@@ -78,8 +78,8 @@ static const char* FormatZyanStatus(ZyanStatus status)
     if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYDIS)
     {
         status = ZYAN_STATUS_CODE(status);
-        ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zycore));
-        return strings_zycore[status];
+        ZYAN_ASSERT(status < ZYAN_ARRAY_LENGTH(strings_zydis));
+        return strings_zydis[status];
     }
 
     ZYAN_UNREACHABLE;
