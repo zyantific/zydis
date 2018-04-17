@@ -43,7 +43,7 @@
 /* Lookup Tables                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const char* decimalLookup =
+static const char* decimal_lookup =
     "00010203040506070809"
     "10111213141516171819"
     "20212223242526272829"
@@ -78,10 +78,10 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
         ZyanU32 const old = value;
         p -= 2;
         value /= 100;
-        ZYAN_MEMCPY(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(ZyanU16));
+        ZYAN_MEMCPY(p, &decimal_lookup[(old - (value * 100)) * 2], sizeof(ZyanU16));
     }
     p -= 2;
-    ZYAN_MEMCPY(p, &decimalLookup[value * 2], sizeof(ZyanU16));
+    ZYAN_MEMCPY(p, &decimal_lookup[value * 2], sizeof(ZyanU16));
 
     const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
     if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
@@ -188,10 +188,10 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
         ZyanU64 const old = value;
         p -= 2;
         value /= 100;
-        ZYAN_MEMCPY(p, &decimalLookup[(old - (value * 100)) * 2], 2);
+        ZYAN_MEMCPY(p, &decimal_lookup[(old - (value * 100)) * 2], 2);
     }
     p -= 2;
-    ZYAN_MEMCPY(p, &decimalLookup[value * 2], sizeof(ZyanU16));
+    ZYAN_MEMCPY(p, &decimal_lookup[value * 2], sizeof(ZyanU16));
 
     const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
     if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
