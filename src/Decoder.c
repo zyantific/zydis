@@ -4335,9 +4335,10 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-            ZYAN_ASSERT((constr_REG    == ZYDIS_REG_CONSTRAINTS_NONE) &&
-                        (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
-                        (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
+            ZYAN_ASSERT(((constr_REG    == ZYDIS_REG_CONSTRAINTS_UNUSED) ||
+                         (constr_REG    == ZYDIS_REG_CONSTRAINTS_NONE)) &&
+                         (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
+                         (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
             break;
         default:
             ZYAN_UNREACHABLE;
