@@ -601,7 +601,7 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [hexbytes]\n", (argc > 0 ? argv[0] : "ZydisInfo"));
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 

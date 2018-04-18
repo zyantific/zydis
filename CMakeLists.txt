@@ -151,10 +151,10 @@ function (_maybe_set_emscripten_cfg target)
         # Yep, that madness below is how Emscripten likes its quotes.
         set_target_properties("${target}" 
             PROPERTIES COMPILE_FLAGS 
-            "-s \"EXPORT_NAME='${target}'\"")
+            "-s \"EXPORT_NAME='${target}'\" -s MODULARIZE=1")
         set_target_properties("${target}" 
             PROPERTIES LINK_FLAGS_RELEASE 
-            "-s \"EXPORT_NAME='${target}'\"")
+            "-s \"EXPORT_NAME='${target}'\" -s MODULARIZE=1")
     endif ()
 endfunction ()
 

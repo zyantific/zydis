@@ -45,24 +45,38 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    if (argc < 1 || argc > 2)
+    if (argc < 2 || argc > 3)
     {
-        fprintf(stderr, "Usage: %s [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
-        return EXIT_FAILURE;
-    }
-
-    FILE* file = argc >= 2 ? fopen(argv[1], "rb") : stdin;
-    if (!file)
-    {
-        fprintf(stderr, "Can not open file: %s\n", strerror(errno));
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
         return EXIT_FAILURE;
     }
 
     ZydisDecoder decoder;
-    if (!ZYAN_SUCCESS(
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+    if (!strcmp(argv[1], "-real"))
     {
-        fputs("Failed to initialize decoder\n", stderr);
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);
+    } else
+    if (!strcmp(argv[1], "-16"))
+    {
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);
+    } else
+    if (!strcmp(argv[1], "-32"))
+    {
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32);
+    } else
+    if (!strcmp(argv[1], "-64"))
+    {
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+    } else
+    {
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
+        return EXIT_FAILURE;
+    }
+
+    FILE* file = argc >= 3 ? fopen(argv[2], "rb") : stdin;
+    if (!file)
+    {
+        fprintf(stderr, "Can not open file: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 
@@ -96,43 +110,10 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            char printBuffer[256];
-            ZydisFormatterFormatInstruction(&formatter, &instruction, printBuffer,
-                sizeof(printBuffer), read_offset);
-            puts(printBuffer);
-
-            // TODO: Remove
-            // DEBUG CODE START
-#if 0
-            for (size_t i = 0; i < instruction.length; ++i)
-            {
-                printf("%02X ", *(readBuf + readOffs + i));
-            }
-            putchar('\n');
-
-            ZydisEncoderRequest req;
-            ZyanStatus transStatus = ZydisEncoderDecodedInstructionToRequest(
-                &instruction, &req
-            );
-            (void)transStatus;
-            ZYAN_ASSERT(ZYAN_SUCCESS(transStatus));
-
-            uint8_t encBuffer[15];
-            size_t encBufferSize = sizeof(encBuffer);
-            ZyanStatus encStatus = ZydisEncoderEncodeInstruction(
-                encBuffer, &encBufferSize, &req
-            );
-            (void)encStatus;
-            ZYAN_ASSERT(ZYAN_SUCCESS(encStatus));
-            for (size_t i = 0; i < encBufferSize; ++i)
-            {
-                printf("%02X ", encBuffer[i]);
-            }
-            putchar('\n');
-            ZYAN_ASSERT(encBufferSize == instruction.length);
-            ZYAN_ASSERT(!memcmp(encBuffer, readBuf + readOffs, encBufferSize));
-#endif
-            // DEBUG CODE END
+            char print_buffer[256];
+            ZydisFormatterFormatInstruction(&formatter, &instruction, print_buffer,
+                sizeof(print_buffer), read_offset);
+            puts(print_buffer);
 
             read_offset += instruction.length;
         }
