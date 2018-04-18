@@ -4316,7 +4316,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             dest  = dest  | (context->cache.R << 3) | (context->cache.R2 << 4);
             index = index | (context->cache.X << 3) | (context->cache.V2 << 4);
         }
-        ZyanU8 mask  = 0xFF;
+        ZyanU8 mask  = 0xF0;
 
         switch (instruction->encoding)
         {
@@ -4339,6 +4339,13 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
                          (constr_REG    == ZYDIS_REG_CONSTRAINTS_NONE)) &&
                          (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
                          (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
+
+            // Some gather instructions (like `VGATHERPF0{D|Q}{PS|PD}`) doe not have a destination
+            // operand
+            if (constr_REG == ZYDIS_REG_CONSTRAINTS_UNUSED)
+            {
+                dest = 0xF1;
+            }
             break;
         default:
             ZYAN_UNREACHABLE;
