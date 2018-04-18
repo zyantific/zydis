@@ -4340,7 +4340,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
                          (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
                          (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
 
-            // Some gather instructions (like `VGATHERPF0{D|Q}{PS|PD}`) doe not have a destination
+            // Some gather instructions (like `VGATHERPF0{D|Q}{PS|PD}`) do not have a destination
             // operand
             if (constr_REG == ZYDIS_REG_CONSTRAINTS_UNUSED)
             {

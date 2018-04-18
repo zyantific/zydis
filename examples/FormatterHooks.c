@@ -259,7 +259,7 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-int main()
+int main(void)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {

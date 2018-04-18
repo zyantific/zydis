@@ -39,41 +39,31 @@
 #include <stdlib.h>
 #include <Zydis/Zydis.h>
 
+#ifdef ZYAN_WINDOWS
+#   include <fcntl.h>
+#   include <io.h>
+#endif
+
+/* ============================================================================================== */
+/* Enums and types                                                                                */
+/* ============================================================================================== */
+
+/**
+ * @brief   Defines the `ZydisFuzzControlBlock` struct.
+ */
 typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machine_mode;
     ZydisAddressWidth address_width;
     ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatter_style;
-    uintptr_t formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
+    ZyanUPointer formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
-/* Entry point                                                                                    */
+/* Macros                                                                                         */
 /* ============================================================================================== */
-
-static int DoIteration(void);
-
-int main()
-{
-    if (ZydisGetVersion() != ZYDIS_VERSION)
-    {
-        fputs("Invalid zydis version\n", stderr);
-        return EXIT_FAILURE;
-    }
-
-#ifdef ZYDIS_FUZZ_AFL_FAST
-    int final_ret;
-    while (__AFL_LOOP(1000))
-    {
-        final_ret = DoIteration();
-    }
-    return final_ret;
-#else
-    return DoIteration();
-#endif
-}
 
 #ifdef ZYDIS_FUZZ_AFL_FAST
 #   define ZYDIS_MAYBE_FPUTS(x, y)
@@ -81,19 +71,30 @@ int main()
 #   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
 #endif
 
+/* ============================================================================================== */
+/* Functions                                                                                      */
+/* ============================================================================================== */
+
 static int DoIteration(void)
 {
     ZydisFuzzControlBlock control_block;
+
+#ifdef ZYAN_WINDOWS
+    // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
+    // binary mode
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
+
     if (fread(&control_block, 1, sizeof(control_block), stdin) != sizeof(control_block))
     {
-        ZYDIS_MAYBE_FPUTS("not enough bytes to fuzz\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", stderr);
         return EXIT_FAILURE;
     }
     control_block.string[ZYAN_ARRAY_LENGTH(control_block.string) - 1] = 0;
 
     ZydisDecoder decoder;
-    if (!ZYAN_SUCCESS(
-        ZydisDecoderInit(&decoder, control_block.machine_mode, control_block.address_width)))
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, control_block.machine_mode,
+        control_block.address_width)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
         return EXIT_FAILURE;
@@ -111,7 +112,7 @@ static int DoIteration(void)
     ZydisFormatter formatter;
     if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, control_block.formatter_style)))
     {
-        ZYDIS_MAYBE_FPUTS("Failed to initialize instruction-formatter\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize formatter\n", stderr);
         return EXIT_FAILURE;
     }
     for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
@@ -134,17 +135,28 @@ static int DoIteration(void)
         }
     }
 
-    uint8_t buffer[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
-    size_t bytes_read;
+    ZyanU8 buffer[1024];
+    ZyanUSize buffer_size;
+    ZyanUSize buffer_remaining = 0;
+    ZyanU64 runtime_address = 0;
     do
     {
-        bytes_read = fread(buffer, 1, sizeof(buffer), stdin);
+        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, stdin);
+        if (buffer_size != (sizeof(buffer) - buffer_remaining))
+        {
+            if (ferror(stdin))
+            {
+                return EXIT_FAILURE;
+            }
+            ZYAN_ASSERT(feof(stdin));
+        }
+        buffer_size += buffer_remaining;
 
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
-        size_t read_offset = 0;
+        ZyanUSize read_offset = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
-            bytes_read - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+            buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             if (!ZYAN_SUCCESS(status))
             {
@@ -154,17 +166,45 @@ static int DoIteration(void)
 
             char format_buffer[256];
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-                sizeof(format_buffer), read_offset);
+                sizeof(format_buffer), runtime_address + read_offset);
             read_offset += instruction.length;
+
+            printf("%08llu %s\n", runtime_address + read_offset, &format_buffer[0]);
         }
 
+        buffer_remaining = 0;
         if (read_offset < sizeof(buffer))
         {
-            memmove(buffer, buffer + read_offset, sizeof(buffer) - read_offset);
+            buffer_remaining = sizeof(buffer) - read_offset;
+            memmove(buffer, buffer + read_offset, buffer_remaining);
         }
-    } while (bytes_read == sizeof(buffer));
+        runtime_address += read_offset;
+    } while (buffer_size == sizeof(buffer));
 
     return EXIT_SUCCESS;
+}
+
+/* ============================================================================================== */
+/* Entry point                                                                                    */
+/* ============================================================================================== */
+
+int main(void)
+{
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid zydis version\n", stderr);
+        return EXIT_FAILURE;
+    }
+
+#ifdef ZYDIS_FUZZ_AFL_FAST
+    while (__AFL_LOOP(1000))
+    {
+        DoIteration();
+    }
+    return EXIT_SUCCESS;
+#else
+    return DoIteration();
+#endif
 }
 
 /* ============================================================================================== */
