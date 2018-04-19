@@ -27,16 +27,12 @@
 /**
  * @file
  *
- * This file implements a tool that is supposed to be fed as input for fuzzers like AFL,
- * reading a control block from stdin, allowing the fuzzer to reach every possible
- * code-path, testing any possible combination of disassembler configurations.
+ * This file implements a tool that is supposed to be fed as input for fuzzers like AFL, reading a
+ * control block from `stdin`, allowing the fuzzer to reach every possible code-path, testing any
+ * possible combination of disassembler configurations.
  */
 
-#include <stddef.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <Zydis/Zydis.h>
 
 #ifdef ZYAN_WINDOWS
@@ -72,7 +68,7 @@ typedef struct ZydisFuzzControlBlock_
 #endif
 
 /* ============================================================================================== */
-/* Functions                                                                                      */
+/* Main iteration                                                                                 */
 /* ============================================================================================== */
 
 static int DoIteration(void)
@@ -138,7 +134,7 @@ static int DoIteration(void)
     ZyanU8 buffer[1024];
     ZyanUSize buffer_size;
     ZyanUSize buffer_remaining = 0;
-    ZyanU64 runtime_address = 0;
+    ZyanUSize read_offset_base = 0;
     do
     {
         buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, stdin);
@@ -158,6 +154,8 @@ static int DoIteration(void)
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
             buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
+            const ZyanU64 runtime_address = read_offset_base + read_offset;
+
             if (!ZYAN_SUCCESS(status))
             {
                 ++read_offset;
@@ -166,7 +164,7 @@ static int DoIteration(void)
 
             char format_buffer[256];
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-                sizeof(format_buffer), runtime_address + read_offset);
+                sizeof(format_buffer), runtime_address);
             read_offset += instruction.length;
         }
 
@@ -176,7 +174,7 @@ static int DoIteration(void)
             buffer_remaining = sizeof(buffer) - read_offset;
             memmove(buffer, buffer + read_offset, buffer_remaining);
         }
-        runtime_address += read_offset;
+        read_offset_base += read_offset;
     } while (buffer_size == sizeof(buffer));
 
     return EXIT_SUCCESS;

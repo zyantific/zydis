@@ -30,10 +30,8 @@
  *          instruction, the operands and additional attributes.
  */
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include <string.h>
 #include <Zydis/Zydis.h>
 
 /* ============================================================================================== */
@@ -601,7 +599,8 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [hexbytes]\n", (argc > 0 ? argv[0] : "ZydisInfo"));
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [hexbytes]\n", (argc > 0 ? argv[0] :
+            "ZydisInfo"));
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 

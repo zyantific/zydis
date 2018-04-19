@@ -24,14 +24,20 @@
 
 ***************************************************************************************************/
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
+/**
+ * @file
+ * @brief   Reads a byte-stream from a file or the `stdin` pipe and prints a textual representation
+ *          of the decoded data.
+ */
+
 #include <stdio.h>
-#include <string.h>
 #include <errno.h>
 #include <Zydis/Zydis.h>
-//#include "Zydis/Encoder.h"
+
+#ifdef ZYAN_WINDOWS
+#   include <fcntl.h>
+#   include <io.h>
+#endif
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
@@ -47,7 +53,8 @@ int main(int argc, char** argv)
 
     if (argc < 2 || argc > 3)
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] :
+            "ZydisDisasm"));
         return EXIT_FAILURE;
     }
 
@@ -69,16 +76,25 @@ int main(int argc, char** argv)
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
     } else
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] : "ZydisDisasm"));
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] :
+            "ZydisDisasm"));
         return EXIT_FAILURE;
     }
 
-    FILE* file = argc >= 3 ? fopen(argv[2], "rb") : stdin;
+    FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : stdin;
     if (!file)
     {
         fprintf(stderr, "Can not open file: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
+#ifdef ZYAN_WINDOWS
+    // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
+    // binary mode
+    if (file == stdin)
+    {
+        _setmode(_fileno(stdin), _O_BINARY);
+    }
+#endif
 
     ZydisFormatter formatter;
     if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
@@ -91,18 +107,31 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    uint8_t buffer[ZYDIS_MAX_INSTRUCTION_LENGTH * 1024];
-    size_t bytes_read;
+    ZyanU8 buffer[1024];
+    ZyanUSize buffer_size;
+    ZyanUSize buffer_remaining = 0;
+    ZyanUSize read_offset_base = 0;
     do
     {
-        bytes_read = fread(buffer, 1, sizeof(buffer), file);
+        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, stdin);
+        if (buffer_size != (sizeof(buffer) - buffer_remaining))
+        {
+            if (ferror(stdin))
+            {
+                return EXIT_FAILURE;
+            }
+            ZYAN_ASSERT(feof(stdin));
+        }
+        buffer_size += buffer_remaining;
 
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
-        size_t read_offset = 0;
+        ZyanUSize read_offset = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
-            bytes_read - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+            buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
+            const ZyanU64 runtime_address = read_offset_base + read_offset;
+
             if (!ZYAN_SUCCESS(status))
             {
                 ++read_offset;
@@ -110,21 +139,24 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            char print_buffer[256];
-            ZydisFormatterFormatInstruction(&formatter, &instruction, print_buffer,
-                sizeof(print_buffer), read_offset);
-            puts(print_buffer);
+            char format_buffer[256];
+            ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
+                sizeof(format_buffer), runtime_address);
+            puts(format_buffer);
 
             read_offset += instruction.length;
         }
 
+        buffer_remaining = 0;
         if (read_offset < sizeof(buffer))
         {
-            memmove(buffer, buffer + read_offset, sizeof(buffer) - read_offset);
+            buffer_remaining = sizeof(buffer) - read_offset;
+            memmove(buffer, buffer + read_offset, buffer_remaining);
         }
-    } while (bytes_read == sizeof(buffer));
+        read_offset_base += read_offset;
+    } while (buffer_size == sizeof(buffer));
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 /* ============================================================================================== */
