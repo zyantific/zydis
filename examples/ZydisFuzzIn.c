@@ -168,8 +168,6 @@ static int DoIteration(void)
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
                 sizeof(format_buffer), runtime_address + read_offset);
             read_offset += instruction.length;
-
-            printf("%08llu %s\n", runtime_address + read_offset, &format_buffer[0]);
         }
 
         buffer_remaining = 0;
