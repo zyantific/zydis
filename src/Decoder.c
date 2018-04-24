@@ -4254,8 +4254,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     case ZYDIS_REG_CONSTRAINTS_MASK:
         break;
     case ZYDIS_REG_CONSTRAINTS_BND:
-        ZYAN_ASSERT(!context->cache.X);
-        if (context->cache.B || instruction->raw.modrm.rm > 3)
+        if (context->cache.B || context->cache.X  ||  instruction->raw.modrm.rm > 3)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
