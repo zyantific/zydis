@@ -61,6 +61,9 @@ typedef struct ZydisFuzzControlBlock_
 /* Macros                                                                                         */
 /* ============================================================================================== */
 
+// Limit maximum amount of bytes 
+#define ZYDIS_FUZZ_MAX_BYTES (1024 * 10 /* 100 KiB */)
+
 #ifdef ZYDIS_FUZZ_AFL_FAST
 #   define ZYDIS_MAYBE_FPUTS(x, y)
 #else
@@ -175,7 +178,7 @@ static int DoIteration(void)
             memmove(buffer, buffer + read_offset, buffer_remaining);
         }
         read_offset_base += read_offset;
-    } while (buffer_size == sizeof(buffer));
+    } while (buffer_size == sizeof(buffer) && read_offset_base < ZYDIS_FUZZ_MAX_BYTES);
 
     return EXIT_SUCCESS;
 }
