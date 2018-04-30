@@ -2037,10 +2037,10 @@ FinalizeOperand:
     }
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
-    // Fix operand-action for EVEX instructions with merge-mask
+    // Fix operand-action for EVEX/MVEX instructions with merge-mask
     if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE)
     {
-        ZYAN_ASSERT(instruction->operand_count >= 2);
+        ZYAN_ASSERT(instruction->operand_count >= 1);
         switch (instruction->operands[0].action)
         {
         case ZYDIS_OPERAND_ACTION_WRITE:
@@ -4254,7 +4254,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     case ZYDIS_REG_CONSTRAINTS_MASK:
         break;
     case ZYDIS_REG_CONSTRAINTS_BND:
-        if (context->cache.B || context->cache.X  ||  instruction->raw.modrm.rm > 3)
+        if (context->cache.B || context->cache.X || instruction->raw.modrm.rm > 3)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
