@@ -134,6 +134,11 @@ ZyanStatus ZydisStringAppendHexU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
         ZYAN_MEMSET(buffer, '0', n);
         string->length += n;
 
+        if (suffix)
+        {
+            ZYAN_CHECK(ZydisStringAppend(string, suffix));
+        }
+
         return ZYAN_STATUS_SUCCESS;
     }
 
@@ -243,6 +248,11 @@ ZyanStatus ZydisStringAppendHexU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
 
         ZYAN_MEMSET(buffer, '0', n);
         string->length += n;
+
+        if (suffix)
+        {
+            ZYAN_CHECK(ZydisStringAppend(string, suffix));
+        }
 
         return ZYAN_STATUS_SUCCESS;
     }
