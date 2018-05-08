@@ -275,9 +275,19 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
             ZYAN_CHECK(formatter->func_print_address(formatter, string, context, address));
         } else
         {
-            ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
-                context->operand->mem.base));
-            ZYAN_CHECK(formatter->func_print_disp(formatter, string, context));
+            if (formatter->format_address == ZYDIS_ADDR_FORMAT_RELATIVE_ASSEMBLER)
+            {
+                ZYAN_CHECK(ZydisStringAppendC(string, "$"));
+                ZYAN_CHECK(ZydisStringAppendHexS(string,
+                    context->operand->mem.disp.value + context->instruction->length,
+                    formatter->hex_padding_address, formatter->hex_uppercase, ZYAN_TRUE,
+                    formatter->hex_prefix, formatter->hex_suffix));
+            } else
+            {
+                ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
+                    context->operand->mem.base));
+                ZYAN_CHECK(formatter->func_print_disp(formatter, string, context));
+            }
         }
     } else
     {
@@ -334,7 +344,6 @@ static ZyanStatus ZydisFormatOperandImmIntel(const ZydisFormatter* formatter, Zy
     // The immediate operand contains an address
     if (context->operand->imm.is_relative)
     {
-        ZyanBool printSignedHEX = ZYAN_FALSE;
         switch (formatter->format_address)
         {
         case ZYDIS_ADDR_FORMAT_ABSOLUTE:
@@ -344,24 +353,23 @@ static ZyanStatus ZydisFormatOperandImmIntel(const ZydisFormatter* formatter, Zy
                 context->address, &address));
             return formatter->func_print_address(formatter, string, context, address);
         }
-        case ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED:
-            printSignedHEX = ZYAN_TRUE;
-            break;
         case ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED:
-            break;
+            return ZydisStringAppendHexU(string, context->operand->imm.value.u,
+                formatter->hex_padding_address, formatter->hex_uppercase, formatter->hex_prefix,
+                formatter->hex_suffix);
+        case ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED:
+            return ZydisStringAppendHexS(string, (ZyanI32)context->operand->imm.value.s,
+                formatter->hex_padding_address, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
+        case ZYDIS_ADDR_FORMAT_RELATIVE_ASSEMBLER:
+            ZYAN_CHECK(ZydisStringAppendC(string, "$"));
+            return ZydisStringAppendHexS(string,
+                (ZyanI32)(context->operand->imm.value.s + context->instruction->length),
+                formatter->hex_padding_address, formatter->hex_uppercase, ZYAN_TRUE,
+                formatter->hex_prefix, formatter->hex_suffix);
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-
-        if (printSignedHEX)
-        {
-            return ZydisStringAppendHexS(string, (ZyanI32)context->operand->imm.value.s,
-                formatter->hex_padding_address, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
-        }
-        return ZydisStringAppendHexU(string, context->operand->imm.value.u,
-            formatter->hex_padding_address, formatter->hex_uppercase, formatter->hex_prefix,
-            formatter->hex_suffix);
     }
 
     // The immediate operand contains an actual ordinal value
@@ -454,8 +462,8 @@ static ZyanStatus ZydisPrintDispIntel(const ZydisFormatter* formatter, ZydisStri
             (context->operand->mem.index != ZYDIS_REGISTER_NONE)))
         {
             return ZydisStringAppendHexS(string, context->operand->mem.disp.value,
-                formatter->hex_padding_disp, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
+                formatter->hex_padding_disp, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
         }
         if ((context->operand->mem.base != ZYDIS_REGISTER_NONE) ||
             (context->operand->mem.index != ZYDIS_REGISTER_NONE))
@@ -489,20 +497,20 @@ static ZyanStatus ZydisPrintImmIntel(const ZydisFormatter* formatter, ZydisStrin
         {
         case 8:
             return ZydisStringAppendHexS(string, (ZyanI8)context->operand->imm.value.s,
-                formatter->hex_padding_imm, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
+                formatter->hex_padding_imm, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
         case 16:
             return ZydisStringAppendHexS(string, (ZyanI16)context->operand->imm.value.s,
-                formatter->hex_padding_imm, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
+                formatter->hex_padding_imm, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
         case 32:
             return ZydisStringAppendHexS(string, (ZyanI32)context->operand->imm.value.s,
-                formatter->hex_padding_imm, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
+                formatter->hex_padding_imm, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
         case 64:
             return ZydisStringAppendHexS(string, context->operand->imm.value.s,
-                formatter->hex_padding_imm, formatter->hex_uppercase, formatter->hex_prefix,
-                formatter->hex_suffix);
+                formatter->hex_padding_imm, formatter->hex_uppercase, ZYAN_FALSE,
+                formatter->hex_prefix, formatter->hex_suffix);
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -884,24 +892,47 @@ ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle sty
     }
 
     static ZydisString hexPrefixDefault = ZYDIS_MAKE_STRING("0x");
+    static ZydisString hexSuffixDefault = ZYDIS_MAKE_STRING("h");
 
     ZYAN_MEMSET(formatter, 0, sizeof(ZydisFormatter));
-    formatter->letter_case              = ZYDIS_LETTER_CASE_DEFAULT;
-    formatter->force_memory_segment     = ZYAN_FALSE;
-    formatter->force_memory_size        = ZYAN_FALSE;
-    formatter->format_address           = ZYDIS_ADDR_FORMAT_ABSOLUTE;
-    formatter->format_disp              = ZYDIS_DISP_FORMAT_HEX_SIGNED;
-    formatter->format_imm               = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
-    formatter->hex_uppercase            = ZYAN_TRUE;
-    formatter->hex_prefix               = &hexPrefixDefault;
-    formatter->hex_suffix               = ZYAN_NULL;
-    formatter->hex_padding_address      = 2;
-    formatter->hex_padding_disp         = 2;
-    formatter->hex_padding_imm          = 2;
+    switch (style)
+    {
+    case ZYDIS_FORMATTER_STYLE_INTEL:
+        formatter->letter_case              = ZYDIS_LETTER_CASE_DEFAULT;
+        formatter->force_memory_segment     = ZYAN_FALSE;
+        formatter->force_memory_size        = ZYAN_FALSE;
+        formatter->format_address           = ZYDIS_ADDR_FORMAT_ABSOLUTE;
+        formatter->format_disp              = ZYDIS_DISP_FORMAT_HEX_SIGNED;
+        formatter->format_imm               = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
+        formatter->hex_uppercase            = ZYAN_TRUE;
+        formatter->hex_prefix               = &hexPrefixDefault;
+        formatter->hex_suffix               = ZYAN_NULL;
+        formatter->hex_padding_address      = 2;
+        formatter->hex_padding_disp         = 2;
+        formatter->hex_padding_imm          = 2;
+        break;
+    case ZYDIS_FORMATTER_STYLE_INTEL_MASM:
+        formatter->letter_case              = ZYDIS_LETTER_CASE_DEFAULT;
+        formatter->force_memory_segment     = ZYAN_FALSE;
+        formatter->force_memory_size        = ZYAN_TRUE;
+        formatter->format_address           = ZYDIS_ADDR_FORMAT_RELATIVE_ASSEMBLER;
+        formatter->format_disp              = ZYDIS_DISP_FORMAT_HEX_SIGNED;
+        formatter->format_imm               = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
+        formatter->hex_uppercase            = ZYAN_TRUE;
+        formatter->hex_prefix               = ZYAN_NULL;
+        formatter->hex_suffix               = &hexSuffixDefault;
+        formatter->hex_padding_address      = 2;
+        formatter->hex_padding_disp         = 2;
+        formatter->hex_padding_imm          = 2;
+        break;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
 
     switch (style)
     {
     case ZYDIS_FORMATTER_STYLE_INTEL:
+    case ZYDIS_FORMATTER_STYLE_INTEL_MASM:
         formatter->func_pre_instruction     = ZYAN_NULL;
         formatter->func_post_instruction    = ZYAN_NULL;
         formatter->func_pre_operand         = ZYAN_NULL;
@@ -921,7 +952,7 @@ ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle sty
         formatter->func_print_decorator     = &ZydisPrintDecoratorIntel;
         break;
     default:
-        return ZYAN_STATUS_INVALID_ARGUMENT;
+        ZYAN_UNREACHABLE;
     }
 
     return ZYAN_STATUS_SUCCESS;

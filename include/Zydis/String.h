@@ -295,6 +295,8 @@ ZYDIS_EXPORT ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value
  * @param   value           The value.
  * @param   padding_length  Padds the converted value with leading zeros, if the number of chars is
  *                          less than the `padding_length` (the sign char is ignored).
+ * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
+ *                          numbers.
  *
  * @return  `ZYAN_STATUS_SUCCESS`, if the function succeeded, or
  *          `ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE`, if the size of the buffer was not
@@ -304,7 +306,7 @@ ZYDIS_EXPORT ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value
  * successfull.
  */
 ZYDIS_EXPORT ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value,
-    ZyanU8 padding_length);
+    ZyanU8 padding_length, ZyanBool force_sign);
 
 /**
  * @brief   Formats the given unsigned ordinal `value` to its hexadecimal text-representation and
@@ -340,6 +342,8 @@ ZYDIS_EXPORT ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value
  *                          less than the `padding_length` (the sign char is ignored).
  * @param   uppercase       Set `ZYAN_TRUE` to print the hexadecimal value in uppercase letters
  *                          instead of lowercase ones.
+ * @param   force_sign      Set to `ZYAN_TRUE`, to force printing of the `+` sign for positive
+ *                          numbers.
  * @param   prefix          The string to use as prefix or `NULL`, if not needed.
  * @param   suffix          The string to use as suffix or `NULL`, if not needed.
  *
@@ -351,7 +355,7 @@ ZYDIS_EXPORT ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value
  * successfull.
  */
 ZYDIS_EXPORT ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value,
-    ZyanU8 padding_length, ZyanBool uppercase, const ZydisString* prefix,
+    ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZydisString* prefix,
     const ZydisString* suffix);
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -452,23 +452,29 @@ ZyanStatus ZydisStringAppendDecU(ZydisString* string, ZyanU64 value, ZyanU8 padd
 #if defined(ZYAN_X64) || defined(ZYAN_AARCH64)
     return ZydisStringAppendDecU64(string, value, padding_length);
 #else
-   if (value & 0xFFFFFFFF00000000)
-   {
-       return ZydisStringAppendDecU64(string, value, padding_length);
-   } else
-   {
-       return ZydisStringAppendDecU32(string, (ZyanU32)value, padding_length);
-   }
+    if (value & 0xFFFFFFFF00000000)
+    {
+        return ZydisStringAppendDecU64(string, value, padding_length);
+    }
+    return ZydisStringAppendDecU32(string, (ZyanU32)value, padding_length);
 #endif
 }
 
-ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value, ZyanU8 padding_length)
+ZyanStatus ZydisStringAppendDecS(ZydisString* string, ZyanI64 value, ZyanU8 padding_length,
+    ZyanBool force_sign)
 {
     if (value < 0)
     {
         ZYAN_CHECK(ZydisStringAppendC(string, "-"));
         return ZydisStringAppendDecU(string, -value, padding_length);
     }
+
+    if (force_sign)
+    {
+        ZYAN_ASSERT(value >= 0);
+        ZYAN_CHECK(ZydisStringAppendC(string, "+"));
+    }
+
     return ZydisStringAppendDecU(string, value, padding_length);
 }
 
@@ -478,29 +484,30 @@ ZyanStatus ZydisStringAppendHexU(ZydisString* string, ZyanU64 value, ZyanU8 padd
 #if defined(ZYAN_X64) || defined(ZYAN_AARCH64)
     return ZydisStringAppendHexU64(string, value, padding_length, uppercase, prefix, suffix);
 #else
-   if (value & 0xFFFFFFFF00000000)
-   {
-       return ZydisStringAppendHexU64(string, value, padding_length, uppercase, prefix, suffix);
-   } else
-   {
-       return ZydisStringAppendHexU32(
-           string, (ZyanU32)value, padding_length, uppercase, prefix, suffix);
-   }
+    if (value & 0xFFFFFFFF00000000)
+    {
+        return ZydisStringAppendHexU64(string, value, padding_length, uppercase, prefix, suffix);
+    }
+    return ZydisStringAppendHexU32(string, (ZyanU32)value, padding_length, uppercase, prefix,
+        suffix);
 #endif
 }
 
 ZyanStatus ZydisStringAppendHexS(ZydisString* string, ZyanI64 value, ZyanU8 padding_length,
-    ZyanBool uppercase, const ZydisString* prefix, const ZydisString* suffix)
+    ZyanBool uppercase, ZyanBool force_sign, const ZydisString* prefix, const ZydisString* suffix)
 {
     if (value < 0)
     {
         ZYAN_CHECK(ZydisStringAppendC(string, "-"));
-        if (prefix)
-        {
-            ZYAN_CHECK(ZydisStringAppend(string, prefix));
-        }
-        return ZydisStringAppendHexU(string, -value, padding_length, uppercase, ZYAN_NULL, suffix);
+        return ZydisStringAppendHexU(string, -value, padding_length, uppercase, prefix, suffix);
     }
+
+    if (force_sign)
+    {
+        ZYAN_ASSERT(value >= 0);
+        ZYAN_CHECK(ZydisStringAppendC(string, "+"));
+    }
+
     return ZydisStringAppendHexU(string, value, padding_length, uppercase, prefix, suffix);
 }
 

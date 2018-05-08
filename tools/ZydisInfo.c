@@ -87,7 +87,7 @@ static const char* FormatZyanStatus(ZyanStatus status)
 /* Print functions                                                                                */
 /* ============================================================================================== */
 
-static void PrintOperands(ZydisDecodedInstruction* instruction)
+static void PrintOperands(const ZydisDecodedInstruction* instruction)
 {
     fputs("== [ OPERANDS ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
@@ -95,8 +95,8 @@ static void PrintOperands(ZydisDecodedInstruction* instruction)
     fputs("  ELEMTYPE                        VALUE\n", stdout);
     fputs("--  ---------  ----------  ------  ------------   ----  -----  ------", stdout);
     fputs("  --------  ---------------------------\n", stdout);
-    uint8_t imm_id = 0;
-    for (uint8_t i = 0; i < instruction->operand_count; ++i)
+    ZyanU8 imm_id = 0;
+    for (ZyanU8 i = 0; i < instruction->operand_count; ++i)
     {
         static const char* strings_operand_type[] =
         {
@@ -213,7 +213,7 @@ static void PrintOperands(ZydisDecodedInstruction* instruction)
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             if (instruction->operands[i].imm.is_signed)
             {
-                printf("  (%s %s %2d) 0x%016" PRIX64,
+                printf("  [%s %s %2d] 0x%016" PRIX64,
                     instruction->operands[i].imm.is_signed ? "S" : "U",
                     instruction->operands[i].imm.is_relative ? "R" : "_",
                     instruction->raw.imm[imm_id].size,
@@ -239,7 +239,7 @@ static void PrintOperands(ZydisDecodedInstruction* instruction)
     fputs("  --------  ---------------------------\n", stdout);
 }
 
-static void PrintFlags(ZydisDecodedInstruction* instruction)
+static void PrintFlags(const ZydisDecodedInstruction* instruction)
 {
     static const char* strings_flag_name[] =
     {
@@ -278,7 +278,7 @@ static void PrintFlags(ZydisDecodedInstruction* instruction)
     fputs("== [    FLAGS ] =====================================================", stdout);
     fputs("=======================================\n", stdout);
     printf("    ACTIONS: ");
-    uint8_t c = 0;
+    ZyanU8 c = 0;
     for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
         if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
@@ -307,7 +307,7 @@ static void PrintFlags(ZydisDecodedInstruction* instruction)
     printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
 }
 
-static void PrintAVXInfo(ZydisDecodedInstruction* instruction)
+static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
 {
     static const char* strings_broadcast_mode[] =
     {
@@ -397,7 +397,7 @@ static void PrintAVXInfo(ZydisDecodedInstruction* instruction)
     puts("");
 }
 
-static void PrintInstruction(ZydisDecodedInstruction* instruction)
+static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 {
     static const char* strings_opcode_map[] =
     {
@@ -413,7 +413,6 @@ static void PrintInstruction(ZydisDecodedInstruction* instruction)
 
     static const char* strings_instruction_encoding[] =
     {
-        "",
         "DEFAULT",
         "3DNOW",
         "XOP",
@@ -626,22 +625,22 @@ int main(int argc, char** argv)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
-    uint8_t length = 0;
-    for (uint8_t i = 0; i < argc - 2; ++i)
+    ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZyanU8 length = 0;
+    for (ZyanU8 i = 0; i < argc - 2; ++i)
     {
         if (length == ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
             fprintf(stderr, "Maximum number of %d bytes exceeded", ZYDIS_MAX_INSTRUCTION_LENGTH);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        const size_t len = strlen(argv[i + 2]);
+        const ZyanUSize len = strlen(argv[i + 2]);
         if (len % 2)
         {
             fputs("Even number of hex nibbles expected", stderr);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        for (uint8_t j = 0; j < len / 2; ++j)
+        for (ZyanU8 j = 0; j < len / 2; ++j)
         {
             unsigned value;
             if (!sscanf(&argv[i + 2][j * 2], "%02x", &value))
@@ -649,7 +648,7 @@ int main(int argc, char** argv)
                 fputs("Invalid hex value", stderr);
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
-            data[length] = (uint8_t)value;
+            data[length] = (ZyanU8)value;
             ++length;
         }
     }

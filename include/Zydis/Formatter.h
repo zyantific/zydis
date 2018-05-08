@@ -58,11 +58,16 @@ typedef enum ZydisFormatterStyle_
      * @brief   Generates intel-style disassembly.
      */
     ZYDIS_FORMATTER_STYLE_INTEL,
+    /**
+     * @brief   Generates MASM-style disassembly that is directly accepted as input for the MASM
+     *          assembler.
+     */
+    ZYDIS_FORMATTER_STYLE_INTEL_MASM,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL,
+    ZYDIS_FORMATTER_STYLE_MAX_VALUE = ZYDIS_FORMATTER_STYLE_INTEL_MASM,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
@@ -199,10 +204,21 @@ typedef enum ZydisAddressFormat_
      */
     ZYDIS_ADDR_FORMAT_ABSOLUTE,
     /**
+     * @brief   Uses unsigned hexadecimal values to display relative addresses.
+     *
+     * The offset is relative to the address of the NEXT instruction (instruction-pointer). The
+     * two byte infinity loop (`EB FE`) instruction is printed as `JMP 0xFE` for example.
+     *
+     * Examples:
+     * - `"JMP 0x20"`
+     * - `"JMP 0xE0"`
+     */
+    ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
+    /**
      * @brief   Uses signed hexadecimal values to display relative addresses.
      *
-     * Using this value will cause the formatter to either invoke
-     * `ZYDIS_FORMATTER_HOOK_PRINT_DISP` or `ZYDIS_FORMATTER_HOOK_PRINT_IMM` to format addresses.
+     * The offset is relative to the address of the NEXT instruction (instruction-pointer). The
+     * two byte infinity loop (`EB FE`) instruction is printed as `JMP -0x02` for example.
      *
      * Examples:
      * - `"JMP  0x20"`
@@ -210,21 +226,21 @@ typedef enum ZydisAddressFormat_
      */
     ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED,
     /**
-     * @brief   Uses unsigned hexadecimal values to display relative addresses.
+     * @brief   Uses signed hexadecimal values to display relative addresses that are accepted as
+     *          direct input by most assemblers (using the `$` marker).
      *
-     * Using this value will cause the formatter to either invoke
-     * `ZYDIS_FORMATTER_HOOK_PRINT_DISP` or `ZYDIS_FORMATTER_HOOK_PRINT_IMM` to format addresses.
+     * The offset is relative to the address of the CURRENT instruction (instruction-address). The
+     * two byte infinity loop (`EB FE`) instruction is printed as `JMP $+0x00` for example.
      *
-     * Examples:
-     * - `"JMP 0x20"`
-     * - `"JMP 0xE0"`
+     * Explicit printing of the `EIP`/`RIP` register is disabled for `EIP`/`RIP`-relative memory
+     * operands in this mode.
      */
-    ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
+    ZYDIS_ADDR_FORMAT_RELATIVE_ASSEMBLER,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
+    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_ASSEMBLER,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
