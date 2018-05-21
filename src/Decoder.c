@@ -1999,11 +1999,11 @@ FinalizeOperand:
     }
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
-    // Fix operand-action for EVEX instructions with merge-mask
+    // Fix operand-action for EVEX/MVEX instructions with merge-mask
     if (instruction->avx.mask.reg && (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         !instruction->avx.mask.isControlMask)
     {
-        ZYDIS_ASSERT(instruction->operandCount >= 2);
+        ZYDIS_ASSERT(instruction->operandCount >= 1);
         switch (instruction->operands[0].action)
         {
         case ZYDIS_OPERAND_ACTION_WRITE:
