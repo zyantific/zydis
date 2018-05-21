@@ -170,7 +170,10 @@
 #if __STDC_VERSION__ >= 201112L
 #   define ZYDIS_STATIC_ASSERT(x) _Static_assert(x, #x)
 #else
-#   define ZYDIS_STATIC_ASSERT(x) typedef int ZYDIS_SASSERT_IMPL[(x) ? 1 : -1]
+#   define ZYDIS_MACRO_CONCAT2(x, y) x##y
+#   define ZYDIS_MACRO_CONCAT(x, y) ZYDIS_MACRO_CONCAT2(x, y)
+#   define ZYDIS_STATIC_ASSERT(x) \
+        typedef int ZYDIS_MACRO_CONCAT(ZYDIS_SASSERT_, __COUNTER__) [(x) ? 1 : -1]
 #endif
 
 /**

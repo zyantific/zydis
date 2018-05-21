@@ -67,8 +67,16 @@ endif ()
 # Library configuration                                                                           #
 # =============================================================================================== #
 
-add_library("Zydis")
+function (_set_common_flags target)
+    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR
+        "${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
+        target_compile_options("${target}" PRIVATE "-std=c99")
+    endif ()
+endfunction ()
 
+add_library("Zydis")
+_set_common_flags("Zydis")
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
@@ -170,11 +178,13 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 if (ZYDIS_BUILD_EXAMPLES)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
         add_executable("FormatterHooks" "examples/FormatterHooks.c")
+        _set_common_flags("FormatterHooks")
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
         target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 
         add_executable("ZydisFuzzIn" "examples/ZydisFuzzIn.c")
+        _set_common_flags("ZydisFuzzIn")
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -187,6 +197,7 @@ if (ZYDIS_BUILD_EXAMPLES)
         endif ()
 
         add_executable("ZydisPerfTest" "examples/ZydisPerfTest.c")
+        _set_common_flags("ZydisPerfTest")
         target_link_libraries("ZydisPerfTest" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -209,6 +220,7 @@ endif ()
 if (ZYDIS_BUILD_TOOLS)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER)
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+        _set_common_flags("ZydisDisasm")
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -218,6 +230,7 @@ if (ZYDIS_BUILD_TOOLS)
         endif ()
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
+        _set_common_flags("ZydisInfo")
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
