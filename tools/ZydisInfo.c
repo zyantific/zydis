@@ -267,12 +267,13 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     };
     static const char* strings_flag_action[] =
     {
-        " ",
-        "T",
-        "M",
-        "0",
-        "1",
-        "U"
+        "   ",
+        "T  ",
+        "T_M",
+        "M  ",
+        "0  ",
+        "1  ",
+        "U  "
     };
 
     fputs("== [    FLAGS ] =====================================================", stdout);
@@ -296,8 +297,12 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
 
     ZydisCPUFlags flags, temp;
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED, &temp);
+    flags |= temp;
     printf("       READ: 0x%08" PRIX32 "\n", flags);
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED, &flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &temp);
+    flags |= temp;
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
     flags |= temp;
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);

@@ -517,11 +517,33 @@ typedef enum ZydisCPUFlag_
  */
 typedef enum ZydisCPUFlagAction_
 {
+    /**
+     * @brief   The CPU flag is not touched by the instruction.
+     */
     ZYDIS_CPUFLAG_ACTION_NONE,
+    /**
+     * @brief   The CPU flag is tested (read).
+     */
     ZYDIS_CPUFLAG_ACTION_TESTED,
+    /**
+     * @brief   The CPU flag is tested and modified aferwards (read-write).
+     */
+    ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED,
+    /**
+     * @brief   The CPU flag is modified (write).
+     */
     ZYDIS_CPUFLAG_ACTION_MODIFIED,
+    /**
+     * @brief   The CPU flag is set to 0 (write).
+     */
     ZYDIS_CPUFLAG_ACTION_SET_0,
+    /**
+     * @brief   The CPU flag is set to 1 (write).
+     */
     ZYDIS_CPUFLAG_ACTION_SET_1,
+    /**
+     * @brief   The CPU flag is undefined (write).
+     */
     ZYDIS_CPUFLAG_ACTION_UNDEFINED,
 
     /**

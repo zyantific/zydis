@@ -33,7 +33,6 @@
 #define ZYDIS_STATUS_H
 
 #include <Zycore/Status.h>
-#include <Zycore/Types.h>
 
 #ifdef __cplusplus
 extern "C" {
