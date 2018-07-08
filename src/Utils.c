@@ -113,7 +113,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* Flags                                                                                          */
+/* CPU Flags                                                                                      */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -123,10 +123,11 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
 ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlags* flags)
 {
-    if (!instruction)
+    if (!instruction || !flags)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
+
     *flags = 0;
     for (ZyanU8 i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
@@ -135,6 +136,37 @@ ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruct
             *flags |= (1 << i);
         }
     }
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisGetAccessedFlagsRead(const ZydisDecodedInstruction* instruction,
+    ZydisCPUFlags* flags)
+{
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, flags));
+    ZydisCPUFlags temp;
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED,
+        &temp));
+    *flags |= temp;
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisGetAccessedFlagsWritten(const ZydisDecodedInstruction* instruction,
+    ZydisCPUFlags* flags)
+{
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED,
+        flags));
+    ZydisCPUFlags temp;
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &temp));
+    *flags |= temp;
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp));
+    *flags |= temp;
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp));
+    *flags |= temp;
+    ZYAN_CHECK(ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &temp));
+    *flags |= temp;
+
     return ZYAN_STATUS_SUCCESS;
 }
 

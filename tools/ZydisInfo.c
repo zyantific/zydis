@@ -296,20 +296,13 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     puts(c ? "" : "none");
 
     ZydisCPUFlags flags, temp;
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED, &flags);
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED, &temp);
-    flags |= temp;
-    printf("       READ: 0x%08" PRIX32 "\n", flags);
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED, &flags);
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_MODIFIED, &temp);
-    flags |= temp;
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_0, &temp);
-    flags |= temp;
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_SET_1, &temp);
-    flags |= temp;
-    printf("    WRITTEN: 0x%08" PRIX32 "\n", flags);
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
-    printf("  UNDEFINED: 0x%08" PRIX32 "\n", flags);
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &temp);
+    ZydisGetAccessedFlagsRead(instruction, &flags);
+    printf("     TESTED: 0x%08" PRIX32 "\n", flags);
+    ZydisGetAccessedFlagsWritten(instruction, &flags);
+    flags &= ~temp;
+    printf("   MODIFIED: 0x%08" PRIX32 "\n", flags);
+    printf("  UNDEFINED: 0x%08" PRIX32 "\n", temp);
 }
 
 static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)

@@ -64,7 +64,7 @@ ZYDIS_EXPORT ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* 
     const ZydisDecodedOperand* operand, ZyanU64 runtime_address, ZyanU64* target_address);
 
 /* ============================================================================================== */
-/* Flags                                                                                          */
+/* CPU Flags                                                                                      */
 /* ============================================================================================== */
 
 /**
@@ -78,6 +78,29 @@ ZYDIS_EXPORT ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* 
  */
 ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
     ZydisCPUFlagAction action, ZydisCPUFlags* flags);
+
+/**
+ * @brief   Returns a mask of accessed CPU-flags that are read (tested) by the current instruction.
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   flags       A pointer to the variable that receives the flag mask.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsRead(const ZydisDecodedInstruction* instruction,
+    ZydisCPUFlags* flags);
+
+/**
+ * @brief   Returns a mask of accessed CPU-flags that are written (modified, undefined) by the
+ *          current instruction.
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   flags       A pointer to the variable that receives the flag mask.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsWritten(const ZydisDecodedInstruction* instruction,
+    ZydisCPUFlags* flags);
 
 /* ============================================================================================== */
 
