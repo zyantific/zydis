@@ -250,12 +250,13 @@ void printFlags(ZydisDecodedInstruction* instruction)
     };
     static const char* flagActions[] =
     {
-        " ",
-        "T",
-        "M",
-        "0",
-        "1",
-        "U"
+        "   ",
+        "T  ",
+        "T_M",
+        "M  ",
+        "0  ",
+        "1  ",
+        "U  "
     };
 
     fputs("== [    FLAGS ] =====================================================", stdout);
