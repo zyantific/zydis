@@ -66,6 +66,9 @@
 #elif defined(__linux)
 #   define ZYDIS_LINUX
 #   define ZYDIS_POSIX
+#elif defined(__FreeBSD__)
+#	define ZYDIS_FREEBSD
+#	define ZYDIS_POSIX
 #elif defined(__unix)
 #   define ZYDIS_UNIX
 #   define ZYDIS_POSIX
