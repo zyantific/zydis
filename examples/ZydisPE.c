@@ -24,12 +24,81 @@
 
 ***************************************************************************************************/
 
+#include <algorithm>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <Windows.h>
 #include <Zydis/Zydis.h>
+
+
+typedef unsigned int uint;
+
+inline uint ALIGN_DOWN(uint x, uint align)
+{
+    return (x & ~(align - 1));
+}
+
+inline uint ALIGN_UP(uint x, uint align)
+{
+    return ((x & (align - 1)) ? ALIGN_DOWN(x, align) + align : x);
+}
+
+/* ============================================================================================== */
+/* Custom Section search with RVA                                                                 */
+/* ============================================================================================== */
+
+/**
+ * @brief   Returns pointer to the section containing given @c RVA.
+ *
+ * @param   ntHeaders    Pointer to NT Header.
+ * @param   RVAddress    RVA.
+ *
+ * @return  Pointer to section containing given @c RVA or NULL if not found.
+ */
+PIMAGE_SECTION_HEADER GetSection(PIMAGE_NT_HEADERS ntHeaders, DWORD RVAddress)
+{
+    PIMAGE_SECTION_HEADER pSectHeader = IMAGE_FIRST_SECTION(ntHeaders);
+    for (int i = 0; i < ntHeaders->FileHeader.NumberOfSections; i++, ++pSectHeader)
+    {
+        DWORD sec_size = pSectHeader->SizeOfRawData;
+        if (pSectHeader->Misc.VirtualSize > 0)
+        {
+            sec_size = min(pSectHeader->Misc.VirtualSize, sec_size);
+        }
+        sec_size = ALIGN_UP(sec_size, ntHeaders->OptionalHeader.FileAlignment);
+        if ((RVAddress >= pSectHeader->VirtualAddress) &&
+            (RVAddress < (pSectHeader->VirtualAddress + sec_size))) {
+            return pSectHeader;
+        }
+    }
+    return NULL;
+}
+
+/* ============================================================================================== */
+/* Relative Virtual Address to address in file mapping                                            */
+/* ============================================================================================== */
+
+/**
+ * @brief   Converts relative virtual address to file offset.
+ *
+ * @param   pBase        Pointer to file in memory.
+ * @param   RVAddress    RVA to convert.
+ *
+ * @return  Address in file mapping corresponding to RVAddress or NULL.
+ */
+PDWORD RVA2RAW(uint8_t* pBase, DWORD RVAddress) {
+    auto pDosHeader = (PIMAGE_DOS_HEADER)pBase;
+    auto pHeader = (PIMAGE_NT_HEADERS)(pBase + pDosHeader->e_lfanew);
+    PIMAGE_SECTION_HEADER pSectHeader = GetSection(pHeader, RVAddress);
+    if (pSectHeader == NULL)
+    {
+        return PDWORD(pBase + RVAddress);
+    }
+    PDWORD address = PDWORD(pBase + pSectHeader->PointerToRawData + (RVAddress - pSectHeader->VirtualAddress));
+    return address;
+}
 
 /* ============================================================================================== */
 /* Custom Symbol Resolving                                                                        */
@@ -43,13 +112,13 @@
  *
  * @return  The name of the exported function at @c address or @c NULL.
  */
-static const char* GetExportName(HMODULE moduleHandle, uintptr_t address)
+static const char* GetExportName(void* pBase, uintptr_t address)
 {
-    if (!moduleHandle)
+    if (!pBase)
     {
         return NULL;
     }
-    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)moduleHandle;
+    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)pBase;
     if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
     {
         return NULL;
@@ -59,216 +128,45 @@ static const char* GetExportName(HMODULE moduleHandle, uintptr_t address)
     {
         return NULL;
     }
-    uintptr_t entryPoint = 
-        (uintptr_t)((uint8_t*)moduleHandle + ntHeaders->OptionalHeader.AddressOfEntryPoint);
+
+    DWORD imageBase;
+    PIMAGE_DATA_DIRECTORY pImageDataDirectory;
+
+    if (ntHeaders->OptionalHeader.Magic == 0x10b) {
+        auto opt_header32 = (PIMAGE_OPTIONAL_HEADER32)&(ntHeaders->OptionalHeader);
+        imageBase = opt_header32->ImageBase;
+        pImageDataDirectory = opt_header32->DataDirectory;
+    }
+    else {
+        auto opt_header64 = (PIMAGE_OPTIONAL_HEADER64)&(ntHeaders->OptionalHeader);
+        imageBase = opt_header64->ImageBase;
+        pImageDataDirectory = opt_header64->DataDirectory;
+    }
+    uintptr_t entryPoint =
+        (uintptr_t)(imageBase + ntHeaders->OptionalHeader.AddressOfEntryPoint);
     if (address == entryPoint)
     {
         return "EntryPoint";
     }
-    if (ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress)
+
+    if (pImageDataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress)
     {
         PIMAGE_EXPORT_DIRECTORY exportDirectory = 
-            (PIMAGE_EXPORT_DIRECTORY)((uint8_t*)moduleHandle + 
-                ntHeaders->OptionalHeader.DataDirectory[
-                    IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
-        PDWORD exportAddresses = 
-            (PDWORD)((uint8_t*)moduleHandle +exportDirectory->AddressOfFunctions);
-        PDWORD exportNames =
-            (PDWORD)((uint8_t*)moduleHandle + exportDirectory->AddressOfNames);
- 
+            (PIMAGE_EXPORT_DIRECTORY)RVA2RAW((uint8_t*)pBase,
+                pImageDataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
+
+        PDWORD exportAddresses = RVA2RAW((uint8_t*)pBase, exportDirectory->AddressOfFunctions);
+        PDWORD exportNames = RVA2RAW((uint8_t*)pBase, exportDirectory->AddressOfNames);
+
         for (uint32_t i = 0; i < exportDirectory->NumberOfFunctions; ++i)
         {
-            if (address == (uintptr_t)moduleHandle + exportAddresses[i])
+            if (address == (uintptr_t)(imageBase + exportAddresses[i]))
             {
-                return (const char*)moduleHandle + exportNames[i];     
+                auto exportName = RVA2RAW((uint8_t*)pBase, exportNames[i]);
+                return (const char*)exportName;
             }
         }
     }
-    return NULL;
-}
-
-/**
- * @brief   Inserts formatted text into the @c buffer at the given @c offset and increases the 
- *          @c offset by the length of the text.
- *
- * @param   buffer      A pointer to the target buffer.
- * @param   bufferLen   The length of the buffer.
- * @param   offset      A pointer to the buffer-offset.
- * @param   format      The format string.
- *
- * @return  A zydis status code.
- */
-static ZydisStatus ZydisBufferAppendFormat(char* buffer, size_t bufferLen, size_t* offset, 
-    const char* format, ...)
-{
-    va_list arglist;
-    va_start(arglist, format);
-    size_t n = bufferLen - *offset;
-    int w = vsnprintf(&buffer[*offset], n, format, arglist);
-    if ((w < 0) || ((size_t)w >= n))
-    {
-        va_end(arglist);
-        return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-    *offset += (size_t)w;
-    va_end(arglist);
-    return ZYDIS_STATUS_SUCCESS;
-}
-
-/**
- * @brief   Inserts the name of the exported function at @c address into the @c buffer at the given
- *          @c offset and increases the @c offset by the length of the name.
- *
- * @param   buffer          A pointer to the target buffer.
- * @param   bufferLen       The length of the buffer.
- * @param   offset          A pointer to the buffer-offset.
- * @param   moduleHandle    The module handle.
- * @param   address         The function address.
- *
- * @return  A zydis status code.
- */
-static ZydisStatus ZydisBufferAppendExport(char* buffer, size_t bufferLen, size_t* offset, 
-    HMODULE moduleHandle, uintptr_t address)
-{
-    const char* exportName = GetExportName(moduleHandle, address);
-    if (!exportName)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    char nameBuffer[MAX_PATH];
-    DWORD l = GetModuleFileNameA(moduleHandle, &nameBuffer[0], MAX_PATH);
-    if (l == 0)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    for (int i = l - 4; i >= 0; --i)
-    {
-        if (nameBuffer[i] == '\\')
-        {
-            memcpy(&nameBuffer[0], &nameBuffer[i + 1], l - i);
-            nameBuffer[l - i - 4] = 0;
-            break;
-        }
-    }
-    return ZydisBufferAppendFormat(buffer, bufferLen, offset, "%s%s", &nameBuffer[0], exportName); 
-}
-
-/**
- * @brief   Inserts the name of the imported function at @c address into the @c buffer at the given
- *          @c offset and increases the @c offset by the length of the name.
- *
- * @param   buffer          A pointer to the target buffer.
- * @param   bufferLen       The length of the buffer.
- * @param   offset          A pointer to the buffer-offset.
- * @param   moduleHandle    The module handle.
- * @param   address         The function address.
- *
- * @return  A zydis status code.
- */
-static ZydisStatus ZydisBufferAppendImport(char* buffer, size_t bufferLen, size_t* offset, 
-    HMODULE moduleHandle, uintptr_t address)
-{
-    if (!moduleHandle)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)moduleHandle;
-    if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    }
-    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)((uint8_t*)dosHeader + dosHeader->e_lfanew);
-    if (ntHeaders->Signature != IMAGE_NT_SIGNATURE)
-    {
-        return ZYDIS_STATUS_INVALID_PARAMETER;
-    } 
-
-    if (ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress)
-    {
-        PIMAGE_IMPORT_DESCRIPTOR descriptor = 
-            (PIMAGE_IMPORT_DESCRIPTOR)((uint8_t*)moduleHandle + 
-                ntHeaders->OptionalHeader.DataDirectory[
-                    IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
-        while (descriptor->OriginalFirstThunk)
-        {
-            const char* moduleName = (char*)((uint8_t*)moduleHandle + descriptor->Name);
-            PIMAGE_THUNK_DATA originalThunk = 
-                (PIMAGE_THUNK_DATA)((uint8_t*)moduleHandle + descriptor->OriginalFirstThunk);
-            PIMAGE_THUNK_DATA thunk = 
-                (PIMAGE_THUNK_DATA)((uint8_t*)moduleHandle + descriptor->FirstThunk);
-
-            while (originalThunk->u1.ForwarderString)
-            {
-                if (!(originalThunk->u1.Ordinal & 0x80000000))
-                {
-                    if (address == (uintptr_t)&thunk->u1.Function)
-                    {
-                        PIMAGE_IMPORT_BY_NAME import = (PIMAGE_IMPORT_BY_NAME)
-                            ((uint8_t*)moduleHandle + originalThunk->u1.AddressOfData); 
-                        ZydisStatus status = 
-                            ZydisBufferAppendFormat(buffer, bufferLen, offset, "%s", moduleName);
-                        if (!ZYDIS_SUCCESS(status))
-                        {
-                            return status;
-                        }
-                        *offset -= 3;
-                        buffer[*offset] = 0;
-                        return ZydisBufferAppendFormat(buffer, bufferLen, offset, "%s", 
-                            import->Name);
-                    }
-                }
-                ++originalThunk;
-                ++thunk;
-            }
-            ++descriptor;
-        }
-    }
-    return 1337 + 1000;
-}
-
-/**
- * @brief   Defines the @c ZydisPESymbolResolver struct.
- */
-typedef struct ZydisPESymbolResolver_
-{
-    ZydisCustomSymbolResolver resolver;
-    HMODULE moduleHandle;
-    char buffer[256];
-} ZydisPESymbolResolver;
-
-/**
- * @brief   The custom symbol resolver callback function.
- *
- * @param   context A pointer to the @c ZydisPESymbolResolver instance. 
- * @param   info    A pointer to the @c ZydisInstructionInfo struct. 
- * @param   operand A pointer to the @c ZydisOperandInfo struct.
- * @param   address The address.
- * @param   offset  A pointer to the memory that receives the optional symbol-offset.
- *
- * @return  The name of the resolved symbol or @c NULL, if no symbol was found at the given 
- *          @c address.
- */
-static const char* ResolveSymbol(ZydisPESymbolResolver* context, const ZydisInstructionInfo* info, 
-    const ZydisOperandInfo* operand, uint64_t address, int64_t* offset)
-{
-    (void)context;
-    (void)info;
-    (void)operand;
-    (void)address;
-
-    *offset = 0;   
-    size_t bufferOffset = 0;
-    if (ZYDIS_SUCCESS(ZydisBufferAppendExport(&context->buffer[0], sizeof(context->buffer), 
-        &bufferOffset, context->moduleHandle, (uintptr_t)address)))
-    {
-        return &context->buffer[0];
-    }
-    if (ZYDIS_SUCCESS(ZydisBufferAppendImport(&context->buffer[0], sizeof(context->buffer), 
-        &bufferOffset, context->moduleHandle, (uintptr_t)address)))
-    {
-        return &context->buffer[0]; 
-    }
-
     return NULL;
 }
 
@@ -278,158 +176,152 @@ static const char* ResolveSymbol(ZydisPESymbolResolver* context, const ZydisInst
 
 int main(int argc, char** argv)
 {
-
     if (argc != 2)
     {
         fprintf(stderr, "Usage: %s <input file>\n", (argc > 0 ? argv[0] : "ZydisPE"));
         return EXIT_FAILURE;
     }
 
-    // Load PE file
-    HMODULE hModule = LoadLibraryExA(argv[1], 0, LOAD_LIBRARY_AS_DATAFILE);
-    if (!hModule)
+    HANDLE hFile = CreateFileA(argv[1], GENERIC_READ, FILE_SHARE_READ, NULL,
+        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    if (hFile == INVALID_HANDLE_VALUE)
     {
-        fprintf(stderr, "Could not load PE file. Error code: %d\n", GetLastError());
+        fprintf(stderr, "Failed to open file. Error code: %d\n", GetLastError());
         return EXIT_FAILURE;
     }
-    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)hModule;
+    HANDLE hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+    if (hMapping == NULL)
+    {
+        fprintf(stderr, "Failed to create file mapping. Error code: %d\n", GetLastError());
+        CloseHandle(hFile);
+        return EXIT_FAILURE;
+    }
+
+    void* pBase = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
+
+    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)pBase;
     if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE)
     {
         fprintf(stderr, "Invalid file signature\n");
         goto FatalError;
     }
-    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)((uint8_t*)dosHeader + dosHeader->e_lfanew);
+    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)((uint8_t*)pBase + dosHeader->e_lfanew);
     if (ntHeaders->Signature != IMAGE_NT_SIGNATURE)
     {
         fprintf(stderr, "Invalid file signature\n");
         goto FatalError;
     }
 
-    // Determine disassembler-mode
-    ZydisDisassemblerMode disassemblerMode;
+    bool isPE32 = ntHeaders->OptionalHeader.Magic == 0x10b;
+    DWORD imageBase;
+
+    if (isPE32) {
+        PIMAGE_OPTIONAL_HEADER32 opt_header32 = (PIMAGE_OPTIONAL_HEADER32)&(ntHeaders->OptionalHeader);
+        imageBase = opt_header32->ImageBase;
+    }
+    else {
+        PIMAGE_OPTIONAL_HEADER64 opt_header64 = (PIMAGE_OPTIONAL_HEADER64)&(ntHeaders->OptionalHeader);
+        imageBase = opt_header64->ImageBase;
+    }
+
+    ZydisDecoder decoder;
+    ZydisMachineMode machineMode;
+    ZydisAddressWidth addressWidth;
+
     switch (ntHeaders->FileHeader.Machine)
     {
     case IMAGE_FILE_MACHINE_I386:
-        disassemblerMode = ZYDIS_DISASSEMBLER_MODE_32BIT;
+        machineMode = ZYDIS_MACHINE_MODE_LONG_COMPAT_32;
+        addressWidth = ZYDIS_ADDRESS_WIDTH_32;
         break;
     case IMAGE_FILE_MACHINE_IA64:
     case IMAGE_FILE_MACHINE_AMD64:
-        disassemblerMode = ZYDIS_DISASSEMBLER_MODE_64BIT;
+        machineMode = ZYDIS_MACHINE_MODE_LONG_64;
+        addressWidth = ZYDIS_ADDRESS_WIDTH_64;
         break;
     default:
         fprintf(stderr, "Invalid assembly format\n");
         goto FatalError;
     }
 
-    ZydisMemoryInput input;
-    ZydisInstructionDecoder decoder;
-    if (!ZYDIS_SUCCESS(ZydisDecoderInitInstructionDecoderEx(&decoder, disassemblerMode, 
-        (ZydisCustomInput*)&input, ZYDIS_DECODER_FLAG_SKIP_DATA))) 
-    {
-        fputs("Failed to initialize instruction-decoder\n", stderr);
+    if (!ZYDIS_SUCCESS(ZydisDecoderInit(&decoder, machineMode, addressWidth))) {
+        fprintf(stderr, "Failed to initialize decoder\n");
         goto FatalError;
     }
 
-    ZydisInstructionFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInitInstructionFormatterEx(&formatter,
-        ZYDIS_FORMATTER_STYLE_INTEL, ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SIZE | 
-        ZYDIS_FORMATTER_FLAG_ALWAYS_DISPLAY_MEMORY_SEGMENT)))
-    {
-        fputs("Failed to initialize instruction-formatter\n", stderr);
+    ZydisFormatter formatter;
+    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) {
+        fprintf(stderr, "Failed to initialize formatter\n");
         goto FatalError;
     }
-
-    // Initialize custom symbol resolver
-    ZydisPESymbolResolver resolver;
-    resolver.resolver.resolveSymbol = (ZydisResolverResolveSymbolFunc)&ResolveSymbol;
-    resolver.moduleHandle = hModule;
-    ZydisFormatterSetSymbolResolver(&formatter, (ZydisCustomSymbolResolver*)&resolver);
-
-    LARGE_INTEGER frequency;       
-    LARGE_INTEGER t1, t2;          
-    QueryPerformanceFrequency(&frequency);
-    QueryPerformanceCounter(&t1);
 
     // Disassemble all executable PE-sections
-    PIMAGE_SECTION_HEADER sectionHeader = (PIMAGE_SECTION_HEADER)((uint8_t*)ntHeaders + 
-        sizeof(IMAGE_NT_HEADERS) - sizeof(IMAGE_OPTIONAL_HEADER) + 
-        ntHeaders->FileHeader.SizeOfOptionalHeader);
+    PIMAGE_SECTION_HEADER sectionHeader = IMAGE_FIRST_SECTION(ntHeaders);
+
     for (int i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
     {
         if (sectionHeader->SizeOfRawData == 0)
         {
+            ++sectionHeader;
             continue;
         }
         if (!(sectionHeader->Characteristics & IMAGE_SCN_CNT_CODE))
         {
+            ++sectionHeader;
             continue;
         }
-        void* data = (void*)((uint8_t*)dosHeader + sectionHeader->VirtualAddress);
-        if (!ZYDIS_SUCCESS(ZydisDecoderSetInstructionPointer(&decoder, (uint64_t)data)))
+
+        uint8_t* data = (uint8_t*)pBase + sectionHeader->PointerToRawData;
+        size_t offset = 0;
+        size_t length = sectionHeader->SizeOfRawData;
+        ZydisDecodedInstruction instruction;
+
+        DWORD instructionPointer = imageBase + sectionHeader->VirtualAddress;
+
+        while (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(
+            &decoder, data + offset, length - offset,
+            uint64_t(instructionPointer + offset), &instruction)))
         {
-            fputs("Failed to set instruction-pointer\n", stderr);
-            goto FatalError;
-        }
-        if (!ZYDIS_SUCCESS(ZydisInputInitMemoryInput(&input, data, sectionHeader->SizeOfRawData)))
-        {
-            fputs("Failed to initialize memory-input\n", stderr);
-            goto FatalError;
-        }
-        char buffer[256];
-        ZydisInstructionInfo info;
-        while (ZYDIS_SUCCESS(ZydisDecoderDecodeNextInstruction(&decoder, &info)))
-        {
-            const char* symbol = GetExportName(hModule, (uintptr_t)info.instrAddress);
+            const char* symbol = GetExportName(pBase, instruction.instrAddress);
             if (symbol)
             {
                 printf("\n%s:\n", symbol);
             }
-            switch (info.mode)
+            switch (instruction.machineMode)
             {
-            case ZYDIS_DISASSEMBLER_MODE_16BIT:
-            case ZYDIS_DISASSEMBLER_MODE_32BIT:
-                printf("%08llX  ", info.instrAddress);
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+                printf("%08llX  ", instruction.instrAddress);
                 break;
-            case ZYDIS_DISASSEMBLER_MODE_64BIT:
-                printf("%016llX  ", info.instrAddress);
+            case ZYDIS_MACHINE_MODE_LONG_64:
+                printf("%08llX  ", instruction.instrAddress);
                 break;
             default:
                 break;
             }
-            for (int j = 0; j < info.length; ++j)
+            for (int j = 0; j < instruction.length; ++j)
             {
-                printf("%02X ", info.data[j]);    
+                printf("%02X ", instruction.data[j]);
             }
-            for (int j = info.length; j < 15; ++j)
+            for (int j = instruction.length; j < 15; ++j)
             {
-                printf("   ");    
-            }
-            if (info.instrFlags & ZYDIS_INSTRFLAG_ERROR_MASK)
-            {
-                printf(" db %02x\n", info.data[0]);    
-                continue;
+                printf("   ");
             }
 
-            if (!ZYDIS_SUCCESS(ZydisFormatterFormatInstruction(&formatter, &info, &buffer[0], 
-                sizeof(buffer))))
-            {
-                fputs("Failed to format decoded instruction\n", stderr);
-                goto FatalError;
-            }
-            printf(" %s\n", &buffer[0]);    
+            CHAR buffer[256];
+            ZydisFormatterFormatInstruction(
+                &formatter, &instruction, buffer, sizeof(buffer));
+            printf(" %s\n", buffer);
+
+            offset += instruction.length;
         }
         ++sectionHeader;
     }
 
-    QueryPerformanceCounter(&t2);
-    double elapsedTime = (t2.QuadPart - t1.QuadPart) * 1000.0 / frequency.QuadPart;
-    printf("\n%f", elapsedTime);
-
-    return EXIT_SUCCESS;
 
 FatalError:
-    FreeLibrary(hModule);
+    UnmapViewOfFile(hMapping);
+    CloseHandle(hMapping);
+    CloseHandle(hFile);
+
     return EXIT_FAILURE;
 }
-
-/* ============================================================================================== */
