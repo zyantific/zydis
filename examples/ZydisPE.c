@@ -1,26 +1,26 @@
 /***************************************************************************************************
 
-Zyan Disassembler Engine (Zydis)
+ Zyan Disassembler Engine (Zydis)
 
-Original Author : Florian Bernd
+ Original Author : Florian Bernd
 
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
 
 ***************************************************************************************************/
 
@@ -50,13 +50,13 @@ inline uint ALIGN_UP(uint x, uint align)
 /* ============================================================================================== */
 
 /**
-* @brief   Returns pointer to the section containing given @c RVA.
-*
-* @param   ntHeaders    Pointer to NT Header.
-* @param   RVAddress    RVA.
-*
-* @return  Pointer to section containing given @c RVA or NULL if not found.
-*/
+ * @brief   Returns pointer to the section containing given @c RVA.
+ *
+ * @param   ntHeaders    Pointer to NT Header.
+ * @param   RVAddress    RVA.
+ *
+ * @return  Pointer to section containing given @c RVA or NULL if not found.
+ */
 PIMAGE_SECTION_HEADER GetSection(PIMAGE_NT_HEADERS ntHeaders, DWORD RVAddress)
 {
     PIMAGE_SECTION_HEADER pSectHeader = IMAGE_FIRST_SECTION(ntHeaders);
@@ -81,13 +81,13 @@ PIMAGE_SECTION_HEADER GetSection(PIMAGE_NT_HEADERS ntHeaders, DWORD RVAddress)
 /* ============================================================================================== */
 
 /**
-* @brief   Converts relative virtual address to file offset.
-*
-* @param   pBase        Pointer to file in memory.
-* @param   RVAddress    RVA to convert.
-*
-* @return  Address in file mapping corresponding to RVAddress or NULL.
-*/
+ * @brief   Converts relative virtual address to file offset.
+ *
+ * @param   pBase        Pointer to file in memory.
+ * @param   RVAddress    RVA to convert.
+ *
+ * @return  Address in file mapping corresponding to RVAddress or NULL.
+ */
 PDWORD RVA2RAW(uint8_t* pBase, DWORD RVAddress) {
     auto pDosHeader = (PIMAGE_DOS_HEADER)pBase;
     auto pHeader = (PIMAGE_NT_HEADERS)(pBase + pDosHeader->e_lfanew);
@@ -105,13 +105,13 @@ PDWORD RVA2RAW(uint8_t* pBase, DWORD RVAddress) {
 /* ============================================================================================== */
 
 /**
-* @brief   Returns the name of the exported function at the given @c address.
-*
-* @param   moduleHandle    The module handle.
-* @param   address         The function address.
-*
-* @return  The name of the exported function at @c address or @c NULL.
-*/
+ * @brief   Returns the name of the exported function at the given @c address.
+ *
+ * @param   moduleHandle    The module handle.
+ * @param   address         The function address.
+ *
+ * @return  The name of the exported function at @c address or @c NULL.
+ */
 static const char* GetExportName(void* pBase, uintptr_t address)
 {
     if (!pBase)
