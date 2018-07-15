@@ -629,13 +629,13 @@ int main(int argc, char** argv)
     {
         if (length == ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
-            fprintf(stderr, "Maximum number of %d bytes exceeded", ZYDIS_MAX_INSTRUCTION_LENGTH);
+            fprintf(stderr, "Maximum number of %d bytes exceeded\n", ZYDIS_MAX_INSTRUCTION_LENGTH);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         const ZyanUSize len = strlen(argv[i + 2]);
         if (len % 2)
         {
-            fputs("Even number of hex nibbles expected", stderr);
+            fputs("Even number of hex nibbles expected\n", stderr);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         for (ZyanU8 j = 0; j < len / 2; ++j)
@@ -643,7 +643,7 @@ int main(int argc, char** argv)
             unsigned value;
             if (!sscanf(&argv[i + 2][j * 2], "%02x", &value))
             {
-                fputs("Invalid hex value", stderr);
+                fputs("Invalid hex value\n", stderr);
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             data[length] = (ZyanU8)value;
@@ -658,10 +658,10 @@ int main(int argc, char** argv)
         if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
         {
             fprintf(stderr,
-                "Could not decode instruction: User defined status code 0x%" PRIx32, status);
+                "Could not decode instruction: User defined status code 0x%" PRIx32 "\n", status);
         } else
         {
-            fprintf(stderr, "Could not decode instruction: %s", FormatZyanStatus(status));
+            fprintf(stderr, "Could not decode instruction: %s\n", FormatZyanStatus(status));
         }
         return status;
     }

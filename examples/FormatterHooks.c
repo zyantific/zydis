@@ -125,7 +125,7 @@ static const char* conditionCodeStrings[0x20] =
 /* ============================================================================================== */
 
 /**
- * @brief   Custom user data struct.
+ * @brief   Custom user data struct for the formatter.
  */
 typedef struct ZydisCustomUserData_
 {

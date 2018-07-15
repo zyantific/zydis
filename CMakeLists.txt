@@ -52,6 +52,8 @@ else ()
     add_library("Zydis" STATIC)
 endif ()
 
+# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_CURRENT_BINARY_DIR}/zycore" 
+#     EXCLUDE_FROM_ALL)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
 target_link_libraries("Zydis" PRIVATE "Zycore")
 
@@ -225,5 +227,16 @@ if (ZYDIS_BUILD_TOOLS)
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
         _maybe_set_emscripten_cfg("ZydisInfo")
         _maybe_enable_wpo("ZydisInfo")
+
+        if (WIN32)
+            # TODO: Enable this tool for all target platforms
+            add_executable("ZydisPE" "tools/ZydisPE.c")
+            target_link_libraries("ZydisPE" "Zycore")
+            target_link_libraries("ZydisPE" "Zydis")
+            set_target_properties ("ZydisPE" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisPE" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            _maybe_set_emscripten_cfg("ZydisPE")
+            _maybe_enable_wpo("ZydisPE")
+        endif ()
     endif ()
 endif ()
