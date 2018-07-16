@@ -24,15 +24,14 @@
 
 ***************************************************************************************************/
 
+#include <inttypes.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
 #include <Zydis/Zydis.h>
-#include <inttypes.h>
 
 #if defined(ZYAN_WINDOWS)
 #   include <Windows.h>
@@ -54,8 +53,8 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 #if defined(ZYAN_WINDOWS)
-double   counter_freq  = 0.0;
-uint64_t counter_start = 0;
+double  counter_freq  = 0.0;
+ZyanU64 counter_start = 0;
 
 static void StartCounter(void)
 {
@@ -76,7 +75,7 @@ static double GetCounter(void)
     return (double)(li.QuadPart - counter_start) / counter_freq;
 }
 #elif defined(ZYAN_APPLE)
-uint64_t counter_start = 0;
+ZyanU64 counter_start = 0;
 mach_timebase_info_data_t timebase_info;
 
 static void StartCounter(void)
@@ -86,7 +85,7 @@ static void StartCounter(void)
 
 static double GetCounter(void)
 {
-    uint64_t elapsed = mach_absolute_time() - counter_start;
+    ZyanU64 elapsed = mach_absolute_time() - counter_start;
 
     if (timebase_info.denom == 0)
     {
@@ -153,7 +152,7 @@ static void AdjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-static uint64_t ProcessBuffer(const char* buffer, size_t length, ZyanBool minimalMode,
+static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool minimalMode,
     ZyanBool format)
 {
     ZydisDecoder decoder;
@@ -184,8 +183,8 @@ static uint64_t ProcessBuffer(const char* buffer, size_t length, ZyanBool minima
         }
     }
 
-    uint64_t count = 0;
-    size_t offset = 0;
+    ZyanU64 count = 0;
+    ZyanUSize offset = 0;
     ZyanStatus status;
     ZydisDecodedInstruction instruction;
     char format_buffer[256];
@@ -210,16 +209,16 @@ static uint64_t ProcessBuffer(const char* buffer, size_t length, ZyanBool minima
     return count;
 }
 
-static void TestPerformance(const char* buffer, size_t length, ZyanBool minimalMode,
+static void TestPerformance(const char* buffer, ZyanUSize length, ZyanBool minimalMode,
     ZyanBool format)
 {
     // Cache warmup
     ProcessBuffer(buffer, length, minimalMode, format);
 
     // Testing
-    uint64_t count = 0;
+    ZyanU64 count = 0;
     StartCounter();
-    for (uint8_t j = 0; j < 100; ++j)
+    for (ZyanU8 j = 0; j < 100; ++j)
     {
         count += ProcessBuffer(buffer, length, minimalMode, format);
     }
@@ -227,7 +226,7 @@ static void TestPerformance(const char* buffer, size_t length, ZyanBool minimalM
         minimalMode, format, (double)count / 1000000, GetCounter());
 }
 
-static void GenerateTestData(FILE* file, uint8_t encoding)
+static void GenerateTestData(FILE* file, ZyanU8 encoding)
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(
@@ -237,17 +236,17 @@ static void GenerateTestData(FILE* file, uint8_t encoding)
         exit(EXIT_FAILURE);
     }
 
-    uint8_t last = 0;
-    uint32_t count = 0;
+    ZyanU8 last = 0;
+    ZyanU32 count = 0;
     ZydisDecodedInstruction instruction;
     while (count < 100000)
     {
-        uint8_t data[ZYDIS_MAX_INSTRUCTION_LENGTH];
+        ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
         for (int i = 0; i < ZYDIS_MAX_INSTRUCTION_LENGTH; ++i)
         {
             data[i] = rand() % 256;
         }
-        const uint8_t offset = rand() % (ZYDIS_MAX_INSTRUCTION_LENGTH - 2);
+        const ZyanU8 offset = rand() % (ZYDIS_MAX_INSTRUCTION_LENGTH - 2);
         switch (encoding)
         {
         case 0:
@@ -304,7 +303,7 @@ static void GenerateTestData(FILE* file, uint8_t encoding)
                 fwrite(&instruction.data[0], 1, instruction.length, file);
                 ++count;
 
-                const uint8_t p = (uint8_t)((double)count / 100000 * 100);
+                const ZyanU8 p = (ZyanU8)((double)count / 100000 * 100);
                 if (last < p)
                 {
                     last = p;
@@ -365,11 +364,11 @@ int main(int argc, char** argv)
         AdjustProcessAndThreadPriority();
     }
 
-    for (uint8_t i = 0; i < ZYAN_ARRAY_LENGTH(tests); ++i)
+    for (ZyanU8 i = 0; i < ZYAN_ARRAY_LENGTH(tests); ++i)
     {
         FILE* file;
 
-        const size_t len = strlen(directory);
+        const ZyanUSize len = strlen(directory);
         char buf[1024];
         strncpy(&buf[0], directory, sizeof(buf) - 1);
         if (generate)
@@ -381,7 +380,7 @@ int main(int argc, char** argv)
         }
         if (!file)
         {
-            fprintf(stderr, "Can not open file \"%s\": %s\n", &buf[0], strerror(errno));
+            fprintf(stderr, "Could not open file \"%s\": %s\n", &buf[0], strerror(errno));
             continue;
         }
 
@@ -397,15 +396,15 @@ int main(int argc, char** argv)
             if (!buffer)
             {
                 fprintf(stderr,
-                    "Failed to allocate %" PRIu64 " bytes on the heap", (uint64_t)length);
+                    "Failed to allocate %" PRIu64 " bytes on the heap\n", (ZyanU64)length);
                 goto NextFile2;
             }
 
             rewind(file);
-            if (fread(buffer, 1, length, file) != (size_t)length)
+            if (fread(buffer, 1, length, file) != (ZyanUSize)length)
             {
                 fprintf(stderr,
-                    "Could not read %" PRIu64 " bytes from file \"%s\"", (uint64_t)length, &buf[0]);
+                    "Could not read %" PRIu64 " bytes from file \"%s\"\n", (ZyanU64)length, &buf[0]);
                 goto NextFile1;
             }
 

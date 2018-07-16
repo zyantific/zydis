@@ -30,8 +30,8 @@
  *          instruction, the operands and additional attributes.
  */
 
-#include <stdio.h>
 #include <inttypes.h>
+#include <stdio.h>
 #include <Zydis/Zydis.h>
 
 /* ============================================================================================== */
