@@ -332,7 +332,7 @@ typedef struct ZydisPESymbol_
     /**
      * @brief   The virtual address of the symbol.
      */
-    ZyanUPointer address;
+    ZyanU64 address;
     /**
      * @brief   The module string.
      */
@@ -367,7 +367,7 @@ typedef struct ZydisPEContext_
     /**
      * @brief   The desired image-base of the PE-file.
      */
-    ZyanUPointer image_base;
+    ZyanU64 image_base;
 } ZydisPEContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -412,7 +412,7 @@ static ZyanI8 CompareSymbol(const void* left, const void* right)
  *
  * @return  A pointer to a `IMAGE_SECTION_HEADER` struct, or `ZYAN_NULL`.
  */
-static const IMAGE_SECTION_HEADER* GetSectionByRVA(const void* base, ZyanUPointer rva)
+static const IMAGE_SECTION_HEADER* GetSectionByRVA(const void* base, ZyanU64 rva)
 {
     ZYAN_ASSERT(base);
 
@@ -883,13 +883,13 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
 
         const ZyanU8* buffer = (ZyanU8*)context->base + section_header->PointerToRawData;
         const ZyanUSize buffer_size = section_header->SizeOfRawData;
-        const ZyanUPointer read_offset_base = context->image_base + section_header->VirtualAddress;
+        const ZyanU64 read_offset_base = context->image_base + section_header->VirtualAddress;
 
         ZyanUSize read_offset = 0;
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
             buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            const ZyanUPointer runtime_address = read_offset_base + read_offset;
+            const ZyanU64 runtime_address = read_offset_base + read_offset;
 
             ZydisPESymbol symbol;
             symbol.address = runtime_address - context->image_base;
