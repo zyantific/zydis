@@ -65,40 +65,46 @@ static const char* decimalLookup =
 /* Formatting                                                                                     */
 /* ---------------------------------------------------------------------------------------------- */
 
+#define ZYDIS_MAX(a, b) (((a) > (b)) ? (a) : (b))
+
 #if defined(ZYDIS_X86) || defined(ZYDIS_ARM)
-ZydisStatus ZydisStringAppendDecU32(ZydisString* string, ZydisU32 value, ZydisU8 paddingLength)
+ZydisStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZydisU8 padding_length)
 {
     ZYDIS_ASSERT(string);
     ZYDIS_ASSERT(string->buffer);
 
-    char temp[ZYDIS_MAXCHARS_DEC_32 + 1];
-    char *p = &temp[ZYDIS_MAXCHARS_DEC_32];
+    char temp[ZYDIS_MAXCHARS_DEC_32];
+    char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_32];
+    char *write_ptr = temp_end;
     while (value >= 100)
     {
-        ZydisU32 const old = value;
-        p -= 2;
+        const ZyanU32 old = value;
+        write_ptr -= 2;
         value /= 100;
-        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], sizeof(ZydisU16));
+        ZydisMemoryCopy(write_ptr, &decimalLookup[(old - (value * 100)) * 2], 2);
     }
-    p -= 2;
-    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(ZydisU16));
+    write_ptr -= 2;
+    ZydisMemoryCopy(write_ptr, &decimalLookup[value * 2], 2);
 
-    const ZydisUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
-    if ((string->capacity - string->length < (ZydisUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZydisUSize)(paddingLength + 1)))
+    const ZydisUSize odd_len_offs = (ZydisUSize)(value < 10);
+    const ZydisUSize effective_length = temp_end - write_ptr - odd_len_offs;
+    const ZydisUSize total_length = ZYDIS_MAX(effective_length, padding_length);
+
+    if (string->length + total_length > string->capacity)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZydisUSize offset = 0;
-    if (n <= paddingLength)
+    if (padding_length > effective_length)
     {
-        offset = paddingLength - n + 1;
+        offset = padding_length - effective_length;
         ZydisMemorySet(string->buffer + string->length, '0', offset);
     }
 
-    ZydisMemoryCopy(string->buffer + string->length + offset, &p[value < 10], n + 1);
-    string->length += n + offset - (ZydisU8)(value < 10);
+    ZydisMemoryCopy(string->buffer + string->length + offset,
+        write_ptr + odd_len_offs, effective_length);
+    string->length += total_length;
 
     return ZYDIS_STATUS_SUCCESS;
 }
@@ -181,39 +187,43 @@ ZydisStatus ZydisStringAppendHexU32(ZydisString* string, ZydisU32 value, ZydisU8
 }
 #endif
 
-ZydisStatus ZydisStringAppendDecU64(ZydisString* string, ZydisU64 value, ZydisU8 paddingLength)
+ZydisStatus ZydisStringAppendDecU64(ZydisString* string, ZydisU64 value, ZydisU8 padding_length)
 {
     ZYDIS_ASSERT(string);
     ZYDIS_ASSERT(string->buffer);
 
-    char temp[ZYDIS_MAXCHARS_DEC_64 + 1];
-    char *p = &temp[ZYDIS_MAXCHARS_DEC_64];
+    char temp[ZYDIS_MAXCHARS_DEC_64];
+    char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_64];
+    char *write_ptr = temp_end;
     while (value >= 100)
     {
-        ZydisU64 const old = value;
-        p -= 2;
+        const ZydisU64 old = value;
+        write_ptr -= 2;
         value /= 100;
-        ZydisMemoryCopy(p, &decimalLookup[(old - (value * 100)) * 2], 2);
+        ZydisMemoryCopy(write_ptr, &decimalLookup[(old - (value * 100)) * 2], 2);
     }
-    p -= 2;
-    ZydisMemoryCopy(p, &decimalLookup[value * 2], sizeof(ZydisU16));
+    write_ptr -= 2;
+    ZydisMemoryCopy(write_ptr, &decimalLookup[value * 2], 2);
 
-    const ZydisUSize n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
-    if ((string->capacity - string->length < (ZydisUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZydisUSize)(paddingLength + 1)))
+    const ZydisUSize odd_len_offs = (ZydisUSize)(value < 10);
+    const ZydisUSize effective_length = temp_end - write_ptr - odd_len_offs;
+    const ZydisUSize total_length = ZYDIS_MAX(effective_length, padding_length);
+
+    if (string->length + total_length > string->capacity)
     {
         return ZYDIS_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZydisUSize offset = 0;
-    if (n <= paddingLength)
+    if (padding_length > effective_length)
     {
-        offset = paddingLength - n + 1;
+        offset = padding_length - effective_length;
         ZydisMemorySet(string->buffer + string->length, '0', offset);
     }
 
-    ZydisMemoryCopy(string->buffer + string->length + offset, &p[value < 10], n + 1);
-    string->length += n + offset - (ZydisU8)(value < 10);
+    ZydisMemoryCopy(string->buffer + string->length + offset,
+        write_ptr + odd_len_offs, effective_length);
+    string->length += total_length;
 
     return ZYDIS_STATUS_SUCCESS;
 }
