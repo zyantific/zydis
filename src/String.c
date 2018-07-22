@@ -71,7 +71,7 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     ZYAN_ASSERT(string);
     ZYAN_ASSERT(string->buffer);
 
-    char temp[ZYDIS_MAXCHARS_DEC_32 + 1];
+    char temp[ZYDIS_MAXCHARS_DEC_32];
     char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_32];
     char *write_ptr = temp_end;
     while (value >= 100)
@@ -84,8 +84,8 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     write_ptr -= 2;
     ZYAN_MEMCPY(write_ptr, &decimal_lookup[value * 2], 2);
 
-    const ZyanBool has_odd_length = value < 10;
-    const ZyanUSize effective_length = temp_end - write_ptr - (ZyanUSize)has_odd_length;
+    const ZyanUSize odd_len_offs = (ZyanUSize)(value < 10);
+    const ZyanUSize effective_length = temp_end - write_ptr - odd_len_offs;
     const ZyanUSize total_length = ZYAN_MAX(effective_length, padding_length);
 
     if (string->length + total_length > string->capacity)
@@ -101,7 +101,7 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     }
 
     ZYAN_MEMCPY(string->buffer + string->length + offset,
-        write_ptr + has_odd_length, effective_length);
+        write_ptr + odd_len_offs, effective_length);
     string->length += total_length;
 
     return ZYAN_STATUS_SUCCESS;
@@ -190,7 +190,7 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     ZYAN_ASSERT(string);
     ZYAN_ASSERT(string->buffer);
 
-    char temp[ZYDIS_MAXCHARS_DEC_64 + 1];
+    char temp[ZYDIS_MAXCHARS_DEC_64];
     char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_64];
     char *write_ptr = temp_end;
     while (value >= 100)
@@ -203,8 +203,8 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     write_ptr -= 2;
     ZYAN_MEMCPY(write_ptr, &decimal_lookup[value * 2], 2);
 
-    const ZyanBool has_odd_length = value < 10;
-    const ZyanUSize effective_length = temp_end - write_ptr - (ZyanUSize)has_odd_length;
+    const ZyanUSize odd_len_offs = (ZyanUSize)(value < 10);
+    const ZyanUSize effective_length = temp_end - write_ptr - odd_len_offs;
     const ZyanUSize total_length = ZYAN_MAX(effective_length, padding_length);
 
     if (string->length + total_length > string->capacity)
@@ -220,7 +220,7 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     }
 
     ZYAN_MEMCPY(string->buffer + string->length + offset,
-        write_ptr + has_odd_length, effective_length);
+        write_ptr + odd_len_offs, effective_length);
     string->length += total_length;
 
     return ZYAN_STATUS_SUCCESS;
