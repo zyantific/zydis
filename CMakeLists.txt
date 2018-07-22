@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
 
-project(Zydis VERSION 2.0)
+project(Zydis VERSION 2.0.2)
 
 # =============================================================================================== #
 # Overridable options                                                                             #
