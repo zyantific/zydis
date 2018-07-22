@@ -72,33 +72,37 @@ ZyanStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZyanU8 pa
     ZYAN_ASSERT(string->buffer);
 
     char temp[ZYDIS_MAXCHARS_DEC_32 + 1];
-    char *p = &temp[ZYDIS_MAXCHARS_DEC_32];
+    char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_32];
+    char *write_ptr = temp_end;
     while (value >= 100)
     {
-        ZyanU32 const old = value;
-        p -= 2;
+        const ZyanU32 old = value;
+        write_ptr -= 2;
         value /= 100;
-        ZYAN_MEMCPY(p, &decimal_lookup[(old - (value * 100)) * 2], sizeof(ZyanU16));
+        ZYAN_MEMCPY(write_ptr, &decimal_lookup[(old - (value * 100)) * 2], 2);
     }
-    p -= 2;
-    ZYAN_MEMCPY(p, &decimal_lookup[value * 2], sizeof(ZyanU16));
+    write_ptr -= 2;
+    ZYAN_MEMCPY(write_ptr, &decimal_lookup[value * 2], 2);
 
-    const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_32] - p;
-    if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZyanUSize)(padding_length + 1)))
+    const ZyanBool has_odd_length = value < 10;
+    const ZyanUSize effective_length = temp_end - write_ptr - (ZyanUSize)has_odd_length;
+    const ZyanUSize total_length = ZYAN_MAX(effective_length, padding_length);
+
+    if (string->length + total_length > string->capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZyanUSize offset = 0;
-    if (n <= padding_length)
+    if (padding_length > effective_length)
     {
-        offset = padding_length - n + 1;
+        offset = padding_length - effective_length;
         ZYAN_MEMSET(string->buffer + string->length, '0', offset);
     }
 
-    ZYAN_MEMCPY(string->buffer + string->length + offset, &p[value < 10], n + 1);
-    string->length += n + offset - (ZyanU8)(value < 10);
+    ZYAN_MEMCPY(string->buffer + string->length + offset,
+        write_ptr + has_odd_length, effective_length);
+    string->length += total_length;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -187,33 +191,37 @@ ZyanStatus ZydisStringAppendDecU64(ZydisString* string, ZyanU64 value, ZyanU8 pa
     ZYAN_ASSERT(string->buffer);
 
     char temp[ZYDIS_MAXCHARS_DEC_64 + 1];
-    char *p = &temp[ZYDIS_MAXCHARS_DEC_64];
+    char *temp_end = &temp[ZYDIS_MAXCHARS_DEC_64];
+    char *write_ptr = temp_end;
     while (value >= 100)
     {
-        ZyanU64 const old = value;
-        p -= 2;
+        const ZyanU64 old = value;
+        write_ptr -= 2;
         value /= 100;
-        ZYAN_MEMCPY(p, &decimal_lookup[(old - (value * 100)) * 2], 2);
+        ZYAN_MEMCPY(write_ptr, &decimal_lookup[(old - (value * 100)) * 2], 2);
     }
-    p -= 2;
-    ZYAN_MEMCPY(p, &decimal_lookup[value * 2], sizeof(ZyanU16));
+    write_ptr -= 2;
+    ZYAN_MEMCPY(write_ptr, &decimal_lookup[value * 2], 2);
 
-    const ZyanUSize n = &temp[ZYDIS_MAXCHARS_DEC_64] - p;
-    if ((string->capacity - string->length < (ZyanUSize)(n + 1)) ||
-        (string->capacity - string->length < (ZyanUSize)(padding_length + 1)))
+    const ZyanBool has_odd_length = value < 10;
+    const ZyanUSize effective_length = temp_end - write_ptr - (ZyanUSize)has_odd_length;
+    const ZyanUSize total_length = ZYAN_MAX(effective_length, padding_length);
+
+    if (string->length + total_length > string->capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
     ZyanUSize offset = 0;
-    if (n <= padding_length)
+    if (padding_length > effective_length)
     {
-        offset = padding_length - n + 1;
+        offset = padding_length - effective_length;
         ZYAN_MEMSET(string->buffer + string->length, '0', offset);
     }
 
-    ZYAN_MEMCPY(string->buffer + string->length + offset, &p[value < 10], n + 1);
-    string->length += n + offset - (ZyanU8)(value < 10);
+    ZYAN_MEMCPY(string->buffer + string->length + offset,
+        write_ptr + has_odd_length, effective_length);
+    string->length += total_length;
 
     return ZYAN_STATUS_SUCCESS;
 }
