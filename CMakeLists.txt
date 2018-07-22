@@ -43,6 +43,14 @@ option(ZYDIS_FUZZ_AFL_FAST
     OFF)
 
 # =============================================================================================== #
+# Dependencies                                                                                    #
+# =============================================================================================== #
+
+# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_CURRENT_BINARY_DIR}/zycore"
+#     EXCLUDE_FROM_ALL)
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
+
+# =============================================================================================== #
 # Library configuration                                                                           #
 # =============================================================================================== #
 
@@ -52,11 +60,8 @@ else ()
     add_library("Zydis" STATIC)
 endif ()
 
-# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_CURRENT_BINARY_DIR}/zycore" 
-#     EXCLUDE_FROM_ALL)
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
+zycore_set_common_flags("Zydis")
 target_link_libraries("Zydis" PRIVATE "Zycore")
-
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
@@ -67,14 +72,6 @@ if (ZYDIS_WHOLE_PROGRAM_OPTIMIZATION AND MSVC)
     set_target_properties("Zydis" PROPERTIES STATIC_LIBRARY_FLAGS_RELEASE "/LTCG")
 endif ()
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
-
-if (NOT ZYDIS_FEATURE_ENCODER AND NOT ZYDIS_FEATURE_DECODER)
-    message(
-        FATAL_ERROR
-        "\nIt's dangerous to go alone! Take at least one of these:\n"
-        "[ ] ZYDIS_FEATURE_ENCODER [ ] ZYDIS_FEATURE_DECODER"
-    )
-endif ()
 
 if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
     message(
@@ -151,11 +148,11 @@ install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 function (_maybe_set_emscripten_cfg target)
     if (EMSCRIPTEN)
         # Yep, that madness below is how Emscripten likes its quotes.
-        set_target_properties("${target}" 
-            PROPERTIES COMPILE_FLAGS 
+        set_target_properties("${target}"
+            PROPERTIES COMPILE_FLAGS
             "-s \"EXPORT_NAME='${target}'\" -s MODULARIZE=1")
-        set_target_properties("${target}" 
-            PROPERTIES LINK_FLAGS_RELEASE 
+        set_target_properties("${target}"
+            PROPERTIES LINK_FLAGS_RELEASE
             "-s \"EXPORT_NAME='${target}'\" -s MODULARIZE=1")
     endif ()
 endfunction ()
@@ -178,13 +175,16 @@ if (ZYDIS_BUILD_EXAMPLES)
         target_link_libraries("FormatterHooks" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples/Formatter")
         target_compile_definitions("FormatterHooks" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("FormatterHooks")
         _maybe_set_emscripten_cfg("FormatterHooks")
+        _maybe_enable_wpo("FormatterHooks")
 
         add_executable("ZydisFuzzIn" "examples/ZydisFuzzIn.c")
         target_link_libraries("ZydisFuzzIn" "Zycore")
         target_link_libraries("ZydisFuzzIn" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("ZydisFuzzIn")
         _maybe_set_emscripten_cfg("ZydisFuzzIn")
         _maybe_enable_wpo("ZydisFuzzIn")
         if (ZYDIS_FUZZ_AFL_FAST)
@@ -196,6 +196,7 @@ if (ZYDIS_BUILD_EXAMPLES)
         target_link_libraries("ZydisPerfTest" "Zydis")
         set_target_properties("FormatterHooks" PROPERTIES FOLDER "Examples")
         target_compile_definitions("ZydisPerfTest" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("ZydisPerfTest")
         _maybe_set_emscripten_cfg("ZydisPerfTest")
         _maybe_enable_wpo("ZydisPerfTest")
         if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -217,6 +218,7 @@ if (ZYDIS_BUILD_TOOLS)
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("ZydisDisasm")
         _maybe_set_emscripten_cfg("ZydisDisasm")
         _maybe_enable_wpo("ZydisDisasm")
 
@@ -225,6 +227,7 @@ if (ZYDIS_BUILD_TOOLS)
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("ZydisInfo")
         _maybe_set_emscripten_cfg("ZydisInfo")
         _maybe_enable_wpo("ZydisInfo")
 
@@ -233,6 +236,7 @@ if (ZYDIS_BUILD_TOOLS)
         target_link_libraries("ZydisPE" "Zydis")
         set_target_properties ("ZydisPE" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisPE" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zycore_set_common_flags("ZydisPE")
         _maybe_set_emscripten_cfg("ZydisPE")
         _maybe_enable_wpo("ZydisPE")
     endif ()

@@ -94,3 +94,5 @@ msvc/**/obj/
 msvc/**/bin/
 
 doc/html
+
+.vscode
