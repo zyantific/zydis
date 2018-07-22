@@ -68,7 +68,7 @@ static const char* decimalLookup =
 #define ZYDIS_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #if defined(ZYDIS_X86) || defined(ZYDIS_ARM)
-ZydisStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZydisU8 padding_length)
+ZydisStatus ZydisStringAppendDecU32(ZydisString* string, ZydisU32 value, ZydisU8 padding_length)
 {
     ZYDIS_ASSERT(string);
     ZYDIS_ASSERT(string->buffer);
@@ -78,7 +78,7 @@ ZydisStatus ZydisStringAppendDecU32(ZydisString* string, ZyanU32 value, ZydisU8 
     char *write_ptr = temp_end;
     while (value >= 100)
     {
-        const ZyanU32 old = value;
+        const ZydisU32 old = value;
         write_ptr -= 2;
         value /= 100;
         ZydisMemoryCopy(write_ptr, &decimalLookup[(old - (value * 100)) * 2], 2);
