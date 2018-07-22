@@ -108,6 +108,15 @@ Either use the [Visual Studio 2017 project](https://github.com/zyantific/zydis/t
 ## `ZydisInfo` tool
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
 
+## Bindings
+
+Official bindings exist for a selection of languages:
+- [Rust](https://github.com/zyantific/zydis-rs)
+- [Pascal](https://github.com/zyantific/zydis-pascal)
+
+Inofficial but actively maintained bindings:
+- [Python 3](https://github.com/novogen/pydis)
+
 ## Credits
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
 - [LLVM](https://llvm.org) (for providing pretty solid instruction data as well)
