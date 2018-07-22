@@ -41,6 +41,10 @@
 #elif defined(ZYDIS_LINUX)
 #   include <sys/time.h>
 #   include <pthread.h>
+#elif defined(ZYDIS_FREEBSD)
+#   include <sys/time.h>
+#   include <pthread.h>
+#   include <pthread_np.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -95,7 +99,7 @@ double GetCounter()
 
     return (double)elapsed * timebaseInfo.numer / timebaseInfo.denom / 1000000;
 }
-#elif defined(ZYDIS_LINUX)
+#elif defined(ZYDIS_LINUX) || defined(ZYDIS_FREEBSD)
 struct timeval t1;
 
 void StartCounter()
@@ -138,9 +142,15 @@ void adjustProcessAndThreadPriority()
         }
     }
 #endif
-#ifdef ZYDIS_LINUX
+#if defined(ZYDIS_LINUX)
     pthread_t thread = pthread_self();
     cpu_set_t cpus;
+    CPU_ZERO(&cpus);
+    CPU_SET(0, &cpus);
+    pthread_setaffinity_np(thread, sizeof(cpus), &cpus);
+#elif defined(ZYDIS_FREEBSD)
+    pthread_t thread = pthread_self();
+    cpuset_t cpus;
     CPU_ZERO(&cpus);
     CPU_SET(0, &cpus);
     pthread_setaffinity_np(thread, sizeof(cpus), &cpus);

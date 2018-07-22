@@ -1999,11 +1999,11 @@ FinalizeOperand:
     }
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
-    // Fix operand-action for EVEX instructions with merge-mask
+    // Fix operand-action for EVEX/MVEX instructions with merge-mask
     if (instruction->avx.mask.reg && (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE) &&
         !instruction->avx.mask.isControlMask)
     {
-        ZYDIS_ASSERT(instruction->operandCount >= 2);
+        ZYDIS_ASSERT(instruction->operandCount >= 1);
         switch (instruction->operands[0].action)
         {
         case ZYDIS_OPERAND_ACTION_WRITE:
@@ -4231,8 +4231,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     case ZYDIS_REG_CONSTRAINTS_MASK:
         break;
     case ZYDIS_REG_CONSTRAINTS_BND:
-        ZYDIS_ASSERT(!context->cache.X);
-        if (context->cache.B || instruction->raw.modrm.rm > 3)
+        if (context->cache.B || context->cache.X || instruction->raw.modrm.rm > 3)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
@@ -4293,7 +4292,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             dest  = dest  | (context->cache.R << 3) | (context->cache.R2 << 4);
             index = index | (context->cache.X << 3) | (context->cache.V2 << 4);
         }
-        ZydisU8 mask  = 0xFF;
+        ZydisU8 mask  = 0xF0;
 
         switch (instruction->encoding)
         {
@@ -4312,10 +4311,18 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-            ZYDIS_ASSERT((constrREG    == ZYDIS_REG_CONSTRAINTS_NONE) &&
-                         (constrRM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
-                         (constrNDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
-            break;
+            ZYDIS_ASSERT(((constrREG    == ZYDIS_REG_CONSTRAINTS_UNUSED) ||
+                          (constrREG    == ZYDIS_REG_CONSTRAINTS_NONE)) &&
+                          (constrRM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
+                          (constrNDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
+
+             // Some gather instructions (like `VGATHERPF0{D|Q}{PS|PD}`) doe not have a destination
+             // operand
+             if (constrREG == ZYDIS_REG_CONSTRAINTS_UNUSED)
+             {
+                 dest = 0xF1;
+             }
+             break;
         default:
             ZYDIS_UNREACHABLE;
         }

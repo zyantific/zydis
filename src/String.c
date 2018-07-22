@@ -134,6 +134,11 @@ ZydisStatus ZydisStringAppendHexU32(ZydisString* string, ZydisU32 value, ZydisU8
         ZydisMemorySet(buffer, '0', n);
         string->length += n;
 
+        if (suffix)
+        {
+            ZYDIS_CHECK(ZydisStringAppend(string, suffix));
+        }
+
         return ZYDIS_STATUS_SUCCESS;
     }
 
@@ -243,6 +248,11 @@ ZydisStatus ZydisStringAppendHexU64(ZydisString* string, ZydisU64 value, ZydisU8
 
         ZydisMemorySet(buffer, '0', n);
         string->length += n;
+
+        if (suffix)
+        {
+            ZYDIS_CHECK(ZydisStringAppend(string, suffix));
+        }
 
         return ZYDIS_STATUS_SUCCESS;
     }

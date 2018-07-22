@@ -64,7 +64,7 @@ extern "C" {
 /**
  * @brief   A macro that defines the zydis version.
  */
-#define ZYDIS_VERSION (ZydisU64)0x0002000000010000
+#define ZYDIS_VERSION (ZydisU64)0x0002000000020000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
