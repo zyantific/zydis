@@ -142,7 +142,8 @@ static ZydisStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
     userData->ommitImmediate = ZYDIS_TRUE;
 
     // Rewrite the instruction-mnemonic for the given instructions
-    if (instruction->operands[instruction->operandCount - 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE)
+    if (instruction->operandCount &&
+        instruction->operands[instruction->operandCount - 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE)
     {
         const ZydisU8 conditionCode =
             (ZydisU8)instruction->operands[instruction->operandCount - 1].imm.value.u;
@@ -264,6 +265,9 @@ int main()
 
     ZydisU8 data[] =
     {
+        // nop
+        0x90,
+
         // cmpps xmm1, xmm4, 0x03
         0x0F, 0xC2, 0xCC, 0x03,
 

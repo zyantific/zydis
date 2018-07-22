@@ -530,13 +530,14 @@ void printInstruction(ZydisDecodedInstruction* instruction)
     {
         puts("");
         printOperands(instruction);
-    }
 
-    if (ZydisRegisterGetClass(
-        instruction->operands[instruction->operandCount - 1].reg.value) == ZYDIS_REGCLASS_FLAGS)
-    {
-        puts("");
-        printFlags(instruction);
+        if (ZydisRegisterGetClass(
+            instruction->operands[instruction->operandCount - 1].reg.value
+            ) == ZYDIS_REGCLASS_FLAGS)
+        {
+            puts("");
+            printFlags(instruction);
+        }
     }
 
     if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_XOP) ||

@@ -4168,7 +4168,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
     case ZYDIS_REG_CONSTRAINTS_CR:
     {
-        // Attempts to reference CR1, CR5, CR6, CR7, and CR9–CR15 result in undefined opcode (#UD)
+        // Attempts to reference CR1, CR5, CR6, CR7, CR9 and CR15 result in undefined opcode (#UD)
         // exceptions.
         const ZydisU8 value = instruction->raw.modrm.reg | (context->cache.R << 3);
         static const ZydisU8 lookup[16] =
@@ -4183,7 +4183,7 @@ static ZydisStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         break;
     }
     case ZYDIS_REG_CONSTRAINTS_DR:
-        // Attempts to reference DR8–DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
+        // Attempts to reference DR8ï¿½DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
         // are only valid, if the debug extension (DE) flag in CR4 is set. As we can't check this,
         // we just allow them.
         if (context->cache.R)
@@ -4535,12 +4535,15 @@ static ZydisStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYDIS_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    const ZydisRegister reg =
-                        instruction->operands[instruction->operandCount - 1].reg.value;
-                    if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
-                        (reg == ZYDIS_REGISTER_RFLAGS))
+                    if (instruction->operandCount)
                     {
-                        ZydisSetAccessedFlags(instruction, definition);
+                        const ZydisRegister reg =
+                            instruction->operands[instruction->operandCount - 1].reg.value;
+                        if ((reg == ZYDIS_REGISTER_FLAGS ) || (reg == ZYDIS_REGISTER_EFLAGS) ||
+                            (reg == ZYDIS_REGISTER_RFLAGS))
+                        {
+                            ZydisSetAccessedFlags(instruction, definition);
+                        }
                     }
                 }
 
