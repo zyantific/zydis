@@ -286,9 +286,7 @@ typedef struct IMAGE_THUNK_DATA32_
     } u1;
 } IMAGE_THUNK_DATA32;
 
-#ifdef ZYAN_MSVC
-#   pragma pack(push, 8)
-#endif
+#pragma pack(push, 8)
 
 typedef struct IMAGE_THUNK_DATA64_
 {
@@ -301,9 +299,7 @@ typedef struct IMAGE_THUNK_DATA64_
     } u1;
 } IMAGE_THUNK_DATA64;
 
-#ifdef ZYAN_MSVC
-#   pragma pack(pop)
-#endif
+#pragma pack(pop)
 
 typedef struct IMAGE_IMPORT_BY_NAME_
 {
