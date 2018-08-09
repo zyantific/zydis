@@ -210,10 +210,10 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
     {
         return ZYAN_NULL;
     }
-    return zydisRegisterStrings[reg].buffer;
+    return zydisRegisterStrings[reg].data;
 }
 
-const ZydisStaticString* ZydisRegisterGetStaticString(ZydisRegister reg)
+const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 {
     if (reg >= ZYAN_ARRAY_LENGTH(zydisRegisterStrings))
     {

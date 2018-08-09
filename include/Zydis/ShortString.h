@@ -24,29 +24,67 @@
 
 ***************************************************************************************************/
 
-#include <Zydis/Mnemonic.h>
-#include <Generated/EnumMnemonic.inc>
+/**
+ * @file
+ * @brief   Defines the immutable and storage-efficent `ZydisShortString` struct, which is used to
+ *          store strings in the generated tables.
+ */
+
+#ifndef ZYDIS_SHORTSTRING_H
+#define ZYDIS_SHORTSTRING_H
+
+#include <ZydisExportConfig.h>
+#include <Zycore/Defines.h>
+#include <Zycore/Types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ============================================================================================== */
-/* Exported functions                                                                             */
+/* Enums and types                                                                                */
 /* ============================================================================================== */
 
-const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
+#pragma pack(push, 1)
+
+/**
+ * @brief   Defines the `ZydisShortString` struct.
+ *
+ * This compact struct is mainly used for internal string-tables to save up some bytes.
+ *
+ * All fields in this struct should be considered as "private". Any changes may lead to unexpected
+ * behavior.
+ */
+typedef struct ZydisShortString_
 {
-    if (mnemonic >= ZYAN_ARRAY_LENGTH(zydisMnemonicStrings))
-    {
-        return ZYAN_NULL;
-    }
-    return (const char*)zydisMnemonicStrings[mnemonic].data;
-}
+    /**
+     * @brief   The buffer that contains the actual (nullterminated) string.
+    */
+    const char* data;
+    /**
+     * @brief   The length (number of characters) of the string (without 0-termination).
+    */
+    ZyanU8 size;
+} ZydisShortString;
 
-const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic)
-{
-    if (mnemonic >= ZYAN_ARRAY_LENGTH(zydisMnemonicStrings))
-    {
-        return ZYAN_NULL;
-    }
-    return &zydisMnemonicStrings[mnemonic];
-}
+#pragma pack(pop)
 
 /* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/**
+ * @brief   Declares a `ZydisShortString` from a static C-style string.
+ *
+ * @param   string  The C-string constant.
+ */
+#define ZYDIS_MAKE_SHORTSTRING(string) \
+    { string, sizeof(string) - 1 }
+
+/* ============================================================================================== */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ZYDIS_SHORTSTRING_H */

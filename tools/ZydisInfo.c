@@ -32,6 +32,7 @@
 
 #include <inttypes.h>
 #include <stdio.h>
+#include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
 /* ============================================================================================== */
@@ -602,19 +603,19 @@ int main(int argc, char** argv)
     }
 
     ZydisDecoder decoder;
-    if (!strcmp(argv[1], "-real"))
+    if (!ZYAN_STRCMP(argv[1], "-real"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);
     } else
-    if (!strcmp(argv[1], "-16"))
+    if (!ZYAN_STRCMP(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);
     } else
-    if (!strcmp(argv[1], "-32"))
+    if (!ZYAN_STRCMP(argv[1], "-32"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32);
     } else
-    if (!strcmp(argv[1], "-64"))
+    if (!ZYAN_STRCMP(argv[1], "-64"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
     } else
@@ -632,7 +633,7 @@ int main(int argc, char** argv)
             fprintf(stderr, "Maximum number of %d bytes exceeded\n", ZYDIS_MAX_INSTRUCTION_LENGTH);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        const ZyanUSize len = strlen(argv[i + 2]);
+        const ZyanUSize len = ZYAN_STRLEN(argv[i + 2]);
         if (len % 2)
         {
             fputs("Even number of hex nibbles expected\n", stderr);

@@ -34,48 +34,10 @@
  */
 
 #include <stdio.h>
-#include <stdarg.h>
 #include <inttypes.h>
+#include <Zycore/Format.h>
+#include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
-
-/* ============================================================================================== */
-/* Helper functions                                                                               */
-/* ============================================================================================== */
-
-/**
- * @brief   Appends formatted text to the given `string`.
- *
- * @param   string  A pointer to the string.
- * @param   format  The format string.
- * @param   ...     The format arguments.
- *
- * @return  `ZYAN_STATUS_SUCCESS`, if the function succeeded, or
- *          `ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE`, if the size of the buffer was not sufficient
- *          to append the given `text`.
- */
-static ZyanStatus ZydisStringAppendFormatC(ZydisString* string, const char* format, ...)
-{
-    if (!string || !string->buffer || !format)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    va_list arglist;
-    va_start(arglist, format);
-
-    const int w = vsnprintf(string->buffer + string->length, string->capacity - string->length,
-        format, arglist);
-    if ((w < 0) || ((size_t)w > string->capacity - string->length))
-    {
-        va_end(arglist);
-        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
-    string->length += w;
-
-    va_end(arglist);
-
-    return ZYAN_STATUS_SUCCESS;
-}
 
 /* ============================================================================================== */
 /* Static data                                                                                    */
@@ -84,7 +46,7 @@ static ZyanStatus ZydisStringAppendFormatC(ZydisString* string, const char* form
 /**
  * @brief   Static array with the condition-code strings.
  */
-static const char* conditionCodeStrings[0x20] =
+static const char* const CONDITION_CODE_STRINGS[0x20] =
 {
     /*00*/ "eq",
     /*01*/ "lt",
@@ -129,7 +91,7 @@ static const char* conditionCodeStrings[0x20] =
  */
 typedef struct ZydisCustomUserData_
 {
-    ZyanBool ommit_immediate;
+    ZyanBool omit_immediate;
 } ZydisCustomUserData;
 
 /* ============================================================================================== */
@@ -138,12 +100,12 @@ typedef struct ZydisCustomUserData_
 
 ZydisFormatterFunc default_print_mnemonic;
 
-static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context)
+static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, ZyanString* string,
+    ZydisFormatterContext* context)
 {
     // We use the user-data to pass data to the `ZydisFormatterFormatOperandImm` function
     ZydisCustomUserData* user_data = (ZydisCustomUserData*)context->user_data;
-    user_data->ommit_immediate = ZYAN_TRUE;
+    user_data->omit_immediate = ZYAN_TRUE;
 
     // Rewrite the instruction-mnemonic for the given instructions
     if (context->instruction->operand_count &&
@@ -157,29 +119,29 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
         case ZYDIS_MNEMONIC_CMPPS:
             if (condition_code < 0x08)
             {
-                return ZydisStringAppendFormatC(
-                    string, "cmp%sps", conditionCodeStrings[condition_code]);
+                return ZyanStringAppendFormat(
+                    string, "cmp%sps", CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_CMPPD:
             if (condition_code < 0x08)
             {
-                return ZydisStringAppendFormatC(
-                    string, "cmp%spd", conditionCodeStrings[condition_code]);
+                return ZyanStringAppendFormat(
+                    string, "cmp%spd", CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPS:
             if (condition_code < 0x20)
             {
-                return ZydisStringAppendFormatC(
-                    string, "vcmp%sps", conditionCodeStrings[condition_code]);
+                return ZyanStringAppendFormat(
+                    string, "vcmp%sps", CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPD:
             if (condition_code < 0x20)
             {
-                return ZydisStringAppendFormatC(
-                    string, "vcmp%spd", conditionCodeStrings[condition_code]);
+                return ZyanStringAppendFormat(
+                    string, "vcmp%spd", CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         default:
@@ -189,7 +151,7 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
 
     // We did not rewrite the instruction-mnemonic. Signal the `ZydisFormatterFormatOperandImm`
     // function not to omit the operand
-    user_data->ommit_immediate = ZYAN_FALSE;
+    user_data->omit_immediate = ZYAN_FALSE;
 
     // Default mnemonic printing
     return default_print_mnemonic(formatter, string, context);
@@ -200,12 +162,12 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
 ZydisFormatterFunc default_format_operand_imm;
 
 static ZyanStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context)
+    ZyanString* string, ZydisFormatterContext* context)
 {
     // The `ZydisFormatterFormatMnemonic` sinals us to omit the immediate (condition-code)
     // operand, because it got replaced by the alias-mnemonic
     const ZydisCustomUserData* user_data = (ZydisCustomUserData*)context->user_data;
-    if (user_data->ommit_immediate)
+    if (user_data->omit_immediate)
     {
         return ZYDIS_STATUS_SKIP_TOKEN;
     }
@@ -285,8 +247,8 @@ int main(void)
     ZydisDecoder decoder;
     ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
-    DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
-    puts("");
+    //DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
+    //puts("");
     DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_TRUE);
 
     return 0;

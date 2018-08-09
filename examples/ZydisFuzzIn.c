@@ -33,6 +33,7 @@
  */
 
 #include <stdio.h>
+#include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
 #ifdef ZYAN_WINDOWS
@@ -61,7 +62,7 @@ typedef struct ZydisFuzzControlBlock_
 /* Macros                                                                                         */
 /* ============================================================================================== */
 
-// Limit maximum amount of bytes 
+// Limit maximum amount of bytes
 #define ZYDIS_FUZZ_MAX_BYTES (1024 * 10 /* 100 KiB */)
 
 #ifdef ZYDIS_FUZZ_AFL_FAST
@@ -175,7 +176,7 @@ static int DoIteration(void)
         if (read_offset < sizeof(buffer))
         {
             buffer_remaining = sizeof(buffer) - read_offset;
-            memmove(buffer, buffer + read_offset, buffer_remaining);
+            ZYAN_MEMMOVE(buffer, buffer + read_offset, buffer_remaining);
         }
         read_offset_base += read_offset;
     } while (buffer_size == sizeof(buffer) && read_offset_base < ZYDIS_FUZZ_MAX_BYTES);

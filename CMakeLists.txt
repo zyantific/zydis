@@ -43,7 +43,7 @@ option(ZYDIS_FUZZ_AFL_FAST
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
-# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_CURRENT_BINARY_DIR}/zycore"
+# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_BINARY_DIR}/zycore"
 #     EXCLUDE_FROM_ALL)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
 
@@ -95,11 +95,12 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/ShortString.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/String.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Utils.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Zydis.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/SharedData.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/String.h"
         "src/MetaInfo.c"
         "src/Mnemonic.c"
         "src/Register.c"

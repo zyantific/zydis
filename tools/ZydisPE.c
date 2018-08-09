@@ -32,6 +32,8 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <string.h>
+#include <Zycore/LibC.h>
 #include <Zycore/Vector.h>
 #include <Zydis/Zydis.h>
 
@@ -338,11 +340,11 @@ typedef struct ZydisPESymbol_
     /**
      * @brief   The module string.
      */
-    ZydisString module_name;
+    ZyanString module_name;
     /**
      * @brief   The symbol string.
      */
-    ZydisString symbol_name;
+    ZyanString symbol_name;
 } ZydisPESymbol;
 
 /**
@@ -378,10 +380,12 @@ typedef struct ZydisPEContext_
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
  *
- * @return  `0` if the `left` element equals the `right` one, `-1` if the `left` element is smaller
- *          than the `right` one, or `1` if the `left` element is greater than the `right` one.
+ * @return  Returns values in the following range:
+ *          `left == right -> result == 0`
+ *          `left <  right -> result  < 0`
+ *          `left >  right -> result  > 0`
  */
-static ZyanI8 CompareSymbol(const ZydisPESymbol* left, const ZydisPESymbol* right)
+static ZyanI32 CompareSymbol(const ZydisPESymbol* left, const ZydisPESymbol* right)
 {
     ZYAN_ASSERT(left);
     ZYAN_ASSERT(right);
@@ -505,24 +509,25 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                     nt_headers->OptionalHeader.DataDirectory[
                         IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-            if (!ZYAN_SUCCESS(ZydisStringInit(&element.module_name,
+            if (!ZYAN_SUCCESS(ZyanStringWrap(&element.module_name,
                 (char*)RVAToFileOffset(base, export_directory->Name))))
             {
                 goto FatalError;
             }
-            for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+            // TODO: Implement
+            /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
             {
                 if (element.module_name.buffer[i] == '.')
                 {
                     element.module_name.length = i;
                     break;
                 }
-            }
+            }*/
 
             const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
             element.address = entry_point;
             if (!ZYAN_SUCCESS((status =
-                    ZydisStringInit(&element.symbol_name, (char*)"EntryPoint"))) ||
+                    ZyanStringWrap(&element.symbol_name, (char*)"EntryPoint"))) ||
                 !ZYAN_SUCCESS((status =
                     ZyanVectorPush(&context->symbols, &element))))
             {
@@ -539,7 +544,7 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             {
                 element.address = export_addresses[i];
                 if (!ZYAN_SUCCESS((status =
-                        ZydisStringInit(&element.symbol_name,
+                        ZyanStringWrap(&element.symbol_name,
                             (char*)RVAToFileOffset(base, export_names[i])))))
                 {
                     goto FatalError;
@@ -567,19 +572,20 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             while (descriptor->u1.OriginalFirstThunk)
             {
                 if (!ZYAN_SUCCESS((status =
-                        ZydisStringInit(&element.module_name,
+                        ZyanStringWrap(&element.module_name,
                             (char*)RVAToFileOffset(base, descriptor->Name)))))
                 {
                     goto FatalError;
                 }
-                for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+                // TODO: Implement
+                /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
                 {
                     if (element.module_name.buffer[i] == '.')
                     {
                         element.module_name.length = i;
                         break;
                     }
-                }
+                }*/
 
                 const IMAGE_THUNK_DATA32* original_thunk =
                     (const IMAGE_THUNK_DATA32*)RVAToFileOffset(base,
@@ -603,7 +609,7 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                             (const IMAGE_IMPORT_BY_NAME*)RVAToFileOffset(base,
                                 original_thunk->u1.AddressOfData);
                         if (!ZYAN_SUCCESS((status =
-                                ZydisStringInit(&element.symbol_name, (char*)by_name->Name))))
+                                ZyanStringWrap(&element.symbol_name, (char*)by_name->Name))))
                         {
                             goto FatalError;
                         }
@@ -640,24 +646,25 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                     nt_headers->OptionalHeader.DataDirectory[
                         IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-            if (!ZYAN_SUCCESS(ZydisStringInit(&element.module_name,
+            if (!ZYAN_SUCCESS(ZyanStringWrap(&element.module_name,
                 (char*)RVAToFileOffset(base, export_directory->Name))))
             {
                 goto FatalError;
             }
-            for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+            // TODO: Implement
+            /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
             {
                 if (element.module_name.buffer[i] == '.')
                 {
                     element.module_name.length = i;
                     break;
                 }
-            }
+            }*/
 
             const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
             element.address = entry_point;
             if (!ZYAN_SUCCESS((status =
-                    ZydisStringInit(&element.symbol_name, (char*)"EntryPoint"))) ||
+                    ZyanStringWrap(&element.symbol_name, (char*)"EntryPoint"))) ||
                 !ZYAN_SUCCESS((status =
                     ZyanVectorPush(&context->symbols, &element))))
             {
@@ -674,7 +681,7 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             {
                 element.address = export_addresses[i];
                 if (!ZYAN_SUCCESS((status =
-                        ZydisStringInit(&element.symbol_name,
+                        ZyanStringWrap(&element.symbol_name,
                             (char*)RVAToFileOffset(base, export_names[i])))))
                 {
                     goto FatalError;
@@ -702,19 +709,20 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             while (descriptor->u1.OriginalFirstThunk)
             {
                 if (!ZYAN_SUCCESS((status =
-                        ZydisStringInit(&element.module_name,
+                        ZyanStringWrap(&element.module_name,
                             (char*)RVAToFileOffset(base, descriptor->Name)))))
                 {
                     goto FatalError;
                 }
-                for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+                // TODO: Implement
+                /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
                 {
                     if (element.module_name.buffer[i] == '.')
                     {
                         element.module_name.length = i;
                         break;
                     }
-                }
+                }*/
 
                 const IMAGE_THUNK_DATA64* original_thunk =
                     (const IMAGE_THUNK_DATA64*)RVAToFileOffset(base,
@@ -738,7 +746,7 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                             (const IMAGE_IMPORT_BY_NAME*)RVAToFileOffset(base,
                                 original_thunk->u1.AddressOfData);
                         if (!ZYAN_SUCCESS((status =
-                                ZydisStringInit(&element.symbol_name, (char*)by_name->Name))))
+                                ZyanStringWrap(&element.symbol_name, (char*)by_name->Name))))
                         {
                             goto FatalError;
                         }
@@ -796,8 +804,10 @@ static ZyanStatus ZydisPEContextFinalize(ZydisPEContext* context)
 ZydisFormatterAddressFunc default_print_address;
 
 static ZyanStatus ZydisFormatterPrintAddress(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context, ZyanU64 address)
+    ZyanString* string, ZydisFormatterContext* context, ZyanU64 address)
 {
+    static const ZyanString STR_DOT = ZYAN_STRING_WRAP(".");
+
     const ZydisPEContext* data = (const ZydisPEContext*)context->user_data;
     ZYAN_ASSERT(data);
 
@@ -812,11 +822,15 @@ static ZyanStatus ZydisFormatterPrintAddress(const ZydisFormatter* formatter,
     if (status == ZYAN_STATUS_TRUE)
     {
         const ZydisPESymbol* element;
-        ZYAN_CHECK(
-            ZyanVectorGetConst(&data->symbols, found_index, (const void**)&element));
-        ZYAN_CHECK(ZydisStringAppendEx(string, &element->module_name, ZYDIS_LETTER_CASE_LOWER));
-        ZYAN_CHECK(ZydisStringAppendC(string, "."));
-        return ZydisStringAppend(string, &element->symbol_name);
+        ZYAN_CHECK(ZyanVectorGetElement(&data->symbols, found_index, (const void**)&element));
+        ZyanUSize index;
+        ZyanUSize count;
+        ZYAN_CHECK(ZyanStringGetSize(string, &index));
+        ZYAN_CHECK(ZyanStringGetSize(&element->module_name, &count));
+        ZYAN_CHECK(ZyanStringAppend(string, &element->module_name));
+        ZYAN_CHECK(ZyanStringToLowerCaseEx(string, index, count));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_DOT));
+        return ZyanStringAppend(string, &element->symbol_name);
     }
 
     // Default address printing
@@ -915,8 +929,10 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
             {
                 const ZydisPESymbol* element;
                 ZYAN_CHECK(
-                    ZyanVectorGetConst(&context->symbols, found_index, (const void**)&element));
-                printf("\n%s:\n", element->symbol_name.buffer);
+                    ZyanVectorGetElement(&context->symbols, found_index, (const void**)&element));
+                const char* string;
+                ZYAN_CHECK(ZyanStringUnwrap(&element->symbol_name, &string));
+                printf("\n%s:\n", string);
             }
 
             switch (instruction.machine_mode)
@@ -990,7 +1006,7 @@ int main(int argc, char** argv)
 
     fseek(file, 0L, SEEK_END);
     const long size = ftell(file);
-    void* buffer = malloc(size);
+    void* buffer = ZYAN_MALLOC(size);
     if (!buffer)
     {
         fprintf(stderr, "Failed to allocate %" PRIu64 " bytes on the heap\n", (ZyanU64)size);
@@ -1003,7 +1019,7 @@ int main(int argc, char** argv)
     {
         fprintf(stderr,
             "Could not read %" PRIu64 " bytes from file \"%s\"\n", (ZyanU64)size, argv[1]);
-        free(buffer);
+        ZYAN_FREE(buffer);
         fclose(file);
         return ZYAN_STATUS_BAD_SYSTEMCALL;
     }
@@ -1059,7 +1075,7 @@ int main(int argc, char** argv)
     status = ZydisPEContextFinalize(&context);
 
 Exit:
-    free(buffer);
+    ZYAN_FREE(buffer);
     fclose(file);
 
     return status;

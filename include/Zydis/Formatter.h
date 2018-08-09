@@ -33,9 +33,9 @@
 #define ZYDIS_FORMATTER_H
 
 #include <Zycore/Defines.h>
+#include <Zycore/String.h>
 #include <Zydis/DecoderTypes.h>
 #include <Zydis/Status.h>
-#include <Zydis/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -542,7 +542,7 @@ typedef struct ZydisFormatterContext_
  * - `ZYDIS_FORMATTER_HOOK_PRINT_MEMSIZE`
  */
 typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context);
+    ZyanString* string, ZydisFormatterContext* context);
 
  /**
  * @brief   Defines the `ZydisFormatterRegisterFunc` function pointer.
@@ -559,7 +559,7 @@ typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
  * - `ZYDIS_FORMATTER_HOOK_PRINT_REGISTER`.
  */
 typedef ZyanStatus (*ZydisFormatterRegisterFunc)(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* instruction, ZydisRegister reg);
+    ZyanString* string, ZydisFormatterContext* instruction, ZydisRegister reg);
 
  /**
  * @brief   Defines the `ZydisFormatterAddressFunc` function pointer.
@@ -576,7 +576,7 @@ typedef ZyanStatus (*ZydisFormatterRegisterFunc)(const ZydisFormatter* formatter
  * - `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS`
  */
 typedef ZyanStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context, ZyanU64 address);
+    ZyanString* string, ZydisFormatterContext* context, ZyanU64 address);
 
 /**
  * @brief   Defines the `ZydisFormatterDecoratorFunc` function pointer.
@@ -593,7 +593,7 @@ typedef ZyanStatus (*ZydisFormatterAddressFunc)(const ZydisFormatter* formatter,
  * - `ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR`
  */
 typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatter,
-    ZydisString* string, ZydisFormatterContext* context, ZydisDecoratorType decorator);
+    ZyanString* string, ZydisFormatterContext* context, ZydisDecoratorType decorator);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter struct                                                                               */
@@ -607,17 +607,17 @@ typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatte
  */
 struct ZydisFormatter_
 {
-    ZydisLetterCase letter_case;
+    ZyanU32 letter_case;
     ZyanBool force_memory_segment;
     ZyanBool force_memory_size;
     ZyanU8 format_address;
     ZyanU8 format_disp;
     ZyanU8 format_imm;
     ZyanBool hex_uppercase;
-    ZydisString* hex_prefix;
-    ZydisString hex_prefix_data;
-    ZydisString* hex_suffix;
-    ZydisString hex_suffix_data;
+    const ZyanString* hex_prefix;
+    ZyanString hex_prefix_data;
+    const ZyanString* hex_suffix;
+    ZyanString hex_suffix_data;
     ZyanU8 hex_padding_address;
     ZyanU8 hex_padding_disp;
     ZyanU8 hex_padding_imm;

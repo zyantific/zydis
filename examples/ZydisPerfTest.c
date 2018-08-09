@@ -28,9 +28,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
 #if defined(ZYAN_WINDOWS)
@@ -327,14 +327,14 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    if (argc < 3 || (strcmp(argv[1], "-test") && strcmp(argv[1], "-generate")))
+    if (argc < 3 || (ZYAN_STRCMP(argv[1], "-test") && ZYAN_STRCMP(argv[1], "-generate")))
     {
         fputs("Usage: PerfTest -[test|generate] [directory]\n", stderr);
         return EXIT_FAILURE;
     }
 
     ZyanBool generate = ZYAN_FALSE;
-    if (!strcmp(argv[1], "-generate"))
+    if (!ZYAN_STRCMP(argv[1], "-generate"))
     {
         generate = ZYAN_TRUE;
     }

@@ -49,7 +49,7 @@ extern "C" {
 /**
  * @brief   The zydis module id.
  */
-#define ZYAN_MODULE_ZYDIS   0x100
+#define ZYAN_MODULE_ZYDIS   0x002
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Status codes                                                                                   */

@@ -49,7 +49,6 @@
 #include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
 #include <Zydis/Status.h>
-#include <Zydis/String.h>
 #include <Zydis/Utils.h>
 
 #ifdef __cplusplus

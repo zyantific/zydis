@@ -30,8 +30,9 @@
  *          of the decoded data.
  */
 
-#include <stdio.h>
 #include <errno.h>
+#include <stdio.h>
+#include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
 #ifdef ZYAN_WINDOWS
@@ -59,19 +60,19 @@ int main(int argc, char** argv)
     }
 
     ZydisDecoder decoder;
-    if (!strcmp(argv[1], "-real"))
+    if (!ZYAN_STRCMP(argv[1], "-real"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);
     } else
-    if (!strcmp(argv[1], "-16"))
+    if (!ZYAN_STRCMP(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);
     } else
-    if (!strcmp(argv[1], "-32"))
+    if (!ZYAN_STRCMP(argv[1], "-32"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32);
     } else
-    if (!strcmp(argv[1], "-64"))
+    if (!ZYAN_STRCMP(argv[1], "-64"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
     } else
