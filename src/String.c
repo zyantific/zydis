@@ -193,7 +193,7 @@ ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 pad
 
         ZYAN_MEMSET((char*)string->data.data + len - 1, '0', n);
         string->data.size = len + n;
-        ZYCORE_STRING_NULLTERMINATE(string);
+        ZYDIS_STRING_NULLTERMINATE(string);
 
         return ZYAN_STATUS_SUCCESS;
     }

@@ -354,12 +354,12 @@ ZyanStatus ZydisStringAppendDecU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
 ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
     ZyanU8 padding_length, ZyanBool force_sign, const ZyanString* prefix, const ZyanString* suffix)
 {
-    static const ZydisShortString sign_add = ZYDIS_MAKE_SHORTSTRING("+");
-    static const ZydisShortString sign_sub = ZYDIS_MAKE_SHORTSTRING("-");
+    static const ZydisShortString str_add = ZYDIS_MAKE_SHORTSTRING("+");
+    static const ZydisShortString str_sub = ZYDIS_MAKE_SHORTSTRING("-");
 
     if (value < 0)
     {
-        ZYAN_CHECK(ZydisStringAppendShort(string, &sign_sub));
+        ZYAN_CHECK(ZydisStringAppendShort(string, &str_sub));
         if (prefix)
         {
             ZYAN_CHECK(ZydisStringAppend(string, prefix));
@@ -370,7 +370,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
     if (force_sign)
     {
         ZYAN_ASSERT(value >= 0);
-        ZYAN_CHECK(ZydisStringAppendShort(string, &sign_add));
+        ZYAN_CHECK(ZydisStringAppendShort(string, &str_add));
     }
     return ZydisStringAppendDecU(string, value, padding_length, prefix, suffix);
 }
@@ -422,12 +422,12 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
     ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZyanString* prefix,
     const ZyanString* suffix)
 {
-    static const ZydisShortString sign_add = ZYDIS_MAKE_SHORTSTRING("+");
-    static const ZydisShortString sign_sub = ZYDIS_MAKE_SHORTSTRING("-");
+    static const ZydisShortString str_add = ZYDIS_MAKE_SHORTSTRING("+");
+    static const ZydisShortString str_sub = ZYDIS_MAKE_SHORTSTRING("-");
 
     if (value < 0)
     {
-        ZYAN_CHECK(ZydisStringAppendShort(string, &sign_sub));
+        ZYAN_CHECK(ZydisStringAppendShort(string, &str_sub));
         if (prefix)
         {
             ZYAN_CHECK(ZydisStringAppend(string, prefix));
@@ -438,7 +438,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
     if (force_sign)
     {
         ZYAN_ASSERT(value >= 0);
-        ZYAN_CHECK(ZydisStringAppendShort(string, &sign_add));
+        ZYAN_CHECK(ZydisStringAppendShort(string, &str_add));
     }
     return ZydisStringAppendHexU(string, value, padding_length, uppercase, prefix, suffix);
 }
