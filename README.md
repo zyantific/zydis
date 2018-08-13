@@ -26,48 +26,43 @@ The following example program uses Zydis to disassemble a given memory buffer an
 
 int main()
 {
-    uint8_t data[] =
+    ZyanU8 data[] =
     {
         0x51, 0x8D, 0x45, 0xFF, 0x50, 0xFF, 0x75, 0x0C, 0xFF, 0x75,
         0x08, 0xFF, 0x15, 0xA0, 0xA5, 0x48, 0x76, 0x85, 0xC0, 0x0F,
         0x88, 0xFC, 0xDA, 0x02, 0x00
     };
 
-    // Initialize decoder context.
+    // Initialize decoder context
     ZydisDecoder decoder;
-    ZydisDecoderInit(
-        &decoder,
-        ZYDIS_MACHINE_MODE_LONG_64,
-        ZYDIS_ADDRESS_WIDTH_64);
+    ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
-    // Initialize formatter. Only required when you actually plan to
-    // do instruction formatting ("disassembling"), like we do here.
+    // Initialize formatter. Only required when you actually plan to do instruction
+    // formatting ("disassembling"), like we do here
     ZydisFormatter formatter;
     ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 
     // Loop over the instructions in our buffer.
-    // The IP is chosen arbitrary here in order to better visualize
-    // relative addressing.
-    uint64_t instructionPointer = 0x007FFFFFFF400000;
-    size_t offset = 0;
-    size_t length = sizeof(data);
+    // The runtime-address (instruction pointer) is chosen arbitrary here in order to better
+    // visualize relative addressing
+    ZyanU64 runtime_address = 0x007FFFFFFF400000;
+    ZyanUSize offset = 0;
+    const ZyanUSize length = sizeof(data);
     ZydisDecodedInstruction instruction;
-    while (ZYDIS_SUCCESS(ZydisDecoderDecodeBuffer(
-        &decoder, data + offset, length - offset,
-        instructionPointer, &instruction)))
+    while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data + offset, length - offset,
+        &instruction)))
     {
         // Print current instruction pointer.
-        printf("%016" PRIX64 "  ", instructionPointer);
+        printf("%016" PRIX64 "  ", runtime_address);
 
-        // Format & print the binary instruction
-        // structure to human readable format.
+        // Format & print the binary instruction structure to human readable format
         char buffer[256];
-        ZydisFormatterFormatInstruction(
-            &formatter, &instruction, buffer, sizeof(buffer));
+        ZydisFormatterFormatInstruction(&formatter, &instruction, buffer, sizeof(buffer),
+            runtime_address);
         puts(buffer);
 
         offset += instruction.length;
-        instructionPointer += instruction.length;
+        runtime_address += instruction.length;
     }
 }
 ```
@@ -107,6 +102,15 @@ Either use the [Visual Studio 2017 project](https://github.com/zyantific/zydis/t
 
 ## `ZydisInfo` tool
 ![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
+
+## Bindings
+
+ Official bindings exist for a selection of languages:
+- [Rust](https://github.com/zyantific/zydis-rs)
+- [Pascal](https://github.com/zyantific/zydis-pascal)
+
+Inofficial but actively maintained bindings:
+- [Python 3](https://github.com/novogen/pydis)
 
 ## Credits
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
