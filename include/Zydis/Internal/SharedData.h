@@ -657,6 +657,27 @@ typedef enum ZydisMaskPolicy_
 
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * @brief   Defines the `ZydisMaskOverride` enum.
+ */
+typedef enum ZydisMaskOverride_
+{
+    ZYDIS_MASK_OVERRIDE_DEFAULT,
+    ZYDIS_MASK_OVERRIDE_ZEROING,
+    ZYDIS_MASK_OVERRIDE_CONTROL,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_MASK_OVERRIDE_MAX_VALUE = ZYDIS_MASK_OVERRIDE_CONTROL,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_MASK_OVERRIDE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MASK_OVERRIDE_MAX_VALUE)
+} ZydisMaskOverride;
+
+/* ---------------------------------------------------------------------------------------------- */
+
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
 ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
@@ -771,6 +792,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_TUPLETYPE_REQUIRED_BITS             <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_IELEMENT_SIZE_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EVEX_FUNC_REQUIRED_BITS             <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_MASK_POLICY_REQUIRED_BITS           <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_MASK_OVERRIDE_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS <=  8);
 
 /**
@@ -788,7 +810,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 mask_policy                     ZYAN_BITFIELD(ZYDIS_MASK_POLICY_REQUIRED_BITS);
     ZyanBool accepts_zero_mask             ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool is_control_mask               ZYAN_BITFIELD( 1);
+    ZyanU8 mask_override                   ZYAN_BITFIELD(ZYDIS_MASK_OVERRIDE_REQUIRED_BITS);
     ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
 } ZydisInstructionDefinitionEVEX;

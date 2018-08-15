@@ -60,10 +60,10 @@ static const ZydisShortString STR_SIZE_512       = ZYDIS_MAKE_SHORTSTRING("zmmwo
 static const ZydisShortString STR_PREF_XACQUIRE  = ZYDIS_MAKE_SHORTSTRING("xacquire ");
 static const ZydisShortString STR_PREF_XRELEASE  = ZYDIS_MAKE_SHORTSTRING("xrelease ");
 static const ZydisShortString STR_PREF_LOCK      = ZYDIS_MAKE_SHORTSTRING("lock ");
-static const ZydisShortString STR_PREF_REP       = ZYDIS_MAKE_SHORTSTRING("rep");
-static const ZydisShortString STR_PREF_REPE      = ZYDIS_MAKE_SHORTSTRING("repe");
-static const ZydisShortString STR_PREF_REPNE     = ZYDIS_MAKE_SHORTSTRING("repne");
-static const ZydisShortString STR_PREF_BND       = ZYDIS_MAKE_SHORTSTRING("bnd");
+static const ZydisShortString STR_PREF_REP       = ZYDIS_MAKE_SHORTSTRING("rep ");
+static const ZydisShortString STR_PREF_REPE      = ZYDIS_MAKE_SHORTSTRING("repe ");
+static const ZydisShortString STR_PREF_REPNE     = ZYDIS_MAKE_SHORTSTRING("repne ");
+static const ZydisShortString STR_PREF_BND       = ZYDIS_MAKE_SHORTSTRING("bnd ");
 static const ZydisShortString STR_DECO_BEGIN     = ZYDIS_MAKE_SHORTSTRING(" {");
 static const ZydisShortString STR_DECO_END       = ZYDIS_MAKE_SHORTSTRING("}");
 static const ZydisShortString STR_DECO_ZERO      = ZYDIS_MAKE_SHORTSTRING(" {z}");
@@ -784,7 +784,11 @@ static ZyanStatus ZydisPrintDecoratorIntel(const ZydisFormatter* formatter, Zyan
             ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
                 context->instruction->avx.mask.reg));
             ZYAN_CHECK(ZydisStringAppendShort(string, &STR_DECO_END));
-            if (context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZERO)
+
+            // Only print the zeroing decorator, if the instruction is not a "zeroing masking only"
+            // instruction (e.g. `vcmpsd`)
+            if ((context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING) &&
+                (context->instruction->raw.evex.z))
             {
                 ZYAN_CHECK(ZydisStringAppendShort(string, &STR_DECO_ZERO));
             }

@@ -634,11 +634,11 @@ typedef enum ZydisMaskMode_
     /**
      * @brief   The embedded mask register is used as a merge-mask.
      */
-    ZYDIS_MASK_MODE_MERGE,
+    ZYDIS_MASK_MODE_MERGING,
     /**
      * @brief   The embedded mask register is used as a zero-mask.
      */
-    ZYDIS_MASK_MODE_ZERO,
+    ZYDIS_MASK_MODE_ZEROING,
     /**
      * @brief   The embedded mask register is used as a control-mask (element selector).
      */
@@ -646,12 +646,12 @@ typedef enum ZydisMaskMode_
     /**
      * @brief   The embedded mask register is used as a zeroing control-mask (element selector).
      */
-    ZYDIS_MASK_MODE_CONTROL_ZERO,
+    ZYDIS_MASK_MODE_CONTROL_ZEROING,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_CONTROL_ZERO,
+    ZYDIS_MASK_MODE_MAX_VALUE = ZYDIS_MASK_MODE_CONTROL_ZEROING,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */

@@ -2038,7 +2038,7 @@ FinalizeOperand:
 
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
     // Fix operand-action for EVEX/MVEX instructions with merge-mask
-    if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGE)
+    if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGING)
     {
         ZYAN_ASSERT(instruction->operand_count >= 1);
         switch (instruction->operands[0].action)
@@ -2666,14 +2666,20 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        if (!def->is_control_mask)
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        switch (def->mask_override)
         {
-            instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE + instruction->raw.evex.z;
-            instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
-        } else
-        {
+        case ZYDIS_MASK_OVERRIDE_DEFAULT:
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGING + instruction->raw.evex.z;
+            break;
+        case ZYDIS_MASK_OVERRIDE_ZEROING:
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_ZEROING;
+            break;
+        case ZYDIS_MASK_OVERRIDE_CONTROL:
             instruction->avx.mask.mode = ZYDIS_MASK_MODE_CONTROL + instruction->raw.evex.z;
-            instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+            break;
+        default:
+            ZYAN_UNREACHABLE;
         }
         if (!instruction->raw.evex.aaa)
         {
@@ -2978,7 +2984,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGE;
+        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGING;
         instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.mvex.kkk;
 #else
         ZYAN_UNREACHABLE;
