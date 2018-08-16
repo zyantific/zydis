@@ -31,26 +31,87 @@
  */
 
 #include <inttypes.h>
-#include <stdio.h>
 #include <Zycore/LibC.h>
+#include <Zycore/Terminal.h>
 #include <Zydis/Zydis.h>
+
+/* ============================================================================================== */
+/* Colors                                                                                         */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Configuration                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+#define COLOR_DEFAULT       ZYAN_VT100SGR_FG_WHITE
+#define COLOR_ERROR         ZYAN_VT100SGR_FG_BRIGHT_RED
+#define COLOR_HEADER        ZYAN_VT100SGR_FG_BRIGHT_BLACK
+#define COLOR_HEADER_TITLE  ZYAN_VT100SGR_FG_CYAN
+#define COLOR_VALUE_LABEL   ZYAN_VT100SGR_FG_BRIGHT_BLACK
+#define COLOR_VALUE_R       ZYAN_VT100SGR_FG_BRIGHT_RED
+#define COLOR_VALUE_G       ZYAN_VT100SGR_FG_BRIGHT_GREEN
+#define COLOR_VALUE_B       ZYAN_VT100SGR_FG_CYAN
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Global variables                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
+static ZyanBool g_vt100_stdout;
+static ZyanBool g_vt100_stderr;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Helper macros                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Conditionally expands to the passed VT100 code, if `g_colors_stdout` is `ZYAN_TRUE`,
+ *          or an empty string, if not.
+ *
+ * @param   The VT100 SGT color code.
+ */
+#define CVT100_OUT(color) (g_vt100_stdout ? (color) : "")
+
+/**
+ * @brief   Conditionally expands to the passed VT100 code, if `g_colors_stderr` is `ZYAN_TRUE`,
+ *          or an empty string, if not.
+ *
+ * @param   The VT100 SGT color code.
+ */
+#define CVT100_ERR(color) (g_vt100_stderr ? (color) : "")
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Converts a zyan status code to a human readable format.
+ *
+ * @param   status  The zyan status code.
+ *
+ * @return  The status code string.
+ */
 static const char* FormatZyanStatus(ZyanStatus status)
 {
     static const char* strings_zycore[] =
     {
         "SUCCESS",
+        "FAILED",
         "TRUE",
         "FALSE",
         "INVALID_ARGUMENT",
         "INVALID_OPERATION",
+        "NOT_FOUND",
         "OUT_OF_RANGE",
         "INSUFFICIENT_BUFFER_SIZE",
         "NOT_ENOUGH_MEMORY",
+        "NOT_ENOUGH_MEMORY",
+        "BAD_SYSTEMCALL"
     };
     static const char* strings_zydis[] =
     {
@@ -84,18 +145,82 @@ static const char* FormatZyanStatus(ZyanStatus status)
     ZYAN_UNREACHABLE;
 }
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Text output                                                                                    */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Prints a section header.
+ *
+ * @param   name    The section name.
+ */
+static void PrintSectionHeader(const char* name)
+{
+    ZYAN_ASSERT(ZYAN_STRLEN(name) <= 8);
+    printf("%s== [ %s%8s%s ] ===================================================================" \
+        "=========================%s\n",
+        CVT100_OUT(COLOR_HEADER), CVT100_OUT(COLOR_HEADER_TITLE), name, CVT100_OUT(COLOR_HEADER),
+        CVT100_OUT(COLOR_DEFAULT));
+}
+
+/**
+ * @brief   Prints a value label.
+ *
+ * @param   name    The value name.
+ */
+static void PrintValueLabel(const char* name)
+{
+    ZYAN_ASSERT(ZYAN_STRLEN(name) <= 11);
+    printf("%s%11s:%s ", CVT100_OUT(COLOR_VALUE_LABEL), name, CVT100_OUT(COLOR_DEFAULT));
+}
+
+/**
+ * @brief   Prints a formatted value using red color.
+ *
+ * @param   name    The value name.
+ * @param   format  The format string.
+ * @param   ...     The format arguments.
+ */
+#define PRINT_VALUE_R(name, format, ...) \
+    PrintValueLabel(name); \
+    printf("%s" format "%s\n", CVT100_OUT(COLOR_VALUE_R), __VA_ARGS__, CVT100_OUT(COLOR_DEFAULT));
+
+/**
+ * @brief   Prints a formatted value using green color.
+ *
+ * @param   name    The value name.
+ * @param   format  The format string.
+ * @param   ...     The format arguments.
+ */
+#define PRINT_VALUE_G(name, format, ...) \
+    PrintValueLabel(name); \
+    printf("%s" format "%s\n", CVT100_OUT(COLOR_VALUE_G), __VA_ARGS__, CVT100_OUT(COLOR_DEFAULT));
+
+/**
+ * @brief   Prints a formatted value using blue color.
+ *
+ * @param   name    The value name.
+ * @param   format  The format string.
+ * @param   ...     The format arguments.
+ */
+#define PRINT_VALUE_B(name, format, ...) \
+    PrintValueLabel(name); \
+    printf("%s" format "%s\n", CVT100_OUT(COLOR_VALUE_B), __VA_ARGS__, CVT100_OUT(COLOR_DEFAULT));
+
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Print functions                                                                                */
 /* ============================================================================================== */
 
 static void PrintOperands(const ZydisDecodedInstruction* instruction)
 {
-    fputs("== [ OPERANDS ] =====================================================", stdout);
-    fputs("=======================================\n", stdout);
-    fputs("##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ", stdout);
-    fputs("  ELEMTYPE                        VALUE\n", stdout);
-    fputs("--  ---------  ----------  ------  ------------   ----  -----  ------", stdout);
-    fputs("  --------  ---------------------------\n", stdout);
+    PrintSectionHeader("OPERANDS");
+    printf("%s##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE   " \
+        "                     VALUE%s\n", CVT100_OUT(COLOR_HEADER), CVT100_OUT(COLOR_DEFAULT));
+    printf("%s--  ---------  ----------  ------  ------------   ----  -----  ------  --------  -" \
+        "--------------------------%s\n", CVT100_OUT(COLOR_HEADER), CVT100_OUT(COLOR_DEFAULT));
+
     ZyanU8 imm_id = 0;
     for (ZyanU8 i = 0; i < instruction->operand_count; ++i)
     {
@@ -182,52 +307,91 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "AGEN",
             "MIB"
         };
-        printf("%2d  %9s  %10s  %6s  %12s  %5d   %4d  %6d  %8s",
+
+        printf("%s%2d  %s%9s  %10s  %6s  %12s  %s%5d   %4d  %6d  %s%8s%s",
+            CVT100_OUT(COLOR_VALUE_G),
             i,
+            CVT100_OUT(COLOR_VALUE_B),
             strings_operand_type[instruction->operands[i].type],
             strings_operand_visibility[instruction->operands[i].visibility],
             strings_operand_action[instruction->operands[i].action],
             strings_operand_encoding[instruction->operands[i].encoding],
+            CVT100_OUT(COLOR_VALUE_G),
             instruction->operands[i].size,
             instruction->operands[i].element_count,
             instruction->operands[i].element_size,
-            strings_element_type[instruction->operands[i].element_type]);
+            CVT100_OUT(COLOR_VALUE_B),
+            strings_element_type[instruction->operands[i].element_type],
+            CVT100_OUT(COLOR_DEFAULT));
         switch (instruction->operands[i].type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            printf("  %27s", ZydisRegisterGetString(instruction->operands[i].reg.value));
+            printf("  %s%27s%s", CVT100_OUT(COLOR_VALUE_R),
+                ZydisRegisterGetString(instruction->operands[i].reg.value),
+                CVT100_OUT(COLOR_DEFAULT));
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
-            printf("  TYPE  =%20s\n", strings_memop_type[instruction->operands[i].mem.type]);
-            printf("  %84s =%20s\n",
-                "SEG  ", ZydisRegisterGetString(instruction->operands[i].mem.segment));
-            printf("  %84s =%20s\n",
-                "BASE ", ZydisRegisterGetString(instruction->operands[i].mem.base));
-            printf("  %84s =%20s\n",
-                "INDEX", ZydisRegisterGetString(instruction->operands[i].mem.index));
-            printf("  %84s =%20d\n", "SCALE", instruction->operands[i].mem.scale);
-            printf("  %84s =  0x%016"PRIX64,
-                "DISP ", instruction->operands[i].mem.disp.value);
+            printf("  %sTYPE  =%s%20s%s\n", CVT100_OUT(COLOR_VALUE_LABEL),
+                CVT100_OUT(COLOR_VALUE_B), strings_memop_type[instruction->operands[i].mem.type],
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =%s%20s%s\n",
+                CVT100_OUT(COLOR_VALUE_LABEL), "SEG  ", CVT100_OUT(COLOR_VALUE_R),
+                ZydisRegisterGetString(instruction->operands[i].mem.segment),
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =%s%20s%s\n",
+                CVT100_OUT(COLOR_VALUE_LABEL), "BASE ", CVT100_OUT(COLOR_VALUE_R),
+                ZydisRegisterGetString(instruction->operands[i].mem.base),
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =%s%20s%s\n",
+                CVT100_OUT(COLOR_VALUE_LABEL), "INDEX", CVT100_OUT(COLOR_VALUE_R),
+                ZydisRegisterGetString(instruction->operands[i].mem.index),
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =%s%20d%s\n",
+                CVT100_OUT(COLOR_VALUE_LABEL), "SCALE", CVT100_OUT(COLOR_VALUE_G),
+                instruction->operands[i].mem.scale,
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =  %s0x%016" PRIX64 "%s",
+                CVT100_OUT(COLOR_VALUE_LABEL), "DISP ", CVT100_OUT(COLOR_VALUE_G),
+                instruction->operands[i].mem.disp.value,
+                CVT100_OUT(COLOR_DEFAULT));
             break;
         case ZYDIS_OPERAND_TYPE_POINTER:
+            printf("  %sSEG   =              %s0x%04" PRIX16 "%s\n",
+                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_G),
+                instruction->operands[i].ptr.segment,
+                CVT100_OUT(COLOR_DEFAULT));
+            printf("  %s%84s =          %s0x%08" PRIX32 "%s",
+                CVT100_OUT(COLOR_VALUE_LABEL), "OFF  ", CVT100_OUT(COLOR_VALUE_G),
+                instruction->operands[i].ptr.offset,
+                CVT100_OUT(COLOR_DEFAULT));
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             if (instruction->operands[i].imm.is_signed)
             {
-                printf("  [%s %s %2d] 0x%016" PRIX64,
+                printf("  %s[%s%s %s %s%2d%s] %s0x%016" PRIX64 "%s",
+                    CVT100_OUT(COLOR_VALUE_LABEL),
+                    CVT100_OUT(COLOR_VALUE_B),
                     instruction->operands[i].imm.is_signed ? "S" : "U",
-                    instruction->operands[i].imm.is_relative ? "R" : "_",
+                    instruction->operands[i].imm.is_relative ? "R" : "A",
+                    CVT100_OUT(COLOR_VALUE_G),
                     instruction->raw.imm[imm_id].size,
-                    instruction->operands[i].imm.value.s);
+                    CVT100_OUT(COLOR_VALUE_LABEL),
+                    CVT100_OUT(COLOR_VALUE_G),
+                    instruction->operands[i].imm.value.s,
+                    CVT100_OUT(COLOR_DEFAULT));
             } else
             {
-                printf("  SIGN  =%20s\n", instruction->operands[i].imm.is_signed ? "Y" : "N");
-                printf("  %84s =%20s\n",
-                    "REL  ", instruction->operands[i].imm.is_relative ? "Y" : "N");
-                printf("  %84s =                  %2d\n",
-                    "SIZE ", instruction->raw.imm[imm_id].size);
-                printf("  %84s =  0x%016" PRIX64,
-                    "VALUE", instruction->operands[i].imm.value.u);
+                printf("  %s[%s%s %s %s%2d%s] %s0x%016" PRIX64 "%s",
+                    CVT100_OUT(COLOR_VALUE_LABEL),
+                    CVT100_OUT(COLOR_VALUE_B),
+                    instruction->operands[i].imm.is_signed ? "S" : "U",
+                    instruction->operands[i].imm.is_relative ? "R" : "A",
+                    CVT100_OUT(COLOR_VALUE_G),
+                    instruction->raw.imm[imm_id].size,
+                    CVT100_OUT(COLOR_VALUE_LABEL),
+                    CVT100_OUT(COLOR_VALUE_G),
+                    instruction->operands[i].imm.value.u,
+                    CVT100_OUT(COLOR_DEFAULT));
             }
             ++imm_id;
             break;
@@ -236,8 +400,9 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
         }
         puts("");
     }
-    fputs("--  ---------  ----------  ------  ------------   ----  -----  ------", stdout);
-    fputs("  --------  ---------------------------\n", stdout);
+
+    printf("%s--  ---------  ----------  ------  ------------   ----  -----  ------  --------  -" \
+        "--------------------------%s\n", CVT100_OUT(COLOR_HEADER), CVT100_OUT(COLOR_DEFAULT));
 }
 
 static void PrintFlags(const ZydisDecodedInstruction* instruction)
@@ -268,18 +433,18 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     };
     static const char* strings_flag_action[] =
     {
-        "   ",
-        "T  ",
+        "",
+        "T",
         "T_M",
-        "M  ",
-        "0  ",
-        "1  ",
-        "U  "
+        "M",
+        "0",
+        "1",
+        "U"
     };
 
-    fputs("== [    FLAGS ] =====================================================", stdout);
-    fputs("=======================================\n", stdout);
-    printf("    ACTIONS: ");
+    PrintSectionHeader("FLAGS");
+
+    PrintValueLabel("ACTIONS");
     ZyanU8 c = 0;
     for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
     {
@@ -290,20 +455,24 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
                 printf("\n             ");
             }
             ++c;
-            printf("[%-4s: %s] ", strings_flag_name[i],
-                strings_flag_action[instruction->accessedFlags[i].action]);
+            printf("%s[%s%-4s%s: %s%-3s%s]%s ",
+                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+                strings_flag_name[i],
+                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+                strings_flag_action[instruction->accessedFlags[i].action],
+                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
         }
     }
-    puts(c ? "" : "none");
+    puts("");
 
     ZydisCPUFlags flags, temp;
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &temp);
     ZydisGetAccessedFlagsRead(instruction, &flags);
-    printf("     TESTED: 0x%08" PRIX32 "\n", flags);
+    PRINT_VALUE_G("TESTED", "0x%08" PRIX32, flags);
     ZydisGetAccessedFlagsWritten(instruction, &flags);
     flags &= ~temp;
-    printf("   MODIFIED: 0x%08" PRIX32 "\n", flags);
-    printf("  UNDEFINED: 0x%08" PRIX32 "\n", temp);
+    PRINT_VALUE_G("MODIFIED", "0x%08" PRIX32, flags);
+    PRINT_VALUE_G("UNDEFINED", "0x%08" PRIX32, temp);
 }
 
 static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
@@ -329,10 +498,10 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     {
         "INVALID",
         "DISABLED",
-        "MERGE",
-        "ZERO",
+        "MERGING",
+        "ZEROING",
         "CONTROL",
-        "CONTROL_ZERO"
+        "CONTROL_ZEROING"
     };
 
     static const char* strings_rounding_mode[] =
@@ -367,33 +536,36 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "UINT16"
     };
 
-    fputs("== [      AVX ] =====================================================", stdout);
-    fputs("=======================================\n", stdout);
+    PrintSectionHeader("AVX");
 
-    printf("  VECTORLEN: %03d\n", instruction->avx.vector_length);
-    printf("  BROADCAST: %s%s", strings_broadcast_mode[instruction->avx.broadcast.mode],
-        instruction->avx.broadcast.is_static ? " (static)" : "");
+    PRINT_VALUE_B("VECTORLEN", "%03d", instruction->avx.vector_length);
+    PRINT_VALUE_B("BROADCAST", "%s%s%s", strings_broadcast_mode[instruction->avx.broadcast.mode],
+        CVT100_OUT(COLOR_VALUE_LABEL), instruction->avx.broadcast.is_static ? " (static)" : "");
 
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        printf("\n   ROUNDING: %s", strings_rounding_mode[instruction->avx.rounding.mode]);
-        printf("\n        SAE: %s", instruction->avx.has_SAE ? "Y" : "N");
-        printf("\n       MASK: %s [%5s]", ZydisRegisterGetString(instruction->avx.mask.reg),
-            strings_mask_mode[instruction->avx.mask.mode]);
+        PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
+        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_SAE ? "Y" : "N");
+        PRINT_VALUE_R("MASK", "%s %s[%s%s%s]",
+            ZydisRegisterGetString(instruction->avx.mask.reg),
+            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+            strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        printf("\n   ROUNDING: %s", strings_rounding_mode[instruction->avx.rounding.mode]);
-        printf("\n        SAE: %s", instruction->avx.has_SAE ? "Y" : "N");
-        printf("\n       MASK: %s [MERGE]", ZydisRegisterGetString(instruction->avx.mask.reg));
-        printf("\n         EH: %s", instruction->avx.has_eviction_hint ? "Y" : "N");
-        printf("\n    SWIZZLE: %s", strings_swizzle_mode[instruction->avx.swizzle.mode]);
-        printf("\n    CONVERT: %s", strings_conversion_mode[instruction->avx.conversion.mode]);
+        PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
+        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_SAE ? "Y" : "N");
+        PRINT_VALUE_R("MASK", "%s %s[%sMERGING%s]",
+            ZydisRegisterGetString(instruction->avx.mask.reg),
+            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+            CVT100_OUT(COLOR_VALUE_LABEL));
+        PRINT_VALUE_B("EH", "%s", instruction->avx.has_eviction_hint ? "Y" : "N");
+        PRINT_VALUE_B("SWIZZLE", "%s", strings_swizzle_mode[instruction->avx.swizzle.mode]);
+        PRINT_VALUE_B("CONVERT", "%s", strings_conversion_mode[instruction->avx.conversion.mode]);
         break;
     default:
         break;
     }
-    puts("");
 }
 
 static void PrintInstruction(const ZydisDecodedInstruction* instruction)
@@ -515,25 +687,31 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          }
     };
 
-    fputs("== [    BASIC ] =====================================================", stdout);
-    fputs("=======================================\n", stdout);
-    printf("   MNEMONIC: %s [ENC: %s, MAP: %s, OPC: %02X]\n",
-        ZydisMnemonicGetString(instruction->mnemonic),
-        strings_instruction_encoding[instruction->encoding],
-        strings_opcode_map[instruction->opcode_map],
-        instruction->opcode);
-    printf("     LENGTH: %2d\n", instruction->length);
-    printf("        SSZ: %2d\n", instruction->stack_width);
-    printf("       EOSZ: %2d\n", instruction->operand_width);
-    printf("       EASZ: %2d\n", instruction->address_width);
-    printf("   CATEGORY: %s\n", ZydisCategoryGetString(instruction->meta.category));
-    printf("    ISA-SET: %s\n", ZydisISASetGetString(instruction->meta.isa_set));
-    printf("    ISA-EXT: %s\n", ZydisISAExtGetString(instruction->meta.isa_ext));
-    printf(" EXCEPTIONS: %s\n", strings_exception_class[instruction->meta.exception_class]);
+    PrintSectionHeader("BASIC");
+
+    PrintValueLabel("MNEMONIC");
+    printf("%s%s%s [ENC: %s%s%s, MAP: %s%s%s, OPC: %s0x%02X%s]%s\n",
+        CVT100_OUT(COLOR_VALUE_R), ZydisMnemonicGetString(instruction->mnemonic),
+        CVT100_OUT(COLOR_VALUE_LABEL),
+        CVT100_OUT(COLOR_VALUE_B), strings_instruction_encoding[instruction->encoding],
+        CVT100_OUT(COLOR_VALUE_LABEL),
+        CVT100_OUT(COLOR_VALUE_B), strings_opcode_map[instruction->opcode_map],
+        CVT100_OUT(COLOR_VALUE_LABEL),
+        CVT100_OUT(COLOR_VALUE_G), instruction->opcode,
+        CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
+    PRINT_VALUE_G("LENGTH"    , "%2d", instruction->length);
+    PRINT_VALUE_G("SSZ"       , "%2d", instruction->stack_width);
+    PRINT_VALUE_G("EOSZ"      , "%2d", instruction->operand_width);
+    PRINT_VALUE_G("EASZ"      , "%2d", instruction->address_width);
+    PRINT_VALUE_B("CATEGORY"  , "%s" , ZydisCategoryGetString(instruction->meta.category));
+    PRINT_VALUE_B("ISA-SET"   , "%s" , ZydisISASetGetString(instruction->meta.isa_set));
+    PRINT_VALUE_B("ISA-EXT"   , "%s" , ZydisISAExtGetString(instruction->meta.isa_ext));
+    PRINT_VALUE_B("EXCEPTIONS", "%s" , strings_exception_class[instruction->meta.exception_class]);
 
     if (instruction->attributes)
     {
-        fputs (" ATTRIBUTES: ", stdout);
+        PrintValueLabel("ATTRIBUTES");
+        fputs(CVT100_OUT(COLOR_VALUE_B), ZYAN_STDOUT);
         for (size_t i = 0; i < ZYAN_ARRAY_LENGTH(attributeMap); ++i)
         {
             if (instruction->attributes & attributeMap[i].attribute_mask)
@@ -541,7 +719,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
                 printf("%s ", attributeMap[i].str);
             }
         }
-        fputs("\n", stdout);
+        puts(CVT100_OUT(COLOR_DEFAULT));
     }
 
     if (instruction->operand_count > 0)
@@ -573,14 +751,16 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE))))
     {
-        fputs("Failed to initialize instruction-formatter\n", stderr);
+        fprintf(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
+            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
         exit(status);
     }
     char buffer[256];
     ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer), 0);
-    fputs("\n== [   DISASM ] =====================================================", stdout);
-    fputs("=======================================\n", stdout);
-    printf("  %s\n", &buffer[0]);
+
+    puts("");
+    PrintSectionHeader("DISASM");
+    printf("  %s%s%s\n\n", CVT100_OUT(COLOR_VALUE_R), &buffer[0], CVT100_OUT(COLOR_DEFAULT));
 }
 
 /* ============================================================================================== */
@@ -589,16 +769,24 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 
 int main(int argc, char** argv)
 {
+    // Enable VT100 escape sequences on Windows, if the output is not redirected
+    g_vt100_stdout = (ZyanTerminalIsTTY(ZYAN_STDSTREAM_OUT) == ZYAN_STATUS_TRUE) &&
+                     ZYAN_SUCCESS(ZyanTerminalEnableVT100(ZYAN_STDSTREAM_OUT));
+    g_vt100_stderr = (ZyanTerminalIsTTY(ZYAN_STDSTREAM_ERR) == ZYAN_STATUS_TRUE) &&
+                     ZYAN_SUCCESS(ZyanTerminalEnableVT100(ZYAN_STDSTREAM_ERR));
+
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        fputs("Invalid zydis version\n", stderr);
+        fprintf(ZYAN_STDERR, "%sInvalid zydis version%s\n",
+            CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         return ZYAN_STATUS_INVALID_OPERATION;
     }
 
     if (argc < 3)
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [hexbytes]\n", (argc > 0 ? argv[0] :
-            "ZydisInfo"));
+        fprintf(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [hexbytes]%s\n",
+            CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
+            CVT100_ERR(ZYAN_VT100SGR_RESET));
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
@@ -620,7 +808,9 @@ int main(int argc, char** argv)
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
     } else
     {
-        fputs("Usage: ZydisInfo -[real|16|32|64] [hexbytes]\n", stderr);
+        fprintf(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [hexbytes]%s\n",
+            CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
+            CVT100_ERR(ZYAN_VT100SGR_RESET));
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
@@ -630,13 +820,16 @@ int main(int argc, char** argv)
     {
         if (length == ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
-            fprintf(stderr, "Maximum number of %d bytes exceeded\n", ZYDIS_MAX_INSTRUCTION_LENGTH);
+            fprintf(ZYAN_STDERR, "%sMaximum number of %d bytes exceeded%s\n",
+                CVT100_ERR(COLOR_ERROR), ZYDIS_MAX_INSTRUCTION_LENGTH,
+                CVT100_ERR(ZYAN_VT100SGR_RESET));
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         const ZyanUSize len = ZYAN_STRLEN(argv[i + 2]);
         if (len % 2)
         {
-            fputs("Even number of hex nibbles expected\n", stderr);
+            fprintf(ZYAN_STDERR, "%sEven number of hex nibbles expected%s\n",
+                CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         for (ZyanU8 j = 0; j < len / 2; ++j)
@@ -644,7 +837,8 @@ int main(int argc, char** argv)
             unsigned value;
             if (!sscanf(&argv[i + 2][j * 2], "%02x", &value))
             {
-                fputs("Invalid hex value\n", stderr);
+                fprintf(ZYAN_STDERR, "%sInvalid hex value%s\n",
+                    CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             data[length] = (ZyanU8)value;
@@ -658,11 +852,15 @@ int main(int argc, char** argv)
     {
         if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
         {
-            fprintf(stderr,
-                "Could not decode instruction: User defined status code 0x%" PRIx32 "\n", status);
+            fprintf(ZYAN_STDERR,
+                "%sCould not decode instruction: User defined status code 0x%" PRIx32 "%s\n",
+                CVT100_ERR(COLOR_ERROR), status,
+                CVT100_ERR(ZYAN_VT100SGR_RESET));
         } else
         {
-            fprintf(stderr, "Could not decode instruction: %s\n", FormatZyanStatus(status));
+            fprintf(ZYAN_STDERR, "%sCould not decode instruction: %s%s\n",
+                CVT100_ERR(COLOR_ERROR), FormatZyanStatus(status),
+                CVT100_ERR(ZYAN_VT100SGR_RESET));
         }
         return status;
     }
