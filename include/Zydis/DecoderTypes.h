@@ -990,10 +990,6 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
-             */
-            ZyanBool is_decoded;
-            /**
              * @brief   The raw bytes of the prefix.
              */
             ZyanU8 data[1];
@@ -1019,10 +1015,6 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            /**
-             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
-             */
-            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1066,10 +1058,6 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
-             */
-            ZyanBool is_decoded;
-            /**
              * @brief   The raw bytes of the prefix.
              */
             ZyanU8 data[3];
@@ -1111,10 +1099,6 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            /**
-             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
-             */
-            ZyanBool is_decoded;
             /**
              * @brief   The raw bytes of the prefix.
              */
@@ -1182,10 +1166,6 @@ typedef struct ZydisDecodedInstruction_
         struct
         {
             /**
-             * @brief   `ZYAN_TRUE` if the prefix got already decoded.
-             */
-            ZyanBool is_decoded;
-            /**
              * @brief   The raw bytes of the prefix.
              */
             ZyanU8 data[4];
@@ -1243,7 +1223,6 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            ZyanBool is_decoded;
             ZyanU8 data[1];
             ZyanU8 mod;
             ZyanU8 reg;
@@ -1254,7 +1233,6 @@ typedef struct ZydisDecodedInstruction_
          */
         struct
         {
-            ZyanBool is_decoded;
             ZyanU8 data[1];
             ZyanU8 scale;
             ZyanU8 index;

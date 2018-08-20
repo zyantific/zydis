@@ -71,6 +71,10 @@ typedef struct ZydisDecoderContext_
     ZyanU8 prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
 
     /**
+     * @brief   This field is set to `ZYAN_TRUE`, if the `modrm` byte got already decoded.
+     */
+    ZyanBool modrm_decoded;
+    /**
      * @brief   Contains the effective operand-size index.
      *
      * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
@@ -366,12 +370,11 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
     ZYAN_ASSERT((data & 0xF0) == 0x40);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_REX;
-    instruction->raw.rex.is_decoded = ZYAN_TRUE;
-    instruction->raw.rex.data[0]   = data;
-    instruction->raw.rex.W         = (data >> 3) & 0x01;
-    instruction->raw.rex.R         = (data >> 2) & 0x01;
-    instruction->raw.rex.X         = (data >> 1) & 0x01;
-    instruction->raw.rex.B         = (data >> 0) & 0x01;
+    instruction->raw.rex.data[0] = data;
+    instruction->raw.rex.W       = (data >> 3) & 0x01;
+    instruction->raw.rex.R       = (data >> 2) & 0x01;
+    instruction->raw.rex.X       = (data >> 1) & 0x01;
+    instruction->raw.rex.B       = (data >> 0) & 0x01;
 
     // Update internal fields
     context->cache.W = instruction->raw.rex.W;
@@ -397,14 +400,13 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     ZYAN_ASSERT(((data[1] >> 0) & 0x1F) >= 8);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_XOP;
-    instruction->raw.xop.is_decoded = ZYAN_TRUE;
-    instruction->raw.xop.data[0]   = 0x8F;
-    instruction->raw.xop.data[1]   = data[1];
-    instruction->raw.xop.data[2]   = data[2];
-    instruction->raw.xop.R         = (data[1] >> 7) & 0x01;
-    instruction->raw.xop.X         = (data[1] >> 6) & 0x01;
-    instruction->raw.xop.B         = (data[1] >> 5) & 0x01;
-    instruction->raw.xop.m_mmmm    = (data[1] >> 0) & 0x1F;
+    instruction->raw.xop.data[0] = 0x8F;
+    instruction->raw.xop.data[1] = data[1];
+    instruction->raw.xop.data[2] = data[2];
+    instruction->raw.xop.R       = (data[1] >> 7) & 0x01;
+    instruction->raw.xop.X       = (data[1] >> 6) & 0x01;
+    instruction->raw.xop.B       = (data[1] >> 5) & 0x01;
+    instruction->raw.xop.m_mmmm  = (data[1] >> 0) & 0x1F;
 
     if ((instruction->raw.xop.m_mmmm < 0x08) || (instruction->raw.xop.m_mmmm > 0x0A))
     {
@@ -445,8 +447,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     ZYAN_ASSERT((data[0] == 0xC4) || (data[0] == 0xC5));
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_VEX;
-    instruction->raw.vex.is_decoded     = ZYAN_TRUE;
-    instruction->raw.vex.data[0]       = data[0];
+    instruction->raw.vex.data[0] = data[0];
     switch (data[0])
     {
     case 0xC4:
@@ -517,7 +518,6 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     ZYAN_ASSERT(data[0] == 0x62);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
-    instruction->raw.evex.is_decoded = ZYAN_TRUE;
     instruction->raw.evex.data[0]   = 0x62;
     instruction->raw.evex.data[1]   = data[1];
     instruction->raw.evex.data[2]   = data[2];
@@ -609,16 +609,15 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     ZYAN_ASSERT(data[0] == 0x62);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_MVEX;
-    instruction->raw.mvex.is_decoded = ZYAN_TRUE;
-    instruction->raw.mvex.data[0]   = 0x62;
-    instruction->raw.mvex.data[1]   = data[1];
-    instruction->raw.mvex.data[2]   = data[2];
-    instruction->raw.mvex.data[3]   = data[3];
-    instruction->raw.mvex.R         = (data[1] >> 7) & 0x01;
-    instruction->raw.mvex.X         = (data[1] >> 6) & 0x01;
-    instruction->raw.mvex.B         = (data[1] >> 5) & 0x01;
-    instruction->raw.mvex.R2        = (data[1] >> 4) & 0x01;
-    instruction->raw.mvex.mmmm      = (data[1] >> 0) & 0x0F;
+    instruction->raw.mvex.data[0] = 0x62;
+    instruction->raw.mvex.data[1] = data[1];
+    instruction->raw.mvex.data[2] = data[2];
+    instruction->raw.mvex.data[3] = data[3];
+    instruction->raw.mvex.R       = (data[1] >> 7) & 0x01;
+    instruction->raw.mvex.X       = (data[1] >> 6) & 0x01;
+    instruction->raw.mvex.B       = (data[1] >> 5) & 0x01;
+    instruction->raw.mvex.R2      = (data[1] >> 4) & 0x01;
+    instruction->raw.mvex.mmmm    = (data[1] >> 0) & 0x0F;
 
     if (instruction->raw.mvex.mmmm > 0x03)
     {
@@ -626,16 +625,16 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MAP;
     }
 
-    instruction->raw.mvex.W         = (data[2] >> 7) & 0x01;
-    instruction->raw.mvex.vvvv      = (data[2] >> 3) & 0x0F;
+    instruction->raw.mvex.W       = (data[2] >> 7) & 0x01;
+    instruction->raw.mvex.vvvv    = (data[2] >> 3) & 0x0F;
 
     ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x00);
 
-    instruction->raw.mvex.pp        = (data[2] >> 0) & 0x03;
-    instruction->raw.mvex.E         = (data[3] >> 7) & 0x01;
-    instruction->raw.mvex.SSS       = (data[3] >> 4) & 0x07;
-    instruction->raw.mvex.V2        = (data[3] >> 3) & 0x01;
-    instruction->raw.mvex.kkk       = (data[3] >> 0) & 0x07;
+    instruction->raw.mvex.pp      = (data[2] >> 0) & 0x03;
+    instruction->raw.mvex.E       = (data[3] >> 7) & 0x01;
+    instruction->raw.mvex.SSS     = (data[3] >> 4) & 0x07;
+    instruction->raw.mvex.V2      = (data[3] >> 3) & 0x01;
+    instruction->raw.mvex.kkk     = (data[3] >> 0) & 0x07;
 
     // Update internal fields
     context->cache.W = instruction->raw.mvex.W;
@@ -656,19 +655,24 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
 /**
  * @brief   Decodes the `ModRM`-byte.
  *
+ * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   data        The `ModRM` byte.
  */
-static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, ZyanU8 data)
+static void ZydisDecodeModRM(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction,
+    ZyanU8 data)
 {
+    ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(!context->modrm_decoded);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
-    instruction->raw.modrm.is_decoded = ZYAN_TRUE;
-    instruction->raw.modrm.data[0]   = data;
-    instruction->raw.modrm.mod       = (data >> 6) & 0x03;
-    instruction->raw.modrm.reg       = (data >> 3) & 0x07;
-    instruction->raw.modrm.rm        = (data >> 0) & 0x07;
+    instruction->raw.modrm.data[0] = data;
+    instruction->raw.modrm.mod     = (data >> 6) & 0x03;
+    instruction->raw.modrm.reg     = (data >> 3) & 0x07;
+    instruction->raw.modrm.rm      = (data >> 0) & 0x07;
+
+    context->modrm_decoded = ZYAN_TRUE;
 }
 
 /**
@@ -680,15 +684,14 @@ static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, ZyanU8 data)
 static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, ZyanU8 data)
 {
     ZYAN_ASSERT(instruction);
-    ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
     ZYAN_ASSERT(instruction->raw.modrm.rm == 4);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_SIB;
-    instruction->raw.sib.is_decoded = ZYAN_TRUE;
-    instruction->raw.sib.data[0]   = data;
-    instruction->raw.sib.scale     = (data >> 6) & 0x03;
-    instruction->raw.sib.index     = (data >> 3) & 0x07;
-    instruction->raw.sib.base      = (data >> 0) & 0x07;
+    instruction->raw.sib.data[0] = data;
+    instruction->raw.sib.scale   = (data >> 6) & 0x03;
+    instruction->raw.sib.index   = (data >> 3) & 0x07;
+    instruction->raw.sib.base    = (data >> 0) & 0x07;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -885,31 +888,31 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
             return value;
         }
         case ZYDIS_REG_ENCODING_REG:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             return instruction->raw.modrm.reg;
         case ZYDIS_REG_ENCODING_NDSNDD:
             return context->cache.v_vvvv & 0x07;
         case ZYDIS_REG_ENCODING_RM:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             return instruction->raw.modrm.rm;
         case ZYDIS_REG_ENCODING_BASE:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
             if (instruction->raw.modrm.rm == 4)
             {
-                ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+                ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
                 return instruction->raw.sib.base;
             }
             return instruction->raw.modrm.rm;
         case ZYDIS_REG_ENCODING_INDEX:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             return instruction->raw.sib.index;
         case ZYDIS_REG_ENCODING_VIDX:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_XMM) ||
                         (register_class == ZYDIS_REGCLASS_YMM) ||
                         (register_class == ZYDIS_REGCLASS_ZMM));
@@ -939,7 +942,7 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
         }
         case ZYDIS_REG_ENCODING_REG:
         {
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZyanU8 value = instruction->raw.modrm.reg;
             switch (register_class)
             {
@@ -985,7 +988,7 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
             }
         case ZYDIS_REG_ENCODING_RM:
         {
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZyanU8 value = instruction->raw.modrm.rm;
             switch (register_class)
             {
@@ -1022,23 +1025,23 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
             return value;
         }
         case ZYDIS_REG_ENCODING_BASE:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
             if (instruction->raw.modrm.rm == 4)
             {
-                ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+                ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
                 return instruction->raw.sib.base | (context->cache.B << 3);
             }
             return instruction->raw.modrm.rm | (context->cache.B << 3);
         case ZYDIS_REG_ENCODING_INDEX:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             return instruction->raw.sib.index | (context->cache.X << 3);
         case ZYDIS_REG_ENCODING_VIDX:
-            ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_XMM) ||
                         (register_class == ZYDIS_REGCLASS_YMM) ||
                         (register_class == ZYDIS_REGCLASS_ZMM));
@@ -1377,7 +1380,7 @@ static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(operand);
-    ZYAN_ASSERT(instruction->raw.modrm.is_decoded);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
     ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
     ZYAN_ASSERT(!vidx_register_class || ((instruction->raw.modrm.rm == 4) &&
         ((instruction->address_width == 32) || (instruction->address_width == 64))));
@@ -1454,7 +1457,7 @@ static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         }
         if (modrm_rm == 4)
         {
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             operand->mem.index =
                 ZydisRegisterEncode(vidx_register_class ? vidx_register_class : ZYDIS_REGCLASS_GPR32,
                     ZydisCalcRegisterId(context, instruction,
@@ -1511,7 +1514,7 @@ static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
         }
         if ((modrm_rm & 0x07) == 4)
         {
-            ZYAN_ASSERT(instruction->raw.sib.is_decoded);
+            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
             operand->mem.index =
                 ZydisRegisterEncode(vidx_register_class ? vidx_register_class : ZYDIS_REGCLASS_GPR64,
                     ZydisCalcRegisterId(context, instruction,
@@ -3140,11 +3143,12 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* conte
 
     if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_MODRM)
     {
-        if (!instruction->raw.modrm.is_decoded)
+        // TODO:
+        if (!context->modrm_decoded)
         {
             ZyanU8 modrm_byte;
             ZYAN_CHECK(ZydisInputNext(context, instruction, &modrm_byte));
-            ZydisDecodeModRM(instruction, modrm_byte);
+            ZydisDecodeModRM(context, instruction, modrm_byte);
         }
         ZyanU8 has_sib = 0;
         ZyanU8 displacement_size = 0;
@@ -3451,7 +3455,7 @@ static ZyanStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, Zyan
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        ZYAN_ASSERT(instruction->raw.xop.is_decoded);
+        ZYAN_ASSERT(instruction->raw.xop.data[0]);
         *index = (instruction->raw.xop.m_mmmm - 0x08) + (instruction->raw.xop.pp * 3) + 1;
         break;
     default:
@@ -3471,7 +3475,7 @@ static ZyanStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, Zyan
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ZYAN_ASSERT(instruction->raw.vex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.vex.data[0]);
         *index = instruction->raw.vex.m_mmmm + (instruction->raw.vex.pp << 2) + 1;
         break;
     default:
@@ -3491,11 +3495,11 @@ static ZyanStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, Zy
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ZYAN_ASSERT(instruction->raw.evex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.evex.data[0]);
         *index = instruction->raw.evex.mm + (instruction->raw.evex.pp << 2) + 1;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        ZYAN_ASSERT(instruction->raw.mvex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.mvex.data[0]);
         *index = instruction->raw.mvex.mmmm + (instruction->raw.mvex.pp << 2) + 17;
         break;
     default:
@@ -3551,19 +3555,19 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                     case 0xC4:
                         // Read additional 3-byte VEX-prefix data
-                        ZYAN_ASSERT(!instruction->raw.vex.is_decoded);
+                        ZYAN_ASSERT(!instruction->raw.vex.data[0]);
                         ZYAN_CHECK(ZydisInputNextBytes(context, instruction, &prefix_bytes[1], 2));
                         break;
                     case 0xC5:
                         // Read additional 2-byte VEX-prefix data
-                        ZYAN_ASSERT(!instruction->raw.vex.is_decoded);
+                        ZYAN_ASSERT(!instruction->raw.vex.data[0]);
                         ZYAN_CHECK(ZydisInputNext(context, instruction, &prefix_bytes[1]));
                         break;
                     case 0x62:
 #if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
                         // Read additional EVEX/MVEX-prefix data
-                        ZYAN_ASSERT(!instruction->raw.evex.is_decoded);
-                        ZYAN_ASSERT(!instruction->raw.mvex.is_decoded);
+                        ZYAN_ASSERT(!instruction->raw.evex.data[0]);
+                        ZYAN_ASSERT(!instruction->raw.mvex.data[0]);
                         ZYAN_CHECK(ZydisInputNextBytes(context, instruction, &prefix_bytes[1], 3));
                         break;
 #else
@@ -3749,11 +3753,11 @@ static ZyanStatus ZydisNodeHandlerModrmMod(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
-    if (!instruction->raw.modrm.is_decoded)
+    if (!context->modrm_decoded)
     {
         ZyanU8 modrmByte;
         ZYAN_CHECK(ZydisInputNext(context, instruction, &modrmByte));
-        ZydisDecodeModRM(instruction, modrmByte);
+        ZydisDecodeModRM(context, instruction, modrmByte);
     }
     *index = instruction->raw.modrm.mod;
     return ZYAN_STATUS_SUCCESS;
@@ -3774,11 +3778,11 @@ static ZyanStatus ZydisNodeHandlerModrmReg(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
-    if (!instruction->raw.modrm.is_decoded)
+    if (!context->modrm_decoded)
     {
         ZyanU8 modrmByte;
         ZYAN_CHECK(ZydisInputNext(context, instruction, &modrmByte));
-        ZydisDecodeModRM(instruction, modrmByte);
+        ZydisDecodeModRM(context, instruction, modrmByte);
     }
     *index = instruction->raw.modrm.reg;
     return ZYAN_STATUS_SUCCESS;
@@ -3791,11 +3795,11 @@ static ZyanStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
-    if (!instruction->raw.modrm.is_decoded)
+    if (!context->modrm_decoded)
     {
         ZyanU8 modrmByte;
         ZYAN_CHECK(ZydisInputNext(context, instruction, &modrmByte));
-        ZydisDecodeModRM(instruction, modrmByte);
+        ZydisDecodeModRM(context, instruction, modrmByte);
     }
     *index = instruction->raw.modrm.rm;
     return ZYAN_STATUS_SUCCESS;
@@ -3895,16 +3899,16 @@ static ZyanStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context,
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        ZYAN_ASSERT(instruction->raw.xop.is_decoded);
+        ZYAN_ASSERT(instruction->raw.xop.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ZYAN_ASSERT(instruction->raw.vex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.vex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ZYAN_ASSERT(instruction->raw.evex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.evex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        ZYAN_ASSERT(instruction->raw.mvex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.mvex.data[0]);
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -3930,16 +3934,16 @@ static ZyanStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context,
         // nothing to do here
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        ZYAN_ASSERT(instruction->raw.xop.is_decoded);
+        ZYAN_ASSERT(instruction->raw.xop.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ZYAN_ASSERT(instruction->raw.vex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.vex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ZYAN_ASSERT(instruction->raw.evex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.evex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        ZYAN_ASSERT(instruction->raw.mvex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.mvex.data[0]);
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -3961,16 +3965,16 @@ static ZyanStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
         // nothing to do here
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        ZYAN_ASSERT(instruction->raw.xop.is_decoded);
+        ZYAN_ASSERT(instruction->raw.xop.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        ZYAN_ASSERT(instruction->raw.vex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.vex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        ZYAN_ASSERT(instruction->raw.evex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.evex.data[0]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        ZYAN_ASSERT(instruction->raw.mvex.is_decoded);
+        ZYAN_ASSERT(instruction->raw.mvex.data[0]);
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -3986,7 +3990,7 @@ static ZyanStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, Zy
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
-    ZYAN_ASSERT(instruction->raw.evex.is_decoded);
+    ZYAN_ASSERT(instruction->raw.evex.data[0]);
     *index = instruction->raw.evex.b;
     return ZYAN_STATUS_SUCCESS;
 }
@@ -3999,7 +4003,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Zy
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
-    ZYAN_ASSERT(instruction->raw.mvex.is_decoded);
+    ZYAN_ASSERT(instruction->raw.mvex.data[0]);
     *index = instruction->raw.mvex.E;
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4693,6 +4697,7 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     context.bufferLen = length;
     context.last_segment_prefix = 0;
     context.mandatory_candidate = 0;
+    context.modrm_decoded = ZYAN_FALSE;
 
     ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
     instruction->machine_mode = decoder->machineMode;
