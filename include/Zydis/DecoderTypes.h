@@ -848,18 +848,18 @@ typedef struct ZydisDecodedInstruction_
         /**
          * @brief   The CPU-flag action.
          *
-         * You can call `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a
-         * specific action.
+         * Use `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a specific
+         * action.
          */
         ZydisCPUFlagAction action;
-    } accessedFlags[ZYDIS_CPUFLAG_MAX_VALUE + 1];
+    } accessed_flags[ZYDIS_CPUFLAG_MAX_VALUE + 1];
     /**
-     * @brief   Extended info for AVX instructions.
+     * @brief   Extended info for `AVX` instructions.
      */
     struct
     {
         /**
-         * @brief   The AVX vector-length.
+         * @brief   The `AVX` vector-length.
          */
         ZyanU16 vector_length;
         /**
@@ -877,58 +877,59 @@ typedef struct ZydisDecodedInstruction_
             ZydisRegister reg;
         } mask;
         /**
-         * @brief   Contains info about the AVX broadcast.
+         * @brief   Contains info about the `AVX` broadcast.
          */
         struct
         {
             /**
              * @brief   Signals, if the broadcast is a static broadcast.
              *
-             * This is the case for instructions with inbuild broadcast functionality, that is
-             * always active controlled by the `EVEX/MVEX.RC` bits.
+             * This is the case for instructions with inbuild broadcast functionality, which is
+             * always active and not controlled by the `EVEX/MVEX.RC` bits.
              */
             ZyanBool is_static;
             /**
-             * @brief   The AVX broadcast-mode.
+             * @brief   The `AVX` broadcast-mode.
              */
             ZydisBroadcastMode mode;
         } broadcast;
         /**
-         * @brief   Contains info about the AVX rounding.
+         * @brief   Contains info about the `AVX` rounding.
          */
         struct
         {
             /**
-             * @brief   The AVX rounding-mode.
+             * @brief   The `AVX` rounding-mode.
              */
             ZydisRoundingMode mode;
         } rounding;
         /**
-         * @brief   Contains info about the AVX register-swizzle (`KNC` only).
+         * @brief   Contains info about the `AVX` register-swizzle (`KNC` only).
          */
         struct
         {
             /**
-             * @brief   The AVX register-swizzle mode.
+             * @brief   The `AVX` register-swizzle mode.
              */
             ZydisSwizzleMode mode;
         } swizzle;
         /**
-         * @brief   Contains info about the AVX data-conversion (`KNC` only).
+         * @brief   Contains info about the `AVX` data-conversion (`KNC` only).
          */
         struct
         {
             /**
-             * @brief   The AVX data-conversion mode.
+             * @brief   The `AVX` data-conversion mode.
              */
             ZydisConversionMode mode;
         } conversion;
         /**
-         * @brief   Signals, if the sae functionality is enabled for the instruction.
+         * @brief   Signals, if the `SAE` (suppress-all-exceptions) functionality is enabled for
+         *          the instruction.
          */
         ZyanBool has_SAE;
         /**
-         * @brief   Signals, if the instruction has a memory eviction-hint (`KNC` only).
+         * @brief   Signals, if the instruction has a memory-eviction-hint (`KNC` only).
          */
         ZyanBool has_eviction_hint;
         // TODO: publish EVEX tuple-type and MVEX functionality
@@ -1097,10 +1098,14 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 pp;
             /**
-             * @brief   The offset of the first vex byte, relative to the beginning of the
+             * @brief   The offset of the first `VEX` byte, relative to the beginning of the
              *          instruction, in bytes.
              */
             ZyanU8 offset;
+            /**
+             * @brief   The size of the `VEX` prefix, in bytes.
+             */
+            ZyanU8 size;
         } vex;
         /**
          * @brief   Detailed info about the `EVEX` prefix.

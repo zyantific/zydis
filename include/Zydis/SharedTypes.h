@@ -348,7 +348,7 @@ typedef enum ZydisOperandAction_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_OPERAND_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_ACTION_MAX_VALUE),
+    ZYDIS_OPERAND_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_ACTION_MAX_VALUE)
 } ZydisOperandAction;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -393,7 +393,7 @@ typedef enum ZydisInstructionEncoding_
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_INSTRUCTION_ENCODING_REQUIRED_BITS =
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE),
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE)
 } ZydisInstructionEncoding;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -421,7 +421,7 @@ typedef enum ZydisOpcodeMap_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_OPCODE_MAP_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPCODE_MAP_MAX_VALUE),
+    ZYDIS_OPCODE_MAP_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPCODE_MAP_MAX_VALUE)
 } ZydisOpcodeMap;
 
 /* ---------------------------------------------------------------------------------------------- */

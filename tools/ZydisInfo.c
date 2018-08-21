@@ -217,6 +217,121 @@ static void PrintValueLabel(const char* name)
 /* ============================================================================================== */
 
 /**
+ * @brief   Prints instruction segments (parts).
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   buffer      The buffer that contains the instruction bytes.
+ */
+static void PrintSegments(const ZydisDecodedInstruction* instruction, const ZyanU8* buffer)
+{
+    PrintSectionHeader("SEGMENTS");
+
+    ZydisInstructionSegments segments;
+    ZydisGetInstructionSegments(instruction, &segments);
+
+    struct
+    {
+        ZyanU8 pos;
+        const char* color;
+        const char* name;
+    } print_info[ZYAN_ARRAY_LENGTH(segments.segments)];
+
+    ZyanU8 pos = 0;
+    ZyanU8 imm = 0;
+    for (ZyanU8 i = 0; i < segments.count; ++i)
+    {
+        print_info[i].pos = pos;
+
+        switch (segments.segments[i].type)
+        {
+        case ZYDIS_INSTR_SEGMENT_PREFIXES:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
+            print_info[i].name  = "PREFIXES";
+            break;
+        case ZYDIS_INSTR_SEGMENT_REX:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA);
+            print_info[i].name  = "REX";
+            break;
+        case ZYDIS_INSTR_SEGMENT_XOP:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].name  = "XOP";
+            break;
+        case ZYDIS_INSTR_SEGMENT_VEX:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].name  = "VEX";
+            break;
+        case ZYDIS_INSTR_SEGMENT_EVEX:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].name  = "EVEX";
+            break;
+        case ZYDIS_INSTR_SEGMENT_MVEX:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].name  = "MVEX";
+            break;
+        case ZYDIS_INSTR_SEGMENT_OPCODE:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_RED);
+            print_info[i].name  = "OPCODE";
+            break;
+        case ZYDIS_INSTR_SEGMENT_MODRM:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_YELLOW);
+            print_info[i].name  = "MODRM";
+            break;
+        case ZYDIS_INSTR_SEGMENT_SIB:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_YELLOW);
+            print_info[i].name  = "SIB";
+            break;
+        case ZYDIS_INSTR_SEGMENT_DISPLACEMENT:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
+            print_info[i].name  = "DISP";
+            break;
+        case ZYDIS_INSTR_SEGMENT_IMMEDIATE:
+            if (imm == 0)
+            {
+                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_GREEN);
+                imm = 1;
+            } else
+            {
+                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
+            }
+            print_info[i].name  = "IMM";
+            break;
+        default:
+            ZYAN_UNREACHABLE;
+        }
+
+        ZYAN_PRINTF("%s", print_info[i].color);
+        for (int j = 0; j < segments.segments[i].size; ++j)
+        {
+            ZYAN_PRINTF("%02X ", buffer[segments.segments[i].offset + j]);
+            pos += 3;
+        }
+    }
+    ZYAN_PRINTF("%s\n", CVT100_OUT(COLOR_DEFAULT));
+
+    for (ZyanU8 i = 0; i < segments.count; ++i)
+    {
+        ZyanU8 j = 0;
+        ZyanU8 k = 0;
+        while (j <= print_info[segments.count - i - 1].pos)
+        {
+            if (j == print_info[k].pos)
+            {
+                ZYAN_PRINTF("%s:", print_info[k].color);
+                ++k;
+            } else
+            {
+                ZYAN_PRINTF(" ");
+            }
+            ++j;
+        }
+        ZYAN_PRINTF("..%s%s\n", print_info[segments.count - i - 1].color,
+            print_info[segments.count - i - 1].name);
+    }
+
+    ZYAN_PRINTF(CVT100_OUT(COLOR_DEFAULT));
+}
+
+/**
  * @brief   Prints instruction operands info.
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -459,9 +574,9 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
 
     PrintValueLabel("ACTIONS");
     ZyanU8 c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessedFlags); ++i)
+    for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
     {
-        if (instruction->accessedFlags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
+        if (instruction->accessed_flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {
             if (c && (c % 8 == 0))
             {
@@ -472,7 +587,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
                 CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
                 strings_flag_name[i],
                 CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
-                strings_flag_action[instruction->accessedFlags[i].action],
+                strings_flag_action[instruction->accessed_flags[i].action],
                 CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
         }
     }
@@ -889,6 +1004,9 @@ int main(int argc, char** argv)
     }
 
     PrintInstruction(&instruction);
+
+    ZYAN_PUTS("");
+    PrintSegments(&instruction, &data[0]);
 
     return ZYAN_STATUS_SUCCESS;
 }

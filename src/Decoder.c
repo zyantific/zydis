@@ -440,6 +440,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     {
     case 0xC4:
         ZYAN_ASSERT(instruction->raw.vex.offset == instruction->length - 3);
+        instruction->raw.vex.size    = 3;
         instruction->raw.vex.R       = (data[1] >> 7) & 0x01;
         instruction->raw.vex.X       = (data[1] >> 6) & 0x01;
         instruction->raw.vex.B       = (data[1] >> 5) & 0x01;
@@ -451,6 +452,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
         break;
     case 0xC5:
         ZYAN_ASSERT(instruction->raw.vex.offset == instruction->length - 2);
+        instruction->raw.vex.size    = 2;
         instruction->raw.vex.R       = (data[1] >> 7) & 0x01;
         instruction->raw.vex.X       = 1;
         instruction->raw.vex.B       = 1;
@@ -4566,11 +4568,11 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                     if (ZydisGetAccessedFlags(definition, &flags))
                     {
                         instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
-                        ZYAN_ASSERT((ZYAN_ARRAY_LENGTH(instruction->accessedFlags) ==
-                                      ZYAN_ARRAY_LENGTH(flags->action             )) &&
-                                     (sizeof            (instruction->accessedFlags) ==
-                                      sizeof            (flags->action             )));
-                        ZYAN_MEMCPY(&instruction->accessedFlags, &flags->action,
+                        ZYAN_ASSERT((ZYAN_ARRAY_LENGTH(instruction->accessed_flags) ==
+                                     ZYAN_ARRAY_LENGTH(flags->action             )) &&
+                                    (sizeof           (instruction->accessed_flags) ==
+                                     sizeof           (flags->action             )));
+                        ZYAN_MEMCPY(&instruction->accessed_flags, &flags->action,
                             sizeof(flags->action));
                     }
                 }

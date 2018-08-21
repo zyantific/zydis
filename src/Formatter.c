@@ -383,7 +383,7 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
                 context->operand->mem.index));
             if (context->operand->mem.scale)
             {
-                ZYAN_CHECK(ZydisStringAppendShort(string, &STR_SUB));
+                ZYAN_CHECK(ZydisStringAppendShort(string, &STR_MUL));
                 ZYAN_CHECK(ZydisStringAppendDecU(string, context->operand->mem.scale, 0, ZYAN_NULL,
                     ZYAN_NULL));
             }
