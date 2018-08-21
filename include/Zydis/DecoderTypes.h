@@ -805,11 +805,7 @@ typedef struct ZydisDecodedInstruction_
      */
     ZyanU8 length;
     /**
-     * @brief   The raw bytes of the decoded instruction.
-     */
-    ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
-    /**
-     * @brief   The instruction-encoding (default, 3DNow, VEX, EVEX, XOP).
+     * @brief   The instruction-encoding (default, `3DNOW`, `VEX`, `EVEX`, `XOP`).
      */
     ZydisInstructionEncoding encoding;
     /**
@@ -960,13 +956,13 @@ typedef struct ZydisDecodedInstruction_
         ZydisExceptionClass exception_class;
     } meta;
     /**
-     * @brief   Extended info about different instruction-parts like ModRM, SIB or
+     * @brief   Extended info about different instruction-parts like `ModRM`, `SIB` or
      *          encoding-prefixes.
      */
     struct
     {
         /**
-         * @brief   Detailed info about the legacy prefixes
+         * @brief   Detailed info about the legacy prefixes (including `REX`).
          */
         struct
         {
@@ -985,50 +981,54 @@ typedef struct ZydisDecodedInstruction_
             ZyanU8 has67;
         } prefixes;
         /**
-         * @brief   Detailed info about the REX-prefix.
+         * @brief   Detailed info about the `REX` prefix.
          */
         struct
         {
-            /**
-             * @brief   The raw bytes of the prefix.
-             */
-            ZyanU8 data[1];
             /**
              * @brief   64-bit operand-size promotion.
              */
             ZyanU8 W;
             /**
-             * @brief   Extension of the ModRM.reg field.
+             * @brief   Extension of the `ModRM.reg` field.
              */
             ZyanU8 R;
             /**
-             * @brief   Extension of the SIB.index field.
+             * @brief   Extension of the `SIB.index` field.
              */
             ZyanU8 X;
             /**
-             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field.
+             * @brief   Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
              */
             ZyanU8 B;
+            /**
+             * @brief   The offset of the effective `REX` byte, relative to the beginning of the
+             *          instruction, in bytes.
+             *
+             * This offset always points to the "effective" `REX` prefix (the one closest to the
+             * instruction opcode), if multiple `REX` prefixes are present.
+             *
+             * Note that the `REX` byte can be the first byte of the instruction, which would lead
+             * to an offset of `0`. Please refer to the instruction attributes to check for the
+             * presence of the `REX` prefix.
+             */
+            ZyanU8 offset;
         } rex;
         /**
-         * @brief   Detailed info about the XOP-prefix.
+         * @brief   Detailed info about the `XOP` prefix.
          */
         struct
         {
             /**
-             * @brief   The raw bytes of the prefix.
-             */
-            ZyanU8 data[3];
-            /**
-             * @brief   Extension of the ModRM.reg field (inverted).
+             * @brief   Extension of the `ModRM.reg` field (inverted).
              */
             ZyanU8 R;
             /**
-             * @brief   Extension of the SIB.index field (inverted).
+             * @brief   Extension of the `SIB.index` field (inverted).
              */
             ZyanU8 X;
             /**
-             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field (inverted).
+             * @brief   Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (inverted).
              */
             ZyanU8 B;
             /**
@@ -1040,7 +1040,8 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 W;
             /**
-             * @brief   NDS register specifier (inverted).
+             * @brief   `NDS`/`NDD` (non-destructive-source/destination) register specifier
+             *          (inverted).
              */
             ZyanU8 vvvv;
             /**
@@ -1051,26 +1052,27 @@ typedef struct ZydisDecodedInstruction_
              * @brief   Compressed legacy prefix.
              */
             ZyanU8 pp;
+            /**
+             * @brief   The offset of the first xop byte, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            ZyanU8 offset;
         } xop;
         /**
-         * @brief   Detailed info about the VEX-prefix.
+         * @brief   Detailed info about the `VEX` prefix.
          */
         struct
         {
             /**
-             * @brief   The raw bytes of the prefix.
-             */
-            ZyanU8 data[3];
-            /**
-             * @brief   Extension of the ModRM.reg field (inverted).
+             * @brief   Extension of the `ModRM.reg` field (inverted).
              */
             ZyanU8 R;
             /**
-             * @brief   Extension of the SIB.index field (inverted).
+             * @brief   Extension of the `SIB.index` field (inverted).
              */
             ZyanU8 X;
             /**
-             * @brief   Extension of the ModRM.rm, SIB.base, or opcode.reg field (inverted).
+             * @brief   Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (inverted).
              */
             ZyanU8 B;
             /**
@@ -1082,7 +1084,8 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 W;
             /**
-             * @brief   NDS register specifier (inverted).
+             * @brief   `NDS`/`NDD` (non-destructive-source/destination) register specifier
+             *          (inverted).
              */
             ZyanU8 vvvv;
             /**
@@ -1093,26 +1096,27 @@ typedef struct ZydisDecodedInstruction_
              * @brief   Compressed legacy prefix.
              */
             ZyanU8 pp;
+            /**
+             * @brief   The offset of the first vex byte, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            ZyanU8 offset;
         } vex;
         /**
-         * @brief   Detailed info about the EVEX-prefix.
+         * @brief   Detailed info about the `EVEX` prefix.
          */
         struct
         {
             /**
-             * @brief   The raw bytes of the prefix.
-             */
-            ZyanU8 data[4];
-            /**
-             * @brief   Extension of the ModRM.reg field (inverted).
+             * @brief   Extension of the `ModRM.reg` field (inverted).
              */
             ZyanU8 R;
             /**
-             * @brief   Extension of the SIB.index/vidx field (inverted).
+             * @brief   Extension of the `SIB.index/vidx` field (inverted).
              */
             ZyanU8 X;
             /**
-             * @brief   Extension of the ModRM.rm or SIB.base field (inverted).
+             * @brief   Extension of the `ModRM.rm` or `SIB.base` field (inverted).
              */
             ZyanU8 B;
             /**
@@ -1128,7 +1132,8 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 W;
             /**
-             * @brief   NDS register specifier (inverted).
+             * @brief   `NDS`/`NDD` (non-destructive-source/destination) register specifier
+             *          (inverted).
              */
             ZyanU8 vvvv;
             /**
@@ -1148,37 +1153,38 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 L;
             /**
-             * @brief   Broadcast/RC/SAE Context.
+             * @brief   Broadcast/RC/SAE context.
              */
             ZyanU8 b;
             /**
-             * @brief   High-16 NDS/VIDX register specifier.
+             * @brief   High-16 `NDS`/`VIDX` register specifier.
              */
             ZyanU8 V2;
             /**
              * @brief   Embedded opmask register specifier.
              */
             ZyanU8 aaa;
+            /**
+             * @brief   The offset of the first evex byte, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            ZyanU8 offset;
         } evex;
         /**
-        * @brief    Detailed info about the MVEX-prefix.
+        * @brief    Detailed info about the `MVEX` prefix.
         */
         struct
         {
             /**
-             * @brief   The raw bytes of the prefix.
-             */
-            ZyanU8 data[4];
-            /**
-             * @brief   Extension of the ModRM.reg field (inverted).
+             * @brief   Extension of the `ModRM.reg` field (inverted).
              */
             ZyanU8 R;
             /**
-             * @brief   Extension of the SIB.index/vidx field (inverted).
+             * @brief   Extension of the `SIB.index/vidx` field (inverted).
              */
             ZyanU8 X;
             /**
-             * @brief   Extension of the ModRM.rm or SIB.base field (inverted).
+             * @brief   Extension of the `ModRM.rm` or `SIB.base` field (inverted).
              */
             ZyanU8 B;
             /**
@@ -1194,7 +1200,8 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 W;
             /**
-             * @brief   NDS register specifier (inverted).
+             * @brief   `NDS`/`NDD` (non-destructive-source/destination) register specifier
+             *          (inverted).
              */
             ZyanU8 vvvv;
             /**
@@ -1210,33 +1217,64 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 SSS;
             /**
-             * @brief   High-16 NDS/VIDX register specifier.
+             * @brief   High-16 `NDS`/`VIDX` register specifier.
              */
             ZyanU8 V2;
             /**
              * @brief   Embedded opmask register specifier.
              */
             ZyanU8 kkk;
+            /**
+             * @brief   The offset of the first mvex byte, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            ZyanU8 offset;
         } mvex;
         /**
-         * @brief   Detailed info about the ModRM-byte.
+         * @brief   Detailed info about the `ModRM` byte.
          */
         struct
         {
-            ZyanU8 data[1];
+            /**
+             * @brief   The addressing mode.
+             */
             ZyanU8 mod;
+            /**
+             * @brief   Register specifier or opcode-extension.
+             */
             ZyanU8 reg;
+            /**
+             * @brief   Register specifier or opcode-extension.
+             */
             ZyanU8 rm;
+            /**
+             * @brief   The offset of the `ModRM` byte, relative to the beginning of the
+             *          instruction, in bytes.
+             */
+            ZyanU8 offset;
         } modrm;
         /**
-         * @brief   Detailed info about the SIB-byte.
+         * @brief   Detailed info about the `SIB` byte.
          */
         struct
         {
-            ZyanU8 data[1];
+            /**
+             * @brief   The scale factor.
+             */
             ZyanU8 scale;
+            /**
+             * @brief   The index-register specifier.
+             */
             ZyanU8 index;
+            /**
+             * @brief   The base-register specifier.
+             */
             ZyanU8 base;
+            /**
+             * @brief   The offset of the `SIB` byte, relative to the beginning of the instruction,
+             *          in bytes.
+             */
+            ZyanU8 offset;
         } sib;
         /**
          * @brief   Detailed info about displacement-bytes.

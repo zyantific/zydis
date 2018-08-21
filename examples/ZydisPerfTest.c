@@ -300,7 +300,7 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
             }
             if (b)
             {
-                fwrite(&instruction.data[0], 1, instruction.length, file);
+                fwrite(&data[0], sizeof(ZyanU8), instruction.length, file);
                 ++count;
 
                 const ZyanU8 p = (ZyanU8)((double)count / 100000 * 100);

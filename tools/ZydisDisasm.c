@@ -135,8 +135,7 @@ int main(int argc, char** argv)
 
             if (!ZYAN_SUCCESS(status))
             {
-                ++read_offset;
-                printf("db %02X\n", instruction.data[0]);
+                printf("db %02X\n", buffer[read_offset++]);
                 continue;
             }
 

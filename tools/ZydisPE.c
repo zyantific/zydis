@@ -41,6 +41,12 @@
 // TODO: Use platform specific file mapping routines instead of `fopen`/`malloc`
 
 /* ============================================================================================== */
+/* String constants                                                                               */
+/* ============================================================================================== */
+
+static const ZyanString STR_DOT = ZYAN_STRING_WRAP(".");
+
+/* ============================================================================================== */
 /* Status codes                                                                                   */
 /* ============================================================================================== */
 
@@ -368,6 +374,10 @@ typedef struct ZydisPEContext_
      * @brief   The desired image-base of the PE-file.
      */
     ZyanU64 image_base;
+    /**
+     * @brief   A vector that contains all string instances that need to be destroyed.
+     */
+    ZyanVector unique_strings;
 } ZydisPEContext;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -465,6 +475,29 @@ const void* RVAToFileOffset(const void* base, ZyanU64 rva)
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Finalizes the given `ZydisPEContext` struct.
+ *
+ * @param   context A pointer to the `ZydisPEContext` struct.
+ *
+ * @return  A zycore status code.
+ */
+static ZyanStatus ZydisPEContextFinalize(ZydisPEContext* context)
+{
+    ZyanUSize size;
+    ZYAN_CHECK(ZyanVectorGetSize(&context->unique_strings, &size));
+
+    for (ZyanUSize i = 0; i < size; ++i)
+    {
+        ZyanString* string;
+        ZYAN_CHECK(ZyanVectorGetElementMutable(&context->unique_strings, i, (void**)&string));
+        ZYAN_CHECK(ZyanStringDestroy(string));
+    }
+
+    ZYAN_CHECK(ZyanVectorDestroy(&context->symbols));
+    return ZyanVectorDestroy(&context->unique_strings);
+}
+
+/**
  * @brief   Initializes the given `ZydisPEContext` struct.
  *
  * @param   context A pointer to the `ZydisPEContext` struct.
@@ -482,15 +515,21 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
     context->base = base;
     context->size = size;
 
-    // Parse symbols
     ZyanStatus status;
-    ZYAN_CHECK((status = ZyanVectorInit(&context->symbols, sizeof(ZydisPESymbol), 256)));
+    ZYAN_CHECK(status = ZyanVectorInit(&context->symbols, sizeof(ZydisPESymbol), 256));
+    if (!ZYAN_SUCCESS(status = ZyanVectorInit(&context->unique_strings, sizeof(ZyanString), 256)))
+    {
+        ZyanVectorDestroy(&context->symbols);
+        return status;
+    }
 
     const IMAGE_DOS_HEADER* dos_header = (const IMAGE_DOS_HEADER*)base;
     ZYAN_ASSERT(dos_header->e_magic == IMAGE_DOS_SIGNATURE);
     const IMAGE_NT_HEADERS32* nt_headers_temp =
         (const IMAGE_NT_HEADERS32*)((ZyanU8*)dos_header + dos_header->e_lfanew);
     ZYAN_ASSERT(nt_headers_temp->Signature == IMAGE_NT_SIGNATURE);
+
+    // Parse symbols
 
     switch (nt_headers_temp->OptionalHeader.Magic)
     {
@@ -509,20 +548,34 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                     nt_headers->OptionalHeader.DataDirectory[
                         IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
 
-            if (!ZYAN_SUCCESS(ZyanStringWrap(&element.module_name,
-                (char*)RVAToFileOffset(base, export_directory->Name))))
+            ZyanString module_name;
+            if (!ZYAN_SUCCESS(status = ZyanStringWrap(&module_name,
+                    (char*)RVAToFileOffset(base, export_directory->Name))) ||
+                !ZYAN_SUCCESS(status =
+                    ZyanStringDuplicate(&element.module_name, &module_name, 0)))
             {
                 goto FatalError;
             }
-            // TODO: Implement
-            /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+            // Remove file-extension
+            ZyanISize index;
+            if (!ZYAN_SUCCESS(status = ZyanStringRPos(&module_name, &STR_DOT, &index)))
             {
-                if (element.module_name.buffer[i] == '.')
+                goto FatalError;
+            }
+            if (index >= 0)
+            {
+                if (!ZYAN_SUCCESS(status = ZyanStringTruncate(&element.module_name, index)) ||
+                    !ZYAN_SUCCESS(status =
+                        ZyanVectorPush(&context->unique_strings, &element.module_name)))
                 {
-                    element.module_name.length = i;
-                    break;
+                    goto FatalError;
                 }
-            }*/
+            } else
+            if (!ZYAN_SUCCESS(status =
+                    ZyanVectorPush(&context->unique_strings, &element.module_name)))
+            {
+                goto FatalError;
+            }
 
             const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
             element.address = entry_point;
@@ -571,21 +624,34 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                         IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
             while (descriptor->u1.OriginalFirstThunk)
             {
-                if (!ZYAN_SUCCESS((status =
-                        ZyanStringWrap(&element.module_name,
-                            (char*)RVAToFileOffset(base, descriptor->Name)))))
+                ZyanString module_name;
+                if (!ZYAN_SUCCESS(status = ZyanStringWrap(&module_name,
+                        (char*)RVAToFileOffset(base, descriptor->Name))) ||
+                    !ZYAN_SUCCESS(status =
+                        ZyanStringDuplicate(&element.module_name, &module_name, 0)))
                 {
                     goto FatalError;
                 }
-                // TODO: Implement
-                /*for (ZyanUSize i = element.module_name.length - 1; i >= 0; --i)
+                // Remove file-extension
+                ZyanISize index;
+                if (!ZYAN_SUCCESS(status = ZyanStringRPos(&module_name, &STR_DOT, &index)))
                 {
-                    if (element.module_name.buffer[i] == '.')
+                    goto FatalError;
+                }
+                if (index >= 0)
+                {
+                    if (!ZYAN_SUCCESS(status = ZyanStringTruncate(&element.module_name, index)) ||
+                        !ZYAN_SUCCESS(status =
+                            ZyanVectorPush(&context->unique_strings, &element.module_name)))
                     {
-                        element.module_name.length = i;
-                        break;
+                        goto FatalError;
                     }
-                }*/
+                } else
+                if (!ZYAN_SUCCESS(status =
+                        ZyanVectorPush(&context->unique_strings, &element.module_name)))
+                {
+                    goto FatalError;
+                }
 
                 const IMAGE_THUNK_DATA32* original_thunk =
                     (const IMAGE_THUNK_DATA32*)RVAToFileOffset(base,
@@ -775,20 +841,8 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
     return ZYAN_STATUS_SUCCESS;
 
 FatalError:
-    ZyanVectorDestroy(&context->symbols);
+    ZydisPEContextFinalize(context);
     return status;
-}
-
-/**
- * @brief   Finalizes the given `ZydisPEContext` struct.
- *
- * @param   context A pointer to the `ZydisPEContext` struct.
- *
- * @return  A zycore status code.
- */
-static ZyanStatus ZydisPEContextFinalize(ZydisPEContext* context)
-{
-    return ZyanVectorDestroy(&context->symbols);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -806,8 +860,6 @@ ZydisFormatterAddressFunc default_print_address;
 static ZyanStatus ZydisFormatterPrintAddress(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context, ZyanU64 address)
 {
-    static const ZyanString STR_DOT = ZYAN_STRING_WRAP(".");
-
     const ZydisPEContext* data = (const ZydisPEContext*)context->user_data;
     ZYAN_ASSERT(data);
 
@@ -928,8 +980,8 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
             if (status == ZYAN_STATUS_TRUE)
             {
                 const ZydisPESymbol* element;
-                ZYAN_CHECK(
-                    ZyanVectorGetElement(&context->symbols, found_index, (const void**)&element));
+                ZYAN_CHECK(ZyanVectorGetElement(&context->symbols, found_index,
+                    (const void**)&element));
                 const char* string;
                 ZYAN_CHECK(ZyanStringUnwrap(&element->symbol_name, &string));
                 printf("\n%s:\n", string);
@@ -948,7 +1000,7 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
             }
             for (int j = 0; j < instruction.length; ++j)
             {
-                printf("%02X ", instruction.data[j]);
+                printf("%02X ", buffer[read_offset + j]);
             }
             for (int j = instruction.length; j < 15; ++j)
             {
@@ -961,8 +1013,8 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
 
                 char format_buffer[256];
                 if (!ZYAN_SUCCESS((status =
-                    ZydisFormatterFormatInstructionEx(&formatter, &instruction, format_buffer,
-                        sizeof(format_buffer), runtime_address, (void*)context))))
+                        ZydisFormatterFormatInstructionEx(&formatter, &instruction, format_buffer,
+                            sizeof(format_buffer), runtime_address, (void*)context))))
                 {
                     fputs("Failed to format instruction\n", stderr);
                     return status;
@@ -970,8 +1022,7 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
                 printf(" %s\n", &format_buffer[0]);
             } else
             {
-                ++read_offset;
-                printf(" db %02x\n", instruction.data[0]);
+                printf(" db %02x\n", buffer[read_offset++]);
             }
         }
 
