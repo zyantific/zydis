@@ -2216,7 +2216,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             }
             break;
         default:
-            ZYAN_UNREACHABLE;
+            break;
         }
         if (instruction->attributes & (
             ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_ACCEPTS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
@@ -3089,71 +3089,36 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             context->prefixes.offset_lock = offset;
             break;
         case 0xF2:
-            context->prefixes.group1 = 0xF2;
-            context->prefixes.mandatory_candidate = 0xF2;
-            context->prefixes.offset_group1 = offset;
-            context->prefixes.offset_mandatory = offset;
-            break;
+            ZYAN_FALLTHROUGH;
         case 0xF3:
-            context->prefixes.group1 = 0xF3;
-            context->prefixes.mandatory_candidate = 0xF3;
+            context->prefixes.group1 = prefix_byte;
+            context->prefixes.mandatory_candidate = prefix_byte;
             context->prefixes.offset_group1 = offset;
             context->prefixes.offset_mandatory = offset;
             break;
         case 0x2E:
-            context->prefixes.group2 = 0x2E;
-            context->prefixes.offset_group2 = offset;
-            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->prefixes.effective_segment != 0x64) &&
-                (context->prefixes.effective_segment != 0x65)))
-            {
-                context->prefixes.effective_segment = 0x2E;
-                context->prefixes.offset_segment = offset;
-            }
-            break;
+            ZYAN_FALLTHROUGH;
         case 0x36:
-            context->prefixes.group2 = 0x36;
-            context->prefixes.offset_group2 = offset;
-            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->prefixes.effective_segment != 0x64) &&
-                (context->prefixes.effective_segment != 0x65)))
-            {
-                context->prefixes.effective_segment = 0x36;
-                context->prefixes.offset_segment = offset;
-            }
-            break;
+            ZYAN_FALLTHROUGH;
         case 0x3E:
-            context->prefixes.group2 = 0x3E;
-            context->prefixes.offset_group2 = offset;
-            if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->prefixes.effective_segment != 0x64) &&
-                (context->prefixes.effective_segment != 0x65)))
-            {
-                context->prefixes.effective_segment = 0x3E;
-                context->prefixes.offset_segment = offset;
-            }
-            break;
+            ZYAN_FALLTHROUGH;
         case 0x26:
-            context->prefixes.group2 = 0x26;
+            context->prefixes.group2 = prefix_byte;
             context->prefixes.offset_group2 = offset;
             if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
                ((context->prefixes.effective_segment != 0x64) &&
                 (context->prefixes.effective_segment != 0x65)))
             {
-                context->prefixes.effective_segment = 0x26;
+                context->prefixes.effective_segment = prefix_byte;
                 context->prefixes.offset_segment = offset;
             }
             break;
         case 0x64:
-            context->prefixes.group2 = 0x64;
-            context->prefixes.offset_group2 = offset;
-            context->prefixes.effective_segment = 0x64;
-            context->prefixes.offset_segment = offset;
-            break;
+            ZYAN_FALLTHROUGH;
         case 0x65:
-            context->prefixes.group2 = 0x65;
+            context->prefixes.group2 = prefix_byte;
             context->prefixes.offset_group2 = offset;
-            context->prefixes.effective_segment = 0x65;
+            context->prefixes.effective_segment = prefix_byte;
             context->prefixes.offset_segment = offset;
             break;
         case 0x66:
