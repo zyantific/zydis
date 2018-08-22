@@ -407,7 +407,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "FLOAT32",
             "FLOAT64",
             "FLOAT80",
-            "LONGBCD"
+            "LONGBCD",
+            "CC"
         };
         static const char* strings_operand_encoding[] =
         {

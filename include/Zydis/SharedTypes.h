@@ -132,19 +132,47 @@ typedef enum ZydisAddressWidth_
 typedef enum ZydisElementType_
 {
     ZYDIS_ELEMENT_TYPE_INVALID,
+    /**
+     * @brief   A struct type.
+     */
     ZYDIS_ELEMENT_TYPE_STRUCT,
+    /**
+     * @brief   Unsigned integer value.
+     */
     ZYDIS_ELEMENT_TYPE_UINT,
+    /**
+     * @brief   Signed integer value.
+     */
     ZYDIS_ELEMENT_TYPE_INT,
+    /**
+     * @brief   16-bit floating point value (`half`).
+     */
     ZYDIS_ELEMENT_TYPE_FLOAT16,
+    /**
+     * @brief   32-bit floating point value (`single`).
+     */
     ZYDIS_ELEMENT_TYPE_FLOAT32,
+    /**
+     * @brief   64-bit floating point value (`double`).
+     */
     ZYDIS_ELEMENT_TYPE_FLOAT64,
+    /**
+     * @brief   80-bit floating point value (`extended`).
+     */
     ZYDIS_ELEMENT_TYPE_FLOAT80,
+    /**
+     * @brief   Binary coded decimal value.
+     */
     ZYDIS_ELEMENT_TYPE_LONGBCD,
+    /**
+     * @brief   A condition code (e.g. used by `CMPPD`, `VCMPPD`, ...).
+     */
+    ZYDIS_ELEMENT_TYPE_CC,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ELEMENT_TYPE_MAX_VALUE = ZYDIS_ELEMENT_TYPE_LONGBCD,
+    ZYDIS_ELEMENT_TYPE_MAX_VALUE = ZYDIS_ELEMENT_TYPE_CC,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */

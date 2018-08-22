@@ -134,7 +134,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     {
         ZydisElementType type;
         ZydisElementSize size;
-    } lookup[21] =
+    } lookup[ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1] =
     {
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
@@ -156,7 +156,9 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_FLOAT32  ,  32 },
         { ZYDIS_ELEMENT_TYPE_FLOAT64  ,  64 },
         { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
-        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 }
+        { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 },
+        { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
+        { ZYDIS_ELEMENT_TYPE_CC       ,   5 }
     };
 
     ZYAN_ASSERT(element < ZYAN_ARRAY_LENGTH(lookup));

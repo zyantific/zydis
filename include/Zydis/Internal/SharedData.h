@@ -129,11 +129,13 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_FLOAT64,
     ZYDIS_IELEMENT_TYPE_FLOAT80,
     ZYDIS_IELEMENT_TYPE_BCD80,
+    ZYDIS_IELEMENT_TYPE_CC3,
+    ZYDIS_IELEMENT_TYPE_CC5,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_IELEMENT_TYPE_MAX_VALUE = ZYDIS_IELEMENT_TYPE_BCD80,
+    ZYDIS_IELEMENT_TYPE_MAX_VALUE = ZYDIS_IELEMENT_TYPE_CC5,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */

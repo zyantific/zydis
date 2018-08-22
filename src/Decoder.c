@@ -1341,7 +1341,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
 
     // Element count
     operand->element_count = 1;
-    if (operand->element_size && operand->size)
+    if (operand->element_size && operand->size && (operand->element_type != ZYDIS_ELEMENT_TYPE_CC))
     {
         operand->element_count = operand->size / operand->element_size;
     }
