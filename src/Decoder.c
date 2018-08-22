@@ -54,19 +54,69 @@ typedef struct ZydisDecoderContext_
     /**
      * @brief   The input buffer length.
      */
-    ZyanUSize bufferLen;
-    /**
-     * @brief   Contains the last (significant) segment prefix.
-     */
-    ZyanU8 last_segment_prefix;
-    /**
-     * @brief   Contains the prefix that should be treated as the mandatory-prefix, if the current
-     *          instruction needs one.
-     *
-     *          The last 0xF3/0xF2 prefix has precedence over previous ones and 0xF3/0xF2 in
-     *          general has precedence over 0x66.
-     */
-    ZyanU8 mandatory_candidate;
+    ZyanUSize buffer_len;
+    struct
+    {
+        /**
+         * @brief   Signals, if the instruction has a `LOCK` prefix (`F0`).
+         *
+         * This prefix originally belongs to group 1, but separating it from the other ones makes
+         * parsing easier for us later.
+         */
+        ZyanBool has_lock;
+        /**
+         * @brief   The effective prefix of group 1 (either `F2` or `F3`).
+         */
+        ZyanU8 group1;
+        /**
+         * @brief   The effective prefix of group 3 (`2E`,`36`, `3E`, `26`, `64` or `65`).
+         */
+        ZyanU8 group2;
+        /**
+         * @brief   Signals, if the instruction has an operand-size override prefix (`66`).
+         *
+         * This is the only prefix in group 3.
+         */
+        // ZyanBool has_osz_override;
+        /**
+         * @brief   Signals, if the instruction has an address-size override prefix (`67`).
+         *
+         * This is the only prefix in group 4.
+         */
+        // ZyanBool has_asz_override;
+        /**
+         * @brief   The effective segment prefix.
+         */
+        ZyanU8 effective_segment;
+        /**
+         * @brief   The prefix that should be treated as the mandatory-prefix, if the current
+         *          instruction needs one.
+         *
+         * The last `F3`/`F2` prefix has precedence over previous ones and `F3`/`F2` in general
+         * have precedence over `66`.
+         */
+        ZyanU8 mandatory_candidate;
+        /**
+         * @brief   The offset of the effective `LOCK` prefix.
+         */
+        ZyanU8 offset_lock;
+        /**
+         * @brief   The offset of the effective prefix in group 1.
+         */
+        ZyanU8 offset_group1;
+        /**
+         * @brief   The offset of the effective prefix in group 2.
+         */
+        ZyanU8 offset_group2;
+        /**
+         * @brief   The offset of the effective segment prefix.
+         */
+        ZyanU8 offset_segment;
+        /**
+         * @brief   The offset of the mandatory-candidate prefix.
+         */
+        ZyanU8 offset_mandatory;
+    } prefixes;
     /**
      * @brief   Contains the effective operand-size index.
      *
@@ -239,7 +289,7 @@ static ZyanStatus ZydisInputPeek(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INSTRUCTION_TOO_LONG;
     }
 
-    if (context->bufferLen > 0)
+    if (context->buffer_len > 0)
     {
         *value = context->buffer[0];
         return ZYAN_STATUS_SUCCESS;
@@ -266,7 +316,7 @@ static void ZydisInputSkip(ZydisDecoderContext* context, ZydisDecodedInstruction
 
     ++instruction->length;
     ++context->buffer;
-    --context->bufferLen;
+    --context->buffer_len;
 }
 
 /**
@@ -293,11 +343,11 @@ static ZyanStatus ZydisInputNext(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INSTRUCTION_TOO_LONG;
     }
 
-    if (context->bufferLen > 0)
+    if (context->buffer_len > 0)
     {
         *value = context->buffer++[0];
         ++instruction->length;
-        --context->bufferLen;
+        --context->buffer_len;
         return ZYAN_STATUS_SUCCESS;
     }
 
@@ -330,13 +380,13 @@ static ZyanStatus ZydisInputNextBytes(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INSTRUCTION_TOO_LONG;
     }
 
-    if (context->bufferLen >= number_of_bytes)
+    if (context->buffer_len >= number_of_bytes)
     {
         instruction->length += number_of_bytes;
 
         ZYAN_MEMCPY(value, context->buffer, number_of_bytes);
         context->buffer += number_of_bytes;
-        context->bufferLen -= number_of_bytes;
+        context->buffer_len -= number_of_bytes;
 
         return ZYAN_STATUS_SUCCESS;
     }
@@ -1279,7 +1329,8 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
     // Element-type and -size
     if (definition->element_type && (definition->element_type != ZYDIS_IELEMENT_TYPE_VARIABLE))
     {
-        ZydisGetElementInfo(definition->element_type, &operand->element_type, &operand->element_size);
+        ZydisGetElementInfo(definition->element_type, &operand->element_type,
+            &operand->element_size);
         if (!operand->element_size)
         {
             // The element size is the same as the operand size. This is used for single element
@@ -2075,17 +2126,19 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         if (def->is_far_branch)
         {
             ZYAN_ASSERT((instruction->meta.category == ZYDIS_CATEGORY_CALL) ||
-                         (instruction->meta.category == ZYDIS_CATEGORY_COND_BR) ||
-                         (instruction->meta.category == ZYDIS_CATEGORY_UNCOND_BR) ||
-                         (instruction->meta.category == ZYDIS_CATEGORY_RET));
+                        (instruction->meta.category == ZYDIS_CATEGORY_COND_BR) ||
+                        (instruction->meta.category == ZYDIS_CATEGORY_UNCOND_BR) ||
+                        (instruction->meta.category == ZYDIS_CATEGORY_RET));
             instruction->attributes |= ZYDIS_ATTRIB_IS_FAR_BRANCH;
         }
         if (def->accepts_LOCK)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;
-            if (instruction->raw.prefixes.hasF0)
+            if (context->prefixes.has_lock)
             {
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_LOCK;
+                instruction->raw.prefixes[context->prefixes.offset_lock].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
             }
         }
         if (def->accepts_REP)
@@ -2102,7 +2155,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         }
         if (def->accepts_BOUND)
         {
-            instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_BOUND;
+            instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_BND;
         }
         if (def->accepts_XACQUIRE)
         {
@@ -2117,7 +2170,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK;
         }
 
-        switch (context->mandatory_candidate)
+        switch (context->prefixes.group1)
         {
         case 0xF2:
             if (instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_REPNE)
@@ -2135,9 +2188,9 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
                 }
             }
             if (context->decoder->decoderMode[ZYDIS_DECODER_MODE_MPX] &&
-                instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_BOUND)
+                instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_BND)
             {
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_BOUND;
+                instruction->attributes |= ZYDIS_ATTRIB_HAS_BND;
                 break;
             }
             break;
@@ -2163,19 +2216,30 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             }
             break;
         default:
-            break;
+            ZYAN_UNREACHABLE;
+        }
+        if (instruction->attributes & (
+            ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_ACCEPTS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
+            ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_ACCEPTS_XRELEASE))
+        {
+            instruction->raw.prefixes[context->prefixes.offset_group1].type =
+                ZYDIS_PREFIX_TYPE_EFFECTIVE;
         }
 
         if (def->accepts_branch_hints)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS;
-            switch (context->last_segment_prefix)
+            switch (context->prefixes.group2)
             {
             case 0x2E:
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN;
+                instruction->raw.prefixes[context->prefixes.offset_group2].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
                 break;
             case 0x3E:
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_BRANCH_TAKEN;
+                instruction->raw.prefixes[context->prefixes.offset_group2].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
                 break;
             default:
                 break;
@@ -2186,9 +2250,9 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             {
                 instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
             }
-            if (context->last_segment_prefix && def->accepts_segment)
+            if (context->prefixes.effective_segment && def->accepts_segment)
             {
-                switch (context->last_segment_prefix)
+                switch (context->prefixes.effective_segment)
                 {
                 case 0x2E:
                     instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
@@ -2212,6 +2276,11 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
                     ZYAN_UNREACHABLE;
                 }
             }
+            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT)
+            {
+                instruction->raw.prefixes[context->prefixes.offset_segment].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
+            }
         }
 
         break;
@@ -2221,9 +2290,9 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        if (context->last_segment_prefix)
+        if (context->prefixes.effective_segment)
         {
-            switch (context->last_segment_prefix)
+            switch (context->prefixes.effective_segment)
             {
             case 0x2E:
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
@@ -2245,6 +2314,11 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
                 break;
             default:
                 ZYAN_UNREACHABLE;
+            }
+            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT)
+            {
+                instruction->raw.prefixes[context->prefixes.offset_segment].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
             }
         }
         break;
@@ -2999,9 +3073,10 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
-    ZYAN_ASSERT(instruction->raw.prefixes.count == 0);
+    ZYAN_ASSERT(instruction->raw.prefix_count == 0);
 
     ZyanU8 rex = 0x00;
+    ZyanU8 offset = 0;
     ZyanBool done = ZYAN_FALSE;
     do
     {
@@ -3010,74 +3085,100 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         switch (prefix_byte)
         {
         case 0xF0:
-            ++instruction->raw.prefixes.hasF0;
+            context->prefixes.has_lock = ZYAN_TRUE;
+            context->prefixes.offset_lock = offset;
             break;
         case 0xF2:
-            context->mandatory_candidate = 0xF2;
-            ++instruction->raw.prefixes.hasF2;
+            context->prefixes.group1 = 0xF2;
+            context->prefixes.mandatory_candidate = 0xF2;
+            context->prefixes.offset_group1 = offset;
+            context->prefixes.offset_mandatory = offset;
             break;
         case 0xF3:
-            context->mandatory_candidate = 0xF3;
-            ++instruction->raw.prefixes.hasF3;
+            context->prefixes.group1 = 0xF3;
+            context->prefixes.mandatory_candidate = 0xF3;
+            context->prefixes.offset_group1 = offset;
+            context->prefixes.offset_mandatory = offset;
             break;
         case 0x2E:
-            ++instruction->raw.prefixes.has2E;
+            context->prefixes.group2 = 0x2E;
+            context->prefixes.offset_group2 = offset;
             if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->last_segment_prefix != 0x64) && (context->last_segment_prefix != 0x65)))
+               ((context->prefixes.effective_segment != 0x64) &&
+                (context->prefixes.effective_segment != 0x65)))
             {
-                context->last_segment_prefix = 0x2E;
+                context->prefixes.effective_segment = 0x2E;
+                context->prefixes.offset_segment = offset;
             }
             break;
         case 0x36:
-            ++instruction->raw.prefixes.has36;
+            context->prefixes.group2 = 0x36;
+            context->prefixes.offset_group2 = offset;
             if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->last_segment_prefix != 0x64) && (context->last_segment_prefix != 0x65)))
+               ((context->prefixes.effective_segment != 0x64) &&
+                (context->prefixes.effective_segment != 0x65)))
             {
-                context->last_segment_prefix = 0x36;
+                context->prefixes.effective_segment = 0x36;
+                context->prefixes.offset_segment = offset;
             }
             break;
         case 0x3E:
-            ++instruction->raw.prefixes.has3E;
+            context->prefixes.group2 = 0x3E;
+            context->prefixes.offset_group2 = offset;
             if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->last_segment_prefix != 0x64) && (context->last_segment_prefix != 0x65)))
+               ((context->prefixes.effective_segment != 0x64) &&
+                (context->prefixes.effective_segment != 0x65)))
             {
-                context->last_segment_prefix = 0x3E;
+                context->prefixes.effective_segment = 0x3E;
+                context->prefixes.offset_segment = offset;
             }
             break;
         case 0x26:
-            ++instruction->raw.prefixes.has26;
+            context->prefixes.group2 = 0x26;
+            context->prefixes.offset_group2 = offset;
             if ((context->decoder->machineMode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->last_segment_prefix != 0x64) && (context->last_segment_prefix != 0x65)))
+               ((context->prefixes.effective_segment != 0x64) &&
+                (context->prefixes.effective_segment != 0x65)))
             {
-                context->last_segment_prefix = 0x26;
+                context->prefixes.effective_segment = 0x26;
+                context->prefixes.offset_segment = offset;
             }
             break;
         case 0x64:
-            ++instruction->raw.prefixes.has64;
-            context->last_segment_prefix = 0x64;
+            context->prefixes.group2 = 0x64;
+            context->prefixes.offset_group2 = offset;
+            context->prefixes.effective_segment = 0x64;
+            context->prefixes.offset_segment = offset;
             break;
         case 0x65:
-            ++instruction->raw.prefixes.has65;
-            context->last_segment_prefix = 0x65;
+            context->prefixes.group2 = 0x65;
+            context->prefixes.offset_group2 = offset;
+            context->prefixes.effective_segment = 0x65;
+            context->prefixes.offset_segment = offset;
             break;
         case 0x66:
-            if (!context->mandatory_candidate)
+            // context->prefixes.has_osz_override = ZYAN_TRUE;
+            if (!context->prefixes.mandatory_candidate)
             {
-                context->mandatory_candidate = 0x66;
+                context->prefixes.mandatory_candidate = 0x66;
+                context->prefixes.offset_mandatory = offset;
             }
-            ++instruction->raw.prefixes.has66;
             instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
+            instruction->raw.prefixes[instruction->raw.prefix_count].type =
+                ZYDIS_PREFIX_TYPE_EFFECTIVE;
             break;
         case 0x67:
-            ++instruction->raw.prefixes.has67;
+            // context->prefixes.has_asz_override = ZYAN_TRUE;
             instruction->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
+            instruction->raw.prefixes[instruction->raw.prefix_count].type =
+                ZYDIS_PREFIX_TYPE_EFFECTIVE;
             break;
         default:
             if ((context->decoder->machineMode == ZYDIS_MACHINE_MODE_LONG_64) &&
                 (prefix_byte & 0xF0) == 0x40)
             {
                 rex = prefix_byte;
-                instruction->raw.rex.offset = instruction->length;
+                instruction->raw.rex.offset = offset;
             } else
             {
                 done = ZYAN_TRUE;
@@ -3086,18 +3187,21 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         }
         if (!done)
         {
-            if ((prefix_byte & 0xF0) != 0x40)
+            // Invalidate `REX`, if it's not the last legacy prefix
+            if (rex && (rex != prefix_byte))
             {
                 rex = 0x00;
                 instruction->raw.rex.offset = 0;
             }
-            instruction->raw.prefixes.data[instruction->raw.prefixes.count++] = prefix_byte;
+            instruction->raw.prefixes[instruction->raw.prefix_count++].value = prefix_byte;
             ZydisInputSkip(context, instruction);
+            ++offset;
         }
     } while (!done);
 
     if (rex)
     {
+        instruction->raw.prefixes[instruction->raw.rex.offset].type = ZYDIS_PREFIX_TYPE_EFFECTIVE;
         ZydisDecodeREX(context, instruction, rex);
     }
 
@@ -3522,11 +3626,11 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
                     }
-                    if (instruction->raw.prefixes.hasF0)
+                    if (context->prefixes.has_lock)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LOCK;
                     }
-                    if (context->mandatory_candidate)
+                    if (context->prefixes.mandatory_candidate)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
@@ -3628,11 +3732,11 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
                     }
-                    if (instruction->raw.prefixes.hasF0)
+                    if (context->prefixes.has_lock)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LOCK;
                     }
-                    if (context->mandatory_candidate)
+                    if (context->prefixes.mandatory_candidate)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
@@ -3656,7 +3760,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
             switch (instruction->opcode)
             {
             case 0x0F:
-                if (instruction->raw.prefixes.hasF0)
+                if (context->prefixes.has_lock)
                 {
                     return ZYDIS_STATUS_ILLEGAL_LOCK;
                 }
@@ -3801,16 +3905,22 @@ static ZyanStatus ZydisNodeHandlerMandatoryPrefix(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
-    switch (context->mandatory_candidate)
+    switch (context->prefixes.mandatory_candidate)
     {
     case 0x66:
+        instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+            ZYDIS_PREFIX_TYPE_MANDATORY;
         instruction->attributes &= ~ZYDIS_ATTRIB_HAS_OPERANDSIZE;
         *index = 2;
         break;
     case 0xF3:
+        instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+            ZYDIS_PREFIX_TYPE_MANDATORY;
         *index = 3;
         break;
     case 0xF2:
+        instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+            ZYDIS_PREFIX_TYPE_MANDATORY;
         *index = 4;
         break;
     default:
@@ -4037,7 +4147,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             return ZYDIS_STATUS_DECODING_ERROR;
         }
 
-        if (instruction->raw.prefixes.hasF0 && !def->accepts_LOCK)
+        if (context->prefixes.has_lock && !def->accepts_LOCK)
         {
             return ZYDIS_STATUS_ILLEGAL_LOCK;
         }
@@ -4414,10 +4524,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_INVALID:
             if (temp)
             {
+                instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+                    ZYDIS_PREFIX_TYPE_IGNORED;
                 node = temp;
                 temp = ZYAN_NULL;
                 node_type = ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX;
-                if (context->mandatory_candidate == 0x66)
+                if (context->prefixes.mandatory_candidate == 0x66)
                 {
                     instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
                 }
@@ -4680,12 +4792,10 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     }
 
     ZydisDecoderContext context;
-    ZYAN_MEMSET(&context.cache, 0, sizeof(context.cache));
+    ZYAN_MEMSET(&context, 0, sizeof(context));
     context.decoder = decoder;
     context.buffer = (ZyanU8*)buffer;
-    context.bufferLen = length;
-    context.last_segment_prefix = 0;
-    context.mandatory_candidate = 0;
+    context.buffer_len = length;
 
     ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
     instruction->machine_mode = decoder->machineMode;

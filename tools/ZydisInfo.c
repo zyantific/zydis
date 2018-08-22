@@ -253,19 +253,19 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
             print_info[i].name  = "REX";
             break;
         case ZYDIS_INSTR_SEGMENT_XOP:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
             print_info[i].name  = "XOP";
             break;
         case ZYDIS_INSTR_SEGMENT_VEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
             print_info[i].name  = "VEX";
             break;
         case ZYDIS_INSTR_SEGMENT_EVEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
             print_info[i].name  = "EVEX";
             break;
         case ZYDIS_INSTR_SEGMENT_MVEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLUE);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
             print_info[i].name  = "MVEX";
             break;
         case ZYDIS_INSTR_SEGMENT_OPCODE:
@@ -302,8 +302,32 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
         ZYAN_PRINTF("%s", print_info[i].color);
         for (int j = 0; j < segments.segments[i].size; ++j)
         {
-            ZYAN_PRINTF("%02X ", buffer[segments.segments[i].offset + j]);
-            pos += 3;
+            if (segments.segments[i].type == ZYDIS_INSTR_SEGMENT_PREFIXES)
+            {
+                ZYAN_ASSERT(segments.segments[i].size == instruction->raw.prefix_count);
+                switch (instruction->raw.prefixes[j].type)
+                {
+                case ZYDIS_PREFIX_TYPE_IGNORED:
+                    ZYAN_PRINTF("%s%02X%s ", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK),
+                        buffer[segments.segments[i].offset + j], print_info[i].color);
+                    pos += 3;
+                    break;
+                case ZYDIS_PREFIX_TYPE_EFFECTIVE:
+                    pos += (ZyanU8)ZYAN_PRINTF("%02X ", buffer[segments.segments[i].offset + j]);
+                    break;
+                case ZYDIS_PREFIX_TYPE_MANDATORY:
+                    ZYAN_PRINTF("%s%02X%s ",
+                        CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_RED),
+                        buffer[segments.segments[i].offset + j], print_info[i].color);
+                    pos += 3;
+                    break;
+                default:
+                    ZYAN_UNREACHABLE;
+                }
+            } else
+            {
+                pos += (ZyanU8)ZYAN_PRINTF("%02X ", buffer[segments.segments[i].offset + j]);
+            }
         }
     }
     ZYAN_PRINTF("%s\n", CVT100_OUT(COLOR_DEFAULT));
@@ -708,7 +732,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
  */
 static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 {
-    static const char* strings_opcode_map[] =
+    static const char* opcode_maps[] =
     {
         "DEFAULT",
         "0F",
@@ -720,7 +744,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "XOPA"
     };
 
-    static const char* strings_instruction_encoding[] =
+    static const char* instr_encodings[] =
     {
         "DEFAULT",
         "3DNOW",
@@ -730,7 +754,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "MVEX"
     };
 
-    static const char* strings_exception_class[] =
+    static const char* exception_classes[] =
     {
         "NONE",
         "SSE1",
@@ -778,7 +802,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
     {
         ZydisInstructionAttributes attribute_mask;
         const char* str;
-    } attributeMap[] =
+    } attribute_map[] =
     {
         { ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                },
         { ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                  },
@@ -797,7 +821,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_ACCEPTS_REPZ,             "ACCEPTS_REPZ"             },
         { ZYDIS_ATTRIB_ACCEPTS_REPNE,            "ACCEPTS_REPNE"            },
         { ZYDIS_ATTRIB_ACCEPTS_REPNZ,            "ACCEPTS_REPNZ"            },
-        { ZYDIS_ATTRIB_ACCEPTS_BOUND,            "ACCEPTS_BOUND"            },
+        { ZYDIS_ATTRIB_ACCEPTS_BND,              "ACCEPTS_BND"              },
         { ZYDIS_ATTRIB_ACCEPTS_XACQUIRE,         "ACCEPTS_XACQUIRE"         },
         { ZYDIS_ATTRIB_ACCEPTS_XRELEASE,         "ACCEPTS_XRELEASE"         },
         { ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK, "ACCEPTS_HLE_WITHOUT_LOCK" },
@@ -809,7 +833,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_HAS_REPZ,                 "HAS_REPZ"                 },
         { ZYDIS_ATTRIB_HAS_REPNE,                "HAS_REPNE"                },
         { ZYDIS_ATTRIB_HAS_REPNZ,                "HAS_REPNZ"                },
-        { ZYDIS_ATTRIB_HAS_BOUND,                "HAS_BOUND"                },
+        { ZYDIS_ATTRIB_HAS_BND,                  "HAS_BND"                  },
         { ZYDIS_ATTRIB_HAS_XACQUIRE,             "HAS_XACQUIRE"             },
         { ZYDIS_ATTRIB_HAS_XRELEASE,             "HAS_XRELEASE"             },
         { ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN,     "HAS_BRANCH_NOT_TAKEN"     },
@@ -831,9 +855,9 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
     ZYAN_PRINTF("%s%s%s [ENC: %s%s%s, MAP: %s%s%s, OPC: %s0x%02X%s]%s\n",
         CVT100_OUT(COLOR_VALUE_R), ZydisMnemonicGetString(instruction->mnemonic),
         CVT100_OUT(COLOR_VALUE_LABEL),
-        CVT100_OUT(COLOR_VALUE_B), strings_instruction_encoding[instruction->encoding],
+        CVT100_OUT(COLOR_VALUE_B), instr_encodings[instruction->encoding],
         CVT100_OUT(COLOR_VALUE_LABEL),
-        CVT100_OUT(COLOR_VALUE_B), strings_opcode_map[instruction->opcode_map],
+        CVT100_OUT(COLOR_VALUE_B), opcode_maps[instruction->opcode_map],
         CVT100_OUT(COLOR_VALUE_LABEL),
         CVT100_OUT(COLOR_VALUE_G), instruction->opcode,
         CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
@@ -844,17 +868,24 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
     PRINT_VALUE_B("CATEGORY"  , "%s" , ZydisCategoryGetString(instruction->meta.category));
     PRINT_VALUE_B("ISA-SET"   , "%s" , ZydisISASetGetString(instruction->meta.isa_set));
     PRINT_VALUE_B("ISA-EXT"   , "%s" , ZydisISAExtGetString(instruction->meta.isa_ext));
-    PRINT_VALUE_B("EXCEPTIONS", "%s" , strings_exception_class[instruction->meta.exception_class]);
+    PRINT_VALUE_B("EXCEPTIONS", "%s" , exception_classes[instruction->meta.exception_class]);
 
     if (instruction->attributes)
     {
         PrintValueLabel("ATTRIBUTES");
         ZYAN_FPUTS(CVT100_OUT(COLOR_VALUE_B), ZYAN_STDOUT);
-        for (size_t i = 0; i < ZYAN_ARRAY_LENGTH(attributeMap); ++i)
+        ZyanUSize len_total = 13;
+        for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(attribute_map); ++i)
         {
-            if (instruction->attributes & attributeMap[i].attribute_mask)
+            if (instruction->attributes & attribute_map[i].attribute_mask)
             {
-                ZYAN_PRINTF("%s ", attributeMap[i].str);
+                const ZyanUSize len = ZYAN_STRLEN(attribute_map[i].str);
+                if (len_total + len > 109)
+                {
+                    len_total = 13;
+                    ZYAN_PRINTF("\n             ");
+                }
+                len_total += ZYAN_PRINTF("%s ", attribute_map[i].str);
             }
         }
         ZYAN_PUTS(CVT100_OUT(COLOR_DEFAULT));

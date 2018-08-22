@@ -180,18 +180,21 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
     ZYAN_MEMSET(segments, 0, sizeof(*segments));
 
     // Legacy prefixes and `REX`
-    if (instruction->raw.prefixes.count)
+    if (instruction->raw.prefix_count)
     {
         const ZyanU8 rex_offset = (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ? 1 : 0;
-        segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_PREFIXES;
-        segments->segments[segments->count  ].offset = 0;
-        segments->segments[segments->count++].size   =
-            instruction->raw.prefixes.count - rex_offset;
+        if (!rex_offset || (instruction->raw.prefix_count > 1))
+        {
+            segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_PREFIXES;
+            segments->segments[segments->count  ].offset = 0;
+            segments->segments[segments->count++].size   =
+                instruction->raw.prefix_count - rex_offset;
+        }
         if (rex_offset)
         {
             segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_REX;
             segments->segments[segments->count  ].offset =
-                instruction->raw.prefixes.count - rex_offset;
+                instruction->raw.prefix_count - rex_offset;
             segments->segments[segments->count++].size   = 1;
         }
     }

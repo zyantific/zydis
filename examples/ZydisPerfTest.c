@@ -28,7 +28,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #include <time.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
@@ -61,7 +60,7 @@ static void StartCounter(void)
     LARGE_INTEGER li;
     if (!QueryPerformanceFrequency(&li))
     {
-        fputs("Error: QueryPerformanceFrequency failed!\n", stderr);
+        ZYAN_FPUTS("Error: QueryPerformanceFrequency failed!\n", ZYAN_STDERR);
     }
     counter_freq = (double)li.QuadPart / 1000.0;
     QueryPerformanceCounter(&li);
@@ -125,15 +124,15 @@ static void AdjustProcessAndThreadPriority(void)
     {
         if (!SetThreadAffinityMask(GetCurrentThread(), (DWORD_PTR)1))
         {
-            fputs("Warning: Could not set thread affinity mask\n", stderr);
+            ZYAN_FPUTS("Warning: Could not set thread affinity mask\n", ZYAN_STDERR);
         }
         if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
         {
-            fputs("Warning: Could not set process priority class\n", stderr);
+            ZYAN_FPUTS("Warning: Could not set process priority class\n", ZYAN_STDERR);
         }
         if (!SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL))
         {
-            fputs("Warning: Could not set thread priority class\n", stderr);
+            ZYAN_FPUTS("Warning: Could not set thread priority class\n", ZYAN_STDERR);
         }
     }
 #endif
@@ -159,13 +158,13 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
-        fputs("Failed to initialize decoder\n", stderr);
+        ZYAN_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
         exit(EXIT_FAILURE);
     }
     if (!ZYAN_SUCCESS(
         ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
     {
-        fputs("Failed to adjust decoder-mode\n", stderr);
+        ZYAN_FPUTS("Failed to adjust decoder-mode\n", ZYAN_STDERR);
         exit(EXIT_FAILURE);
     }
 
@@ -178,7 +177,7 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
             !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
                 ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
         {
-            fputs("Failed to initialize instruction-formatter\n", stderr);
+            ZYAN_FPUTS("Failed to initialize instruction-formatter\n", ZYAN_STDERR);
             exit(EXIT_FAILURE);
         }
     }
@@ -191,10 +190,15 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
-        ZYAN_ASSERT(ZYAN_SUCCESS(status));
         if (!ZYAN_SUCCESS(status))
         {
-            fputs("Unexpected decoding error\n", stderr);
+            ZYAN_FPUTS("Unexpected decoding error. Data: ", ZYAN_STDERR);
+            for (ZyanUSize i = 0; i < ZYAN_MIN(ZYDIS_MAX_INSTRUCTION_LENGTH, length - offset); ++i)
+            {
+                 ZYAN_FPRINTF(ZYAN_STDERR, "%02X ", (ZyanU8)buffer[offset + i]);
+            }
+            ZYAN_FPUTS("\n", ZYAN_STDERR);
+            ZYAN_ASSERT(ZYAN_FALSE);
             exit(EXIT_FAILURE);
         }
         ++count;
@@ -222,7 +226,7 @@ static void TestPerformance(const char* buffer, ZyanUSize length, ZyanBool minim
     {
         count += ProcessBuffer(buffer, length, minimalMode, format);
     }
-    printf("Minimal-Mode %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n",
+    ZYAN_PRINTF("Minimal-Mode %d, Formatting %d, Instructions: %6.2fM, Time: %8.2f msec\n",
         minimalMode, format, (double)count / 1000000, GetCounter());
 }
 
@@ -232,7 +236,7 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
     if (!ZYAN_SUCCESS(
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
     {
-        fputs("Failed to initialize decoder\n", stderr);
+        ZYAN_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
         exit(EXIT_FAILURE);
     }
 
@@ -307,7 +311,7 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
                 if (last < p)
                 {
                     last = p;
-                    printf("%3.0d%%\n", p);
+                    ZYAN_PRINTF("%3.0d%%\n", p);
                 }
 
             }
@@ -323,13 +327,13 @@ int main(int argc, char** argv)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        fputs("Invalid zydis version\n", stderr);
+        ZYAN_FPUTS("Invalid zydis version\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
     if (argc < 3 || (ZYAN_STRCMP(argv[1], "-test") && ZYAN_STRCMP(argv[1], "-generate")))
     {
-        fputs("Usage: PerfTest -[test|generate] [directory]\n", stderr);
+        ZYAN_FPUTS("Usage: PerfTest -[test|generate] [directory]\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
@@ -380,13 +384,14 @@ int main(int argc, char** argv)
         }
         if (!file)
         {
-            fprintf(stderr, "Could not open file \"%s\": %s\n", &buf[0], strerror(errno));
+            ZYAN_FPRINTF(ZYAN_STDERR, "Could not open file \"%s\": %s\n", &buf[0],
+                strerror(ZYAN_ERRNO));
             continue;
         }
 
         if (generate)
         {
-            printf("Generating %s ...\n", tests[i].encoding);
+            ZYAN_PRINTF("Generating %s ...\n", tests[i].encoding);
             GenerateTestData(file, i);
         } else
         {
@@ -395,7 +400,7 @@ int main(int argc, char** argv)
             void* buffer = malloc(length);
             if (!buffer)
             {
-                fprintf(stderr,
+                ZYAN_FPRINTF(ZYAN_STDERR,
                     "Failed to allocate %" PRIu64 " bytes on the heap\n", (ZyanU64)length);
                 goto NextFile2;
             }
@@ -403,16 +408,16 @@ int main(int argc, char** argv)
             rewind(file);
             if (fread(buffer, 1, length, file) != (ZyanUSize)length)
             {
-                fprintf(stderr,
+                ZYAN_FPRINTF(ZYAN_STDERR,
                     "Could not read %" PRIu64 " bytes from file \"%s\"\n", (ZyanU64)length, &buf[0]);
                 goto NextFile1;
             }
 
-            printf("Testing %s ...\n", tests[i].encoding);
+            ZYAN_PRINTF("Testing %s ...\n", tests[i].encoding);
             TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE);
             TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE);
             TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE );
-            puts("");
+            ZYAN_PUTS("");
 
         NextFile1:
             free(buffer);

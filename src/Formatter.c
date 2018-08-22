@@ -757,7 +757,7 @@ static ZyanStatus ZydisPrintPrefixesIntel(const ZydisFormatter* formatter, ZyanS
         return ZydisStringAppendShortCase(string, &STR_PREF_REPNE, formatter->letter_case);
     }
 
-    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BOUND)
+    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
     {
         return ZydisStringAppendShortCase(string, &STR_PREF_BND, formatter->letter_case);
     }

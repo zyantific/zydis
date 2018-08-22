@@ -30,7 +30,6 @@
  *          of the decoded data.
  */
 
-#include <errno.h>
 #include <stdio.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
@@ -48,14 +47,14 @@ int main(int argc, char** argv)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        fputs("Invalid zydis version\n", stderr);
+        ZYAN_FPUTS("Invalid zydis version\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
     if (argc < 2 || argc > 3)
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] :
-            "ZydisDisasm"));
+        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
+            (argc > 0 ? argv[0] : "ZydisDisasm"));
         return EXIT_FAILURE;
     }
 
@@ -77,15 +76,15 @@ int main(int argc, char** argv)
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
     } else
     {
-        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n", (argc > 0 ? argv[0] :
-            "ZydisDisasm"));
+        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
+            (argc > 0 ? argv[0] : "ZydisDisasm"));
         return EXIT_FAILURE;
     }
 
     FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : stdin;
     if (!file)
     {
-        fprintf(stderr, "Can not open file: %s\n", strerror(errno));
+        ZYAN_FPRINTF(ZYAN_STDERR, "Can not open file: %s\n", strerror(ZYAN_ERRNO));
         return EXIT_FAILURE;
     }
 #ifdef ZYAN_WINDOWS
@@ -104,7 +103,7 @@ int main(int argc, char** argv)
         !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
     {
-        fputs("Failed to initialized instruction-formatter\n", stderr);
+        ZYAN_FPUTS("Failed to initialized instruction-formatter\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
@@ -135,14 +134,14 @@ int main(int argc, char** argv)
 
             if (!ZYAN_SUCCESS(status))
             {
-                printf("db %02X\n", buffer[read_offset++]);
+                ZYAN_PRINTF("db %02X\n", buffer[read_offset++]);
                 continue;
             }
 
             char format_buffer[256];
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
                 sizeof(format_buffer), runtime_address);
-            puts(format_buffer);
+            ZYAN_PUTS(format_buffer);
 
             read_offset += instruction.length;
         }

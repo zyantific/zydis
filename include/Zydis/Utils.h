@@ -116,6 +116,9 @@ typedef struct ZydisInstructionSegments_
     ZyanU8 count;
     struct
     {
+        /**
+         * @brief   The type of the segment.
+         */
         ZydisInstructionSegment type;
         /**
          * @brief   The offset of the segment relative to the start of the instruction.

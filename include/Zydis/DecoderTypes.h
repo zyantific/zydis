@@ -226,31 +226,31 @@ typedef struct ZydisDecodedOperand_
 typedef ZyanU64 ZydisInstructionAttributes;
 
 /**
- * @brief   The instruction has the ModRM byte.
+ * @brief   The instruction has the `ModRM` byte.
  */
 #define ZYDIS_ATTRIB_HAS_MODRM                  0x0000000000000001 // (1 <<  0)
 /**
- * @brief   The instruction has the SUB byte.
+ * @brief   The instruction has the `SIB` byte.
  */
 #define ZYDIS_ATTRIB_HAS_SIB                    0x0000000000000002 // (1 <<  1)
 /**
- * @brief   The instruction has the REX prefix.
+ * @brief   The instruction has the `REX` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_REX                    0x0000000000000004 // (1 <<  2)
 /**
- * @brief   The instruction has the XOP prefix.
+ * @brief   The instruction has the `XOP` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_XOP                    0x0000000000000008 // (1 <<  3)
 /**
- * @brief   The instruction has the VEX prefix.
+ * @brief   The instruction has the `VEX` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_VEX                    0x0000000000000010 // (1 <<  4)
 /**
- * @brief   The instruction has the EVEX prefix.
+ * @brief   The instruction has the `EVEX` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_EVEX                   0x0000000000000020 // (1 <<  5)
 /**
- * @brief   The instruction has the MVEX prefix.
+ * @brief   The instruction has the `MVEX` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_MVEX                   0x0000000000000040 // (1 <<  6)
 /**
@@ -265,7 +265,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000100 // (1 <<  8)
 
 /**
- * @brief   The instruction is a far JMP/CALL/RET.
+ * @brief   The instruction is a far `JMP`/`CALL`/`RET`.
  */
 #define ZYDIS_ATTRIB_IS_FAR_BRANCH              0x0000001000000000 // (1 << 36) // TODO: rebase
 /**
@@ -274,44 +274,44 @@ typedef ZyanU64 ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_CPUFLAG_ACCESS             0x0000002000000000 // (1 << 37) // TODO: rebase
 
 /**
- * @brief   The instruction accepts the lock prefix (0xF0).
+ * @brief   The instruction accepts the `LOCK` prefix (`0xF0`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_LOCK               0x0000000000000200 // (1 <<  9)
 /**
- * @brief   The instruction accepts the rep prefix (0xF3).
+ * @brief   The instruction accepts the `REP` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_REP                0x0000000000000400 // (1 << 10)
 /**
- * @brief   The instruction accepts the repe/repz prefix (0xF3).
+ * @brief   The instruction accepts the `REPE`/`REPZ` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_REPE               0x0000000000000800 // (1 << 11)
 /**
- * @brief   The instruction accepts the repe/repz prefix (0xF3).
+ * @brief   The instruction accepts the `REPE`/`REPZ` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_REPZ               0x0000000000000800 // (1 << 11)
 /**
- * @brief   The instruction accepts the repne/repnz prefix (0xF2).
+ * @brief   The instruction accepts the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_REPNE              0x0000000000001000 // (1 << 12)
 /**
- * @brief   The instruction accepts the repne/repnz prefix (0xF2).
+ * @brief   The instruction accepts the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_REPNZ              0x0000000000001000 // (1 << 12)
 /**
- * @brief   The instruction accepts the bound prefix (0xF2).
+ * @brief   The instruction accepts the `BND` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_BOUND              0x0000000000002000 // (1 << 13)
+#define ZYDIS_ATTRIB_ACCEPTS_BND                0x0000000000002000 // (1 << 13)
 /**
- * @brief   The instruction accepts the xacquire prefix (0xF2).
+ * @brief   The instruction accepts the `XACQUIRE` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XACQUIRE           0x0000000000004000 // (1 << 14)
 /**
- * @brief   The instruction accepts the xrelease prefix (0xF3).
+ * @brief   The instruction accepts the `XRELEASE` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_XRELEASE           0x0000000000008000 // (1 << 15)
 /**
- * @brief   The instruction accepts the xacquire/xrelease prefixes (0xF2, 0xF3) without the
- *          lock-prefix (0x0F).
+ * @brief   The instruction accepts the `XACQUIRE`/`XRELEASE` prefixes (`0xF2`, `0xF3`) without
+ *          the `LOCK` prefix (`0x0F`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK   0x0000000000010000 // (1 << 16)
 /**
@@ -319,51 +319,52 @@ typedef ZyanU64 ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS       0x0000000000020000 // (1 << 17)
 /**
- * @brief   The instruction accepts segment prefixes (0x2E, 0x36, 0x3E, 0x26, 0x64, 0x65).
+ * @brief   The instruction accepts segment prefixes (`0x2E`, `0x36`, `0x3E`, `0x26`, `0x64`,
+ *          `0x65`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_SEGMENT            0x0000000000040000 // (1 << 18)
 /**
- * @brief   The instruction has the lock prefix (0xF0).
+ * @brief   The instruction has the `LOCK` prefix (`0xF0`).
  */
 #define ZYDIS_ATTRIB_HAS_LOCK                   0x0000000000080000 // (1 << 19)
 /**
- * @brief   The instruction has the rep prefix (0xF3).
+ * @brief   The instruction has the `REP` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_HAS_REP                    0x0000000000100000 // (1 << 20)
 /**
- * @brief   The instruction has the repe/repz prefix (0xF3).
+ * @brief   The instruction has the `REPE`/`REPZ` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_HAS_REPE                   0x0000000000200000 // (1 << 21)
 /**
- * @brief   The instruction has the repe/repz prefix (0xF3).
+ * @brief   The instruction has the `REPE`/`REPZ` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_HAS_REPZ                   0x0000000000200000 // (1 << 21)
 /**
- * @brief   The instruction has the repne/repnz prefix (0xF2).
+ * @brief   The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_HAS_REPNE                  0x0000000000400000 // (1 << 22)
 /**
- * @brief   The instruction has the repne/repnz prefix (0xF2).
+ * @brief   The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_HAS_REPNZ                  0x0000000000400000 // (1 << 22)
 /**
- * @brief   The instruction has the bound prefix (0xF2).
+ * @brief   The instruction has the `BND` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_BOUND                  0x0000000000800000 // (1 << 23)
+#define ZYDIS_ATTRIB_HAS_BND                    0x0000000000800000 // (1 << 23)
 /**
- * @brief   The instruction has the xacquire prefix (0xF2).
+ * @brief   The instruction has the `XACQUIRE` prefix (`0xF2`).
  */
 #define ZYDIS_ATTRIB_HAS_XACQUIRE               0x0000000001000000 // (1 << 24)
 /**
- * @brief   The instruction has the xrelease prefix (0xF3).
+ * @brief   The instruction has the `XRELEASE` prefix (`0xF3`).
  */
 #define ZYDIS_ATTRIB_HAS_XRELEASE               0x0000000002000000 // (1 << 25)
 /**
- * @brief   The instruction has the branch-not-taken hint (0x2E).
+ * @brief   The instruction has the branch-not-taken hint (`0x2E`).
  */
 #define ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN       0x0000000004000000 // (1 << 26)
 /**
- * @brief   The instruction has the branch-taken hint (0x3E).
+ * @brief   The instruction has the branch-taken hint (`0x3E`).
  */
 #define ZYDIS_ATTRIB_HAS_BRANCH_TAKEN           0x0000000008000000 // (1 << 27)
 /**
@@ -371,35 +372,35 @@ typedef ZyanU64 ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT                0x00000003F0000000
 /**
- * @brief   The instruction has the CS segment modifier (0x2E).
+ * @brief   The instruction has the `CS` segment modifier (`0x2E`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_CS             0x0000000010000000 // (1 << 28)
 /**
- * @brief   The instruction has the SS segment modifier (0x36).
+ * @brief   The instruction has the `SS` segment modifier (`0x36`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_SS             0x0000000020000000 // (1 << 29)
 /**
- * @brief   The instruction has the DS segment modifier (0x3E).
+ * @brief   The instruction has the `DS` segment modifier (`0x3E`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_DS             0x0000000040000000 // (1 << 30)
 /**
- * @brief   The instruction has the ES segment modifier (0x26).
+ * @brief   The instruction has the `ES` segment modifier (`0x26`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_ES             0x0000000080000000 // (1 << 31)
 /**
- * @brief   The instruction has the FS segment modifier (0x64).
+ * @brief   The instruction has the `FS` segment modifier (`0x64`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_FS             0x0000000100000000 // (1 << 32)
 /**
- * @brief   The instruction has the GS segment modifier (0x65).
+ * @brief   The instruction has the `GS` segment modifier (`0x65`).
  */
 #define ZYDIS_ATTRIB_HAS_SEGMENT_GS             0x0000000200000000 // (1 << 33)
 /**
- * @brief   The instruction has the operand-size prefix (0x66).
+ * @brief   The instruction has the operand-size override prefix (`0x66`).
  */
 #define ZYDIS_ATTRIB_HAS_OPERANDSIZE            0x0000000400000000 // (1 << 34) // TODO: rename
 /**
- * @brief   The instruction has the address-size prefix (0x67).
+ * @brief   The instruction has the address-size override prefix (`0x67`).
  */
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000000800000000 // (1 << 35) // TODO: rename
 
@@ -784,6 +785,46 @@ typedef enum ZydisConversionMode_
 } ZydisConversionMode;
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Legacy prefix type                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the `ZydisPrefixType` enum.
+ */
+typedef enum ZydisPrefixType_
+{
+    /**
+     * @brief   The prefix is ignored by the instruction.
+     *
+     * This applies to all prefixes that are not accepted by the instruction in general or the
+     * ones that are overwritten by a prefix of the same group closer to the instruction opcode.
+     */
+    ZYDIS_PREFIX_TYPE_IGNORED,
+    /**
+     * @brief   The prefix is effectively used by the instruction.
+     */
+    ZYDIS_PREFIX_TYPE_EFFECTIVE,
+    /**
+     * @brief   The prefix is used as a mandatory prefix.
+     *
+     * A mandatory prefix is interpreted as an opcode extension and has no further effect on the
+     * instruction.
+     */
+    ZYDIS_PREFIX_TYPE_MANDATORY,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_PREFIX_TYPE_MAX_VALUE = ZYDIS_PREFIX_TYPE_MANDATORY,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_PREFIX_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_PREFIX_TYPE_MAX_VALUE)
+} ZydisPrefixType;
+
+// TODO: Check effective for 66/67 prefixes (currently defaults to EFFECTIVE)
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Decoded instruction                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -957,30 +998,29 @@ typedef struct ZydisDecodedInstruction_
         ZydisExceptionClass exception_class;
     } meta;
     /**
-     * @brief   Extended info about different instruction-parts like `ModRM`, `SIB` or
+     * @brief   Detailed info about different instruction-parts like `ModRM`, `SIB` or
      *          encoding-prefixes.
      */
     struct
     {
         /**
+         * @brief   The number of legacy prefixes.
+         */
+        ZyanU8 prefix_count;
+        /**
          * @brief   Detailed info about the legacy prefixes (including `REX`).
          */
         struct
         {
-            ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH - 1];
-            ZyanU8 count;
-            ZyanU8 hasF0;
-            ZyanU8 hasF3;
-            ZyanU8 hasF2;
-            ZyanU8 has2E;
-            ZyanU8 has36;
-            ZyanU8 has3E;
-            ZyanU8 has26;
-            ZyanU8 has64;
-            ZyanU8 has65;
-            ZyanU8 has66;
-            ZyanU8 has67;
-        } prefixes;
+            /**
+             * @brief   The prefix type.
+             */
+            ZydisPrefixType type;
+            /**
+             * @brief   The prefix byte.
+             */
+            ZyanU8 value;
+        } prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
         /**
          * @brief   Detailed info about the `REX` prefix.
          */
