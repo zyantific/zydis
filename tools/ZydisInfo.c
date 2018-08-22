@@ -253,45 +253,45 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
             print_info[i].name  = "REX";
             break;
         case ZYDIS_INSTR_SEGMENT_XOP:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA);
             print_info[i].name  = "XOP";
             break;
         case ZYDIS_INSTR_SEGMENT_VEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA);
             print_info[i].name  = "VEX";
             break;
         case ZYDIS_INSTR_SEGMENT_EVEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA);
             print_info[i].name  = "EVEX";
             break;
         case ZYDIS_INSTR_SEGMENT_MVEX:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA);
             print_info[i].name  = "MVEX";
             break;
         case ZYDIS_INSTR_SEGMENT_OPCODE:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_RED);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
             print_info[i].name  = "OPCODE";
             break;
         case ZYDIS_INSTR_SEGMENT_MODRM:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_YELLOW);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_GREEN);
             print_info[i].name  = "MODRM";
             break;
         case ZYDIS_INSTR_SEGMENT_SIB:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_YELLOW);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
             print_info[i].name  = "SIB";
             break;
         case ZYDIS_INSTR_SEGMENT_DISPLACEMENT:
-            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_YELLOW);
             print_info[i].name  = "DISP";
             break;
         case ZYDIS_INSTR_SEGMENT_IMMEDIATE:
             if (imm == 0)
             {
-                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_GREEN);
+                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_YELLOW);
                 imm = 1;
             } else
             {
-                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
+                print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_YELLOW);
             }
             print_info[i].name  = "IMM";
             break;
@@ -317,7 +317,7 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
                     break;
                 case ZYDIS_PREFIX_TYPE_MANDATORY:
                     ZYAN_PRINTF("%s%02X%s ",
-                        CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_RED),
+                        CVT100_OUT(ZYAN_VT100SGR_FG_CYAN),
                         buffer[segments.segments[i].offset + j], print_info[i].color);
                     pos += 3;
                     break;
@@ -929,7 +929,8 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 
     ZYAN_PUTS("");
     PrintSectionHeader("DISASM");
-    ZYAN_PRINTF("  %s%s%s\n", CVT100_OUT(COLOR_VALUE_R), &buffer[0], CVT100_OUT(COLOR_DEFAULT));
+    ZYAN_PRINTF("  %s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer[0],
+        CVT100_OUT(COLOR_DEFAULT));
 }
 
 /* ============================================================================================== */
