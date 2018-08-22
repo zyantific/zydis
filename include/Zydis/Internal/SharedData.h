@@ -783,7 +783,7 @@ typedef struct ZydisInstructionDefinitionVEX_
 #endif
 } ZydisInstructionDefinitionVEX;
 
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
@@ -816,7 +816,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
 } ZydisInstructionDefinitionEVEX;
 #endif
 
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types

@@ -145,7 +145,7 @@ typedef struct ZydisDecoderContext_
         ZyanU8 v_vvvv;
         ZyanU8 mask;
     } cache;
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
     /**
      * @brief   Internal EVEX-specific information.
      */
@@ -161,7 +161,7 @@ typedef struct ZydisDecoderContext_
         ZyanU8 element_size;
     } evex;
 #endif
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
     /**
      * @brief   Internal MVEX-specific information.
      */
@@ -173,7 +173,7 @@ typedef struct ZydisDecoderContext_
         ZydisMVEXFunctionality functionality;
     } mvex;
 #endif
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     /**
      * @brief   The scale factor for EVEX/MVEX compressed 8-bit displacement values.
      */
@@ -517,7 +517,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     }
 
     // Map 0 is only valid for some KNC instructions
-#ifdef ZYDIS_DISABLE_MVEX
+#ifdef ZYDIS_DISABLE_KNC
     if ((instruction->raw.vex.m_mmmm == 0) || (instruction->raw.vex.m_mmmm > 0x03))
 #else
     if (instruction->raw.vex.m_mmmm > 0x03)
@@ -539,7 +539,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
 /**
  * @brief   Decodes the `EVEX`-prefix.
  *
@@ -627,7 +627,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 }
 #endif
 
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
 /**
  * @brief   Decodes the `MVEX`-prefix.
  *
@@ -1162,7 +1162,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             }
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
             if (definition->size[context->eosz_index])
             {
                 // Operand size is hardcoded
@@ -1203,7 +1203,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
 #endif
             break;
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
             if (definition->size[context->eosz_index])
             {
                 // Operand size is hardcoded
@@ -1976,7 +1976,7 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         }
         if (instruction->operands[i].type)
         {
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
             // Handle compressed 8-bit displacement
             if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                  (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
@@ -2068,7 +2068,7 @@ FinalizeOperand:
         ++operand;
     }
 
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     // Fix operand-action for EVEX/MVEX instructions with merge-mask
     if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGING)
     {
@@ -2413,7 +2413,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
         const ZydisInstructionDefinitionEVEX* def =
             (const ZydisInstructionDefinitionEVEX*)definition;
 
@@ -2747,7 +2747,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
     {
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
         // Vector length
         instruction->avx.vector_length = 512;
 
@@ -3616,7 +3616,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                         ZYAN_CHECK(ZydisInputNext(context, instruction, &prefix_bytes[1]));
                         break;
                     case 0x62:
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
                         // Read additional EVEX/MVEX-prefix data
                         ZYAN_ASSERT(!(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX));
                         ZYAN_ASSERT(!(instruction->attributes & ZYDIS_ATTRIB_HAS_MVEX));
@@ -3639,13 +3639,13 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.vex.m_mmmm;
                         break;
                     case 0x62:
-#if defined(ZYDIS_DISABLE_EVEX) && defined(ZYDIS_DISABLE_MVEX)
+#if defined(ZYDIS_DISABLE_AVX512) && defined(ZYDIS_DISABLE_KNC)
                         return ZYDIS_STATUS_DECODING_ERROR;
 #else
                         switch ((prefix_bytes[2] >> 2) & 0x01)
                         {
                         case 0:
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
                             instruction->raw.mvex.offset = instruction->length - 4;
                             // `KNC` instructions are only valid in 64-bit mode.
                             // This condition catches the `MVEX` encoded ones to save a bunch of
@@ -3665,7 +3665,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             return ZYDIS_STATUS_DECODING_ERROR;
 #endif
                         case 1:
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
                             instruction->raw.evex.offset = instruction->length - 4;
                             // Decode EVEX-prefix
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
@@ -4047,7 +4047,7 @@ static ZyanStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
 static ZyanStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
@@ -4060,7 +4060,7 @@ static ZyanStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, Zy
 }
 #endif
 
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
 static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
@@ -4095,7 +4095,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     ZydisRegisterConstraint constr_NDSNDD = ZYDIS_REG_CONSTRAINTS_NONE;
     ZyanBool has_VSIB  = ZYAN_FALSE;
     ZyanBool is_gather = ZYAN_FALSE;
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     ZydisMaskPolicy mask_policy = ZYDIS_MASK_POLICY_INVALID;
 #endif
 
@@ -4139,7 +4139,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     {
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
         const ZydisInstructionDefinitionEVEX* def =
             (const ZydisInstructionDefinitionEVEX*)definition;
         constr_NDSNDD = def->constr_NDSNDD;
@@ -4158,7 +4158,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
     {
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
         const ZydisInstructionDefinitionMVEX* def =
             (const ZydisInstructionDefinitionMVEX*)definition;
         constr_NDSNDD = def->constr_NDSNDD;
@@ -4431,7 +4431,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
     }
 
-#if !defined(ZYDIS_DISABLE_EVEX) || !defined(ZYDIS_DISABLE_MVEX)
+#if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     // Check for invalid MASK registers
     switch (mask_policy)
     {
@@ -4553,12 +4553,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_REX_B:
             status = ZydisNodeHandlerRexB(context, instruction, &index);
             break;
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
         case ZYDIS_NODETYPE_FILTER_EVEX_B:
             status = ZydisNodeHandlerEvexB(instruction, &index);
             break;
 #endif
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
         case ZYDIS_NODETYPE_FILTER_MVEX_E:
             status = ZydisNodeHandlerMvexE(instruction, &index);
             break;

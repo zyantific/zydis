@@ -122,12 +122,12 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_REX_B:
         ZYAN_ASSERT(index <   2);
         return &filters_rex_b[parent->value][index];
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
     case ZYDIS_NODETYPE_FILTER_EVEX_B:
         ZYAN_ASSERT(index <   2);
         return &filters_evex_b[parent->value][index];
 #endif
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
     case ZYDIS_NODETYPE_FILTER_MVEX_E:
         ZYAN_ASSERT(index <   2);
         return &filters_mvex_e[parent->value][index];

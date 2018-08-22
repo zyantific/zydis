@@ -18,11 +18,11 @@ option(ZYDIS_FEATURE_DECODER
 option(ZYDIS_FEATURE_FORMATTER
     "Enable instruction formatting functionality"
     ON)
-option(ZYDIS_FEATURE_EVEX
-    "Enable support for EVEX instructions"
+option(ZYDIS_FEATURE_AVX512
+    "Enable support for AVX-512 instructions"
     ON)
-option(ZYDIS_FEATURE_MVEX
-    "Enable support for MVEX instructions"
+option(ZYDIS_FEATURE_KNC
+    "Enable support for KNC instructions"
     ON)
 
 # Build configuration
@@ -82,11 +82,11 @@ endif ()
 if (NOT ZYDIS_FEATURE_FORMATTER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_FORMATTER")
 endif ()
-if (NOT ZYDIS_FEATURE_EVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_EVEX")
+if (NOT ZYDIS_FEATURE_AVX512)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_AVX512")
 endif ()
-if (NOT ZYDIS_FEATURE_MVEX)
-    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_MVEX")
+if (NOT ZYDIS_FEATURE_KNC)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_KNC")
 endif ()
 
 target_sources("Zydis"

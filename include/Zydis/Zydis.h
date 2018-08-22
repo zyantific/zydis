@@ -111,13 +111,13 @@ extern "C" {
  */
 typedef enum ZydisFeature_
 {
-    ZYDIS_FEATURE_EVEX,
-    ZYDIS_FEATURE_MVEX,
+    ZYDIS_FEATURE_AVX512,
+    ZYDIS_FEATURE_KNC,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_MVEX,
+    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_KNC,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */

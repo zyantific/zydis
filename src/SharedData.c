@@ -88,12 +88,12 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsVEX[id];
         break;
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[id];
         break;
 #endif
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         *definition = (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[id];
         break;

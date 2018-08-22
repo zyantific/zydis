@@ -39,15 +39,15 @@ ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature)
 {
     switch (feature)
     {
-    case ZYDIS_FEATURE_EVEX:
-#ifndef ZYDIS_DISABLE_EVEX
+    case ZYDIS_FEATURE_AVX512:
+#ifndef ZYDIS_DISABLE_AVX512
         return ZYAN_STATUS_TRUE;
 #else
         return ZYAN_STATUS_FALSE;
 #endif
 
-    case ZYDIS_FEATURE_MVEX:
-#ifndef ZYDIS_DISABLE_MVEX
+    case ZYDIS_FEATURE_KNC:
+#ifndef ZYDIS_DISABLE_KNC
         return ZYAN_STATUS_TRUE;
 #else
         return ZYAN_STATUS_FALSE;
