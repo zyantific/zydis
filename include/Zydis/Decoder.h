@@ -162,15 +162,15 @@ typedef struct ZydisDecoder_
     /**
      * @brief   The machine mode.
      */
-    ZydisMachineMode machineMode;
+    ZydisMachineMode machine_mode;
     /**
      * @brief   The address width.
      */
-    ZydisAddressWidth addressWidth;
+    ZydisAddressWidth address_width;
     /**
      * @brief   The decoder mode array.
      */
-    ZyanBool decoderMode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
