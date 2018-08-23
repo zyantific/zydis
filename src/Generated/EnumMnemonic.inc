@@ -1,4 +1,4 @@
-static const ZydisShortString zydisMnemonicStrings[] =
+static const ZydisShortString STR_MNEMONIC[] =
 {
     ZYDIS_MAKE_SHORTSTRING("invalid"),
     ZYDIS_MAKE_SHORTSTRING("aaa"),

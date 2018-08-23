@@ -695,9 +695,9 @@ ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
         ZyanU8 operand_count                   ZYAN_BITFIELD( 4); \
         ZyanU16 operand_reference              ZYAN_BITFIELD(15); \
         ZyanU8 operand_size_map                ZYAN_BITFIELD( 3); \
+        ZyanU8 address_size_map                ZYAN_BITFIELD( 2); \
         ZyanU8 flags_reference                 ZYAN_BITFIELD( 7); \
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
-        ZyanBool accepts_address_size_override ZYAN_BITFIELD( 1); \
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
         ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
@@ -708,8 +708,8 @@ ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
         ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
         ZyanU8 operand_size_map                ZYAN_BITFIELD( 3); \
+        ZyanU8 address_size_map                ZYAN_BITFIELD( 2); \
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
-        ZyanBool accepts_address_size_override ZYAN_BITFIELD( 1); \
         ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
         ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
 #endif

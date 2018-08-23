@@ -1,4 +1,4 @@
-static const char* zydisISASetStrings[] =
+static const char* STR_ISASET[] =
 {
     "INVALID",
     "ADOX_ADCX",

@@ -1,4 +1,4 @@
-static const char* zydisInstructionCategoryStrings[] =
+static const char* STR_INSTRUCTIONCATEGORY[] =
 {
     "INVALID",
     "ADOX_ADCX",

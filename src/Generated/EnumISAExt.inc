@@ -1,4 +1,4 @@
-static const char* zydisISAExtStrings[] =
+static const char* STR_ISAEXT[] =
 {
     "INVALID",
     "ADOX_ADCX",

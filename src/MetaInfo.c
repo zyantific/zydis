@@ -40,29 +40,29 @@
 
 const char* ZydisCategoryGetString(ZydisInstructionCategory category)
 {
-    if (category >= ZYAN_ARRAY_LENGTH(zydisInstructionCategoryStrings))
+    if (category >= ZYAN_ARRAY_LENGTH(STR_INSTRUCTIONCATEGORY))
     {
         return ZYAN_NULL;
     }
-    return zydisInstructionCategoryStrings[category];
+    return STR_INSTRUCTIONCATEGORY[category];
 }
 
 const char* ZydisISASetGetString(ZydisISASet isa_set)
 {
-    if (isa_set >= ZYAN_ARRAY_LENGTH(zydisISASetStrings))
+    if (isa_set >= ZYAN_ARRAY_LENGTH(STR_ISASET))
     {
         return ZYAN_NULL;
     }
-    return zydisISASetStrings[isa_set];
+    return STR_ISASET[isa_set];
 }
 
 const char* ZydisISAExtGetString(ZydisISAExt isa_ext)
 {
-    if (isa_ext >= ZYAN_ARRAY_LENGTH(zydisISAExtStrings))
+    if (isa_ext >= ZYAN_ARRAY_LENGTH(STR_ISAEXT))
     {
         return ZYAN_NULL;
     }
-    return zydisISAExtStrings[isa_ext];
+    return STR_ISAEXT[isa_ext];
 }
 
 /* ============================================================================================== */
