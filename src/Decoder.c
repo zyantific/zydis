@@ -4314,7 +4314,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     case ZYDIS_REG_CONSTRAINTS_CR:
     {
         // Attempts to reference CR1, CR5, CR6, CR7, and CR9–CR15 result in undefined opcode (#UD)
-        // exceptions.
+        // exceptions
         const ZyanU8 value = instruction->raw.modrm.reg | (context->cache.R << 3);
         static const ZyanU8 lookup[16] =
         {
