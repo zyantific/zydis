@@ -299,6 +299,7 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
         return status;
     }
 
+    ZyanBool printed_segment = ZYAN_FALSE;
     switch (context->operand->mem.segment)
     {
     case ZYDIS_REGISTER_ES:
@@ -307,6 +308,7 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
     case ZYDIS_REGISTER_GS:
         ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
             context->operand->mem.segment));
+        printed_segment = ZYAN_TRUE;
         break;
     case ZYDIS_REGISTER_SS:
         if ((formatter->force_memory_segment) ||
@@ -314,6 +316,7 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
         {
             ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
                 context->operand->mem.segment));
+            printed_segment = ZYAN_TRUE;
         }
         break;
     case ZYDIS_REGISTER_DS:
@@ -322,12 +325,13 @@ static ZyanStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Zy
         {
             ZYAN_CHECK(formatter->func_print_register(formatter, string, context,
                 context->operand->mem.segment));
+            printed_segment = ZYAN_TRUE;
         }
         break;
     default:
         break;
     }
-    if (ZYAN_SUCCESS(status))
+    if (ZYAN_SUCCESS(status) && printed_segment)
     {
         ZYAN_CHECK(ZydisStringAppendShort(string, &STR_DELIM_SGMENT));
     }
