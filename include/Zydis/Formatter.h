@@ -614,10 +614,10 @@ struct ZydisFormatter_
     ZyanU8 format_disp;
     ZyanU8 format_imm;
     ZyanBool hex_uppercase;
-    const ZyanString* hex_prefix;
-    ZyanString hex_prefix_data;
-    const ZyanString* hex_suffix;
-    ZyanString hex_suffix_data;
+    const ZyanStringView* hex_prefix;
+    ZyanStringView hex_prefix_data;
+    const ZyanStringView* hex_suffix;
+    ZyanStringView hex_suffix_data;
     ZyanU8 hex_padding_address;
     ZyanU8 hex_padding_disp;
     ZyanU8 hex_padding_imm;

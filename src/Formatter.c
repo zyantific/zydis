@@ -96,8 +96,8 @@ static const ZydisShortString STR_DECO_SINT16    = ZYDIS_MAKE_SHORTSTRING(" {sin
 static const ZydisShortString STR_DECO_UINT16    = ZYDIS_MAKE_SHORTSTRING(" {uint16}");
 static const ZydisShortString STR_DECO_EH        = ZYDIS_MAKE_SHORTSTRING(" {eh}");
 
-static const ZyanString STR_PREFIX_HEX           = ZYAN_STRING_WRAP("0x");
-static const ZyanString STR_SUFFIX_HEX           = ZYAN_STRING_WRAP("h");
+static const ZyanStringView   STR_PREFIX_HEX     = ZYAN_DECLARE_STRING_VIEW("0x");
+static const ZyanStringView   STR_SUFFIX_HEX     = ZYAN_DECLARE_STRING_VIEW("h");
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -144,7 +144,7 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, string, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, string, context));
 
-    const ZyanUSize str_len_mnemonic = string->data.size;
+    const ZyanUSize str_len_mnemonic = string->vector.size;
     for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
     {
         if (context->instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
@@ -152,8 +152,8 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
             break;
         }
 
-        const ZyanUSize str_len_restore = string->data.size;
-        if (string->data.size == str_len_mnemonic)
+        const ZyanUSize str_len_restore = string->vector.size;
+        if (string->vector.size == str_len_mnemonic)
         {
             ZYAN_CHECK(ZydisStringAppendShort(string, &STR_DELIM_MNEMONIC));
         } else
@@ -165,8 +165,8 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
         if ((i == 1) && (context->instruction->operands[i].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
             (context->instruction->operands[i].encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
-            string->data.size = str_len_restore;
-            *((char*)string->data.data + string->data.size - 1) = '\0';
+            string->vector.size = str_len_restore;
+            *((char*)string->vector.data + string->vector.size - 1) = '\0';
             continue;
         }
 
@@ -179,8 +179,8 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
             status = formatter->func_pre_operand(formatter, string, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                string->data.size = str_len_restore;
-                *((char*)string->data.data + string->data.size - 1) = '\0';
+                string->vector.size = str_len_restore;
+                *((char*)string->vector.data + string->vector.size - 1) = '\0';
                 continue;
             }
             if (status != ZYAN_STATUS_SUCCESS)
@@ -208,8 +208,8 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
         }
         if (status == ZYDIS_STATUS_SKIP_TOKEN)
         {
-            string->data.size = str_len_restore;
-            *((char*)string->data.data + string->data.size - 1) = '\0';
+            string->vector.size = str_len_restore;
+            *((char*)string->vector.data + string->vector.size - 1) = '\0';
             continue;
         }
         if (status != ZYAN_STATUS_SUCCESS)
@@ -222,8 +222,8 @@ static ZyanStatus ZydisFormatInstrIntel(const ZydisFormatter* formatter, ZyanStr
             status = formatter->func_post_operand(formatter, string, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                string->data.size = str_len_restore;
-                *((char*)string->data.data + string->data.size - 1) = '\0';
+                string->vector.size = str_len_restore;
+                *((char*)string->vector.data + string->vector.size - 1) = '\0';
                 continue;
             }
             if (status != ZYAN_STATUS_SUCCESS)
@@ -1086,11 +1086,8 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
         formatter->hex_prefix = (value) ? &formatter->hex_prefix_data : ZYAN_NULL;
         if (value)
         {
-            formatter->hex_prefix_data.flags = ZYAN_STRING_IS_IMMUTABLE;
-            formatter->hex_prefix_data.data.allocator = ZYAN_NULL;
-            formatter->hex_prefix_data.data.element_size = sizeof(char);
-            formatter->hex_prefix_data.data.capacity = sizeof((char*)value) + 1;
-            formatter->hex_prefix_data.data.size = formatter->hex_prefix_data.data.capacity;
+            formatter->hex_prefix_data.string.vector.data = (char*)value;
+            formatter->hex_prefix_data.string.vector.size = ZYAN_STRLEN((char*)value) + 1;
             return ZYAN_STATUS_SUCCESS;
         }
         break;
@@ -1098,11 +1095,8 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
         formatter->hex_suffix = (value) ? &formatter->hex_suffix_data : ZYAN_NULL;
         if (value)
         {
-            formatter->hex_suffix_data.flags = ZYAN_STRING_IS_IMMUTABLE;
-            formatter->hex_suffix_data.data.allocator = ZYAN_NULL;
-            formatter->hex_suffix_data.data.element_size = sizeof(char);
-            formatter->hex_suffix_data.data.capacity = sizeof((char*)value) + 1;
-            formatter->hex_suffix_data.data.size = formatter->hex_suffix_data.data.capacity;
+            formatter->hex_suffix_data.string.vector.data = (char*)value;
+            formatter->hex_suffix_data.string.vector.size = ZYAN_STRLEN((char*)value) + 1;
             return ZYAN_STATUS_SUCCESS;
         }
         break;
@@ -1286,12 +1280,12 @@ ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
     }
 
     ZyanString string;
-    string.flags             = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    string.data.allocator    = ZYAN_NULL;
-    string.data.element_size = sizeof(char);
-    string.data.size         = 1;
-    string.data.capacity     = length;
-    string.data.data         = buffer;
+    string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    string.vector.allocator    = ZYAN_NULL;
+    string.vector.element_size = sizeof(char);
+    string.vector.size         = 1;
+    string.vector.capacity     = length;
+    string.vector.data         = buffer;
     *buffer = '\0';
 
     ZydisFormatterContext context;
@@ -1327,12 +1321,12 @@ ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     }
 
     ZyanString string;
-    string.flags             = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    string.data.allocator    = ZYAN_NULL;
-    string.data.element_size = sizeof(char);
-    string.data.size         = 1;
-    string.data.capacity     = length;
-    string.data.data         = buffer;
+    string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    string.vector.allocator    = ZYAN_NULL;
+    string.vector.element_size = sizeof(char);
+    string.vector.size         = 1;
+    string.vector.capacity     = length;
+    string.vector.data         = buffer;
     *buffer = '\0';
 
     ZydisFormatterContext context;

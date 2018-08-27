@@ -100,7 +100,13 @@ typedef enum ZydisLetterCase_
  * @brief   Checks for a terminating '\0' character at the end of the string data.
  */
 #define ZYDIS_STRING_ASSERT_NULLTERMINATION(string) \
-      ZYAN_ASSERT(*(char*)((ZyanU8*)(string)->data.data + (string)->data.size - 1) == '\0');
+      ZYAN_ASSERT(*(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) == '\0');
+
+/**
+ * @brief   Writes a terminating '\0' character at the end of the string data.
+ */
+#define ZYDIS_STRING_NULLTERMINATE(string) \
+      *(char*)((ZyanU8*)(string)->vector.data + (string)->vector.size - 1) = '\0';
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -120,22 +126,22 @@ typedef enum ZydisLetterCase_
  *
  * @return  A zyan status code.
  */
-ZYAN_INLINE ZyanStatus ZydisStringAppend(ZyanString* destination, const ZyanString* source)
+ZYAN_INLINE ZyanStatus ZydisStringAppend(ZyanString* destination, const ZyanStringView* source)
 {
     ZYAN_ASSERT(destination && source);
-    ZYAN_ASSERT(!destination->data.allocator && !source->data.allocator);
-    ZYAN_ASSERT(destination->data.size && source->data.size);
+    ZYAN_ASSERT(!destination->vector.allocator);
+    ZYAN_ASSERT(destination->vector.size && source->string.vector.size);
 
-    if (destination->data.size + source->data.size - 1 > destination->data.capacity)
+    if (destination->vector.size + source->string.vector.size - 1 > destination->vector.capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZYAN_MEMCPY((char*)destination->data.data + destination->data.size - 1, source->data.data,
-        source->data.size);
+    ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1,
+        source->string.vector.data, source->string.vector.size - 1);
 
-    destination->data.size += source->data.size - 1;
-    ZYDIS_STRING_ASSERT_NULLTERMINATION(destination);
+    destination->vector.size += source->string.vector.size - 1;
+    ZYDIS_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -150,20 +156,20 @@ ZYAN_INLINE ZyanStatus ZydisStringAppend(ZyanString* destination, const ZyanStri
  *
  * @return  A zyan status code.
  */
-ZYAN_INLINE ZyanStatus ZydisStringAppendCase(ZyanString* destination, const ZyanString* source,
+ZYAN_INLINE ZyanStatus ZydisStringAppendCase(ZyanString* destination, const ZyanStringView* source,
     ZydisLetterCase letter_case)
 {
     ZYAN_ASSERT(destination && source);
-    ZYAN_ASSERT(!destination->data.allocator && !source->data.allocator);
-    ZYAN_ASSERT(destination->data.size && source->data.size);
+    ZYAN_ASSERT(!destination->vector.allocator);
+    ZYAN_ASSERT(destination->vector.size && source->string.vector.size);
 
-    if (destination->data.size + source->data.size - 1 > destination->data.capacity)
+    if (destination->vector.size + source->string.vector.size - 1 > destination->vector.capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZYAN_MEMCPY((char*)destination->data.data + destination->data.size - 1, source->data.data,
-        source->data.size);
+    ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1,
+        source->string.vector.data, source->string.vector.size - 1);
 
     switch (letter_case)
     {
@@ -171,9 +177,9 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendCase(ZyanString* destination, const Zyan
         break;
     case ZYDIS_LETTER_CASE_LOWER:
     {
-        const ZyanUSize index = destination->data.size - 1;
-        const ZyanUSize count = source->data.size - 1;
-        char* s = (char*)destination->data.data + index;
+        const ZyanUSize index = destination->vector.size - 1;
+        const ZyanUSize count = source->string.vector.size - 1;
+        char* s = (char*)destination->vector.data + index;
         for (ZyanUSize i = index; i < index + count; ++i)
         {
             const char c = *s;
@@ -187,9 +193,9 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendCase(ZyanString* destination, const Zyan
     }
     case ZYDIS_LETTER_CASE_UPPER:
     {
-        const ZyanUSize index = destination->data.size - 1;
-        const ZyanUSize count = source->data.size - 1;
-        char* s = (char*)destination->data.data + index;
+        const ZyanUSize index = destination->vector.size - 1;
+        const ZyanUSize count = source->string.vector.size - 1;
+        char* s = (char*)destination->vector.data + index;
         for (ZyanUSize i = index; i < index + count; ++i)
         {
             const char c = *s;
@@ -205,8 +211,8 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendCase(ZyanString* destination, const Zyan
         ZYAN_UNREACHABLE;
     }
 
-    destination->data.size += source->data.size - 1;
-    ZYDIS_STRING_ASSERT_NULLTERMINATION(destination);
+    destination->vector.size += source->string.vector.size - 1;
+    ZYDIS_STRING_NULLTERMINATE(destination);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -223,18 +229,18 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShort(ZyanString* destination,
     const ZydisShortString* source)
 {
     ZYAN_ASSERT(destination && source);
-    ZYAN_ASSERT(!destination->data.allocator);
-    ZYAN_ASSERT(destination->data.size && source->size);
+    ZYAN_ASSERT(!destination->vector.allocator);
+    ZYAN_ASSERT(destination->vector.size && source->size);
 
-    if (destination->data.size + source->size > destination->data.capacity)
+    if (destination->vector.size + source->size > destination->vector.capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZYAN_MEMCPY((char*)destination->data.data + destination->data.size - 1, source->data,
+    ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1, source->data,
         source->size + 1);
 
-    destination->data.size += source->size;
+    destination->vector.size += source->size;
     ZYDIS_STRING_ASSERT_NULLTERMINATION(destination);
 
     return ZYAN_STATUS_SUCCESS;
@@ -254,15 +260,15 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
     const ZydisShortString* source, ZydisLetterCase letter_case)
 {
     ZYAN_ASSERT(destination && source);
-    ZYAN_ASSERT(!destination->data.allocator);
-    ZYAN_ASSERT(destination->data.size && source->size);
+    ZYAN_ASSERT(!destination->vector.allocator);
+    ZYAN_ASSERT(destination->vector.size && source->size);
 
-    if (destination->data.size + source->size > destination->data.capacity)
+    if (destination->vector.size + source->size > destination->vector.capacity)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZYAN_MEMCPY((char*)destination->data.data + destination->data.size - 1, source->data,
+    ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1, source->data,
         source->size + 1);
 
     switch (letter_case)
@@ -271,9 +277,9 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
         break;
     case ZYDIS_LETTER_CASE_LOWER:
     {
-        const ZyanUSize index = destination->data.size - 1;
+        const ZyanUSize index = destination->vector.size - 1;
         const ZyanUSize count = source->size;
-        char* s = (char*)destination->data.data + index;
+        char* s = (char*)destination->vector.data + index;
         for (ZyanUSize i = index; i < index + count; ++i)
         {
             const char c = *s;
@@ -287,9 +293,9 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
     }
     case ZYDIS_LETTER_CASE_UPPER:
     {
-        const ZyanUSize index = destination->data.size - 1;
+        const ZyanUSize index = destination->vector.size - 1;
         const ZyanUSize count = source->size;
-        char* s = (char*)destination->data.data + index;
+        char* s = (char*)destination->vector.data + index;
         for (ZyanUSize i = index; i < index + count; ++i)
         {
             const char c = *s;
@@ -305,7 +311,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
         ZYAN_UNREACHABLE;
     }
 
-    destination->data.size += source->size;
+    destination->vector.size += source->size;
     ZYDIS_STRING_ASSERT_NULLTERMINATION(destination);
 
     return ZYAN_STATUS_SUCCESS;
@@ -332,7 +338,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
  * `ZyanString` instance.
  */
 ZyanStatus ZydisStringAppendDecU(ZyanString* string, ZyanU64 value, ZyanU8 padding_length,
-    const ZyanString* prefix, const ZyanString* suffix);
+    const ZyanStringView* prefix, const ZyanStringView* suffix);
 
 /**
  * @brief   Formats the given signed ordinal `value` to its decimal text-representation and
@@ -352,7 +358,8 @@ ZyanStatus ZydisStringAppendDecU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
  * `ZyanString` instance.
  */
 ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
-    ZyanU8 padding_length, ZyanBool force_sign, const ZyanString* prefix, const ZyanString* suffix)
+    ZyanU8 padding_length, ZyanBool force_sign, const ZyanStringView* prefix,
+    const ZyanStringView* suffix)
 {
     static const ZydisShortString str_add = ZYDIS_MAKE_SHORTSTRING("+");
     static const ZydisShortString str_sub = ZYDIS_MAKE_SHORTSTRING("-");
@@ -394,7 +401,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
  * `ZyanString` instance.
  */
 ZyanStatus ZydisStringAppendHexU(ZyanString* string, ZyanU64 value, ZyanU8 padding_length,
-    ZyanBool uppercase, const ZyanString* prefix, const ZyanString* suffix);
+    ZyanBool uppercase, const ZyanStringView* prefix, const ZyanStringView* suffix);
 
 /**
  * @brief   Formats the given signed ordinal `value` to its hexadecimal text-representation and
@@ -419,8 +426,8 @@ ZyanStatus ZydisStringAppendHexU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
  * successfull.
  */
 ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
-    ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZyanString* prefix,
-    const ZyanString* suffix)
+    ZyanU8 padding_length, ZyanBool uppercase, ZyanBool force_sign, const ZyanStringView* prefix,
+    const ZyanStringView* suffix)
 {
     static const ZydisShortString str_add = ZYDIS_MAKE_SHORTSTRING("+");
     static const ZydisShortString str_sub = ZYDIS_MAKE_SHORTSTRING("-");
