@@ -915,7 +915,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 
     ZyanStatus status;
     ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL_MASM))) ||
+    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,

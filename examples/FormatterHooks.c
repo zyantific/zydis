@@ -161,7 +161,7 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, Z
 
 ZydisFormatterFunc default_format_operand_imm;
 
-static ZyanStatus ZydisFormatterFormatOperandImm(const ZydisFormatter* formatter,
+static ZyanStatus ZydisFormatterFormatOperandIMM(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context)
 {
     // The `ZydisFormatterFormatMnemonic` sinals us to omit the immediate (condition-code)
@@ -193,10 +193,10 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     if (install_hooks)
     {
         default_print_mnemonic = (ZydisFormatterFunc)&ZydisFormatterPrintMnemonic;
-        ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_PRINT_MNEMONIC,
+        ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_FUNC_PRINT_MNEMONIC,
             (const void**)&default_print_mnemonic);
-        default_format_operand_imm = (ZydisFormatterFunc)&ZydisFormatterFormatOperandImm;
-        ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_HOOK_FORMAT_OPERAND_IMM,
+        default_format_operand_imm = (ZydisFormatterFunc)&ZydisFormatterFormatOperandIMM;
+        ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM,
             (const void**)&default_format_operand_imm);
     }
 
@@ -247,8 +247,8 @@ int main(void)
     ZydisDecoder decoder;
     ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
-    //DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
-    //puts("");
+    DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
+    puts("");
     DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_TRUE);
 
     return 0;
