@@ -304,7 +304,7 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
         {
             if (segments.segments[i].type == ZYDIS_INSTR_SEGMENT_PREFIXES)
             {
-                ZYAN_ASSERT(segments.segments[i].size == instruction->raw.prefix_count);
+                ZYAN_ASSERT(segments.segments[i].size <= instruction->raw.prefix_count);
                 switch (instruction->raw.prefixes[j].type)
                 {
                 case ZYDIS_PREFIX_TYPE_IGNORED:
@@ -915,7 +915,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 
     ZyanStatus status;
     ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
+    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL_MASM))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,

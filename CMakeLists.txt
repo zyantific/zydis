@@ -121,7 +121,11 @@ if (ZYDIS_FEATURE_DECODER)
         target_sources("Zydis"
             PRIVATE
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
-                "src/Formatter.c")
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterATT.h"
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterIntel.h"
+                "src/Formatter.c"
+                "src/FormatterATT.c"
+                "src/FormatterIntel.c")
     endif ()
 endif ()
 
