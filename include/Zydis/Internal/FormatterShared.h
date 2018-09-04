@@ -99,6 +99,26 @@ extern "C" {
     }
 
 /* ============================================================================================== */
+/* Helper functions                                                                               */
+/* ============================================================================================== */
+
+/**
+ * @brief   Returns the size to be used as explicit size suffix (`AT&T`) or explicit typecast
+ *          (`INTEL`), if required.
+ *
+ * @param   formatter   A pointer to the `ZydisFormatter` instance.
+ * @param   context     A pointer to the `ZydisFormatterContext` struct.
+ * @param   memop_id    The operand-id of the instructions first memory operand.
+ *
+ * @return  Returns the explicit size, if required, or `0`, if not needed.
+ *
+ * This function always returns a size different to `0`, if the `ZYDIS_FORMATTER_PROP_FORCE_SIZE`
+ * is set to `ZYAN_TRUE`.
+ */
+ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
+    ZydisFormatterContext* context, ZyanU8 memop_id);
+
+/* ============================================================================================== */
 /* Formatter functions                                                                            */
 /* ============================================================================================== */
 

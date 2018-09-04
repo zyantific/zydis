@@ -43,7 +43,7 @@ static const ZydisShortString STR_INVALID        = ZYDIS_MAKE_SHORTSTRING("inval
 static const ZydisShortString STR_FAR            = ZYDIS_MAKE_SHORTSTRING("l");
 static const ZydisShortString STR_SIZE_8         = ZYDIS_MAKE_SHORTSTRING("b");
 static const ZydisShortString STR_SIZE_16        = ZYDIS_MAKE_SHORTSTRING("w");
-static const ZydisShortString STR_SIZE_32        = ZYDIS_MAKE_SHORTSTRING("l ");
+static const ZydisShortString STR_SIZE_32        = ZYDIS_MAKE_SHORTSTRING("l");
 static const ZydisShortString STR_SIZE_64        = ZYDIS_MAKE_SHORTSTRING("q");
 static const ZydisShortString STR_SIZE_128       = ZYDIS_MAKE_SHORTSTRING("x");
 static const ZydisShortString STR_SIZE_256       = ZYDIS_MAKE_SHORTSTRING("y");
@@ -356,9 +356,45 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context)
 {
-    ZYAN_UNUSED(formatter);
-    ZYAN_UNUSED(string);
-    ZYAN_UNUSED(context);
+    if (!formatter || !context)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    ZyanU32 size = 0;
+    for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
+    {
+        const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
+        if (operand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
+        {
+            break;
+        }
+        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
+            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
+        {
+            size = ZydisFormatterHelperGetExplicitSize(formatter, context, i);
+            break;
+        }
+    }
+
+    const ZydisShortString* str = ZYAN_NULL;
+    switch (size)
+    {
+    case   8: str = &STR_SIZE_8  ; break;
+    case  16: str = &STR_SIZE_16 ; break;
+    case  32: str = &STR_SIZE_32 ; break;
+    case  64: str = &STR_SIZE_64 ; break;
+    case 128: str = &STR_SIZE_128; break;
+    case 256: str = &STR_SIZE_256; break;
+    case 512: str = &STR_SIZE_512; break;
+    default:
+        break;
+    }
+    if (str)
+    {
+        return ZydisStringAppendShortCase(string, str, formatter->letter_case);
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 

@@ -112,19 +112,20 @@ typedef enum ZydisFormatterProperty_
     ZYDIS_FORMATTER_PROP_UPPERCASE,
 
     /**
-     * @brief   Controls the printing of memory-operand sizes.
+     * @brief   Controls the printing of effective operand-size suffixes (`AT&T`) or operand-sizes
+     *          of memory operands (`INTEL`).
      *
-     * Pass `ZYAN_TRUE` as value to force the formatter to always print the size of memory-
-     * operands or `ZYAN_FALSE` to only print it on demand.
+     * Pass `ZYAN_TRUE` as value to force the formatter to always print the size, or `ZYAN_FALSE`
+     * to only print it if needed.
      */
-    ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE,
+    ZYDIS_FORMATTER_PROP_FORCE_SIZE,
     /**
      * @brief   Controls the printing of segment prefixes.
      *
      * Pass `ZYAN_TRUE` as value to force the formatter to always print the segment register of
      * memory-operands or `ZYAN_FALSE` to omit implicit `DS`/`SS` segments.
      */
-    ZYDIS_FORMATTER_PROP_FORCE_MEMSEG,
+    ZYDIS_FORMATTER_PROP_FORCE_SEGMENT,
 
     /**
      * @brief   Controls the printing of instruction prefixes.
@@ -698,11 +699,11 @@ struct ZydisFormatter_
      */
     ZyanU32 letter_case;
     /**
-     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE` property.
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_SIZE` property.
      */
     ZyanBool force_memory_size;
     /**
-     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_MEMSEG` property.
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_SEGMENT` property.
      */
     ZyanBool force_memory_segment;
     /**

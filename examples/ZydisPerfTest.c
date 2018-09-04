@@ -238,9 +238,9 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     {
         if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
             !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
-                ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE)) ||
+                ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
             !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
-                ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
+                ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
         {
             ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
                 CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));

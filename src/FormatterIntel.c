@@ -214,7 +214,10 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_CHECK(formatter->func_print_size(formatter, string, context));
+    if (context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM)
+    {
+        ZYAN_CHECK(formatter->func_print_size(formatter, string, context));
+    }
     ZYAN_CHECK(formatter->func_print_segment (formatter, string, context));
 
     ZYAN_CHECK(ZydisStringAppendShort(string, &STR_MEMORY_BEGIN));
@@ -337,99 +340,24 @@ ZyanStatus ZydisFormatterIntelPrintSize(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    // TODO: refactor
-
-    ZyanU32 typecast = 0;
-    if (formatter->force_memory_size)
+    const ZydisShortString* str = ZYAN_NULL;
+    switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand->id))
     {
-        if ((context->operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
-            (context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
-        {
-            typecast = context->instruction->operands[context->operand->id].size;
-        }
-    } else
-    if ((context->operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
-        (context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
-    {
-        switch (context->operand->id)
-        {
-        case 0:
-            typecast =
-                ((context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_UNUSED) ||
-                 (context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE) ||
-                 (context->instruction->operands[0].size !=
-                    context->instruction->operands[1].size)) ?
-                    context->instruction->operands[0].size : 0;
-            if (!typecast &&
-                (context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-                (context->instruction->operands[1].reg.value == ZYDIS_REGISTER_CL))
-            {
-                switch (context->instruction->mnemonic)
-                {
-                case ZYDIS_MNEMONIC_RCL:
-                case ZYDIS_MNEMONIC_ROL:
-                case ZYDIS_MNEMONIC_ROR:
-                case ZYDIS_MNEMONIC_RCR:
-                case ZYDIS_MNEMONIC_SHL:
-                case ZYDIS_MNEMONIC_SHR:
-                case ZYDIS_MNEMONIC_SAR:
-                    typecast = context->instruction->operands[0].size;
-                default:
-                    break;
-                }
-            }
-            break;
-        case 1:
-        case 2:
-            typecast =
-                (context->instruction->operands[context->operand->id - 1].size !=
-                    context->instruction->operands[context->operand->id].size) ?
-                    context->instruction->operands[context->operand->id].size : 0;
-            break;
-        default:
-            break;
-        }
+    case   8: str = &STR_SIZE_8  ; break;
+    case  16: str = &STR_SIZE_16 ; break;
+    case  32: str = &STR_SIZE_32 ; break;
+    case  48: str = &STR_SIZE_48 ; break;
+    case  64: str = &STR_SIZE_64 ; break;
+    case  80: str = &STR_SIZE_80 ; break;
+    case 128: str = &STR_SIZE_128; break;
+    case 256: str = &STR_SIZE_256; break;
+    case 512: str = &STR_SIZE_512; break;
+    default:
+        break;
     }
-    if (typecast)
+    if (str)
     {
-        const ZydisShortString* str = ZYAN_NULL;
-        switch (typecast)
-        {
-        case 8:
-            str = &STR_SIZE_8;
-            break;
-        case 16:
-            str = &STR_SIZE_16;
-            break;
-        case 32:
-            str = &STR_SIZE_32;
-            break;
-        case 48:
-            str = &STR_SIZE_48;
-            break;
-        case 64:
-            str = &STR_SIZE_64;
-            break;
-        case 80:
-            str = &STR_SIZE_80;
-            break;
-        case 128:
-            str = &STR_SIZE_128;
-            break;
-        case 256:
-            str = &STR_SIZE_256;
-            break;
-        case 512:
-            str = &STR_SIZE_512;
-            break;
-        default:
-            break;
-        }
-
-        if (str)
-        {
-            return ZydisStringAppendShortCase(string, str, formatter->letter_case);
-        }
+        return ZydisStringAppendShortCase(string, str, formatter->letter_case);
     }
 
     return ZYAN_STATUS_SUCCESS;

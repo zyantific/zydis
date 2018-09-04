@@ -99,9 +99,9 @@ int main(int argc, char** argv)
     ZydisFormatter formatter;
     if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
         !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE)) ||
+            ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
         !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE)))
+            ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
     {
         ZYAN_FPUTS("Failed to initialized instruction-formatter\n", ZYAN_STDERR);
         return EXIT_FAILURE;

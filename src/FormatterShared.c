@@ -108,6 +108,60 @@ static const ZydisShortString STR_PREF_REX[0x10] =
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+/* Helper functions                                                                               */
+/* ============================================================================================== */
+
+ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
+    ZydisFormatterContext* context, ZyanU8 memop_id)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(memop_id < context->instruction->operand_count);
+
+    const ZydisDecodedOperand* const operand = &context->instruction->operands[memop_id];
+    ZYAN_ASSERT(operand->type == ZYDIS_OPERAND_TYPE_MEMORY);
+    ZYAN_ASSERT(operand->mem.type == ZYDIS_MEMOP_TYPE_MEM);
+
+    if (formatter->force_memory_size)
+    {
+        return operand->size;
+    }
+
+    switch (operand->id)
+    {
+    case 0:
+        if ((context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_UNUSED) ||
+            (context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+        {
+            return context->instruction->operands[0].size;
+        }
+        if (context->instruction->operands[0].size != context->instruction->operands[1].size)
+        {
+            return context->instruction->operands[0].size;
+        }
+        if ((context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+            (context->instruction->operands[1].visibility == ZYDIS_OPERAND_VISIBILITY_IMPLICIT) &&
+            (context->instruction->operands[1].reg.value == ZYDIS_REGISTER_CL))
+        {
+            return context->instruction->operands[0].size;
+        }
+        break;
+    case 1:
+    case 2:
+        if (context->instruction->operands[operand->id - 1].size !=
+            context->instruction->operands[operand->id].size)
+        {
+            return context->instruction->operands[operand->id].size;
+        }
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+/* ============================================================================================== */
 /* Formatter functions                                                                            */
 /* ============================================================================================== */
 

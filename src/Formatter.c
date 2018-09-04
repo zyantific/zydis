@@ -81,12 +81,12 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
         formatter->letter_case = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
         break;
     }
-    case ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE:
+    case ZYDIS_FORMATTER_PROP_FORCE_SIZE:
     {
         formatter->force_memory_size = (value) ? ZYAN_TRUE : ZYAN_FALSE;
         break;
     }
-    case ZYDIS_FORMATTER_PROP_FORCE_MEMSEG:
+    case ZYDIS_FORMATTER_PROP_FORCE_SEGMENT:
     {
         formatter->force_memory_segment = (value) ? ZYAN_TRUE : ZYAN_FALSE;
         break;
