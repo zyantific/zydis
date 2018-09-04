@@ -51,11 +51,11 @@ typedef enum ZydisInstructionSegment_
 {
     ZYDIS_INSTR_SEGMENT_NONE,
     /**
-     * @brief   The legacy prefixes.
+     * @brief   The legacy prefixes (including ignored `REX` prefixes).
      */
     ZYDIS_INSTR_SEGMENT_PREFIXES,
     /**
-     * @brief   The `REX` prefix byte.
+     * @brief   The effective `REX` prefix byte.
      */
     ZYDIS_INSTR_SEGMENT_REX,
     /**

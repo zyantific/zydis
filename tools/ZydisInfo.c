@@ -925,12 +925,20 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
             CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
         exit(status);
     }
-    char buffer[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer[0], sizeof(buffer), 0);
+    char buffer_abs[256];
+    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer_abs[0],
+        sizeof(buffer_abs), 0);
+    char buffer_rel[256];
+    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer_rel[0],
+        sizeof(buffer_rel), ZYDIS_RUNTIME_ADDRESS_NONE);
 
     ZYAN_PUTS("");
     PrintSectionHeader("DISASM");
-    ZYAN_PRINTF("  %s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer[0],
+    PrintValueLabel("ABSOLUTE");
+    ZYAN_PRINTF("%s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer_abs[0],
+        CVT100_OUT(COLOR_DEFAULT));
+    PrintValueLabel("RELATIVE");
+    ZYAN_PRINTF("%s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer_rel[0],
         CVT100_OUT(COLOR_DEFAULT));
 }
 

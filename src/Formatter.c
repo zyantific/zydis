@@ -468,8 +468,56 @@ ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFuncti
 
     const void* const temp = *callback;
 
-    // This code relies on the order of the enum values and the function fields inside the
-    // `ZydisFormatter` struct
+    // The following code relies on the order of the enum values and the function fields inside
+    // the `ZydisFormatter` struct
+
+#ifdef ZYAN_DEBUG
+    const ZyanUPointer* test = (ZyanUPointer*)(&formatter->func_pre_instruction + type);
+    switch (type)
+    {
+    case ZYDIS_FORMATTER_FUNC_PRE_INSTRUCTION:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_pre_instruction   ); break;
+    case ZYDIS_FORMATTER_FUNC_POST_INSTRUCTION:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_post_instruction  ); break;
+    case ZYDIS_FORMATTER_FUNC_FORMAT_INSTRUCTION:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_format_instruction); break;
+    case ZYDIS_FORMATTER_FUNC_PRE_OPERAND:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_pre_operand       ); break;
+    case ZYDIS_FORMATTER_FUNC_POST_OPERAND:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_post_operand      ); break;
+    case ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_REG:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_format_operand_reg); break;
+    case ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_MEM:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_format_operand_mem); break;
+    case ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_PTR:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_format_operand_ptr); break;
+    case ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_format_operand_imm); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_MNEMONIC:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_mnemonic    ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_REGISTER:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_register    ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_address_abs ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_address_rel ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_DISP:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_disp        ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_IMM:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_imm         ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_MEMSIZE:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_mem_size    ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_MEMSEG:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_mem_seg     ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_PREFIXES:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_prefixes    ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_DECORATOR:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_decorator   ); break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+#endif
+
     *callback = *(const void**)(&formatter->func_pre_instruction + type);
     if (!temp)
     {
