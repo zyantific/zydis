@@ -38,229 +38,11 @@
 /* Formatter presets                                                                              */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZydisFormatter FORMATTER_PRESETS[ZYDIS_FORMATTER_STYLE_MAX_VALUE + 1] =
+static const ZydisFormatter* const FORMATTER_PRESETS[ZYDIS_FORMATTER_STYLE_MAX_VALUE + 1] =
 {
-    // ZYDIS_FORMATTER_STYLE_ATT
-    {
-        /* style                   */ ZYDIS_FORMATTER_STYLE_ATT,
-        /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
-        /* force_memory_size       */ ZYAN_FALSE,
-        /* force_memory_seg        */ ZYAN_FALSE,
-        /* detailed_prefixes       */ ZYAN_FALSE,
-        /* addr_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* addr_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* addr_padding_absolute   */ ZYDIS_PADDING_AUTO,
-        /* addr_padding_relative   */ 2,
-        /* disp_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* disp_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* disp_padding            */ 2,
-        /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
-        /* imm_signedness          */ ZYDIS_SIGNEDNESS_AUTO,
-        /* imm_padding             */ 2,
-        /* hex_uppercase           */ ZYAN_TRUE,
-        /* number_format           */
-        {
-            // ZYDIS_NUMERIC_BASE_DEC
-            {
-                // Prefix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            },
-            // ZYDIS_NUMERIC_BASE_HEX
-            {
-                // Prefix
-                {
-                    /* string      */ &FORMATTER_PRESETS[
-                                          ZYDIS_FORMATTER_STYLE_ATT].number_format[
-                                          ZYDIS_NUMERIC_BASE_HEX     ][0].string_data,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW("0x"),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            }
-        },
-        /* func_pre_instruction    */ ZYAN_NULL,
-        /* func_post_instruction   */ ZYAN_NULL,
-        /* func_format_instruction */ &ZydisFormatterATTFormatInstruction,
-        /* func_pre_operand        */ ZYAN_NULL,
-        /* func_post_operand       */ ZYAN_NULL,
-        /* func_format_operand_reg */ &ZydisFormatterATTFormatOperandREG,
-        /* func_format_operand_mem */ &ZydisFormatterATTFormatOperandMEM,
-        /* func_format_operand_ptr */ &ZydisFormatterATTFormatOperandPTR,
-        /* func_format_operand_imm */ &ZydisFormatterATTFormatOperandIMM,
-        /* func_print_mnemonic     */ &ZydisFormatterATTPrintMnemonic,
-        /* func_print_register     */ &ZydisFormatterATTPrintRegister,
-        /* func_print_address_abs  */ &ZydisFormatterATTPrintAddressAbsolute,
-        /* func_print_address_rel  */ &ZydisFormatterATTPrintAddressRelative,
-        /* func_print_disp         */ &ZydisFormatterATTPrintDISP,
-        /* func_print_imm          */ &ZydisFormatterATTPrintIMM,
-        /* func_print_mem_size     */ &ZydisFormatterATTPrintMemorySize,
-        /* func_print_mem_seg      */ &ZydisFormatterATTPrintMemorySegment,
-        /* func_print_prefixes     */ &ZydisFormatterATTPrintPrefixes,
-        /* func_print_decorator    */ &ZydisFormatterATTPrintDecorator
-    },
-
-    // ZYDIS_FORMATTER_STYLE_INTEL
-    {
-        /* style                   */ ZYDIS_FORMATTER_STYLE_INTEL,
-        /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
-        /* force_memory_size       */ ZYAN_FALSE,
-        /* force_memory_seg        */ ZYAN_FALSE,
-        /* detailed_prefixes       */ ZYAN_FALSE,
-        /* addr_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* addr_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* addr_padding_absolute   */ ZYDIS_PADDING_AUTO,
-        /* addr_padding_relative   */ 2,
-        /* disp_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* disp_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* disp_padding            */ 2,
-        /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
-        /* imm_signedness          */ ZYDIS_SIGNEDNESS_UNSIGNED,
-        /* imm_padding             */ 2,
-        /* hex_uppercase           */ ZYAN_TRUE,
-        /* number_format           */
-        {
-            // ZYDIS_NUMERIC_BASE_DEC
-            {
-                // Prefix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            },
-            // ZYDIS_NUMERIC_BASE_HEX
-            {
-                // Prefix
-                {
-                    /* string      */ &FORMATTER_PRESETS[
-                                          ZYDIS_FORMATTER_STYLE_INTEL].number_format[
-                                          ZYDIS_NUMERIC_BASE_HEX     ][0].string_data,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW("0x"),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            }
-        },
-        /* func_pre_instruction    */ ZYAN_NULL,
-        /* func_post_instruction   */ ZYAN_NULL,
-        /* func_format_instruction */ &ZydisFormatterIntelFormatInstruction,
-        /* func_pre_operand        */ ZYAN_NULL,
-        /* func_post_operand       */ ZYAN_NULL,
-        /* func_format_operand_reg */ &ZydisFormatterIntelFormatOperandREG,
-        /* func_format_operand_mem */ &ZydisFormatterIntelFormatOperandMEM,
-        /* func_format_operand_ptr */ &ZydisFormatterIntelFormatOperandPTR,
-        /* func_format_operand_imm */ &ZydisFormatterIntelFormatOperandIMM,
-        /* func_print_mnemonic     */ &ZydisFormatterIntelPrintMnemonic,
-        /* func_print_register     */ &ZydisFormatterIntelPrintRegister,
-        /* func_print_address_abs  */ &ZydisFormatterIntelPrintAddressAbsolute,
-        /* func_print_address_rel  */ &ZydisFormatterIntelPrintAddressRelative,
-        /* func_print_disp         */ &ZydisFormatterIntelPrintDISP,
-        /* func_print_imm          */ &ZydisFormatterIntelPrintIMM,
-        /* func_print_mem_size     */ &ZydisFormatterIntelPrintMemorySize,
-        /* func_print_mem_seg      */ &ZydisFormatterIntelPrintMemorySegment,
-        /* func_print_prefixes     */ &ZydisFormatterIntelPrintPrefixes,
-        /* func_print_decorator    */ &ZydisFormatterIntelPrintDecorator
-    },
-
-    // ZYDIS_FORMATTER_STYLE_INTEL_MASM
-    {
-        /* style                   */ ZYDIS_FORMATTER_STYLE_INTEL_MASM,
-        /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
-        /* force_memory_size       */ ZYAN_TRUE,
-        /* force_memory_seg        */ ZYAN_FALSE,
-        /* detailed_prefixes       */ ZYAN_FALSE,
-        /* addr_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* addr_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* addr_padding_absolute   */ ZYDIS_PADDING_DISABLED,
-        /* addr_padding_relative   */ ZYDIS_PADDING_DISABLED,
-        /* disp_base               */ ZYDIS_NUMERIC_BASE_HEX,
-        /* disp_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
-        /* disp_padding            */ ZYDIS_PADDING_DISABLED,
-        /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
-        /* imm_signedness          */ ZYDIS_SIGNEDNESS_AUTO,
-        /* imm_padding             */ ZYDIS_PADDING_DISABLED,
-        /* hex_uppercase           */ ZYAN_TRUE,
-        /* number_format           */
-        {
-            // ZYDIS_NUMERIC_BASE_DEC
-            {
-                // Prefix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            },
-            // ZYDIS_NUMERIC_BASE_HEX
-            {
-                // Prefix
-                {
-                    /* string      */ ZYAN_NULL,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                },
-                // Suffix
-                {
-                    /* string      */ &FORMATTER_PRESETS[
-                                          ZYDIS_FORMATTER_STYLE_INTEL_MASM].number_format[
-                                          ZYDIS_NUMERIC_BASE_HEX     ][1].string_data,
-                    /* string_data */ ZYAN_DECLARE_STRING_VIEW("h"),
-                    /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                }
-            }
-        },
-        /* func_pre_instruction    */ ZYAN_NULL,
-        /* func_post_instruction   */ ZYAN_NULL,
-        /* func_format_instruction */ &ZydisFormatterIntelFormatInstructionMASM,
-        /* func_pre_operand        */ ZYAN_NULL,
-        /* func_post_operand       */ ZYAN_NULL,
-        /* func_format_operand_reg */ &ZydisFormatterIntelFormatOperandREG,
-        /* func_format_operand_mem */ &ZydisFormatterIntelFormatOperandMEM,
-        /* func_format_operand_ptr */ &ZydisFormatterIntelFormatOperandPTR,
-        /* func_format_operand_imm */ &ZydisFormatterIntelFormatOperandIMM,
-        /* func_print_mnemonic     */ &ZydisFormatterIntelPrintMnemonic,
-        /* func_print_register     */ &ZydisFormatterIntelPrintRegister,
-        /* func_print_address_abs  */ &ZydisFormatterIntelPrintAddressMASM,
-        /* func_print_address_rel  */ ZYAN_NULL,
-        /* func_print_disp         */ &ZydisFormatterIntelPrintDISP,
-        /* func_print_imm          */ &ZydisFormatterIntelPrintIMM,
-        /* func_print_mem_size     */ &ZydisFormatterIntelPrintMemorySize,
-        /* func_print_mem_seg      */ &ZydisFormatterIntelPrintMemorySegment,
-        /* func_print_prefixes     */ &ZydisFormatterIntelPrintPrefixes,
-        /* func_print_decorator    */ &ZydisFormatterIntelPrintDecorator
-    }
+    &FORMATTER_ATT,
+    &FORMATTER_INTEL,
+    &FORMATTER_INTEL_MASM
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -276,7 +58,7 @@ ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle sty
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZYAN_MEMCPY(formatter, &FORMATTER_PRESETS[style], sizeof(*formatter));
+    ZYAN_MEMCPY(formatter, FORMATTER_PRESETS[style], sizeof(*formatter));
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -368,7 +150,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
             {
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
-            formatter->disp_padding = FORMATTER_PRESETS[formatter->style].disp_padding;
+            formatter->disp_padding = FORMATTER_PRESETS[formatter->style]->disp_padding;
         }
         formatter->disp_padding = (ZydisPadding)value;
         break;
@@ -399,7 +181,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
             {
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
-            formatter->imm_padding = FORMATTER_PRESETS[formatter->style].imm_padding;
+            formatter->imm_padding = FORMATTER_PRESETS[formatter->style]->imm_padding;
         }
         formatter->imm_padding = (ZydisPadding)value;
         break;
@@ -505,10 +287,10 @@ ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFuncti
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_disp        ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_IMM:
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_imm         ); break;
-    case ZYDIS_FORMATTER_FUNC_PRINT_MEMSIZE:
-        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_mem_size    ); break;
-    case ZYDIS_FORMATTER_FUNC_PRINT_MEMSEG:
-        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_mem_seg     ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_SIZE:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_size        ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_segment     ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_PREFIXES:
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_prefixes    ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_DECORATOR:

@@ -33,6 +33,8 @@
 #define ZYDIS_FORMATTER_ATT_H
 
 #include <Zydis/Formatter.h>
+#include <Zydis/Internal/FormatterShared.h>
+#include <Zydis/Internal/String.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,16 +55,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterATTFormatOperandREG(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
-
 ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
-
-ZyanStatus ZydisFormatterATTFormatOperandPTR(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
-
-ZyanStatus ZydisFormatterATTFormatOperandIMM(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -75,12 +68,6 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
 ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context, ZydisRegister reg);
 
-ZyanStatus ZydisFormatterATTPrintAddressAbsolute(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
-
-ZyanStatus ZydisFormatterATTPrintAddressRelative(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
-
 ZyanStatus ZydisFormatterATTPrintDISP(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context);
 
@@ -91,17 +78,94 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 /* Optional tokens                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterATTPrintMemorySize(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterATTPrintMemorySegment(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+/* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterATTPrintPrefixes(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+/* ============================================================================================== */
+/* Fomatter presets                                                                               */
+/* ============================================================================================== */
 
-ZyanStatus ZydisFormatterATTPrintDecorator(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisDecorator decorator);
+/* ---------------------------------------------------------------------------------------------- */
+/* AT&T                                                                                           */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   The default formatter configuration for `AT&T` style disassembly.
+ */
+static const ZydisFormatter FORMATTER_ATT =
+{
+    /* style                   */ ZYDIS_FORMATTER_STYLE_ATT,
+    /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* force_memory_size       */ ZYAN_FALSE,
+    /* force_memory_seg        */ ZYAN_FALSE,
+    /* detailed_prefixes       */ ZYAN_FALSE,
+    /* addr_base               */ ZYDIS_NUMERIC_BASE_HEX,
+    /* addr_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
+    /* addr_padding_absolute   */ ZYDIS_PADDING_AUTO,
+    /* addr_padding_relative   */ 2,
+    /* disp_base               */ ZYDIS_NUMERIC_BASE_HEX,
+    /* disp_signedness         */ ZYDIS_SIGNEDNESS_SIGNED,
+    /* disp_padding            */ 2,
+    /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
+    /* imm_signedness          */ ZYDIS_SIGNEDNESS_AUTO,
+    /* imm_padding             */ 2,
+    /* hex_uppercase           */ ZYAN_TRUE,
+    /* number_format           */
+    {
+        // ZYDIS_NUMERIC_BASE_DEC
+        {
+            // Prefix
+            {
+                /* string      */ ZYAN_NULL,
+                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            },
+            // Suffix
+            {
+                /* string      */ ZYAN_NULL,
+                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            }
+        },
+        // ZYDIS_NUMERIC_BASE_HEX
+        {
+            // Prefix
+            {
+                /* string      */ &FORMATTER_ATT.number_format[
+                                    ZYDIS_NUMERIC_BASE_HEX][0].string_data,
+                /* string_data */ ZYAN_DECLARE_STRING_VIEW("0x"),
+                /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            },
+            // Suffix
+            {
+                /* string      */ ZYAN_NULL,
+                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+            }
+        }
+    },
+    /* func_pre_instruction    */ ZYAN_NULL,
+    /* func_post_instruction   */ ZYAN_NULL,
+    /* func_format_instruction */ &ZydisFormatterATTFormatInstruction,
+    /* func_pre_operand        */ ZYAN_NULL,
+    /* func_post_operand       */ ZYAN_NULL,
+    /* func_format_operand_reg */ &ZydisFormatterSharedFormatOperandREG,
+    /* func_format_operand_mem */ &ZydisFormatterATTFormatOperandMEM,
+    /* func_format_operand_ptr */ &ZydisFormatterSharedFormatOperandPTR,
+    /* func_format_operand_imm */ &ZydisFormatterSharedFormatOperandIMM,
+    /* func_print_mnemonic     */ &ZydisFormatterATTPrintMnemonic,
+    /* func_print_register     */ &ZydisFormatterATTPrintRegister,
+    /* func_print_address_abs  */ &ZydisFormatterSharedPrintAddressABS,
+    /* func_print_address_rel  */ &ZydisFormatterSharedPrintAddressREL,
+    /* func_print_disp         */ &ZydisFormatterATTPrintDISP,
+    /* func_print_imm          */ &ZydisFormatterATTPrintIMM,
+    /* func_print_size         */ &ZydisFormatterATTPrintSize,
+    /* func_print_segment      */ &ZydisFormatterSharedPrintSegment,
+    /* func_print_prefixes     */ &ZydisFormatterSharedPrintPrefixes,
+    /* func_print_decorator    */ &ZydisFormatterSharedPrintDecorator
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 

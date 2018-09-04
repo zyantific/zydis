@@ -411,8 +411,8 @@ typedef enum ZydisFormatterFunction_
      * @brief   This function is invoked to format a memory operand.
      *
      * Replacing this function might indirectly disable some specific calls to the
-     * `ZYDIS_FORMATTER_FUNC_PRINT_MEMSIZE`, `ZYDIS_FORMATTER_FUNC_PRINT_MEMSEG`,
-     * `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS` and `ZYDIS_FORMATTER_FUNC_PRINT_DISP` functions.
+     * `ZYDIS_FORMATTER_FUNC_PRINT_SIZE`, `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`,
+     * `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` and `ZYDIS_FORMATTER_FUNC_PRINT_DISP` functions.
      */
     ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_MEM,
     /**
@@ -423,7 +423,8 @@ typedef enum ZydisFormatterFunction_
      * @brief   This function is invoked to format an immediate operand.
      *
      * Replacing this function might indirectly disable some specific calls to the
-     * `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS` and `ZYDIS_FORMATTER_FUNC_PRINT_IMM` functions.
+     * `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS`, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL` and
+     * `ZYDIS_FORMATTER_FUNC_PRINT_IMM` functions.
      */
     ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM,
 
@@ -459,14 +460,13 @@ typedef enum ZydisFormatterFunction_
      *
      * Conditionally invoked, if `ZYDIS_RUNTIME_ADDRESS_NONE` was passed as runtime-address:
      * - `IMM` operands with relative address (e.g. `JMP`, `CALL`, ...)
-     * - `MEM` operands with `EIP`/`RIP`-relative address (e.g. `MOV RAX, [RIP+0x12345678]`)
      */
     ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL,
     /**
      * @brief   This function is invoked to print a memory displacement value.
      *
      * If the memory displacement contains an address and a runtime-address different to
-     * `ZYDIS_RUNTIME_ADDRESS_NONE` was passed, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS` is called
+     * `ZYDIS_RUNTIME_ADDRESS_NONE` was passed, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` is called
      * instead.
      */
     ZYDIS_FORMATTER_FUNC_PRINT_DISP,
@@ -474,8 +474,11 @@ typedef enum ZydisFormatterFunction_
      * @brief   This function is invoked to print an immediate value.
      *
      * If the immediate contains an address and a runtime-address different to
-     * `ZYDIS_RUNTIME_ADDRESS_NONE` was passed, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS` is called
+     * `ZYDIS_RUNTIME_ADDRESS_NONE` was passed, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` is called
      * instead.
+     *
+     * If the immediate contains an address and `ZYDIS_RUNTIME_ADDRESS_NONE` was passed as
+     * runtime-address, `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL` is called instead.
      */
     ZYDIS_FORMATTER_FUNC_PRINT_IMM,
 
@@ -484,13 +487,14 @@ typedef enum ZydisFormatterFunction_
     /* ---------------------------------------------------------------------------------------- */
 
     /**
-     * @brief   This function is invoked to print the size of a memory operand.
+     * @brief   This function is invoked to print the effective operand-size suffix (`AT&T`) or
+     *          the size of a memory operand (`INTEL`).
      */
-    ZYDIS_FORMATTER_FUNC_PRINT_MEMSIZE,
+    ZYDIS_FORMATTER_FUNC_PRINT_SIZE,
     /**
      * @brief   This function is invoked to print the segment-register of a memory operand.
      */
-    ZYDIS_FORMATTER_FUNC_PRINT_MEMSEG,
+    ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT,
     /**
      * @brief   This function is invoked to print the instruction prefixes.
      */
@@ -630,8 +634,8 @@ typedef struct ZydisFormatterContext_
  * - `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM`
  * - `ZYDIS_FORMATTER_FUNC_PRINT_DISP`
  * - `ZYDIS_FORMATTER_FUNC_PRINT_IMM`
- * - `ZYDIS_FORMATTER_FUNC_PRINT_MEMSIZE`
- * - `ZYDIS_FORMATTER_FUNC_PRINT_MEMSEG`
+ * - `ZYDIS_FORMATTER_FUNC_PRINT_SIZE`
+ * - `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`
  */
 typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
     ZyanString* string, ZydisFormatterContext* context);
@@ -685,49 +689,166 @@ typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatte
  */
 struct ZydisFormatter_
 {
+    /**
+     * @brief   The formatter style.
+     */
     ZydisFormatterStyle style;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_UPPERCASE` property.
+     */
     ZyanU32 letter_case;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE` property.
+     */
     ZyanBool force_memory_size;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_MEMSEG` property.
+     */
     ZyanBool force_memory_segment;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_DETAILED_PREFIXES` property.
+     */
     ZyanBool detailed_prefixes;
-
+    /**
+     * @brief   The `ZYDIS_FORMATTER_ADDR_BASE` property.
+     */
     ZydisNumericBase addr_base;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_ADDR_SIGNEDNESS` property.
+     */
     ZydisSignedness addr_signedness;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_ADDR_PADDING_ABSOLUTE` property.
+     */
     ZydisPadding addr_padding_absolute;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_ADDR_PADDING_RELATIVE` property.
+     */
     ZydisPadding addr_padding_relative;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_DISP_BASE` property.
+     */
     ZydisNumericBase disp_base;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_DISP_SIGNEDNESS` property.
+     */
     ZydisSignedness disp_signedness;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_DISP_PADDING` property.
+     */
     ZydisPadding disp_padding;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_IMM_BASE` property.
+     */
     ZydisNumericBase imm_base;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_IMM_SIGNEDNESS` property.
+     */
     ZydisSignedness imm_signedness;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_IMM_PADDING` property.
+     */
     ZydisPadding imm_padding;
-
+    /**
+     * @brief   The `ZYDIS_FORMATTER_HEX_UPPERCASE` property.
+     */
     ZyanBool hex_uppercase;
+    /**
+     * @brief   The number formats for all numeric bases.
+     *
+     * Index 0 = prefix
+     * Index 1 = suffix
+     */
     struct
     {
+        /**
+         * @brief   A pointer to the `ZyanStringView` to use as prefix/suffix.
+         */
         const ZyanStringView* string;
+        /**
+         * @brief   The `ZyanStringView` to use as prefix/suffix
+         */
         ZyanStringView string_data;
+        /**
+         * @brief   The actual string data.
+         */
         char buffer[11];
     } number_format[ZYDIS_NUMERIC_BASE_MAX_VALUE + 1][2];
-
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRE_INSTRUCTION` function.
+     */
     ZydisFormatterFunc func_pre_instruction;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_POST_INSTRUCTION` function.
+     */
     ZydisFormatterFunc func_post_instruction;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_FORMAT_INSTRUCTION` function.
+     */
     ZydisFormatterFunc func_format_instruction;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRE_OPERAND` function.
+     */
     ZydisFormatterFunc func_pre_operand;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_POST_OPERAND` function.
+     */
     ZydisFormatterFunc func_post_operand;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_REG` function.
+     */
     ZydisFormatterFunc func_format_operand_reg;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_MEM` function.
+     */
     ZydisFormatterFunc func_format_operand_mem;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_PTR` function.
+     */
     ZydisFormatterFunc func_format_operand_ptr;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM` function.
+     */
     ZydisFormatterFunc func_format_operand_imm;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_MNEMONIC function.
+     */
     ZydisFormatterFunc func_print_mnemonic;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_REGISTER` function.
+     */
     ZydisFormatterRegisterFunc func_print_register;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` function.
+     */
     ZydisFormatterFunc func_print_address_abs;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL` function.
+     */
     ZydisFormatterFunc func_print_address_rel;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_DISP` function.
+     */
     ZydisFormatterFunc func_print_disp;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_IMM` function.
+     */
     ZydisFormatterFunc func_print_imm;
-    ZydisFormatterFunc func_print_mem_size;
-    ZydisFormatterFunc func_print_mem_seg;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_SIZE` function.
+     */
+    ZydisFormatterFunc func_print_size;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT` function.
+     */
+    ZydisFormatterFunc func_print_segment;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_PREFIXES` function.
+     */
     ZydisFormatterFunc func_print_prefixes;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_DECORATOR` function.
+     */
     ZydisFormatterDecoratorFunc func_print_decorator;
 };
 
