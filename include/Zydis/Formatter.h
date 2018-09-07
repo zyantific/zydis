@@ -114,7 +114,7 @@ enum ZydisFormatterProperties
     /**
      * @brief   Controls the format of addresses.
      *
-     * The default value is `ZYDIS_ADDR_FORMAT_JMP_ABSOLUTE`.
+     * The default value is `ZYDIS_ADDR_FORMAT_ABSOLUTE`.
      */
     ZYDIS_FORMATTER_PROP_ADDR_FORMAT,
     /**
@@ -168,47 +168,11 @@ enum ZydisFormatterProperties
      * The default value is `2`.
      */
     ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM,
-    /**
-     * @brief   Controls whether machine language bytecodes are printed.
-     *
-     *          The bytes are printed in hexadecimal.  The ZYDIS_FORMATTER_PROP_HEX_UPPERCASE
-     *          setting is honored, but prefix, suffix and padding settings are not.
-     *          The instruction itself is printed on the next line.
-     *
-     * The default value is `ZYDIS_FALSE`.
-     */
-    ZYDIS_FORMATTER_PROP_PRINT_BYTES,
-    /**
-     * @brief   Controls whether the instruction address is printed.
-     *
-     *          The formatting options set for addresses are followed.
-     *          The instruction itself is printed on the next line.
-     *
-     * The default value is `ZYDIS_FALSE`.
-     */
-    ZYDIS_FORMATTER_PROP_PRINT_INSN_ADDR,
-    /**
-     * @brief   Controls the indentation of the printed instruction.
-     *
-     * The default value is `0`.
-     */
-    ZYDIS_FORMATTER_PROP_INDENTATION,
-    /**
-     * @brief   Controls whether hexadecimal values are padded when printed.
-     *
-     *          Padded hexadecimal values are printed with leading zeroes
-     *          to fill out the desired width (8-bit, 16-bit, etc.).
-     *          Setting this flag to `ZYDIS_FALSE` will override the
-     *          values of ZYDIS_FORMATTER_PROP_HEX_PADDING_ADDR,
-     *          ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM and ZYDIS_FORMATTER_PROP_HEX_PADDING_DISP.
-     *
-     * The default value is `ZYDIS_TRUE`.
-     */
-    ZYDIS_FORMATTER_PROP_HEX_PADDING,
+
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_PADDING
+    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_PADDING_IMM
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -225,8 +189,6 @@ enum ZydisAddressFormat
      *
      * Using this value will cause the formatter to invoke `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS`
      * for every address.
-     *
-     * This is NOT the default setting.
      */
     ZYDIS_ADDR_FORMAT_ABSOLUTE,
     /**
@@ -238,8 +200,6 @@ enum ZydisAddressFormat
      * Examples:
      * - `"JMP  0x20"`
      * - `"JMP -0x20"`
-     *
-     * This is NOT the default setting.
      */
     ZYDIS_ADDR_FORMAT_RELATIVE_SIGNED,
     /**
@@ -251,24 +211,13 @@ enum ZydisAddressFormat
      * Examples:
      * - `"JMP 0x20"`
      * - `"JMP 0xE0"`
-     *
-     * This is NOT the default setting.
      */
     ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED,
-    /**
-     * @brief   Displays absolute addresses for control flow and relative ones otherwise.
-     *
-     * Using this value will cause the formatter to invoke `ZYDIS_FORMATTER_HOOK_PRINT_ADDRESS`
-     * for every immediate target address in a control-flow instruction, but leave data accesses as
-     * relative.  This is what Intel-style disassembly typically looks like.
-     *
-     * This is the default setting.
-     */
-    ZYDIS_ADDR_FORMAT_JMP_ABSOLUTE,
+
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_JMP_ABSOLUTE
+    ZYDIS_ADDR_FORMAT_MAX_VALUE = ZYDIS_ADDR_FORMAT_RELATIVE_UNSIGNED
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -437,15 +386,11 @@ enum ZydisFormatterHookTypes
      *          decorator.
      */
     ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR,
-    /**
-     * @brief   This function is invoked to print the address and/or machine language opcodes 
-     *          for the instruction.
-     */
-    ZYDIS_FORMATTER_HOOK_PRINT_INSN_ADDR_BYTES,
+
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_INSN_ADDR_BYTES
+    ZYDIS_FORMATTER_HOOK_MAX_VALUE = ZYDIS_FORMATTER_HOOK_PRINT_DECORATOR
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -638,17 +583,13 @@ struct ZydisFormatter_
     ZydisU8 formatDisp;
     ZydisU8 formatImm;
     ZydisBool hexUppercase;
-    const ZydisString* hexPrefix;
+    ZydisString* hexPrefix;
     ZydisString hexPrefixData;
-    const ZydisString* hexSuffix;
+    ZydisString* hexSuffix;
     ZydisString hexSuffixData;
     ZydisU8 hexPaddingAddress;
     ZydisU8 hexPaddingDisp;
     ZydisU8 hexPaddingImm;
-    ZydisBool printBytes;
-    ZydisBool printInsnAddress;
-    ZydisU8 indentation;
-    ZydisBool padHexValues;
     ZydisFormatterFunc funcPreInstruction;
     ZydisFormatterFunc funcPostInstruction;
     ZydisFormatterOperandFunc funcPreOperand;
@@ -666,7 +607,6 @@ struct ZydisFormatter_
     ZydisFormatterOperandFunc funcPrintMemSize;
     ZydisFormatterFunc funcPrintPrefixes;
     ZydisFormatterDecoratorFunc funcPrintDecorator;
-    ZydisFormatterFunc funcPrintInsnAddrBytes;
 };
 
 /* ---------------------------------------------------------------------------------------------- */
