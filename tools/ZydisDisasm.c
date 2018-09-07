@@ -71,7 +71,15 @@ int main(int argc, char** argv)
         !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYDIS_TRUE)) ||
         !ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)))
+            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYDIS_TRUE)) ||
+		!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
+			ZYDIS_FORMATTER_PROP_PRINT_BYTES, ZYDIS_TRUE)) ||
+		!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
+			ZYDIS_FORMATTER_PROP_PRINT_INSN_ADDR, ZYDIS_TRUE)) ||
+		!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
+			ZYDIS_FORMATTER_PROP_INDENTATION, 8)) ||
+		!ZYDIS_SUCCESS(ZydisFormatterSetProperty(&formatter,
+			ZYDIS_FORMATTER_PROP_ADDR_FORMAT, ZYDIS_ADDR_FORMAT_JMP_ABSOLUTE)))
     {
         fputs("Failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;
@@ -85,16 +93,16 @@ int main(int argc, char** argv)
 
         ZydisDecodedInstruction instruction;
         ZydisStatus status;
-        size_t readOffs = 0;
+        size_t readOffs = 0; // This will be our instruction pointer value
         while ((status = ZydisDecoderDecodeBuffer(&decoder, readBuf + readOffs,
             numBytesRead - readOffs, readOffs, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
-            if (!ZYDIS_SUCCESS(status))
-            {
-                ++readOffs;
-                printf("db %02X\n", instruction.data[0]);
-                continue;
-            }
+            //if (!ZYDIS_SUCCESS(status))
+            //{
+            //    ++readOffs;
+            //    printf("db %02X\n", instruction.data[0]);
+            //    //continue;
+            //}
 
             char printBuffer[256];
             ZydisFormatterFormatInstruction(
