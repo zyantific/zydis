@@ -46,7 +46,7 @@
 #define COLOR_DEFAULT       ZYAN_VT100SGR_FG_DEFAULT
 #define COLOR_ERROR         ZYAN_VT100SGR_FG_BRIGHT_RED
 #define COLOR_HEADER        ZYAN_VT100SGR_FG_DEFAULT
-#define COLOR_HEADER_TITLE  ZYAN_VT100SGR_FG_BRIGHT_BLUE
+#define COLOR_HEADER_TITLE  ZYAN_VT100SGR_FG_CYAN
 #define COLOR_VALUE_LABEL   ZYAN_VT100SGR_FG_DEFAULT
 #define COLOR_VALUE_R       ZYAN_VT100SGR_FG_BRIGHT_RED
 #define COLOR_VALUE_G       ZYAN_VT100SGR_FG_BRIGHT_GREEN
@@ -727,6 +727,106 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
 }
 
 /**
+ * @brief   Prints the tokenized instruction.
+ *
+ * @param   token   A pointer to the first token.
+ */
+static void PrintTokenizedInstruction(const ZydisFormatterToken* token)
+{
+    while (token)
+    {
+        const char* color;
+        switch (token->type)
+        {
+        case ZYDIS_TOKEN_DELIMITER:
+            ZYAN_FALLTHROUGH;
+        case ZYDIS_TOKEN_PARENTHESIS_OPEN:
+            ZYAN_FALLTHROUGH;
+        case ZYDIS_TOKEN_PARENTHESIS_CLOSE:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_WHITE);
+            break;
+        case ZYDIS_TOKEN_PREFIX:
+        case ZYDIS_TOKEN_MNEMONIC:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_RED);
+            break;
+        case ZYDIS_TOKEN_REGISTER:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_CYAN);
+            break;
+        case ZYDIS_TOKEN_ADDRESS_ABS:
+        case ZYDIS_TOKEN_ADDRESS_REL:
+        case ZYDIS_TOKEN_DISPLACEMENT:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_GREEN);
+            break;
+        case ZYDIS_TOKEN_IMMEDIATE:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_GREEN);
+            break;
+        case ZYDIS_TOKEN_TYPECAST:
+        case ZYDIS_TOKEN_DECORATOR:
+            color = CVT100_OUT(ZYAN_VT100SGR_FG_WHITE);
+            break;
+        default:
+            color = CVT100_OUT(COLOR_DEFAULT);
+            break;
+        }
+        ZYAN_PRINTF("%s%s", color, token->value);
+        token = token->next;
+    }
+    ZYAN_PRINTF("%s\n", CVT100_OUT(COLOR_DEFAULT));
+}
+
+/**
+ * @brief   Prints the formatted instruction disassembly.
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   style       The formatter style.
+ */
+static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
+    ZydisFormatterStyle style)
+{
+    ZyanStatus status;
+    ZydisFormatter formatter;
+
+    switch (style)
+    {
+    case ZYDIS_FORMATTER_STYLE_ATT:
+        if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_ATT)))
+        {
+            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
+                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            exit(status);
+        }
+        PrintSectionHeader("ATT");
+        break;
+    case ZYDIS_FORMATTER_STYLE_INTEL:
+        if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+            !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
+            !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
+        {
+            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
+                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            exit(status);
+        }
+        PrintSectionHeader("INTEL");
+        break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+
+    ZyanU8 buffer[1024];
+    ZydisFormatterToken* token = (ZydisFormatterToken*)&buffer[0];
+
+    PrintValueLabel("ABSOLUTE");
+    ZydisFormatterTokenizeInstruction(&formatter, instruction, token, sizeof(buffer), 0);
+    PrintTokenizedInstruction(token);
+    PrintValueLabel("RELATIVE");
+    ZydisFormatterTokenizeInstruction(&formatter, instruction, token, sizeof(buffer),
+        ZYDIS_RUNTIME_ADDRESS_NONE);
+    PrintTokenizedInstruction(token);
+}
+
+/**
  * @brief   Dumps basic instruction info.
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -913,33 +1013,10 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         PrintAVXInfo(instruction);
     }
 
-    ZyanStatus status;
-    ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
-        !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE))) ||
-        !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE))))
-    {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
-            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
-        exit(status);
-    }
-    char buffer_abs[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer_abs[0],
-        sizeof(buffer_abs), 0);
-    char buffer_rel[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, &buffer_rel[0],
-        sizeof(buffer_rel), ZYDIS_RUNTIME_ADDRESS_NONE);
-
     ZYAN_PUTS("");
-    PrintSectionHeader("DISASM");
-    PrintValueLabel("ABSOLUTE");
-    ZYAN_PRINTF("%s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer_abs[0],
-        CVT100_OUT(COLOR_DEFAULT));
-    PrintValueLabel("RELATIVE");
-    ZYAN_PRINTF("%s%s%s\n", CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_BLACK), &buffer_rel[0],
-        CVT100_OUT(COLOR_DEFAULT));
+    PrintDisassembly(instruction, ZYDIS_FORMATTER_STYLE_ATT);
+    ZYAN_PUTS("");
+    PrintDisassembly(instruction, ZYDIS_FORMATTER_STYLE_INTEL);
 }
 
 /* ============================================================================================== */
