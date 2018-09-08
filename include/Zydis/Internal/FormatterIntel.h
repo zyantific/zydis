@@ -49,32 +49,32 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterIntelPrintRegister(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisRegister reg);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisRegister reg);
 
 ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterIntelPrintSize(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* MASM                                                                                           */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -43,6 +43,48 @@ extern "C" {
 /* Macros                                                                                         */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Buffer                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Invokes the `ZydisFormatterBufferAppend` routine, if tokenization is enabled for the
+ *          current pass.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   type    The token type.
+ *
+ * Using this macro instead of direct calls to `ZydisFormatterBufferAppend` greatly improves the
+ * performance for non-tokenizing passes.
+ */
+#define ZYDIS_BUFFER_APPEND_TOKEN(buffer, type) \
+    if ((buffer)->tokenized) \
+    { \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, type)); \
+    }
+
+/**
+ * @brief   Returns a snapshot of the buffer-state.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   state   Receives a snapshot of the buffer-state.
+ *
+ * Using this macro instead of direct calls to `ZydisFormatterBufferRemember` improves the
+ * performance for non-tokenizing passes.
+ */
+#define ZYDIS_BUFFER_REMEMBER(buffer, state) \
+    if ((buffer)->tokenized) \
+    { \
+        (state) = (ZyanUPointer)(buffer)->last; \
+    } else \
+    { \
+        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
+    }
+
+/* ---------------------------------------------------------------------------------------------- */
+/* String                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Appends an unsigned numeric value to the given string.
  *
@@ -98,9 +140,15 @@ extern "C" {
         return ZYAN_STATUS_INVALID_ARGUMENT; \
     }
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Returns the size to be used as explicit size suffix (`AT&T`) or explicit typecast
@@ -118,6 +166,8 @@ extern "C" {
 ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
     ZydisFormatterContext* context, ZyanU8 memop_id);
 
+/* ---------------------------------------------------------------------------------------------- */
+
 /* ============================================================================================== */
 /* Formatter functions                                                                            */
 /* ============================================================================================== */
@@ -127,39 +177,39 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterSharedFormatOperandREG(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedFormatOperandPTR(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedFormatOperandIMM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterSharedPrintAddressABS(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedPrintAddressREL(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedPrintIMM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Optional tokens                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterSharedPrintSegment(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisDecorator decorator);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator);
 
 /* ---------------------------------------------------------------------------------------------- */
 

@@ -49,37 +49,37 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisRegister reg);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisRegister reg);
 
 ZyanStatus ZydisFormatterATTPrintDISP(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Optional tokens                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 

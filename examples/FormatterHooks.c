@@ -100,8 +100,8 @@ typedef struct ZydisCustomUserData_
 
 ZydisFormatterFunc default_print_mnemonic;
 
-static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, ZyanString* string,
-    ZydisFormatterContext* context)
+static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     // We use the user-data to pass data to the `ZydisFormatterFormatOperandImm` function
     ZydisCustomUserData* user_data = (ZydisCustomUserData*)context->user_data;
@@ -112,6 +112,9 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, Z
         context->instruction->operands[context->instruction->operand_count - 1].type ==
         ZYDIS_OPERAND_TYPE_IMMEDIATE)
     {
+        ZyanString* string;
+        ZYAN_CHECK(ZydisFormatterBufferGetString(buffer, &string));
+
         const ZyanU8 condition_code = (ZyanU8)context->instruction->operands[
             context->instruction->operand_count - 1].imm.value.u;
         switch (context->instruction->mnemonic)
@@ -119,29 +122,33 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, Z
         case ZYDIS_MNEMONIC_CMPPS:
             if (condition_code < 0x08)
             {
-                return ZyanStringAppendFormat(
-                    string, "cmp%sps", CONDITION_CODE_STRINGS[condition_code]);
+                ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_MNEMONIC));
+                return ZyanStringAppendFormat(string, "cmp%sps",
+                    CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_CMPPD:
             if (condition_code < 0x08)
             {
-                return ZyanStringAppendFormat(
-                    string, "cmp%spd", CONDITION_CODE_STRINGS[condition_code]);
+                ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_MNEMONIC));
+                return ZyanStringAppendFormat(string, "cmp%spd",
+                    CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPS:
             if (condition_code < 0x20)
             {
-                return ZyanStringAppendFormat(
-                    string, "vcmp%sps", CONDITION_CODE_STRINGS[condition_code]);
+                ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_MNEMONIC));
+                return ZyanStringAppendFormat(string, "vcmp%sps",
+                    CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         case ZYDIS_MNEMONIC_VCMPPD:
             if (condition_code < 0x20)
             {
-                return ZyanStringAppendFormat(
-                    string, "vcmp%spd", CONDITION_CODE_STRINGS[condition_code]);
+                ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_MNEMONIC));
+                return ZyanStringAppendFormat(string, "vcmp%spd",
+                    CONDITION_CODE_STRINGS[condition_code]);
             }
             break;
         default:
@@ -154,7 +161,7 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, Z
     user_data->omit_immediate = ZYAN_FALSE;
 
     // Default mnemonic printing
-    return default_print_mnemonic(formatter, string, context);
+    return default_print_mnemonic(formatter, buffer, context);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -162,7 +169,7 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter, Z
 ZydisFormatterFunc default_format_operand_imm;
 
 static ZyanStatus ZydisFormatterFormatOperandIMM(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context)
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     // The `ZydisFormatterFormatMnemonic` sinals us to omit the immediate (condition-code)
     // operand, because it got replaced by the alias-mnemonic
@@ -173,7 +180,7 @@ static ZyanStatus ZydisFormatterFormatOperandIMM(const ZydisFormatter* formatter
     }
 
     // Default immediate formatting
-    return default_format_operand_imm(formatter, string, context);
+    return default_format_operand_imm(formatter, buffer, context);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -214,19 +214,18 @@ static void AdjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool minimalMode,
-    ZyanBool format)
+static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool minimal_mode,
+    ZyanBool format, ZyanBool tokenize)
 {
     ZydisDecoder decoder;
-    if (!ZYAN_SUCCESS(
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64,
+        ZYDIS_ADDRESS_WIDTH_64)))
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n",
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         exit(EXIT_FAILURE);
     }
-    if (!ZYAN_SUCCESS(
-        ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimalMode)))
+    if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimal_mode)))
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
@@ -252,7 +251,7 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     ZyanUSize offset = 0;
     ZyanStatus status;
     ZydisDecodedInstruction instruction;
-    char format_buffer[256];
+    char format_buffer[1024];
     while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
@@ -271,8 +270,15 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
         ++count;
         if (format)
         {
-            ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-                sizeof(format_buffer), offset);
+            if (tokenize)
+            {
+                ZydisFormatterTokenizeInstruction(&formatter, &instruction,
+                    (ZydisFormatterToken*)format_buffer, sizeof(format_buffer), offset);
+            } else
+            {
+                ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
+                    sizeof(format_buffer), offset);
+            }
         }
         offset += instruction.length;
     }
@@ -281,24 +287,27 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
 }
 
 static void TestPerformance(const char* buffer, ZyanUSize length, ZyanBool minimal_mode,
-    ZyanBool format)
+    ZyanBool format, ZyanBool tokenize)
 {
     // Cache warmup
-    ProcessBuffer(buffer, length, minimal_mode, format);
+    ProcessBuffer(buffer, length, minimal_mode, format, tokenize);
 
     // Testing
     ZyanU64 count = 0;
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(buffer, length, minimal_mode, format);
+        count += ProcessBuffer(buffer, length, minimal_mode, format, tokenize);
     }
-    const char* const color1 = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
-    const char* const color2 = format       ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
-    ZYAN_PRINTF("Minimal-Mode %s%d%s, Formatting %s%d%s, Instructions: %s%6.2fM%s, " \
-        "Time: %s%8.2f%s msec\n",
-        color1, minimal_mode, CVT100_OUT(COLOR_DEFAULT),
-        color2, format, CVT100_OUT(COLOR_DEFAULT),
+    const char* color[3];
+    color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
+    color[1] = format       ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
+    color[2] = tokenize     ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
+    ZYAN_PRINTF("Minimal-Mode %s%d%s, Format %s%d%s, Tokenize %s%d%s, Instructions: %s%6.2fM%s," \
+        " Time: %s%8.2f%s msec\n",
+        color[0], minimal_mode, CVT100_OUT(COLOR_DEFAULT),
+        color[1], format, CVT100_OUT(COLOR_DEFAULT),
+        color[2], tokenize, CVT100_OUT(COLOR_DEFAULT),
         CVT100_OUT(COLOR_VALUE_B), (double)count / 1000000, CVT100_OUT(COLOR_DEFAULT),
         CVT100_OUT(COLOR_VALUE_G), GetCounter(), CVT100_OUT(COLOR_DEFAULT));
 }
@@ -504,9 +513,10 @@ int main(int argc, char** argv)
             ZYAN_PRINTF("%sTesting %s%s%s ...\n", CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA),
                 CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA), tests[i].encoding,
                 CVT100_OUT(COLOR_DEFAULT));
-            TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE);
-            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE);
-            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE );
+            TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE, ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_TRUE );
             ZYAN_PUTS("");
 
         NextFile1:

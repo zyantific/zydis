@@ -36,6 +36,7 @@
 #include <Zycore/String.h>
 #include <Zycore/Types.h>
 #include <Zydis/DecoderTypes.h>
+#include <Zydis/FormatterBuffer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -604,7 +605,7 @@ typedef struct ZydisFormatterContext_
  * @brief   Defines the `ZydisFormatterFunc` function prototype.
  *
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
- * @param   string      A pointer to the string.
+ * @param   buffer      A pointer to the `ZydisFormatterBuffer` struct.
  * @param   context     A pointer to the `ZydisFormatterContext` struct.
  *
  * @return  A zyan status code.
@@ -639,13 +640,13 @@ typedef struct ZydisFormatterContext_
  * - `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`
  */
 typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
  /**
  * @brief   Defines the `ZydisFormatterRegisterFunc` function prototype.
  *
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
- * @param   string      A pointer to the string.
+ * @param   buffer      A pointer to the `ZydisFormatterBuffer` struct.
  * @param   context     A pointer to the `ZydisFormatterContext` struct.
  * @param   reg         The register.
  *
@@ -656,13 +657,13 @@ typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
  * - `ZYDIS_FORMATTER_FUNC_PRINT_REGISTER`.
  */
 typedef ZyanStatus (*ZydisFormatterRegisterFunc)(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisRegister reg);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisRegister reg);
 
 /**
  * @brief   Defines the `ZydisFormatterDecoratorFunc` function prototype.
  *
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
- * @param   string      A pointer to the string.
+ * @param   buffer      A pointer to the `ZydisFormatterBuffer` struct.
  * @param   context     A pointer to the `ZydisFormatterContext` struct.
  * @param   decorator   The decorator type.
  *
@@ -673,7 +674,7 @@ typedef ZyanStatus (*ZydisFormatterRegisterFunc)(const ZydisFormatter* formatter
  * - `ZYDIS_FORMATTER_FUNC_PRINT_DECORATOR`
  */
 typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatter,
-    ZyanString* string, ZydisFormatterContext* context, ZydisDecorator decorator);
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter struct                                                                               */
@@ -859,6 +860,10 @@ struct ZydisFormatter_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Initialization                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Initializes the given `ZydisFormatter` instance.
  *
@@ -868,6 +873,10 @@ struct ZydisFormatter_
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle style);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Setter                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
  * @brief   Changes the value of the specified formatter `property`.
@@ -904,13 +913,17 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
 ZYDIS_EXPORT ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
     ZydisFormatterFunction type, const void** callback);
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Formatting                                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * @brief   Formats the given instruction and writes it into the output buffer.
  *
  * @param   formatter       A pointer to the `ZydisFormatter` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   buffer          A pointer to the output buffer.
- * @param   length          The length of the output buffer.
+ * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  *
@@ -926,7 +939,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* fo
  * @param   formatter       A pointer to the `ZydisFormatter` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   buffer          A pointer to the output buffer.
- * @param   length          The length of the output buffer.
+ * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
@@ -945,7 +958,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* 
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   index           The index of the operand to format.
  * @param   buffer          A pointer to the output buffer.
- * @param   length          The length of the output buffer.
+ * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  *
@@ -965,7 +978,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   index           The index of the operand to format.
  * @param   buffer          A pointer to the output buffer.
- * @param   length          The length of the output buffer.
+ * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
@@ -979,6 +992,46 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
 ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     const ZydisDecodedInstruction* instruction, ZyanU8 index, char* buffer, ZyanUSize length,
     ZyanU64 runtime_address, void* user_data);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Tokenizing                                                                                     */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Tokenizes the given instruction and writes it into the output buffer.
+ *
+ * @param   formatter       A pointer to the `ZydisFormatter` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   buffer          A pointer to the output buffer.
+ * @param   length          The length of the output buffer (in bytes).
+ * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
+ *                          to print relative addresses.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
+    ZyanU64 runtime_address);
+
+/**
+ * @brief   Tokenizes the given instruction and writes it into the output buffer.
+ *
+ * @param   formatter       A pointer to the `ZydisFormatter` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   buffer          A pointer to the output buffer.
+ * @param   length          The length of the output buffer (in bytes).
+ * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
+ *                          to print relative addresses.
+ * @param   user_data       A pointer to user-defined data which can be used in custom formatter
+ *                          callbacks.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, void* user_data);
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 
