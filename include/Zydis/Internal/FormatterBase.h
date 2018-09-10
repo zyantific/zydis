@@ -117,7 +117,7 @@ extern "C" {
  * performance for non-tokenizing passes.
  */
 #define ZYDIS_BUFFER_APPEND_TOKEN(buffer, type) \
-    if ((buffer)->tokenized) \
+    if ((buffer)->is_token_list) \
     { \
         ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, type)); \
     }
@@ -132,9 +132,9 @@ extern "C" {
  * performance for non-tokenizing passes.
  */
 #define ZYDIS_BUFFER_REMEMBER(buffer, state) \
-    if ((buffer)->tokenized) \
+    if ((buffer)->is_token_list) \
     { \
-        (state) = (ZyanUPointer)(buffer)->last; \
+        (state) = (ZyanUPointer)(buffer)->string.vector.data; \
     } else \
     { \
         (state) = (ZyanUPointer)(buffer)->string.vector.size; \

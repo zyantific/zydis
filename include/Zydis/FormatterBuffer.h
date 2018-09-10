@@ -140,7 +140,7 @@ typedef struct ZydisFormatterToken_
     /**
      * @brief   An offset to the next token, or `0`.
      */
-    ZyanU16 next;
+    ZyanU8 next;
 } ZydisFormatterToken;
 
 #pragma pack(pop)
@@ -166,22 +166,14 @@ typedef struct ZydisFormatterBuffer_
      * @brief   `ZYAN_TRUE`, if the buffer contains a token stream or `ZYAN_FALSE, if it contains
      *          a simple string.
      */
-    ZyanBool tokenized;
+    ZyanBool is_token_list;
     /**
-     * @brief   A pointer to the start of the buffer.
+     * @brief   The remaining capacity of the buffer.
      */
-    ZyanU8* data;
-    /**
-     * @brief   The remaining size of the buffer.
-     */
-    ZyanUSize size;
-    /**
-     * @brief   A pointer to the last token in the buffer.
-     */
-    ZydisFormatterToken* last;
+    ZyanUSize capacity;
     /**
      * @brief   The `ZyanString` instance that refers to the literal value of the most recently
-     *          added literal-token.
+     *          added token.
      */
     ZyanString string;
 } ZydisFormatterBuffer;
@@ -247,9 +239,6 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buff
  * @param   type    The type of the new token.
  *
  * @return  A zycore status code.
- *
- * This function successfully returns without adding a new token, if the most recently added token
- * has the same type as the new one.
  *
  * Note that the `ZyanString` instance returned by `ZydisFormatterBufferGetString` will
  * automatically get updated after calling this function.

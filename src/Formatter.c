@@ -340,8 +340,7 @@ ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
     }
 
     ZydisFormatterBuffer buf;
-    buf.tokenized                  = ZYAN_FALSE;
-    buf.last                       = ZYAN_NULL;
+    buf.is_token_list              = ZYAN_FALSE;
     buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
     buf.string.vector.allocator    = ZYAN_NULL;
     buf.string.vector.element_size = sizeof(char);
@@ -390,8 +389,7 @@ ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
     }
 
     ZydisFormatterBuffer buf;
-    buf.tokenized                  = ZYAN_FALSE;
-    buf.last                       = ZYAN_NULL;
+    buf.is_token_list              = ZYAN_FALSE;
     buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
     buf.string.vector.allocator    = ZYAN_NULL;
     buf.string.vector.element_size = sizeof(char);
@@ -461,11 +459,16 @@ ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
+    ZydisFormatterToken* first = buffer;
+    first->type = ZYDIS_TOKEN_INVALID;
+    first->next = 0;
+
+    buffer  = (ZyanU8*)buffer + sizeof(ZydisFormatterToken);
+    length -= sizeof(ZydisFormatterToken);
+
     ZydisFormatterBuffer buf;
-    buf.tokenized                  = ZYAN_TRUE;
-    buf.data                       = (ZyanU8*)buffer;
-    buf.size                       = length;
-    buf.last                       = ZYAN_NULL;
+    buf.is_token_list              = ZYAN_TRUE;
+    buf.capacity                   = length;
     buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
     buf.string.vector.allocator    = ZYAN_NULL;
     buf.string.vector.element_size = sizeof(char);
@@ -492,7 +495,7 @@ ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
         ZYAN_CHECK(formatter->func_post_instruction(formatter, &buf, &context));
     }
 
-    *token = (ZydisFormatterTokenConst*)buffer;
+    *token = (ZydisFormatterTokenConst*)((ZyanU8*)buffer + 1);
     return ZYAN_STATUS_SUCCESS;
 }
 

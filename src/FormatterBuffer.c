@@ -56,12 +56,12 @@ ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    const ZyanU16 next = (*token)->next;
+    const ZyanU8 next = (*token)->next;
     if (!next)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
-    *token = (ZydisFormatterToken*)((ZyanU8*)*token + next);
+    *token = (ZydisFormatterToken*)((ZyanU8*)*token + sizeof(ZydisFormatterToken) + next);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -77,7 +77,8 @@ ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buffer, ZyanStrin
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (buffer->tokenized && !buffer->last)
+    if (buffer->is_token_list &&
+        ((ZydisFormatterToken*)buffer->string.vector.data - 1)->type == ZYDIS_TOKEN_INVALID)
     {
         return ZYAN_STATUS_INVALID_OPERATION;
     }
@@ -97,44 +98,31 @@ ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer, ZydisTokenTy
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (!buffer->tokenized || ((buffer->last) && (buffer->last->type == type)))
+    if (!buffer->is_token_list)
     {
         return ZYAN_STATUS_SUCCESS;
     }
 
-    if (buffer->last)
-    {
-        const ZyanUSize len = buffer->string.vector.size;
-        ZYAN_ASSERT(len);
-
-        buffer->data += len;
-        buffer->size -= len;
-    }
-
-    if (buffer->size <= sizeof(ZydisFormatterToken))
+    const ZyanUSize len = buffer->string.vector.size;
+    ZYAN_ASSERT((len > 0) && (len < 256));
+    if (buffer->capacity <= len + sizeof(ZydisFormatterToken))
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZydisFormatterToken* const token = (ZydisFormatterToken*)buffer->data;
-    buffer->data += sizeof(ZydisFormatterToken);
-    buffer->size -= sizeof(ZydisFormatterToken);
+    ZydisFormatterToken* const last  = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+    last->next = (ZyanU8)len;
 
-    if (buffer->last)
-    {
-        const ZyanUSize offset = (ZyanU8*)token - (ZyanU8*)buffer->last;
-        ZYAN_ASSERT(offset < 65536);
-        buffer->last->next = (ZyanU16)(offset);
-    }
-    buffer->last = token;
-
-    token->type  = type;
-    token->next  = 0;
-
-    buffer->string.vector.data = buffer->data;
+    const ZyanUSize delta = len + sizeof(ZydisFormatterToken);
+    buffer->capacity -= delta;
+    buffer->string.vector.data = (ZyanU8*)buffer->string.vector.data + delta;
     buffer->string.vector.size = 1;
-    buffer->string.vector.capacity = ZYAN_MIN(buffer->size, 65536);
-    *buffer->data = (ZyanU8)'\0';
+    buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
+    *(char*)buffer->string.vector.data = '\0';
+
+    ZydisFormatterToken* const token = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+    token->type = type;
+    token->next = 0;
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -146,9 +134,9 @@ ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer* buffer, Zyan
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (buffer->tokenized)
+    if (buffer->is_token_list)
     {
-        *state = (ZyanUPointer)buffer->last;
+        *state = (ZyanUPointer)buffer->string.vector.data;
     } else
     {
         *state = (ZyanUPointer)buffer->string.vector.size;
@@ -164,16 +152,14 @@ ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointe
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (buffer->tokenized)
+    if (buffer->is_token_list)
     {
-        const ZyanUSize delta = state - (ZyanUPointer)buffer->last;
-        buffer->last = (ZydisFormatterToken*)state;
-        buffer->data -= delta;
-        buffer->size += delta;
-        buffer->string.vector.data = buffer->data;
-        buffer->string.vector.size = 1;
-        buffer->string.vector.capacity = buffer->size;
-        *buffer->data = (ZyanU8)'\0';
+        const ZyanUSize delta = (ZyanUPointer)buffer->string.vector.data - state;
+        buffer->capacity += delta;
+        buffer->string.vector.data = (void*)state;
+        buffer->string.vector.size = 1; // TODO: Restore size?
+        buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
+        *(char*)buffer->string.vector.data = '\0';
     } else
     {
         buffer->string.vector.size = (ZyanUSize)state;
