@@ -1006,12 +1006,13 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* form
  * @param   length          The length of the output buffer (in bytes).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
+ * @param   token           Receives a pointer to the first token in the output buffer.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
-    ZyanU64 runtime_address);
+    const ZydisDecodedInstruction* instruction, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token);
 
 /**
  * @brief   Tokenizes the given instruction and writes it into the output buffer.
@@ -1022,14 +1023,15 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* 
  * @param   length          The length of the output buffer (in bytes).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
+ * @param   token           Receives a pointer to the first token in the output buffer.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
  *                          callbacks.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
-    ZyanU64 runtime_address, void* user_data);
+    const ZydisDecodedInstruction* instruction, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data);
 
 /* ---------------------------------------------------------------------------------------------- */
 

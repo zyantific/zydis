@@ -208,20 +208,20 @@ ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if (reg >= ZYAN_ARRAY_LENGTH(zydisRegisterStrings))
+    if (reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
     {
         return ZYAN_NULL;
     }
-    return zydisRegisterStrings[reg].data;
+    return STR_REGISTER[reg].data;
 }
 
 const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 {
-    if (reg >= ZYAN_ARRAY_LENGTH(zydisRegisterStrings))
+    if (reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
     {
         return ZYAN_NULL;
     }
-    return &zydisRegisterStrings[reg];
+    return &STR_REGISTER[reg];
 }
 
 /* ============================================================================================== */

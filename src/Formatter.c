@@ -445,18 +445,18 @@ ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
-    ZyanU64 runtime_address)
+    const ZydisDecodedInstruction* instruction, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token)
 {
     return ZydisFormatterTokenizeInstructionEx(formatter, instruction, buffer, length,
-        runtime_address, ZYAN_NULL);
+        runtime_address, token, ZYAN_NULL);
 }
 
 ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, ZydisFormatterToken* buffer, ZyanUSize length,
-    ZyanU64 runtime_address, void* user_data)
+    const ZydisDecodedInstruction* instruction, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data)
 {
-    if (!formatter || !instruction || !buffer || (length <= sizeof(ZydisFormatterToken)))
+    if (!formatter || !instruction || !buffer || (length <= sizeof(ZydisFormatterToken)) || !token)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -492,6 +492,7 @@ ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
         ZYAN_CHECK(formatter->func_post_instruction(formatter, &buf, &context));
     }
 
+    *token = (ZydisFormatterTokenConst*)buffer;
     return ZYAN_STATUS_SUCCESS;
 }
 

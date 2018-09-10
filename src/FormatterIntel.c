@@ -35,8 +35,8 @@
 /* String constants                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZydisShortString STR_DELIM_MNEMONIC = ZYDIS_MAKE_SHORTSTRING(" ");
-static const ZydisShortString STR_DELIM_OPERAND  = ZYDIS_MAKE_SHORTSTRING(", ");
+static const ZydisShortString STR_WHITESPACE     = ZYDIS_MAKE_SHORTSTRING(" ");
+static const ZydisShortString STR_DELIMITER      = ZYDIS_MAKE_SHORTSTRING(",");
 static const ZydisShortString STR_MEMORY_BEGIN   = ZYDIS_MAKE_SHORTSTRING("[");
 static const ZydisShortString STR_MEMORY_END     = ZYDIS_MAKE_SHORTSTRING("]");
 static const ZydisShortString STR_ADDR_RELATIVE  = ZYDIS_MAKE_SHORTSTRING("$");
@@ -78,33 +78,34 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
     for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
     {
-        if (context->instruction->operands[i].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
+        const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
+
+        if (operand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
         {
             break;
         }
 
         // Print embedded-mask registers as decorator instead of a regular operand
         if ((i == 1) &&
-            (context->instruction->operands[i].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-            (context->instruction->operands[i].encoding == ZYDIS_OPERAND_ENCODING_MASK))
+            (context->operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+            (context->operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
             continue;
         }
 
         ZyanUPointer buffer_state;
         ZYDIS_BUFFER_REMEMBER(buffer, buffer_state);
-        if (buffer_state == state_mnemonic)
-        {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_MNEMONIC));
-        } else
+
+        if (buffer_state != state_mnemonic)
         {
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_OPERAND));
+            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIMITER));
         }
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
 
         // Set current operand
-        context->operand = &context->instruction->operands[i];
+        context->operand = operand;
 
         ZyanStatus status;
         if (formatter->func_pre_operand)
@@ -121,7 +122,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
             }
         }
 
-        switch (context->instruction->operands[i].type)
+        switch (operand->type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
             status = formatter->func_format_operand_reg(formatter, buffer, context);
@@ -172,7 +173,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
                 ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context,
                     ZYDIS_DECORATOR_MASK));
             }
-            if (context->instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+            if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
             {
                 ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context,
                     ZYDIS_DECORATOR_BC));

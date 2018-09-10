@@ -33,7 +33,7 @@
 #define ZYDIS_FORMATTER_ATT_H
 
 #include <Zydis/Formatter.h>
-#include <Zydis/Internal/FormatterShared.h>
+#include <Zydis/Internal/FormatterBase.h>
 #include <Zydis/Internal/String.h>
 
 #ifdef __cplusplus
@@ -151,20 +151,20 @@ static const ZydisFormatter FORMATTER_ATT =
     /* func_format_instruction */ &ZydisFormatterATTFormatInstruction,
     /* func_pre_operand        */ ZYAN_NULL,
     /* func_post_operand       */ ZYAN_NULL,
-    /* func_format_operand_reg */ &ZydisFormatterSharedFormatOperandREG,
+    /* func_format_operand_reg */ &ZydisFormatterBaseFormatOperandREG,
     /* func_format_operand_mem */ &ZydisFormatterATTFormatOperandMEM,
-    /* func_format_operand_ptr */ &ZydisFormatterSharedFormatOperandPTR,
-    /* func_format_operand_imm */ &ZydisFormatterSharedFormatOperandIMM,
+    /* func_format_operand_ptr */ &ZydisFormatterBaseFormatOperandPTR,
+    /* func_format_operand_imm */ &ZydisFormatterBaseFormatOperandIMM,
     /* func_print_mnemonic     */ &ZydisFormatterATTPrintMnemonic,
     /* func_print_register     */ &ZydisFormatterATTPrintRegister,
-    /* func_print_address_abs  */ &ZydisFormatterSharedPrintAddressABS,
-    /* func_print_address_rel  */ &ZydisFormatterSharedPrintAddressREL,
+    /* func_print_address_abs  */ &ZydisFormatterBasePrintAddressABS,
+    /* func_print_address_rel  */ &ZydisFormatterBasePrintAddressREL,
     /* func_print_disp         */ &ZydisFormatterATTPrintDISP,
     /* func_print_imm          */ &ZydisFormatterATTPrintIMM,
     /* func_print_size         */ &ZydisFormatterATTPrintSize,
-    /* func_print_segment      */ &ZydisFormatterSharedPrintSegment,
-    /* func_print_prefixes     */ &ZydisFormatterSharedPrintPrefixes,
-    /* func_print_decorator    */ &ZydisFormatterSharedPrintDecorator
+    /* func_print_segment      */ &ZydisFormatterBasePrintSegment,
+    /* func_print_prefixes     */ &ZydisFormatterBasePrintPrefixes,
+    /* func_print_decorator    */ &ZydisFormatterBasePrintDecorator
 };
 
 /* ---------------------------------------------------------------------------------------------- */

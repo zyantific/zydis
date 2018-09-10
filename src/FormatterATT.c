@@ -34,22 +34,22 @@
 /* String constants                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZydisShortString STR_DELIM_MNEMONIC = ZYDIS_MAKE_SHORTSTRING(" ");
-static const ZydisShortString STR_DELIM_OPERAND  = ZYDIS_MAKE_SHORTSTRING(", ");
-static const ZydisShortString STR_DELIM_MEMORY   = ZYDIS_MAKE_SHORTSTRING(",");
-static const ZydisShortString STR_MEMORY_BEGIN   = ZYDIS_MAKE_SHORTSTRING("(");
-static const ZydisShortString STR_MEMORY_END     = ZYDIS_MAKE_SHORTSTRING(")");
-static const ZydisShortString STR_INVALID        = ZYDIS_MAKE_SHORTSTRING("invalid");
-static const ZydisShortString STR_FAR            = ZYDIS_MAKE_SHORTSTRING("l");
-static const ZydisShortString STR_SIZE_8         = ZYDIS_MAKE_SHORTSTRING("b");
-static const ZydisShortString STR_SIZE_16        = ZYDIS_MAKE_SHORTSTRING("w");
-static const ZydisShortString STR_SIZE_32        = ZYDIS_MAKE_SHORTSTRING("l");
-static const ZydisShortString STR_SIZE_64        = ZYDIS_MAKE_SHORTSTRING("q");
-static const ZydisShortString STR_SIZE_128       = ZYDIS_MAKE_SHORTSTRING("x");
-static const ZydisShortString STR_SIZE_256       = ZYDIS_MAKE_SHORTSTRING("y");
-static const ZydisShortString STR_SIZE_512       = ZYDIS_MAKE_SHORTSTRING("z");
-static const ZydisShortString STR_REGISTER       = ZYDIS_MAKE_SHORTSTRING("%");
-static const ZydisShortString STR_IMMEDIATE      = ZYDIS_MAKE_SHORTSTRING("$");
+static const ZydisShortString STR_WHITESPACE    = ZYDIS_MAKE_SHORTSTRING(" ");
+static const ZydisShortString STR_DELIMITER     = ZYDIS_MAKE_SHORTSTRING(", ");
+static const ZydisShortString STR_DELIM_MEMORY  = ZYDIS_MAKE_SHORTSTRING(",");
+static const ZydisShortString STR_MEMORY_BEGIN  = ZYDIS_MAKE_SHORTSTRING("(");
+static const ZydisShortString STR_MEMORY_END    = ZYDIS_MAKE_SHORTSTRING(")");
+static const ZydisShortString STR_INVALID       = ZYDIS_MAKE_SHORTSTRING("invalid");
+static const ZydisShortString STR_FAR           = ZYDIS_MAKE_SHORTSTRING("l");
+static const ZydisShortString STR_SIZE_8        = ZYDIS_MAKE_SHORTSTRING("b");
+static const ZydisShortString STR_SIZE_16       = ZYDIS_MAKE_SHORTSTRING("w");
+static const ZydisShortString STR_SIZE_32       = ZYDIS_MAKE_SHORTSTRING("l");
+static const ZydisShortString STR_SIZE_64       = ZYDIS_MAKE_SHORTSTRING("q");
+static const ZydisShortString STR_SIZE_128      = ZYDIS_MAKE_SHORTSTRING("x");
+static const ZydisShortString STR_SIZE_256      = ZYDIS_MAKE_SHORTSTRING("y");
+static const ZydisShortString STR_SIZE_512      = ZYDIS_MAKE_SHORTSTRING("z");
+static const ZydisShortString STR_REGISTER      = ZYDIS_MAKE_SHORTSTRING("%");
+static const ZydisShortString STR_IMMEDIATE     = ZYDIS_MAKE_SHORTSTRING("$");
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -85,28 +85,29 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 
     for (ZyanI8 i = c; i >= 0; --i)
     {
+        const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
+
         // Print embedded-mask registers as decorator instead of a regular operand
         if ((i == 1) &&
-            (context->instruction->operands[i].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-            (context->instruction->operands[i].encoding == ZYDIS_OPERAND_ENCODING_MASK))
+            (operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+            (operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
             continue;
         }
 
         ZyanUPointer buffer_state;
         ZYDIS_BUFFER_REMEMBER(buffer, buffer_state);
-        if (buffer_state == state_mnemonic)
-        {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_MNEMONIC));
-        } else
+
+        if (buffer_state != state_mnemonic)
         {
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_OPERAND));
+            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIMITER));
         }
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
 
         // Set current operand
-        context->operand = &context->instruction->operands[i];
+        context->operand = operand;
 
         ZyanStatus status;
         if (formatter->func_pre_operand)
@@ -123,7 +124,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
             }
         }
 
-        switch (context->instruction->operands[i].type)
+        switch (operand->type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
             status = formatter->func_format_operand_reg(formatter, buffer, context);
@@ -174,7 +175,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
                 ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context,
                     ZYDIS_DECORATOR_MASK));
             }
-            if (context->instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
+            if (operand->type == ZYDIS_OPERAND_TYPE_MEMORY)
             {
                 ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context,
                     ZYDIS_DECORATOR_BC));
@@ -351,7 +352,7 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
     ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_IMMEDIATE));
-    return ZydisFormatterSharedPrintIMM(formatter, buffer, context);
+    return ZydisFormatterBasePrintIMM(formatter, buffer, context);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

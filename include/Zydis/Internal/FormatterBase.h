@@ -29,8 +29,8 @@
  * @brief   Provides formatter functions that are shared between the different formatters.
  */
 
-#ifndef ZYDIS_FORMATTER_SHARED_H
-#define ZYDIS_FORMATTER_SHARED_H
+#ifndef ZYDIS_FORMATTER_BASE_H
+#define ZYDIS_FORMATTER_BASE_H
 
 #include <Zydis/Formatter.h>
 #include <Zydis/Internal/String.h>
@@ -42,44 +42,6 @@ extern "C" {
 /* ============================================================================================== */
 /* Macros                                                                                         */
 /* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Buffer                                                                                         */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Invokes the `ZydisFormatterBufferAppend` routine, if tokenization is enabled for the
- *          current pass.
- *
- * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
- * @param   type    The token type.
- *
- * Using this macro instead of direct calls to `ZydisFormatterBufferAppend` greatly improves the
- * performance for non-tokenizing passes.
- */
-#define ZYDIS_BUFFER_APPEND_TOKEN(buffer, type) \
-    if ((buffer)->tokenized) \
-    { \
-        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, type)); \
-    }
-
-/**
- * @brief   Returns a snapshot of the buffer-state.
- *
- * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
- * @param   state   Receives a snapshot of the buffer-state.
- *
- * Using this macro instead of direct calls to `ZydisFormatterBufferRemember` improves the
- * performance for non-tokenizing passes.
- */
-#define ZYDIS_BUFFER_REMEMBER(buffer, state) \
-    if ((buffer)->tokenized) \
-    { \
-        (state) = (ZyanUPointer)(buffer)->last; \
-    } else \
-    { \
-        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
-    }
 
 /* ---------------------------------------------------------------------------------------------- */
 /* String                                                                                         */
@@ -141,6 +103,54 @@ extern "C" {
     }
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Buffer                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Invokes the `ZydisFormatterBufferAppend` routine, if tokenization is enabled for the
+ *          current pass.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   type    The token type.
+ *
+ * Using this macro instead of direct calls to `ZydisFormatterBufferAppend` greatly improves the
+ * performance for non-tokenizing passes.
+ */
+#define ZYDIS_BUFFER_APPEND_TOKEN(buffer, type) \
+    if ((buffer)->tokenized) \
+    { \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, type)); \
+    }
+
+/**
+ * @brief   Returns a snapshot of the buffer-state.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   state   Receives a snapshot of the buffer-state.
+ *
+ * Using this macro instead of direct calls to `ZydisFormatterBufferRemember` improves the
+ * performance for non-tokenizing passes.
+ */
+#define ZYDIS_BUFFER_REMEMBER(buffer, state) \
+    if ((buffer)->tokenized) \
+    { \
+        (state) = (ZyanUPointer)(buffer)->last; \
+    } else \
+    { \
+        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
+    }
+
+/* ---------------------------------------------------------------------------------------------- */
+
+#define ZYDIS_BUFFER_APPEND_STRING(buffer, type, str) \
+    ZYDIS_BUFFER_APPEND_TOKEN(buffer, type); \
+    ZYAN_CHECK(ZydisStringAppendShort(&(buffer)->string, str));
+
+#define ZYDIS_BUFFER_APPEND_STRING_CASE(buffer, type, str, letter_case) \
+    ZYDIS_BUFFER_APPEND_TOKEN(buffer, type); \
+    ZYAN_CHECK(ZydisStringAppendShortCase(&(buffer)->string, str, letter_case));
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
@@ -176,39 +186,39 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedFormatOperandREG(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandREG(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedFormatOperandPTR(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandPTR(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedFormatOperandIMM(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandIMM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedPrintAddressABS(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintAddressABS(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedPrintAddressREL(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintAddressREL(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedPrintIMM(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Optional tokens                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedPrintSegment(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintSegment(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
-ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator);
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -219,4 +229,4 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
 }
 #endif
 
-#endif // ZYDIS_FORMATTER_SHARED_H
+#endif // ZYDIS_FORMATTER_BASE_H

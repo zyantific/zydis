@@ -1,4 +1,4 @@
-static const ZydisShortString zydisRegisterStrings[] =
+static const ZydisShortString STR_REGISTER[] =
 {
     ZYDIS_MAKE_SHORTSTRING("none"),
 

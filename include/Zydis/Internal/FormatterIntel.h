@@ -33,7 +33,7 @@
 #define ZYDIS_FORMATTER_INTEL_H
 
 #include <Zydis/Formatter.h>
-#include <Zydis/Internal/FormatterShared.h>
+#include <Zydis/Internal/FormatterBase.h>
 #include <Zydis/Internal/String.h>
 
 #ifdef __cplusplus
@@ -146,20 +146,20 @@ static const ZydisFormatter FORMATTER_INTEL =
     /* func_format_instruction */ &ZydisFormatterIntelFormatInstruction,
     /* func_pre_operand        */ ZYAN_NULL,
     /* func_post_operand       */ ZYAN_NULL,
-    /* func_format_operand_reg */ &ZydisFormatterSharedFormatOperandREG,
+    /* func_format_operand_reg */ &ZydisFormatterBaseFormatOperandREG,
     /* func_format_operand_mem */ &ZydisFormatterIntelFormatOperandMEM,
-    /* func_format_operand_ptr */ &ZydisFormatterSharedFormatOperandPTR,
-    /* func_format_operand_imm */ &ZydisFormatterSharedFormatOperandIMM,
+    /* func_format_operand_ptr */ &ZydisFormatterBaseFormatOperandPTR,
+    /* func_format_operand_imm */ &ZydisFormatterBaseFormatOperandIMM,
     /* func_print_mnemonic     */ &ZydisFormatterIntelPrintMnemonic,
     /* func_print_register     */ &ZydisFormatterIntelPrintRegister,
-    /* func_print_address_abs  */ &ZydisFormatterSharedPrintAddressABS,
-    /* func_print_address_rel  */ &ZydisFormatterSharedPrintAddressREL,
+    /* func_print_address_abs  */ &ZydisFormatterBasePrintAddressABS,
+    /* func_print_address_rel  */ &ZydisFormatterBasePrintAddressREL,
     /* func_print_disp         */ &ZydisFormatterIntelPrintDISP,
-    /* func_print_imm          */ &ZydisFormatterSharedPrintIMM,
+    /* func_print_imm          */ &ZydisFormatterBasePrintIMM,
     /* func_print_size         */ &ZydisFormatterIntelPrintSize,
-    /* func_print_segment      */ &ZydisFormatterSharedPrintSegment,
-    /* func_print_prefixes     */ &ZydisFormatterSharedPrintPrefixes,
-    /* func_print_decorator    */ &ZydisFormatterSharedPrintDecorator
+    /* func_print_segment      */ &ZydisFormatterBasePrintSegment,
+    /* func_print_prefixes     */ &ZydisFormatterBasePrintPrefixes,
+    /* func_print_decorator    */ &ZydisFormatterBasePrintDecorator
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -226,20 +226,20 @@ static const ZydisFormatter FORMATTER_INTEL_MASM =
     /* func_format_instruction */ &ZydisFormatterIntelFormatInstructionMASM,
     /* func_pre_operand        */ ZYAN_NULL,
     /* func_post_operand       */ ZYAN_NULL,
-    /* func_format_operand_reg */ &ZydisFormatterSharedFormatOperandREG,
+    /* func_format_operand_reg */ &ZydisFormatterBaseFormatOperandREG,
     /* func_format_operand_mem */ &ZydisFormatterIntelFormatOperandMEM,
-    /* func_format_operand_ptr */ &ZydisFormatterSharedFormatOperandPTR,
-    /* func_format_operand_imm */ &ZydisFormatterSharedFormatOperandIMM,
+    /* func_format_operand_ptr */ &ZydisFormatterBaseFormatOperandPTR,
+    /* func_format_operand_imm */ &ZydisFormatterBaseFormatOperandIMM,
     /* func_print_mnemonic     */ &ZydisFormatterIntelPrintMnemonic,
     /* func_print_register     */ &ZydisFormatterIntelPrintRegister,
     /* func_print_address_abs  */ &ZydisFormatterIntelPrintAddressMASM,
     /* func_print_address_rel  */ &ZydisFormatterIntelPrintAddressMASM,
     /* func_print_disp         */ &ZydisFormatterIntelPrintDISP,
-    /* func_print_imm          */ &ZydisFormatterSharedPrintIMM,
+    /* func_print_imm          */ &ZydisFormatterBasePrintIMM,
     /* func_print_size         */ &ZydisFormatterIntelPrintSize,
-    /* func_print_segment      */ &ZydisFormatterSharedPrintSegment,
-    /* func_print_prefixes     */ &ZydisFormatterSharedPrintPrefixes,
-    /* func_print_decorator    */ &ZydisFormatterSharedPrintDecorator
+    /* func_print_segment      */ &ZydisFormatterBasePrintSegment,
+    /* func_print_prefixes     */ &ZydisFormatterBasePrintPrefixes,
+    /* func_print_decorator    */ &ZydisFormatterBasePrintDecorator
 };
 
 /* ---------------------------------------------------------------------------------------------- */

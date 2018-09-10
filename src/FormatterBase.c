@@ -24,7 +24,7 @@
 
 ***************************************************************************************************/
 
-#include <Zydis/Internal/FormatterShared.h>
+#include <Zydis/Internal/FormatterBase.h>
 #include <Zydis/Utils.h>
 
 /* ============================================================================================== */
@@ -35,22 +35,22 @@
 /* String constants                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZydisShortString STR_DELIM_MNEMONIC = ZYDIS_MAKE_SHORTSTRING(" ");
-static const ZydisShortString STR_DELIM_SGMENT   = ZYDIS_MAKE_SHORTSTRING(":");
-static const ZydisShortString STR_PREF_XACQUIRE  = ZYDIS_MAKE_SHORTSTRING("xacquire ");
-static const ZydisShortString STR_PREF_XRELEASE  = ZYDIS_MAKE_SHORTSTRING("xrelease ");
-static const ZydisShortString STR_PREF_LOCK      = ZYDIS_MAKE_SHORTSTRING("lock ");
-static const ZydisShortString STR_PREF_REP       = ZYDIS_MAKE_SHORTSTRING("rep ");
-static const ZydisShortString STR_PREF_REPE      = ZYDIS_MAKE_SHORTSTRING("repe ");
-static const ZydisShortString STR_PREF_REPNE     = ZYDIS_MAKE_SHORTSTRING("repne ");
-static const ZydisShortString STR_PREF_BND       = ZYDIS_MAKE_SHORTSTRING("bnd ");
-static const ZydisShortString STR_PREF_SEG_CS    = ZYDIS_MAKE_SHORTSTRING("cs ");
-static const ZydisShortString STR_PREF_SEG_SS    = ZYDIS_MAKE_SHORTSTRING("ss ");
-static const ZydisShortString STR_PREF_SEG_DS    = ZYDIS_MAKE_SHORTSTRING("ds ");
-static const ZydisShortString STR_PREF_SEG_ES    = ZYDIS_MAKE_SHORTSTRING("es ");
-static const ZydisShortString STR_PREF_SEG_FS    = ZYDIS_MAKE_SHORTSTRING("fs ");
-static const ZydisShortString STR_PREF_SEG_GS    = ZYDIS_MAKE_SHORTSTRING("gs ");
-static const ZydisShortString STR_DECO_BEGIN     = ZYDIS_MAKE_SHORTSTRING(" {");
+static const ZydisShortString STR_WHITESPACE     = ZYDIS_MAKE_SHORTSTRING(" ");
+static const ZydisShortString STR_DELIM_SEGMENT  = ZYDIS_MAKE_SHORTSTRING(":");
+static const ZydisShortString STR_PREF_XACQUIRE  = ZYDIS_MAKE_SHORTSTRING("xacquire");
+static const ZydisShortString STR_PREF_XRELEASE  = ZYDIS_MAKE_SHORTSTRING("xrelease");
+static const ZydisShortString STR_PREF_LOCK      = ZYDIS_MAKE_SHORTSTRING("lock");
+static const ZydisShortString STR_PREF_REP       = ZYDIS_MAKE_SHORTSTRING("rep");
+static const ZydisShortString STR_PREF_REPE      = ZYDIS_MAKE_SHORTSTRING("repe");
+static const ZydisShortString STR_PREF_REPNE     = ZYDIS_MAKE_SHORTSTRING("repne");
+static const ZydisShortString STR_PREF_BND       = ZYDIS_MAKE_SHORTSTRING("bnd");
+static const ZydisShortString STR_PREF_SEG_CS    = ZYDIS_MAKE_SHORTSTRING("cs");
+static const ZydisShortString STR_PREF_SEG_SS    = ZYDIS_MAKE_SHORTSTRING("ss");
+static const ZydisShortString STR_PREF_SEG_DS    = ZYDIS_MAKE_SHORTSTRING("ds");
+static const ZydisShortString STR_PREF_SEG_ES    = ZYDIS_MAKE_SHORTSTRING("es");
+static const ZydisShortString STR_PREF_SEG_FS    = ZYDIS_MAKE_SHORTSTRING("fs");
+static const ZydisShortString STR_PREF_SEG_GS    = ZYDIS_MAKE_SHORTSTRING("gs");
+static const ZydisShortString STR_DECO_BEGIN     = ZYDIS_MAKE_SHORTSTRING("{");
 static const ZydisShortString STR_DECO_END       = ZYDIS_MAKE_SHORTSTRING("}");
 static const ZydisShortString STR_DECO_ZERO      = ZYDIS_MAKE_SHORTSTRING(" {z}");
 static const ZydisShortString STR_DECO_1TO2      = ZYDIS_MAKE_SHORTSTRING(" {1to2}");
@@ -87,25 +87,65 @@ static const ZydisShortString STR_ADD            = ZYDIS_MAKE_SHORTSTRING("+");
 
 static const ZydisShortString STR_PREF_REX[0x10] =
 {
-    /* 40 */ ZYDIS_MAKE_SHORTSTRING("rex "),
-    /* 41 */ ZYDIS_MAKE_SHORTSTRING("rex.b "),
-    /* 42 */ ZYDIS_MAKE_SHORTSTRING("rex.x "),
-    /* 43 */ ZYDIS_MAKE_SHORTSTRING("rex.xb "),
-    /* 44 */ ZYDIS_MAKE_SHORTSTRING("rex.r "),
-    /* 45 */ ZYDIS_MAKE_SHORTSTRING("rex.rb "),
-    /* 46 */ ZYDIS_MAKE_SHORTSTRING("rex.rx "),
-    /* 47 */ ZYDIS_MAKE_SHORTSTRING("rex.rxb "),
-    /* 48 */ ZYDIS_MAKE_SHORTSTRING("rex.w "),
-    /* 49 */ ZYDIS_MAKE_SHORTSTRING("rex.wb "),
-    /* 4A */ ZYDIS_MAKE_SHORTSTRING("rex.wx "),
-    /* 4B */ ZYDIS_MAKE_SHORTSTRING("rex.wxb "),
-    /* 4C */ ZYDIS_MAKE_SHORTSTRING("rex.wr "),
-    /* 4D */ ZYDIS_MAKE_SHORTSTRING("rex.wrb "),
-    /* 4E */ ZYDIS_MAKE_SHORTSTRING("rex.wrx "),
-    /* 4F */ ZYDIS_MAKE_SHORTSTRING("rex.wrxb ")
+    /* 40 */ ZYDIS_MAKE_SHORTSTRING("re "),
+    /* 41 */ ZYDIS_MAKE_SHORTSTRING("rex.b"),
+    /* 42 */ ZYDIS_MAKE_SHORTSTRING("rex.x"),
+    /* 43 */ ZYDIS_MAKE_SHORTSTRING("rex.xb"),
+    /* 44 */ ZYDIS_MAKE_SHORTSTRING("rex.r"),
+    /* 45 */ ZYDIS_MAKE_SHORTSTRING("rex.rb"),
+    /* 46 */ ZYDIS_MAKE_SHORTSTRING("rex.rx"),
+    /* 47 */ ZYDIS_MAKE_SHORTSTRING("rex.rxb"),
+    /* 48 */ ZYDIS_MAKE_SHORTSTRING("rex.w"),
+    /* 49 */ ZYDIS_MAKE_SHORTSTRING("rex.wb"),
+    /* 4A */ ZYDIS_MAKE_SHORTSTRING("rex.wx"),
+    /* 4B */ ZYDIS_MAKE_SHORTSTRING("rex.wxb"),
+    /* 4C */ ZYDIS_MAKE_SHORTSTRING("rex.wr"),
+    /* 4D */ ZYDIS_MAKE_SHORTSTRING("rex.wrb"),
+    /* 4E */ ZYDIS_MAKE_SHORTSTRING("rex.wrx"),
+    /* 4F */ ZYDIS_MAKE_SHORTSTRING("rex.wrxb")
 };
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/**
+ * @brief   Appends a prefix string.
+ *
+ * @brief   buffer      A pointer to the `ZydisFormatterBuffer` struct.
+ * @brief   string      A pointer to the `ZydisShortString` that contains the prefix string.
+ * @brief   letter_case The desired letter-case.
+ */
+#define ZYDIS_APPEND_PREFIX(buffer, string, letter_case) \
+    ZYDIS_BUFFER_APPEND_STRING_CASE(buffer, ZYDIS_TOKEN_PREFIX, string, letter_case); \
+    ZYDIS_BUFFER_APPEND_STRING(buffer, ZYDIS_TOKEN_WHITESPACE, &STR_WHITESPACE);
+
+/**
+ * @brief   Appends a decorator string.
+ *
+ * @brief   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @brief   value   A pointer to the `ZydisShortString` that contains the decorator string.
+ */
+#define ZYDIS_APPEND_DECORATOR(buffer, value) \
+    if ((buffer)->tokenized) \
+    { \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_WHITESPACE)); \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_DELIMITER)); \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BEGIN)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_DECORATOR)); \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, value)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_DELIMITER)); \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_END)); \
+    } else \
+    { \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, value)); \
+    }
+
+//#undef ZYDIS_APPEND_DECORATOR
+//#define ZYDIS_APPEND_DECORATOR(buffer, value) ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, value));
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
@@ -169,7 +209,7 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedFormatOperandREG(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandREG(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -179,7 +219,7 @@ ZyanStatus ZydisFormatterSharedFormatOperandREG(const ZydisFormatter* formatter,
     return formatter->func_print_register(formatter, buffer, context, context->operand->reg.value);
 }
 
-ZyanStatus ZydisFormatterSharedFormatOperandPTR(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandPTR(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -190,7 +230,7 @@ ZyanStatus ZydisFormatterSharedFormatOperandPTR(const ZydisFormatter* formatter,
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
         context->operand->ptr.segment, 4);
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_SGMENT));
+    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_SEGMENT));
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
         context->operand->ptr.offset , 8);
@@ -198,7 +238,7 @@ ZyanStatus ZydisFormatterSharedFormatOperandPTR(const ZydisFormatter* formatter,
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterSharedFormatOperandIMM(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBaseFormatOperandIMM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -224,7 +264,7 @@ ZyanStatus ZydisFormatterSharedFormatOperandIMM(const ZydisFormatter* formatter,
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedPrintAddressABS(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintAddressABS(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -263,7 +303,7 @@ ZyanStatus ZydisFormatterSharedPrintAddressABS(const ZydisFormatter* formatter,
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterSharedPrintAddressREL(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintAddressREL(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -316,7 +356,7 @@ ZyanStatus ZydisFormatterSharedPrintAddressREL(const ZydisFormatter* formatter,
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterSharedPrintIMM(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -379,7 +419,7 @@ ZyanStatus ZydisFormatterSharedPrintIMM(const ZydisFormatter* formatter,
 /* Optional tokens                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterSharedPrintSegment(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintSegment(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -421,13 +461,13 @@ ZyanStatus ZydisFormatterSharedPrintSegment(const ZydisFormatter* formatter,
     if (printed_segment)
     {
         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_SGMENT));
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_SEGMENT));
     }
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);
@@ -446,54 +486,39 @@ ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
             {
                 if ((value & 0xF0) == 0x40)
                 {
-                    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                    ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string,
-                        &STR_PREF_REX[value & 0x0F], formatter->letter_case));
+                    ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REX[value & 0x0F],
+                        formatter->letter_case);
                 } else
                 {
                     switch (value)
                     {
                     case 0xF0:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_LOCK,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_LOCK, formatter->letter_case);
                         break;
                     case 0x2E:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_CS,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_CS, formatter->letter_case);
                         break;
                     case 0x36:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_SS,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_SS, formatter->letter_case)
                         break;
                     case 0x3E:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_DS,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_DS, formatter->letter_case)
                         break;
                     case 0x26:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_ES,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_ES, formatter->letter_case)
                         break;
                     case 0x64:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_FS,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_FS, formatter->letter_case)
                         break;
                     case 0x65:
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_SEG_GS,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_SEG_GS, formatter->letter_case)
                         break;
                     default:
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
                         ZYAN_CHECK(ZydisStringAppendHexU(&buffer->string, value, 0,
                             formatter->hex_uppercase, ZYAN_NULL, ZYAN_NULL));
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-                        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_MNEMONIC));
+                        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
                         break;
                     }
                 }
@@ -503,49 +528,35 @@ ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
                 switch (value)
                 {
                 case 0xF0:
-                    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                    ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_LOCK,
-                        formatter->letter_case));
+                    ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_LOCK, formatter->letter_case);
                     break;
                 case 0xF2:
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_XACQUIRE,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_XACQUIRE, formatter->letter_case);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REPNE,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REPNE, formatter->letter_case);
                     }
 
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_BND,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_BND, formatter->letter_case);
                     }
                     break;
                 case 0xF3:
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_XRELEASE,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_XRELEASE, formatter->letter_case);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REP,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REP, formatter->letter_case);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
                     {
-                        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REPE,
-                            formatter->letter_case));
+                        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REPE, formatter->letter_case);
                     }
                     break;
                 default:
@@ -561,59 +572,56 @@ ZyanStatus ZydisFormatterSharedPrintPrefixes(const ZydisFormatter* formatter,
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_XACQUIRE,
-            formatter->letter_case));
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_XACQUIRE, formatter->letter_case);
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_PREF_XRELEASE,
-            formatter->letter_case));
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_XRELEASE, formatter->letter_case);
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        return ZydisStringAppendShortCase(&buffer->string, &STR_PREF_LOCK,
-            formatter->letter_case);
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_LOCK, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        return ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REP,
-            formatter->letter_case);
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REP, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        return ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REPE,
-            formatter->letter_case);
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REPE, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        return ZydisStringAppendShortCase(&buffer->string, &STR_PREF_REPNE,
-            formatter->letter_case);
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_REPNE, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
     {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
-        return ZydisStringAppendShortCase(&buffer->string, &STR_PREF_BND,
-            formatter->letter_case);
+        ZYDIS_APPEND_PREFIX(buffer, &STR_PREF_BND, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator)
 {
     ZYAN_ASSERT(formatter);
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
+
+#if !defined(ZYDIS_DISABLE_AVX512) && !defined(ZYDIS_DISABLE_KNC)
+    ZYAN_UNUSED(formatter);
+    ZYAN_UNUSED(buffer);
+    ZYAN_UNUSED(context);
+#endif
 
     switch (decorator)
     {
@@ -622,20 +630,30 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
         if (context->instruction->avx.mask.reg != ZYDIS_REGISTER_K0)
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_OPEN);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BEGIN));
-            ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
-                context->instruction->avx.mask.reg));
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_CLOSE);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_END));
+            if (buffer->tokenized)
+            {
+                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
+                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_OPEN);
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BEGIN));
+                ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
+                    context->instruction->avx.mask.reg));
+                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_CLOSE);
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_END));
+            } else
+            {
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BEGIN));
+                ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
+                    context->instruction->avx.mask.reg));
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_END));
+            }
 
             // Only print the zeroing decorator, if the instruction is not a "zeroing masking only"
             // instruction (e.g. `vcmpsd`)
             if ((context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING) &&
                 (context->instruction->raw.evex.z))
             {
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_ZERO));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_ZERO);
             }
         }
 #endif
@@ -650,28 +668,22 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_BROADCAST_MODE_INVALID:
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_2:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_1TO2));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_1TO2);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_4:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_1TO4));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_1TO4);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_8:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_1TO8));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_1TO8);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_16:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_1TO16));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_1TO16);
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_8:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_4TO8));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_4TO8);
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_16:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_4TO16));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_4TO16);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -688,20 +700,16 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RN_SAE));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RN_SAE);
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RD_SAE));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RD_SAE);
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RU_SAE));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RU_SAE);
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RZ_SAE));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RZ_SAE);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -713,20 +721,16 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RN));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RN);
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RD));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RD);
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RU));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RU);
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_RZ));
+                ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_RZ);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -738,8 +742,7 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_AVX512)
         if (context->instruction->avx.has_SAE && !context->instruction->avx.rounding.mode)
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_SAE));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_SAE);
         }
 #endif
         break;
@@ -752,32 +755,25 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
             // Nothing to do here
             break;
         case ZYDIS_SWIZZLE_MODE_CDAB:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_CDAB));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_CDAB);
             break;
         case ZYDIS_SWIZZLE_MODE_BADC:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BADC));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_BADC);
             break;
         case ZYDIS_SWIZZLE_MODE_DACB:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_DACB));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_DACB);
             break;
         case ZYDIS_SWIZZLE_MODE_AAAA:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_AAAA));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_AAAA);
             break;
         case ZYDIS_SWIZZLE_MODE_BBBB:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BBBB));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_BBBB);
             break;
         case ZYDIS_SWIZZLE_MODE_CCCC:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_CCCC));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_CCCC);
             break;
         case ZYDIS_SWIZZLE_MODE_DDDD:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_DDDD));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_DDDD);
             break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -791,24 +787,19 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
         case ZYDIS_CONVERSION_MODE_INVALID:
             break;
         case ZYDIS_CONVERSION_MODE_FLOAT16:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_FLOAT16));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_FLOAT16);
             break;
         case ZYDIS_CONVERSION_MODE_SINT8:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_SINT8));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_SINT8);
             break;
         case ZYDIS_CONVERSION_MODE_UINT8:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_UINT8));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_UINT8);
             break;
         case ZYDIS_CONVERSION_MODE_SINT16:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_SINT16));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_SINT16);
             break;
         case ZYDIS_CONVERSION_MODE_UINT16:
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_UINT16));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_UINT16);
             break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -819,8 +810,7 @@ ZyanStatus ZydisFormatterSharedPrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         if (context->instruction->avx.has_eviction_hint)
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DECORATOR);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_EH));
+            ZYDIS_APPEND_DECORATOR(buffer, &STR_DECO_EH);
         }
 #endif
         break;

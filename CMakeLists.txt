@@ -123,13 +123,13 @@ if (ZYDIS_FEATURE_DECODER)
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/FormatterBuffer.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterATT.h"
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterBase.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterIntel.h"
-                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterShared.h"
                 "src/Formatter.c"
                 "src/FormatterBuffer.c"
                 "src/FormatterATT.c"
-                "src/FormatterIntel.c"
-                "src/FormatterShared.c")
+                "src/FormatterBase.c"
+                "src/FormatterIntel.c")
     endif ()
 endif ()
 
