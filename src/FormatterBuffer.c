@@ -31,6 +31,45 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Token                                                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZyanStatus ZydisFormatterTokenGetValue(const ZydisFormatterToken* token,
+    ZydisTokenType* type, char** value)
+{
+    if (!token || !type || !value)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    *type = token->type;
+    *value = (char*)((ZyanU8*)token + sizeof(ZydisFormatterToken));
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token)
+{
+    if (!token || !*token)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    const ZyanU16 next = (*token)->next;
+    if (!next)
+    {
+        return ZYAN_STATUS_OUT_OF_RANGE;
+    }
+    *token = (ZydisFormatterToken*)((ZyanU8*)*token + next);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Buffer                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
 ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buffer, ZyanString** string)
 {
     if (!buffer || !string)
@@ -83,17 +122,18 @@ ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer, ZydisTokenTy
 
     if (buffer->last)
     {
-        buffer->last->next = token;
+        const ZyanUSize offset = (ZyanU8*)token - (ZyanU8*)buffer->last;
+        ZYAN_ASSERT(offset < 65536);
+        buffer->last->next = (ZyanU16)(offset);
     }
     buffer->last = token;
 
     token->type  = type;
-    token->next  = ZYAN_NULL;
-    token->value = (const char*)buffer->data;
+    token->next  = 0;
 
     buffer->string.vector.data = buffer->data;
     buffer->string.vector.size = 1;
-    buffer->string.vector.capacity = buffer->size;
+    buffer->string.vector.capacity = ZYAN_MIN(buffer->size, 65536);
     *buffer->data = (ZyanU8)'\0';
 
     return ZYAN_STATUS_SUCCESS;
@@ -142,5 +182,7 @@ ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointe
 
     return ZYAN_STATUS_SUCCESS;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

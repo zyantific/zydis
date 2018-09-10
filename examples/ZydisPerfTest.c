@@ -251,7 +251,7 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     ZyanUSize offset = 0;
     ZyanStatus status;
     ZydisDecodedInstruction instruction;
-    char format_buffer[1024];
+    char format_buffer[256];
     while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
         &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
@@ -272,8 +272,9 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
         {
             if (tokenize)
             {
-                ZydisFormatterTokenizeInstruction(&formatter, &instruction,
-                    (ZydisFormatterToken*)format_buffer, sizeof(format_buffer), offset);
+                const ZydisFormatterToken* token;
+                ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer,
+                    sizeof(format_buffer), offset, &token);
             } else
             {
                 ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,

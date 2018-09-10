@@ -733,8 +733,18 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
  */
 static void PrintTokenizedInstruction(const ZydisFormatterToken* token)
 {
-    while (token)
+    ZyanStatus status = ZYAN_STATUS_SUCCESS;
+    while (ZYAN_SUCCESS(status))
     {
+        ZydisTokenType type;
+        char* value;
+        if (!ZYAN_SUCCESS(status = ZydisFormatterTokenGetValue(token, &type, &value)))
+        {
+            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to get token value%s\n",
+                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            exit(status);
+        }
+
         const char* color;
         switch (token->type)
         {
@@ -768,9 +778,12 @@ static void PrintTokenizedInstruction(const ZydisFormatterToken* token)
             color = CVT100_OUT(COLOR_DEFAULT);
             break;
         }
-        ZYAN_PRINTF("%s%s", color, token->value);
-        token = token->next;
+        ZYAN_PRINTF("%s%s", color, value);
+
+        status = ZydisFormatterTokenNext(&token);
     }
+    ZYAN_ASSERT(status == ZYAN_STATUS_OUT_OF_RANGE);
+
     ZYAN_PRINTF("%s\n", CVT100_OUT(COLOR_DEFAULT));
 }
 
@@ -814,15 +827,15 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
         ZYAN_UNREACHABLE;
     }
 
-    ZyanU8 buffer[1024];
-    ZydisFormatterToken* token = (ZydisFormatterToken*)&buffer[0];
+    ZyanU8 buffer[256];
+    const ZydisFormatterToken* token;
 
     PrintValueLabel("ABSOLUTE");
-    ZydisFormatterTokenizeInstruction(&formatter, instruction, token, sizeof(buffer), 0);
+    ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer, sizeof(buffer), 0, &token);
     PrintTokenizedInstruction(token);
     PrintValueLabel("RELATIVE");
-    ZydisFormatterTokenizeInstruction(&formatter, instruction, token, sizeof(buffer),
-        ZYDIS_RUNTIME_ADDRESS_NONE);
+    ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer, sizeof(buffer),
+        ZYDIS_RUNTIME_ADDRESS_NONE, &token);
     PrintTokenizedInstruction(token);
 }
 

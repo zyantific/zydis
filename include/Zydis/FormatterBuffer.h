@@ -33,7 +33,6 @@
 #define ZYDIS_FORMATTER_TOKEN_H
 
 #include <ZydisExportConfig.h>
-#include <Zycore/Defines.h>
 #include <Zycore/String.h>
 #include <Zycore/Types.h>
 #include <Zydis/Status.h>
@@ -139,16 +138,17 @@ typedef struct ZydisFormatterToken_
      */
     ZydisTokenType type;
     /**
-     * @brief   The token string.
+     * @brief   An offset to the next token, or `0`.
      */
-    const char* value;
-    /**
-     * @brief   A pointer to the next token, or `ZYAN_NULL`.
-     */
-    struct ZydisFormatterToken_* next;
+    ZyanU16 next;
 } ZydisFormatterToken;
 
 #pragma pack(pop)
+
+/**
+ * @brief   Defines the `ZydisFormatterTokenConst` datatype.
+ */
+typedef const ZydisFormatterToken ZydisFormatterTokenConst;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Buffer                                                                                         */
@@ -191,6 +191,32 @@ typedef struct ZydisFormatterBuffer_
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Token                                                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the `type` and the string `value` of the given `token`.
+ *
+ * @param   token   A pointer to the `ZydisFormatterToken` struct.
+ * @param   type    Receives the token type.
+ * @param   value   Receives a pointer to the string value of the token.
+ *
+ * @return  A zycore status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenGetValue(const ZydisFormatterToken* token,
+    ZydisTokenType* type, char** value);
+
+/**
+ * @brief   Obtains the next `token` linked to the passed one.
+ *
+ * @param   token   Receives a pointer to the next `ZydisFormatterToken` struct linked to the
+ *                  passed one.
+ *
+ * @return  A zycore status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Buffer                                                                                         */
