@@ -238,9 +238,10 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             ZYAN_MEMCPY(formatter->number_format[base][index].buffer, (void*)value, len);
+            formatter->number_format[base][index].buffer[len] = '\0';
             formatter->number_format[base][index].string_data.string.vector.data =
                 formatter->number_format[base][index].buffer;
-            formatter->number_format[base][index].string_data.string.vector.size = len;
+            formatter->number_format[base][index].string_data.string.vector.size = len + 1;
             formatter->number_format[base][index].string =
                 &formatter->number_format[base][index].string_data;
         } else

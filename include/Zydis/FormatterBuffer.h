@@ -225,7 +225,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token
  * This function returns `ZYAN_STATUS_INVALID_OPERATION`, if the buffer does not contain at least
  * one token.
  */
-ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetToken(ZydisFormatterBuffer* buffer,
+ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetToken(const ZydisFormatterBuffer* buffer,
     ZydisFormatterTokenConst** token);
 
 /**

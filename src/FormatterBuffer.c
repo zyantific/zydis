@@ -70,7 +70,7 @@ ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token)
 /* Buffer                                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
-ZyanStatus ZydisFormatterBufferGetToken(ZydisFormatterBuffer* buffer,
+ZyanStatus ZydisFormatterBufferGetToken(const ZydisFormatterBuffer* buffer,
     ZydisFormatterTokenConst** token)
 {
     if (!buffer || !token)
