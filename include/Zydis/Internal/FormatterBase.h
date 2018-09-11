@@ -123,6 +123,24 @@ extern "C" {
     }
 
 /**
+ * @brief   Returns a snapshot of the buffer-state.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   state   Receives a snapshot of the buffer-state.
+ *
+ * Using this macro instead of direct calls to `ZydisFormatterBufferRemember` improves the
+ * performance for non-tokenizing passes.
+ */
+#define ZYDIS_BUFFER_REMEMBER(buffer, state) \
+    if ((buffer)->is_token_list) \
+    { \
+        (state) = (ZyanUPointer)(buffer)->string.vector.data; \
+    } else \
+    { \
+        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
+    }
+
+/**
  * @brief   Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
  *
  * @brief   buffer  A pointer to the `ZydisFormatterBuffer` struct.
@@ -153,49 +171,11 @@ extern "C" {
         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
     }
 
-/**
- * @brief   Returns a snapshot of the buffer-state.
- *
- * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
- * @param   state   Receives a snapshot of the buffer-state.
- *
- * Using this macro instead of direct calls to `ZydisFormatterBufferRemember` improves the
- * performance for non-tokenizing passes.
- */
-#define ZYDIS_BUFFER_REMEMBER(buffer, state) \
-    if ((buffer)->is_token_list) \
-    { \
-        (state) = (ZyanUPointer)(buffer)->string.vector.data; \
-    } else \
-    { \
-        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
-    }
-
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* General                                                                                        */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * @brief   Returns the size to be used as explicit size suffix (`AT&T`) or explicit typecast
- *          (`INTEL`), if required.
- *
- * @param   formatter   A pointer to the `ZydisFormatter` instance.
- * @param   context     A pointer to the `ZydisFormatterContext` struct.
- * @param   memop_id    The operand-id of the instructions first memory operand.
- *
- * @return  Returns the explicit size, if required, or `0`, if not needed.
- *
- * This function always returns a size different to `0`, if the `ZYDIS_FORMATTER_PROP_FORCE_SIZE`
- * is set to `ZYAN_TRUE`.
- */
-ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
-    ZydisFormatterContext* context, ZyanU8 memop_id);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Buffer                                                                                         */
@@ -222,6 +202,17 @@ typedef struct ZydisPredefinedToken_
 #   pragma warning(pop)
 #endif
 
+/**
+ * @brief   Appends a predefined token-list to the `buffer`.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   data    A pointer to the `ZydisPredefinedToken` struct.
+ *
+ * @return  A zycore status code.
+ *
+ * This function is internally used to improve performance while adding static strings or multiple
+ * tokens at once.
+ */
 ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer* buffer,
     const ZydisPredefinedToken* data)
 {
@@ -248,6 +239,26 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
 
     return ZYAN_STATUS_SUCCESS;
 }
+
+/* ---------------------------------------------------------------------------------------------- */
+/* General                                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Returns the size to be used as explicit size suffix (`AT&T`) or explicit typecast
+ *          (`INTEL`), if required.
+ *
+ * @param   formatter   A pointer to the `ZydisFormatter` instance.
+ * @param   context     A pointer to the `ZydisFormatterContext` struct.
+ * @param   memop_id    The operand-id of the instructions first memory operand.
+ *
+ * @return  Returns the explicit size, if required, or `0`, if not needed.
+ *
+ * This function always returns a size different to `0`, if the `ZYDIS_FORMATTER_PROP_FORCE_SIZE`
+ * is set to `ZYAN_TRUE`.
+ */
+ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
+    ZydisFormatterContext* context, ZyanU8 memop_id);
 
 /* ---------------------------------------------------------------------------------------------- */
 

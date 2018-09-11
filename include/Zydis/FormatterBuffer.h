@@ -215,6 +215,20 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @brief   Returns the current (most recently added) token.
+ *
+ * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   token   Receives a pointer to the current token.
+ *
+ * @return  A zycore status code.
+ *
+ * This function returns `ZYAN_STATUS_INVALID_OPERATION`, if the buffer does not contain at least
+ * one token.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetToken(ZydisFormatterBuffer* buffer,
+    ZydisFormatterTokenConst** token);
+
+/**
  * @brief   Returns the `ZyanString` instance associated with the given buffer.
  *
  * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
@@ -226,8 +240,8 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token
  * This function returns `ZYAN_STATUS_INVALID_OPERATION`, if the buffer does not contain at least
  * one token.
  *
- * The returned string always refers to the literal value of the most recently added token and
- * remains valid after calling `ZydisFormatterBufferAppend` or `ZydisFormatterBufferRestore`.
+ * The returned string always refers to the literal value of the current (most recently added)
+ * token and will remain valid until the buffer is destroyed.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buffer,
     ZyanString** string);
@@ -241,7 +255,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buff
  * @return  A zycore status code.
  *
  * Note that the `ZyanString` instance returned by `ZydisFormatterBufferGetString` will
- * automatically get updated after calling this function.
+ * automatically be updated by calling this function.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer,
     ZydisTokenType type);
@@ -268,8 +282,11 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer*
  *
  * @return  A zycore status code.
  *
+ * All tokens added after obtaining the given `state` snapshot will be removed. This function
+ * does NOT restore any string content.
+ *
  * Note that the `ZyanString` instance returned by `ZydisFormatterBufferGetString` will
- * automatically get updated after calling this function.
+ * automatically be updated by calling this function.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer,
     ZyanUPointer state);

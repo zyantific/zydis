@@ -70,6 +70,23 @@ ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token)
 /* Buffer                                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
+ZyanStatus ZydisFormatterBufferGetToken(ZydisFormatterBuffer* buffer,
+    ZydisFormatterTokenConst** token)
+{
+    if (!buffer || !token)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    *token = ((ZydisFormatterTokenConst*)buffer->string.vector.data - 1);
+    if ((*token)->type == ZYDIS_TOKEN_INVALID)
+    {
+        return ZYAN_STATUS_INVALID_OPERATION;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buffer, ZyanString** string)
 {
     if (!buffer || !string)

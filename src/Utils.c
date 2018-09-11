@@ -258,7 +258,7 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
             ZYAN_UNREACHABLE;
         }
     }
-    segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_OPCODE;
+    segments->segments[segments->count  ].type = ZYDIS_INSTR_SEGMENT_OPCODE;
     if (segments->count)
     {
         segments->segments[segments->count].offset =
@@ -268,30 +268,30 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
     {
         segments->segments[segments->count].offset = 0;
     }
-    segments->segments[segments->count++].size   = segment_size;
+    segments->segments[segments->count++].size = segment_size;
 
     // ModRM
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM)
     {
-        segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_MODRM;
+        segments->segments[segments->count  ].type = ZYDIS_INSTR_SEGMENT_MODRM;
         segments->segments[segments->count  ].offset = instruction->raw.modrm.offset;
-        segments->segments[segments->count++].size   = 1;
+        segments->segments[segments->count++].size = 1;
     }
 
     // SIB
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SIB)
     {
-        segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_SIB;
+        segments->segments[segments->count  ].type = ZYDIS_INSTR_SEGMENT_SIB;
         segments->segments[segments->count  ].offset = instruction->raw.sib.offset;
-        segments->segments[segments->count++].size   = 1;
+        segments->segments[segments->count++].size = 1;
     }
 
     // Displacement
     if (instruction->raw.disp.size)
     {
-        segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_DISPLACEMENT;
+        segments->segments[segments->count  ].type = ZYDIS_INSTR_SEGMENT_DISPLACEMENT;
         segments->segments[segments->count  ].offset = instruction->raw.disp.offset;
-        segments->segments[segments->count++].size   = instruction->raw.disp.size / 8;
+        segments->segments[segments->count++].size = instruction->raw.disp.size / 8;
     }
 
     // Immediates
@@ -299,9 +299,9 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
     {
         if (instruction->raw.imm[i].size)
         {
-            segments->segments[segments->count  ].type   = ZYDIS_INSTR_SEGMENT_IMMEDIATE;
+            segments->segments[segments->count  ].type = ZYDIS_INSTR_SEGMENT_IMMEDIATE;
             segments->segments[segments->count  ].offset = instruction->raw.imm[i].offset;
-            segments->segments[segments->count++].size   = instruction->raw.imm[i].size / 8;
+            segments->segments[segments->count++].size = instruction->raw.imm[i].size / 8;
         }
     }
 

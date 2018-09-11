@@ -121,7 +121,7 @@ typedef struct ZydisInstructionSegments_
          */
         ZydisInstructionSegment type;
         /**
-         * @brief   The offset of the segment relative to the start of the instruction.
+         * @brief   The offset of the segment relative to the start of the instruction (in bytes).
          */
         ZyanU8 offset;
         /**

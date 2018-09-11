@@ -198,11 +198,13 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     {
         base  = ZYDIS_NUMERIC_BASE_DEC;
         index = 0;
+        break;
     }
     case ZYDIS_FORMATTER_PROP_DEC_SUFFIX:
     {
         base  = ZYDIS_NUMERIC_BASE_DEC;
         index = 1;
+        break;
     }
     case ZYDIS_FORMATTER_PROP_HEX_UPPERCASE:
     {
@@ -213,11 +215,13 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     {
         base  = ZYDIS_NUMERIC_BASE_HEX;
         index = 0;
+        break;
     }
     case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
     {
         base  = ZYDIS_NUMERIC_BASE_HEX;
         index = 1;
+        break;
     }
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -495,7 +499,13 @@ ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
         ZYAN_CHECK(formatter->func_post_instruction(formatter, &buf, &context));
     }
 
-    *token = (ZydisFormatterTokenConst*)((ZyanU8*)buffer + 1);
+    if (first->next)
+    {
+        *token = (ZydisFormatterTokenConst*)((ZyanU8*)buffer + 1);
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    *token = first;
     return ZYAN_STATUS_SUCCESS;
 }
 
