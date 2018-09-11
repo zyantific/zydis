@@ -81,7 +81,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : stdin;
+    FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : ZYAN_STDIN;
     if (!file)
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "Can not open file: %s\n", strerror(ZYAN_ERRNO));
@@ -90,9 +90,9 @@ int main(int argc, char** argv)
 #ifdef ZYAN_WINDOWS
     // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
     // binary mode
-    if (file == stdin)
+    if (file == ZYAN_STDIN)
     {
-        _setmode(_fileno(stdin), _O_BINARY);
+        _setmode(_fileno(ZYAN_STDIN), _O_BINARY);
     }
 #endif
 
@@ -113,14 +113,14 @@ int main(int argc, char** argv)
     ZyanUSize read_offset_base = 0;
     do
     {
-        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, stdin);
+        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, file);
         if (buffer_size != (sizeof(buffer) - buffer_remaining))
         {
-            if (ferror(stdin))
+            if (ferror(file))
             {
                 return EXIT_FAILURE;
             }
-            ZYAN_ASSERT(feof(stdin));
+            ZYAN_ASSERT(feof(file));
         }
         buffer_size += buffer_remaining;
 
