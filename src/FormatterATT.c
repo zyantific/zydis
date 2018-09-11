@@ -30,28 +30,7 @@
 /* Constants                                                                                      */
 /* ============================================================================================== */
 
-/* ---------------------------------------------------------------------------------------------- */
-/* String constants                                                                               */
-/* ---------------------------------------------------------------------------------------------- */
-
-static const ZydisShortString STR_WHITESPACE    = ZYDIS_MAKE_SHORTSTRING(" ");
-static const ZydisShortString STR_DELIMITER     = ZYDIS_MAKE_SHORTSTRING(", ");
-static const ZydisShortString STR_DELIM_MEMORY  = ZYDIS_MAKE_SHORTSTRING(",");
-static const ZydisShortString STR_MEMORY_BEGIN  = ZYDIS_MAKE_SHORTSTRING("(");
-static const ZydisShortString STR_MEMORY_END    = ZYDIS_MAKE_SHORTSTRING(")");
-static const ZydisShortString STR_INVALID       = ZYDIS_MAKE_SHORTSTRING("invalid");
-static const ZydisShortString STR_FAR           = ZYDIS_MAKE_SHORTSTRING("l");
-static const ZydisShortString STR_SIZE_8        = ZYDIS_MAKE_SHORTSTRING("b");
-static const ZydisShortString STR_SIZE_16       = ZYDIS_MAKE_SHORTSTRING("w");
-static const ZydisShortString STR_SIZE_32       = ZYDIS_MAKE_SHORTSTRING("l");
-static const ZydisShortString STR_SIZE_64       = ZYDIS_MAKE_SHORTSTRING("q");
-static const ZydisShortString STR_SIZE_128      = ZYDIS_MAKE_SHORTSTRING("x");
-static const ZydisShortString STR_SIZE_256      = ZYDIS_MAKE_SHORTSTRING("y");
-static const ZydisShortString STR_SIZE_512      = ZYDIS_MAKE_SHORTSTRING("z");
-static const ZydisShortString STR_REGISTER      = ZYDIS_MAKE_SHORTSTRING("%");
-static const ZydisShortString STR_IMMEDIATE     = ZYDIS_MAKE_SHORTSTRING("$");
-
-/* ---------------------------------------------------------------------------------------------- */
+#include <Generated/FormatterStrings.inc>
 
 /* ============================================================================================== */
 /* Formatter functions                                                                            */
@@ -100,11 +79,11 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 
         if (buffer_state != state_mnemonic)
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIMITER));
+            ZYDIS_BUFFER_APPEND(buffer, DELIM_OPERAND);
+        } else
+        {
+            ZYDIS_BUFFER_APPEND(buffer, DELIM_MNEMONIC);
         }
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
 
         // Set current operand
         context->operand = operand;
@@ -239,8 +218,7 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
         }
 
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_OPEN);
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_MEMORY_BEGIN));
+        ZYDIS_BUFFER_APPEND(buffer, MEMORY_BEGIN_ATT);
 
         if (context->operand->mem.base != ZYDIS_REGISTER_NONE)
         {
@@ -250,22 +228,21 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         if ((context->operand->mem.index != ZYDIS_REGISTER_NONE) &&
             (context->operand->mem.type  != ZYDIS_MEMOP_TYPE_MIB))
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_MEMORY));
+            ZYDIS_BUFFER_APPEND(buffer, DELIM_MEMORY);
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                 context->operand->mem.index));
             if (context->operand->mem.scale)
             {
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIM_MEMORY));
+                ZYDIS_BUFFER_APPEND(buffer, DELIM_MEMORY);
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
                 ZYAN_CHECK(ZydisStringAppendDecU(&buffer->string, context->operand->mem.scale, 0,
                     ZYAN_NULL, ZYAN_NULL));
             }
         }
 
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_CLOSE);
-        return ZydisStringAppendShort(&buffer->string, &STR_MEMORY_END);
+        ZYDIS_BUFFER_APPEND(buffer, MEMORY_END_ATT);
+        return ZYAN_STATUS_SUCCESS;
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -282,20 +259,22 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
-
     const ZydisShortString* mnemonic = ZydisMnemonicGetStringWrapped(
         context->instruction->mnemonic);
     if (!mnemonic)
     {
-        return ZydisStringAppendShortCase(&buffer->string, &STR_INVALID, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, INVALID_MNEMONIC, formatter->letter_case);
+        return ZYAN_STATUS_SUCCESS;
     }
 
+    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
     if (context->instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
     {
         ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_FAR, formatter->letter_case));
     }
-    return ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->letter_case);
+    ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->letter_case));
+
+    return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
@@ -307,12 +286,12 @@ ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_REGISTER);
-    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_REGISTER));
+    ZYDIS_BUFFER_APPEND(buffer, REGISTER);
     const ZydisShortString* str = ZydisRegisterGetStringWrapped(reg);
     if (!str)
     {
-        return ZydisStringAppendShortCase(&buffer->string, &STR_INVALID, formatter->letter_case);
+        return ZydisStringAppendShortCase(&buffer->string, &STR_INVALID_REG,
+            formatter->letter_case);
     }
     return ZydisStringAppendShortCase(&buffer->string, str, formatter->letter_case);
 }
@@ -350,8 +329,7 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
-    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_IMMEDIATE));
+    ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
     return ZydisFormatterBasePrintIMM(formatter, buffer, context);
 }
 
@@ -365,6 +343,8 @@ ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
     ZYAN_ASSERT(formatter);
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
+
+    // TODO: Move to PRINT_MNEMONIC
 
     ZyanU32 size = 0;
     for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
@@ -382,23 +362,19 @@ ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
         }
     }
 
-    const ZydisShortString* size_string = ZYAN_NULL;
+    // We do not add a new token here, assuming this function is called directly after
+    // `PRINT_MNEMONIC`
     switch (size)
     {
-    case   8: size_string = &STR_SIZE_8  ; break;
-    case  16: size_string = &STR_SIZE_16 ; break;
-    case  32: size_string = &STR_SIZE_32 ; break;
-    case  64: size_string = &STR_SIZE_64 ; break;
-    case 128: size_string = &STR_SIZE_128; break;
-    case 256: size_string = &STR_SIZE_256; break;
-    case 512: size_string = &STR_SIZE_512; break;
+    case   8: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  );
+    case  16: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT );
+    case  32: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT );
+    case  64: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT );
+    case 128: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT);
+    case 256: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT);
+    case 512: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT);
     default:
         break;
-    }
-    if (size_string)
-    {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
-        return ZydisStringAppendShortCase(&buffer->string, size_string, formatter->letter_case);
     }
 
     return ZYAN_STATUS_SUCCESS;
