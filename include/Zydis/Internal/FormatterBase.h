@@ -123,6 +123,37 @@ extern "C" {
     }
 
 /**
+ * @brief   Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
+ *
+ * @brief   buffer  A pointer to the `ZydisFormatterBuffer` struct.
+ * @brief   name    The base name (without prefix) of the string- or token.
+ */
+#define ZYDIS_BUFFER_APPEND(buffer, name) \
+    if ((buffer)->is_token_list) \
+    { \
+        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, &TOK_ ## name)); \
+    } else \
+    { \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
+    }
+
+/**
+ * @brief   Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
+ *
+ * @brief   buffer      A pointer to the `ZydisFormatterBuffer` struct.
+ * @brief   name        The base name (without prefix) of the string- or token.
+ * @brief   letter-case The desired letter-case.
+ */
+#define ZYDIS_BUFFER_APPEND_CASE(buffer, name, letter_case) \
+    if ((buffer)->is_token_list) \
+    { \
+        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, &TOK_ ## name)); \
+    } else \
+    { \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
+    }
+
+/**
  * @brief   Returns a snapshot of the buffer-state.
  *
  * @param   buffer  A pointer to the `ZydisFormatterBuffer` struct.
@@ -139,16 +170,6 @@ extern "C" {
     { \
         (state) = (ZyanUPointer)(buffer)->string.vector.size; \
     }
-
-/* ---------------------------------------------------------------------------------------------- */
-
-#define ZYDIS_BUFFER_APPEND_STRING(buffer, type, str) \
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, type); \
-    ZYAN_CHECK(ZydisStringAppendShort(&(buffer)->string, str));
-
-#define ZYDIS_BUFFER_APPEND_STRING_CASE(buffer, type, str, letter_case) \
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, type); \
-    ZYAN_CHECK(ZydisStringAppendShortCase(&(buffer)->string, str, letter_case));
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -175,6 +196,58 @@ extern "C" {
  */
 ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
     ZydisFormatterContext* context, ZyanU8 memop_id);
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Buffer                                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
+// MSVC does not like the C99 flexible-array extension
+#ifdef ZYAN_MSVC
+#   pragma warning(push)
+#   pragma warning(disable:4200)
+#endif
+
+#pragma pack(push, 1)
+
+typedef struct ZydisPredefinedToken_
+{
+    ZyanU8 size;
+    ZyanU8 next;
+    ZyanU8 data[];
+} ZydisPredefinedToken;
+
+#pragma pack(pop)
+
+#ifdef ZYAN_MSVC
+#   pragma warning(pop)
+#endif
+
+ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer* buffer,
+    const ZydisPredefinedToken* data)
+{
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(data);
+
+    const ZyanUSize len = buffer->string.vector.size;
+    ZYAN_ASSERT((len > 0) && (len < 256));
+    if (buffer->capacity <= len + data->size)
+    {
+        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
+    }
+
+    ZydisFormatterToken* const last  = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+    last->next = (ZyanU8)len;
+
+    ZYAN_MEMCPY((ZyanU8*)buffer->string.vector.data + len, &data->data[0], data->size);
+
+    const ZyanUSize delta = len + data->next;
+    buffer->capacity -= delta;
+    buffer->string.vector.data = (ZyanU8*)buffer->string.vector.data + delta;
+    buffer->string.vector.size = data->size - data->next;
+    buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
+
+    return ZYAN_STATUS_SUCCESS;
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 

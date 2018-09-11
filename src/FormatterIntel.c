@@ -35,8 +35,8 @@
 /* String constants                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-static const ZydisShortString STR_WHITESPACE     = ZYDIS_MAKE_SHORTSTRING(" ");
-static const ZydisShortString STR_DELIMITER      = ZYDIS_MAKE_SHORTSTRING(",");
+static const ZydisShortString STR_DELIM_MNEMONIC = ZYDIS_MAKE_SHORTSTRING(" ");
+static const ZydisShortString STR_DELIM_OPERAND  = ZYDIS_MAKE_SHORTSTRING(", ");
 static const ZydisShortString STR_MEMORY_BEGIN   = ZYDIS_MAKE_SHORTSTRING("[");
 static const ZydisShortString STR_MEMORY_END     = ZYDIS_MAKE_SHORTSTRING("]");
 static const ZydisShortString STR_ADDR_RELATIVE  = ZYDIS_MAKE_SHORTSTRING("$");
@@ -53,6 +53,134 @@ static const ZydisShortString STR_SIZE_80        = ZYDIS_MAKE_SHORTSTRING("tbyte
 static const ZydisShortString STR_SIZE_128       = ZYDIS_MAKE_SHORTSTRING("xmmword ptr ");
 static const ZydisShortString STR_SIZE_256       = ZYDIS_MAKE_SHORTSTRING("ymmword ptr ");
 static const ZydisShortString STR_SIZE_512       = ZYDIS_MAKE_SHORTSTRING("zmmword ptr ");
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Token constants                                                                                */
+/* ---------------------------------------------------------------------------------------------- */
+
+static const ZydisPredefinedToken TOK_DELIM_MNEMONIC =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_DELIM_OPERAND =
+{
+    8, 6,
+    {
+        ZYDIS_TOKEN_DELIMITER        , 2, ',', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_MEMORY_BEGIN =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_PARENTHESIS_OPEN , 2, '[', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_MEMORY_END =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_PARENTHESIS_CLOSE , 2, ']', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_ADDR_RELATIVE =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_ADDRESS_REL       , 2, '$', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_ADD =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_DELIMITER         , 2, '+', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_MUL =
+{
+    4, 2,
+    {
+        ZYDIS_TOKEN_DELIMITER         , 2, '*', '\0',
+    }
+};
+
+static const ZydisPredefinedToken TOK_SIZE_8 =
+{
+    15, 13,
+    {
+        ZYDIS_TOKEN_TYPECAST         , 9, 'b', 'y', 't', 'e', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_16 =
+{
+    15, 13,
+    {
+        ZYDIS_TOKEN_TYPECAST         , 9, 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_32 =
+{
+    16, 14,
+    {
+        ZYDIS_TOKEN_TYPECAST         ,10, 'd', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_48 =
+{
+    16, 14,
+    {
+        ZYDIS_TOKEN_TYPECAST         ,10, 'f', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_64 =
+{
+    16, 14,
+    {
+        ZYDIS_TOKEN_TYPECAST         ,10, 'q', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_80 =
+{
+    16, 14,
+    {
+        ZYDIS_TOKEN_TYPECAST         ,10, 't', 'b', 'y', 't', 'e', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_128 =
+{
+    17, 15,
+    {
+        ZYDIS_TOKEN_TYPECAST         , 11, 'x', 'm', 'm', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_256 =
+{
+    17, 15,
+    {
+        ZYDIS_TOKEN_TYPECAST         , 11, 'y', 'm', 'm', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
+static const ZydisPredefinedToken TOK_SIZE_512 =
+{
+    17, 15,
+    {
+        ZYDIS_TOKEN_TYPECAST         , 11, 'z', 'm', 'm', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0',
+        ZYDIS_TOKEN_WHITESPACE       , 2, ' ', '\0',
+    }
+};
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -98,11 +226,11 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
 
         if (buffer_state != state_mnemonic)
         {
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-            ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DELIMITER));
+            ZYDIS_BUFFER_APPEND(buffer, DELIM_OPERAND);
+        } else
+        {
+            ZYDIS_BUFFER_APPEND(buffer, DELIM_MNEMONIC);
         }
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
 
         // Set current operand
         context->operand = operand;
@@ -220,8 +348,7 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
     }
     ZYAN_CHECK(formatter->func_print_segment(formatter, buffer, context));
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_OPEN);
-    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_MEMORY_BEGIN));
+    ZYDIS_BUFFER_APPEND(buffer, MEMORY_BEGIN);
 
     const ZyanBool absolute = (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
     if (absolute && context->operand->mem.disp.has_displacement &&
@@ -245,15 +372,13 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
         {
             if (context->operand->mem.base != ZYDIS_REGISTER_NONE)
             {
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ADD));
+                ZYDIS_BUFFER_APPEND(buffer, ADD);
             }
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                 context->operand->mem.index));
             if (context->operand->mem.scale)
             {
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_MUL));
+                ZYDIS_BUFFER_APPEND(buffer, MUL);
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
                 ZYAN_CHECK(ZydisStringAppendDecU(&buffer->string, context->operand->mem.scale, 0,
                     ZYAN_NULL, ZYAN_NULL));
@@ -265,8 +390,8 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
         }
     }
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PARENTHESIS_CLOSE);
-    return ZydisStringAppendShort(&buffer->string, &STR_MEMORY_END);
+    ZYDIS_BUFFER_APPEND(buffer, MEMORY_END);
+    return ZYAN_STATUS_SUCCESS;
 }
 
 ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
@@ -346,25 +471,19 @@ ZyanStatus ZydisFormatterIntelPrintSize(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    const ZydisShortString* size_string = ZYAN_NULL;
     switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand->id))
     {
-    case   8: size_string = &STR_SIZE_8  ; break;
-    case  16: size_string = &STR_SIZE_16 ; break;
-    case  32: size_string = &STR_SIZE_32 ; break;
-    case  48: size_string = &STR_SIZE_48 ; break;
-    case  64: size_string = &STR_SIZE_64 ; break;
-    case  80: size_string = &STR_SIZE_80 ; break;
-    case 128: size_string = &STR_SIZE_128; break;
-    case 256: size_string = &STR_SIZE_256; break;
-    case 512: size_string = &STR_SIZE_512; break;
+    case   8: ZYDIS_BUFFER_APPEND(buffer, SIZE_8  ); break;
+    case  16: ZYDIS_BUFFER_APPEND(buffer, SIZE_16 ); break;
+    case  32: ZYDIS_BUFFER_APPEND(buffer, SIZE_32 ); break;
+    case  48: ZYDIS_BUFFER_APPEND(buffer, SIZE_48 ); break;
+    case  64: ZYDIS_BUFFER_APPEND(buffer, SIZE_64 ); break;
+    case  80: ZYDIS_BUFFER_APPEND(buffer, SIZE_80 ); break;
+    case 128: ZYDIS_BUFFER_APPEND(buffer, SIZE_128); break;
+    case 256: ZYDIS_BUFFER_APPEND(buffer, SIZE_256); break;
+    case 512: ZYDIS_BUFFER_APPEND(buffer, SIZE_512); break;
     default:
         break;
-    }
-    if (size_string)
-    {
-        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_TYPECAST);
-        return ZydisStringAppendShortCase(&buffer->string, size_string, formatter->letter_case);
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -422,8 +541,7 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
         }
     }
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_ADDRESS_REL);
-    ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ADDR_RELATIVE));
+    ZYDIS_BUFFER_APPEND(buffer, ADDR_RELATIVE);
     ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->addr_base, &buffer->string, address, padding,
         ZYAN_TRUE);
 

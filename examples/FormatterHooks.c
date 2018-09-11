@@ -112,6 +112,7 @@ static ZyanStatus ZydisFormatterPrintMnemonic(const ZydisFormatter* formatter,
         context->instruction->operands[context->instruction->operand_count - 1].type ==
         ZYDIS_OPERAND_TYPE_IMMEDIATE)
     {
+        // Retrieve the `ZyanString` instance of the formatter-buffer
         ZyanString* string;
         ZYAN_CHECK(ZydisFormatterBufferGetString(buffer, &string));
 

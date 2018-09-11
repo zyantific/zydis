@@ -61,7 +61,7 @@ ZyanStatus ZydisFormatterTokenNext(ZydisFormatterTokenConst** token)
     {
         return ZYAN_STATUS_OUT_OF_RANGE;
     }
-    *token = (ZydisFormatterToken*)((ZyanU8*)*token + sizeof(ZydisFormatterToken) + next);
+    *token = (ZydisFormatterTokenConst*)((ZyanU8*)*token + sizeof(ZydisFormatterToken) + next);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -78,7 +78,7 @@ ZyanStatus ZydisFormatterBufferGetString(ZydisFormatterBuffer* buffer, ZyanStrin
     }
 
     if (buffer->is_token_list &&
-        ((ZydisFormatterToken*)buffer->string.vector.data - 1)->type == ZYDIS_TOKEN_INVALID)
+        ((ZydisFormatterTokenConst*)buffer->string.vector.data - 1)->type == ZYDIS_TOKEN_INVALID)
     {
         return ZYAN_STATUS_INVALID_OPERATION;
     }
