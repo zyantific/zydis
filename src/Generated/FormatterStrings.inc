@@ -142,4 +142,6 @@ static const ZydisShortString STR_SIZE_256_ATT = ZYDIS_MAKE_SHORTSTRING("y");
 static const ZydisShortString STR_SIZE_512_ATT = ZYDIS_MAKE_SHORTSTRING("z");
 static const ZydisShortString STR_SIZE_512_INTEL = ZYDIS_MAKE_SHORTSTRING("zmmword ptr ");
 static const ZydisPredefinedToken TOK_SIZE_512_INTEL = { 18, 16, { ZYDIS_TOKEN_TYPECAST, 12, 'z', 'm', 'm', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
+static const ZydisShortString STR_SUB = ZYDIS_MAKE_SHORTSTRING("-");
+static const ZydisPredefinedToken TOK_SUB = { 4, 2, { ZYDIS_TOKEN_DELIMITER, 0, '-', '\0' } };
 static const ZydisShortString STR_WHITESPACE = ZYDIS_MAKE_SHORTSTRING(" ");

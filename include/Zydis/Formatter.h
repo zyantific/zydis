@@ -413,7 +413,7 @@ typedef enum ZydisFormatterFunction_
      * @brief   This function is invoked to format a memory operand.
      *
      * Replacing this function might indirectly disable some specific calls to the
-     * `ZYDIS_FORMATTER_FUNC_PRINT_SIZE`, `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`,
+     * `ZYDIS_FORMATTER_FUNC_PRINT_TYPECAST`, `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`,
      * `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` and `ZYDIS_FORMATTER_FUNC_PRINT_DISP` functions.
      */
     ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_MEM,
@@ -489,10 +489,9 @@ typedef enum ZydisFormatterFunction_
     /* ---------------------------------------------------------------------------------------- */
 
     /**
-     * @brief   This function is invoked to print the effective operand-size suffix (`AT&T`) or
-     *          the size of a memory operand (`INTEL`).
+     * @brief   This function is invoked to print the size of a memory operand (`INTEL` only).
      */
-    ZYDIS_FORMATTER_FUNC_PRINT_SIZE,
+    ZYDIS_FORMATTER_FUNC_PRINT_TYPECAST,
     /**
      * @brief   This function is invoked to print the segment-register of a memory operand.
      */
@@ -636,7 +635,7 @@ typedef struct ZydisFormatterContext_
  * - `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM`
  * - `ZYDIS_FORMATTER_FUNC_PRINT_DISP`
  * - `ZYDIS_FORMATTER_FUNC_PRINT_IMM`
- * - `ZYDIS_FORMATTER_FUNC_PRINT_SIZE`
+ * - `ZYDIS_FORMATTER_FUNC_PRINT_TYPECAST`
  * - `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT`
  */
 typedef ZyanStatus (*ZydisFormatterFunc)(const ZydisFormatter* formatter,
@@ -837,9 +836,9 @@ struct ZydisFormatter_
      */
     ZydisFormatterFunc func_print_imm;
     /**
-     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_SIZE` function.
+     * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_TYPECAST` function.
      */
-    ZydisFormatterFunc func_print_size;
+    ZydisFormatterFunc func_print_typecast;
     /**
      * @brief   The `ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT` function.
      */

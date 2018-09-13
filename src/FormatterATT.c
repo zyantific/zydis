@@ -49,7 +49,6 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, buffer, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, buffer, context));
-    ZYAN_CHECK(formatter->func_print_size(formatter, buffer, context));
 
     ZyanUPointer state_mnemonic;
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
@@ -67,8 +66,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
         const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
 
         // Print embedded-mask registers as decorator instead of a regular operand
-        if ((i == 1) &&
-            (operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        if ((i == 1) && (operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
             (operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
             continue;
@@ -274,6 +272,36 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     }
     ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->letter_case));
 
+    // Append operand-size suffix
+    ZyanU32 size = 0;
+    for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
+    {
+        const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
+        if (operand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
+        {
+            break;
+        }
+        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
+            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
+        {
+            size = ZydisFormatterHelperGetExplicitSize(formatter, context, i);
+            break;
+        }
+    }
+
+    switch (size)
+    {
+    case   8: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  );
+    case  16: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT );
+    case  32: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT );
+    case  64: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT );
+    case 128: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT);
+    case 256: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT);
+    case 512: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT);
+    default:
+        break;
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -331,53 +359,6 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
     return ZydisFormatterBasePrintIMM(formatter, buffer, context);
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Optional tokens                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
-    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
-{
-    ZYAN_ASSERT(formatter);
-    ZYAN_ASSERT(buffer);
-    ZYAN_ASSERT(context);
-
-    // TODO: Move to PRINT_MNEMONIC
-
-    ZyanU32 size = 0;
-    for (ZyanU8 i = 0; i < context->instruction->operand_count; ++i)
-    {
-        const ZydisDecodedOperand* const operand = &context->instruction->operands[i];
-        if (operand->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
-        {
-            break;
-        }
-        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
-            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
-        {
-            size = ZydisFormatterHelperGetExplicitSize(formatter, context, i);
-            break;
-        }
-    }
-
-    // We do not add a new token here, assuming this function is called directly after
-    // `PRINT_MNEMONIC`
-    switch (size)
-    {
-    case   8: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  );
-    case  16: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT );
-    case  32: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT );
-    case  64: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT );
-    case 128: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT);
-    case 256: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT);
-    case 512: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT);
-    default:
-        break;
-    }
-
-    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */

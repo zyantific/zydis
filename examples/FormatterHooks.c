@@ -33,7 +33,6 @@
  * on the condition encoded in the immediate operand).
  */
 
-#include <stdio.h>
 #include <inttypes.h>
 #include <Zycore/Format.h>
 #include <Zycore/LibC.h>
@@ -215,10 +214,10 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     char buffer[256];
     while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(decoder, data, length, &instruction)))
     {
-        printf("%016" PRIX64 "  ", runtime_address);
+        ZYAN_PRINTF("%016" PRIX64 "  ", runtime_address);
         ZydisFormatterFormatInstructionEx(&formatter, &instruction, &buffer[0], sizeof(buffer),
             runtime_address, &user_data);
-        printf(" %s\n", &buffer[0]);
+        ZYAN_PRINTF(" %s\n", &buffer[0]);
         data += instruction.length;
         length -= instruction.length;
         runtime_address += instruction.length;
@@ -233,7 +232,7 @@ int main(void)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        fputs("Invalid zydis version\n", stderr);
+        fputs("Invalid zydis version\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
@@ -256,7 +255,7 @@ int main(void)
     ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
 
     DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
-    puts("");
+    ZYAN_PUTS("");
     DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_TRUE);
 
     return 0;

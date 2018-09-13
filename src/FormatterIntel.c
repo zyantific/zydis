@@ -63,9 +63,8 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
         }
 
         // Print embedded-mask registers as decorator instead of a regular operand
-        if ((i == 1) &&
-            (context->operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-            (context->operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
+        if ((i == 1) && (operand->type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+            (operand->encoding == ZYDIS_OPERAND_ENCODING_MASK))
         {
             continue;
         }
@@ -193,7 +192,7 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
 
     if (context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM)
     {
-        ZYAN_CHECK(formatter->func_print_size(formatter, buffer, context));
+        ZYAN_CHECK(formatter->func_print_typecast(formatter, buffer, context));
     }
     ZYAN_CHECK(formatter->func_print_segment(formatter, buffer, context));
 
@@ -295,15 +294,27 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
     switch (formatter->disp_signedness)
     {
     case ZYDIS_SIGNEDNESS_AUTO:
     case ZYDIS_SIGNEDNESS_SIGNED:
-        ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->disp_base, &buffer->string,
-            context->operand->mem.disp.value, formatter->disp_padding, ZYAN_TRUE);
+        if (context->operand->mem.disp.value >= 0)
+        {
+            ZYDIS_BUFFER_APPEND(buffer, ADD);
+            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
+            ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
+                context->operand->mem.disp.value, formatter->disp_padding);
+        } else
+        {
+            ZYDIS_BUFFER_APPEND(buffer, SUB);
+            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
+            ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
+                -context->operand->mem.disp.value, formatter->disp_padding);
+        }
         break;
     case ZYDIS_SIGNEDNESS_UNSIGNED:
+        ZYDIS_BUFFER_APPEND(buffer, ADD);
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
             context->operand->mem.disp.value, formatter->disp_padding);
         break;
@@ -314,7 +325,7 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterIntelPrintSize(const ZydisFormatter* formatter,
+ZyanStatus ZydisFormatterIntelPrintTypecast(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
     ZYAN_ASSERT(formatter);

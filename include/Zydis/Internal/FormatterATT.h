@@ -75,13 +75,6 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Optional tokens                                                                                */
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZydisFormatterATTPrintSize(const ZydisFormatter* formatter,
-    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
-
-/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Fomatter presets                                                                               */
@@ -161,7 +154,7 @@ static const ZydisFormatter FORMATTER_ATT =
     /* func_print_address_rel  */ &ZydisFormatterBasePrintAddressREL,
     /* func_print_disp         */ &ZydisFormatterATTPrintDISP,
     /* func_print_imm          */ &ZydisFormatterATTPrintIMM,
-    /* func_print_size         */ &ZydisFormatterATTPrintSize,
+    /* func_print_typecast     */ ZYAN_NULL,
     /* func_print_segment      */ &ZydisFormatterBasePrintSegment,
     /* func_print_prefixes     */ &ZydisFormatterBasePrintPrefixes,
     /* func_print_decorator    */ &ZydisFormatterBasePrintDecorator

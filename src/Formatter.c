@@ -300,8 +300,8 @@ ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFuncti
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_disp        ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_IMM:
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_imm         ); break;
-    case ZYDIS_FORMATTER_FUNC_PRINT_SIZE:
-        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_size        ); break;
+    case ZYDIS_FORMATTER_FUNC_PRINT_TYPECAST:
+        ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_typecast    ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_SEGMENT:
         ZYAN_ASSERT(test == (ZyanUPointer*)&formatter->func_print_segment     ); break;
     case ZYDIS_FORMATTER_FUNC_PRINT_PREFIXES:
