@@ -389,9 +389,9 @@ typedef enum ZydisOperandAction_
 typedef enum ZydisInstructionEncoding_
 {
     /**
-     * @brief   The instruction uses the default encoding.
+     * @brief   The instruction uses the legacy encoding.
      */
-    ZYDIS_INSTRUCTION_ENCODING_DEFAULT,
+    ZYDIS_INSTRUCTION_ENCODING_LEGACY,
     /**
      * @brief   The instruction uses the AMD 3DNow-encoding.
      */

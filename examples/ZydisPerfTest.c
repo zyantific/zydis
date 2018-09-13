@@ -365,7 +365,7 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
             switch (encoding)
             {
             case 0:
-                b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_DEFAULT);
+                b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY);
                 break;
             case 1:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW);

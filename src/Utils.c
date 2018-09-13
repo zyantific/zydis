@@ -237,7 +237,7 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
 
     // Opcode
     segment_size = 1;
-    if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_DEFAULT) ||
+    if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
         (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
     {
         switch (instruction->opcode_map)

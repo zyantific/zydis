@@ -26,7 +26,8 @@
 
 /**
  * @file
- * @brief   Demonstrates the hooking functionality of the `ZydisFormatter` class.
+ * @brief   Demonstrates basic hooking functionality of the `ZydisFormatter` class and the ability
+ *          to completely omit specific operands.
  *
  * This example demonstrates the hooking functionality of the `ZydisFormatter` class by
  * rewriting the mnemonics of `(V)CMPPS` and `(V)CMPPD` to their corresponding alias-forms (based

@@ -1146,7 +1146,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
     case ZYDIS_OPERAND_TYPE_MEMORY:
         switch (instruction->encoding)
         {
-        case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+        case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
         case ZYDIS_INSTRUCTION_ENCODING_XOP:
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -2114,7 +2114,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
     {
         const ZydisInstructionDefinitionDEFAULT* def =
             (const ZydisInstructionDefinitionDEFAULT*)definition;
@@ -3549,7 +3549,7 @@ static ZyanStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, Zyan
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
@@ -3569,7 +3569,7 @@ static ZyanStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, Zyan
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -3589,7 +3589,7 @@ static ZyanStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, Zy
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
@@ -3616,7 +3616,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
     // Handle possible encoding-prefix and opcode-map changes
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         ZYAN_CHECK(ZydisInputNext(context, instruction, &instruction->opcode));
         switch (instruction->opcode_map)
         {
@@ -4042,7 +4042,7 @@ static ZyanStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context,
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         // nothing to do here
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
@@ -4073,7 +4073,7 @@ static ZyanStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
         // nothing to do here
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
@@ -4149,7 +4149,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 
     switch (instruction->encoding)
     {
-    case ZYDIS_INSTRUCTION_ENCODING_DEFAULT:
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
     {
         const ZydisInstructionDefinitionDEFAULT* def =
             (const ZydisInstructionDefinitionDEFAULT*)definition;
