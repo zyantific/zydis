@@ -40,7 +40,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Custom user data struct for the formatter.
+ * @brief   Defines the `ZydisSymbol` struct.
  */
 typedef struct ZydisSymbol_
 {
@@ -61,7 +61,7 @@ typedef struct ZydisSymbol_
 /**
  * @brief   A static symbol table with some dummy symbols.
  */
-static const ZydisSymbol symbol_table[3] =
+static const ZydisSymbol SYMBOL_TABLE[3] =
 {
     { 0x007FFFFFFF401000, "SomeModule.EntryPoint"   },
     { 0x007FFFFFFF530040, "SomeModule.SomeData"     },
@@ -81,14 +81,14 @@ static ZyanStatus ZydisFormatterPrintAddressAbsolute(const ZydisFormatter* forma
     ZYAN_CHECK(ZydisCalcAbsoluteAddress(context->instruction, context->operand,
         context->runtime_address, &address));
 
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(symbol_table); ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(SYMBOL_TABLE); ++i)
     {
-        if (symbol_table[i].address == address)
+        if (SYMBOL_TABLE[i].address == address)
         {
             ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_ADDRESS_ABS));
             ZyanString* string;
             ZYAN_CHECK(ZydisFormatterBufferGetString(buffer, &string));
-            return ZyanStringAppendFormat(string, "<%s>", symbol_table[i].name);
+            return ZyanStringAppendFormat(string, "<%s>", SYMBOL_TABLE[i].name);
         }
     }
 
@@ -106,6 +106,8 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE);
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE);
 
+    // Replace the `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` function that formats the absolute
+    // addresses
     default_print_address_absolute = (ZydisFormatterFunc)&ZydisFormatterPrintAddressAbsolute;
     ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS,
         (const void**)&default_print_address_absolute);
@@ -117,7 +119,7 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(decoder, data, length, &instruction)))
     {
         ZYAN_PRINTF("%016" PRIX64 "  ", runtime_address);
-        // We have to pass a `runtime_address` different to `ZYDIS_RUNTIME_ADDRESS` none to
+        // We have to pass a `runtime_address` different to `ZYDIS_RUNTIME_ADDRESS_NONE` to
         // enable printing of absolute addresses
         ZydisFormatterFormatInstruction(&formatter, &instruction, &buffer[0], sizeof(buffer),
             runtime_address);
