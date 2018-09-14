@@ -1135,9 +1135,8 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
             operand->size = definition->size[context->eosz_index] * 8;
         } else
         {
-            operand->size = (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) ?
-                ZydisRegisterGetWidth64(operand->reg.value) :
-                ZydisRegisterGetWidth(operand->reg.value);
+            operand->size = ZydisRegisterGetWidth(context->decoder->machine_mode,
+                operand->reg.value);
         }
         operand->element_type = ZYDIS_ELEMENT_TYPE_INT;
         operand->element_size = operand->size;

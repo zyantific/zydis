@@ -36,16 +36,37 @@
 /* Register-class mapping                                                                         */
 /* ============================================================================================== */
 
-struct ZydisRegisterMapItem
+/**
+ * @brief   Defines the `ZydisRegisterMapItem` struct.
+ */
+typedef struct ZydisRegisterMapItem_
 {
+    /**
+     * @brief   The register class.
+     */
     ZydisRegisterClass class;
+    /**
+     * @brief   The lowest register of the current class.
+     */
     ZydisRegister lo;
+    /**
+     * @brief   The highest register of the current class.
+     */
     ZydisRegister hi;
+    /**
+     * @brief   The width of registers of the current class in 16- and 32-bit mode.
+     */
     ZydisRegisterWidth width;
+    /**
+     * @brief   The width of registers of the current class in 64-bit mode.
+     */
     ZydisRegisterWidth width64;
-};
+} ZydisRegisterMapItem;
 
-static const struct ZydisRegisterMapItem registerMap[] =
+/**
+ * @brief   Provides register to register-class and register-class + id to register mappings.
+ */
+static const ZydisRegisterMapItem REGISTER_MAP[] =
 {
     { ZYDIS_REGCLASS_INVALID  , ZYDIS_REGISTER_NONE   , ZYDIS_REGISTER_NONE   ,   0   ,   0 },
     { ZYDIS_REGCLASS_GPR8     , ZYDIS_REGISTER_AL     , ZYDIS_REGISTER_R15B   ,   8   ,   8 },
@@ -67,11 +88,13 @@ static const struct ZydisRegisterMapItem registerMap[] =
     { ZYDIS_REGCLASS_BOUND    , ZYDIS_REGISTER_BND0   , ZYDIS_REGISTER_BND3   , 128   , 128 }
 };
 
-static const ZyanU8 registerMapCount = sizeof(registerMap) / sizeof(struct ZydisRegisterMapItem);
-
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Register                                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
 
 ZydisRegister ZydisRegisterEncode(ZydisRegisterClass register_class, ZyanU8 id)
 {
@@ -82,30 +105,29 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass register_class, ZyanU8 id)
     case ZYDIS_REGCLASS_IP:
         break;
     default:
-        if ((register_class < registerMapCount) &&
-            (id <= (registerMap[register_class].hi - registerMap[register_class].lo)))
+        if ((register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP)) &&
+            (id <= (REGISTER_MAP[register_class].hi - REGISTER_MAP[register_class].lo)))
         {
-            return registerMap[register_class].lo + id;
+            return REGISTER_MAP[register_class].lo + id;
         }
     }
     return ZYDIS_REGISTER_NONE;
 }
 
-ZyanI16 ZydisRegisterGetId(ZydisRegister reg)
+ZyanI8 ZydisRegisterGetId(ZydisRegister reg)
 {
-    ZYAN_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS <= 16);
-    for (unsigned i = 0; i < registerMapCount; ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(REGISTER_MAP); ++i)
     {
-        switch (registerMap[i].class)
+        switch (REGISTER_MAP[i].class)
         {
         case ZYDIS_REGCLASS_INVALID:
         case ZYDIS_REGCLASS_FLAGS:
         case ZYDIS_REGCLASS_IP:
             break;
         default:
-            if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
+            if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
             {
-                return (ZyanU16)(reg - registerMap[i].lo);
+                return (ZyanU8)(reg - REGISTER_MAP[i].lo);
             }
         }
     }
@@ -114,18 +136,20 @@ ZyanI16 ZydisRegisterGetId(ZydisRegister reg)
 
 ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
 {
-    for (unsigned i = 0; i < registerMapCount; ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(REGISTER_MAP); ++i)
     {
-        if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
+        if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
         {
-            return registerMap[i].class;
+            return REGISTER_MAP[i].class;
         }
     }
     return ZYDIS_REGCLASS_INVALID;
 }
 
-ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
+ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister reg)
 {
+    // TODO: Check if the given register exists for the active machine-mode
+
     // Special cases
     switch (reg)
     {
@@ -155,55 +179,124 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisRegister reg)
     }
 
     // Register classes
-    for (unsigned i = 0; i < registerMapCount; ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(REGISTER_MAP); ++i)
     {
-        if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
+        if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
         {
-            return registerMap[i].width;
+            switch (mode)
+            {
+            case ZYDIS_MACHINE_MODE_LONG_64:
+                return REGISTER_MAP[i].width64;
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+            case ZYDIS_MACHINE_MODE_LEGACY_32:
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+            case ZYDIS_MACHINE_MODE_LEGACY_16:
+            case ZYDIS_MACHINE_MODE_REAL_16:
+                return REGISTER_MAP[i].width;
+            default:
+                return 0;
+            }
         }
     }
     return 0;
 }
 
-ZydisRegisterWidth ZydisRegisterGetWidth64(ZydisRegister reg)
+ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
+    ZydisRegister reg)
 {
-    // Special cases
-    switch (reg)
+    static const ZyanU8 GPR8_MAPPING[20] =
     {
-    case ZYDIS_REGISTER_X87CONTROL:
-    case ZYDIS_REGISTER_X87STATUS:
-    case ZYDIS_REGISTER_X87TAG:
-        return 16;
-    case ZYDIS_REGISTER_IP:
-    case ZYDIS_REGISTER_FLAGS:
-        return 16;
-    case ZYDIS_REGISTER_EIP:
-    case ZYDIS_REGISTER_EFLAGS:
-        return 32;
-    case ZYDIS_REGISTER_RIP:
-    case ZYDIS_REGISTER_RFLAGS:
-        return 64;
-    case ZYDIS_REGISTER_BNDCFG:
-    case ZYDIS_REGISTER_BNDSTATUS:
-        return 64;
-    case ZYDIS_REGISTER_XCR0:
-        return 64;
-    case ZYDIS_REGISTER_PKRU:
-    case ZYDIS_REGISTER_MXCSR:
-        return 32;
-    default:
-        break;
-    }
+        /* AL   */  0,
+        /* CL   */  1,
+        /* DL   */  2,
+        /* BL   */  3,
+        /* AH   */  0,
+        /* CH   */  1,
+        /* DH   */  2,
+        /* BH   */  3,
+        /* SPL  */  4,
+        /* BPL  */  5,
+        /* SIL  */  6,
+        /* DIL  */  7,
+        /* R8B  */  8,
+        /* R9B  */  9,
+        /* R10B */ 10,
+        /* R11B */ 11,
+        /* R12B */ 12,
+        /* R13B */ 13,
+        /* R14B */ 14,
+        /* R15B */ 15,
+    };
 
-    // Register classes
-    for (unsigned i = 0; i < registerMapCount; ++i)
+
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(REGISTER_MAP); ++i)
     {
-        if ((reg >= registerMap[i].lo) && (reg <= registerMap[i].hi))
+        if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
         {
-            return registerMap[i].width64;
+            const ZydisRegisterClass reg_class = REGISTER_MAP[i].class;
+
+            // Check if the given register exists for the active machine-mode
+            switch (mode)
+            {
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+            case ZYDIS_MACHINE_MODE_LEGACY_16:
+            case ZYDIS_MACHINE_MODE_REAL_16:
+                if (reg_class == ZYDIS_REGCLASS_GPR32)
+                {
+                    return ZYDIS_REGISTER_NONE;
+                }
+                ZYAN_FALLTHROUGH;
+            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+            case ZYDIS_MACHINE_MODE_LEGACY_32:
+                if (reg_class == ZYDIS_REGCLASS_GPR64)
+                {
+                    return ZYDIS_REGISTER_NONE;
+                }
+                ZYAN_FALLTHROUGH;
+            case ZYDIS_MACHINE_MODE_LONG_64:
+                break;
+            default:
+                return ZYDIS_REGISTER_NONE;
+            }
+
+            ZyanU8 reg_id = (ZyanU8)(reg - REGISTER_MAP[reg_class].lo);
+            switch (reg_class)
+            {
+            case ZYDIS_REGCLASS_GPR8:
+                reg_id = GPR8_MAPPING[reg_id];
+                ZYAN_FALLTHROUGH;
+            case ZYDIS_REGCLASS_GPR16:
+            case ZYDIS_REGCLASS_GPR32:
+            case ZYDIS_REGCLASS_GPR64:
+                switch (mode)
+                {
+                case ZYDIS_MACHINE_MODE_LONG_64:
+                    return REGISTER_MAP[ZYDIS_REGCLASS_GPR64].lo + reg_id;
+                case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+                case ZYDIS_MACHINE_MODE_LEGACY_32:
+                    return REGISTER_MAP[ZYDIS_REGCLASS_GPR32].lo + reg_id;
+                case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+                case ZYDIS_MACHINE_MODE_LEGACY_16:
+                case ZYDIS_MACHINE_MODE_REAL_16:
+                    return REGISTER_MAP[ZYDIS_REGCLASS_GPR16].lo + reg_id;
+                default:
+                    ZYAN_UNREACHABLE;
+                }
+            case ZYDIS_REGCLASS_XMM:
+            case ZYDIS_REGCLASS_YMM:
+            case ZYDIS_REGCLASS_ZMM:
+#if defined(ZYDIS_DISABLE_AVX512) && defined(ZYDIS_DISABLE_KNC)
+                return REGISTER_MAP[ZYDIS_REGCLASS_YMM].lo + reg_id;
+#else
+                return REGISTER_MAP[ZYDIS_REGCLASS_ZMM].lo + reg_id;
+#endif
+            default:
+                return ZYDIS_REGISTER_NONE;
+            }
         }
     }
-    return 0;
+
+    return ZYDIS_REGISTER_NONE;
 }
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
@@ -223,5 +316,35 @@ const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
     }
     return &STR_REGISTER[reg];
 }
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Register class                                                                                 */
+/* ---------------------------------------------------------------------------------------------- */
+
+ZydisRegisterWidth ZydisRegisterClassGetWidth(ZydisMachineMode mode,
+    ZydisRegisterClass register_class)
+{
+    // TODO: Check if the given register exists for the active machine-mode
+
+    if (register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP))
+    {
+        switch (mode)
+        {
+        case ZYDIS_MACHINE_MODE_LONG_64:
+            return REGISTER_MAP[register_class].width64;
+        case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+        case ZYDIS_MACHINE_MODE_LEGACY_32:
+        case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+        case ZYDIS_MACHINE_MODE_LEGACY_16:
+        case ZYDIS_MACHINE_MODE_REAL_16:
+            return REGISTER_MAP[register_class].width;
+        default:
+            return 0;
+        }
+    }
+    return 0;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
