@@ -107,6 +107,10 @@ typedef ZyanU8 ZydisTokenType;
  * @brief   A decorator literal (like `"Z"`, `"1TO4"`).
  */
 #define ZYDIS_TOKEN_DECORATOR           0x0D
+/**
+ * @brief   A symbol literal.
+ */
+#define ZYDIS_TOKEN_SYMBOL              0x0E
 
 /**
  * @brief   The base for user-defined token types.

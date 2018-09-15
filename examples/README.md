@@ -14,6 +14,9 @@ Demonstrates basic hooking functionality of the `ZydisFormatter` class and the a
 
 The example demonstrates the hooking functionality of the `ZydisFormatter` class by rewriting the mnemonics of `(V)CMPPS` and `(V)CMPPD` to their corresponding alias-forms (based on the condition encoded in the immediate operand).
 
+### Formatter03
+Demonstrates the tokenizing feature of the `ZydisFormatter` class.
+
 ## Misc
 
 ### ZydisWinKernel

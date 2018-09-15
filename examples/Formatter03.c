@@ -26,8 +26,7 @@
 
 /**
  * @file
- * @brief   Demonstrates basic hooking functionality of the `ZydisFormatter` class by implementing
- *          a custom symbol-resolver.
+ * @brief   Demonstrates the tokenizing feature of the `ZydisFormatter` class.
  */
 
 #include <inttypes.h>
@@ -36,64 +35,27 @@
 #include <Zydis/Zydis.h>
 
 /* ============================================================================================== */
-/* Enums and Types                                                                                */
-/* ============================================================================================== */
-
-/**
- * @brief   Defines the `ZydisSymbol` struct.
- */
-typedef struct ZydisSymbol_
-{
-    /**
-     * @brief   The symbol address.
-     */
-    ZyanU64 address;
-    /**
-     * @brief   The symbol name.
-     */
-    const char* name;
-} ZydisSymbol;
-
-/* ============================================================================================== */
 /* Static data                                                                                    */
 /* ============================================================================================== */
 
-/**
- * @brief   A static symbol table with some dummy symbols.
- */
-static const ZydisSymbol SYMBOL_TABLE[3] =
+static const char* const TOKEN_TYPES[] =
 {
-    { 0x007FFFFFFF401000, "SomeModule.EntryPoint"   },
-    { 0x007FFFFFFF530040, "SomeModule.SomeData"     },
-    { 0x007FFFFFFF401100, "SomeModule.SomeFunction" }
+    "INVALID          ",
+    "WHITESPACE       ",
+    "DELIMITER        ",
+    "PARENTHESIS_OPEN ",
+    "PARENTHESIS_CLOSE",
+    "PREFIX           ",
+    "MNEMONIC         ",
+    "REGISTER         ",
+    "ADDRESS_ABS      ",
+    "ADDRESS_REL      ",
+    "DISPLACEMENT     ",
+    "IMMEDIATE        ",
+    "TYPECAST         ",
+    "DECORATOR        ",
+    "SYMBOL           "
 };
-
-/* ============================================================================================== */
-/* Hook callbacks                                                                                 */
-/* ============================================================================================== */
-
-ZydisFormatterFunc default_print_address_absolute;
-
-static ZyanStatus ZydisFormatterPrintAddressAbsolute(const ZydisFormatter* formatter,
-    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
-{
-    ZyanU64 address;
-    ZYAN_CHECK(ZydisCalcAbsoluteAddress(context->instruction, context->operand,
-        context->runtime_address, &address));
-
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(SYMBOL_TABLE); ++i)
-    {
-        if (SYMBOL_TABLE[i].address == address)
-        {
-            ZYAN_CHECK(ZydisFormatterBufferAppend(buffer, ZYDIS_TOKEN_SYMBOL));
-            ZyanString* string;
-            ZYAN_CHECK(ZydisFormatterBufferGetString(buffer, &string));
-            return ZyanStringAppendFormat(string, "<%s>", SYMBOL_TABLE[i].name);
-        }
-    }
-
-    return default_print_address_absolute(formatter, buffer, context);
-}
 
 /* ============================================================================================== */
 /* Helper functions                                                                               */
@@ -106,24 +68,29 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE);
     ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE);
 
-    // Replace the `ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS` function that formats the absolute
-    // addresses
-    default_print_address_absolute = (ZydisFormatterFunc)&ZydisFormatterPrintAddressAbsolute;
-    ZydisFormatterSetHook(&formatter, ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS,
-        (const void**)&default_print_address_absolute);
-
     ZyanU64 runtime_address = 0x007FFFFFFF400000;
 
     ZydisDecodedInstruction instruction;
     char buffer[256];
     while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(decoder, data, length, &instruction)))
     {
-        ZYAN_PRINTF("%016" PRIX64 "  ", runtime_address);
-        // We have to pass a `runtime_address` different to `ZYDIS_RUNTIME_ADDRESS_NONE` to
-        // enable printing of absolute addresses
-        ZydisFormatterFormatInstruction(&formatter, &instruction, &buffer[0], sizeof(buffer),
-            runtime_address);
-        ZYAN_PRINTF(" %s\n", &buffer[0]);
+        const ZydisFormatterToken* token;
+        if (ZYAN_SUCCESS(ZydisFormatterTokenizeInstruction(&formatter, &instruction, &buffer[0],
+            sizeof(buffer), runtime_address, &token)))
+        {
+            ZydisTokenType token_type;
+            char* token_value;
+            while (token)
+            {
+                ZydisFormatterTokenGetValue(token, &token_type, &token_value);
+                printf("ZYDIS_TOKEN_%17s (%02X): \"%s\"\n", TOKEN_TYPES[token_type], token_type,
+                    token_value);
+                if (!ZYAN_SUCCESS(ZydisFormatterTokenNext(&token)))
+                {
+                    token = ZYAN_NULL;
+                }
+            }
+        }
         data += instruction.length;
         length -= instruction.length;
         runtime_address += instruction.length;
@@ -144,12 +111,8 @@ int main(void)
 
     ZyanU8 data[] =
     {
-        0x48, 0x8B, 0x05, 0x39, 0x00, 0x13, 0x00, // mov rax, qword ptr ds:[<SomeModule.SomeData>]
-        0x50,                                     // push rax
-        0xFF, 0x15, 0xF2, 0x10, 0x00, 0x00,       // call qword ptr ds:[<SomeModule.SomeFunction>]
-        0x85, 0xC0,                               // test eax, eax
-        0x0F, 0x84, 0x00, 0x00, 0x00, 0x00,       // jz 0x007FFFFFFF400016
-        0xE9, 0xE5, 0x0F, 0x00, 0x00              // jmp <SomeModule.EntryPoint>
+        // vcmpps k2 {k7}, zmm2, dword ptr ds:[rax + rbx*4 + 0x100] {1to16}, 0x0F
+        0x62, 0xF1, 0x6C, 0x5F, 0xC2, 0x54, 0x98, 0x40, 0x0F
     };
 
     ZydisDecoder decoder;
