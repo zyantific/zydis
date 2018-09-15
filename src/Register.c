@@ -148,8 +148,6 @@ ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg)
 
 ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister reg)
 {
-    // TODO: Check if the given register exists for the active machine-mode
-
     // Special cases
     switch (reg)
     {
@@ -165,7 +163,7 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister re
         return 32;
     case ZYDIS_REGISTER_RIP:
     case ZYDIS_REGISTER_RFLAGS:
-        return 64;
+        return (mode == ZYDIS_MACHINE_MODE_LONG_64) ? 64 : 0;
     case ZYDIS_REGISTER_BNDCFG:
     case ZYDIS_REGISTER_BNDSTATUS:
         return 64;
@@ -183,19 +181,8 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister re
     {
         if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
         {
-            switch (mode)
-            {
-            case ZYDIS_MACHINE_MODE_LONG_64:
-                return REGISTER_MAP[i].width64;
-            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-            case ZYDIS_MACHINE_MODE_LEGACY_32:
-            case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-            case ZYDIS_MACHINE_MODE_LEGACY_16:
-            case ZYDIS_MACHINE_MODE_REAL_16:
-                return REGISTER_MAP[i].width;
-            default:
-                return 0;
-            }
+            return (mode == ZYDIS_MACHINE_MODE_LONG_64) ?
+                REGISTER_MAP[i].width64 : REGISTER_MAP[i].width;
         }
     }
     return 0;
@@ -234,28 +221,8 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
         if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))
         {
             const ZydisRegisterClass reg_class = REGISTER_MAP[i].class;
-
-            // Check if the given register exists for the active machine-mode
-            switch (mode)
+            if ((reg_class == ZYDIS_REGCLASS_GPR64) && (mode != ZYDIS_MACHINE_MODE_LONG_64))
             {
-            case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-            case ZYDIS_MACHINE_MODE_LEGACY_16:
-            case ZYDIS_MACHINE_MODE_REAL_16:
-                if (reg_class == ZYDIS_REGCLASS_GPR32)
-                {
-                    return ZYDIS_REGISTER_NONE;
-                }
-                ZYAN_FALLTHROUGH;
-            case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-            case ZYDIS_MACHINE_MODE_LEGACY_32:
-                if (reg_class == ZYDIS_REGCLASS_GPR64)
-                {
-                    return ZYDIS_REGISTER_NONE;
-                }
-                ZYAN_FALLTHROUGH;
-            case ZYDIS_MACHINE_MODE_LONG_64:
-                break;
-            default:
                 return ZYDIS_REGISTER_NONE;
             }
 
@@ -280,7 +247,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
                 case ZYDIS_MACHINE_MODE_REAL_16:
                     return REGISTER_MAP[ZYDIS_REGCLASS_GPR16].lo + reg_id;
                 default:
-                    ZYAN_UNREACHABLE;
+                    return ZYDIS_REGISTER_NONE;
                 }
             case ZYDIS_REGCLASS_XMM:
             case ZYDIS_REGCLASS_YMM:
@@ -324,23 +291,10 @@ const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 ZydisRegisterWidth ZydisRegisterClassGetWidth(ZydisMachineMode mode,
     ZydisRegisterClass register_class)
 {
-    // TODO: Check if the given register exists for the active machine-mode
-
     if (register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP))
     {
-        switch (mode)
-        {
-        case ZYDIS_MACHINE_MODE_LONG_64:
-            return REGISTER_MAP[register_class].width64;
-        case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-        case ZYDIS_MACHINE_MODE_LEGACY_32:
-        case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-        case ZYDIS_MACHINE_MODE_LEGACY_16:
-        case ZYDIS_MACHINE_MODE_REAL_16:
-            return REGISTER_MAP[register_class].width;
-        default:
-            return 0;
-        }
+        return (mode == ZYDIS_MACHINE_MODE_LONG_64) ?
+            REGISTER_MAP[register_class].width64 : REGISTER_MAP[register_class].width;
     }
     return 0;
 }

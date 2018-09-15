@@ -194,7 +194,8 @@ ZYDIS_EXPORT ZydisRegisterClass ZydisRegisterGetClass(ZydisRegister reg);
  * @param   mode    The active machine mode.
  * @param   reg     The register.
  *
- * @return  The width of the specified register.
+ * @return  The width of the specified register, or `ZYDIS_REGISTER_NONE` if the register is
+ *          invalid for the active machine-mode.
  */
 ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister reg);
 
@@ -204,7 +205,8 @@ ZYDIS_EXPORT ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, Zyd
  * @param   mode    The active machine mode.
  * @param   reg     The register.
  *
- * @return  The largest enclosing register of the given register, or `ZYDIS_REGISTER_NONE`.
+ * @return  The largest enclosing register of the given register, or `ZYDIS_REGISTER_NONE` if the
+ *          register is invalid for the active machine-mode or does not have an enclosing-register.
  */
 ZYDIS_EXPORT ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
     ZydisRegister reg);
