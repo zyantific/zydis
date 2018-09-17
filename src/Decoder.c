@@ -2230,8 +2230,8 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             break;
         }
         if (instruction->attributes & (
-            ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_ACCEPTS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
-            ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_ACCEPTS_XRELEASE))
+            ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_HAS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
+            ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_HAS_XRELEASE))
         {
             instruction->raw.prefixes[context->prefixes.offset_group1].type =
                 ZYDIS_PREFIX_TYPE_EFFECTIVE;
