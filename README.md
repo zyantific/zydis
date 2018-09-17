@@ -17,7 +17,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Quick Example
 
-The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
+The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](examples/)).
 
 ```C
 #include <stdio.h>
