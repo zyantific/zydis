@@ -109,6 +109,18 @@ typedef struct ZydisDecoderContext_
          */
         ZyanU8 offset_group2;
         /**
+         * @brief   The offset of the operand-size override prefix (`66`).
+         *
+         * This is the only prefix in group 3.
+         */
+        ZyanU8 offset_osz_override;
+        /**
+         * @brief   The offset of the address-size override prefix (`67`).
+         *
+         * This is the only prefix in group 4.
+         */
+        ZyanU8 offset_asz_override;
+        /**
          * @brief   The offset of the effective segment prefix.
          */
         ZyanU8 offset_segment;
@@ -3122,20 +3134,18 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             break;
         case 0x66:
             // context->prefixes.has_osz_override = ZYAN_TRUE;
+            context->prefixes.offset_osz_override = offset;
             if (!context->prefixes.mandatory_candidate)
             {
                 context->prefixes.mandatory_candidate = 0x66;
                 context->prefixes.offset_mandatory = offset;
             }
             instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
-            instruction->raw.prefixes[instruction->raw.prefix_count].type =
-                ZYDIS_PREFIX_TYPE_EFFECTIVE;
             break;
         case 0x67:
             // context->prefixes.has_asz_override = ZYAN_TRUE;
+            context->prefixes.offset_asz_override = offset;
             instruction->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
-            instruction->raw.prefixes[instruction->raw.prefix_count].type =
-                ZYDIS_PREFIX_TYPE_EFFECTIVE;
             break;
         default:
             if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
@@ -3163,6 +3173,16 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         }
     } while (!done);
 
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
+    {
+        instruction->raw.prefixes[context->prefixes.offset_osz_override].type =
+            ZYDIS_PREFIX_TYPE_EFFECTIVE;
+    }
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE)
+    {
+        instruction->raw.prefixes[context->prefixes.offset_asz_override].type =
+            ZYDIS_PREFIX_TYPE_EFFECTIVE;
+    }
     if (rex)
     {
         instruction->raw.prefixes[instruction->raw.rex.offset].type = ZYDIS_PREFIX_TYPE_EFFECTIVE;
