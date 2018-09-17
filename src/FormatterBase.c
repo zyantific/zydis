@@ -33,6 +33,46 @@
 
 #include <Generated/FormatterStrings.inc>
 
+static const ZydisShortString* const STR_PREF_REX[16] =
+{
+    &STR_PREF_REX_40,
+    &STR_PREF_REX_41,
+    &STR_PREF_REX_42,
+    &STR_PREF_REX_43,
+    &STR_PREF_REX_44,
+    &STR_PREF_REX_45,
+    &STR_PREF_REX_46,
+    &STR_PREF_REX_47,
+    &STR_PREF_REX_48,
+    &STR_PREF_REX_49,
+    &STR_PREF_REX_4A,
+    &STR_PREF_REX_4B,
+    &STR_PREF_REX_4C,
+    &STR_PREF_REX_4D,
+    &STR_PREF_REX_4E,
+    &STR_PREF_REX_4F
+};
+
+static const ZydisPredefinedToken* const TOK_PREF_REX[16] =
+{
+    &TOK_PREF_REX_40,
+    &TOK_PREF_REX_41,
+    &TOK_PREF_REX_42,
+    &TOK_PREF_REX_43,
+    &TOK_PREF_REX_44,
+    &TOK_PREF_REX_45,
+    &TOK_PREF_REX_46,
+    &TOK_PREF_REX_47,
+    &TOK_PREF_REX_48,
+    &TOK_PREF_REX_49,
+    &TOK_PREF_REX_4A,
+    &TOK_PREF_REX_4B,
+    &TOK_PREF_REX_4C,
+    &TOK_PREF_REX_4D,
+    &TOK_PREF_REX_4E,
+    &TOK_PREF_REX_4F
+};
+
 /* ============================================================================================== */
 /* Helper functions                                                                               */
 /* ============================================================================================== */
@@ -370,33 +410,40 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
             {
                 if ((value & 0xF0) == 0x40)
                 {
-                    // TODO:
-                    //ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REX[value & 0x0F],
-                    //    formatter->letter_case);
+                    if (buffer->is_token_list)
+                    {
+                        // TODO: Case
+                        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer,
+                            TOK_PREF_REX[value & 0x0F]));
+                    } else
+                    {
+                        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string,
+                            STR_PREF_REX[value & 0x0F], formatter->case_prefixes));
+                    }
                 } else
                 {
                     switch (value)
                     {
                     case 0xF0:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->case_prefixes);
                         break;
                     case 0x2E:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_CS, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_CS, formatter->case_prefixes);
                         break;
                     case 0x36:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_SS, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_SS, formatter->case_prefixes);
                         break;
                     case 0x3E:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_DS, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_DS, formatter->case_prefixes);
                         break;
                     case 0x26:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_ES, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_ES, formatter->case_prefixes);
                         break;
                     case 0x64:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_FS, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_FS, formatter->case_prefixes);
                         break;
                     case 0x65:
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_GS, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_SEG_GS, formatter->case_prefixes);
                         break;
                     default:
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
@@ -413,35 +460,35 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
                 switch (value)
                 {
                 case 0xF0:
-                    ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->letter_case);
+                    ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->case_prefixes);
                     break;
                 case 0xF2:
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XACQUIRE, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XACQUIRE, formatter->case_prefixes);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPNE, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPNE, formatter->case_prefixes);
                     }
 
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->case_prefixes);
                     }
                     break;
                 case 0xF3:
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XRELEASE, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XRELEASE, formatter->case_prefixes);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REP, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REP, formatter->case_prefixes);
                     }
                     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
                     {
-                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPE, formatter->letter_case);
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPE, formatter->case_prefixes);
                     }
                     break;
                 default:
@@ -457,38 +504,38 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XACQUIRE, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XACQUIRE, formatter->case_prefixes);
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XRELEASE, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XRELEASE, formatter->case_prefixes);
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REP, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REP, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPE, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPE, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPNE, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPNE, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
     {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->letter_case);
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
 
@@ -534,7 +581,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             if ((context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING) &&
                 (context->instruction->raw.evex.z))
             {
-                ZYDIS_BUFFER_APPEND(buffer, DECO_ZERO);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_ZERO, formatter->case_decorators);
             }
         }
 #endif
@@ -549,22 +596,22 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_BROADCAST_MODE_INVALID:
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_2:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_1TO2);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO2, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_4:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_1TO4);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO4, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_8:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_1TO8);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO8, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_16:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_1TO16);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO16, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_8:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_4TO8);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_4TO8, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_16:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_4TO16);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_4TO16, formatter->case_decorators);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -581,16 +628,16 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RN_SAE);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN_SAE, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RD_SAE);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RD_SAE, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RU_SAE);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RU_SAE, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RZ_SAE);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RZ_SAE, formatter->case_decorators);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -602,16 +649,16 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_ROUNDING_MODE_INVALID:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RN);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RD:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RD);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RD, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RU:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RU);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RU, formatter->case_decorators);
                 break;
             case ZYDIS_ROUNDING_MODE_RZ:
-                ZYDIS_BUFFER_APPEND(buffer, DECO_RZ);
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RZ, formatter->case_decorators);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -623,7 +670,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_AVX512)
         if (context->instruction->avx.has_SAE && !context->instruction->avx.rounding.mode)
         {
-            ZYDIS_BUFFER_APPEND(buffer, DECO_SAE);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_SAE, formatter->case_decorators);
         }
 #endif
         break;
@@ -636,25 +683,25 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             // Nothing to do here
             break;
         case ZYDIS_SWIZZLE_MODE_CDAB:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_CDAB);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_CDAB, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_BADC:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_BADC);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_BADC, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_DACB:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_DACB);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DACB, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_AAAA:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_AAAA);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_AAAA, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_BBBB:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_BBBB);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_BBBB, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_CCCC:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_CCCC);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_CCCC, formatter->case_decorators);
             break;
         case ZYDIS_SWIZZLE_MODE_DDDD:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_DDDD);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DDDD, formatter->case_decorators);
             break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -668,19 +715,19 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         case ZYDIS_CONVERSION_MODE_INVALID:
             break;
         case ZYDIS_CONVERSION_MODE_FLOAT16:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_FLOAT16);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_FLOAT16, formatter->case_decorators);
             break;
         case ZYDIS_CONVERSION_MODE_SINT8:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_SINT8);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_SINT8, formatter->case_decorators);
             break;
         case ZYDIS_CONVERSION_MODE_UINT8:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_UINT8);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_UINT8, formatter->case_decorators);
             break;
         case ZYDIS_CONVERSION_MODE_SINT16:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_SINT16);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_SINT16, formatter->case_decorators);
             break;
         case ZYDIS_CONVERSION_MODE_UINT16:
-            ZYDIS_BUFFER_APPEND(buffer, DECO_UINT16);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_UINT16, formatter->case_decorators);
             break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -691,7 +738,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         if (context->instruction->avx.has_eviction_hint)
         {
-            ZYDIS_BUFFER_APPEND(buffer, DECO_EH);
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_EH, formatter->case_decorators);
         }
 #endif
         break;

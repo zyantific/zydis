@@ -84,11 +84,6 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
 
     switch (property)
     {
-    case ZYDIS_FORMATTER_PROP_UPPERCASE:
-    {
-        formatter->letter_case = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
-        break;
-    }
     case ZYDIS_FORMATTER_PROP_FORCE_SIZE:
     {
         formatter->force_memory_size = (value) ? ZYAN_TRUE : ZYAN_FALSE;
@@ -192,6 +187,31 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
             formatter->imm_padding = FORMATTER_PRESETS[formatter->style]->imm_padding;
         }
         formatter->imm_padding = (ZydisPadding)value;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_UPPERCASE_PREFIXES:
+    {
+        formatter->case_prefixes = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_UPPERCASE_MNEMONIC:
+    {
+        formatter->case_mnemonic = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_UPPERCASE_REGISTERS:
+    {
+        formatter->case_registers = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_UPPERCASE_TYPECASTS:
+    {
+        formatter->case_typecasts = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_UPPERCASE_DECORATORS:
+    {
+        formatter->case_decorators = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
         break;
     }
     case ZYDIS_FORMATTER_PROP_DEC_PREFIX:

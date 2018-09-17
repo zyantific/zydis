@@ -155,6 +155,8 @@ extern "C" {
         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
     }
 
+// TODO: Implement `letter_case` for predefined tokens
+
 /**
  * @brief   Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
  *
@@ -168,7 +170,7 @@ extern "C" {
         ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, &TOK_ ## name)); \
     } else \
     { \
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_ ## name, letter_case)); \
     }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -226,7 +228,7 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZydisFormatterToken* const last  = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+    ZydisFormatterToken* const last = (ZydisFormatterToken*)buffer->string.vector.data - 1;
     last->next = (ZyanU8)len;
 
     ZYAN_MEMCPY((ZyanU8*)buffer->string.vector.data + len, &data->data[0], data->size);

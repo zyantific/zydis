@@ -92,7 +92,6 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
 static const ZydisFormatter FORMATTER_INTEL =
 {
     /* style                   */ ZYDIS_FORMATTER_STYLE_INTEL,
-    /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
     /* force_memory_size       */ ZYAN_FALSE,
     /* force_memory_seg        */ ZYAN_FALSE,
     /* detailed_prefixes       */ ZYAN_FALSE,
@@ -106,6 +105,11 @@ static const ZydisFormatter FORMATTER_INTEL =
     /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
     /* imm_signedness          */ ZYDIS_SIGNEDNESS_UNSIGNED,
     /* imm_padding             */ 2,
+    /* case_prefixes           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_mnemonic           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_registers          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_typecasts          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_decorators         */ ZYDIS_LETTER_CASE_DEFAULT,
     /* hex_uppercase           */ ZYAN_TRUE,
     /* number_format           */
     {
@@ -172,7 +176,6 @@ static const ZydisFormatter FORMATTER_INTEL =
 static const ZydisFormatter FORMATTER_INTEL_MASM =
 {
     /* style                   */ ZYDIS_FORMATTER_STYLE_INTEL_MASM,
-    /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
     /* force_memory_size       */ ZYAN_TRUE,
     /* force_memory_seg        */ ZYAN_FALSE,
     /* detailed_prefixes       */ ZYAN_FALSE,
@@ -186,6 +189,11 @@ static const ZydisFormatter FORMATTER_INTEL_MASM =
     /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
     /* imm_signedness          */ ZYDIS_SIGNEDNESS_AUTO,
     /* imm_padding             */ ZYDIS_PADDING_DISABLED,
+    /* case_prefixes           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_mnemonic           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_registers          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_typecasts          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_decorators         */ ZYDIS_LETTER_CASE_DEFAULT,
     /* hex_uppercase           */ ZYAN_TRUE,
     /* number_format           */
     {

@@ -90,7 +90,6 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 static const ZydisFormatter FORMATTER_ATT =
 {
     /* style                   */ ZYDIS_FORMATTER_STYLE_ATT,
-    /* letter_case             */ ZYDIS_LETTER_CASE_DEFAULT,
     /* force_memory_size       */ ZYAN_FALSE,
     /* force_memory_seg        */ ZYAN_FALSE,
     /* detailed_prefixes       */ ZYAN_FALSE,
@@ -104,6 +103,11 @@ static const ZydisFormatter FORMATTER_ATT =
     /* imm_base                */ ZYDIS_NUMERIC_BASE_HEX,
     /* imm_signedness          */ ZYDIS_SIGNEDNESS_AUTO,
     /* imm_padding             */ 2,
+    /* case_prefixes           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_mnemonic           */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_registers          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_typecasts          */ ZYDIS_LETTER_CASE_DEFAULT,
+    /* case_decorators         */ ZYDIS_LETTER_CASE_DEFAULT,
     /* hex_uppercase           */ ZYAN_TRUE,
     /* number_format           */
     {

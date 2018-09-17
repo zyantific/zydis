@@ -106,13 +106,6 @@ typedef enum ZydisFormatterProperty_
     /* ---------------------------------------------------------------------------------------- */
 
     /**
-     * @brief   Controls the letter-case.
-     *
-     * Pass `ZYAN_TRUE` as value to format in uppercase and `ZYAN_FALSE` to format in lowercase.
-     */
-    ZYDIS_FORMATTER_PROP_UPPERCASE,
-
-    /**
      * @brief   Controls the printing of effective operand-size suffixes (`AT&T`) or operand-sizes
      *          of memory operands (`INTEL`).
      *
@@ -205,6 +198,41 @@ typedef enum ZydisFormatterProperty_
      * padding.
      */
     ZYDIS_FORMATTER_PROP_IMM_PADDING,
+
+    /* ---------------------------------------------------------------------------------------- */
+    /* Text formatting                                                                          */
+    /* ---------------------------------------------------------------------------------------- */
+
+    /**
+     * @brief   Controls the letter-case for prefixes.
+     *
+     * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
+     */
+    ZYDIS_FORMATTER_PROP_UPPERCASE_PREFIXES,
+    /**
+     * @brief   Controls the letter-case for the mnemonic.
+     *
+     * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
+     */
+    ZYDIS_FORMATTER_PROP_UPPERCASE_MNEMONIC,
+    /**
+     * @brief   Controls the letter-case for registers.
+     *
+     * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
+     */
+    ZYDIS_FORMATTER_PROP_UPPERCASE_REGISTERS,
+    /**
+     * @brief   Controls the letter-case for typecasts.
+     *
+     * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
+     */
+    ZYDIS_FORMATTER_PROP_UPPERCASE_TYPECASTS,
+    /**
+     * @brief   Controls the letter-case for decorators.
+     *
+     * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
+     */
+    ZYDIS_FORMATTER_PROP_UPPERCASE_DECORATORS,
 
     /* ---------------------------------------------------------------------------------------- */
     /* Number formatting                                                                        */
@@ -695,10 +723,6 @@ struct ZydisFormatter_
      */
     ZydisFormatterStyle style;
     /**
-     * @brief   The `ZYDIS_FORMATTER_PROP_UPPERCASE` property.
-     */
-    ZyanU32 letter_case;
-    /**
      * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_SIZE` property.
      */
     ZyanBool force_memory_size;
@@ -750,6 +774,26 @@ struct ZydisFormatter_
      * @brief   The `ZYDIS_FORMATTER_IMM_PADDING` property.
      */
     ZydisPadding imm_padding;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_UPPERCASE_PREFIXES` property.
+     */
+    ZyanI32 case_prefixes;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_UPPERCASE_MNEMONIC` property.
+     */
+    ZyanI32 case_mnemonic;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_UPPERCASE_REGISTERS` property.
+     */
+    ZyanI32 case_registers;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_UPPERCASE_TYPECASTS` property.
+     */
+    ZyanI32 case_typecasts;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_UPPERCASE_DECORATORS` property.
+     */
+    ZyanI32 case_decorators;
     /**
      * @brief   The `ZYDIS_FORMATTER_HEX_UPPERCASE` property.
      */
