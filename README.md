@@ -5,7 +5,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Features
 
-- Supports all x86 and x86-64 (AMD64) instructions and [extensions](https://github.com/zyantific/zydis/blob/master/include/Zydis/Generated/EnumISAExt.h)
+- Supports all x86 and x86-64 (AMD64) instructions and [extensions](./include/Zydis/Generated/EnumISAExt.h)
 - Optimized for high performance
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
@@ -17,7 +17,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 
 ## Quick Example
 
-The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](examples/)).
+The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](./examples/)).
 
 ```C
 #include <stdio.h>
@@ -98,10 +98,10 @@ make
 
 #### Windows
 
-Either use the [Visual Studio 2017 project](https://github.com/zyantific/zydis/tree/master/msvc) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
+Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
 ## `ZydisInfo` tool
-![ZydisInfo](https://raw.githubusercontent.com/zyantific/zydis/master/assets/screenshots/ZydisInfo.png)
+![ZydisInfo](./assets/screenshots/ZydisInfo.png)
 
 ## Bindings
 
