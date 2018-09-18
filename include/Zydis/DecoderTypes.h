@@ -265,13 +265,9 @@ typedef ZyanU64 ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000100 // (1 <<  8)
 
 /**
- * @brief   The instruction is a far `JMP`/`CALL`/`RET`.
- */
-#define ZYDIS_ATTRIB_IS_FAR_BRANCH              0x0000001000000000 // (1 << 36) // TODO: rebase
-/**
  * @brief   The instruction accesses one or more CPU-flags.
  */
-#define ZYDIS_ATTRIB_CPUFLAG_ACCESS             0x0000002000000000 // (1 << 37) // TODO: rebase
+#define ZYDIS_ATTRIB_CPUFLAG_ACCESS             0x0000001000000000 // (1 << 36) // TODO: rebase
 
 /**
  * @brief   The instruction accepts the `LOCK` prefix (`0xF0`).
@@ -556,6 +552,42 @@ typedef enum ZydisCPUFlagAction_
      */
     ZYDIS_CPUFLAG_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_ACTION_MAX_VALUE)
 } ZydisCPUFlagAction;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Branch types                                                                                   */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the `ZydisBranchType` enum.
+ */
+typedef enum ZydisBranchType_
+{
+    /**
+     * @brief   The instruction is not a branch instruction.
+     */
+    ZYDIS_BRANCH_TYPE_NONE,
+    /**
+     * @brief   The instruction is a short (8-bit) branch instruction.
+     */
+    ZYDIS_BRANCH_TYPE_SHORT,
+    /**
+     * @brief   The instruction is a near (16-bit or 32-bit) branch instruction.
+     */
+    ZYDIS_BRANCH_TYPE_NEAR,
+    /**
+     * @brief   The instruction is a far (intersegment) branch instruction.
+     */
+    ZYDIS_BRANCH_TYPE_FAR,
+
+    /**
+     * @brief   Maximum value of this enum.
+     */
+    ZYDIS_BRANCH_TYPE_MAX_VALUE = ZYDIS_BRANCH_TYPE_FAR,
+    /**
+     * @brief   The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_BRANCH_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_BRANCH_TYPE_MAX_VALUE)
+} ZydisBranchType;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* SSE/AVX exception-class                                                                        */
@@ -846,7 +878,7 @@ typedef struct ZydisDecodedInstruction_
      */
     ZyanU8 length;
     /**
-     * @brief   The instruction-encoding (default, `3DNOW`, `VEX`, `EVEX`, `XOP`).
+     * @brief   The instruction-encoding (`LEGACY`, `3DNOW`, `VEX`, `EVEX`, `XOP`).
      */
     ZydisInstructionEncoding encoding;
     /**
@@ -992,6 +1024,10 @@ typedef struct ZydisDecodedInstruction_
          * @brief   The ISA-set extension.
          */
         ZydisISAExt isa_ext;
+        /**
+         * @brief   The branch type.
+         */
+        ZydisBranchType branch_type;
         /**
          * @brief   The exception class.
          */

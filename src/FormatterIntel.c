@@ -198,7 +198,8 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND(buffer, MEMORY_BEGIN_INTEL);
 
-    const ZyanBool absolute = (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
+    const ZyanBool absolute = !formatter->force_relative_riprel &&
+        (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
     if (absolute && context->operand->mem.disp.has_displacement &&
         (context->operand->mem.index == ZYDIS_REGISTER_NONE) &&
        ((context->operand->mem.base  == ZYDIS_REGISTER_NONE) ||
@@ -259,9 +260,25 @@ ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
     ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->case_mnemonic));
-    if (context->instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
+    if (context->instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_FAR)
     {
         return ZydisStringAppendShortCase(&buffer->string, &STR_FAR, formatter->case_mnemonic);
+    }
+    if (formatter->print_branch_size)
+    {
+        switch (context->instruction->meta.branch_type)
+        {
+        case ZYDIS_BRANCH_TYPE_NONE:
+            break;
+        case ZYDIS_BRANCH_TYPE_SHORT:
+            return ZydisStringAppendShortCase(&buffer->string, &STR_SHORT,
+                formatter->case_mnemonic);
+        case ZYDIS_BRANCH_TYPE_NEAR:
+            return ZydisStringAppendShortCase(&buffer->string, &STR_NEAR,
+                formatter->case_mnemonic);
+        default:
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -298,22 +315,25 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
     {
     case ZYDIS_SIGNEDNESS_AUTO:
     case ZYDIS_SIGNEDNESS_SIGNED:
-        if (context->operand->mem.disp.value >= 0)
+        if (context->operand->mem.disp.value < 0)
         {
-            ZYDIS_BUFFER_APPEND(buffer, ADD);
-            ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
-            ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-                context->operand->mem.disp.value, formatter->disp_padding);
-        } else
-        {
-            ZYDIS_BUFFER_APPEND(buffer, SUB);
+            if ((context->operand->mem.base  != ZYDIS_REGISTER_NONE) ||
+                (context->operand->mem.index != ZYDIS_REGISTER_NONE))
+            {
+                ZYDIS_BUFFER_APPEND(buffer, SUB);
+            }
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
             ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
                 -context->operand->mem.disp.value, formatter->disp_padding);
+            break;
         }
-        break;
+        ZYAN_FALLTHROUGH;
     case ZYDIS_SIGNEDNESS_UNSIGNED:
-        ZYDIS_BUFFER_APPEND(buffer, ADD);
+        if ((context->operand->mem.base  != ZYDIS_REGISTER_NONE) ||
+            (context->operand->mem.index != ZYDIS_REGISTER_NONE))
+        {
+            ZYDIS_BUFFER_APPEND(buffer, ADD);
+        }
         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
             context->operand->mem.disp.value, formatter->disp_padding);

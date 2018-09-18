@@ -2127,20 +2127,12 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
     {
-        const ZydisInstructionDefinitionDEFAULT* def =
-            (const ZydisInstructionDefinitionDEFAULT*)definition;
+        const ZydisInstructionDefinitionLEGACY* def =
+            (const ZydisInstructionDefinitionLEGACY*)definition;
 
         if (def->is_privileged)
         {
             instruction->attributes |= ZYDIS_ATTRIB_IS_PRIVILEGED;
-        }
-        if (def->is_far_branch)
-        {
-            ZYAN_ASSERT((instruction->meta.category == ZYDIS_CATEGORY_CALL) ||
-                        (instruction->meta.category == ZYDIS_CATEGORY_COND_BR) ||
-                        (instruction->meta.category == ZYDIS_CATEGORY_UNCOND_BR) ||
-                        (instruction->meta.category == ZYDIS_CATEGORY_RET));
-            instruction->attributes |= ZYDIS_ATTRIB_IS_FAR_BRANCH;
         }
         if (def->accepts_LOCK)
         {
@@ -4170,8 +4162,8 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
     {
-        const ZydisInstructionDefinitionDEFAULT* def =
-            (const ZydisInstructionDefinitionDEFAULT*)definition;
+        const ZydisInstructionDefinitionLEGACY* def =
+            (const ZydisInstructionDefinitionLEGACY*)definition;
 
         if (def->requires_protected_mode &&
             (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_REAL_16))
@@ -4691,6 +4683,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 instruction->meta.category = definition->category;
                 instruction->meta.isa_set = definition->isa_set;
                 instruction->meta.isa_ext = definition->isa_ext;
+                instruction->meta.branch_type = definition->branch_type;
+                ZYAN_ASSERT((instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_NONE) ||
+                        ((instruction->meta.category == ZYDIS_CATEGORY_CALL) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_COND_BR) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_UNCOND_BR) ||
+                         (instruction->meta.category == ZYDIS_CATEGORY_RET)));
                 instruction->meta.exception_class = definition->exception_class;
 
                 if (!context->decoder->decoder_mode[ZYDIS_DECODER_MODE_MINIMAL])

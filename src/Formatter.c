@@ -94,6 +94,21 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
         formatter->force_memory_segment = (value) ? ZYAN_TRUE : ZYAN_FALSE;
         break;
     }
+    case ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_BRANCHES:
+    {
+        formatter->force_relative_branches = (value) ? ZYAN_TRUE : ZYAN_FALSE;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_RIPREL:
+    {
+        formatter->force_relative_riprel = (value) ? ZYAN_TRUE : ZYAN_FALSE;
+        break;
+    }
+    case ZYDIS_FORMATTER_PROP_PRINT_BRANCH_SIZE:
+    {
+        formatter->print_branch_size = (value) ? ZYAN_TRUE : ZYAN_FALSE;
+        break;
+    }
     case ZYDIS_FORMATTER_PROP_DETAILED_PREFIXES:
     {
         formatter->detailed_prefixes = (value) ? ZYAN_TRUE : ZYAN_FALSE;

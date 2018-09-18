@@ -77,25 +77,25 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
     switch (encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsDEFAULT[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitions3DNOW[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_3DNOW[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsXOP[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_XOP[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_VEX[id];
         break;
 #ifndef ZYDIS_DISABLE_AVX512
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsEVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_EVEX[id];
         break;
 #endif
 #ifndef ZYDIS_DISABLE_KNC
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        *definition = (ZydisInstructionDefinition*)&instructionDefinitionsMVEX[id];
+        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_MVEX[id];
         break;
 #endif
     default:
@@ -117,7 +117,7 @@ ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
         return 0;
     }
     ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
-    *operand = &operandDefinitions[definition->operand_reference];
+    *operand = &OPERAND_DEFINITIONS[definition->operand_reference];
     return definition->operand_count;
 }
 #endif
@@ -176,8 +176,8 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
     const ZydisAccessedFlags** flags)
 {
-    ZYAN_ASSERT(definition->flags_reference < ZYAN_ARRAY_LENGTH(accessedFlags));
-    *flags = &accessedFlags[definition->flags_reference];
+    ZYAN_ASSERT(definition->flags_reference < ZYAN_ARRAY_LENGTH(ACCESSED_FLAGS));
+    *flags = &ACCESSED_FLAGS[definition->flags_reference];
     return (definition->flags_reference != 0);
 }
 #endif

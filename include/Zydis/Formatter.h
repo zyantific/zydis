@@ -120,6 +120,31 @@ typedef enum ZydisFormatterProperty_
      * memory-operands or `ZYAN_FALSE` to omit implicit `DS`/`SS` segments.
      */
     ZYDIS_FORMATTER_PROP_FORCE_SEGMENT,
+    /**
+     * @brief   Controls the printing of branch addresses.
+     *
+     * Pass `ZYAN_TRUE` as value to force the formatter to always print relative branch addresses
+     * or `ZYAN_FALSE` to use absolute addresses, if a runtime-address different to
+     * `ZYDIS_RUNTIME_ADDRESS_NONE` was passed.
+     */
+    ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_BRANCHES,
+    /**
+     * @brief   Controls the printing of `EIP`/`RIP`-relative addresses.
+     *
+     * Pass `ZYAN_TRUE` as value to force the formatter to always print relative addresses for
+     * `EIP`/`RIP`-relative operands or `ZYAN_FALSE` to use absolute addresses, if a runtime-
+     * address different to `ZYDIS_RUNTIME_ADDRESS_NONE` was passed.
+     */
+    ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_RIPREL,
+    /**
+     * @brief   Controls the printing of branch-instructions sizes.
+     *
+     * Pass `ZYAN_TRUE` as value to print the size (`short`, `near`) of branch
+     * instructions or `ZYAN_FALSE` to hide it.
+     *
+     * Note that the `far`/`l` modifier is always printed.
+     */
+    ZYDIS_FORMATTER_PROP_PRINT_BRANCH_SIZE,
 
     /**
      * @brief   Controls the printing of instruction prefixes.
@@ -730,6 +755,18 @@ struct ZydisFormatter_
      * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_SEGMENT` property.
      */
     ZyanBool force_memory_segment;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_BRANCHES` property.
+     */
+    ZyanBool force_relative_branches;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_RIPREL` property.
+     */
+    ZyanBool force_relative_riprel;
+    /**
+     * @brief   The `ZYDIS_FORMATTER_PROP_PRINT_BRANCH_SIZE` property.
+     */
+    ZyanBool print_branch_size;
     /**
      * @brief   The `ZYDIS_FORMATTER_DETAILED_PREFIXES` property.
      */

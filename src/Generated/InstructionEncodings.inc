@@ -1,4 +1,4 @@
-static const ZydisInstructionEncodingInfo instructionEncodings[] =
+static const ZydisInstructionEncodingInfo INSTR_ENCODINGS[] =
 {
     { 0, { { 0, 0, 0 } }, { { { 0, 0, 0 }, ZYAN_FALSE, ZYAN_FALSE }, { { 0, 0, 0 }, ZYAN_FALSE, ZYAN_FALSE } } }, 
     { ZYDIS_INSTR_ENC_FLAG_HAS_MODRM, { { 0, 0, 0 } }, { { { 0, 0, 0 }, ZYAN_FALSE, ZYAN_FALSE }, { { 0, 0, 0 }, ZYAN_FALSE, ZYAN_FALSE } } }, 

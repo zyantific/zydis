@@ -927,7 +927,6 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_HAS_MVEX,                 "HAS_MVEX"                 },
         { ZYDIS_ATTRIB_IS_RELATIVE,              "IS_RELATIVE"              },
         { ZYDIS_ATTRIB_IS_PRIVILEGED,            "IS_PRIVILEGED"            },
-        { ZYDIS_ATTRIB_IS_FAR_BRANCH,            "IS_FAR_BRANCH"            },
         { ZYDIS_ATTRIB_CPUFLAG_ACCESS,           "CPUFLAG_ACCESS"           },
         { ZYDIS_ATTRIB_ACCEPTS_LOCK,             "ACCEPTS_LOCK"             },
         { ZYDIS_ATTRIB_ACCEPTS_REP,              "ACCEPTS_REP"              },

@@ -199,7 +199,8 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
 
     ZYAN_CHECK(formatter->func_print_segment(formatter, buffer, context));
 
-    const ZyanBool absolute = (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
+    const ZyanBool absolute = !formatter->force_relative_riprel &&
+        (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
     if (absolute && context->operand->mem.disp.has_displacement &&
         (context->operand->mem.index == ZYDIS_REGISTER_NONE) &&
        ((context->operand->mem.base  == ZYDIS_REGISTER_NONE) ||
@@ -214,6 +215,12 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         if (context->operand->mem.disp.has_displacement && context->operand->mem.disp.value)
         {
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
+        }
+
+        if ((context->operand->mem.base  == ZYDIS_REGISTER_NONE) &&
+            (context->operand->mem.index == ZYDIS_REGISTER_NONE))
+        {
+            return ZYAN_STATUS_SUCCESS;
         }
 
         ZYDIS_BUFFER_APPEND(buffer, MEMORY_BEGIN_ATT);
@@ -266,9 +273,10 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     }
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
-    if (context->instruction->attributes & ZYDIS_ATTRIB_IS_FAR_BRANCH)
+    if (context->instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_FAR)
     {
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_FAR, formatter->case_mnemonic));
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_FAR_ATT,
+            formatter->case_mnemonic));
     }
     ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->case_mnemonic));
 
@@ -291,15 +299,32 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
 
     switch (size)
     {
-    case   8: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  );
-    case  16: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT );
-    case  32: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT );
-    case  64: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT );
-    case 128: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT);
-    case 256: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT);
-    case 512: return ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT);
+    case   8: ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  ); break;
+    case  16: ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT ); break;
+    case  32: ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT ); break;
+    case  64: ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT ); break;
+    case 128: ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT); break;
+    case 256: ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT); break;
+    case 512: ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT); break;
     default:
         break;
+    }
+
+    if (formatter->print_branch_size)
+    {
+        switch (context->instruction->meta.branch_type)
+        {
+        case ZYDIS_BRANCH_TYPE_NONE:
+            break;
+        case ZYDIS_BRANCH_TYPE_SHORT:
+            return ZydisStringAppendShortCase(&buffer->string, &STR_SHORT,
+                formatter->case_mnemonic);
+        case ZYDIS_BRANCH_TYPE_NEAR:
+            return ZydisStringAppendShortCase(&buffer->string, &STR_NEAR,
+                formatter->case_mnemonic);
+        default:
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
     }
 
     return ZYAN_STATUS_SUCCESS;

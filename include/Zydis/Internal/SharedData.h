@@ -686,6 +686,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_CATEGORY_REQUIRED_BITS        <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_BRANCH_TYPE_REQUIRED_BITS     <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
 
@@ -701,6 +702,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
         ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
+        ZyanU8 branch_type                     ZYAN_BITFIELD(ZYDIS_BRANCH_TYPE_REQUIRED_BITS); \
         ZyanU8 exception_class                 ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
         ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
         ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
@@ -731,14 +733,13 @@ typedef struct ZydisInstructionDefinition_
 } ZydisInstructionDefinition;
 
 /**
- * @brief   Defines the `ZydisInstructionDefinitionDEFAULT` struct.
+ * @brief   Defines the `ZydisInstructionDefinitionLEGACY` struct.
  */
-typedef struct ZydisInstructionDefinitionDEFAULT_
+typedef struct ZydisInstructionDefinitionLEGACY_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
 #ifndef ZYDIS_MINIMAL_MODE
     ZyanBool is_privileged                 ZYAN_BITFIELD( 1);
-    ZyanBool is_far_branch                 ZYAN_BITFIELD( 1);
 #endif
     ZyanBool accepts_LOCK                  ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
@@ -752,7 +753,7 @@ typedef struct ZydisInstructionDefinitionDEFAULT_
     ZyanBool accepts_branch_hints          ZYAN_BITFIELD( 1);
     ZyanBool accepts_segment               ZYAN_BITFIELD( 1);
 #endif
-} ZydisInstructionDefinitionDEFAULT;
+} ZydisInstructionDefinitionLEGACY;
 
 /**
  * @brief   Defines the `ZydisInstructionDefinition3DNOW` struct.
