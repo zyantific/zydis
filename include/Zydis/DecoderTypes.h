@@ -270,6 +270,31 @@ typedef ZyanU64 ZydisInstructionAttributes;
 #define ZYDIS_ATTRIB_CPUFLAG_ACCESS             0x0000001000000000 // (1 << 36) // TODO: rebase
 
 /**
+ * @brief   The instruction may conditionally read the general CPU state.
+ */
+#define ZYDIS_ATTRIB_CPU_STATE_CR               0x0000002000000000 // (1 << 37) // TODO: rebase
+/**
+ * @brief   The instruction may conditionally write the general CPU state.
+ */
+#define ZYDIS_ATTRIB_CPU_STATE_CW               0x0000004000000000 // (1 << 38) // TODO: rebase
+/**
+ * @brief   The instruction may conditionally read the FPU state (X87, MMX).
+ */
+#define ZYDIS_ATTRIB_FPU_STATE_CR               0x0000008000000000 // (1 << 39) // TODO: rebase
+/**
+ * @brief   The instruction may conditionally write the FPU state (X87, MMX).
+ */
+#define ZYDIS_ATTRIB_FPU_STATE_CW               0x0000010000000000 // (1 << 40) // TODO: rebase
+/**
+ * @brief   The instruction may conditionally read the XMM state (AVX, AVX2, AVX-512).
+ */
+#define ZYDIS_ATTRIB_XMM_STATE_CR               0x0000020000000000 // (1 << 41) // TODO: rebase
+/**
+ * @brief   The instruction may conditionally write the XMM state (AVX, AVX2, AVX-512).
+ */
+#define ZYDIS_ATTRIB_XMM_STATE_CW               0x0000040000000000 // (1 << 42) // TODO: rebase
+
+/**
  * @brief   The instruction accepts the `LOCK` prefix (`0xF0`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_LOCK               0x0000000000000200 // (1 <<  9)

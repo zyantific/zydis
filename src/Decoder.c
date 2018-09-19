@@ -2123,6 +2123,45 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(definition);
 
+    if (definition->cpu_state != ZYDIS_RW_ACTION_NONE)
+    {
+        static const ZydisInstructionAttributes mapping[ZYDIS_RW_ACTION_MAX_VALUE + 1] =
+        {
+            /* NONE      */ 0,
+            /* READ      */ ZYDIS_ATTRIB_CPU_STATE_CR,
+            /* WRITE     */ ZYDIS_ATTRIB_CPU_STATE_CW,
+            /* READWRITE */ ZYDIS_ATTRIB_CPU_STATE_CR | ZYDIS_ATTRIB_CPU_STATE_CW
+        };
+        ZYAN_ASSERT(definition->cpu_state < ZYAN_ARRAY_LENGTH(mapping));
+        instruction->attributes |= mapping[definition->cpu_state];
+    }
+
+    if (definition->fpu_state != ZYDIS_RW_ACTION_NONE)
+    {
+        static const ZydisInstructionAttributes mapping[ZYDIS_RW_ACTION_MAX_VALUE + 1] =
+        {
+            /* NONE      */ 0,
+            /* READ      */ ZYDIS_ATTRIB_FPU_STATE_CR,
+            /* WRITE     */ ZYDIS_ATTRIB_FPU_STATE_CW,
+            /* READWRITE */ ZYDIS_ATTRIB_FPU_STATE_CR | ZYDIS_ATTRIB_FPU_STATE_CW
+        };
+        ZYAN_ASSERT(definition->fpu_state < ZYAN_ARRAY_LENGTH(mapping));
+        instruction->attributes |= mapping[definition->fpu_state];
+    }
+
+    if (definition->xmm_state != ZYDIS_RW_ACTION_NONE)
+    {
+        static const ZydisInstructionAttributes mapping[ZYDIS_RW_ACTION_MAX_VALUE + 1] =
+        {
+            /* NONE      */ 0,
+            /* READ      */ ZYDIS_ATTRIB_XMM_STATE_CR,
+            /* WRITE     */ ZYDIS_ATTRIB_XMM_STATE_CW,
+            /* READWRITE */ ZYDIS_ATTRIB_XMM_STATE_CR | ZYDIS_ATTRIB_XMM_STATE_CW
+        };
+        ZYAN_ASSERT(definition->xmm_state < ZYAN_ARRAY_LENGTH(mapping));
+        instruction->attributes |= mapping[definition->xmm_state];
+    }
+
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
