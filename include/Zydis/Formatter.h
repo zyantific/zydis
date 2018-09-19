@@ -1113,6 +1113,50 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter
     const ZydisDecodedInstruction* instruction, void* buffer, ZyanUSize length,
     ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data);
 
+/**
+ * @brief   Tokenizes the given operand and writes it into the output buffer.
+ *
+ * @param   formatter       A pointer to the `ZydisFormatter` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   index           The index of the operand to format.
+ * @param   buffer          A pointer to the output buffer.
+ * @param   length          The length of the output buffer (in bytes).
+ * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
+ *                          to print relative addresses.
+ * @param   token           Receives a pointer to the first token in the output buffer.
+ *
+ * @return  A zyan status code.
+ *
+ * Use `ZydisFormatterTokenizeInstruction` or `ZydisFormatterTokenizeInstructionEx` to tokenize a
+ * complete instruction.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeOperand(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token);
+
+/**
+ * @brief   Tokenizes the given operand and writes it into the output buffer.
+ *
+ * @param   formatter       A pointer to the `ZydisFormatter` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   index           The index of the operand to format.
+ * @param   buffer          A pointer to the output buffer.
+ * @param   length          The length of the output buffer (in bytes).
+ * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
+ *                          to print relative addresses.
+ * @param   token           Receives a pointer to the first token in the output buffer.
+ * @param   user_data       A pointer to user-defined data which can be used in custom formatter
+ *                          callbacks.
+ *
+ * @return  A zyan status code.
+ *
+ * Use `ZydisFormatterTokenizeInstruction` or `ZydisFormatterTokenizeInstructionEx` to tokenize a
+ * complete instruction.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeOperandEx(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data);
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

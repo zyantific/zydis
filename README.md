@@ -71,7 +71,7 @@ int main()
 
 The above example program generates the following output:
 
-```
+```asm
 007FFFFFFF400000   push rcx
 007FFFFFFF400001   lea eax, [rbp-0x01]
 007FFFFFFF400004   push rax

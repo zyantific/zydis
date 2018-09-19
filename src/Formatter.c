@@ -48,6 +48,59 @@ static const ZydisFormatter* const FORMATTER_PRESETS[ZYDIS_FORMATTER_STYLE_MAX_V
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
+/* Internal functions                                                                             */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Helper functions                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
+void ZydisFormatterBufferInit(ZydisFormatterBuffer* buffer, char* user_buffer,
+    ZyanUSize length)
+{
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(user_buffer);
+    ZYAN_ASSERT(length);
+
+    buffer->is_token_list              = ZYAN_FALSE;
+    buffer->string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    buffer->string.vector.allocator    = ZYAN_NULL;
+    buffer->string.vector.element_size = sizeof(char);
+    buffer->string.vector.size         = 1;
+    buffer->string.vector.capacity     = length;
+    buffer->string.vector.data         = user_buffer;
+    *user_buffer = '\0';
+}
+
+void ZydisFormatterBufferInitTokenized(ZydisFormatterBuffer* buffer,
+    ZydisFormatterToken** first_token, void* user_buffer, ZyanUSize length)
+{
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(first_token);
+    ZYAN_ASSERT(user_buffer);
+    ZYAN_ASSERT(length);
+
+    *first_token = user_buffer;
+    (*first_token)->type = ZYDIS_TOKEN_INVALID;
+    (*first_token)->next = 0;
+
+    user_buffer = (ZyanU8*)user_buffer + sizeof(ZydisFormatterToken);
+    length -= sizeof(ZydisFormatterToken);
+
+    buffer->is_token_list              = ZYAN_TRUE;
+    buffer->capacity                   = length;
+    buffer->string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    buffer->string.vector.allocator    = ZYAN_NULL;
+    buffer->string.vector.element_size = sizeof(char);
+    buffer->string.vector.size         = 1;
+    buffer->string.vector.capacity     = length;
+    buffer->string.vector.data         = user_buffer;
+    *(char*)user_buffer = '\0';
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
@@ -379,32 +432,25 @@ ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZydisFormatterBuffer buf;
-    buf.is_token_list              = ZYAN_FALSE;
-    buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    buf.string.vector.allocator    = ZYAN_NULL;
-    buf.string.vector.element_size = sizeof(char);
-    buf.string.vector.size         = 1;
-    buf.string.vector.capacity     = length;
-    buf.string.vector.data         = buffer;
-    *buffer = '\0';
+    ZydisFormatterBuffer formatter_buffer;
+    ZydisFormatterBufferInit(&formatter_buffer, buffer, length);
 
     ZydisFormatterContext context;
-    context.instruction            = instruction;
-    context.runtime_address        = runtime_address;
-    context.operand                = ZYAN_NULL;
-    context.user_data              = user_data;
+    context.instruction     = instruction;
+    context.runtime_address = runtime_address;
+    context.operand         = ZYAN_NULL;
+    context.user_data       = user_data;
 
     if (formatter->func_pre_instruction)
     {
-        ZYAN_CHECK(formatter->func_pre_instruction(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_pre_instruction(formatter, &formatter_buffer, &context));
     }
 
-    ZYAN_CHECK(formatter->func_format_instruction(formatter, &buf, &context));
+    ZYAN_CHECK(formatter->func_format_instruction(formatter, &formatter_buffer, &context));
 
     if (formatter->func_post_instruction)
     {
-        ZYAN_CHECK(formatter->func_post_instruction(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_post_instruction(formatter, &formatter_buffer, &context));
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -428,43 +474,36 @@ ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZydisFormatterBuffer buf;
-    buf.is_token_list              = ZYAN_FALSE;
-    buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    buf.string.vector.allocator    = ZYAN_NULL;
-    buf.string.vector.element_size = sizeof(char);
-    buf.string.vector.size         = 1;
-    buf.string.vector.capacity     = length;
-    buf.string.vector.data         = buffer;
-    *buffer = '\0';
+    ZydisFormatterBuffer formatter_buffer;
+    ZydisFormatterBufferInit(&formatter_buffer, buffer, length);
 
     ZydisFormatterContext context;
-    context.instruction            = instruction;
-    context.runtime_address        = runtime_address;
-    context.operand                = &instruction->operands[index];
-    context.user_data              = user_data;
+    context.instruction     = instruction;
+    context.runtime_address = runtime_address;
+    context.operand         = &instruction->operands[index];
+    context.user_data       = user_data;
 
     // We ignore `ZYDIS_STATUS_SKIP_TOKEN` for all operand-functions as it does not make any sense
     // to skip the only operand printed by this function
 
     if (formatter->func_pre_operand)
     {
-        ZYAN_CHECK(formatter->func_pre_operand(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_pre_operand(formatter, &formatter_buffer, &context));
     }
 
     switch (context.operand->type)
     {
     case ZYDIS_OPERAND_TYPE_REGISTER:
-        ZYAN_CHECK(formatter->func_format_operand_reg(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_format_operand_reg(formatter, &formatter_buffer, &context));
         break;
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        ZYAN_CHECK(formatter->func_format_operand_mem(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_format_operand_mem(formatter, &formatter_buffer, &context));
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
-        ZYAN_CHECK(formatter->func_format_operand_imm(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_format_operand_imm(formatter, &formatter_buffer, &context));
         break;
     case ZYDIS_OPERAND_TYPE_POINTER:
-        ZYAN_CHECK(formatter->func_format_operand_ptr(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_format_operand_ptr(formatter, &formatter_buffer, &context));
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -472,7 +511,7 @@ ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
 
     if (formatter->func_post_operand)
     {
-        ZYAN_CHECK(formatter->func_post_operand(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_post_operand(formatter, &formatter_buffer, &context));
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -499,49 +538,106 @@ ZyanStatus ZydisFormatterTokenizeInstructionEx(const ZydisFormatter* formatter,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    ZydisFormatterToken* first = buffer;
-    first->type = ZYDIS_TOKEN_INVALID;
-    first->next = 0;
-
-    buffer  = (ZyanU8*)buffer + sizeof(ZydisFormatterToken);
-    length -= sizeof(ZydisFormatterToken);
-
-    ZydisFormatterBuffer buf;
-    buf.is_token_list              = ZYAN_TRUE;
-    buf.capacity                   = length;
-    buf.string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    buf.string.vector.allocator    = ZYAN_NULL;
-    buf.string.vector.element_size = sizeof(char);
-    buf.string.vector.size         = 1;
-    buf.string.vector.capacity     = length;
-    buf.string.vector.data         = buffer;
-    *(char*)buffer = '\0';
+    ZydisFormatterBuffer formatter_buffer;
+    ZydisFormatterToken* first_token;
+    ZydisFormatterBufferInitTokenized(&formatter_buffer, &first_token, buffer, length);
 
     ZydisFormatterContext context;
-    context.instruction            = instruction;
-    context.runtime_address        = runtime_address;
-    context.operand                = ZYAN_NULL;
-    context.user_data              = user_data;
+    context.instruction     = instruction;
+    context.runtime_address = runtime_address;
+    context.operand         = ZYAN_NULL;
+    context.user_data       = user_data;
 
     if (formatter->func_pre_instruction)
     {
-        ZYAN_CHECK(formatter->func_pre_instruction(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_pre_instruction(formatter, &formatter_buffer, &context));
     }
 
-    ZYAN_CHECK(formatter->func_format_instruction(formatter, &buf, &context));
+    ZYAN_CHECK(formatter->func_format_instruction(formatter, &formatter_buffer, &context));
 
     if (formatter->func_post_instruction)
     {
-        ZYAN_CHECK(formatter->func_post_instruction(formatter, &buf, &context));
+        ZYAN_CHECK(formatter->func_post_instruction(formatter, &formatter_buffer, &context));
     }
 
-    if (first->next)
+    if (first_token->next)
     {
-        *token = (ZydisFormatterTokenConst*)((ZyanU8*)buffer + 1);
+        *token = (ZydisFormatterTokenConst*)((ZyanU8*)first_token + sizeof(ZydisFormatterToken) +
+            first_token->next);
         return ZYAN_STATUS_SUCCESS;
     }
 
-    *token = first;
+    *token = first_token;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisFormatterTokenizeOperand(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token)
+{
+    return ZydisFormatterTokenizeOperandEx(formatter, instruction, index, buffer, length,
+        runtime_address, token, ZYAN_NULL);
+}
+
+ZyanStatus ZydisFormatterTokenizeOperandEx(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, ZyanU8 index, void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data)
+{
+    if (!formatter || !instruction || (index >= instruction->operand_count) || !buffer ||
+        (length <= sizeof(ZydisFormatterToken)) || !token)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    ZydisFormatterToken* first_token;
+    ZydisFormatterBuffer formatter_buffer;
+    ZydisFormatterBufferInitTokenized(&formatter_buffer, &first_token, buffer, length);
+
+    ZydisFormatterContext context;
+    context.instruction     = instruction;
+    context.runtime_address = runtime_address;
+    context.operand         = &instruction->operands[index];
+    context.user_data       = user_data;
+
+    // We ignore `ZYDIS_STATUS_SKIP_TOKEN` for all operand-functions as it does not make any sense
+    // to skip the only operand printed by this function
+
+    if (formatter->func_pre_operand)
+    {
+        ZYAN_CHECK(formatter->func_pre_operand(formatter, &formatter_buffer, &context));
+    }
+
+    switch (context.operand->type)
+    {
+    case ZYDIS_OPERAND_TYPE_REGISTER:
+        ZYAN_CHECK(formatter->func_format_operand_reg(formatter, &formatter_buffer, &context));
+        break;
+    case ZYDIS_OPERAND_TYPE_MEMORY:
+        ZYAN_CHECK(formatter->func_format_operand_mem(formatter, &formatter_buffer, &context));
+        break;
+    case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+        ZYAN_CHECK(formatter->func_format_operand_imm(formatter, &formatter_buffer, &context));
+        break;
+    case ZYDIS_OPERAND_TYPE_POINTER:
+        ZYAN_CHECK(formatter->func_format_operand_ptr(formatter, &formatter_buffer, &context));
+        break;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (formatter->func_post_operand)
+    {
+        ZYAN_CHECK(formatter->func_post_operand(formatter, &formatter_buffer, &context));
+    }
+
+    if (first_token->next)
+    {
+        *token = (ZydisFormatterTokenConst*)((ZyanU8*)first_token + sizeof(ZydisFormatterToken) +
+            first_token->next);
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    *token = first_token;
     return ZYAN_STATUS_SUCCESS;
 }
 
