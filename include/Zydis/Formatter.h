@@ -632,8 +632,8 @@ typedef ZydisStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatt
 struct ZydisFormatter_
 {
     ZydisLetterCase letterCase;
-    ZydisBool forceMemorySegment;
-    ZydisBool forceMemorySize;
+    ZydisBool forceorySegment;
+    ZydisBool forceorySize;
     ZydisU8 formatAddress;
     ZydisU8 formatDisp;
     ZydisU8 formatImm;

@@ -274,7 +274,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
             operand->mem.segment, userData));
         break;
     case ZYDIS_REGISTER_SS:
-        if ((formatter->forceMemorySegment) ||
+        if ((formatter->forceorySegment) ||
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS))
         {
             ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand,
@@ -282,7 +282,7 @@ static ZydisStatus ZydisFormatOperandMemIntel(const ZydisFormatter* formatter, Z
         }
         break;
     case ZYDIS_REGISTER_DS:
-        if ((formatter->forceMemorySegment) ||
+        if ((formatter->forceorySegment) ||
             (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
         {
             ZYDIS_CHECK(formatter->funcPrintRegister(formatter, string, instruction, operand,
@@ -601,7 +601,7 @@ static ZydisStatus ZydisPrintMemSizeIntel(const ZydisFormatter* formatter, Zydis
     // TODO: refactor
 
     ZydisU32 typecast = 0;
-    if (formatter->forceMemorySize)
+    if (formatter->forceorySize)
     {
         if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
             (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM || operand->mem.type == ZYDIS_MEMOP_TYPE_AGEN))
@@ -951,7 +951,7 @@ static ZydisStatus ZydisPrintInsnAddrBytesIntel(const ZydisFormatter* formatter,
         for (ZydisU8 p = 0; p < instruction->length; ++p)
         {
             ZYDIS_CHECK(ZydisStringAppendHexU(string, (ZydisU8)instruction->data[p],
-                formatter->padHexValues ? 2 : 0, formatter->hexUppercase, &gEmptyString, &gSingleSpace));
+                2, formatter->hexUppercase, &gEmptyString, &gSingleSpace));
         }
     }
 
@@ -1016,8 +1016,8 @@ ZydisStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle st
 
     ZydisMemorySet(formatter, 0, sizeof(ZydisFormatter));
     formatter->letterCase               = ZYDIS_LETTER_CASE_DEFAULT;
-    formatter->forceMemorySegment       = ZYDIS_FALSE;
-    formatter->forceMemorySize          = ZYDIS_FALSE;
+    formatter->forceorySegment       = ZYDIS_FALSE;
+    formatter->forceorySize          = ZYDIS_FALSE;
     formatter->formatAddress            = ZYDIS_ADDR_FORMAT_ABSOLUTE;
     formatter->formatDisp               = ZYDIS_DISP_FORMAT_HEX_SIGNED;
     formatter->formatImm                = ZYDIS_IMM_FORMAT_HEX_UNSIGNED;
@@ -1075,10 +1075,10 @@ ZydisStatus ZydisFormatterSetProperty(ZydisFormatter* formatter,
         formatter->letterCase = (value) ? ZYDIS_LETTER_CASE_UPPER : ZYDIS_LETTER_CASE_DEFAULT;
         break;
     case ZYDIS_FORMATTER_PROP_FORCE_MEMSEG:
-        formatter->forceMemorySegment = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
+        formatter->forceorySegment = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
         break;
     case ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE:
-        formatter->forceMemorySize = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
+        formatter->forceorySize = (value) ? ZYDIS_TRUE : ZYDIS_FALSE;
         break;
     case ZYDIS_FORMATTER_PROP_ADDR_FORMAT:
         if (value > ZYDIS_ADDR_FORMAT_MAX_VALUE)
