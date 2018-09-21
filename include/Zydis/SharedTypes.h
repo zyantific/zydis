@@ -310,31 +310,31 @@ enum ZydisOperandActions
     /**
      * @brief   The operand is read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_READ,
+    ZYDIS_OPERAND_ACTION_READ = 0x01,
     /**
      * @brief   The operand is written by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_WRITE,
+    ZYDIS_OPERAND_ACTION_WRITE = 0x02,
     /**
      * @brief   The operand is read and written by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_READWRITE,
+    ZYDIS_OPERAND_ACTION_READWRITE = 0x04,
     /**
      * @brief   The operand is conditionally read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD,
+    ZYDIS_OPERAND_ACTION_CONDREAD = 0x08,
     /**
      * @brief   The operand is conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_CONDWRITE,
+    ZYDIS_OPERAND_ACTION_CONDWRITE = 0x10,
     /**
      * @brief   The operand is read and conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
+    ZYDIS_OPERAND_ACTION_READ_CONDWRITE = 0x20,
     /**
      * @brief   The operand is written and conditionally read by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE = 0x40,
 
     /**
      * @brief   Mask combining all writing access flags.
