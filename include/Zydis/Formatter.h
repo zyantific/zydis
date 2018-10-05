@@ -940,6 +940,12 @@ struct ZydisFormatter_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+/**
+ * @addtogroup formatter Formatter
+ * @brief Functions allowing formatting of previously decoded instructions to human readable text.
+ * @{
+ */
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Initialization                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
@@ -1158,6 +1164,10 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeOperandEx(const ZydisFormatter* fo
     ZyanU64 runtime_address, ZydisFormatterTokenConst** token, void* user_data);
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @}
+ */
 
 /* ============================================================================================== */
 

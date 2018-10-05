@@ -129,6 +129,12 @@ typedef enum ZydisFeature_
 /* ============================================================================================== */
 
 /**
+ * @addtogroup version Version
+ * @brief Functions for checking the library version and build options.
+ * @{
+ */
+
+/**
  * @brief   Returns the zydis version.
  *
  * @return  The zydis version.
@@ -147,6 +153,10 @@ ZYDIS_EXPORT ZyanU64 ZydisGetVersion(void);
  *          zyan status code, if an error occured.
  */
 ZYDIS_EXPORT ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature);
+
+/**
+ * @}
+ */
 
 /* ============================================================================================== */
 

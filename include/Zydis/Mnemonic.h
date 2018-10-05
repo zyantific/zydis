@@ -50,6 +50,12 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
+ * @addtogroup mnemonic Mnemonic
+ * @brief Functions for retrieving mnemonic names.
+ * @{
+ */
+
+/**
  * @brief   Returns the specified instruction mnemonic string.
  *
  * @param   mnemonic    The mnemonic.
@@ -68,6 +74,10 @@ ZYDIS_EXPORT const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic);
  * The `buffer` of the returned struct is guaranteed to be zero-terminated in this special case.
  */
 ZYDIS_EXPORT const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic);
+
+/**
+ * @}
+ */
 
 /* ============================================================================================== */
 

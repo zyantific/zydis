@@ -180,6 +180,12 @@ typedef struct ZydisDecoder_
 /* ============================================================================================== */
 
 /**
+ * @addtogroup decoder Decoder
+ * @brief Functions allowing decoding of instruction bytes to a machine interpretable struct.
+ * @{
+ */
+
+/**
  * @brief   Initializes the given `ZydisDecoder` instance.
  *
  * @param   decoder         A pointer to the `ZydisDecoder` instance.
@@ -216,6 +222,8 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction);
+
+/** @} */
 
 /* ============================================================================================== */
 

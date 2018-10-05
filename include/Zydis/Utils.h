@@ -135,6 +135,12 @@ typedef struct ZydisInstructionSegments_
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
+/**
+ * @addtogroup utils Utils
+ * @brief Miscellaneous utility functions. Address translation and other helpers.
+ * @{
+ */
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Address calculation                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
@@ -214,6 +220,10 @@ ZYDIS_EXPORT ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstructio
     ZydisInstructionSegments* segments);
 
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @}
+ */
 
 /* ============================================================================================== */
 
