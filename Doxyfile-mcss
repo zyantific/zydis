@@ -1,0 +1,6 @@
+@INCLUDE                = Doxyfile
+GENERATE_HTML           = NO
+GENERATE_XML            = YES
+XML_PROGRAMLISTING      = NO
+##!M_LINKS_NAVBAR1      = modules files
+##!M_LINKS_NAVBAR2      =
