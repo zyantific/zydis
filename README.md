@@ -10,7 +10,7 @@ Fast and lightweight x86/x86-64 disassembler library.
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
-- [Complete doxygen documentation](https://www.zyantific.com/doc/zydis/index.html)
+- [Complete doxygen documentation](https://zydis.re/doc/3/)
 - Absolutely no dependencies — [not even libc](https://github.com/zyantific/zydis/blob/develop/CMakeLists.txt#L32)
   - Should compile on any platform with a working C99 compiler
   - Tested on Windows, macOS, FreeBSD and Linux, both user and kernel mode
