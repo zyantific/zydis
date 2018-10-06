@@ -89,7 +89,7 @@ The above example program generates the following output:
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
 ```bash
-git clone 'https://github.com/zyantific/zydis.git'
+git clone --recursive 'https://github.com/zyantific/zydis.git'
 cd zydis
 mkdir build && cd build
 cmake ..
