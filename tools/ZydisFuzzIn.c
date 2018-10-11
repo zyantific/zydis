@@ -119,6 +119,8 @@ static int DoIteration(void)
     {
         switch (prop)
         {
+        case ZYDIS_FORMATTER_PROP_DEC_PREFIX:
+        case ZYDIS_FORMATTER_PROP_DEC_SUFFIX:
         case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
         case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
             control_block.formatter_properties[prop] =
