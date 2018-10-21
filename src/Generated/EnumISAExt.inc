@@ -35,6 +35,7 @@ static const char* STR_ISAEXT[] =
     "MOVBE",
     "MOVDIR",
     "MPX",
+    "PADLOCK",
     "PAUSE",
     "PCLMULQDQ",
     "PCONFIG",

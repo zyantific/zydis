@@ -53,6 +53,7 @@ static const char* STR_INSTRUCTIONCATEGORY[] =
     "MOVDIR",
     "MPX",
     "NOP",
+    "PADLOCK",
     "PCLMULQDQ",
     "PCONFIG",
     "PKU",

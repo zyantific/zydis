@@ -63,7 +63,7 @@ typedef struct ZydisFuzzControlBlock_
 /* ============================================================================================== */
 
 // Limit maximum amount of bytes
-#define ZYDIS_FUZZ_MAX_BYTES (1024 * 10 /* 100 KiB */)
+#define ZYDIS_FUZZ_MAX_BYTES (1024 * 10 /* 10 KiB */)
 
 #ifdef ZYDIS_FUZZ_AFL_FAST
 #   define ZYDIS_MAYBE_FPUTS(x, y)
@@ -82,12 +82,12 @@ static int DoIteration(void)
 #ifdef ZYAN_WINDOWS
     // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
     // binary mode
-    _setmode(_fileno(stdin), _O_BINARY);
+    _setmode(_fileno(ZYAN_STDIN), _O_BINARY);
 #endif
 
-    if (fread(&control_block, 1, sizeof(control_block), stdin) != sizeof(control_block))
+    if (fread(&control_block, 1, sizeof(control_block), ZYAN_STDIN) != sizeof(control_block))
     {
-        ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
     control_block.string[ZYAN_ARRAY_LENGTH(control_block.string) - 1] = 0;
@@ -96,7 +96,7 @@ static int DoIteration(void)
     if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, control_block.machine_mode,
         control_block.address_width)))
     {
-        ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
     for (ZydisDecoderMode mode = 0; mode <= ZYDIS_DECODER_MODE_MAX_VALUE; ++mode)
@@ -104,7 +104,7 @@ static int DoIteration(void)
         if (!ZYAN_SUCCESS(
             ZydisDecoderEnableMode(&decoder, mode, control_block.decoder_mode[mode] ? 1 : 0)))
         {
-            ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", stderr);
+            ZYDIS_MAYBE_FPUTS("Failed to adjust decoder-mode\n", ZYAN_STDERR);
             return EXIT_FAILURE;
         }
     }
@@ -112,7 +112,7 @@ static int DoIteration(void)
     ZydisFormatter formatter;
     if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, control_block.formatter_style)))
     {
-        ZYDIS_MAYBE_FPUTS("Failed to initialize formatter\n", stderr);
+        ZYDIS_MAYBE_FPUTS("Failed to initialize formatter\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
     for (ZydisFormatterProperty prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
@@ -124,7 +124,7 @@ static int DoIteration(void)
         case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
         case ZYDIS_FORMATTER_PROP_HEX_SUFFIX:
             control_block.formatter_properties[prop] =
-                control_block.formatter_properties[prop] ? (uintptr_t)&control_block.string : 0;
+                control_block.formatter_properties[prop] ? (ZyanUPointer)&control_block.string : 0;
             break;
         default:
             break;
@@ -132,7 +132,7 @@ static int DoIteration(void)
         if (!ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter, prop,
             control_block.formatter_properties[prop])))
         {
-            ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", stderr);
+            ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", ZYAN_STDERR);
             return EXIT_FAILURE;
         }
     }
@@ -143,14 +143,15 @@ static int DoIteration(void)
     ZyanUSize read_offset_base = 0;
     do
     {
-        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining, stdin);
+        buffer_size = fread(buffer + buffer_remaining, 1, sizeof(buffer) - buffer_remaining,
+            ZYAN_STDIN);
         if (buffer_size != (sizeof(buffer) - buffer_remaining))
         {
-            if (ferror(stdin))
+            if (ferror(ZYAN_STDIN))
             {
                 return EXIT_FAILURE;
             }
-            ZYAN_ASSERT(feof(stdin));
+            ZYAN_ASSERT(feof(ZYAN_STDIN));
         }
         buffer_size += buffer_remaining;
 
@@ -194,7 +195,7 @@ int main(void)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        fputs("Invalid zydis version\n", stderr);
+        fputs("Invalid zydis version\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 

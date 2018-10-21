@@ -1707,6 +1707,12 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
             ZydisCalcRegisterId(context, instruction, ZYDIS_REG_ENCODING_RM,
                 lookup[context->easz_index]));
         break;
+    case ZYDIS_IMPLMEM_BASE_AAX:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 0);
+        break;
+    case ZYDIS_IMPLMEM_BASE_ADX:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 2);
+        break;
     case ZYDIS_IMPLMEM_BASE_ABX:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 3);
         break;
@@ -2260,9 +2266,11 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         default:
             break;
         }
-        if (instruction->attributes & (
-            ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_HAS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
-            ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_HAS_XRELEASE))
+        if ((instruction->raw.prefixes[context->prefixes.offset_group1].type ==
+             ZYDIS_PREFIX_TYPE_IGNORED) &&
+            (instruction->attributes & (
+             ZYDIS_ATTRIB_HAS_REP | ZYDIS_ATTRIB_HAS_REPE | ZYDIS_ATTRIB_HAS_REPNE |
+             ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_HAS_XRELEASE)))
         {
             instruction->raw.prefixes[context->prefixes.offset_group1].type =
                 ZYDIS_PREFIX_TYPE_EFFECTIVE;
