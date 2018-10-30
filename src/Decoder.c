@@ -1768,11 +1768,19 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
 
     for (ZyanU8 i = 0; i < instruction->operand_count; ++i)
     {
-        ZydisRegisterClass registerClass = ZYDIS_REGCLASS_INVALID;
+        ZydisRegisterClass register_class = ZYDIS_REGCLASS_INVALID;
 
         instruction->operands[i].id = i;
         instruction->operands[i].visibility = operand->visibility;
-        instruction->operands[i].action = operand->action;
+        instruction->operands[i].actions = operand->actions;
+        ZYAN_ASSERT(!(operand->actions &
+                        ZYDIS_OPERAND_ACTION_READ & ZYDIS_OPERAND_ACTION_CONDREAD) ||
+                     (operand->actions & ZYDIS_OPERAND_ACTION_READ) ^
+                     (operand->actions & ZYDIS_OPERAND_ACTION_CONDREAD));
+        ZYAN_ASSERT(!(operand->actions &
+                        ZYDIS_OPERAND_ACTION_WRITE & ZYDIS_OPERAND_ACTION_CONDWRITE) ||
+                     (operand->actions & ZYDIS_OPERAND_ACTION_WRITE) ^
+                     (operand->actions & ZYDIS_OPERAND_ACTION_CONDWRITE));
 
         // Implicit operands
         switch (operand->type)
@@ -1806,122 +1814,122 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_GPR8:
-            registerClass = ZYDIS_REGCLASS_GPR8;
+            register_class = ZYDIS_REGCLASS_GPR8;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR16:
-            registerClass = ZYDIS_REGCLASS_GPR16;
+            register_class = ZYDIS_REGCLASS_GPR16;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR32:
-            registerClass = ZYDIS_REGCLASS_GPR32;
+            register_class = ZYDIS_REGCLASS_GPR32;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR64:
-            registerClass = ZYDIS_REGCLASS_GPR64;
+            register_class = ZYDIS_REGCLASS_GPR64;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64:
             ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
                         (instruction->operand_width == 64));
-            registerClass =
+            register_class =
                 (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR16 : (
                 (instruction->operand_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR32_32_64:
             ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
                         (instruction->operand_width == 64));
-            registerClass =
+            register_class =
                 (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR32 : (
                 (instruction->operand_width == 32) ? ZYDIS_REGCLASS_GPR32: ZYDIS_REGCLASS_GPR64);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32:
             ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
                         (instruction->operand_width == 64));
-            registerClass =
+            register_class =
                 (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR16 : ZYDIS_REGCLASS_GPR32;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR_ASZ:
             ZYAN_ASSERT((instruction->address_width == 16) || (instruction->address_width == 32) ||
                         (instruction->address_width == 64));
-            registerClass =
+            register_class =
                 (instruction->address_width == 16) ? ZYDIS_REGCLASS_GPR16 : (
                 (instruction->address_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_FPR:
-            registerClass = ZYDIS_REGCLASS_X87;
+            register_class = ZYDIS_REGCLASS_X87;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MMX:
-            registerClass = ZYDIS_REGCLASS_MMX;
+            register_class = ZYDIS_REGCLASS_MMX;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_XMM:
-            registerClass = ZYDIS_REGCLASS_XMM;
+            register_class = ZYDIS_REGCLASS_XMM;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_YMM:
-            registerClass = ZYDIS_REGCLASS_YMM;
+            register_class = ZYDIS_REGCLASS_YMM;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_ZMM:
-            registerClass = ZYDIS_REGCLASS_ZMM;
+            register_class = ZYDIS_REGCLASS_ZMM;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_BND:
-            registerClass = ZYDIS_REGCLASS_BOUND;
+            register_class = ZYDIS_REGCLASS_BOUND;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_SREG:
-            registerClass = ZYDIS_REGCLASS_SEGMENT;
+            register_class = ZYDIS_REGCLASS_SEGMENT;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_CR:
-            registerClass = ZYDIS_REGCLASS_CONTROL;
+            register_class = ZYDIS_REGCLASS_CONTROL;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_DR:
-            registerClass = ZYDIS_REGCLASS_DEBUG;
+            register_class = ZYDIS_REGCLASS_DEBUG;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MASK:
-            registerClass = ZYDIS_REGCLASS_MASK;
+            register_class = ZYDIS_REGCLASS_MASK;
             break;
         default:
             break;
         }
-        if (registerClass)
+        if (register_class)
         {
             switch (operand->op.encoding)
             {
             case ZYDIS_OPERAND_ENCODING_MODRM_REG:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_REG, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_REG, register_class)));
                 break;
             case ZYDIS_OPERAND_ENCODING_MODRM_RM:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_RM, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_RM, register_class)));
                 break;
             case ZYDIS_OPERAND_ENCODING_OPCODE:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_OPCODE, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_OPCODE, register_class)));
                 break;
             case ZYDIS_OPERAND_ENCODING_NDSNDD:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_NDSNDD, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_NDSNDD, register_class)));
                 break;
             case ZYDIS_OPERAND_ENCODING_MASK:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_MASK, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_MASK, register_class)));
                 break;
             case ZYDIS_OPERAND_ENCODING_IS4:
                 ZYAN_CHECK(
                     ZydisDecodeOperandRegister(
-                        instruction, &instruction->operands[i], registerClass,
+                        instruction, &instruction->operands[i], register_class,
                     ZydisCalcRegisterId(
-                        context, instruction, ZYDIS_REG_ENCODING_IS4, registerClass)));
+                        context, instruction, ZYDIS_REG_ENCODING_IS4, register_class)));
                 break;
             default:
                 ZYAN_UNREACHABLE;
@@ -1962,7 +1970,7 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             instruction->operands[i].ptr.segment = (ZyanU16)instruction->raw.imm[1].value.u;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
-            instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
+            instruction->operands[i].actions = 0; // TODO: Remove after generator update
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
@@ -1976,7 +1984,7 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             instruction->operands[i].mem.disp.value = instruction->raw.disp.value;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MIB:
-            instruction->operands[i].action = ZYDIS_OPERAND_ACTION_INVALID;
+            instruction->operands[i].actions = 0; // TODO: Remove after generator update
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
@@ -2090,19 +2098,21 @@ FinalizeOperand:
     if (instruction->avx.mask.mode == ZYDIS_MASK_MODE_MERGING)
     {
         ZYAN_ASSERT(instruction->operand_count >= 1);
-        switch (instruction->operands[0].action)
+        switch (instruction->operands[0].actions)
         {
         case ZYDIS_OPERAND_ACTION_WRITE:
             if (instruction->operands[0].type == ZYDIS_OPERAND_TYPE_MEMORY)
             {
-                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_CONDWRITE;
+                instruction->operands[0].actions = ZYDIS_OPERAND_ACTION_CONDWRITE;
             } else
             {
-                instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+                instruction->operands[0].actions =
+                    ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE;
             }
             break;
-        case ZYDIS_OPERAND_ACTION_READWRITE:
-            instruction->operands[0].action = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
+        case ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_WRITE:
+            instruction->operands[0].actions =
+                ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE;
             break;
         default:
             break;
@@ -2763,7 +2773,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 instruction->avx.rounding.mode = ZYDIS_ROUNDING_MODE_RN + context->cache.LL;
                 // Intentional fallthrough
             case ZYDIS_EVEX_FUNC_SAE:
-                instruction->avx.has_SAE = ZYAN_TRUE;
+                instruction->avx.has_sae = ZYAN_TRUE;
                 break;
             default:
                 ZYAN_UNREACHABLE;
@@ -2941,7 +2951,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         case ZYDIS_MVEX_FUNC_SAE:
             if (instruction->raw.mvex.SSS >= 4)
             {
-                instruction->avx.has_SAE = ZYAN_TRUE;
+                instruction->avx.has_sae = ZYAN_TRUE;
             }
             break;
         case ZYDIS_MVEX_FUNC_SWIZZLE_32:

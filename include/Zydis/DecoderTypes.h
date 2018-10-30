@@ -103,9 +103,9 @@ typedef struct ZydisDecodedOperand_
      */
     ZydisOperandVisibility visibility;
     /**
-     * @brief   The operand-action.
+     * @brief   The operand-actions.
      */
-    ZydisOperandAction action;
+    ZydisOperandActions actions;
     /**
      * @brief   The operand-encoding.
      */
@@ -1025,7 +1025,7 @@ typedef struct ZydisDecodedInstruction_
          * @brief   Signals, if the `SAE` (suppress-all-exceptions) functionality is enabled for
          *          the instruction.
          */
-        ZyanBool has_SAE;
+        ZyanBool has_sae;
         /**
          * @brief   Signals, if the instruction has a memory-eviction-hint (`KNC` only).
          */

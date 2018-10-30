@@ -386,16 +386,23 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "IMPLICIT",
             "HIDDEN"
         };
-        static const char* strings_operand_action[] =
+        static const char* strings_operand_actions[] =
         {
-            "INV",
-            "R",
-            "W",
-            "RW",
-            "CR",
-            "CW",
-            "RCW",
-            "CRW"
+            "NONE",  // 0 0 0 0
+            "R",     // 0 0 0 1
+            "W",     // 0 0 1 0
+            "RW",    // 0 0 1 1
+            "CR",    // 0 1 0 0
+            "-",     // 0 1 0 1
+            "CRW",   // 0 1 1 0
+            "-",     // 0 1 1 1
+            "CW",    // 1 0 0 0
+            "RCW",   // 1 0 0 1
+            "-",     // 1 0 1 0
+            "-",     // 1 0 1 1
+            "CRCW",  // 1 1 0 0
+            "-",     // 1 1 0 1
+            "-"      // 1 1 1 1
         };
         static const char* strings_element_type[] =
         {
@@ -462,7 +469,7 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             CVT100_OUT(COLOR_VALUE_B),
             strings_operand_type[instruction->operands[i].type],
             strings_operand_visibility[instruction->operands[i].visibility],
-            strings_operand_action[instruction->operands[i].action],
+            strings_operand_actions[instruction->operands[i].actions],
             strings_operand_encoding[instruction->operands[i].encoding],
             CVT100_OUT(COLOR_VALUE_G),
             instruction->operands[i].size,
@@ -704,7 +711,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
-        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_SAE ? "Y" : "N");
+        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_sae ? "Y" : "N");
         PRINT_VALUE_R("MASK", "%s %s[%s%s%s]",
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
@@ -712,7 +719,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
-        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_SAE ? "Y" : "N");
+        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_sae ? "Y" : "N");
         PRINT_VALUE_R("MASK", "%s %s[%sMERGING%s]",
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
@@ -1048,6 +1055,9 @@ int main(int argc, char** argv)
                      ZYAN_SUCCESS(ZyanTerminalEnableVT100(ZYAN_STDSTREAM_OUT));
     g_vt100_stderr = (ZyanTerminalIsTTY(ZYAN_STDSTREAM_ERR) == ZYAN_STATUS_TRUE) &&
                      ZYAN_SUCCESS(ZyanTerminalEnableVT100(ZYAN_STDSTREAM_ERR));
+
+    ZYAN_PRINTF("%llu\n", sizeof(ZydisDecodedInstruction));
+    ZYAN_PRINTF("%llu\n", sizeof(ZydisDecodedOperand));
 
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {

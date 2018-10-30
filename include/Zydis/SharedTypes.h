@@ -322,62 +322,79 @@ typedef enum ZydisOperandVisibility_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisOperandVisibility` enum.
+ * @brief   Defines the `ZydisOperandAction` enum.
  */
 typedef enum ZydisOperandAction_
 {
-    ZYDIS_OPERAND_ACTION_INVALID,
+    /* ------------------------------------------------------------------------------------------ */
+    /* Elemental actions                                                                          */
+    /* ------------------------------------------------------------------------------------------ */
+
     /**
      * @brief   The operand is read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_READ,
+    ZYDIS_OPERAND_ACTION_READ       = 0x01,
     /**
      * @brief   The operand is written by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_WRITE,
-    /**
-     * @brief   The operand is read and written by the instruction (must write).
-     */
-    ZYDIS_OPERAND_ACTION_READWRITE,
+    ZYDIS_OPERAND_ACTION_WRITE      = 0x02,
     /**
      * @brief   The operand is conditionally read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD,
+    ZYDIS_OPERAND_ACTION_CONDREAD   = 0x04,
     /**
      * @brief   The operand is conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_CONDWRITE,
-    /**
-     * @brief   The operand is read and conditionally written by the instruction (may write).
-     */
-    ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
-    /**
-     * @brief   The operand is written and conditionally read by the instruction (must write).
-     */
-    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    ZYDIS_OPERAND_ACTION_CONDWRITE  = 0x08,
+
+    /* ------------------------------------------------------------------------------------------ */
+    /* Combined actions                                                                           */
+    /* ------------------------------------------------------------------------------------------ */
 
     /**
-     * @brief   Mask combining all writing access flags.
+     * @brief   The operand is read (must read) and written by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_MASK_WRITE = ZYDIS_OPERAND_ACTION_WRITE |
-        ZYDIS_OPERAND_ACTION_READWRITE | ZYDIS_OPERAND_ACTION_CONDWRITE |
-        ZYDIS_OPERAND_ACTION_READ_CONDWRITE | ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    ZYDIS_OPERAND_ACTION_READWRITE = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_WRITE,
+    /**
+     * @brief   The operand is conditionally read (may read) and conditionally written by the
+     *          instruction (may write).
+     */
+    ZYDIS_OPERAND_ACTION_CONDREAD_CONDWRITE =
+        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_CONDWRITE,
+    /**
+     * @brief   The operand is read (must read) and conditionally written by the instruction
+     *          (may write).
+     */
+    ZYDIS_OPERAND_ACTION_READ_CONDWRITE =
+        ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE,
+    /**
+     * @brief   The operand is written (must write) and conditionally read by the instruction
+     *          (may read).
+     */
+    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE =
+        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_WRITE,
+
     /**
      * @brief   Mask combining all reading access flags.
      */
-    ZYDIS_OPERAND_ACTION_MASK_READ = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_READWRITE |
-        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_READ_CONDWRITE |
-        ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
+    ZYDIS_OPERAND_ACTION_MASK_READ  = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDREAD,
+    /**
+     * @brief   Mask combining all writing access flags.
+     */
+    ZYDIS_OPERAND_ACTION_MASK_WRITE = ZYDIS_OPERAND_ACTION_WRITE | ZYDIS_OPERAND_ACTION_CONDWRITE,
+
+    /* ------------------------------------------------------------------------------------------ */
 
     /**
-     * @brief   Maximum value of this enum.
+     * @brief   The minimum number of bits required to represent all values of this bitset.
      */
-    ZYDIS_OPERAND_ACTION_MAX_VALUE = ZYDIS_OPERAND_ACTION_CONDREAD_WRITE,
-    /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_OPERAND_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_ACTION_MAX_VALUE)
+    ZYDIS_OPERAND_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_ACTION_CONDWRITE)
 } ZydisOperandAction;
+
+/**
+ * @brief   Defines the `ZydisOperandActions` datatype.
+ */
+typedef ZyanU8 ZydisOperandActions;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction encoding                                                                           */

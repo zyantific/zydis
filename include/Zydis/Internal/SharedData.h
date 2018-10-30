@@ -214,7 +214,7 @@ typedef struct ZydisOperandDefinition_
 {
     ZyanU8 type                            ZYAN_BITFIELD(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS);
     ZyanU8 visibility                      ZYAN_BITFIELD(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS);
-    ZyanU8 action                          ZYAN_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
+    ZyanU8 actions                         ZYAN_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
     ZyanU16 size[3];
     ZyanU8 element_type                    ZYAN_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
     union

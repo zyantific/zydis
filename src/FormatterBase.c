@@ -622,7 +622,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         break;
     case ZYDIS_DECORATOR_RC:
 #if !defined(ZYDIS_DISABLE_AVX512)
-        if (context->instruction->avx.has_SAE)
+        if (context->instruction->avx.has_sae)
         {
             switch (context->instruction->avx.rounding.mode)
             {
@@ -669,7 +669,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         break;
     case ZYDIS_DECORATOR_SAE:
 #if !defined(ZYDIS_DISABLE_AVX512)
-        if (context->instruction->avx.has_SAE && !context->instruction->avx.rounding.mode)
+        if (context->instruction->avx.has_sae && !context->instruction->avx.rounding.mode)
         {
             ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_SAE, formatter->case_decorators);
         }
