@@ -10,14 +10,14 @@
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Header Files\Zycore">
-      <UniqueIdentifier>{2C8FA06C-89F9-4D92-8182-B42C1D5E459D}</UniqueIdentifier>
+      <UniqueIdentifier>{48794B8D-2E4F-4E2F-901F-77F8CB177A92}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Zydis">
-      <UniqueIdentifier>{1314C403-E579-49B8-9A96-4C9483FBB054}</UniqueIdentifier>
+      <UniqueIdentifier>{B4E29716-3340-4942-8633-40107E569597}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\tools\ZydisInfo.c">
+    <ClCompile Include="..\..\tools\ZydisFuzzIn.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

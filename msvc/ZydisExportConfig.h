@@ -39,4 +39,4 @@
 #  endif
 #endif
 
-#endif
+#endif /* ZYDIS_EXPORT_H */
