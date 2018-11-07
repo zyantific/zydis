@@ -111,7 +111,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>ZYCORE_NO_LIBC;ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_X86_=1;i386=1;STD_CALL;DBG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_X86_=1;i386=1;STD_CALL;DBG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gw /kernel</AdditionalOptions>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)../dependencies/zycore/include;$(SolutionDir)../include;$(SolutionDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -134,7 +134,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>ZYCORE_NO_LIBC;ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_X86_=1;i386=1;STD_CALL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_X86_=1;i386=1;STD_CALL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gw /kernel</AdditionalOptions>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)../dependencies/zycore/include;$(SolutionDir)../include;$(SolutionDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -160,7 +160,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ZYCORE_NO_LIBC;ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_WIN64;_AMD64_;AMD64;DBG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_WIN64;_AMD64_;AMD64;DBG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gw /kernel</AdditionalOptions>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)../dependencies/zycore/include;$(SolutionDir)../include;$(SolutionDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -183,7 +183,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>ZYCORE_NO_LIBC;ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_WIN64;_AMD64_;AMD64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZYAN_NO_LIBC;ZYDIS_NO_LIBC;ZYCORE_STATIC_DEFINE;ZYDIS_STATIC_DEFINE;POOL_NX_OPTIN;_WIN64;_AMD64_;AMD64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/Gw /kernel</AdditionalOptions>
       <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <AdditionalIncludeDirectories>$(SolutionDir)../dependencies/zycore/include;$(SolutionDir)../include;$(SolutionDir);$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
