@@ -2106,13 +2106,11 @@ FinalizeOperand:
                 instruction->operands[0].actions = ZYDIS_OPERAND_ACTION_CONDWRITE;
             } else
             {
-                instruction->operands[0].actions =
-                    ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE;
+                instruction->operands[0].actions = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
             }
             break;
-        case ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_WRITE:
-            instruction->operands[0].actions =
-                ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE;
+        case ZYDIS_OPERAND_ACTION_READWRITE:
+            instruction->operands[0].actions = ZYDIS_OPERAND_ACTION_READ_CONDWRITE;
             break;
         default:
             break;
