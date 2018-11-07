@@ -58,13 +58,13 @@ RtlImageNtHeader(
     _In_ PVOID ImageBase
     );
 
-#if defined(ZYDIS_CLANG) || defined(ZYDIS_GNUC)
+#if defined(ZYAN_CLANG) || defined(ZYAN_GNUC)
 __attribute__((section("INIT")))
 #endif
 DRIVER_INITIALIZE
 DriverEntry;
 
-#if defined(ALLOC_PRAGMA) && !(defined(ZYDIS_CLANG) || defined(ZYDIS_GNUC))
+#if defined(ALLOC_PRAGMA) && !(defined(ZYAN_CLANG) || defined(ZYAN_GNUC))
 #pragma alloc_text(INIT, DriverEntry)
 #endif
 
@@ -113,7 +113,7 @@ DriverEntry(
     RtlPcToFileHeader((PVOID)DriverObject->DriverInit, (PVOID*)&imageBase);
     if (imageBase == 0)
         return STATUS_DRIVER_ENTRYPOINT_NOT_FOUND;
-    PIMAGE_NT_HEADERS ntHeaders = RtlImageNtHeader((PVOID)imageBase);
+    const PIMAGE_NT_HEADERS ntHeaders = RtlImageNtHeader((PVOID)imageBase);
     if (imageBase == 0)
         return STATUS_INVALID_IMAGE_FORMAT;
 
@@ -147,36 +147,37 @@ DriverEntry(
     // Initialize Zydis decoder and formatter
     ZydisDecoder decoder;
 #ifdef _M_AMD64
-    if (!ZYDIS_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
 #else
-    if (!ZYDIS_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32)))
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32)))
 #endif
         return STATUS_DRIVER_INTERNAL_ERROR;
 
     ZydisFormatter formatter;
-    if (!ZYDIS_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)))
+    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)))
         return STATUS_DRIVER_INTERNAL_ERROR;
 
     SIZE_T readOffset = 0;
     ZydisDecodedInstruction instruction;
-    ZydisStatus status;
+    ZyanStatus status;
     CHAR printBuffer[128];
 
     // Start the decode loop
     while ((status = ZydisDecoderDecodeBuffer(&decoder, (PVOID)(imageBase + entryPointRva + readOffset),
-        length - readOffset, (ULONG_PTR)(imageBase + entryPointRva + readOffset), &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
+        length - readOffset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
         NT_ASSERT(ZYDIS_SUCCESS(status));
-        if (!ZYDIS_SUCCESS(status))
+        if (!ZYAN_SUCCESS(status))
         {
             readOffset++;
             continue;
         }
 
         // Format and print the instruction
+        const ZyanU64 instrAddress = (ZyanU64)(imageBase + entryPointRva + readOffset);
         ZydisFormatterFormatInstruction(
-            &formatter, &instruction, printBuffer, sizeof(printBuffer));
-        Print("+%-4X 0x%-16llX\t\t%s\n", readOffset, instruction.instrAddress, printBuffer);
+            &formatter, &instruction, printBuffer, sizeof(printBuffer), instrAddress);
+        Print("+%-4X 0x%-16llX\t\t%hs\n", readOffset, instrAddress, printBuffer);
 
         readOffset += instruction.length;
     }
