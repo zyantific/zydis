@@ -550,7 +550,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-#if !defined(ZYDIS_DISABLE_AVX512) && !defined(ZYDIS_DISABLE_KNC)
+#if defined(ZYDIS_DISABLE_AVX512) && defined(ZYDIS_DISABLE_KNC)
     ZYAN_UNUSED(formatter);
     ZYAN_UNUSED(buffer);
     ZYAN_UNUSED(context);
