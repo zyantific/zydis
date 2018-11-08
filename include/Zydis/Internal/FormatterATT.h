@@ -119,13 +119,13 @@ static const ZydisFormatter FORMATTER_ATT =
             // Prefix
             {
                 /* string      */ ZYAN_NULL,
-                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* string_data */ ZYAN_DEFINE_STRING_VIEW(""),
                 /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             },
             // Suffix
             {
                 /* string      */ ZYAN_NULL,
-                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* string_data */ ZYAN_DEFINE_STRING_VIEW(""),
                 /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             }
         },
@@ -135,13 +135,13 @@ static const ZydisFormatter FORMATTER_ATT =
             {
                 /* string      */ &FORMATTER_ATT.number_format[
                                     ZYDIS_NUMERIC_BASE_HEX][0].string_data,
-                /* string_data */ ZYAN_DECLARE_STRING_VIEW("0x"),
+                /* string_data */ ZYAN_DEFINE_STRING_VIEW("0x"),
                 /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             },
             // Suffix
             {
                 /* string      */ ZYAN_NULL,
-                /* string_data */ ZYAN_DECLARE_STRING_VIEW(""),
+                /* string_data */ ZYAN_DEFINE_STRING_VIEW(""),
                 /* buffer      */ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
             }
         }
