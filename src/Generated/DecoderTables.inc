@@ -5662,7 +5662,7 @@ const ZydisDecoderTreeNode FILTERS_REX_B[][2] =
     { ZYDIS_DEFINITION(0x0, 0x39D), ZYDIS_DEFINITION(0x0, 0x73C) }
 };
 
-#ifndef ZYDIS_DISABLE_EVEX
+#ifndef ZYDIS_DISABLE_AVX512
 const ZydisDecoderTreeNode FILTERS_EVEX_B[][2] =
 {
     { ZYDIS_FILTER(ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH, 0x0), ZYDIS_INVALID }, 
@@ -6606,7 +6606,7 @@ const ZydisDecoderTreeNode FILTERS_EVEX_B[][2] =
 };
 #endif
 
-#ifndef ZYDIS_DISABLE_MVEX
+#ifndef ZYDIS_DISABLE_KNC
 const ZydisDecoderTreeNode FILTERS_MVEX_E[][2] =
 {
     { ZYDIS_DEFINITION(0x1, 0xC7), ZYDIS_DEFINITION(0x1, 0xC8) }, 
