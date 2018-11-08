@@ -43,6 +43,17 @@ option(ZYDIS_FUZZ_AFL_FAST
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
+if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore/CMakeLists.txt")
+    message(
+        FATAL_ERROR
+        "Can't find zycore submodule. Please make sure to clone the repo recursively.\n"
+        "You can fix this by running\n"
+        "    git submodule update --init\n"
+        "or by cloning using\n"
+        "    git clone --recursive <url>"
+    )
+endif ()
+
 # add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_BINARY_DIR}/zycore"
 #     EXCLUDE_FROM_ALL)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
