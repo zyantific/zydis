@@ -166,7 +166,7 @@ DriverEntry(
     while ((status = ZydisDecoderDecodeBuffer(&decoder, (PVOID)(imageBase + entryPointRva + readOffset),
         length - readOffset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
-        NT_ASSERT(ZYDIS_SUCCESS(status));
+        NT_ASSERT(ZYAN_SUCCESS(status));
         if (!ZYAN_SUCCESS(status))
         {
             readOffset++;
