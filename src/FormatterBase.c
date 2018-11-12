@@ -55,22 +55,22 @@ static const ZydisShortString* const STR_PREF_REX[16] =
 
 static const ZydisPredefinedToken* const TOK_PREF_REX[16] =
 {
-    &TOK_PREF_REX_40,
-    &TOK_PREF_REX_41,
-    &TOK_PREF_REX_42,
-    &TOK_PREF_REX_43,
-    &TOK_PREF_REX_44,
-    &TOK_PREF_REX_45,
-    &TOK_PREF_REX_46,
-    &TOK_PREF_REX_47,
-    &TOK_PREF_REX_48,
-    &TOK_PREF_REX_49,
-    &TOK_PREF_REX_4A,
-    &TOK_PREF_REX_4B,
-    &TOK_PREF_REX_4C,
-    &TOK_PREF_REX_4D,
-    &TOK_PREF_REX_4E,
-    &TOK_PREF_REX_4F
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_40,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_41,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_42,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_43,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_44,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_45,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_46,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_47,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_48,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_49,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4A,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4B,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4C,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4D,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4E,
+    (const ZydisPredefinedToken* const)&TOK_DATA_PREF_REX_4F
 };
 
 /* ============================================================================================== */

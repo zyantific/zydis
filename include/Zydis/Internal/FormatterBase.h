@@ -149,7 +149,7 @@ extern "C" {
 #define ZYDIS_BUFFER_APPEND(buffer, name) \
     if ((buffer)->is_token_list) \
     { \
-        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, &TOK_ ## name)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, TOK_ ## name)); \
     } else \
     { \
         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
@@ -167,7 +167,7 @@ extern "C" {
 #define ZYDIS_BUFFER_APPEND_CASE(buffer, name, letter_case) \
     if ((buffer)->is_token_list) \
     { \
-        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, &TOK_ ## name)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, TOK_ ## name)); \
     } else \
     { \
         ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_ ## name, letter_case)); \
