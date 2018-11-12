@@ -1056,8 +1056,8 @@ int main(int argc, char** argv)
     g_vt100_stderr = (ZyanTerminalIsTTY(ZYAN_STDSTREAM_ERR) == ZYAN_STATUS_TRUE) &&
                      ZYAN_SUCCESS(ZyanTerminalEnableVT100(ZYAN_STDSTREAM_ERR));
 
-    ZYAN_PRINTF("%zu\n", sizeof(ZydisDecodedInstruction));
-    ZYAN_PRINTF("%zu\n", sizeof(ZydisDecodedOperand));
+    // ZYAN_PRINTF("%zu\n", sizeof(ZydisDecodedInstruction));
+    // ZYAN_PRINTF("%zu\n", sizeof(ZydisDecodedOperand));
 
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
