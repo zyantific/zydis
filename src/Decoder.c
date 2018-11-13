@@ -2612,6 +2612,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 default:
                     ZYAN_UNREACHABLE;
                 }
+                ZYAN_FALLTHROUGH;
             case ZYDIS_TUPLETYPE_T1S:
             {
                 static const ZyanU8 scales[6] =
