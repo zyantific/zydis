@@ -344,7 +344,10 @@ ZyanStatus ZydisStringAppendHexU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
     {
         ZYAN_CHECK(ZydisStringAppendHexU64(string, value, padding_length, uppercase));
     }
-    ZYAN_CHECK(ZydisStringAppendHexU32(string, (ZyanU32)value, padding_length, uppercase));
+    else
+    {
+        ZYAN_CHECK(ZydisStringAppendHexU32(string, (ZyanU32)value, padding_length, uppercase));
+    }
 #endif
 
     if (suffix)
