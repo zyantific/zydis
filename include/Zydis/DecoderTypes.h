@@ -260,7 +260,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * @brief   The instruction is privileged.
  *
- * Priviliged instructions are any instructions that require a current ring level below 3.
+ * Privileged instructions are any instructions that require a current ring level below 3.
  */
 #define ZYDIS_ATTRIB_IS_PRIVILEGED              0x0000000000000100 // (1 <<  8)
 
