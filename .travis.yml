@@ -1,0 +1,12 @@
+language: c
+
+compiler:
+    - clang
+    - gcc
+
+env:
+    - CMAKE_CALL="cmake -DZYAN_NO_LIBC=ON .."
+    - CMAKE_CALL="cmake -DZYAN_NO_LIBC=OFF .."
+
+script: 
+    - mkdir build && cd build && eval "${CMAKE_CALL}" && make
