@@ -174,7 +174,7 @@ endfunction ()
 # Examples                                                                                        #
 # =============================================================================================== #
 
-if (ZYDIS_BUILD_EXAMPLES)
+if (ZYDIS_BUILD_EXAMPLES AND NOT ZYAN_NO_LIBC)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("Formatter01" "examples/Formatter01.c")
         target_link_libraries("Formatter01" "Zycore")
@@ -223,7 +223,7 @@ endif ()
 # Tools                                                                                           #
 # =============================================================================================== #
 
-if (ZYDIS_BUILD_TOOLS)
+if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
         target_link_libraries("ZydisDisasm" "Zycore")
