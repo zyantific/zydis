@@ -11,9 +11,9 @@ Fast and lightweight x86/x86-64 disassembler library.
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
 - [Complete doxygen documentation](https://zydis.re/doc/3/)
-- Absolutely no third party dependencies — [not even libc](https://github.com/zyantific/zydis/blob/develop/CMakeLists.txt#L32)
+- Absolutely no third party dependencies — not even libc
   - Should compile on any platform with a working C99 compiler
-  - Tested on Windows, macOS, FreeBSD and Linux, both user and kernel mode
+  - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
 
 ## Quick Example
 
