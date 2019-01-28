@@ -150,6 +150,21 @@ typedef enum ZydisRegisterClass
 typedef ZyanU16 ZydisRegisterWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Register context                                                                               */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * @brief   Defines the `ZydisRegisterContext` struct.
+ */
+typedef struct ZydisRegisterContext_
+{
+    /**
+     * @brief   The values stored in the register context.
+     */
+    ZyanU64 values[ZYDIS_REGISTER_MAX_VALUE + 1];
+} ZydisRegisterContext;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */

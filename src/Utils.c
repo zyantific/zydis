@@ -36,9 +36,9 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operand, ZyanU64 runtime_address, ZyanU64* target_address)
+    const ZydisDecodedOperand* operand, ZyanU64 runtime_address, ZyanU64* result_address)
 {
-    if (!instruction || !operand || !target_address)
+    if (!instruction || !operand || !result_address)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -51,13 +51,13 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
         }
         if (operand->mem.base == ZYDIS_REGISTER_EIP)
         {
-            *target_address = ((ZyanU32)runtime_address + instruction->length +
+            *result_address = ((ZyanU32)runtime_address + instruction->length +
                 (ZyanU32)operand->mem.disp.value);
             return ZYAN_STATUS_SUCCESS;
         }
         if (operand->mem.base == ZYDIS_REGISTER_RIP)
         {
-            *target_address = (ZyanU64)(runtime_address + instruction->length +
+            *result_address = (ZyanU64)(runtime_address + instruction->length +
                 operand->mem.disp.value);
             return ZYAN_STATUS_SUCCESS;
         }
@@ -67,13 +67,13 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             switch (instruction->address_width)
             {
             case 16:
-                *target_address = (ZyanU64)operand->mem.disp.value & 0x000000000000FFFF;
+                *result_address = (ZyanU64)operand->mem.disp.value & 0x000000000000FFFF;
                 return ZYAN_STATUS_SUCCESS;
             case 32:
-                *target_address = (ZyanU64)operand->mem.disp.value & 0x00000000FFFFFFFF;
+                *result_address = (ZyanU64)operand->mem.disp.value & 0x00000000FFFFFFFF;
                 return ZYAN_STATUS_SUCCESS;
             case 64:
-                *target_address = (ZyanU64)operand->mem.disp.value;
+                *result_address = (ZyanU64)operand->mem.disp.value;
                 return ZYAN_STATUS_SUCCESS;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -83,7 +83,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
         if (operand->imm.is_signed && operand->imm.is_relative)
         {
-            *target_address = (ZyanU64)((ZyanI64)runtime_address + instruction->length +
+            *result_address = (ZyanU64)((ZyanI64)runtime_address + instruction->length +
                 operand->imm.value.s);
             switch (instruction->machine_mode)
             {
@@ -94,7 +94,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             case ZYDIS_MACHINE_MODE_LEGACY_32:
                 if (operand->size == 16)
                 {
-                    *target_address &= 0xFFFF;
+                    *result_address &= 0xFFFF;
                 }
                 break;
             case ZYDIS_MACHINE_MODE_LONG_64:
@@ -109,6 +109,53 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
         break;
     }
     return ZYAN_STATUS_INVALID_ARGUMENT;
+}
+
+ZyanStatus ZydisCalcAbsoluteAddressEx(const ZydisDecodedInstruction* instruction,
+    const ZydisDecodedOperand* operand, ZyanU64 runtime_address,
+    const ZydisRegisterContext* register_context, ZyanU64* result_address)
+{
+    // TODO: Test this with AGEN/MIB operands
+    // TODO: Add support for Gather/Scatter instructions
+
+    if (!instruction || !operand || !register_context || !result_address)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if ((operand->type != ZYDIS_OPERAND_TYPE_MEMORY) ||
+        ((operand->mem.base == ZYDIS_REGISTER_NONE) &&
+         (operand->mem.index == ZYDIS_REGISTER_NONE)) ||
+        (operand->mem.base == ZYDIS_REGISTER_EIP) ||
+        (operand->mem.base == ZYDIS_REGISTER_RIP))
+    {
+        return ZydisCalcAbsoluteAddress(instruction, operand, runtime_address, result_address);
+    }
+
+    ZyanU64 value = operand->mem.disp.value;
+    if (operand->mem.base)
+    {
+        value += register_context->values[operand->mem.base];
+    }
+    if (operand->mem.index)
+    {
+        value += register_context->values[operand->mem.index] * operand->mem.scale;
+    }
+
+    switch (instruction->address_width)
+    {
+    case 16:
+        *result_address = value & 0x000000000000FFFF;
+        return ZYAN_STATUS_SUCCESS;
+    case 32:
+        *result_address = value & 0x00000000FFFFFFFF;
+        return ZYAN_STATUS_SUCCESS;
+    case 64:
+        *result_address = value;
+        return ZYAN_STATUS_SUCCESS;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
 }
 
 /* ---------------------------------------------------------------------------------------------- */
