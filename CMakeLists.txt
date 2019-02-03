@@ -69,7 +69,7 @@ else ()
 endif ()
 
 zyan_set_common_flags("Zydis")
-target_link_libraries("Zydis" PRIVATE "Zycore")
+target_link_libraries("Zydis" PUBLIC "Zycore")
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
