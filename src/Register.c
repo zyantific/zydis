@@ -215,7 +215,6 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
         /* R15B */ 15,
     };
 
-
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(REGISTER_MAP); ++i)
     {
         if ((reg >= REGISTER_MAP[i].lo) && (reg <= REGISTER_MAP[i].hi))

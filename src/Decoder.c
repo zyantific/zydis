@@ -2867,7 +2867,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             static const ZyanU8 lookup[3][8] =
             {
                 { 64,  4, 16, 32, 16, 16, 32, 32 },
-                { 4,   0,  0,  2,  1,  1,  2,  2 },
+                {  4,  0,  0,  2,  1,  1,  2,  2 },
                 { 16,  0,  0,  8,  4,  4,  8,  8 }
             };
             ZYAN_ASSERT(instruction->raw.mvex.SSS < ZYAN_ARRAY_LENGTH(lookup[index]));
@@ -2912,6 +2912,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 64,  0,  0, 32, 16, 16, 32, 32 },
                 {  4,  0,  0,  2,  1,  1,  2,  2 }
             };
+            ZYAN_ASSERT(index < 2);
             ZYAN_ASSERT(instruction->raw.mvex.SSS < ZYAN_ARRAY_LENGTH(lookup[index]));
             context->cd8_scale = lookup[index][instruction->raw.mvex.SSS];
             break;
@@ -2924,6 +2925,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 { 64 },
                 {  8 }
             };
+            ZYAN_ASSERT(index < 2);
             ZYAN_ASSERT(instruction->raw.mvex.SSS < ZYAN_ARRAY_LENGTH(lookup[index]));
             context->cd8_scale = lookup[index][instruction->raw.mvex.SSS];
             break;
