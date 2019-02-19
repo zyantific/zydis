@@ -105,7 +105,7 @@ ZydisRegister ZydisRegisterEncode(ZydisRegisterClass register_class, ZyanU8 id)
     case ZYDIS_REGCLASS_IP:
         break;
     default:
-        if ((register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP)) &&
+        if (((ZyanUSize)register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP)) &&
             (id <= (REGISTER_MAP[register_class].hi - REGISTER_MAP[register_class].lo)))
         {
             return REGISTER_MAP[register_class].lo + id;
@@ -267,7 +267,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode,
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if (reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
+    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
     {
         return ZYAN_NULL;
     }
@@ -276,7 +276,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
 
 const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 {
-    if (reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
+    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
     {
         return ZYAN_NULL;
     }
@@ -290,7 +290,7 @@ const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 ZydisRegisterWidth ZydisRegisterClassGetWidth(ZydisMachineMode mode,
     ZydisRegisterClass register_class)
 {
-    if (register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP))
+    if ((ZyanUSize)register_class < ZYAN_ARRAY_LENGTH(REGISTER_MAP))
     {
         return (mode == ZYDIS_MACHINE_MODE_LONG_64) ?
             REGISTER_MAP[register_class].width64 : REGISTER_MAP[register_class].width;

@@ -606,7 +606,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
 
     PrintValueLabel("ACTIONS");
     ZyanU8 c = 0;
-    for (ZydisCPUFlag i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
+    for (ZydisCPUFlag i = 0; (ZyanUSize)i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
     {
         if (instruction->accessed_flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
         {

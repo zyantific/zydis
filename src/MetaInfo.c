@@ -40,7 +40,7 @@
 
 const char* ZydisCategoryGetString(ZydisInstructionCategory category)
 {
-    if (category >= ZYAN_ARRAY_LENGTH(STR_INSTRUCTIONCATEGORY))
+    if ((ZyanUSize)category >= ZYAN_ARRAY_LENGTH(STR_INSTRUCTIONCATEGORY))
     {
         return ZYAN_NULL;
     }
@@ -49,7 +49,7 @@ const char* ZydisCategoryGetString(ZydisInstructionCategory category)
 
 const char* ZydisISASetGetString(ZydisISASet isa_set)
 {
-    if (isa_set >= ZYAN_ARRAY_LENGTH(STR_ISASET))
+    if ((ZyanUSize)isa_set >= ZYAN_ARRAY_LENGTH(STR_ISASET))
     {
         return ZYAN_NULL;
     }
@@ -58,7 +58,7 @@ const char* ZydisISASetGetString(ZydisISASet isa_set)
 
 const char* ZydisISAExtGetString(ZydisISAExt isa_ext)
 {
-    if (isa_ext >= ZYAN_ARRAY_LENGTH(STR_ISAEXT))
+    if ((ZyanUSize)isa_ext >= ZYAN_ARRAY_LENGTH(STR_ISAEXT))
     {
         return ZYAN_NULL;
     }
