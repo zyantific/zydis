@@ -33,7 +33,7 @@
 
 const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 {
-    if (mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
+    if ((ZyanUSize)mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
     {
         return ZYAN_NULL;
     }
@@ -42,7 +42,7 @@ const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
 
 const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic)
 {
-    if (mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
+    if ((ZyanUSize)mnemonic >= ZYAN_ARRAY_LENGTH(STR_MNEMONIC))
     {
         return ZYAN_NULL;
     }
