@@ -90,6 +90,7 @@ build*
 *.opensdf
 *.VC.db
 *.VC.opendb
+msvc/**/*.user
 msvc/**/obj/
 msvc/**/bin/
 

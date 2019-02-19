@@ -35,10 +35,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{91EF3E98-CD57-3870-A399-A0D98D193F80}</ProjectGuid>
+    <ProjectGuid>{B715A378-C8B9-4DC1-A57B-8BC4C47CED28}</ProjectGuid>
     <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>ZydisPerfTest</ProjectName>
+    <ProjectName>Formatter01</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -399,7 +399,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\ZydisPerfTest.c" />
+    <ClCompile Include="..\..\examples\Formatter01.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
