@@ -114,13 +114,13 @@ DriverEntry(
     if (imageBase == 0)
         return STATUS_DRIVER_ENTRYPOINT_NOT_FOUND;
     const PIMAGE_NT_HEADERS ntHeaders = RtlImageNtHeader((PVOID)imageBase);
-    if (imageBase == 0)
+    if (ntHeaders == NULL)
         return STATUS_INVALID_IMAGE_FORMAT;
 
     // Get the section headers of the INIT section
     PIMAGE_SECTION_HEADER section = IMAGE_FIRST_SECTION(ntHeaders);
     PIMAGE_SECTION_HEADER initSection = NULL;
-    for (ULONG i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
+    for (USHORT i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i)
     {
         if (memcmp(section->Name, "INIT", sizeof("INIT") - 1) == 0)
         {
@@ -141,7 +141,7 @@ DriverEntry(
         importDirRva < initSection->VirtualAddress + initSection->SizeOfRawData)
         length = importDirRva - entryPointRva;
 
-    Print("Driver image base: 0x%p, size: 0x%X\n", imageBase, ntHeaders->OptionalHeader.SizeOfImage);
+    Print("Driver image base: 0x%p, size: 0x%X\n", (PVOID)imageBase, ntHeaders->OptionalHeader.SizeOfImage);
     Print("Entry point RVA: 0x%X (0x%p)\n", entryPointRva, DriverObject->DriverInit);
 
     // Initialize Zydis decoder and formatter
@@ -177,7 +177,7 @@ DriverEntry(
         const ZyanU64 instrAddress = (ZyanU64)(imageBase + entryPointRva + readOffset);
         ZydisFormatterFormatInstruction(
             &formatter, &instruction, printBuffer, sizeof(printBuffer), instrAddress);
-        Print("+%-4X 0x%-16llX\t\t%hs\n", readOffset, instrAddress, printBuffer);
+        Print("+%-4X 0x%-16llX\t\t%hs\n", (ULONG)readOffset, instrAddress, printBuffer);
 
         readOffset += instruction.length;
     }
