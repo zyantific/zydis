@@ -976,7 +976,6 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
     };
 
     PrintSectionHeader("BASIC");
-
     PrintValueLabel("MNEMONIC");
     ZYAN_PRINTF("%s%s%s [ENC: %s%s%s, MAP: %s%s%s, OPC: %s0x%02X%s]%s\n",
         CVT100_OUT(COLOR_VALUE_R), ZydisMnemonicGetString(instruction->mnemonic),
