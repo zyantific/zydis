@@ -31,8 +31,8 @@
  */
 
 #include <inttypes.h>
+#include <Zycore/API/Terminal.h>
 #include <Zycore/LibC.h>
-#include <Zycore/Terminal.h>
 #include <Zydis/Zydis.h>
 
 /* ============================================================================================== */

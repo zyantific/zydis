@@ -29,8 +29,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <Zycore/API/Terminal.h>
 #include <Zycore/LibC.h>
-#include <Zycore/Terminal.h>
 #include <Zydis/Zydis.h>
 
 #if defined(ZYAN_WINDOWS)
