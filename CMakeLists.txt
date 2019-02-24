@@ -68,12 +68,12 @@ else ()
     add_library("Zydis" STATIC)
 endif ()
 
-zyan_set_common_flags("Zydis")
 target_link_libraries("Zydis" PUBLIC "Zycore")
 target_include_directories("Zydis"
     PUBLIC "include" ${PROJECT_BINARY_DIR}
     PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
+zyan_set_common_flags("Zydis")
 zyan_maybe_enable_wpo_for_lib("Zydis")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
@@ -145,8 +145,10 @@ if (ZYDIS_FEATURE_DECODER)
 endif ()
 
 if (ZYDIS_BUILD_SHARED_LIB AND WIN32)
-    target_sources("Zydis" PRIVATE "src/VersionInfo.rc")
+    target_sources("Zydis" PRIVATE "resources/VersionInfo.rc")
 endif ()
+
+zyan_set_source_group("Zydis")
 
 # TODO: Install CMake config.
 install(TARGETS "Zydis"
