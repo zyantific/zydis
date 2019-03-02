@@ -42,6 +42,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
+
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
@@ -108,6 +109,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     default:
         break;
     }
+
     return ZYAN_STATUS_INVALID_ARGUMENT;
 }
 

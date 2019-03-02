@@ -3329,9 +3329,9 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* conte
             if (has_sib)
             {
                 instruction->raw.sib.offset = instruction->length;
-                ZyanU8 sibByte;
-                ZYAN_CHECK(ZydisInputNext(context, instruction, &sibByte));
-                ZydisDecodeSIB(instruction, sibByte);
+                ZyanU8 sib_byte;
+                ZYAN_CHECK(ZydisInputNext(context, instruction, &sib_byte));
+                ZydisDecodeSIB(instruction, sib_byte);
                 if (instruction->raw.sib.base == 5)
                 {
                     displacement_size = (instruction->raw.modrm.mod == 1) ? 8 : 32;
