@@ -1,7 +1,21 @@
-![zydis logo](https://mainframe.pw/u/P94JAqY9XSDdPedv.svg?x)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) [![Gitter](https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg)](https://gitter.im/zyantific/zydis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge) [![Discord](https://img.shields.io/discord/390136917779415060.svg?logo=discord&label=Discord)](https://discord.zyantific.com/) [![Build status](https://ci.appveyor.com/api/projects/status/2tad27q0b9v6qtga/branch/master?svg=true)](https://ci.appveyor.com/project/athre0z/zydis/branch/master)
+<p align="center">
+  <img alt="zydis logo" src="https://zydis.re/img/logo.svg" width="400px">
+</p>
 
-Fast and lightweight x86/x86-64 disassembler library.
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT">
+  <a href="https://gitter.im/zyantific/zydis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge">
+    <img src="https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg" alt="Gitter">
+  </a>
+  <a href="https://discord.zyantific.com/">
+    <img src="https://img.shields.io/discord/390136917779415060.svg?logo=discord&label=Discord">
+  </a>
+  <a href="https://ci.appveyor.com/project/athre0z/zydis/branch/master">
+    <img src="https://ci.appveyor.com/api/projects/status/2tad27q0b9v6qtga/branch/master?svg=true">
+  </a>
+</p>
+
+<p align="center">Fast and lightweight x86/x86-64 disassembler library.</p>
 
 ## Features
 - Supports all x86 and x86-64 (AMD64) instructions and [extensions](./include/Zydis/Generated/EnumISAExt.h)
