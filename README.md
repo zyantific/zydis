@@ -4,19 +4,17 @@
 Fast and lightweight x86/x86-64 disassembler library.
 
 ## Features
-
 - Supports all x86 and x86-64 (AMD64) instructions and [extensions](./include/Zydis/Generated/EnumISAExt.h)
 - Optimized for high performance
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
-- [Complete doxygen documentation](https://zydis.re/doc/3/)
+- Complete doxygen documentation ([master](https://zydis.re/doc/3/), [stable](https://zydis.re/doc/2/))
 - Absolutely no third party dependencies — not even libc
   - Should compile on any platform with a working C99 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
 
 ## Quick Example
-
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](./examples/)).
 
 ```C
@@ -68,7 +66,6 @@ int main()
 ```
 
 ## Sample Output
-
 The above example program generates the following output:
 
 ```asm
@@ -85,7 +82,6 @@ The above example program generates the following output:
 ## Build
 
 #### Unix
-
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
 ```bash
@@ -97,21 +93,28 @@ make
 ```
 
 #### Windows
-
 Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
 ## `ZydisInfo` tool
 ![ZydisInfo](./assets/screenshots/ZydisInfo.png)
 
 ## Bindings
-
- Official bindings exist for a selection of languages:
+Official bindings exist for a selection of languages:
 - [Rust](https://github.com/zyantific/zydis-rs)
 - [Pascal](https://github.com/zyantific/zydis-pascal)
 
-Inofficial but actively maintained bindings:
+Unofficial but actively maintained bindings:
 - [Python 3](https://github.com/novogen/pydis)
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
+
+## Versions
+
+#### Scheme
+Versions follow the [semantic versioning scheme](https://semver.org/). All stability guarantees apply to the API only — ABI stability between patches cannot be assumed unless explicitly mentioned in the release notes.
+
+#### Branches
+- `master` holds the bleeding edge code of the next, unreleased Zydis version. Elevated amounts of bugs and issues must be expected, API stability is not guaranteed outside of tagged commits.
+- `maintenance/v2` contains the code of the latest stable v2 release.
 
 ## Credits
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
@@ -121,5 +124,4 @@ Inofficial but actively maintained bindings:
 - Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
 
 ## License
-
 Zydis is licensed under the MIT license.
