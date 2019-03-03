@@ -23,10 +23,10 @@
     <ClCompile Include="..\..\..\dependencies\zycore\src\String.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\dependencies\zycore\src\Terminal.c">
+    <ClCompile Include="..\..\..\dependencies\zycore\src\Vector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\dependencies\zycore\src\Vector.c">
+    <ClCompile Include="..\..\..\dependencies\zycore\src\API\Terminal.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -58,13 +58,13 @@
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\String.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Terminal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\API\Terminal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
