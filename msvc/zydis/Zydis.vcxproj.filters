@@ -154,7 +154,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\src\VersionInfo.rc">
+    <ResourceCompile Include="..\..\resources\VersionInfo.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
