@@ -145,6 +145,8 @@ typedef struct ZydisInstructionSegments_
 /* Address calculation                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
+// TODO: Provide a function that works in minimal-mode and does not require a operand parameter
+
 /**
  * @brief   Calculates the absolute address value for the given instruction operand.
  *
