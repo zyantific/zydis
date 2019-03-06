@@ -4,6 +4,10 @@ include(GNUInstallDirs)
 
 project(Zydis VERSION 3.0.0.0 LANGUAGES C CXX)
 
+SET(GCC_COVERAGE_COMPILE_FLAGS "-fPIC")
+SET(GCC_COVERAGE_LINK_FLAGS    "")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+
 # =============================================================================================== #
 # Overridable options                                                                             #
 # =============================================================================================== #
