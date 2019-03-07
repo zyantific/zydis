@@ -2,9 +2,11 @@
 
 This directory contains MSVC project files to build Zydis and the included tools and examples.
 
-There are three build configurations, each with 32/64 bit and debug/release versions:
-- Static (default)
-- Dynamic
+There are five build configurations, each with 32/64 bit and debug/release versions:
+- Static with dynamic run-time library (MD)
+- Static with static run-time library (MT)
+- Dynamic (DLL) with dynamic run-time library (MD)
+- Dynamic (DLL) with static run-time library (MT)
 - Kernel mode
 
 In order to build the kernel mode configuration you must have the Microsoft WDK installed, available at https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit.
