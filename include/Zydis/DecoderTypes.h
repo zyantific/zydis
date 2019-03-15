@@ -932,6 +932,10 @@ typedef struct ZydisDecodedInstruction_
     ZyanU8 operand_count;
     /**
      * @brief   Detailed info for all instruction operands.
+     *
+     * Explicit operands are guaranteed to be in the front and ordered as they are printed
+     * by the formatter in Intel mode. No assumptions can be made about the order of hidden
+     * operands, except that they always located behind the explicit operands.
      */
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
     /**
