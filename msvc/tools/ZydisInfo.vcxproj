@@ -68,7 +68,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BC04B6A7-D80C-3FED-97AC-BCC8370D6A7E}</ProjectGuid>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>ZydisInfo</ProjectName>
   </PropertyGroup>
