@@ -331,7 +331,7 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
         count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, 
             format, tokenize, use_cache);
     }
-    const char* color[3];
+    const char* color[4];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
     color[1] = format       ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
     color[2] = tokenize     ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
