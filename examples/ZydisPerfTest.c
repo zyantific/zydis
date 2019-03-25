@@ -214,8 +214,72 @@ static void AdjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
-static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool minimal_mode,
-    ZyanBool format, ZyanBool tokenize)
+static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* formatter,
+    /* const ZydisCacheTable* cache, */
+    const ZyanU8* buffer, ZyanUSize length, ZyanBool minimal_mode, ZyanBool format, 
+    ZyanBool tokenize, ZyanBool use_cache)
+{
+    ZyanU64 count = 0;
+    ZyanUSize offset = 0;
+    ZyanStatus status;
+    ZydisDecodedInstruction instruction_data;
+    ZydisDecodedInstruction* instruction;
+    char format_buffer[256];
+
+    while (length - offset > 0)
+    {
+        if (use_cache)
+        {
+            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset, 
+            //     length - offset, &instruction);
+        } else
+        {
+            status = ZydisDecoderDecodeBuffer(decoder, buffer + offset, length - offset,
+                &instruction_data);
+            instruction = &instruction_data;
+        }
+
+        if (status == ZYDIS_STATUS_NO_MORE_DATA)
+        {
+            break;
+        }
+        if (!ZYAN_SUCCESS(status))
+        {
+            ZYAN_FPRINTF(ZYAN_STDERR, "%sUnexpected decoding error. Data: ",
+                CVT100_ERR(COLOR_ERROR));
+            for (ZyanUSize i = 0; i < ZYAN_MIN(ZYDIS_MAX_INSTRUCTION_LENGTH,
+                length - offset); ++i)
+            {
+                ZYAN_FPRINTF(ZYAN_STDERR, "%02X ", (ZyanU8)buffer[offset + i]);
+            }
+            ZYAN_FPRINTF(ZYAN_STDERR, "%s\n", CVT100_ERR(ZYAN_VT100SGR_RESET));
+            ZYAN_ASSERT(ZYAN_FALSE);
+            exit(EXIT_FAILURE);
+        }
+
+        if (format)
+        {
+            if (tokenize)
+            {
+                const ZydisFormatterToken* token;
+                ZydisFormatterTokenizeInstruction(formatter, instruction, format_buffer,
+                    sizeof(format_buffer), offset, &token);
+            } else
+            {
+                ZydisFormatterFormatInstruction(formatter, instruction, format_buffer,
+                    sizeof(format_buffer), offset);
+            }
+        }
+
+        offset += instruction->length;
+        ++count;
+    }
+
+    return count;
+}
+
+static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool minimal_mode,
+    ZyanBool format, ZyanBool tokenize, ZyanBool use_cache)
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64,
@@ -227,10 +291,18 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
     }
     if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimal_mode)))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",                                 
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         exit(EXIT_FAILURE);
     }
+
+    // ZydisCacheTable cache;
+    // if (use_cache && !ZYAN_SUCCESS(ZydisDecoderInitCache(&decoder, &cache)))
+    // {
+    //     ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder-cache%s\n",
+    //         CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
+    //     exit(EXIT_FAILURE);
+    // }
 
     ZydisFormatter formatter;
     if (format)
@@ -247,68 +319,29 @@ static ZyanU64 ProcessBuffer(const char* buffer, ZyanUSize length, ZyanBool mini
         }
     }
 
-    ZyanU64 count = 0;
-    ZyanUSize offset = 0;
-    ZyanStatus status;
-    ZydisDecodedInstruction instruction;
-    char format_buffer[256];
-    while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + offset, length - offset,
-        &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
-    {
-        if (!ZYAN_SUCCESS(status))
-        {
-            ZYAN_FPRINTF(ZYAN_STDERR, "%sUnexpected decoding error. Data: ",
-                CVT100_ERR(COLOR_ERROR));
-            for (ZyanUSize i = 0; i < ZYAN_MIN(ZYDIS_MAX_INSTRUCTION_LENGTH, length - offset); ++i)
-            {
-                 ZYAN_FPRINTF(ZYAN_STDERR, "%02X ", (ZyanU8)buffer[offset + i]);
-            }
-            ZYAN_FPRINTF(ZYAN_STDERR, "%s\n", CVT100_ERR(ZYAN_VT100SGR_RESET));
-            ZYAN_ASSERT(ZYAN_FALSE);
-            exit(EXIT_FAILURE);
-        }
-        ++count;
-        if (format)
-        {
-            if (tokenize)
-            {
-                const ZydisFormatterToken* token;
-                ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer,
-                    sizeof(format_buffer), offset, &token);
-            } else
-            {
-                ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-                    sizeof(format_buffer), offset);
-            }
-        }
-        offset += instruction.length;
-    }
-
-    return count;
-}
-
-static void TestPerformance(const char* buffer, ZyanUSize length, ZyanBool minimal_mode,
-    ZyanBool format, ZyanBool tokenize)
-{
     // Cache warmup
-    ProcessBuffer(buffer, length, minimal_mode, format, tokenize);
+    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, format, tokenize, 
+        use_cache);
 
     // Testing
     ZyanU64 count = 0;
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(buffer, length, minimal_mode, format, tokenize);
+        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, 
+            format, tokenize, use_cache);
     }
     const char* color[3];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
     color[1] = format       ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
     color[2] = tokenize     ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
-    ZYAN_PRINTF("Minimal-Mode %s%d%s, Format %s%d%s, Tokenize %s%d%s, Instructions: %s%6.2fM%s," \
-        " Time: %s%8.2f%s msec\n",
+    color[3] = use_cache    ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
+    ZYAN_PRINTF("Minimal-Mode %s%d%s, Format %s%d%s, Tokenize %s%d%s, Caching %s%d%s, " \
+        "Instructions: %s%6.2fM%s, Time: %s%8.2f%s msec\n",
         color[0], minimal_mode, CVT100_OUT(COLOR_DEFAULT),
         color[1], format, CVT100_OUT(COLOR_DEFAULT),
         color[2], tokenize, CVT100_OUT(COLOR_DEFAULT),
+        color[3], use_cache, CVT100_OUT(COLOR_DEFAULT),
         CVT100_OUT(COLOR_VALUE_B), (double)count / 1000000, CVT100_OUT(COLOR_DEFAULT),
         CVT100_OUT(COLOR_VALUE_G), GetCounter(), CVT100_OUT(COLOR_DEFAULT));
 }
@@ -514,10 +547,13 @@ int main(int argc, char** argv)
             ZYAN_PRINTF("%sTesting %s%s%s ...\n", CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA),
                 CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA), tests[i].encoding,
                 CVT100_OUT(COLOR_DEFAULT));
-            TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE, ZYAN_FALSE);
-            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
-            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_FALSE);
-            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_TRUE );
+            TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
+            // TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE, ZYAN_TRUE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_FALSE, ZYAN_FALSE);
+            // TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_FALSE, ZYAN_TRUE);
+            TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_TRUE , ZYAN_FALSE);
+            // TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_TRUE , ZYAN_TRUE , ZYAN_TRUE);
             ZYAN_PUTS("");
 
         NextFile1:
