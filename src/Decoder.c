@@ -1353,27 +1353,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
     // Element count
     if (operand->element_size && operand->size && (operand->element_type != ZYDIS_ELEMENT_TYPE_CC))
     {
-        // Yes, this code is *significantly* faster than a regular div.
-        switch (operand->element_size)
-        {
-            case 1:
-                operand->element_count = operand->size;
-                break;
-            case 8:
-                operand->element_count = operand->size >> 3;
-                break;
-            case 16:
-                operand->element_count = operand->size >> 4;
-                break;
-            case 32:
-                operand->element_count = operand->size >> 5;
-                break;
-            case 64:
-                operand->element_count = operand->size >> 6;
-                break;
-            default:
-                operand->element_count = operand->size / operand->element_size;
-        }
+        operand->element_count = operand->size / operand->element_size;
     } else
     {
         operand->element_count = 1;

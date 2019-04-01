@@ -158,6 +158,8 @@ static int DoIteration(void)
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
         ZyanUSize read_offset = 0;
+        char format_buffer[256];
+
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
             buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
@@ -168,8 +170,7 @@ static int DoIteration(void)
                 ++read_offset;
                 continue;
             }
-
-            char format_buffer[256];
+           
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
                 sizeof(format_buffer), runtime_address);
             read_offset += instruction.length;

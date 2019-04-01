@@ -127,6 +127,8 @@ int main(int argc, char** argv)
         ZydisDecodedInstruction instruction;
         ZyanStatus status;
         ZyanUSize read_offset = 0;
+        char format_buffer[256];
+
         while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
             buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
@@ -137,8 +139,7 @@ int main(int argc, char** argv)
                 ZYAN_PRINTF("db %02X\n", buffer[read_offset++]);
                 continue;
             }
-
-            char format_buffer[256];
+           
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
                 sizeof(format_buffer), runtime_address);
             ZYAN_PUTS(format_buffer);
