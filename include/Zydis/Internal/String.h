@@ -238,7 +238,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShort(ZyanString* destination,
     }
 
     ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1, source->data,
-        source->size + 1);
+        1 + source->size);
 
     destination->vector.size += source->size;
     ZYDIS_STRING_ASSERT_NULLTERMINATION(destination);
@@ -269,7 +269,7 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendShortCase(ZyanString* destination,
     }
 
     ZYAN_MEMCPY((char*)destination->vector.data + destination->vector.size - 1, source->data,
-        source->size + 1);
+        1 + source->size);
 
     switch (letter_case)
     {
