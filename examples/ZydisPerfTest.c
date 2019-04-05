@@ -40,6 +40,10 @@
 #elif defined(ZYAN_LINUX)
 #   include <sys/time.h>
 #   include <pthread.h>
+#elif defined(ZYAN_FREEBSD)
+#   include <sys/time.h>
+#   include <pthread.h>
+#   include <pthread_np.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -143,7 +147,7 @@ static double GetCounter(void)
     return (double)elapsed * timebase_info.numer / timebase_info.denom / 1000000;
 }
 
-#elif defined(ZYAN_LINUX)
+#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD)
 
 struct timeval t1;
 
@@ -169,7 +173,7 @@ static double GetCounter(void)
 
 static void AdjustProcessAndThreadPriority(void)
 {
-#ifdef ZYAN_WINDOWS
+#if defined(ZYAN_WINDOWS)
 
     SYSTEM_INFO info;
     GetSystemInfo(&info);
@@ -192,11 +196,16 @@ static void AdjustProcessAndThreadPriority(void)
         }
     }
 
-#endif
-#ifdef ZYAN_LINUX
+#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD)
 
     pthread_t thread = pthread_self();
+
+#if defined(ZYAN_LINUX)
     cpu_set_t cpus;
+#else  // FreeBSD
+    cpuset_t cpus;
+#endif
+
     CPU_ZERO(&cpus);
     CPU_SET(0, &cpus);
     if (pthread_setaffinity_np(thread, sizeof(cpus), &cpus))
