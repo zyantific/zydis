@@ -137,5 +137,18 @@ Versions follow the [semantic versioning scheme](https://semver.org/). All stabi
 - [LekoArts](https://www.lekoarts.de/) (for creating the project logo)
 - Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
 
+## Troubleshooting
+
+#### `-fPIC` for shared library builds
+
+```
+/usr/bin/ld: ./libfoo.a(foo.c.o): relocation R_X86_64_PC32 against symbol `bar' can not be used when making a shared object; recompile with -fPIC
+```
+
+Under some circumstances (e.g. when building Zydis as a static library using
+CMake and then using Makefiles to manually link it into a shared library), CMake
+might fail to detect that relocation information must be emitted. This can be forced
+by passing `-DCMAKE_POSITION_INDEPENDENT_CODE=ON` to the CMake invocation.
+
 ## License
 Zydis is licensed under the MIT license.
