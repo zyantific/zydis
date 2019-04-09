@@ -406,7 +406,7 @@ ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFuncti
     {
         return ZYAN_STATUS_SUCCESS;
     }
-    *(ZyanUPointer*)(&formatter->func_pre_instruction + type) = *(ZyanUPointer*)&temp;
+    ZYAN_MEMCPY(&formatter->func_pre_instruction + type, &temp, sizeof(ZyanUPointer));
 
     return ZYAN_STATUS_SUCCESS;
 }
