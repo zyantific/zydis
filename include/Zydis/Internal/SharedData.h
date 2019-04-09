@@ -31,7 +31,7 @@
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
 #include <Zydis/SharedTypes.h>
-#include "Zydis/DecoderTypes.h"
+#include <Zydis/DecoderTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
