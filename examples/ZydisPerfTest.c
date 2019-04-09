@@ -225,8 +225,7 @@ static void AdjustProcessAndThreadPriority(void)
 
 static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* formatter,
     /* const ZydisCacheTable* cache, */
-    const ZyanU8* buffer, ZyanUSize length, ZyanBool minimal_mode, ZyanBool format, 
-    ZyanBool tokenize, ZyanBool use_cache)
+    const ZyanU8* buffer, ZyanUSize length, ZyanBool format, ZyanBool tokenize, ZyanBool use_cache)
 {
     ZyanU64 count = 0;
     ZyanUSize offset = 0;
@@ -239,7 +238,7 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
     {
         if (use_cache)
         {
-            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset, 
+            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset,
             //     length - offset, &instruction);
         } else
         {
@@ -300,7 +299,7 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
     }
     if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimal_mode)))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",                                 
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         exit(EXIT_FAILURE);
     }
@@ -329,16 +328,15 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
     }
 
     // Cache warmup
-    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, format, tokenize, 
-        use_cache);
+    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format, tokenize, use_cache);
 
     // Testing
     ZyanU64 count = 0;
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, 
-            format, tokenize, use_cache);
+        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format,
+            tokenize, use_cache);
     }
     const char* color[4];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
