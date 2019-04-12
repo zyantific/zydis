@@ -225,8 +225,7 @@ static void AdjustProcessAndThreadPriority(void)
 
 static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* formatter,
     /* const ZydisCacheTable* cache, */
-    const ZyanU8* buffer, ZyanUSize length, ZyanBool minimal_mode, ZyanBool format, 
-    ZyanBool tokenize, ZyanBool use_cache)
+    const ZyanU8* buffer, ZyanUSize length, ZyanBool format, ZyanBool tokenize, ZyanBool use_cache)
 {
     ZyanU64 count = 0;
     ZyanUSize offset = 0;
@@ -239,6 +238,7 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
     {
         if (use_cache)
         {
+            ZYAN_UNREACHABLE;
             // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset, 
             //     length - offset, &instruction);
         } else
@@ -329,16 +329,15 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
     }
 
     // Cache warmup
-    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, format, tokenize, 
-        use_cache);
+    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format, tokenize, use_cache);
 
     // Testing
     ZyanU64 count = 0;
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, minimal_mode, 
-            format, tokenize, use_cache);
+        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format, tokenize, 
+            use_cache);
     }
     const char* color[4];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
