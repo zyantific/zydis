@@ -58,7 +58,7 @@ extern "C" {
 /**
  * @brief   Defines the `ZydisRegisterClass` enum.
  */
-typedef enum ZydisRegisterClass
+typedef enum ZydisRegisterClass_
 {
     ZYDIS_REGCLASS_INVALID,
     /**

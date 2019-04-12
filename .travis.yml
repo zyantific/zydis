@@ -1,4 +1,5 @@
 language: c
+dist: xenial
 
 compiler:
     - clang
@@ -7,6 +8,8 @@ compiler:
 env:
     - CMAKE_CALL="cmake -DZYAN_NO_LIBC=ON .."
     - CMAKE_CALL="cmake -DZYAN_NO_LIBC=OFF .."
+    - CMAKE_CALL="cmake -DZYAN_DEV_MODE=ON .."
+    - CMAKE_CALL="cmake -DZYAN_DEV_MODE=ON -DCMAKE_BUILD_TYPE=Release .."
 
-script: 
-    - mkdir build && cd build && eval "${CMAKE_CALL}" && make
+script:
+    - mkdir build && cd build && eval "${CMAKE_CALL}" && VERBOSE=1 make

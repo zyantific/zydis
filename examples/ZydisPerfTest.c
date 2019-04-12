@@ -300,7 +300,7 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
     }
     if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_MINIMAL, minimal_mode)))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",                                 
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to adjust decoder-mode%s\n",
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         exit(EXIT_FAILURE);
     }
@@ -336,8 +336,8 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format, tokenize, 
-            use_cache);
+        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format,
+            tokenize, use_cache);
     }
     const char* color[4];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
