@@ -12,4 +12,4 @@ env:
     - CMAKE_CALL="cmake -DZYAN_DEV_MODE=ON -DCMAKE_BUILD_TYPE=Release .."
 
 script:
-    - mkdir build && cd build && eval "${CMAKE_CALL}" && VERBOSE=1 make
+    - mkdir build && cd build && eval "${CMAKE_CALL}" && VERBOSE=1 make -j2
