@@ -10,8 +10,8 @@
   <a href="https://discord.zyantific.com/">
     <img src="https://img.shields.io/discord/390136917779415060.svg?logo=discord&label=Discord">
   </a>
-  <a href="https://ci.appveyor.com/project/athre0z/zydis/branch/master">
-    <img src="https://ci.appveyor.com/api/projects/status/2tad27q0b9v6qtga/branch/master?svg=true">
+  <a href="https://dev.azure.com/zyantific/zydis/_build/latest?definitionId=1&branchName=master">
+    <img src="https://dev.azure.com/zyantific/zydis/_apis/build/status/zyantific.zydis?branchName=master">
   </a>
 </p>
 
