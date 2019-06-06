@@ -294,13 +294,14 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
         case ZYDIS_OPCODE_MAP_DEFAULT:
             break;
         case ZYDIS_OPCODE_MAP_0F:
+            ZYAN_FALLTHROUGH;
+        case ZYDIS_OPCODE_MAP_0F0F:
             segment_size = 2;
             break;
         case ZYDIS_OPCODE_MAP_0F38:
             ZYAN_FALLTHROUGH;
         case ZYDIS_OPCODE_MAP_0F3A:
             ZYAN_FALLTHROUGH;
-        case ZYDIS_OPCODE_MAP_0F0F:
             segment_size = 3;
             break;
         default:
@@ -352,6 +353,13 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
             segments->segments[segments->count  ].offset = instruction->raw.imm[i].offset;
             segments->segments[segments->count++].size = instruction->raw.imm[i].size / 8;
         }
+    }
+
+    if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
+    {
+        segments->segments[segments->count].type = ZYDIS_INSTR_SEGMENT_OPCODE;
+        segments->segments[segments->count].offset = instruction->length -1;
+        segments->segments[segments->count++].size = 1;
     }
 
     return ZYAN_STATUS_SUCCESS;

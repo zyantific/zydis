@@ -3930,9 +3930,9 @@ static ZyanStatus ZydisNodeHandlerModrmMod(ZydisDecoderContext* context,
     if (!instruction->raw.modrm.offset)
     {
         instruction->raw.modrm.offset = instruction->length;
-        ZyanU8 modrmByte;
-        ZYAN_CHECK(ZydisInputNext(context, instruction, &modrmByte));
-        ZydisDecodeModRM(instruction, modrmByte);
+        ZyanU8 modrm_byte;
+        ZYAN_CHECK(ZydisInputNext(context, instruction, &modrm_byte));
+        ZydisDecodeModRM(instruction, modrm_byte);
     }
     *index = instruction->raw.modrm.mod;
     return ZYAN_STATUS_SUCCESS;
@@ -3974,9 +3974,9 @@ static ZyanStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context,
     if (!instruction->raw.modrm.offset)
     {
         instruction->raw.modrm.offset = instruction->length;
-        ZyanU8 modrmByte;
-        ZYAN_CHECK(ZydisInputNext(context, instruction, &modrmByte));
-        ZydisDecodeModRM(instruction, modrmByte);
+        ZyanU8 modrm_byte;
+        ZYAN_CHECK(ZydisInputNext(context, instruction, &modrm_byte));
+        ZydisDecodeModRM(instruction, modrm_byte);
     }
     *index = instruction->raw.modrm.rm;
     return ZYAN_STATUS_SUCCESS;
