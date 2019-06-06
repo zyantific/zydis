@@ -111,6 +111,8 @@ extern "C" {
  */
 typedef enum ZydisFeature_
 {
+    ZYDIS_FEATURE_DECODER,
+    ZYDIS_FEATURE_FORMATTER,
     ZYDIS_FEATURE_AVX512,
     ZYDIS_FEATURE_KNC,
 
