@@ -4028,6 +4028,11 @@ static ZyanStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context,
         *index = 2;
     } else
     {
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
+        {
+            instruction->raw.prefixes[context->prefixes.offset_osz_override].type =
+                ZYDIS_PREFIX_TYPE_EFFECTIVE;
+        }
         switch (context->decoder->machine_mode)
         {
         case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
@@ -4055,6 +4060,11 @@ static ZyanStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
+    /*if (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE)
+    {
+        instruction->raw.prefixes[context->prefixes.offset_asz_override].type = 
+            ZYDIS_PREFIX_TYPE_EFFECTIVE;
+    }*/
     switch (context->decoder->address_width)
     {
     case ZYDIS_ADDRESS_WIDTH_16:
@@ -4608,11 +4618,14 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_INVALID:
             if (temp)
             {
-                instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
-                    ZYDIS_PREFIX_TYPE_IGNORED;
                 node = temp;
                 temp = ZYAN_NULL;
                 node_type = ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX;
+                if (context->prefixes.mandatory_candidate != 0x00)
+                {
+                    instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+                        ZYDIS_PREFIX_TYPE_IGNORED;
+                }
                 if (context->prefixes.mandatory_candidate == 0x66)
                 {
                     instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;

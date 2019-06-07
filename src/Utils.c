@@ -173,7 +173,7 @@ ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruct
     }
 
     *flags = 0;
-    for (ZyanU8 i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
     {
         if (instruction->accessed_flags[i].action == action)
         {
