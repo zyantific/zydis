@@ -54,6 +54,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisAddressWidth address_width;
     ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatter_style;
+    ZyanU64 rt_address;
     ZyanUPointer formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
 } ZydisFuzzControlBlock;
@@ -169,45 +170,20 @@ static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
         }
     }
 
-    ZyanU8 buffer[1024];
-    ZyanUSize buffer_size;
-    ZyanUSize buffer_remaining = 0;
-    ZyanUSize read_offset_base = 0;
-    do
+    ZyanU8 buffer[32];
+    ZyanUSize buf_len = read_fn(stream_ctx, buffer, sizeof(buffer));
+
+    ZydisDecodedInstruction instruction;
+    char format_buffer[256];
+
+    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, buf_len, &instruction);
+    if (!ZYAN_SUCCESS(status))
     {
-        buffer_size = read_fn(
-            stream_ctx, buffer + buffer_remaining, sizeof(buffer) - buffer_remaining);
-        buffer_size += buffer_remaining;
+        return EXIT_FAILURE;
+    }
 
-        ZydisDecodedInstruction instruction;
-        ZyanStatus status;
-        ZyanUSize read_offset = 0;
-        char format_buffer[256];
-
-        while ((status = ZydisDecoderDecodeBuffer(&decoder, buffer + read_offset,
-            buffer_size - read_offset, &instruction)) != ZYDIS_STATUS_NO_MORE_DATA)
-        {
-            const ZyanU64 runtime_address = read_offset_base + read_offset;
-
-            if (!ZYAN_SUCCESS(status))
-            {
-                ++read_offset;
-                continue;
-            }
-
-            ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-                sizeof(format_buffer), runtime_address);
-            read_offset += instruction.length;
-        }
-
-        buffer_remaining = 0;
-        if (read_offset < sizeof(buffer))
-        {
-            buffer_remaining = sizeof(buffer) - read_offset;
-            ZYAN_MEMMOVE(buffer, buffer + read_offset, buffer_remaining);
-        }
-        read_offset_base += read_offset;
-    } while (buffer_size == sizeof(buffer) && read_offset_base < ZYDIS_FUZZ_MAX_BYTES);
+    ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
+        sizeof(format_buffer), control_block.rt_address);
 
     return EXIT_SUCCESS;
 }
