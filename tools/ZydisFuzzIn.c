@@ -77,8 +77,6 @@ typedef struct ZydisFuzzControlBlock_
 
 typedef ZyanUSize (*ZydisStreamRead)(void* ctx, ZyanU8* buf, ZyanUSize max_len);
 
-typedef struct {} ZydisStdinContext;
-
 ZyanUSize ZydisStdinRead(void *ctx, ZyanU8* buf, ZyanUSize max_len)
 {
     ZYAN_UNUSED(ctx);
@@ -255,15 +253,14 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-    ZydisStdinContext ctx;
 #   ifdef ZYDIS_FUZZ_AFL_FAST
     while (__AFL_LOOP(1000))
     {
-        DoIteration(&ZydisStdinRead, &ctx);
+        DoIteration(&ZydisStdinRead, ZYAN_NULL);
     }
     return EXIT_SUCCESS;
 #   else
-    return DoIteration(&ZydisStdinRead, &ctx);
+    return DoIteration(&ZydisStdinRead, ZYAN_NULL);
 #   endif
 }
 
