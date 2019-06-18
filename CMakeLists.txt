@@ -38,6 +38,9 @@ option(ZYDIS_BUILD_TOOLS
 option(ZYDIS_FUZZ_AFL_FAST
     "Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
     OFF)
+option(ZYDIS_LIBFUZZER
+    "Enables LLVM libfuzzer mode and reduces prints in ZydisFuzzIn"
+    OFF)
 
 # =============================================================================================== #
 # Dependencies                                                                                    #
@@ -225,7 +228,7 @@ endif ()
 if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
-        target_link_libraries("ZydisDisasm"  "Zydis")
+        target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
         zyan_set_common_flags("ZydisDisasm")
@@ -242,6 +245,9 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         _maybe_set_emscripten_cfg("ZydisFuzzIn")
         if (ZYDIS_FUZZ_AFL_FAST)
             target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+        endif ()
+        if (ZYDIS_LIBFUZZER)
+            target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_LIBFUZZER")
         endif ()
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
