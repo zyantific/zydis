@@ -4628,6 +4628,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 }
                 if (context->prefixes.mandatory_candidate == 0x66)
                 {
+                    if (context->prefixes.offset_osz_override == 
+                        context->prefixes.offset_mandatory)
+                    {
+                        instruction->raw.prefixes[context->prefixes.offset_mandatory].type =
+                            ZYDIS_PREFIX_TYPE_EFFECTIVE;
+                    }
                     instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
                 }
                 continue;
