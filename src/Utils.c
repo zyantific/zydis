@@ -301,7 +301,6 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
         case ZYDIS_OPCODE_MAP_0F38:
             ZYAN_FALLTHROUGH;
         case ZYDIS_OPCODE_MAP_0F3A:
-            ZYAN_FALLTHROUGH;
             segment_size = 3;
             break;
         default:
