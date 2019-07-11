@@ -4669,6 +4669,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
         case ZYDIS_NODETYPE_FILTER_MODRM_RM:
             status = ZydisNodeHandlerModrmRm(context, instruction, &index);
             break;
+        case ZYDIS_NODETYPE_FILTER_PREFIX_GROUP1:
+            index = context->prefixes.group1 ? 1 : 0;
+            break;
         case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(context, instruction, &index);
             temp = ZydisDecoderTreeGetChildNode(node, 0);
