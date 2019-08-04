@@ -114,11 +114,12 @@ Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake
 
 ## Bindings
 Official bindings exist for a selection of languages:
-- [Rust](https://github.com/zyantific/zydis-rs)
 - [Pascal](https://github.com/zyantific/zydis-pascal)
+- [Python 3](https://github.com/zyantific/zydis-py)
+- [Rust](https://github.com/zyantific/zydis-rs)
 
-Unofficial but actively maintained bindings:
-- [Python 3](https://github.com/novogen/pydis)
+Unofficial but actively maintained bindings:)
+- [Go](https://github.com/jpap/go-zydis)
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
 
 ## Versions
