@@ -118,7 +118,7 @@ Official bindings exist for a selection of languages:
 - [Python 3](https://github.com/zyantific/zydis-py)
 - [Rust](https://github.com/zyantific/zydis-rs)
 
-Unofficial but actively maintained bindings:)
+Unofficial but actively maintained bindings:
 - [Go](https://github.com/jpap/go-zydis)
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
 
