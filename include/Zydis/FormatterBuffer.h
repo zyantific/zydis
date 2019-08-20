@@ -50,7 +50,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @biref   Defines the `ZydisTokenType` datatype.
+ * @biref   Defines the `ZydisTokenType` data-type.
  */
 typedef ZyanU8 ZydisTokenType;
 
@@ -150,7 +150,7 @@ typedef struct ZydisFormatterToken_
 #pragma pack(pop)
 
 /**
- * @brief   Defines the `ZydisFormatterTokenConst` datatype.
+ * @brief   Defines the `ZydisFormatterTokenConst` data-type.
  */
 typedef const ZydisFormatterToken ZydisFormatterTokenConst;
 
@@ -202,7 +202,7 @@ typedef struct ZydisFormatterBuffer_
  * @return  A zycore status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenGetValue(const ZydisFormatterToken* token,
-    ZydisTokenType* type, char** value);
+    ZydisTokenType* type, ZyanConstCharPointer* value);
 
 /**
  * @brief   Obtains the next `token` linked to the passed one.

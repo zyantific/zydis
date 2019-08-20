@@ -79,7 +79,7 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
             sizeof(buffer), runtime_address, &token)))
         {
             ZydisTokenType token_type;
-            char* token_value = ZYAN_NULL;
+            ZyanConstCharPointer token_value = ZYAN_NULL;
             while (token)
             {
                 ZydisFormatterTokenGetValue(token, &token_type, &token_value);
