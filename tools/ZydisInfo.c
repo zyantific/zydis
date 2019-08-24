@@ -1153,7 +1153,7 @@ int main(int argc, char** argv)
     ZYAN_PUTS("");
     PrintSegments(&instruction, &data[0]);
 
-    return ZYAN_STATUS_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 /* ============================================================================================== */

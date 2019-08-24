@@ -1,0 +1,41 @@
+name: GitHub Actions CI
+
+on: [push]
+
+jobs:
+  build:
+    name: "Build Zydis (${{ matrix.image_name }}, ${{ matrix.no_libc }})"
+    runs-on: "${{ matrix.image_name }}"
+
+    strategy:
+      matrix:
+        image_name: ["macOS-10.14", "windows-2016", "ubuntu-18.04"]
+        no_libc: ["", "-DZYAN_NO_LIBC=ON"]
+        include:
+        - image_name: "ubuntu-16.04"
+          no_libc: "-DCMAKE_BUILD_TYPE=Release"
+          dev_mode: "-DZYAN_DEV_MODE=ON"
+
+    steps:
+      - uses: "actions/checkout@v1"
+      - name: "Cloning submodules"
+        run: |
+          git submodule update --init
+      - name: "Configuring"
+        run: |
+          mkdir build
+          cd build
+          cmake ${{ matrix.dev_mode }} ${{ matrix.no_libc }} ..
+      - name: "Building"
+        run: |
+          cmake --build build --config Release
+      - name: "Disassembling INT3"
+        run: |
+          cd build
+          ./ZydisInfo -64 cc
+        if: "!matrix.no_libc && matrix.image_name != 'windows-2016'"
+      - name: "Disassembling INT3"
+        run: |
+          cd build
+          Release\\ZydisInfo.exe -64 cc
+        if: "!matrix.no_libc && matrix.image_name == 'windows-2016'"
