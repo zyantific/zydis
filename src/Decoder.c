@@ -2503,7 +2503,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             {
                   0,   8,  16,  32,  64, 128
             };
-            ZYAN_ASSERT(def->element_size < ZYAN_ARRAY_LENGTH(elementSizes));
+            ZYAN_ASSERT(def->element_size < ZYAN_ARRAY_LENGTH(element_sizes));
             context->evex.element_size = element_sizes[def->element_size];
 
             // Compressed disp8 scale and broadcast-factor
