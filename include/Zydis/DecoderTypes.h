@@ -221,7 +221,7 @@ typedef struct ZydisDecodedOperand_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisInstructionAttributes` datatype.
+ * @brief   Defines the `ZydisInstructionAttributes` data-type.
  */
 typedef ZyanU64 ZydisInstructionAttributes;
 
@@ -430,7 +430,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisCPUFlags` datatype.
+ * @brief   Defines the `ZydisCPUFlags` data-type.
  */
 typedef ZyanU32 ZydisCPUFlags;
 
@@ -548,7 +548,7 @@ typedef enum ZydisCPUFlagAction_
      */
     ZYDIS_CPUFLAG_ACTION_TESTED,
     /**
-     * @brief   The CPU flag is tested and modified aferwards (read-write).
+     * @brief   The CPU flag is tested and modified afterwards (read-write).
      */
     ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED,
     /**
@@ -600,7 +600,7 @@ typedef enum ZydisBranchType_
      */
     ZYDIS_BRANCH_TYPE_NEAR,
     /**
-     * @brief   The instruction is a far (intersegment) branch instruction.
+     * @brief   The instruction is a far (inter-segment) branch instruction.
      */
     ZYDIS_BRANCH_TYPE_FAR,
 
@@ -986,7 +986,7 @@ typedef struct ZydisDecodedInstruction_
             /**
              * @brief   Signals, if the broadcast is a static broadcast.
              *
-             * This is the case for instructions with inbuild broadcast functionality, which is
+             * This is the case for instructions with inbuilt broadcast functionality, which is
              * always active and not controlled by the `EVEX/MVEX.RC` bits.
              */
             ZyanBool is_static;

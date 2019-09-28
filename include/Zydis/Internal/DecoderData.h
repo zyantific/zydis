@@ -38,7 +38,7 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-// MSVC does not like types other than (un-)signed int for bitfields
+// MSVC does not like types other than (un-)signed int for bit-fields
 #ifdef ZYAN_MSVC
 #   pragma warning(push)
 #   pragma warning(disable:4214)
@@ -51,7 +51,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisDecoderTreeNodeType` datatype.
+ * @brief   Defines the `ZydisDecoderTreeNodeType` data-type.
  */
 typedef ZyanU8 ZydisDecoderTreeNodeType;
 
@@ -178,7 +178,7 @@ enum ZydisDecoderTreeNodeTypes
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisDecoderTreeNodeValue` datatype.
+ * @brief   Defines the `ZydisDecoderTreeNodeValue` data-type.
  */
 typedef ZyanU16 ZydisDecoderTreeNodeValue;
 
@@ -206,7 +206,7 @@ typedef struct ZydisDecoderTreeNode_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisInstructionEncodingFlags` datatype.
+ * @brief   Defines the `ZydisInstructionEncodingFlags` data-type.
  */
 typedef ZyanU8 ZydisInstructionEncodingFlags;
 
