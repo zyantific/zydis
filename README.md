@@ -17,7 +17,7 @@
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
-- Complete doxygen documentation ([master](https://zydis.re/doc/3/), [stable](https://zydis.re/doc/2/))
+- [Complete doxygen documentation](https://zydis.re/doc/3/)
 - Absolutely no third party dependencies — not even libc
   - Should compile on any platform with a working C99 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
@@ -121,9 +121,12 @@ Unofficial but actively maintained bindings:
 #### Scheme
 Versions follow the [semantic versioning scheme](https://semver.org/). All stability guarantees apply to the API only — ABI stability between patches cannot be assumed unless explicitly mentioned in the release notes.
 
-#### Branches
+#### Branches & Tags
 - `master` holds the bleeding edge code of the next, unreleased Zydis version. Elevated amounts of bugs and issues must be expected, API stability is not guaranteed outside of tagged commits.
-- `maintenance/v2` contains the code of the latest stable v2 release.
+- Stable and preview versions are annotated with git tags
+  - beta and other preview versions have `-beta`, `-rc`, etc. suffixes
+- `maintenance/v2` contains the code of the latest legacy release of v2
+  - v2 is now deprecated, but will receive security fixes until 2021
 
 ## Credits
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparision of our tables against theirs, improving both)
