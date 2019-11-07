@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        image_name: ["macOS-10.14", "windows-2016", "ubuntu-18.04"]
+        image_name: ["macOS-latest", "windows-2016", "ubuntu-18.04"]
         no_libc: ["", "-DZYAN_NO_LIBC=ON"]
         include:
         - image_name: "ubuntu-16.04"
