@@ -371,7 +371,8 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
         {
             ZYAN_CHECK(ZydisStringAppend(string, prefix));
         }
-        return ZydisStringAppendDecU(string, -value, padding_length, ZYAN_NULL, suffix);
+        return ZydisStringAppendDecU(string, -value, padding_length, 
+            (const ZyanStringView*)ZYAN_NULL, suffix);
     }
 
     if (force_sign)
@@ -439,7 +440,8 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
         {
             ZYAN_CHECK(ZydisStringAppend(string, prefix));
         }
-        return ZydisStringAppendHexU(string, -value, padding_length, uppercase, ZYAN_NULL, suffix);
+        return ZydisStringAppendHexU(string, -value, padding_length, uppercase, 
+            (const ZyanStringView*)ZYAN_NULL, suffix);
     }
 
     if (force_sign)
