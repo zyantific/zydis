@@ -103,6 +103,9 @@ make
 #### Windows
 Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
+## Using Zydis in a CMake project
+An example on how to use Zydis in your own CMake based project [can be found in this repo](https://github.com/zyantific/zydis-submodule-example).
+
 ## `ZydisInfo` tool
 ![ZydisInfo](./assets/screenshots/ZydisInfo.png)
 
