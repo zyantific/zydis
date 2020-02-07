@@ -1991,12 +1991,6 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_INVALID));
             instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_MIB;
-            // Relative addressing is not allowed for this type of memory-operand
-            if ((instruction->operands[i].mem.base == ZYDIS_REGISTER_EIP) ||
-                (instruction->operands[i].mem.base == ZYDIS_REGISTER_RIP))
-            {
-                return ZYDIS_STATUS_DECODING_ERROR;
-            }
             break;
         default:
             break;
@@ -4464,6 +4458,12 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         break;
     case ZYDIS_REG_CONSTRAINTS_VSIB:
         has_VSIB = ZYAN_TRUE;
+        break;
+    case ZYDIS_REG_CONSTRAINTS_NO_REL:
+        if (instruction->raw.modrm.mod == 0 && instruction->raw.modrm.rm == 5)
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;    
+        }
         break;
     default:
         ZYAN_UNREACHABLE;

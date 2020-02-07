@@ -278,11 +278,12 @@ typedef enum ZydisRegisterConstraint_
     ZYDIS_REG_CONSTRAINTS_MASK,
     ZYDIS_REG_CONSTRAINTS_BND,
     ZYDIS_REG_CONSTRAINTS_VSIB,
+    ZYDIS_REG_CONSTRAINTS_NO_REL,
 
     /**
      * @brief   Maximum value of this enum.
      */
-    ZYDIS_REG_CONSTRAINTS_MAX_VALUE = ZYDIS_REG_CONSTRAINTS_VSIB,
+    ZYDIS_REG_CONSTRAINTS_MAX_VALUE = ZYDIS_REG_CONSTRAINTS_NO_REL,
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
