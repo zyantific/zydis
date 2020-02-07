@@ -4460,7 +4460,9 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         has_VSIB = ZYAN_TRUE;
         break;
     case ZYDIS_REG_CONSTRAINTS_NO_REL:
-        if (instruction->raw.modrm.mod == 0 && instruction->raw.modrm.rm == 5)
+        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) && 
+            (instruction->raw.modrm.mod == 0) && 
+            (instruction->raw.modrm.rm  == 5))
         {
             return ZYDIS_STATUS_DECODING_ERROR;    
         }
