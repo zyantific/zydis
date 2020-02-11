@@ -41,25 +41,29 @@ option(ZYDIS_FUZZ_AFL_FAST
 option(ZYDIS_LIBFUZZER
     "Enables LLVM libfuzzer mode and reduces prints in ZydisFuzzIn"
     OFF)
+set(ZYDIS_ZYCORE_PATH
+    "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore"
+    CACHE
+    PATH
+    "The path to look for Zycore")
 
 # =============================================================================================== #
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
-if (NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore/CMakeLists.txt")
+if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
     message(
         FATAL_ERROR
         "Can't find zycore submodule. Please make sure to clone the repo recursively.\n"
         "You can fix this by running\n"
         "    git submodule update --init\n"
         "or by cloning using\n"
-        "    git clone --recursive <url>"
+        "    git clone --recursive <url>\n"
+        "Alternatively, you can manually clone zycore to some path and set ZYDIS_ZYCORE_PATH."
     )
 endif ()
 
-# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../zycore-c" "${CMAKE_BINARY_DIR}/zycore"
-#     EXCLUDE_FROM_ALL)
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore" EXCLUDE_FROM_ALL)
+add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
 
 # =============================================================================================== #
 # Library configuration                                                                           #
