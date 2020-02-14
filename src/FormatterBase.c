@@ -579,7 +579,8 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 
             // Only print the zeroing decorator, if the instruction is not a "zeroing masking only"
             // instruction (e.g. `vcmpsd`)
-            if ((context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING) &&
+            if ((context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING ||
+                 context->instruction->avx.mask.mode == ZYDIS_MASK_MODE_CONTROL_ZEROING) &&
                 (context->instruction->raw.evex.z))
             {
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_ZERO, formatter->case_decorators);
