@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 include(GenerateExportHeader)
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 project(Zydis VERSION 3.1.0.0 LANGUAGES C CXX)
 
@@ -157,7 +158,15 @@ endif ()
 
 zyan_set_source_group("Zydis")
 
-# TODO: Install CMake config.
+configure_package_config_file(cmake/zydis-config.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/zydis-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/zydis-config.cmake"
+    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+)
+
 install(TARGETS "Zydis"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
