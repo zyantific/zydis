@@ -162,6 +162,8 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
                 }
             } else
             {
+                // TODO: `sae` is displayed twice e.g. for `62 E30D1B 0A D3 A5`
+                // TODO: Checking the `operand_count` does not work for instructions with hidden operands
                 if ((i == (context->instruction->operand_count - 1)) ||
                     (context->instruction->operands[i + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
                 {
