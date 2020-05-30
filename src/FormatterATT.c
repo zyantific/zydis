@@ -211,27 +211,31 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         ZYAN_CHECK(formatter->func_print_address_abs(formatter, buffer, context));
     } else
     {
+        ZyanBool should_print_reg = context->operand->mem.base != ZYDIS_REGISTER_NONE;
+        ZyanBool should_print_idx = (context->operand->mem.index != ZYDIS_REGISTER_NONE) &&
+            (context->operand->mem.type != ZYDIS_MEMOP_TYPE_MIB);
+        ZyanBool neither_reg_nor_idx = !should_print_reg && !should_print_idx;
+
         // Regular memory operand
-        if (context->operand->mem.disp.has_displacement && context->operand->mem.disp.value)
+        if (context->operand->mem.disp.has_displacement && (context->operand->mem.disp.value
+            || neither_reg_nor_idx))
         {
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
         }
 
-        if ((context->operand->mem.base  == ZYDIS_REGISTER_NONE) &&
-            (context->operand->mem.index == ZYDIS_REGISTER_NONE))
+        if (neither_reg_nor_idx)
         {
             return ZYAN_STATUS_SUCCESS;
         }
 
         ZYDIS_BUFFER_APPEND(buffer, MEMORY_BEGIN_ATT);
 
-        if (context->operand->mem.base != ZYDIS_REGISTER_NONE)
+        if (should_print_reg)
         {
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                 context->operand->mem.base));
         }
-        if ((context->operand->mem.index != ZYDIS_REGISTER_NONE) &&
-            (context->operand->mem.type  != ZYDIS_MEMOP_TYPE_MIB))
+        if (should_print_idx)
         {
             ZYDIS_BUFFER_APPEND(buffer, DELIM_MEMORY);
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
