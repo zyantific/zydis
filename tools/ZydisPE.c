@@ -541,8 +541,19 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             (const IMAGE_NT_HEADERS32*)((ZyanU8*)dos_header + dos_header->e_lfanew);
         context->image_base = nt_headers->OptionalHeader.ImageBase;
 
-        // Exports
+        // Entry point
         ZydisPESymbol element;
+        const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
+        element.address = entry_point;
+        if (!ZYAN_SUCCESS((status =
+                ZyanStringDuplicate(&element.symbol_name, &STR_ENTRY_POINT, 0))) ||
+            !ZYAN_SUCCESS((status =
+                ZyanVectorPushBack(&context->symbols, &element))))
+        {
+            goto FatalError;
+        }
+
+        // Exports
         if (nt_headers->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress)
         {
             const IMAGE_EXPORT_DIRECTORY* export_directory =
@@ -575,16 +586,6 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             } else
             if (!ZYAN_SUCCESS(status =
                     ZyanVectorPushBack(&context->unique_strings, &element.module_name)))
-            {
-                goto FatalError;
-            }
-
-            const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
-            element.address = entry_point;
-            if (!ZYAN_SUCCESS((status =
-                    ZyanStringDuplicate(&element.symbol_name, &STR_ENTRY_POINT, 0))) ||
-                !ZYAN_SUCCESS((status =
-                    ZyanVectorPushBack(&context->symbols, &element))))
             {
                 goto FatalError;
             }
@@ -713,8 +714,19 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
             (const IMAGE_NT_HEADERS64*)((ZyanU8*)dos_header + dos_header->e_lfanew);
         context->image_base = nt_headers->OptionalHeader.ImageBase;
 
-        // Exports
+        // Entry point.
         ZydisPESymbol element;
+        const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
+        element.address = entry_point;
+        if (!ZYAN_SUCCESS((status =
+                ZyanStringDuplicate(&element.symbol_name, &STR_ENTRY_POINT, 0))) ||
+            !ZYAN_SUCCESS((status =
+                ZyanVectorPushBack(&context->symbols, &element))))
+        {
+            goto FatalError;
+        }
+
+        // Exports
         if (nt_headers->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress)
         {
             const IMAGE_EXPORT_DIRECTORY* export_directory =
@@ -740,16 +752,6 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
                     break;
                 }
             }*/
-
-            const ZyanUPointer entry_point = nt_headers->OptionalHeader.AddressOfEntryPoint;
-            element.address = entry_point;
-            if (!ZYAN_SUCCESS((status =
-                    ZyanStringDuplicate(&element.symbol_name, &STR_ENTRY_POINT, 0))) ||
-                !ZYAN_SUCCESS((status =
-                    ZyanVectorPushBack(&context->symbols, &element))))
-            {
-                goto FatalError;
-            }
 
             const ZyanU32* export_addresses =
                 (const ZyanU32*)RVAToFileOffset(base,
