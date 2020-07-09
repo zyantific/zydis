@@ -879,40 +879,64 @@ FatalError:
 /* Callbacks                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-// ZydisFormatterAddressFunc default_print_address;
+ZydisFormatterFunc default_print_address_abs;
+ZydisFormatterFunc default_print_address_rel;
 
-// static ZyanStatus ZydisFormatterPrintAddress(const ZydisFormatter* formatter,
-//     ZyanString* string, ZydisFormatterContext* context, ZyanU64 address)
-// {
-//     const ZydisPEContext* data = (const ZydisPEContext*)context->user_data;
-//     ZYAN_ASSERT(data);
+static ZyanStatus ZydisFormatterPrintAddress(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZyanU64 address, ZyanBool is_abs)
+{
+    const ZydisPEContext* data = (const ZydisPEContext*)context->user_data;
+    ZYAN_ASSERT(data);
 
-//     ZydisPESymbol symbol;
-//     symbol.address = address - data->image_base;
+    ZydisPESymbol symbol;
+    symbol.address = address - data->image_base;
 
-//     ZyanStatus status;
-//     ZyanUSize found_index;
-//     ZYAN_CHECK((status =
-//         ZyanVectorBinarySearch(&data->symbols, &symbol, &found_index,
-//             (ZyanComparison)&CompareSymbol)));
+    ZyanStatus status;
+    ZyanUSize found_index;
+    ZYAN_CHECK((status =
+        ZyanVectorBinarySearch(&data->symbols, &symbol, &found_index,
+            (ZyanComparison)&CompareSymbol)));
 
-//     if (status == ZYAN_STATUS_TRUE)
-//     {
-//         const ZydisPESymbol* element;
-//         ZYAN_CHECK(ZyanVectorGetElement(&data->symbols, found_index, (const void**)&element));
-//         ZyanUSize index;
-//         ZyanUSize count;
-//         ZYAN_CHECK(ZyanStringGetSize(string, &index));
-//         ZYAN_CHECK(ZyanStringGetSize(&element->module_name, &count));
-//         ZYAN_CHECK(ZyanStringAppend(string, &element->module_name));
-//         ZYAN_CHECK(ZyanStringToLowerCaseEx(string, index, count));
-//         ZYAN_CHECK(ZyanStringAppend(string, &STR_DOT));
-//         return ZyanStringAppend(string, &element->symbol_name);
-//     }
+    ZyanString* string;
+    ZYAN_CHECK(ZydisFormatterBufferGetString(buffer, &string));
 
-//     // Default address printing
-//     return default_print_address(formatter, string, context, address);
-// }
+    if (status == ZYAN_STATUS_TRUE)
+    {
+        const ZydisPESymbol* element;
+        ZYAN_CHECK(ZyanVectorGetPointer(&data->symbols, found_index, (const void**)&element));
+        ZyanUSize index;
+        ZyanUSize count;
+        ZYAN_CHECK(ZyanStringGetSize(string, &index));
+        ZYAN_CHECK(ZyanStringGetSize(&element->module_name, &count));
+        ZYAN_CHECK(ZyanStringAppend(string, ZYAN_STRING_TO_VIEW(&element->module_name)));
+        ZYAN_CHECK(ZyanStringToLowerCaseEx(string, index, count));
+        ZYAN_CHECK(ZyanStringAppend(string, &STR_DOT));
+        return ZyanStringAppend(string, ZYAN_STRING_TO_VIEW(&element->symbol_name));
+    }
+
+    // Default address printing
+    ZydisFormatterFunc fn = is_abs ? default_print_address_abs : default_print_address_rel;
+    return fn(formatter, buffer, context);
+}
+
+static ZyanStatus ZydisFormatterPrintAddressABS(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZyanU64 address;
+    ZYAN_CHECK(ZydisCalcAbsoluteAddress(context->instruction, context->operand,
+        context->runtime_address, &address));
+
+    return ZydisFormatterPrintAddress(formatter, buffer, context, address, ZYAN_TRUE);
+}
+
+static ZyanStatus ZydisFormatterPrintAddressREL(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZyanU64 address;
+    ZYAN_CHECK(ZydisCalcAbsoluteAddress(context->instruction, context->operand, 0, &address));
+
+    return ZydisFormatterPrintAddress(formatter, buffer, context, address, ZYAN_FALSE);
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Disassembler                                                                                   */
@@ -961,15 +985,18 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
     }
 
     // Initialize formatter
-    // default_print_address = (ZydisFormatterAddressFunc)&ZydisFormatterPrintAddress;
+    default_print_address_abs = (ZydisFormatterFunc)&ZydisFormatterPrintAddressABS;
+    default_print_address_rel = (ZydisFormatterFunc)&ZydisFormatterPrintAddressREL;
     ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) /*||
+    if (!ZYAN_SUCCESS((status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSEG, ZYAN_TRUE))) ||
+            ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_MEMSIZE, ZYAN_TRUE))) ||
+            ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE))) ||
         !ZYAN_SUCCESS((status = ZydisFormatterSetHook(&formatter,
-            ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS, (const void**)&default_print_address)))*/)
+            ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_ABS, (const void**)&default_print_address_abs))) ||
+        !ZYAN_SUCCESS((status = ZydisFormatterSetHook(&formatter,
+            ZYDIS_FORMATTER_FUNC_PRINT_ADDRESS_REL, (const void**)&default_print_address_rel))))
     {
         fputs("Failed to initialize instruction-formatter\n", stderr);
         return status;
