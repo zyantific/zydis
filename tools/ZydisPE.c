@@ -834,9 +834,9 @@ static ZyanStatus ZydisPEContextInit(ZydisPEContext* context, const void* base, 
 
                         ZyanStringView symbol_name;
                         if (!ZYAN_SUCCESS((status = ZyanStringViewInsideBuffer(
-                                &module_name, (const char*)by_name->Name))) ||
+                                &symbol_name, (const char*)by_name->Name))) ||
                             !ZYAN_SUCCESS((status =
-                                ZyanStringDuplicate(&element.symbol_name, &module_name, 0))))
+                                ZyanStringDuplicate(&element.symbol_name, &symbol_name, 0))))
                         {
                             goto FatalError;
                         }
