@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Implements the `AT&T` style instruction-formatter.
+ * Implements the `AT&T` style instruction-formatter.
  */
 
 #ifndef ZYDIS_FORMATTER_ATT_H
@@ -85,7 +85,7 @@ ZyanStatus ZydisFormatterATTPrintIMM(const ZydisFormatter* formatter,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The default formatter configuration for `AT&T` style disassembly.
+ * The default formatter configuration for `AT&T` style disassembly.
  */
 static const ZydisFormatter FORMATTER_ATT =
 {

@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Disassembles a given PE file.
+ * Disassembles a given PE file.
  */
 
 #include <errno.h>
@@ -57,7 +57,7 @@ static const ZyanStringView STR_ENTRY_POINT = ZYAN_DEFINE_STRING_VIEW("EntryPoin
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The zydis PE tool module id.
+ * The zydis PE tool module id.
  */
 #define ZYAN_MODULE_ZYDIS_PE    0x101
 
@@ -66,19 +66,19 @@ static const ZyanStringView STR_ENTRY_POINT = ZYAN_DEFINE_STRING_VIEW("EntryPoin
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The signature of the PE-files DOS header field is invalid.
+ * The signature of the PE-files DOS header field is invalid.
  */
 #define ZYDIS_STATUS_INVALID_DOS_SIGNATURE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS_PE, 0x00)
 
 /**
- * @brief   The signature of the PE-files NT headers field is invalid.
+ * The signature of the PE-files NT headers field is invalid.
  */
 #define ZYDIS_STATUS_INVALID_NT_SIGNATURE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS_PE, 0x01)
 
 /**
- * @brief   The architecture of the assembly code contained in the PE-file is not supported.
+ * The architecture of the assembly code contained in the PE-file is not supported.
  */
 #define ZYDIS_STATUS_UNSUPPORTED_ARCHITECTURE \
     ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS_PE, 0x02)
@@ -337,47 +337,47 @@ typedef struct IMAGE_IMPORT_BY_NAME_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisPESymbol` struct.
+ * Defines the `ZydisPESymbol` struct.
  */
 typedef struct ZydisPESymbol_
 {
     /**
-     * @brief   The virtual address of the symbol.
+     * The virtual address of the symbol.
      */
     ZyanU64 address;
     /**
-     * @brief   The module string.
+     * The module string.
      */
     ZyanString module_name;
     /**
-     * @brief   The symbol string.
+     * The symbol string.
      */
     ZyanString symbol_name;
 } ZydisPESymbol;
 
 /**
- * @brief   Defines the `ZydisPEContext` struct.
+ * Defines the `ZydisPEContext` struct.
  */
 typedef struct ZydisPEContext_
 {
     /**
-     * @brief   The memory that contains the mapped PE-file.
+     * The memory that contains the mapped PE-file.
      */
     const void* base;
     /**
-     * @brief   The size of the memory mapped PE-file.
+     * The size of the memory mapped PE-file.
      */
     ZyanUSize size;
     /**
-     * @brief   A vector that contains the addresses and names of all symbols.
+     * A vector that contains the addresses and names of all symbols.
      */
     ZyanVector symbols;
     /**
-     * @brief   The desired image-base of the PE-file.
+     * The desired image-base of the PE-file.
      */
     ZyanU64 image_base;
     /**
-     * @brief   A vector that contains all string instances that need to be destroyed.
+     * A vector that contains all string instances that need to be destroyed.
      */
     ZyanVector unique_strings;
 } ZydisPEContext;
@@ -386,8 +386,7 @@ typedef struct ZydisPEContext_
 /* Functions                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 /**
- * @brief   A comparison function for the `ZydisPESymbol` that uses the `address` field as key
- *          value.
+ * A comparison function for the `ZydisPESymbol` that uses the `address` field as key value.
  *
  * @param   left    A pointer to the first element.
  * @param   right   A pointer to the second element.
@@ -416,7 +415,7 @@ static ZyanI32 CompareSymbol(const ZydisPESymbol* left, const ZydisPESymbol* rig
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Returns a pointer to the section header of the section that contains the given `rva`.
+ * Returns a pointer to the section header of the section that contains the given `rva`.
  *
  * @param   base    A pointer to the memory that contains the mapped PE-file.
  * @param   rva     The relative virtual address.
@@ -453,7 +452,7 @@ static const IMAGE_SECTION_HEADER* GetSectionByRVA(const void* base, ZyanU64 rva
 }
 
 /**
- * @brief   Converts a relative virtual address to file offset.
+ * Converts a relative virtual address to file offset.
  *
  * @param   base    A pointer to the memory mapped PE-file.
  * @param   rva     The relative virtual-address.
@@ -477,7 +476,7 @@ const void* RVAToFileOffset(const void* base, ZyanU64 rva)
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Finalizes the given `ZydisPEContext` struct.
+ * Finalizes the given `ZydisPEContext` struct.
  *
  * @param   context A pointer to the `ZydisPEContext` struct.
  *
@@ -500,7 +499,7 @@ static ZyanStatus ZydisPEContextFinalize(ZydisPEContext* context)
 }
 
 /**
- * @brief   Initializes the given `ZydisPEContext` struct.
+ * Initializes the given `ZydisPEContext` struct.
  *
  * @param   context A pointer to the `ZydisPEContext` struct.
  * @param   base    A pointer to the memory that contains the mapped PE-file.
@@ -945,10 +944,10 @@ static ZyanStatus ZydisFormatterPrintAddressREL(const ZydisFormatter* formatter,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Disassembles a mapped PE-file and prints the output to `stdout`. Automatically resolves
- *          exports and imports.
+ * Disassembles a mapped PE-file and prints the output to `stdout`.
+ * Automatically resolves exports and imports.
  *
- * @brief   base    A pointer to the `ZydisPEContext` struct.
+ * base    A pointer to the `ZydisPEContext` struct.
  */
 static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
 {

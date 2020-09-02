@@ -74,16 +74,16 @@ static ZyanBool g_vt100_stderr;
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Conditionally expands to the passed VT100 sequence, if `g_colors_stdout` is
- *          `ZYAN_TRUE`, or an empty string, if not.
+ * Conditionally expands to the passed VT100 sequence, if `g_colors_stdout` is
+ * `ZYAN_TRUE`, or an empty string, if not.
  *
  * @param   The VT100 SGT sequence.
  */
 #define CVT100_OUT(sequence) (g_vt100_stdout ? (sequence) : "")
 
 /**
- * @brief   Conditionally expands to the passed VT100 sequence, if `g_colors_stderr` is
- *          `ZYAN_TRUE`, or an empty string, if not.
+ * Conditionally expands to the passed VT100 sequence, if `g_colors_stderr` is
+ * `ZYAN_TRUE`, or an empty string, if not.
  *
  * @param   The VT100 SGT sequence.
  */
@@ -239,7 +239,7 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
         if (use_cache)
         {
             ZYAN_UNREACHABLE;
-            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset, 
+            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset,
             //     length - offset, &instruction);
         } else
         {

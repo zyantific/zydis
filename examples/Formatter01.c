@@ -26,8 +26,8 @@
 
 /**
  * @file
- * @brief   Demonstrates basic hooking functionality of the `ZydisFormatter` class by implementing
- *          a custom symbol-resolver.
+ * Demonstrates basic hooking functionality of the `ZydisFormatter` class by implementing
+ * a custom symbol-resolver.
  */
 
 #include <inttypes.h>
@@ -40,16 +40,16 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZydisSymbol` struct.
+ * Defines the `ZydisSymbol` struct.
  */
 typedef struct ZydisSymbol_
 {
     /**
-     * @brief   The symbol address.
+     * The symbol address.
      */
     ZyanU64 address;
     /**
-     * @brief   The symbol name.
+     * The symbol name.
      */
     const char* name;
 } ZydisSymbol;
@@ -59,7 +59,7 @@ typedef struct ZydisSymbol_
 /* ============================================================================================== */
 
 /**
- * @brief   A static symbol table with some dummy symbols.
+ * A static symbol table with some dummy symbols.
  */
 static const ZydisSymbol SYMBOL_TABLE[3] =
 {

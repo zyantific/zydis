@@ -1,5 +1,5 @@
 /**
- * @brief   Defines the `ZydisMnemonic` enum.
+ * Defines the `ZydisMnemonic` enum.
  */
 typedef enum ZydisMnemonic_
 {
@@ -1611,11 +1611,11 @@ typedef enum ZydisMnemonic_
     ZYDIS_MNEMONIC_XTEST,
 
     /**
-     * @brief   Maximum value of this enum.
+     * Maximum value of this enum.
      */
     ZYDIS_MNEMONIC_MAX_VALUE = ZYDIS_MNEMONIC_XTEST,
     /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
+     * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_MNEMONIC_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MNEMONIC_MAX_VALUE)
 } ZydisMnemonic;

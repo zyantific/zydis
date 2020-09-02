@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Demonstrates the tokenizing feature of the `ZydisFormatter` class.
+ * Demonstrates the tokenizing feature of the `ZydisFormatter` class.
  */
 
 #include <inttypes.h>

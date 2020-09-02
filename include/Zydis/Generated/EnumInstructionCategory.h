@@ -1,5 +1,5 @@
 /**
- * @brief   Defines the `ZydisInstructionCategory` enum.
+ * Defines the `ZydisInstructionCategory` enum.
  */
 typedef enum ZydisInstructionCategory_
 {
@@ -104,11 +104,11 @@ typedef enum ZydisInstructionCategory_
     ZYDIS_CATEGORY_XSAVEOPT,
 
     /**
-     * @brief   Maximum value of this enum.
+     * Maximum value of this enum.
      */
     ZYDIS_CATEGORY_MAX_VALUE = ZYDIS_CATEGORY_XSAVEOPT,
     /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
+     * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_CATEGORY_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CATEGORY_MAX_VALUE)
 } ZydisInstructionCategory;
