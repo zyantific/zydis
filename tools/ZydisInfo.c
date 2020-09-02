@@ -1098,39 +1098,51 @@ int main(int argc, char** argv)
     }
 
     ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
-    ZyanU8 length = 0;
-    for (ZyanU8 i = 0; i < argc - 2; ++i)
+    ZyanU8 byte_length = 0;
+    for (ZyanU8 i = 2; i < argc; ++i)
     {
-        const ZyanUSize len = ZYAN_STRLEN(argv[i + 2]);
-        if (len % 2)
+        char* cur_arg = argv[i];
+
+        // Strip whitespace in-place.
+        const ZyanUSize arg_len = ZYAN_STRLEN(cur_arg);
+        ZyanUSize write = 0;
+        for (ZyanUSize read = 0; read < arg_len; ++read)
+        {
+            char ch = cur_arg[read];
+            if (ch == ' ' || ch == '\t') continue;
+            cur_arg[write++] = ch;
+        }
+        cur_arg[write] = '\0';
+
+        if (write % 2)
         {
             ZYAN_FPRINTF(ZYAN_STDERR, "%sEven number of hex nibbles expected%s\n",
                 CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        if ((len / 2) > ZYDIS_MAX_INSTRUCTION_LENGTH)
+        if ((write / 2) + byte_length >= ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
             ZYAN_FPRINTF(ZYAN_STDERR, "%sMaximum number of %d bytes exceeded%s\n",
                 CVT100_ERR(COLOR_ERROR), ZYDIS_MAX_INSTRUCTION_LENGTH,
                 CVT100_ERR(ZYAN_VT100SGR_RESET));
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        for (ZyanU8 j = 0; j < len / 2; ++j)
+        for (ZyanU8 j = 0; j < write / 2; ++j)
         {
             unsigned value;
-            if (!ZYAN_SSCANF(&argv[i + 2][j * 2], "%02x", &value))
+            if (!ZYAN_SSCANF(&cur_arg[j * 2], "%02x", &value))
             {
                 ZYAN_FPRINTF(ZYAN_STDERR, "%sInvalid hex value%s\n",
                     CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
-            data[length] = (ZyanU8)value;
-            ++length;
+            data[byte_length] = (ZyanU8)value;
+            ++byte_length;
         }
     }
 
     ZydisDecodedInstruction instruction;
-    const ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, length, &instruction);
+    const ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, byte_length, &instruction);
     if (!ZYAN_SUCCESS(status))
     {
         if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
