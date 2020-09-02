@@ -1,5 +1,5 @@
 /**
- * @brief   Defines the `ZydisISAExt` enum.
+ * Defines the `ZydisISAExt` enum.
  */
 typedef enum ZydisISAExt_
 {
@@ -79,11 +79,11 @@ typedef enum ZydisISAExt_
     ZYDIS_ISA_EXT_XSAVES,
 
     /**
-     * @brief   Maximum value of this enum.
+     * Maximum value of this enum.
      */
     ZYDIS_ISA_EXT_MAX_VALUE = ZYDIS_ISA_EXT_XSAVES,
     /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
+     * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_ISA_EXT_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_ISA_EXT_MAX_VALUE)
 } ZydisISAExt;

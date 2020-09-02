@@ -26,8 +26,8 @@
 
 /**
  * @file
- * @brief    Windows kernel mode driver sample.
- * 
+ * Windows kernel mode driver sample.
+ *
  * This is a Windows kernel mode driver. It links against the kernel mode-compatible version of Zydis.
  * The driver finds its own entry point and decodes and prints the disassembly of this function.
  * To view the log, either attach a kernel debugger or use a tool like Sysinternals DebugView.
@@ -181,7 +181,7 @@ DriverEntry(
 
         readOffset += instruction.length;
     }
-    
+
     // Return an error status so that the driver does not have to be unloaded after running.
     return STATUS_UNSUCCESSFUL;
 }

@@ -26,7 +26,7 @@
 
 /**
  * @file
- * @brief   Implements the `INTEL` style instruction-formatter.
+ * Implements the `INTEL` style instruction-formatter.
  */
 
 #ifndef ZYDIS_FORMATTER_INTEL_H
@@ -87,7 +87,7 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The default formatter configuration for `INTEL` style disassembly.
+ * The default formatter configuration for `INTEL` style disassembly.
  */
 static const ZydisFormatter FORMATTER_INTEL =
 {
@@ -174,7 +174,7 @@ static const ZydisFormatter FORMATTER_INTEL =
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   The default formatter configuration for `MASM` style disassembly.
+ * The default formatter configuration for `MASM` style disassembly.
  */
 static const ZydisFormatter FORMATTER_INTEL_MASM =
 {

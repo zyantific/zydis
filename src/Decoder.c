@@ -39,110 +39,110 @@
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisDecoderContext` struct.
+ * Defines the `ZydisDecoderContext` struct.
  */
 typedef struct ZydisDecoderContext_
 {
     /**
-     * @brief   A pointer to the `ZydisDecoder` instance.
+     * A pointer to the `ZydisDecoder` instance.
      */
     const ZydisDecoder* decoder;
     /**
-     * @brief   The input buffer.
+     * The input buffer.
      */
     const ZyanU8* buffer;
     /**
-     * @brief   The input buffer length.
+     * The input buffer length.
      */
     ZyanUSize buffer_len;
     struct
     {
         /**
-         * @brief   Signals, if the instruction has a `LOCK` prefix (`F0`).
+         * Signals, if the instruction has a `LOCK` prefix (`F0`).
          *
          * This prefix originally belongs to group 1, but separating it from the other ones makes
          * parsing easier for us later.
          */
         ZyanBool has_lock;
         /**
-         * @brief   The effective prefix of group 1 (either `F2` or `F3`).
+         * The effective prefix of group 1 (either `F2` or `F3`).
          */
         ZyanU8 group1;
         /**
-         * @brief   The effective prefix of group 3 (`2E`,`36`, `3E`, `26`, `64` or `65`).
+         * The effective prefix of group 3 (`2E`,`36`, `3E`, `26`, `64` or `65`).
          */
         ZyanU8 group2;
         /**
-         * @brief   Signals, if the instruction has an operand-size override prefix (`66`).
+         * Signals, if the instruction has an operand-size override prefix (`66`).
          *
          * This is the only prefix in group 3.
          */
         // ZyanBool has_osz_override;
         /**
-         * @brief   Signals, if the instruction has an address-size override prefix (`67`).
+         * Signals, if the instruction has an address-size override prefix (`67`).
          *
          * This is the only prefix in group 4.
          */
         // ZyanBool has_asz_override;
         /**
-         * @brief   The effective segment prefix.
+         * The effective segment prefix.
          */
         ZyanU8 effective_segment;
         /**
-         * @brief   The prefix that should be treated as the mandatory-prefix, if the current
-         *          instruction needs one.
+         * The prefix that should be treated as the mandatory-prefix, if the
+         * current instruction needs one.
          *
-         * The last `F3`/`F2` prefix has precedence over previous ones and `F3`/`F2` in general
-         * have precedence over `66`.
+         * The last `F3`/`F2` prefix has precedence over previous ones and
+         * `F3`/`F2` in general have precedence over `66`.
          */
         ZyanU8 mandatory_candidate;
         /**
-         * @brief   The offset of the effective `LOCK` prefix.
+         * The offset of the effective `LOCK` prefix.
          */
         ZyanU8 offset_lock;
         /**
-         * @brief   The offset of the effective prefix in group 1.
+         * The offset of the effective prefix in group 1.
          */
         ZyanU8 offset_group1;
         /**
-         * @brief   The offset of the effective prefix in group 2.
+         * The offset of the effective prefix in group 2.
          */
         ZyanU8 offset_group2;
         /**
-         * @brief   The offset of the operand-size override prefix (`66`).
+         * The offset of the operand-size override prefix (`66`).
          *
          * This is the only prefix in group 3.
          */
         ZyanU8 offset_osz_override;
         /**
-         * @brief   The offset of the address-size override prefix (`67`).
+         * The offset of the address-size override prefix (`67`).
          *
          * This is the only prefix in group 4.
          */
         ZyanU8 offset_asz_override;
         /**
-         * @brief   The offset of the effective segment prefix.
+         * The offset of the effective segment prefix.
          */
         ZyanU8 offset_segment;
         /**
-         * @brief   The offset of the mandatory-candidate prefix.
+         * The offset of the mandatory-candidate prefix.
          */
         ZyanU8 offset_mandatory;
     } prefixes;
     /**
-     * @brief   Contains the effective operand-size index.
+     * Contains the effective operand-size index.
      *
      * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
      */
     ZyanU8 eosz_index;
     /**
-     * @brief   Contains the effective address-size index.
+     * Contains the effective address-size index.
      *
      * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
      */
     ZyanU8 easz_index;
     /**
-     * @brief   Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
+     * Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
      */
     struct
     {
@@ -159,35 +159,35 @@ typedef struct ZydisDecoderContext_
     } cache;
 #ifndef ZYDIS_DISABLE_AVX512
     /**
-     * @brief   Internal EVEX-specific information.
+     * Internal EVEX-specific information.
      */
     struct
     {
         /**
-         * @brief   The EVEX tuple-type.
+         * The EVEX tuple-type.
          */
         ZydisEVEXTupleType tuple_type;
         /**
-         * @brief   The EVEX element-size.
+         * The EVEX element-size.
          */
         ZyanU8 element_size;
     } evex;
 #endif
 #ifndef ZYDIS_DISABLE_KNC
     /**
-     * @brief   Internal MVEX-specific information.
+     * Internal MVEX-specific information.
      */
     struct
     {
         /**
-         * @brief   The MVEX functionality.
+         * The MVEX functionality.
          */
         ZydisMVEXFunctionality functionality;
     } mvex;
 #endif
 #if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     /**
-     * @brief   The scale factor for EVEX/MVEX compressed 8-bit displacement values.
+     * The scale factor for EVEX/MVEX compressed 8-bit displacement values.
      */
     ZyanU8 cd8_scale;
 #endif
@@ -198,71 +198,71 @@ typedef struct ZydisDecoderContext_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Defines the `ZydisRegisterEncoding` enum.
+ * Defines the `ZydisRegisterEncoding` enum.
  */
 typedef enum ZydisRegisterEncoding_
 {
     ZYDIS_REG_ENCODING_INVALID,
     /**
-     * @brief   The register-id is encoded as part of the opcode.
+     * The register-id is encoded as part of the opcode.
      *
      * Possible extension by `REX/XOP/VEX/EVEX/MVEX.B`.
      */
     ZYDIS_REG_ENCODING_OPCODE,
     /**
-     * @brief   The register-id is encoded in `modrm.reg`.
+     * The register-id is encoded in `modrm.reg`.
      *
      * Possible extension by `EVEX/MVEX.R'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.R`.
      */
     ZYDIS_REG_ENCODING_REG,
     /**
-     * @brief   The register-id is encoded in `XOP/VEX/EVEX/MVEX.vvvv`.
+     * The register-id is encoded in `XOP/VEX/EVEX/MVEX.vvvv`.
      *
      * Possible extension by `EVEX/MVEX.v'` (vector only).
      */
     ZYDIS_REG_ENCODING_NDSNDD,
     /**
-     * @brief   The register-id is encoded in `modrm.rm`.
+     * The register-id is encoded in `modrm.rm`.
      *
      * Possible extension by `EVEX/MVEX.X` (vector only) and `REX/XOP/VEX/EVEX/MVEX.B`.
      */
     ZYDIS_REG_ENCODING_RM,
     /**
-     * @brief   The register-id is encoded in `modrm.rm` or `sib.base` (if SIB is present).
+     * The register-id is encoded in `modrm.rm` or `sib.base` (if SIB is present).
      *
      * Possible extension by `REX/XOP/VEX/EVEX/MVEX.B`.
      */
     ZYDIS_REG_ENCODING_BASE,
     /**
-     * @brief   The register-id is encoded in `sib.index`.
+     * The register-id is encoded in `sib.index`.
      *
      * Possible extension by `REX/XOP/VEX/EVEX/MVEX.X`.
      */
     ZYDIS_REG_ENCODING_INDEX,
     /**
-     * @brief   The register-id is encoded in `sib.index`.
+     * The register-id is encoded in `sib.index`.
      *
      * Possible extension by `EVEX/MVEX.V'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.X`.
      */
     ZYDIS_REG_ENCODING_VIDX,
     /**
-     * @brief   The register-id is encoded in an additional 8-bit immediate value.
+     * The register-id is encoded in an additional 8-bit immediate value.
      *
      * Bits [7:4] in 64-bit mode with possible extension by bit [3] (vector only), bits [7:5] for
      * all other modes.
      */
     ZYDIS_REG_ENCODING_IS4,
     /**
-     * @brief   The register-id is encoded in `EVEX.aaa/MVEX.kkk`.
+     * The register-id is encoded in `EVEX.aaa/MVEX.kkk`.
      */
     ZYDIS_REG_ENCODING_MASK,
 
     /**
-     * @brief   Maximum value of this enum.
+     * Maximum value of this enum.
      */
     ZYDIS_REG_ENCODING_MAX_VALUE = ZYDIS_REG_ENCODING_MASK,
     /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
+     * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_REG_ENCODING_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REG_ENCODING_MAX_VALUE)
 } ZydisRegisterEncoding;
@@ -278,7 +278,7 @@ typedef enum ZydisRegisterEncoding_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Reads one byte from the current read-position of the input data-source.
+ * Reads one byte from the current read-position of the input data-source.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -311,7 +311,7 @@ static ZyanStatus ZydisInputPeek(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Increases the read-position of the input data-source by one byte.
+ * Increases the read-position of the input data-source by one byte.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -332,7 +332,7 @@ static void ZydisInputSkip(ZydisDecoderContext* context, ZydisDecodedInstruction
 }
 
 /**
- * @brief   Reads one byte from the current read-position of the input data-source and increases
+ * Reads one byte from the current read-position of the input data-source and increases
  *          the read-position by one byte afterwards.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance.
@@ -367,7 +367,7 @@ static ZyanStatus ZydisInputNext(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Reads a variable amount of bytes from the current read-position of the input
+ * Reads a variable amount of bytes from the current read-position of the input
  *          data-source and increases the read-position by specified amount of bytes afterwards.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` instance.
@@ -411,7 +411,7 @@ static ZyanStatus ZydisInputNextBytes(ZydisDecoderContext* context,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Decodes the `REX`-prefix.
+ * Decodes the `REX`-prefix.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -437,7 +437,7 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
 }
 
 /**
- * @brief   Decodes the `XOP`-prefix.
+ * Decodes the `XOP`-prefix.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -483,7 +483,7 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Decodes the `VEX`-prefix.
+ * Decodes the `VEX`-prefix.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -553,7 +553,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_DISABLE_AVX512
 /**
- * @brief   Decodes the `EVEX`-prefix.
+ * Decodes the `EVEX`-prefix.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -641,7 +641,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_DISABLE_KNC
 /**
- * @brief   Decodes the `MVEX`-prefix.
+ * Decodes the `MVEX`-prefix.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -697,7 +697,7 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
 #endif
 
 /**
- * @brief   Decodes the `ModRM`-byte.
+ * Decodes the `ModRM`-byte.
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   data        The `ModRM` byte.
@@ -715,7 +715,7 @@ static void ZydisDecodeModRM(ZydisDecodedInstruction* instruction, ZyanU8 data)
 }
 
 /**
- * @brief   Decodes the `SIB`-byte.
+ * Decodes the `SIB`-byte.
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct
  * @param   data        The `SIB` byte.
@@ -737,7 +737,7 @@ static void ZydisDecodeSIB(ZydisDecodedInstruction* instruction, ZyanU8 data)
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Reads a displacement value.
+ * Reads a displacement value.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -795,7 +795,7 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Reads an immediate value.
+ * Reads an immediate value.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -889,7 +889,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Calculates the register-id for a specific register-encoding and register-class.
+ * Calculates the register-id for a specific register-encoding and register-class.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction     A pointer to the ` ZydisDecodedInstruction` struct.
@@ -1121,7 +1121,7 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Sets the operand-size and element-specific information for the given operand.
+ * Sets the operand-size and element-specific information for the given operand.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
@@ -1363,7 +1363,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Decodes an register-operand.
+ * Decodes an register-operand.
  *
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
@@ -1405,7 +1405,7 @@ static ZyanStatus ZydisDecodeOperandRegister(ZydisDecodedInstruction* instructio
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Decodes a memory operand.
+ * Decodes a memory operand.
  *
  * @param   context             A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction         A pointer to the `ZydisDecodedInstruction` struct.
@@ -1599,7 +1599,7 @@ static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Decodes an implicit register operand.
+ * Decodes an implicit register operand.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
@@ -1672,7 +1672,7 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Decodes an implicit memory operand.
+ * Decodes an implicit memory operand.
  *
  * @param   context         A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
@@ -1747,7 +1747,7 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Decodes the instruction operands.
+ * Decodes the instruction operands.
  *
  * @param   context     A pointer to the`ZydisDecoderContext` struct.
  * @param   instruction A pointer to the`ZydisDecodedInstruction` struct.
@@ -2120,7 +2120,7 @@ FinalizeOperand:
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Sets attributes for the given instruction.
+ * Sets attributes for the given instruction.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -2384,7 +2384,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * @brief   Sets AVX-specific information for the given instruction.
+ * Sets AVX-specific information for the given instruction.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -3115,7 +3115,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Collects optional instruction prefixes.
+ * Collects optional instruction prefixes.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -3239,8 +3239,8 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Decodes optional instruction parts like the ModRM byte, the SIB byte and additional
- *          displacements and/or immediate values.
+ * Decodes optional instruction parts like the ModRM byte, the SIB byte and
+ * additional displacements and/or immediate values.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -3371,7 +3371,7 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* conte
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Sets the effective operand size for the given instruction.
+ * Sets the effective operand size for the given instruction.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -3525,7 +3525,7 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
 }
 
 /**
- * @brief   Sets the effective address width for the given instruction.
+ * Sets the effective address width for the given instruction.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -4056,7 +4056,7 @@ static ZyanStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
 
     /*if (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE)
     {
-        instruction->raw.prefixes[context->prefixes.offset_asz_override].type = 
+        instruction->raw.prefixes[context->prefixes.offset_asz_override].type =
             ZYDIS_PREFIX_TYPE_EFFECTIVE;
     }*/
     switch (context->decoder->address_width)
@@ -4199,7 +4199,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Zy
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Checks for certain post-decode error-conditions.
+ * Checks for certain post-decode error-conditions.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -4460,11 +4460,11 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         has_VSIB = ZYAN_TRUE;
         break;
     case ZYDIS_REG_CONSTRAINTS_NO_REL:
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) && 
-            (instruction->raw.modrm.mod == 0) && 
+        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (instruction->raw.modrm.mod == 0) &&
             (instruction->raw.modrm.rm  == 5))
         {
-            return ZYDIS_STATUS_DECODING_ERROR;    
+            return ZYDIS_STATUS_DECODING_ERROR;
         }
         break;
     default:
@@ -4593,7 +4593,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * @brief   Uses the decoder-tree to decode the current instruction.
+ * Uses the decoder-tree to decode the current instruction.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
@@ -4630,7 +4630,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                 }
                 if (context->prefixes.mandatory_candidate == 0x66)
                 {
-                    if (context->prefixes.offset_osz_override == 
+                    if (context->prefixes.offset_osz_override ==
                         context->prefixes.offset_mandatory)
                     {
                         instruction->raw.prefixes[context->prefixes.offset_mandatory].type =

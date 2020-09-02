@@ -46,7 +46,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZydisFuzzControlBlock` struct.
+ * Defines the `ZydisFuzzControlBlock` struct.
  */
 typedef struct ZydisFuzzControlBlock_
 {

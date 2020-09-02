@@ -26,8 +26,8 @@
 
 /**
  * @file
- * @brief   Demonstrates basic hooking functionality of the `ZydisFormatter` class and the ability
- *          to completely omit specific operands.
+ * Demonstrates basic hooking functionality of the `ZydisFormatter` class and the ability
+ * to completely omit specific operands.
  *
  * This example demonstrates the hooking functionality of the `ZydisFormatter` class by
  * rewriting the mnemonics of `(V)CMPPS` and `(V)CMPPD` to their corresponding alias-forms (based
@@ -44,7 +44,7 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Static array with the condition-code strings.
+ * Static array with the condition-code strings.
  */
 static const char* const CONDITION_CODE_STRINGS[0x20] =
 {
@@ -87,7 +87,7 @@ static const char* const CONDITION_CODE_STRINGS[0x20] =
 /* ============================================================================================== */
 
 /**
- * @brief   Custom user data struct for the formatter.
+ * Custom user data struct for the formatter.
  */
 typedef struct ZydisCustomUserData_
 {

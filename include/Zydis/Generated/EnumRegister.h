@@ -1,5 +1,5 @@
 /**
- * @brief   Defines the `ZydisRegister` enum.
+ * Defines the `ZydisRegister` enum.
  */
 typedef enum ZydisRegister_
 {
@@ -282,11 +282,11 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_XCR0,
 
     /**
-     * @brief   Maximum value of this enum.
+     * Maximum value of this enum.
      */
     ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_XCR0,
     /**
-     * @brief   The minimum number of bits required to represent all values of this enum.
+     * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_REGISTER_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REGISTER_MAX_VALUE)
 } ZydisRegister;

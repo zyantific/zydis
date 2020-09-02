@@ -37,34 +37,34 @@
 /* ============================================================================================== */
 
 /**
- * @brief   Defines the `ZydisRegisterMapItem` struct.
+ * Defines the `ZydisRegisterMapItem` struct.
  */
 typedef struct ZydisRegisterMapItem_
 {
     /**
-     * @brief   The register class.
+     * The register class.
      */
     ZydisRegisterClass class;
     /**
-     * @brief   The lowest register of the current class.
+     * The lowest register of the current class.
      */
     ZydisRegister lo;
     /**
-     * @brief   The highest register of the current class.
+     * The highest register of the current class.
      */
     ZydisRegister hi;
     /**
-     * @brief   The width of registers of the current class in 16- and 32-bit mode.
+     * The width of registers of the current class in 16- and 32-bit mode.
      */
     ZydisRegisterWidth width;
     /**
-     * @brief   The width of registers of the current class in 64-bit mode.
+     * The width of registers of the current class in 64-bit mode.
      */
     ZydisRegisterWidth width64;
 } ZydisRegisterMapItem;
 
 /**
- * @brief   Provides register to register-class and register-class + id to register mappings.
+ * Provides register to register-class and register-class + id to register mappings.
  */
 static const ZydisRegisterMapItem REGISTER_MAP[] =
 {

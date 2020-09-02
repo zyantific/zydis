@@ -26,8 +26,8 @@
 
 /**
  * @file
- * @brief   Reads a byte-stream from a file or the `stdin` pipe and prints a textual representation
- *          of the decoded data.
+ * Reads a byte-stream from a file or the `stdin` pipe and prints a textual
+ * representation of the decoded data.
  */
 
 #include <stdio.h>
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
                 ZYAN_PRINTF("db %02X\n", buffer[read_offset++]);
                 continue;
             }
-           
+
             ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
                 sizeof(format_buffer), runtime_address);
             ZYAN_PUTS(format_buffer);
