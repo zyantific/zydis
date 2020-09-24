@@ -97,3 +97,5 @@ msvc/**/bin/
 doc/html
 
 .vscode
+.idea
+cmake-build-debug

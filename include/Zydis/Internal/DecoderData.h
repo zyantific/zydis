@@ -287,12 +287,17 @@ typedef struct ZydisInstructionEncodingInfo_
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
+const ZydisDecoderTreeNode zydis_decoder_tree_root;
+
 /**
  * Returns the root node of the instruction tree.
  *
  * @return  The root node of the instruction tree.
  */
-ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void);
+ZYAN_INLINE const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
+{
+    return &zydis_decoder_tree_root;
+}
 
 /**
  * Returns the child node of `parent` specified by `index`.
