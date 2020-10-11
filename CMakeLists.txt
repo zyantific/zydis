@@ -64,7 +64,7 @@ if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
     )
 endif ()
 
-add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
+add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore")
 
 # =============================================================================================== #
 # Library configuration                                                                           #
