@@ -214,7 +214,10 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
  *
  * @param   decoder     A pointer to the `ZydisDecoder` instance.
  * @param   buffer      A pointer to the input buffer.
- * @param   length      The length of the input buffer.
+ * @param   length      The length of the input buffer. Note that this can be bigger than the
+ *                      actual size of the instruction -- you don't have to know the size up
+ *                      front. This length is merely used to prevent Zydis from doing
+ *                      out-of-bounds reads on your buffer.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct, that receives the
  *                      details about the decoded instruction.
  *
