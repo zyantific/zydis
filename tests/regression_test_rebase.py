@@ -22,15 +22,13 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
         path = os.path.join(TEST_CASE_DIRECTORY, case)
         print(path)
 
-        file = open(path, mode='r')
-        payload = file.read()
-        file.close()
+        with open(path, mode="r") as f: 
+            payload = f.read()
 
-        exitcode, out, err = get_exitcode_stdout_stderr('{} {}'.format(ZYDIS_INFO_PATH, payload))
+        exitcode, out, err = get_exitcode_stdout_stderr(f"{ZYDIS_INFO_PATH} {payload}")
 
         pre, ext = os.path.splitext(case)
         path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
 
-        file = open(path, mode='wb')
-        file.write(out)
-        file.close()
+        with open(path, mode="wb") as f:
+            f.write(out)
