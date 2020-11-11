@@ -18,6 +18,8 @@ def get_exitcode_stdout_stderr(cmd):
     
     return exitcode, out, err
 
+# sys.argv
+
 has_failed = False
 
 for case in os.listdir(TEST_CASE_DIRECTORY):
@@ -25,25 +27,23 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
         path = os.path.join(TEST_CASE_DIRECTORY, case)
         print(path)
 
-        file = open(path, mode='r')
-        payload = file.read()
-        file.close()
+        with open(path, mode="r") as f: 
+            payload = f.read()
 
-        exitcode, out, err = get_exitcode_stdout_stderr('{} {}'.format(ZYDIS_INFO_PATH, payload))
+        exitcode, out, err = get_exitcode_stdout_stderr(f"{ZYDIS_INFO_PATH} {payload}")
 
         pre, ext = os.path.splitext(case)
         path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
 
         try:
-            file = open(path, mode='rb')
-            s = file.read()
-            file.close()
+            with open(path, mode="rb") as f:
+                s = f.read()
 
             if s != out:
-                print("FAILED: '{}' [{}]".format(case, payload))
+                print(f"FAILED: '{case}' [{payload}]")
                 has_failed = True
         except:
-            print("FAILED: '{}' [{}]".format(case, "Output file missing"))
+            print(f"FAILED: '{case}' [Output file missing]")
             has_failed = True
 
 sys.exit(-1 if has_failed else 0)
