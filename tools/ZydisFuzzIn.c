@@ -59,6 +59,7 @@ typedef struct ZydisFuzzControlBlock_
     ZyanU64 rt_address;
     ZyanUPointer formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
+    ZyanU16 formatter_max_len;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -175,23 +176,25 @@ static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
     }
 
     ZyanU8 buffer[32];
-    ZyanUSize buf_len = read_fn(stream_ctx, buffer, sizeof(buffer));
-
+    ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
     ZydisDecodedInstruction instruction;
-    char format_buffer[256];
 
-    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, buf_len, &instruction);
+    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, input_len, &instruction);
     if (!ZYAN_SUCCESS(status))
     {
         return EXIT_FAILURE;
     }
 
-    ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
-        sizeof(format_buffer), control_block.rt_address);
+    char format_buffer[256];
+    // Allow the control block to artificially restrict the buffer size.
+    ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
 
-    ZyanU8 token_buffer[256];
+    ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer, output_len,
+        control_block.rt_address);
+
+    // Reuse the formatter buffer + length for tokenizing.
     const ZydisFormatterToken* token;
-    ZydisFormatterTokenizeInstruction(&formatter, &instruction, token_buffer, sizeof(buffer),
+    ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer, output_len,
         control_block.rt_address, &token);
 
     return EXIT_SUCCESS;
