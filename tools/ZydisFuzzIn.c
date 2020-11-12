@@ -179,23 +179,37 @@ static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
     ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
     ZydisDecodedInstruction instruction;
 
+    // Fuzz decoder.
     ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, input_len, &instruction);
     if (!ZYAN_SUCCESS(status))
     {
         return EXIT_FAILURE;
     }
 
+    // Fuzz formatter.
     char format_buffer[256];
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
-
     ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer, output_len,
         control_block.rt_address);
 
-    // Reuse the formatter buffer + length for tokenizing.
+    // Fuzz tokenizer.
     const ZydisFormatterToken* token;
     ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer, output_len,
         control_block.rt_address, &token);
+
+    if (instruction.operand_count > 0)
+    {
+        // Fuzz single operand formatting. We reuse rt-address for operand selection.
+        // It's casted to u8 because modulo is way cheaper on that.
+        ZyanU8 op_idx = (ZyanU8)control_block.rt_address % instruction.operand_count;
+        ZydisFormatterFormatOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
+            control_block.rt_address);
+
+        // Fuzz single operand tokenization.
+        ZydisFormatterTokenizeOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
+            control_block.rt_address, &token);
+    }
 
     return EXIT_SUCCESS;
 }
