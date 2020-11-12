@@ -48,7 +48,7 @@
 /* ============================================================================================== */
 
 /**
- * Defines the `ZydisFuzzControlBlock` struct.
+ * Main fuzzer control block data structure.
  */
 typedef struct ZydisFuzzControlBlock_
 {
@@ -56,7 +56,7 @@ typedef struct ZydisFuzzControlBlock_
     ZydisAddressWidth address_width;
     ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatter_style;
-    ZyanU64 rt_address;
+    ZyanU64 u64; // u64 used for all kind of non-overlapping purposes
     ZyanUPointer formatter_properties[ZYDIS_FORMATTER_PROP_MAX_VALUE + 1];
     char string[16];
     ZyanU16 formatter_max_len;
@@ -112,7 +112,7 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 /* Main iteration                                                                                 */
 /* ============================================================================================== */
 
-static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
+static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
 {
     ZydisFuzzControlBlock control_block;
 
@@ -191,25 +191,58 @@ static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
     ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer, output_len,
-        control_block.rt_address);
+        control_block.u64);
 
     // Fuzz tokenizer.
     const ZydisFormatterToken* token;
     ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer, output_len,
-        control_block.rt_address, &token);
+        control_block.u64, &token);
 
     if (instruction.operand_count > 0)
     {
         // Fuzz single operand formatting. We reuse rt-address for operand selection.
         // It's casted to u8 because modulo is way cheaper on that.
-        ZyanU8 op_idx = (ZyanU8)control_block.rt_address % instruction.operand_count;
+        ZyanU8 op_idx = (ZyanU8)control_block.u64 % instruction.operand_count;
         ZydisFormatterFormatOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
-            control_block.rt_address);
+            control_block.u64);
 
         // Fuzz single operand tokenization.
         ZydisFormatterTokenizeOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
-            control_block.rt_address, &token);
+            control_block.u64, &token);
+
+        // Address translation helper.
+        ZyanU64 abs_addr;
+        ZydisCalcAbsoluteAddress(&instruction, &instruction.operands[op_idx],
+            control_block.u64, &abs_addr);
     }
+
+    // Mnemonic helpers.
+    ZydisMnemonicGetString((ZydisMnemonic)control_block.u64);
+    ZydisMnemonicGetStringWrapped((ZydisMnemonic)control_block.u64);
+
+    // Flag helpers.
+    ZydisCPUFlagAction flag_action = (ZydisCPUFlagAction)control_block.u64;
+    ZydisCPUFlags flags;
+    ZydisGetAccessedFlagsByAction(&instruction, flag_action, &flags);
+    ZydisGetAccessedFlagsRead(&instruction, &flags);
+    ZydisGetAccessedFlagsWritten(&instruction, &flags);
+
+    // Instruction segment helper.
+    ZydisInstructionSegments segments;
+    ZydisGetInstructionSegments(&instruction, &segments);
+
+    // Feature enable check helper.
+    ZydisIsFeatureEnabled((ZydisFeature)control_block.u64);
+
+    // Register helpers.
+    ZydisRegisterEncode((ZydisRegisterClass)(control_block.u64 >> 8), (ZyanU8)control_block.u64);
+    ZydisRegisterGetId((ZydisRegister)control_block.u64);
+    ZydisRegisterGetClass((ZydisRegister)control_block.u64);
+    ZydisRegisterGetWidth(control_block.machine_mode, (ZydisRegister)control_block.u64);
+    ZydisRegisterGetLargestEnclosing(control_block.machine_mode, (ZydisRegister)control_block.u64);
+    ZydisRegisterGetString((ZydisRegister)control_block.u64);
+    ZydisRegisterGetStringWrapped((ZydisRegister)control_block.u64);
+    ZydisRegisterClassGetWidth(control_block.machine_mode, (ZydisRegisterClass)control_block.u64);
 
     return EXIT_SUCCESS;
 }
@@ -245,7 +278,7 @@ int LLVMFuzzerTestOneInput(ZyanU8 *buf, ZyanUSize len)
     ctx.buf_len = len;
     ctx.read_offs = 0;
 
-    DoIteration(&ZydisLibFuzzerRead, &ctx);
+    ZydisFuzzIteration(&ZydisLibFuzzerRead, &ctx);
     return 0;
 }
 
@@ -266,11 +299,11 @@ int main(void)
 #   ifdef ZYDIS_FUZZ_AFL_FAST
     while (__AFL_LOOP(1000))
     {
-        DoIteration(&ZydisStdinRead, ZYAN_NULL);
+        ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
     }
     return EXIT_SUCCESS;
 #   else
-    return DoIteration(&ZydisStdinRead, ZYAN_NULL);
+    return ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
 #   endif
 }
 
