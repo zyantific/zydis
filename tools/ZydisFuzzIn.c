@@ -189,6 +189,11 @@ static int DoIteration(ZydisStreamRead read_fn, void* stream_ctx)
     ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer,
         sizeof(format_buffer), control_block.rt_address);
 
+    ZyanU8 token_buffer[256];
+    const ZydisFormatterToken* token;
+    ZydisFormatterTokenizeInstruction(&formatter, &instruction, token_buffer, sizeof(buffer),
+        control_block.rt_address, &token);
+
     return EXIT_SUCCESS;
 }
 
