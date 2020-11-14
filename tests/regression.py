@@ -2,8 +2,8 @@ import os
 import sys
 import shlex
 from subprocess import Popen, PIPE
+import argparse
 
-ZYDIS_INFO_PATH = "F:/Development/GitHub/zydis/Build64/Release/ZydisInfo.exe"
 TEST_CASE_DIRECTORY = "./cases"
 
 def get_exitcode_stdout_stderr(cmd):
@@ -18,7 +18,10 @@ def get_exitcode_stdout_stderr(cmd):
     
     return exitcode, out, err
 
-# sys.argv
+parser = argparse.ArgumentParser(description="Regression testing.")
+parser.add_argument(dest="operation", choices=["test", "rebase"])
+parser.add_argument(dest="zydis_info_path", type=str)
+args = parser.parse_args()
 
 has_failed = False
 
@@ -30,10 +33,15 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
         with open(path, mode="r") as f: 
             payload = f.read()
 
-        exitcode, out, err = get_exitcode_stdout_stderr(f"{ZYDIS_INFO_PATH} {payload}")
+        exitcode, out, err = get_exitcode_stdout_stderr(f"{args.zydis_info_path} {payload}")
 
         pre, ext = os.path.splitext(case)
         path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
+
+        if args.operation == "rebase":
+            with open(path, mode="wb") as f:
+                f.write(out)
+            continue
 
         try:
             with open(path, mode="rb") as f:
