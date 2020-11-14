@@ -29,13 +29,13 @@ jobs:
       - name: "Building"
         run: |
           cmake --build build --config Release
-      - name: "Disassembling INT3"
+      - name: "Running regression tests"
         run: |
-          cd build
-          ./ZydisInfo -64 cc
+          cd tests
+          python3 regression.py test ../build/ZydisInfo
         if: "!matrix.no_libc && matrix.image_name != 'windows-2016'"
-      - name: "Disassembling INT3"
+      - name: "Running regression tests"
         run: |
-          cd build
-          Release\\ZydisInfo.exe -64 cc
+          cd tests
+          python regression.py test ..\\build\\Release\\ZydisInfo.exe
         if: "!matrix.no_libc && matrix.image_name == 'windows-2016'"
