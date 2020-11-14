@@ -1,8 +1,10 @@
 import os
 import sys
 import shlex
-from subprocess import Popen, PIPE
 import argparse
+import difflib
+
+from subprocess import Popen, PIPE
 
 TEST_CASE_DIRECTORY = "./cases"
 
@@ -15,7 +17,7 @@ def get_exitcode_stdout_stderr(cmd):
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
-    
+
     return exitcode, out, err
 
 parser = argparse.ArgumentParser(description="Regression testing.")
@@ -32,7 +34,7 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
     path = os.path.join(TEST_CASE_DIRECTORY, case)
     print(path)
 
-    with open(path, mode="r") as f: 
+    with open(path, mode="r") as f:
         payload = f.read()
 
     exitcode, out, err = get_exitcode_stdout_stderr(f"{args.zydis_info_path} {payload}")
@@ -47,13 +49,24 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     try:
         with open(path, mode="rb") as f:
-            s = f.read()
+            expected = f.read()
 
-        if s != out:
+        if expected != out:
             print(f"FAILED: '{case}' [{payload}]")
+            print('\n'.join(difflib.unified_diff(
+                expected.decode().split('\n'),
+                out.decode().split('\n'),
+                fromfile='expected',
+                tofile='got',
+            )))
             has_failed = True
     except FileNotFoundError:
         print(f"FAILED: '{case}' [Output file missing]")
         has_failed = True
 
-sys.exit(-1 if has_failed else 0)
+if has_failed:
+    print("\nSOME TESTS FAILED.")
+    sys.exit(-1)
+else:
+    print("\nALL TESTS PASSED.")
+    sys.exit(0)
