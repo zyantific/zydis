@@ -1120,7 +1120,7 @@ int main(int argc, char** argv)
                 CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        if ((write / 2) + byte_length >= ZYDIS_MAX_INSTRUCTION_LENGTH)
+        if ((write / 2) + byte_length > ZYDIS_MAX_INSTRUCTION_LENGTH)
         {
             ZYAN_FPRINTF(ZYAN_STDERR, "%sMaximum number of %d bytes exceeded%s\n",
                 CVT100_ERR(COLOR_ERROR), ZYDIS_MAX_INSTRUCTION_LENGTH,
