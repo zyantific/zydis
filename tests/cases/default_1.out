@@ -1,0 +1,45 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: xor [ENC: DEFAULT, MAP: DEFAULT, OPC: 0x31]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: LOGICAL
+    ISA-SET: I86
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB CPUFLAG_ACCESS ACCEPTS_LOCK ACCEPTS_XACQUIRE ACCEPTS_XRELEASE ACCEPTS_SEGMENT 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT      RW      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ss
+                                                                                 BASE  =                 rsp
+                                                                                 INDEX =                 rax
+                                                                                 SCALE =                   2
+                                                                                 DISP  =  0xFFFFFFFFC7E5E88F
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     32      1      32       INT                          ebp
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : 0  ] [PF  : M  ] [AF  : U  ] [ZF  : M  ] [SF  : M  ] [OF  : 0  ] 
+     TESTED: 0x00000000
+   MODIFIED: 0x0000011B
+  UNDEFINED: 0x00000004
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: xor %ebp, -0x381A1771(%rsp,%rax,2)
+   RELATIVE: xor %ebp, -0x381A1771(%rsp,%rax,2)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: xor dword ptr ss:[rsp+rax*2-0x381A1771], ebp
+   RELATIVE: xor dword ptr ss:[rsp+rax*2-0x381A1771], ebp
+
+== [ SEGMENTS ] ============================================================================================
+31 AC 44 8F E8 E5 C7 
+:  :  :  :..DISP
+:  :  :..SIB
+:  :..MODRM
+:..OPCODE

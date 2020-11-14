@@ -1,0 +1,48 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vshufi64x2 [ENC: EVEX, MAP: 0F3A, OPC: 0x43]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: AVX512
+    ISA-SET: AVX512F_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4NF
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512      8      64      UINT                         zmm3
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k4
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512      8      64      UINT                         zmm1
+ 3     MEMORY    EXPLICIT       R      MODRM_RM    512      8      64      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r14
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+ 4  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x0000000000000038
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: DEFAULT
+        SAE: N
+       MASK: k4 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vshufi64x2 $0x38, (%r14), %zmm1, %zmm3 {%k4}
+   RELATIVE: vshufi64x2 $0x38, (%r14), %zmm1, %zmm3 {%k4}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vshufi64x2 zmm3 {k4}, zmm1, zmmword ptr ds:[r14], 0x38
+   RELATIVE: vshufi64x2 zmm3 {k4}, zmm1, zmmword ptr ds:[r14], 0x38
+
+== [ SEGMENTS ] ============================================================================================
+62 93 F5 4C 43 1E 38 
+:           :  :  :..IMM
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
