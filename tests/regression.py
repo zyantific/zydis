@@ -26,32 +26,34 @@ args = parser.parse_args()
 has_failed = False
 
 for case in os.listdir(TEST_CASE_DIRECTORY):
-    if case.endswith(".in"):
-        path = os.path.join(TEST_CASE_DIRECTORY, case)
-        print(path)
+    if not case.endswith(".in"):
+        continue
 
-        with open(path, mode="r") as f: 
-            payload = f.read()
+    path = os.path.join(TEST_CASE_DIRECTORY, case)
+    print(path)
 
-        exitcode, out, err = get_exitcode_stdout_stderr(f"{args.zydis_info_path} {payload}")
+    with open(path, mode="r") as f: 
+        payload = f.read()
 
-        pre, ext = os.path.splitext(case)
-        path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
+    exitcode, out, err = get_exitcode_stdout_stderr(f"{args.zydis_info_path} {payload}")
 
-        if args.operation == "rebase":
-            with open(path, mode="wb") as f:
-                f.write(out)
-            continue
+    pre, ext = os.path.splitext(case)
+    path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
 
-        try:
-            with open(path, mode="rb") as f:
-                s = f.read()
+    if args.operation == "rebase":
+        with open(path, mode="wb") as f:
+            f.write(out)
+        continue
 
-            if s != out:
-                print(f"FAILED: '{case}' [{payload}]")
-                has_failed = True
-        except:
-            print(f"FAILED: '{case}' [Output file missing]")
+    try:
+        with open(path, mode="rb") as f:
+            s = f.read()
+
+        if s != out:
+            print(f"FAILED: '{case}' [{payload}]")
             has_failed = True
+    except FileNotFoundError:
+        print(f"FAILED: '{case}' [Output file missing]")
+        has_failed = True
 
 sys.exit(-1 if has_failed else 0)
