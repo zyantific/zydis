@@ -131,6 +131,7 @@ Official bindings exist for a selection of languages:
 Unofficial but actively maintained bindings:
 - [Go](https://github.com/jpap/go-zydis)
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
+- [Haskell](https://github.com/nerded1337/zydiskell)
 
 ## Versions
 
