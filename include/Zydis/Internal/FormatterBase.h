@@ -272,8 +272,10 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
  */
 ZYAN_INLINE ZyanU64 ZydisAbsI64(ZyanI64 x)
 {
-    // INT_MIN special case.
-    if (x == -0x8000000000000000)
+    // INT_MIN special case. Can't use the value directly because GCC thinks
+    // it's too big for an INT64 literal, however is perfectly happy to accept
+    // this expression. This is also hit INT64_MIN is defined in `stdint.h`.
+    if (x == (-0x7fffffffffffffff - 1))
     {
         return 0x8000000000000000u;
     }
