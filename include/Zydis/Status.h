@@ -49,7 +49,7 @@ extern "C" {
 /**
  * The zydis module id.
  */
-#define ZYAN_MODULE_ZYDIS   0x002
+#define ZYAN_MODULE_ZYDIS   0x002u
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Status codes                                                                                   */
@@ -64,70 +64,70 @@ extern "C" {
  * data available.
  */
 #define ZYDIS_STATUS_NO_MORE_DATA \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x00)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x00u)
 
 /**
  * An general error occured while decoding the current instruction. The
  * instruction might be undefined.
  */
 #define ZYDIS_STATUS_DECODING_ERROR \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x01)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x01u)
 
 /**
  * The instruction exceeded the maximum length of 15 bytes.
  */
 #define ZYDIS_STATUS_INSTRUCTION_TOO_LONG \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x02)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x02u)
 
 /**
  * The instruction encoded an invalid register.
  */
 #define ZYDIS_STATUS_BAD_REGISTER \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x03)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x03u)
 
 /**
  * A lock-prefix (F0) was found while decoding an instruction that does not
  * support locking.
  */
 #define ZYDIS_STATUS_ILLEGAL_LOCK \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x04)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x04u)
 
 /**
  * A legacy-prefix (F2, F3, 66) was found while decoding a XOP/VEX/EVEX/MVEX
  * instruction.
  */
 #define ZYDIS_STATUS_ILLEGAL_LEGACY_PFX \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x05)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x05u)
 
 /**
  * A rex-prefix was found while decoding a XOP/VEX/EVEX/MVEX instruction.
  */
 #define ZYDIS_STATUS_ILLEGAL_REX \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x06)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x06u)
 
 /**
  * An invalid opcode-map value was found while decoding a XOP/VEX/EVEX/MVEX-prefix.
  */
 #define ZYDIS_STATUS_INVALID_MAP \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x07)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x07u)
 
 /**
  * An error occured while decoding the EVEX-prefix.
  */
 #define ZYDIS_STATUS_MALFORMED_EVEX \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x08)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x08u)
 
 /**
  * An error occured while decoding the MVEX-prefix.
  */
 #define ZYDIS_STATUS_MALFORMED_MVEX \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x09)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x09u)
 
 /**
  * An invalid write-mask was specified for an EVEX/MVEX instruction.
  */
 #define ZYDIS_STATUS_INVALID_MASK \
-    ZYAN_MAKE_STATUS(1, ZYAN_MODULE_ZYDIS, 0x0A)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Au)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter                                                                                      */
@@ -146,7 +146,7 @@ extern "C" {
  * - `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM`
  */
 #define ZYDIS_STATUS_SKIP_TOKEN \
-    ZYAN_MAKE_STATUS(0, ZYAN_MODULE_ZYDIS, 0x0B)
+    ZYAN_MAKE_STATUS(0u, ZYAN_MODULE_ZYDIS, 0x0Bu)
 
 /* ---------------------------------------------------------------------------------------------- */
 
