@@ -262,6 +262,25 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
 ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
     ZydisFormatterContext* context, ZyanU8 memop_id);
 
+/**
+ * Get the absolute value of a 64 bit int.
+ *
+ * @param x The value to process.
+ * @return  The absolute, unsigned value.
+ *
+ * This gracefully deals with the special case of `x` being `INT_MAX`.
+ */
+ZYAN_INLINE ZyanU64 ZydisAbsI64(ZyanI64 x)
+{
+    // INT_MIN special case.
+    if (x == -0x8000000000000000)
+    {
+        return 0x8000000000000000u;
+    }
+
+    return (ZyanU64)(x < 0 ? -x : x);
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */

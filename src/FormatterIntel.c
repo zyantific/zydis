@@ -331,7 +331,7 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
             }
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
             ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-                -context->operand->mem.disp.value, formatter->disp_padding);
+                ZydisAbsI64(context->operand->mem.disp.value), formatter->disp_padding);
             break;
         }
         ZYAN_FALLTHROUGH;
