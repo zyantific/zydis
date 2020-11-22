@@ -35,6 +35,9 @@
 /* Address calculation                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 
+// Signed integer overflow is expected behavior in this function, for wrapping around the
+// instruction pointer on jumps right at the end of the address space.
+ZYAN_NO_SANITIZE("signed-integer-overflow")
 ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     const ZydisDecodedOperand* operand, ZyanU64 runtime_address, ZyanU64* result_address)
 {

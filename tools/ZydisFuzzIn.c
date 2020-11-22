@@ -112,6 +112,9 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 /* Main iteration                                                                                 */
 /* ============================================================================================== */
 
+// We disable enum sanitization here because we actually want Zydis to be tested with
+// possibly invalid enum values in mind, thus need to be able to create them here.
+ZYAN_NO_SANITIZE("enum")
 static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
 {
     ZydisFuzzControlBlock control_block;
