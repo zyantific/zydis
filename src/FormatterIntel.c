@@ -26,6 +26,7 @@
 
 #include <Zydis/Internal/FormatterIntel.h>
 #include <Zydis/Utils.h>
+#include <Zycore/Format.h>
 
 /* ============================================================================================== */
 /* Constants                                                                                      */
@@ -331,7 +332,7 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
             }
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
             ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-                ZydisAbsI64(context->operand->mem.disp.value), formatter->disp_padding);
+                ZyanAbsI64(context->operand->mem.disp.value), formatter->disp_padding);
             break;
         }
         ZYAN_FALLTHROUGH;
