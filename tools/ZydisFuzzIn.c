@@ -101,7 +101,10 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
     ZyanUSize len = ZYAN_MIN(c->buf_len - c->read_offs, max_len);
     // printf("buf_len: %ld, read_offs: %ld, len: %ld, max_len: %ld, ptr: %p\n",
     //     c->buf_len, c->read_offs, len, max_len, c->buf + c->read_offs);
-    if (!len) return 0;
+    if (!len)
+    {
+        return 0;
+    }
     ZYAN_MEMCPY(buf, c->buf + c->read_offs, len);
     c->read_offs += len;
     return len;
@@ -122,14 +125,14 @@ static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
 #ifdef ZYAN_WINDOWS
     // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
     // binary mode
-    _setmode(_fileno(ZYAN_STDIN), _O_BINARY);
+    (void)_setmode(_fileno(ZYAN_STDIN), _O_BINARY);
 #endif
 
     if (read_fn(
         stream_ctx, (ZyanU8*)&control_block, sizeof(control_block)) != sizeof(control_block))
     {
         ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", ZYAN_STDERR);
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
     control_block.string[ZYAN_ARRAY_LENGTH(control_block.string) - 1] = 0;
 
@@ -313,19 +316,17 @@ int main(void)
         return EXIT_FAILURE;
     }
 
-#   ifdef ZYDIS_FUZZ_AFL_FAST
+#ifdef ZYDIS_FUZZ_AFL_FAST
     while (__AFL_LOOP(1000))
     {
         ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
     }
     return EXIT_SUCCESS;
-#   else
+#else
     return ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
-#   endif
+#endif
 }
 
 #endif // ZYDIS_LIBFUZZER
 
 /* ============================================================================================== */
-
-
