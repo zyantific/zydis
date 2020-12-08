@@ -53,6 +53,7 @@ jobs:
         with:
           path: 'zydis'
       - run: |
+          cd 'zydis'
           git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
