@@ -51,8 +51,6 @@ jobs:
       - uses: "actions/checkout@v2"
       - with:
           path: 'zydis'
-      - run: |
-          git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
         uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
