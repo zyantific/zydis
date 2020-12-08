@@ -48,10 +48,10 @@ jobs:
         sanitizer: [address, undefined, memory]
     steps:
       - name: "Cloning submodules"
-        uses: "actions/checkout@v1"
-        with:
+      - uses: "actions/checkout@v1"
+      - with:
           path: 'zydis'
-        run: |
+      - run: |
           git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
