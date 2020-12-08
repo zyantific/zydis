@@ -50,8 +50,6 @@ jobs:
       - name: "Checkout source"
         uses: "actions/checkout@v2"
         id: 'checkout'
-        with:
-          path: 'zydis'
         run: |
           git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
