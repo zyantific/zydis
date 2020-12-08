@@ -664,11 +664,17 @@ typedef enum ZydisExceptionClass_
     ZYDIS_EXCEPTION_CLASS_E12NP,
     ZYDIS_EXCEPTION_CLASS_K20,
     ZYDIS_EXCEPTION_CLASS_K21,
+    ZYDIS_EXCEPTION_CLASS_AMXE1,
+    ZYDIS_EXCEPTION_CLASS_AMXE2,
+    ZYDIS_EXCEPTION_CLASS_AMXE3,
+    ZYDIS_EXCEPTION_CLASS_AMXE4,
+    ZYDIS_EXCEPTION_CLASS_AMXE5,
+    ZYDIS_EXCEPTION_CLASS_AMXE6,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_EXCEPTION_CLASS_MAX_VALUE = ZYDIS_EXCEPTION_CLASS_K21,
+    ZYDIS_EXCEPTION_CLASS_MAX_VALUE = ZYDIS_EXCEPTION_CLASS_AMXE6,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -1203,8 +1209,8 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 pp;
             /**
-             * The offset of the first `VEX` byte, relative to the beginning of
-             * the instruction, in bytes.
+             * The offset of the first `VEX` byte, relative to the beginning of the instruction, in
+             * bytes.
              */
             ZyanU8 offset;
             /**

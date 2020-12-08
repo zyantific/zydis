@@ -1869,6 +1869,9 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
         case ZYDIS_SEMANTIC_OPTYPE_ZMM:
             register_class = ZYDIS_REGCLASS_ZMM;
             break;
+        case ZYDIS_SEMANTIC_OPTYPE_TMM:
+            register_class = ZYDIS_REGCLASS_TMM;
+            break;
         case ZYDIS_SEMANTIC_OPTYPE_BND:
             register_class = ZYDIS_REGCLASS_BOUND;
             break;

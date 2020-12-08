@@ -105,6 +105,10 @@ typedef enum ZydisRegisterClass_
      */
     ZYDIS_REGCLASS_ZMM,
     /**
+     * Matrix registers.
+     */
+    ZYDIS_REGCLASS_TMM,
+    /*
      * Flags registers.
      */
     ZYDIS_REGCLASS_FLAGS,
