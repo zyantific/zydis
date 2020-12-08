@@ -47,6 +47,10 @@ jobs:
       matrix:
         sanitizer: [address, undefined, memory]
     steps:
+      - uses: "actions/checkout@v1"
+      - name: "Cloning submodules"
+        run: |
+          git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
         uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
@@ -54,6 +58,7 @@ jobs:
           oss-fuzz-project-name: 'zydis'
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
+          project-src-path: 'zydis'
       - name: Run Fuzzers (${{ matrix.sanitizer }})
         uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
         with:
