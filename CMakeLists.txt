@@ -53,6 +53,18 @@ set(ZYDIS_ZYCORE_PATH
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
+# Try to initialize the Zycore submodule using Git
+if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt" AND 
+    "${ZYDIS_ZYCORE_PATH}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore")
+    find_package(Git QUIET)
+    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive 
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+        )
+    endif()
+endif ()
+
 if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
     message(
         FATAL_ERROR
