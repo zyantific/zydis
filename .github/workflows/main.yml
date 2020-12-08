@@ -47,9 +47,10 @@ jobs:
       matrix:
         sanitizer: [address, undefined, memory]
     steps:
-      - name: "Cloning submodules"
-      - uses: "actions/checkout@v2"
-      - with:
+      - name: "Checkout source"
+        uses: "actions/checkout@v2"
+        id: 'checkout'
+        with:
           path: 'zydis'
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
