@@ -691,6 +691,7 @@ static const ZydisShortString STR_MNEMONIC[] =
     ZYDIS_MAKE_SHORTSTRING("scasd"),
     ZYDIS_MAKE_SHORTSTRING("scasq"),
     ZYDIS_MAKE_SHORTSTRING("scasw"),
+    ZYDIS_MAKE_SHORTSTRING("serialize"),
     ZYDIS_MAKE_SHORTSTRING("setb"),
     ZYDIS_MAKE_SHORTSTRING("setbe"),
     ZYDIS_MAKE_SHORTSTRING("setl"),
@@ -1605,6 +1606,7 @@ static const ZydisShortString STR_MNEMONIC[] =
     ZYDIS_MAKE_SHORTSTRING("xor"),
     ZYDIS_MAKE_SHORTSTRING("xorpd"),
     ZYDIS_MAKE_SHORTSTRING("xorps"),
+    ZYDIS_MAKE_SHORTSTRING("xresldtrk"),
     ZYDIS_MAKE_SHORTSTRING("xrstor"),
     ZYDIS_MAKE_SHORTSTRING("xrstor64"),
     ZYDIS_MAKE_SHORTSTRING("xrstors"),
@@ -1621,5 +1623,6 @@ static const ZydisShortString STR_MNEMONIC[] =
     ZYDIS_MAKE_SHORTSTRING("xsha1"),
     ZYDIS_MAKE_SHORTSTRING("xsha256"),
     ZYDIS_MAKE_SHORTSTRING("xstore"),
+    ZYDIS_MAKE_SHORTSTRING("xsusldtrk"),
     ZYDIS_MAKE_SHORTSTRING("xtest")
 };
