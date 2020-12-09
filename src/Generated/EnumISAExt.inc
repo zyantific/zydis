@@ -4,6 +4,7 @@ static const char* STR_ISAEXT[] =
     "ADOX_ADCX",
     "AES",
     "AMD3DNOW",
+    "AMD3DNOW_PREFETCH",
     "AMX_BF16",
     "AMX_INT8",
     "AMX_TILE",
