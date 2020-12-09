@@ -409,6 +409,7 @@ static const ZydisShortString STR_MNEMONIC[] =
     ZYDIS_MAKE_SHORTSTRING("maxps"),
     ZYDIS_MAKE_SHORTSTRING("maxsd"),
     ZYDIS_MAKE_SHORTSTRING("maxss"),
+    ZYDIS_MAKE_SHORTSTRING("mcommit"),
     ZYDIS_MAKE_SHORTSTRING("mfence"),
     ZYDIS_MAKE_SHORTSTRING("minpd"),
     ZYDIS_MAKE_SHORTSTRING("minps"),

@@ -108,6 +108,7 @@ static const char* STR_ISASET[] =
     "LAHF",
     "LONGMODE",
     "LZCNT",
+    "MCOMMIT",
     "MONITOR",
     "MONITORX",
     "MOVBE",

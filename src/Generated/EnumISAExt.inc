@@ -33,6 +33,7 @@ static const char* STR_ISAEXT[] =
     "KNCV",
     "LONGMODE",
     "LZCNT",
+    "MCOMMIT",
     "MMX",
     "MONITOR",
     "MONITORX",
