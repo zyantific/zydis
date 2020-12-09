@@ -58,6 +58,7 @@ static const char* STR_ISAEXT[] =
     "SHA",
     "SMAP",
     "SMX",
+    "SNP",
     "SSE",
     "SSE2",
     "SSE3",
