@@ -234,7 +234,7 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
     ZydisDecodedInstruction* instruction;
     char format_buffer[256];
 
-    while (length - offset > 0)
+    while (length > offset)
     {
         if (use_cache)
         {
