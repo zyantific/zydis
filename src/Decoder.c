@@ -4803,7 +4803,10 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                                      sizeof           (flags->action             )));
                         ZYAN_MEMCPY(&instruction->accessed_flags, &flags->action,
                             sizeof(flags->action));
-                    }
+
+                        instruction->flags_read = flags->flags_read;
+                        instruction->flags_written = flags->flags_written;
+                    } 
                 }
 #endif
 

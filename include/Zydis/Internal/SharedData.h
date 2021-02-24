@@ -879,6 +879,8 @@ typedef struct ZydisInstructionDefinitionMVEX_
 typedef struct ZydisAccessedFlags_
 {
     ZydisCPUFlagAction action[ZYDIS_CPUFLAG_MAX_VALUE + 1];
+    ZyanU32 flags_read      ZYAN_BITFIELD(22);
+    ZyanU32 flags_written   ZYAN_BITFIELD(22);
 } ZydisAccessedFlags;
 
 /* ---------------------------------------------------------------------------------------------- */

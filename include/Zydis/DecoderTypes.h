@@ -958,9 +958,30 @@ typedef struct ZydisDecodedInstruction_
          *
          * Use `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a specific
          * action.
+         *
+         * It's recommended to use the `flags_read` or `flags_written` fields instead, if only the
+         * flags read or written are of interest.
          */
         ZydisCPUFlagAction action;
     } accessed_flags[ZYDIS_CPUFLAG_MAX_VALUE + 1];
+    /**
+     * A mask containing the CPU flags read by the instruction.
+     *
+     * The bits in this mask correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
+     * register and do NOT match the indices of `ZydisCPUFlag` enum items.
+     *
+     * This mask includes the actions `TESTED` and `TESTED_MODIFIED`.
+     */
+    ZyanU32 flags_read;
+    /**
+     * A mask containing the CPU flags written by the instruction.
+     *
+     * The bits in this mask correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
+     * register and do NOT match the indices of `ZydisCPUFlag` enum items.
+     *
+     * This mask includes the actions `TESTED_MODIFIED`, `SET_0`, `SET_1` and `UNDEFINED`.
+     */
+    ZyanU32 flags_written;
     /**
      * Extended info for `AVX` instructions.
      */
