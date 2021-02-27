@@ -244,11 +244,6 @@ static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
     ZydisCPUFlagAction flag_action = (ZydisCPUFlagAction)control_block.u64;
     ZydisCPUFlags flags;
     ZydisGetAccessedFlagsByAction(&instruction, flag_action, &flags);
-#pragma warning (push)
-#pragma warning (disable: 4996)
-    ZydisGetAccessedFlagsRead(&instruction, &flags);
-    ZydisGetAccessedFlagsWritten(&instruction, &flags);
-#pragma warning (pop)
 
     // Instruction segment helper.
     ZydisInstructionSegments segments;
