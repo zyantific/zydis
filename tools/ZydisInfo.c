@@ -570,8 +570,11 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     static const char* strings_flag_name[] =
     {
         "CF",
+        ZYAN_NULL,
         "PF",
+        ZYAN_NULL,
         "AF",
+        ZYAN_NULL,
         "ZF",
         "SF",
         "TF",
@@ -579,7 +582,9 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
         "DF",
         "OF",
         "IOPL",
+        ZYAN_NULL,
         "NT",
+        ZYAN_NULL,
         "RF",
         "VM",
         "AC",

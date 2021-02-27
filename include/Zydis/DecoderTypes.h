@@ -435,104 +435,115 @@ typedef ZyanU64 ZydisInstructionAttributes;
 typedef ZyanU32 ZydisCPUFlags;
 
 /**
- * Defines the `ZydisCPUFlag` enum.
+ * Defines the `ZydisFPUFlags` data-type.
  */
-typedef enum ZydisCPUFlag_
-{
-    /**
-     * Carry flag.
-     */
-    ZYDIS_CPUFLAG_CF,
-    /**
-     * Parity flag.
-     */
-    ZYDIS_CPUFLAG_PF,
-    /**
-     * Adjust flag.
-     */
-    ZYDIS_CPUFLAG_AF,
-    /**
-     * Zero flag.
-     */
-    ZYDIS_CPUFLAG_ZF,
-    /**
-     * Sign flag.
-     */
-    ZYDIS_CPUFLAG_SF,
-    /**
-     * Trap flag.
-     */
-    ZYDIS_CPUFLAG_TF,
-    /**
-     * Interrupt enable flag.
-     */
-    ZYDIS_CPUFLAG_IF,
-    /**
-     * Direction flag.
-     */
-    ZYDIS_CPUFLAG_DF,
-    /**
-     * Overflow flag.
-     */
-    ZYDIS_CPUFLAG_OF,
-    /**
-     * I/O privilege level flag.
-     */
-    ZYDIS_CPUFLAG_IOPL,
-    /**
-     * Nested task flag.
-     */
-    ZYDIS_CPUFLAG_NT,
-    /**
-     * Resume flag.
-     */
-    ZYDIS_CPUFLAG_RF,
-    /**
-     * Virtual 8086 mode flag.
-     */
-    ZYDIS_CPUFLAG_VM,
-    /**
-     * Alignment check.
-     */
-    ZYDIS_CPUFLAG_AC,
-    /**
-     * Virtual interrupt flag.
-     */
-    ZYDIS_CPUFLAG_VIF,
-    /**
-     * Virtual interrupt pending.
-     */
-    ZYDIS_CPUFLAG_VIP,
-    /**
-     * Able to use CPUID instruction.
-     */
-    ZYDIS_CPUFLAG_ID,
-    /**
-     * FPU condition-code flag 0.
-     */
-    ZYDIS_CPUFLAG_C0,
-    /**
-     * FPU condition-code flag 1.
-     */
-    ZYDIS_CPUFLAG_C1,
-    /**
-     * FPU condition-code flag 2.
-     */
-    ZYDIS_CPUFLAG_C2,
-    /**
-     * FPU condition-code flag 3.
-     */
-    ZYDIS_CPUFLAG_C3,
+typedef ZyanU8 ZydisFPUFlags;
 
-    /**
-     * Maximum value of this enum.
-     */
-    ZYDIS_CPUFLAG_MAX_VALUE = ZYDIS_CPUFLAG_C3,
-    /**
-     * The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_CPUFLAG_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_MAX_VALUE)
-} ZydisCPUFlag;
+/**
+ * Defines the `ZydisCPUFlag` data-type.
+ */
+typedef ZyanU8 ZydisCPUFlag;
+
+/**
+ * Carry flag.
+ */
+#define ZYDIS_CPUFLAG_CF     0
+/**
+ * Parity flag.
+ */
+#define ZYDIS_CPUFLAG_PF     2
+/**
+ * Adjust flag.
+ */
+#define ZYDIS_CPUFLAG_AF     4
+/**
+ * Zero flag.
+ */
+#define ZYDIS_CPUFLAG_ZF     6
+/**
+ * Sign flag.
+ */
+#define ZYDIS_CPUFLAG_SF     7
+/**
+ * Trap flag.
+ */
+#define ZYDIS_CPUFLAG_TF     8
+/**
+ * Interrupt enable flag.
+ */
+#define ZYDIS_CPUFLAG_IF     9
+/**
+ * Direction flag.
+ */
+#define ZYDIS_CPUFLAG_DF    10
+/**
+ * Overflow flag.
+ */
+#define ZYDIS_CPUFLAG_OF    11
+/**
+ * I/O privilege level flag.
+ */
+#define ZYDIS_CPUFLAG_IOPL  12
+/**
+ * Nested task flag.
+ */
+#define ZYDIS_CPUFLAG_NT    14
+/**
+ * Resume flag.
+ */
+#define ZYDIS_CPUFLAG_RF    16
+/**
+ * Virtual 8086 mode flag.
+ */
+#define ZYDIS_CPUFLAG_VM    17
+/**
+ * Alignment check.
+ */
+#define ZYDIS_CPUFLAG_AC    18
+/**
+ * Virtual interrupt flag.
+ */
+#define ZYDIS_CPUFLAG_VIF   19
+/**
+ * Virtual interrupt pending.
+ */
+#define ZYDIS_CPUFLAG_VIP   20
+/**
+ * Able to use CPUID instruction.
+ */
+#define ZYDIS_CPUFLAG_ID    21
+
+/**
+ * FPU condition-code flag 0.
+ *
+ * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
+ * in the next release.
+ */
+#define ZYDIS_CPUFLAG_C0    22
+/**
+ * FPU condition-code flag 1.
+ *
+ * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
+ * in the next release.
+ */
+#define ZYDIS_CPUFLAG_C1    23
+/**
+ * FPU condition-code flag 2.
+ *
+ * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
+ * in the next release.
+ */
+#define ZYDIS_CPUFLAG_C2    24
+/**
+ * FPU condition-code flag 3.
+ *
+ * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
+ * in the next release.
+ */
+#define ZYDIS_CPUFLAG_C3    25
+
+#define ZYDIS_CPUFLAG_MAX_VALUE     ZYDIS_CPUFLAG_C3
+#define ZYDIS_CPUFLAG_REQUIRED_BITS ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_MAX_VALUE)
 
 /**
  * Defines the `ZydisCPUFlagAction` enum.
@@ -968,20 +979,28 @@ typedef struct ZydisDecodedInstruction_
      * A mask containing the CPU flags read by the instruction.
      *
      * The bits in this mask correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
-     * register and do NOT match the indices of `ZydisCPUFlag` enum items.
+     * register.
      *
      * This mask includes the actions `TESTED` and `TESTED_MODIFIED`.
      */
-    ZyanU32 flags_read;
+    ZydisCPUFlags cpu_flags_read;
     /**
      * A mask containing the CPU flags written by the instruction.
      *
      * The bits in this mask correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
-     * register and do NOT match the indices of `ZydisCPUFlag` enum items.
+     * register.
      *
      * This mask includes the actions `TESTED_MODIFIED`, `SET_0`, `SET_1` and `UNDEFINED`.
      */
-    ZyanU32 flags_written;
+    ZydisCPUFlags cpu_flags_written;
+    /**
+     * A mask containing the FPU flags read by the instruction.
+     */
+    ZydisFPUFlags fpu_flags_read;
+    /**
+     * A mask containing the FPU flags written by the instruction.
+     */
+    ZydisFPUFlags fpu_flags_written;
     /**
      * Extended info for `AVX` instructions.
      */
