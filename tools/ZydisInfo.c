@@ -630,17 +630,11 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     }
     ZYAN_PUTS("");
 
-    ZydisCPUFlags flags, temp;
-#pragma warning (push)
-#pragma warning (disable: 4996)
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &temp);
-    ZydisGetAccessedFlagsRead(instruction, &flags);
-    PRINT_VALUE_G("TESTED", "0x%08" PRIX32, flags);
-    ZydisGetAccessedFlagsWritten(instruction, &flags);
-    flags &= ~temp;
-    PRINT_VALUE_G("MODIFIED", "0x%08" PRIX32, flags);
-    PRINT_VALUE_G("UNDEFINED", "0x%08" PRIX32, temp);
-#pragma warning (pop)
+    ZydisCPUFlags flags_undefined;
+    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags_undefined);
+    PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags_read);
+    PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32, instruction->cpu_flags_written);
+    PRINT_VALUE_G("UNDEFINED", "0x%08" PRIX32, flags_undefined);
 }
 
 /**
