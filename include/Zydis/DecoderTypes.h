@@ -435,11 +435,6 @@ typedef ZyanU64 ZydisInstructionAttributes;
 typedef ZyanU32 ZydisCPUFlags;
 
 /**
- * Defines the `ZydisFPUFlags` data-type.
- */
-typedef ZyanU8 ZydisFPUFlags;
-
-/**
  * Defines the `ZydisCPUFlag` data-type.
  */
 typedef ZyanU8 ZydisCPUFlag;
@@ -513,39 +508,74 @@ typedef ZyanU8 ZydisCPUFlag;
  */
 #define ZYDIS_CPUFLAG_ID    21
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * FPU condition-code flag 0.
  *
- * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
- * in the next release.
+ * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
+ * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
+ * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
 #define ZYDIS_CPUFLAG_C0    22
 /**
  * FPU condition-code flag 1.
  *
- * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
- * in the next release.
+ * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
+ * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
+ * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
 #define ZYDIS_CPUFLAG_C1    23
 /**
  * FPU condition-code flag 2.
  *
- * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
- * in the next release.
+ * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
+ * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
+ * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
 #define ZYDIS_CPUFLAG_C2    24
 /**
  * FPU condition-code flag 3.
  *
- * This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be moved to a separate area
- * in the next release.
+ * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
+ * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
+ * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
 #define ZYDIS_CPUFLAG_C3    25
 
+/**
+ * DEPRECATED. This define will be removed in the next major release.
+ */
 #define ZYDIS_CPUFLAG_MAX_VALUE     ZYDIS_CPUFLAG_C3
+
+ ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+ /**
+  * Defines the `ZydisFPUFlags` data-type.
+  */
+typedef ZyanU8 ZydisFPUFlags;
+
+/**
+ * FPU condition-code flag 0.
+ */
+#define ZYDIS_FPUFLAG_C0    0x00 // (1 << 0)
+/**
+ * FPU condition-code flag 1.
+ */
+#define ZYDIS_FPUFLAG_C1    0x01 // (1 << 1)
+ /**
+  * FPU condition-code flag 2.
+  */
+#define ZYDIS_FPUFLAG_C2    0x02 // (1 << 2)
+/**
+ * FPU condition-code flag 3.
+ */
+#define ZYDIS_FPUFLAG_C3    0x04 // (1 << 3)
 
 /**
  * Defines the `ZydisCPUFlagAction` enum.
+ *
+ * DEPRECATED. This enum will be removed in the next major release.
  */
 typedef enum ZydisCPUFlagAction_
 {
@@ -960,6 +990,10 @@ typedef struct ZydisDecodedInstruction_
     ZydisInstructionAttributes attributes;
     /**
      * Information about accessed CPU flags.
+     *
+     * DEPRECATED. This field will be removed in the next major release. Please use the
+     * `cpu_flags_read`/`cpu_flags_written` or `fpu_flags_read`/`fpu_flags_written` fields
+     * instead.
      */
     struct ZydisDecodedInstructionAccessedFlags_
     {
@@ -968,9 +1002,6 @@ typedef struct ZydisDecodedInstruction_
          *
          * Use `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a specific
          * action.
-         *
-         * It's recommended to use the `flags_read` or `flags_written` fields instead, if only the
-         * flags read or written are of interest.
          */
         ZydisCPUFlagAction action;
     } accessed_flags[ZYDIS_CPUFLAG_MAX_VALUE + 1];

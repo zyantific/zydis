@@ -4804,13 +4804,11 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         ZYAN_MEMCPY(&instruction->accessed_flags, &flags->action,
                             sizeof(flags->action));
 
-                        instruction->cpu_flags_read = flags->flags_read & 0x003FFFFF;
-                        instruction->cpu_flags_written = flags->flags_written & 0x003FFFFF;
-                        instruction->fpu_flags_read = 
-                            (ZydisFPUFlags)((flags->flags_read & 0x03C00000) >> 22);
-                        instruction->fpu_flags_written =
-                            (ZydisFPUFlags)((flags->flags_written & 0x03C00000) >> 22);
-                    } 
+                        instruction->cpu_flags_read = flags->cpu_flags_read;
+                        instruction->cpu_flags_written = flags->cpu_flags_written;
+                        instruction->fpu_flags_read = flags->fpu_flags_read;
+                        instruction->fpu_flags_written = flags->fpu_flags_written;
+                    }
                 }
 #endif
 
@@ -4885,7 +4883,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
 
 ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode, ZyanBool enabled)
 {
-    if (!decoder || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
+    if (!decoder || (mode < 0) || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }

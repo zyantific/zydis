@@ -125,7 +125,7 @@ static const char* FormatZyanStatus(ZyanStatus status)
         "INVALID_MAP",
         "MALFORMED_EVEX",
         "MALFORMED_MVEX",
-        "INVALID_MASK",
+        "INVALID_MASK"
     };
 
     if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYCORE)
@@ -631,6 +631,8 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     ZYAN_PUTS("");
 
     ZydisCPUFlags flags, temp;
+#pragma warning (push)
+#pragma warning (disable: 4996)
     ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &temp);
     ZydisGetAccessedFlagsRead(instruction, &flags);
     PRINT_VALUE_G("TESTED", "0x%08" PRIX32, flags);
@@ -638,6 +640,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     flags &= ~temp;
     PRINT_VALUE_G("MODIFIED", "0x%08" PRIX32, flags);
     PRINT_VALUE_G("UNDEFINED", "0x%08" PRIX32, temp);
+#pragma warning (pop)
 }
 
 /**
