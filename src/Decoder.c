@@ -4804,8 +4804,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         ZYAN_MEMCPY(&instruction->accessed_flags, &flags->action,
                             sizeof(flags->action));
 
-                        instruction->flags_read = flags->flags_read;
-                        instruction->flags_written = flags->flags_written;
+                        instruction->cpu_flags_read = flags->flags_read & 0x003FFFFF;
+                        instruction->cpu_flags_written = flags->flags_written & 0x003FFFFF;
+                        instruction->fpu_flags_read = 
+                            (ZydisFPUFlags)((flags->flags_read & 0x03C00000) >> 22);
+                        instruction->fpu_flags_written =
+                            (ZydisFPUFlags)((flags->flags_written & 0x03C00000) >> 22);
                     } 
                 }
 #endif
