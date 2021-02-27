@@ -218,25 +218,31 @@ ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruct
 /**
  * Returns a mask of accessed CPU-flags that are read (tested) by the current instruction.
  *
+ * DEPRECATED. This function will be removed in the next major release. Please refer to the
+ * `cpu_flags_read` or `fpu_flags_read` fields of the `ZydisDecodedInstruction` instead.
+ *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   flags       Receives the flag mask.
  *
  * @return  A zyan status code.
  */
-ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsRead(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags);
+ZYDIS_DEPRECATED_EXPORT ZyanStatus ZydisGetAccessedFlagsRead(
+    const ZydisDecodedInstruction* instruction, ZydisCPUFlags* flags);
 
 /**
- * Returns a mask of accessed CPU-flags that are written (modified, undefined)
- * by the current instruction.
+ * Returns a mask of accessed CPU-flags that are written (modified, undefined) by the current
+ * instruction.
+ *
+ * DEPRECATED. This function will be removed in the next major release. Please refer to the
+ * `cpu_flags_written` or `fpu_flags_written` fields of the `ZydisDecodedInstruction` instead.
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   flags       Receives the flag mask.
  *
  * @return  A zyan status code.
  */
-ZYDIS_EXPORT ZyanStatus ZydisGetAccessedFlagsWritten(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags);
+ZYDIS_DEPRECATED_EXPORT ZyanStatus ZydisGetAccessedFlagsWritten(
+    const ZydisDecodedInstruction* instruction, ZydisCPUFlags* flags);
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Instruction segments                                                                           */
