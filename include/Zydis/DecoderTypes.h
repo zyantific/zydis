@@ -543,7 +543,6 @@ typedef ZyanU8 ZydisCPUFlag;
 #define ZYDIS_CPUFLAG_C3    25
 
 #define ZYDIS_CPUFLAG_MAX_VALUE     ZYDIS_CPUFLAG_C3
-#define ZYDIS_CPUFLAG_REQUIRED_BITS ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_MAX_VALUE)
 
 /**
  * Defines the `ZydisCPUFlagAction` enum.
