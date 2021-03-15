@@ -236,6 +236,7 @@ typedef struct ZydisOperandDefinition_
             ZyanU8 base                    ZYAN_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
         } mem;
     } op;
+    ZyanBool is_multisource4               ZYAN_BITFIELD(1);
 } ZydisOperandDefinition;
 
 /* ---------------------------------------------------------------------------------------------- */

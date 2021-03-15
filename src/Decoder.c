@@ -1941,6 +1941,11 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
                 ZYAN_UNREACHABLE;
             }
 
+            if (operand->is_multisource4)
+            {
+                instruction->operands[i].attributes |= ZYDIS_OATTRIB_IS_MULTISOURCE4;
+            }
+
             goto FinalizeOperand;
         }
 
@@ -4104,6 +4109,7 @@ static ZyanStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context,
     default:
         ZYAN_UNREACHABLE;
     }
+
     *index = context->cache.LL;
     if (*index == 3)
     {

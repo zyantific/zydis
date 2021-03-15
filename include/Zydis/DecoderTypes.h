@@ -47,6 +47,25 @@ extern "C" {
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Operand attributes                                                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Defines the `ZydisOperandAttributes` data-type.
+ */
+typedef ZyanU8 ZydisOperandAttributes;
+
+/**
+ * The operand is a `MULTISOURCE4` register operand.
+ *
+ * This is a special register operand-type used by `4FMAPS` instructions where the given register
+ * points to the first register of a register range (4 registers in total).
+ *
+ * Example: ZMM3 -> [ZMM3..ZMM6]
+ */
+#define ZYDIS_OATTRIB_IS_MULTISOURCE4   0x01 // (1 <<  0)
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Memory type                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -126,6 +145,10 @@ typedef struct ZydisDecodedOperand_
      * The number of elements.
      */
     ZyanU16 element_count;
+    /*
+     * Additional operand attributes.
+     */
+    ZydisOperandAttributes attributes;
     /**
      * Extended info for register-operands.
      */
