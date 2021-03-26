@@ -166,6 +166,9 @@ CMake and then using Makefiles to manually link it into a shared library), CMake
 might fail to detect that relocation information must be emitted. This can be forced
 by passing `-DCMAKE_POSITION_INDEPENDENT_CODE=ON` to the CMake invocation.
 
+## Consulting and Business Support
+We offer consulting services and professional business support for Zydis. If you need a custom extension, require help in integrating Zydis into your product or simply want contractually guaranteed updates and turnaround times, we are happy to assist with that! Please contact us at business@zyantific.com.
+
 ## Donations
 
 Since GitHub Sponsors currently doesn't support sponsoring teams directly, donations are collected and distributed using [flobernd](https://github.com/users/flobernd/sponsorship)s account.
