@@ -4918,14 +4918,12 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     context.decoder = decoder;
     context.buffer = (ZyanU8*)buffer;
     context.buffer_len = length;
-
+    
     ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
     instruction->machine_mode = decoder->machine_mode;
-    static const ZyanU8 lookup[ZYDIS_ADDRESS_WIDTH_MAX_VALUE + 1] =
-    {
-        16, 32, 64
-    };
-    instruction->stack_width = lookup[decoder->address_width];
+
+    // Calculate stack width from address width using a mapping process: [0, 1, 2] -> [16, 32, 64]
+    instruction->stack_width = 16 << decoder->address_width;
 
     ZYAN_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYAN_CHECK(ZydisDecodeInstruction(&context, instruction));
