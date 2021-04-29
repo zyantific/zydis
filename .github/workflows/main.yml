@@ -47,6 +47,14 @@ jobs:
       matrix:
         sanitizer: [address, undefined, memory]
     steps:
+      - name: "Checkout source"
+        uses: "actions/checkout@v2"
+        id: 'checkout'
+        with:
+          path: 'zydis'
+      - run: |
+          cd 'zydis'
+          git submodule update --init
       - name: Build Fuzzers (${{ matrix.sanitizer }})
         id: build
         uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
@@ -54,6 +62,7 @@ jobs:
           oss-fuzz-project-name: 'zydis'
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
+          project-src-path: 'zydis'
       - name: Run Fuzzers (${{ matrix.sanitizer }})
         uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
         with:
