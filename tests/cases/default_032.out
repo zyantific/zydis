@@ -1,36 +1,38 @@
 == [    BASIC ] ============================================================================================
-   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xA3]
-     LENGTH:  9
+   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0x8B]
+     LENGTH:  7
         SSZ: 64
-       EOSZ: 32
+       EOSZ: 64
        EASZ: 64
    CATEGORY: DATAXFER
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: ACCEPTS_SEGMENT 
+ ATTRIBUTES: HAS_MODRM HAS_REX IS_RELATIVE ACCEPTS_SEGMENT 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0     MEMORY    EXPLICIT       W  DISP16_32_64     32      1      32       INT  TYPE  =                 MEM
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     64      1      64       INT                          rcx
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
                                                                                  SEG   =                  ds
-                                                                                 BASE  =                none
+                                                                                 BASE  =                 rip
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
-                                                                                 DISP  =  0x0F887AE9C6A8107B
- 1   REGISTER    IMPLICIT       R          NONE     32      1      32       INT                          eax
+                                                                                 DISP  =  0xFFFFFFFF88888888
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: mov %eax, 0x0F887AE9C6A8107B
-   RELATIVE: mov %eax, 0x0F887AE9C6A8107B
+   ABSOLUTE: mov 0xFFFFFFFF8888888F, %rcx
+   RELATIVE: mov -0x77777778(%rip), %rcx
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
-   RELATIVE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
+   ABSOLUTE: mov rcx, qword ptr ds:[0xFFFFFFFF8888888F]
+   RELATIVE: mov rcx, qword ptr ds:[rip-0x77777778]
 
 == [ SEGMENTS ] ============================================================================================
-A3 7B 10 A8 C6 E9 7A 88 0F 
-:  :..DISP
-:..OPCODE
+48 8B 0D 88 88 88 88 
+:  :  :  :..DISP
+:  :  :..MODRM
+:  :..OPCODE
+:..REX

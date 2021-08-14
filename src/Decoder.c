@@ -4382,7 +4382,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_REG_CONSTRAINTS_SR_DEST:
-        // `ZYDIS_REGISTER_CR` is not allowed as `MOV` target
+        // `ZYDIS_REGISTER_CS` is not allowed as `MOV` target
         if (instruction->raw.modrm.reg == 1)
         {
             return ZYDIS_STATUS_BAD_REGISTER;

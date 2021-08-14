@@ -1,3 +1,4 @@
+#! python3
 import os
 import sys
 import shlex
@@ -6,14 +7,14 @@ import difflib
 
 from subprocess import Popen, PIPE
 
-TEST_CASE_DIRECTORY = "./cases"
+TEST_CASE_DIRECTORY = os.path.join('.', 'cases')
 
-def get_exitcode_stdout_stderr(cmd):
+def get_exitcode_stdout_stderr(path, cmd):
     """
     Executes an external command and returns the exitcode, stdout and stderr.
     """
-    args = shlex.split(cmd)
-
+    args = [path]
+    args.extend(shlex.split(cmd))
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
@@ -37,7 +38,7 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
     with open(path, mode="r") as f:
         payload = f.read()
 
-    exitcode, out, err = get_exitcode_stdout_stderr(f"{args.zydis_info_path} {payload}")
+    exitcode, out, err = get_exitcode_stdout_stderr(args.zydis_info_path, payload)
 
     pre, ext = os.path.splitext(case)
     path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
@@ -49,13 +50,14 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     try:
         with open(path, mode="rb") as f:
-            expected = f.read()
+            expected = f.read().decode().replace('\r\n', '\n')
 
+        out = out.decode().replace('\r\n', '\n')
         if expected != out:
             print(f"FAILED: '{case}' [{payload}]")
             print('\n'.join(difflib.unified_diff(
-                expected.decode().split('\n'),
-                out.decode().split('\n'),
+                expected.split('\n'),
+                out.split('\n'),
                 fromfile='expected',
                 tofile='got',
             )))

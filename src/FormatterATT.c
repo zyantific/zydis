@@ -217,8 +217,10 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         ZyanBool neither_reg_nor_idx = !should_print_reg && !should_print_idx;
 
         // Regular memory operand
-        if (context->operand->mem.disp.has_displacement && (context->operand->mem.disp.value
-            || neither_reg_nor_idx))
+        if (neither_reg_nor_idx)
+        {
+            ZYAN_CHECK(formatter->func_print_address_abs(formatter, buffer, context));
+        } else if (context->operand->mem.disp.has_displacement && context->operand->mem.disp.value)
         {
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
         }

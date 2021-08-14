@@ -99,3 +99,4 @@ doc/html
 .vscode
 .idea
 cmake-build-debug
+!tests/cases/*.out
