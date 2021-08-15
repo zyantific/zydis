@@ -1,36 +1,37 @@
 == [    BASIC ] ============================================================================================
-   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xA3]
-     LENGTH:  9
-        SSZ: 64
+   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0x8B]
+     LENGTH:  6
+        SSZ: 32
        EOSZ: 32
-       EASZ: 64
+       EASZ: 32
    CATEGORY: DATAXFER
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: ACCEPTS_SEGMENT 
+ ATTRIBUTES: HAS_MODRM ACCEPTS_SEGMENT 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0     MEMORY    EXPLICIT       W  DISP16_32_64     32      1      32       INT  TYPE  =                 MEM
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          ecx
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
                                                                                  SEG   =                  ds
-                                                                                 BASE  =                none
+                                                                                 BASE  =                 eax
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
-                                                                                 DISP  =  0x0F887AE9C6A8107B
- 1   REGISTER    IMPLICIT       R          NONE     32      1      32       INT                          eax
+                                                                                 DISP  =  0x0000000077777777
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: mov %eax, 0x0F887AE9C6A8107B
-   RELATIVE: mov %eax, 0x0F887AE9C6A8107B
+   ABSOLUTE: mov 0x77777777(%eax), %ecx
+   RELATIVE: mov 0x77777777(%eax), %ecx
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
-   RELATIVE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
+   ABSOLUTE: mov ecx, dword ptr ds:[eax+0x77777777]
+   RELATIVE: mov ecx, dword ptr ds:[eax+0x77777777]
 
 == [ SEGMENTS ] ============================================================================================
-A3 7B 10 A8 C6 E9 7A 88 0F 
-:  :..DISP
+8B 88 77 77 77 77 
+:  :  :..DISP
+:  :..MODRM
 :..OPCODE

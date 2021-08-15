@@ -1,9 +1,9 @@
 == [    BASIC ] ============================================================================================
-   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xA3]
-     LENGTH:  9
-        SSZ: 64
-       EOSZ: 32
-       EASZ: 64
+   MNEMONIC: mov [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xA0]
+     LENGTH:  5
+        SSZ: 32
+       EOSZ:  8
+       EASZ: 32
    CATEGORY: DATAXFER
     ISA-SET: I86
     ISA-EXT: BASE
@@ -13,24 +13,24 @@
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0     MEMORY    EXPLICIT       W  DISP16_32_64     32      1      32       INT  TYPE  =                 MEM
+ 0   REGISTER    IMPLICIT       W          NONE      8      1       8       INT                           al
+ 1     MEMORY    EXPLICIT       R  DISP16_32_64      8      1       8      UINT  TYPE  =                 MEM
                                                                                  SEG   =                  ds
                                                                                  BASE  =                none
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
-                                                                                 DISP  =  0x0F887AE9C6A8107B
- 1   REGISTER    IMPLICIT       R          NONE     32      1      32       INT                          eax
+                                                                                 DISP  =  0xFFFFFFFF88888888
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: mov %eax, 0x0F887AE9C6A8107B
-   RELATIVE: mov %eax, 0x0F887AE9C6A8107B
+   ABSOLUTE: mov 0x88888888, %al
+   RELATIVE: mov 0x88888888, %al
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
-   RELATIVE: mov dword ptr ds:[0x0F887AE9C6A8107B], eax
+   ABSOLUTE: mov al, byte ptr ds:[0x88888888]
+   RELATIVE: mov al, byte ptr ds:[0x88888888]
 
 == [ SEGMENTS ] ============================================================================================
-A3 7B 10 A8 C6 E9 7A 88 0F 
+A0 88 88 88 88 
 :  :..DISP
 :..OPCODE
