@@ -213,10 +213,9 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
         ZYAN_CHECK(formatter->func_print_address_abs(formatter, buffer, context));
     } else
     {
-        ZyanBool should_print_reg = context->operand->mem.base != ZYDIS_REGISTER_NONE;
-        ZyanBool should_print_idx = (context->operand->mem.index != ZYDIS_REGISTER_NONE) &&
-            (context->operand->mem.type  != ZYDIS_MEMOP_TYPE_MIB);
-        ZyanBool neither_reg_nor_idx = !should_print_reg && !should_print_idx;
+        const ZyanBool should_print_reg = context->operand->mem.base != ZYDIS_REGISTER_NONE;
+        const ZyanBool should_print_idx = context->operand->mem.index != ZYDIS_REGISTER_NONE;
+        const ZyanBool neither_reg_nor_idx = !should_print_reg && !should_print_idx;
 
         // Regular memory operand
         if (should_print_reg)
@@ -232,7 +231,7 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
             }
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                 context->operand->mem.index));
-            if (context->operand->mem.scale)
+            if (context->operand->mem.scale && context->operand->mem.type != ZYDIS_MEMOP_TYPE_MIB)
             {
                 ZYDIS_BUFFER_APPEND(buffer, MUL);
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
