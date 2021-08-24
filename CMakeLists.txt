@@ -91,7 +91,10 @@ endif ()
 
 target_link_libraries("Zydis" PUBLIC "Zycore")
 target_include_directories("Zydis"
-    PUBLIC "include" ${PROJECT_BINARY_DIR}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Zydis>
     PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
 zyan_set_common_flags("Zydis")
@@ -173,17 +176,26 @@ zyan_set_source_group("Zydis")
 
 configure_package_config_file(cmake/zydis-config.cmake.in
     "${CMAKE_CURRENT_BINARY_DIR}/zydis-config.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zydis"
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/zydis-config-version.cmake"
+    COMPATIBILITY SameMajorVersion
 )
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/zydis-config.cmake"
-    DESTINATION "${CMAKE_INSTALL_PREFIX}/cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/zydis-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zydis"
 )
 
 install(TARGETS "Zydis"
+    EXPORT "zydis-targets"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(EXPORT "zydis-targets"
+    NAMESPACE "Zydis::"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zydis")
 install(FILES
     "${PROJECT_BINARY_DIR}/ZydisExportConfig.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
