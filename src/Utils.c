@@ -96,7 +96,8 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             case ZYDIS_MACHINE_MODE_REAL_16:
             case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
             case ZYDIS_MACHINE_MODE_LEGACY_32:
-                if (operand->size == 16)
+                if ((instruction->operand_width == 16) &&
+                    (instruction->mnemonic != ZYDIS_MNEMONIC_XBEGIN))
                 {
                     *result_address &= 0xFFFF;
                 }
