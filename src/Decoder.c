@@ -1645,7 +1645,7 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         operand->reg.value = ZydisRegisterEncode(
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGCLASS_GPR16  :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGCLASS_GPR32  :
-                                                                         ZYDIS_REGCLASS_GPR64,
+                                                                          ZYDIS_REGCLASS_GPR64,
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
@@ -1657,13 +1657,13 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         operand->reg.value =
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
-                                                                         ZYDIS_REGISTER_RIP;
+                                                                          ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
         operand->reg.value =
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
-                                                                         ZYDIS_REGISTER_RFLAGS;
+                                                                          ZYDIS_REGISTER_RFLAGS;
         break;
     default:
         ZYAN_UNREACHABLE;
