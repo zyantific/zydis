@@ -8,7 +8,7 @@
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: ACCEPTS_BND ACCEPTS_SEGMENT 
+ ATTRIBUTES: ACCEPTS_BND 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
