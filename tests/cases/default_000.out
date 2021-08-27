@@ -8,13 +8,12 @@
     ISA-SET: I186
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: ACCEPTS_SEGMENT HAS_SEGMENT HAS_SEGMENT_ES 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
  0     MEMORY      HIDDEN       R          NONE     64      1      64       INT  TYPE  =                 MEM
-                                                                                 SEG   =                  es
+                                                                                 SEG   =                  ss
                                                                                  BASE  =                 rbp
                                                                                  INDEX =                none
                                                                                  SCALE =                   0

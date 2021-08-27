@@ -1645,7 +1645,7 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         operand->reg.value = ZydisRegisterEncode(
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGCLASS_GPR16  :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGCLASS_GPR32  :
-                                                                         ZYDIS_REGCLASS_GPR64,
+                                                                          ZYDIS_REGCLASS_GPR64,
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
@@ -1657,13 +1657,13 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
         operand->reg.value =
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
-                                                                         ZYDIS_REGISTER_RIP;
+                                                                          ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
         operand->reg.value =
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
             (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
-                                                                         ZYDIS_REGISTER_RFLAGS;
+                                                                          ZYDIS_REGISTER_RFLAGS;
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -2051,27 +2051,33 @@ FinalizeOperand:
         // Set segment-register for memory operands
         if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_CS;
             } else
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_SS;
             } else
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_DS;
             } else
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_ES;
             } else
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_FS;
             } else
-            if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
+            if (!operand->ignore_seg_override && 
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_GS;
             } else
@@ -4838,7 +4844,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
     ZydisAddressWidth address_width)
 {
-    static const ZyanBool decoderModes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
+    static const ZyanBool decoder_modes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
     {
 #ifdef ZYDIS_MINIMAL_MODE
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_MINIMAL
@@ -4883,7 +4889,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
 
     decoder->machine_mode = machine_mode;
     decoder->address_width = address_width;
-    ZYAN_MEMCPY(&decoder->decoder_mode, &decoderModes, sizeof(decoderModes));
+    ZYAN_MEMCPY(&decoder->decoder_mode, &decoder_modes, sizeof(decoder_modes));
 
     return ZYAN_STATUS_SUCCESS;
 }
