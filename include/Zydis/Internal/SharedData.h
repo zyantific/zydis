@@ -237,6 +237,7 @@ typedef struct ZydisOperandDefinition_
         } mem;
     } op;
     ZyanBool is_multisource4               ZYAN_BITFIELD(1);
+    ZyanBool ignore_seg_override           ZYAN_BITFIELD(1);
 } ZydisOperandDefinition;
 
 /* ---------------------------------------------------------------------------------------------- */
