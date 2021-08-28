@@ -2330,7 +2330,8 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         if (def->accepts_segment && !def->accepts_branch_hints)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
-            if (context->prefixes.effective_segment)
+            if (context->prefixes.effective_segment && 
+                !(instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK))
             {
                 switch (context->prefixes.effective_segment)
                 {

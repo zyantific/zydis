@@ -448,11 +448,11 @@ typedef ZyanU64 ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000000800000000 // (1 << 35) // TODO: rename
 /**
- * The instruction accepts the `CET` `notrack` prefix (`0x3E`).
+ * The instruction accepts the `CET` `no-track` prefix (`0x3E`).
  */
 #define ZYDIS_ATTRIB_ACCEPTS_NOTRACK            0x0000080000000000 // (1 << 43) // TODO: rebase
  /**
-  * The instruction has the `CET` `notrack` prefix (`0x3E`).
+  * The instruction has the `CET` `no-track` prefix (`0x3E`).
   */
 #define ZYDIS_ATTRIB_HAS_NOTRACK                0x0000100000000000 // (1 << 44) // TODO: rebase
 
