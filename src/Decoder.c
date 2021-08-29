@@ -128,6 +128,10 @@ typedef struct ZydisDecoderContext_
          * The offset of the mandatory-candidate prefix.
          */
         ZyanU8 offset_mandatory;
+        /**
+         * The offset of a possible `CET` `no-lock` prefix.
+         */
+        ZyanI8 offset_notrack;
     } prefixes;
     /**
      * Contains the effective operand-size index.
@@ -2319,10 +2323,10 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_NOTRACK;
             if (context->decoder->decoder_mode[ZYDIS_DECODER_MODE_CET] &&
-                (context->prefixes.effective_segment == 0x3E))
+                (context->prefixes.offset_notrack >= 0))
             {
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_NOTRACK;
-                instruction->raw.prefixes[context->prefixes.offset_group2].type =
+                instruction->raw.prefixes[context->prefixes.offset_notrack].type =
                     ZYDIS_PREFIX_TYPE_EFFECTIVE;
             }
         }
@@ -2330,7 +2334,7 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
         if (def->accepts_segment && !def->accepts_branch_hints)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
-            if (context->prefixes.effective_segment && 
+            if (context->prefixes.effective_segment &&
                 !(instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK))
             {
                 switch (context->prefixes.effective_segment)
@@ -3195,6 +3199,15 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             {
                 context->prefixes.effective_segment = prefix_byte;
                 context->prefixes.offset_segment = offset;
+
+                if (prefix_byte == 0x3E)
+                {
+                    context->prefixes.offset_notrack = offset;
+                } else
+                if (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+                {
+                    context->prefixes.offset_notrack = -1;
+                }
             }
             break;
         case 0x64:
@@ -3204,6 +3217,7 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             context->prefixes.offset_group2 = offset;
             context->prefixes.effective_segment = prefix_byte;
             context->prefixes.offset_segment = offset;
+            context->prefixes.offset_notrack = -1;
             break;
         case 0x66:
             // context->prefixes.has_osz_override = ZYAN_TRUE;
@@ -4943,6 +4957,7 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     context.decoder = decoder;
     context.buffer = (ZyanU8*)buffer;
     context.buffer_len = length;
+    context.prefixes.offset_notrack = -1;
 
     ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
     instruction->machine_mode = decoder->machine_mode;
