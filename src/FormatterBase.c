@@ -515,7 +515,16 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
         ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_LOCK, formatter->case_prefixes);
-        return ZYAN_STATUS_SUCCESS;
+    }
+
+    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
+    {
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->case_prefixes);
+    }
+
+    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK)
+    {
+        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_NOTRACK, formatter->case_prefixes);
     }
 
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
@@ -531,12 +540,6 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
         ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPNE, formatter->case_prefixes);
-        return ZYAN_STATUS_SUCCESS;
-    }
-
-    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
-    {
-        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_BND, formatter->case_prefixes);
         return ZYAN_STATUS_SUCCESS;
     }
 

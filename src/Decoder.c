@@ -128,6 +128,10 @@ typedef struct ZydisDecoderContext_
          * The offset of the mandatory-candidate prefix.
          */
         ZyanU8 offset_mandatory;
+        /**
+         * The offset of a possible `CET` `no-lock` prefix.
+         */
+        ZyanI8 offset_notrack;
     } prefixes;
     /**
      * Contains the effective operand-size index.
@@ -1168,7 +1172,7 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                 operand->element_type = ZYDIS_ELEMENT_TYPE_INT;
             } else
             {
-                ZYAN_ASSERT(definition->size[context->eosz_index] || 
+                ZYAN_ASSERT(definition->size[context->eosz_index] ||
                     (instruction->meta.category == ZYDIS_CATEGORY_AMX_TILE));
                 operand->size = definition->size[context->eosz_index] * 8;
             }
@@ -2051,32 +2055,32 @@ FinalizeOperand:
         // Set segment-register for memory operands
         if (instruction->operands[i].type == ZYDIS_OPERAND_TYPE_MEMORY)
         {
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_CS;
             } else
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_SS;
             } else
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_DS;
             } else
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_ES;
             } else
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_FS;
             } else
-            if (!operand->ignore_seg_override && 
+            if (!operand->ignore_seg_override &&
                 instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
             {
                 instruction->operands[i].mem.segment = ZYDIS_REGISTER_GS;
@@ -2313,13 +2317,25 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
             default:
                 break;
             }
-        } else
+        }
+
+        if (def->accepts_NOTRACK)
         {
-            if (def->accepts_segment)
+            instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_NOTRACK;
+            if (context->decoder->decoder_mode[ZYDIS_DECODER_MODE_CET] &&
+                (context->prefixes.offset_notrack >= 0))
             {
-                instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
+                instruction->attributes |= ZYDIS_ATTRIB_HAS_NOTRACK;
+                instruction->raw.prefixes[context->prefixes.offset_notrack].type =
+                    ZYDIS_PREFIX_TYPE_EFFECTIVE;
             }
-            if (context->prefixes.effective_segment && def->accepts_segment)
+        }
+
+        if (def->accepts_segment && !def->accepts_branch_hints)
+        {
+            instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
+            if (context->prefixes.effective_segment &&
+                !(instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK))
             {
                 switch (context->prefixes.effective_segment)
                 {
@@ -3183,6 +3199,15 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             {
                 context->prefixes.effective_segment = prefix_byte;
                 context->prefixes.offset_segment = offset;
+
+                if (prefix_byte == 0x3E)
+                {
+                    context->prefixes.offset_notrack = offset;
+                } else
+                if (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+                {
+                    context->prefixes.offset_notrack = -1;
+                }
             }
             break;
         case 0x64:
@@ -3192,6 +3217,7 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
             context->prefixes.offset_group2 = offset;
             context->prefixes.effective_segment = prefix_byte;
             context->prefixes.offset_segment = offset;
+            context->prefixes.offset_notrack = -1;
             break;
         case 0x66:
             // context->prefixes.has_osz_override = ZYAN_TRUE;
@@ -4931,7 +4957,8 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     context.decoder = decoder;
     context.buffer = (ZyanU8*)buffer;
     context.buffer_len = length;
-    
+    context.prefixes.offset_notrack = -1;
+
     ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
     instruction->machine_mode = decoder->machine_mode;
 

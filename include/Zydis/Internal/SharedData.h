@@ -781,6 +781,7 @@ typedef struct ZydisInstructionDefinitionLEGACY_
     ZyanBool accepts_BOUND                 ZYAN_BITFIELD( 1);
     ZyanBool accepts_XACQUIRE              ZYAN_BITFIELD( 1);
     ZyanBool accepts_XRELEASE              ZYAN_BITFIELD( 1);
+    ZyanBool accepts_NOTRACK               ZYAN_BITFIELD( 1);
     ZyanBool accepts_hle_without_lock      ZYAN_BITFIELD( 1);
     ZyanBool accepts_branch_hints          ZYAN_BITFIELD( 1);
     ZyanBool accepts_segment               ZYAN_BITFIELD( 1);

@@ -447,6 +447,14 @@ typedef ZyanU64 ZydisInstructionAttributes;
  * The instruction has the address-size override prefix (`0x67`).
  */
 #define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            0x0000000800000000 // (1 << 35) // TODO: rename
+/**
+ * The instruction accepts the `CET` `no-track` prefix (`0x3E`).
+ */
+#define ZYDIS_ATTRIB_ACCEPTS_NOTRACK            0x0000080000000000 // (1 << 43) // TODO: rebase
+ /**
+  * The instruction has the `CET` `no-track` prefix (`0x3E`).
+  */
+#define ZYDIS_ATTRIB_HAS_NOTRACK                0x0000100000000000 // (1 << 44) // TODO: rebase
 
 /* ---------------------------------------------------------------------------------------------- */
 /* R/E/FLAGS info                                                                                 */
