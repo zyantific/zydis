@@ -361,7 +361,11 @@ ZyanStatus ZydisFormatterATTPrintAddressABS(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    ZYDIS_BUFFER_APPEND(buffer, MUL);
+    if ((context->instruction->meta.branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
+        (context->instruction->operands[0].type == ZYDIS_OPERAND_TYPE_MEMORY))
+    {
+        ZYDIS_BUFFER_APPEND(buffer, MUL);
+    } 
 
     return ZydisFormatterBasePrintAddressABS(formatter, buffer, context);
 }
