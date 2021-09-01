@@ -120,6 +120,13 @@ typedef enum ZydisFormatterProperty_
      */
     ZYDIS_FORMATTER_PROP_FORCE_SEGMENT,
     /**
+     * Controls the printing of the scale-factor component for memory operands.
+     *
+     * Pass `ZYAN_TRUE` as value to force the formatter to always print the scale-factor component
+     * of memory operands or `ZYAN_FALSE` to omit the scale factor for values of `1`.
+     */
+     ZYDIS_FORMATTER_PROP_FORCE_SCALE_ONE,
+    /**
      * Controls the printing of branch addresses.
      *
      * Pass `ZYAN_TRUE` as value to force the formatter to always print relative branch addresses
@@ -756,6 +763,10 @@ struct ZydisFormatter_
      * The `ZYDIS_FORMATTER_PROP_FORCE_SEGMENT` property.
      */
     ZyanBool force_memory_segment;
+    /**
+     * The `ZYDIS_FORMATTER_PROP_FORCE_SCALE_ONE` property.
+     */
+    ZyanBool force_memory_scale;
     /**
      * The `ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_BRANCHES` property.
      */
