@@ -147,6 +147,11 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
         formatter->force_memory_segment = (value) ? ZYAN_TRUE : ZYAN_FALSE;
         break;
     }
+    case ZYDIS_FORMATTER_PROP_FORCE_SCALE_ONE:
+    {
+        formatter->force_memory_scale = (value) ? ZYAN_TRUE : ZYAN_FALSE;
+        break;
+    }
     case ZYDIS_FORMATTER_PROP_FORCE_RELATIVE_BRANCHES:
     {
         formatter->force_relative_branches = (value) ? ZYAN_TRUE : ZYAN_FALSE;

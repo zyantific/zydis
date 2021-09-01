@@ -95,6 +95,7 @@ static const ZydisFormatter FORMATTER_ATT =
     /* style                   */ ZYDIS_FORMATTER_STYLE_ATT,
     /* force_memory_size       */ ZYAN_FALSE,
     /* force_memory_seg        */ ZYAN_FALSE,
+    /* force_memory_scale      */ ZYAN_TRUE,
     /* force_relative_branches */ ZYAN_FALSE,
     /* force_relative_riprel   */ ZYAN_FALSE,
     /* print_branch_size       */ ZYAN_FALSE,

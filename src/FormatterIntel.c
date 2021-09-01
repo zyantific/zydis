@@ -231,7 +231,9 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
             }
             ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                 context->operand->mem.index));
-            if (context->operand->mem.scale && context->operand->mem.type != ZYDIS_MEMOP_TYPE_MIB)
+            if (context->operand->mem.scale &&
+                (context->operand->mem.type != ZYDIS_MEMOP_TYPE_MIB) &&
+                ((context->operand->mem.scale > 1) || formatter->force_memory_scale))
             {
                 ZYDIS_BUFFER_APPEND(buffer, MUL);
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
