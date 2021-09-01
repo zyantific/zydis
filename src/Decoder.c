@@ -457,6 +457,12 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     ZYAN_ASSERT(((data[1] >> 0) & 0x1F) >= 8);
     ZYAN_ASSERT(instruction->raw.xop.offset == instruction->length - 3);
 
+    if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_REAL_16)
+    {
+        // XOP is invalid in 16-bit real mode
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
+
     instruction->attributes |= ZYDIS_ATTRIB_HAS_XOP;
     instruction->raw.xop.R       = (data[1] >> 7) & 0x01;
     instruction->raw.xop.X       = (data[1] >> 6) & 0x01;
@@ -500,6 +506,12 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT((data[0] == 0xC4) || (data[0] == 0xC5));
+
+    if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_REAL_16)
+    {
+        // VEX is invalid in 16-bit real mode
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_VEX;
     switch (data[0])
@@ -571,6 +583,12 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(data[0] == 0x62);
     ZYAN_ASSERT(instruction->raw.evex.offset == instruction->length - 4);
+
+    if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_REAL_16)
+    {
+        // EVEX is invalid in 16-bit real mode
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
     instruction->raw.evex.R         = (data[1] >> 7) & 0x01;
@@ -659,6 +677,12 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(data[0] == 0x62);
     ZYAN_ASSERT(instruction->raw.mvex.offset == instruction->length - 4);
+
+    if (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        // MVEX is only invalid in 64-bit mode
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_MVEX;
     instruction->raw.mvex.R       = (data[1] >> 7) & 0x01;
