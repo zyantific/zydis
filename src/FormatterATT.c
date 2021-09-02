@@ -354,6 +354,22 @@ ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
     return ZydisStringAppendShortCase(&buffer->string, str, formatter->case_registers);
 }
 
+ZyanStatus ZydisFormatterATTPrintAddressABS(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    if ((context->instruction->meta.branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
+        (context->instruction->operands[0].type == ZYDIS_OPERAND_TYPE_MEMORY))
+    {
+        ZYDIS_BUFFER_APPEND(buffer, MUL);
+    } 
+
+    return ZydisFormatterBasePrintAddressABS(formatter, buffer, context);
+}
+
 ZyanStatus ZydisFormatterATTPrintDISP(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
