@@ -289,11 +289,12 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_MXCSR,
     ZYDIS_REGISTER_PKRU,
     ZYDIS_REGISTER_XCR0,
+    ZYDIS_REGISTER_UIF,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_XCR0,
+    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_UIF,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
