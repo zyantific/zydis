@@ -912,7 +912,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Semantical instruction decoding                                                                */
+/* Semantic instruction decoding                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 #ifndef ZYDIS_MINIMAL_MODE
@@ -2622,7 +2622,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 static const ZyanU8 scales[2][2][3] =
                 {
                     /*B0*/ { /*16*/ {  8, 16, 32 }, /*32*/ {  8, 16, 32 } },
-                    /*B1*/ { /*16*/ {  2,  2,  2 }, /*32*/ {  8,  8,  8 } }
+                    /*B1*/ { /*16*/ {  2,  2,  2 }, /*32*/ {  4,  4,  4 } }
                 };
                 static const ZydisBroadcastMode broadcasts[2][2][3] =
                 {
