@@ -156,9 +156,23 @@ ZyanStatus ZydisFormatterBaseFormatOperandPTR(const ZydisFormatter* formatter,
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
         context->operand->ptr.segment, 4);
     ZYDIS_BUFFER_APPEND(buffer, DELIM_SEGMENT);
+
+    ZyanU8 padding;
+    switch (context->instruction->operand_width)
+    {
+    case 16:
+        padding = 4;
+        break;
+    case 32:
+        padding = 8;
+        break;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
-        context->operand->ptr.offset , 8);
+        context->operand->ptr.offset , padding);
 
     return ZYAN_STATUS_SUCCESS;
 }
