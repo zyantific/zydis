@@ -126,6 +126,7 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_UINT128,
     ZYDIS_IELEMENT_TYPE_UINT256,
     ZYDIS_IELEMENT_TYPE_FLOAT16,
+    ZYDIS_IELEMENT_TYPE_FLOAT16X2,
     ZYDIS_IELEMENT_TYPE_FLOAT32,
     ZYDIS_IELEMENT_TYPE_FLOAT64,
     ZYDIS_IELEMENT_TYPE_FLOAT80,
@@ -438,11 +439,15 @@ typedef enum ZydisEVEXTupleType_
      * MOVDDUP
      */
     ZYDIS_TUPLETYPE_DUP,
+    /**
+     * Quarter of the vector-length.
+     */
+     ZYDIS_TUPLETYPE_QUARTER,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_TUPLETYPE_MAX_VALUE = ZYDIS_TUPLETYPE_DUP,
+    ZYDIS_TUPLETYPE_MAX_VALUE = ZYDIS_TUPLETYPE_QUARTER,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -754,7 +759,8 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
-    ZyanBool is_gather                     ZYAN_BITFIELD( 1)
+    ZyanBool is_gather                     ZYAN_BITFIELD( 1); \
+    ZyanBool no_source_dest_match          ZYAN_BITFIELD( 1)
 
 /**
  * Defines the `ZydisInstructionDefinition` struct.
