@@ -912,7 +912,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Semantical instruction decoding                                                                */
+/* Semantic instruction decoding                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 #ifndef ZYDIS_MINIMAL_MODE
@@ -2615,31 +2615,52 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 const ZyanU8 evex_b = instruction->raw.evex.b;
                 ZYAN_ASSERT(evex_b < 2);
                 ZYAN_ASSERT(!context->cache.W);
-                ZYAN_ASSERT(context->evex.element_size == 32);
+                ZYAN_ASSERT((context->evex.element_size == 16) ||
+                            (context->evex.element_size == 32));
                 ZYAN_ASSERT(!evex_b || def->functionality == ZYDIS_EVEX_FUNC_BC);
 
-                static const ZyanU8 scales[2][3] =
+                static const ZyanU8 scales[2][2][3] =
                 {
-                    /*B0*/ {  8, 16, 32 },
-                    /*B1*/ {  4,  4,  4 }
+                    /*B0*/ { /*16*/ {  8, 16, 32 }, /*32*/ {  8, 16, 32 } },
+                    /*B1*/ { /*16*/ {  2,  2,  2 }, /*32*/ {  4,  4,  4 } }
                 };
-                static const ZydisBroadcastMode broadcasts[2][3] =
+                static const ZydisBroadcastMode broadcasts[2][2][3] =
                 {
                     /*B0*/
                     {
-                        ZYDIS_BROADCAST_MODE_INVALID,
-                        ZYDIS_BROADCAST_MODE_INVALID,
-                        ZYDIS_BROADCAST_MODE_INVALID
+                        /*16*/
+                        {
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID
+                        },
+                        /*32*/
+                        {
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID
+                        }
                     },
                     /*B1*/
                     {
-                        ZYDIS_BROADCAST_MODE_1_TO_2,
-                        ZYDIS_BROADCAST_MODE_1_TO_4,
-                        ZYDIS_BROADCAST_MODE_1_TO_8
+                        /*16*/
+                        {
+                            ZYDIS_BROADCAST_MODE_1_TO_8,
+                            ZYDIS_BROADCAST_MODE_1_TO_16,
+                            ZYDIS_BROADCAST_MODE_1_TO_32
+                        },
+                        /*32*/
+                        {
+                            ZYDIS_BROADCAST_MODE_1_TO_2,
+                            ZYDIS_BROADCAST_MODE_1_TO_4,
+                            ZYDIS_BROADCAST_MODE_1_TO_8
+                        }
                     }
                 };
-                context->cd8_scale = scales[evex_b][vector_length];
-                instruction->avx.broadcast.mode = broadcasts[evex_b][vector_length];
+
+                const ZyanU8 size_index = context->evex.element_size >> 5;
+                context->cd8_scale = scales[evex_b][size_index][vector_length];
+                instruction->avx.broadcast.mode = broadcasts[evex_b][size_index][vector_length];
                 break;
             }
             case ZYDIS_TUPLETYPE_FVM:
@@ -2775,6 +2796,38 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                      8, 32, 64
                 };
                 context->cd8_scale = scales[vector_length];
+                break;
+            }
+            case ZYDIS_TUPLETYPE_QUARTER:
+            {
+                const ZyanU8 evex_b = instruction->raw.evex.b;
+                ZYAN_ASSERT(evex_b < 2);
+                ZYAN_ASSERT(!context->cache.W);
+                ZYAN_ASSERT(context->evex.element_size == 16);
+                ZYAN_ASSERT(!evex_b || def->functionality == ZYDIS_EVEX_FUNC_BC);
+
+                static const ZyanU8 scales[2][3] =
+                {
+                    /*B0*/ {  4,  8, 16 },
+                    /*B1*/ {  2,  2,  2 }
+                };
+                static const ZydisBroadcastMode broadcasts[2][3] =
+                {
+                    /*B0*/
+                    {
+                        ZYDIS_BROADCAST_MODE_INVALID,
+                        ZYDIS_BROADCAST_MODE_INVALID,
+                        ZYDIS_BROADCAST_MODE_INVALID
+                    },
+                    /*B1*/
+                    {
+                        ZYDIS_BROADCAST_MODE_1_TO_2,
+                        ZYDIS_BROADCAST_MODE_1_TO_4,
+                        ZYDIS_BROADCAST_MODE_1_TO_8
+                    }
+                };
+                context->cd8_scale = scales[evex_b][vector_length];
+                instruction->avx.broadcast.mode = broadcasts[evex_b][vector_length];
                 break;
             }
             default:
@@ -4282,8 +4335,9 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     const ZydisRegisterConstraint constr_RM  = definition->constr_RM;
     // We set this to `NONE` instead of `UNUSED` to save up some unnecessary runtime checks
     ZydisRegisterConstraint constr_NDSNDD = ZYDIS_REG_CONSTRAINTS_NONE;
-    ZyanBool has_VSIB  = ZYAN_FALSE;
-    ZyanBool is_gather = ZYAN_FALSE;
+    ZyanBool has_VSIB             = ZYAN_FALSE;
+    ZyanBool is_gather            = ZYAN_FALSE;
+    ZyanBool no_source_dest_match = ZYAN_FALSE;
 #if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     ZydisMaskPolicy mask_policy = ZYDIS_MASK_POLICY_INVALID;
 #endif
@@ -4333,6 +4387,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             (const ZydisInstructionDefinitionEVEX*)definition;
         constr_NDSNDD = def->constr_NDSNDD;
         is_gather = def->is_gather;
+        no_source_dest_match = def->no_source_dest_match;
         mask_policy = def->mask_policy;
 
         // Check for invalid zero-mask
@@ -4581,12 +4636,12 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 
         ZyanU8 dest  = instruction->raw.modrm.reg;
         ZyanU8 index = instruction->raw.sib.index;
+        ZyanU8 mask  = 0xF0;
         if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
         {
             dest  = dest  | (context->cache.R << 3) | (context->cache.R2 << 4);
             index = index | (context->cache.X << 3) | (context->cache.V2 << 4);
         }
-        ZyanU8 mask  = 0xF0;
 
         switch (instruction->encoding)
         {
@@ -4623,6 +4678,30 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         // If any pair of the index, mask, or destination registers are the same, the instruction
         // results a UD fault.
         if (dest == index || dest == mask || index == mask)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+    }
+
+    // Check if any source register matches the destination register
+    if (no_source_dest_match)
+    {
+        ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+
+        ZyanU8 dest    = instruction->raw.modrm.reg;
+        ZyanU8 source1 = context->cache.v_vvvv;
+        ZyanU8 source2 = instruction->raw.modrm.rm;
+
+        if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+        {
+            dest = dest | (context->cache.R << 3) | (context->cache.R2 << 4);
+            source2 = source2 | (context->cache.B << 3) | (context->cache.X << 4);
+        } else
+        {
+            source1 = source1 & 0x07;
+        }
+
+        if (dest == source1 || dest == source2)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }

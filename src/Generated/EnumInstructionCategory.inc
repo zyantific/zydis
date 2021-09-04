@@ -38,6 +38,7 @@ static const char* STR_INSTRUCTIONCATEGORY[] =
     "FCMOV",
     "FLAGOP",
     "FMA4",
+    "FP16",
     "GATHER",
     "GFNI",
     "HRESET",
