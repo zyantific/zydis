@@ -34,7 +34,7 @@
 #include <Zydis/Zydis.h>
 
 #if defined(ZYAN_WINDOWS)
-#   include <Windows.h>
+#   include <windows.h>
 #elif defined(ZYAN_APPLE)
 #   include <mach/mach_time.h>
 #elif defined(ZYAN_LINUX) || defined(ZYAN_SOLARIS)
