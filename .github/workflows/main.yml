@@ -3,45 +3,44 @@ name: GitHub Actions CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: "Build Zydis (${{ matrix.image_name }}, ${{ matrix.no_libc }})"
-    runs-on: "${{ matrix.image_name }}"
+  cmake-build-and-tests:
+    name: Build Zydis using CMake (${{ matrix.image_name }}, ${{ matrix.no_libc }})
+    runs-on: ${{ matrix.image_name }}
 
     strategy:
       matrix:
-        image_name: ["macOS-latest", "windows-2016", "ubuntu-18.04"]
-        no_libc: ["", "-DZYAN_NO_LIBC=ON"]
+        image_name: [macOS-latest, windows-2019, ubuntu-20.04]
+        no_libc: ["", -DZYAN_NO_LIBC=ON]
         include:
-        - image_name: "ubuntu-16.04"
-          no_libc: "-DCMAKE_BUILD_TYPE=Release"
-          dev_mode: "-DZYAN_DEV_MODE=ON"
+        - image_name: ubuntu-20.04
+          no_libc: -DCMAKE_BUILD_TYPE=Release
+          dev_mode: -DZYAN_DEV_MODE=ON
 
     steps:
-      - uses: "actions/checkout@v1"
-      - name: "Cloning submodules"
-        run: |
-          git submodule update --init
-      - name: "Configuring"
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: { submodules: recursive }
+      - name: Configuring
         run: |
           mkdir build
           cd build
           cmake ${{ matrix.dev_mode }} ${{ matrix.no_libc }} ..
-      - name: "Building"
+      - name: Building
         run: |
           cmake --build build --config Release
-      - name: "Running regression tests"
+      - name: Running regression tests
         run: |
           cd tests
           python3 regression.py test ../build/ZydisInfo
-        if: "!matrix.no_libc && matrix.image_name != 'windows-2016'"
-      - name: "Running regression tests"
+        if: "!matrix.no_libc && matrix.image_name != 'windows-2019'"
+      - name: Running regression tests
         run: |
           cd tests
           python regression.py test ..\\build\\Release\\ZydisInfo.exe
-        if: "!matrix.no_libc && matrix.image_name == 'windows-2016'"
+        if: "!matrix.no_libc && matrix.image_name == 'windows-2019'"
 
   fuzzing:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -51,13 +50,13 @@ jobs:
         id: build
         uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
         with:
-          oss-fuzz-project-name: 'zydis'
+          oss-fuzz-project-name: zydis
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
       - name: Run Fuzzers (${{ matrix.sanitizer }})
         uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
         with:
-          oss-fuzz-project-name: 'zydis'
+          oss-fuzz-project-name: zydis
           fuzz-seconds: 600
           dry-run: false
           sanitizer: ${{ matrix.sanitizer }}
