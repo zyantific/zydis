@@ -113,6 +113,8 @@
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD DLL|Win32'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -146,6 +148,8 @@
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD DLL|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -181,6 +185,8 @@
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD DLL|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -214,6 +220,8 @@
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD DLL|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -538,6 +546,7 @@
       <AdditionalIncludeDirectories>../../dependencies/zycore/include;../../include;../../src;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Lib>
       <SubSystem>Native</SubSystem>
@@ -788,6 +797,7 @@
       <AdditionalIncludeDirectories>../../dependencies/zycore/include;../../include;../../src;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OmitFramePointers>true</OmitFramePointers>
       <OmitDefaultLibName>true</OmitDefaultLibName>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Lib>
       <SubSystem>Native</SubSystem>
@@ -878,17 +888,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Memory.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Process.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Synchronization.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Terminal.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Thread.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Bitset.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Comparison.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Defines.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Format.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\LibC.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Object.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Status.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\String.h" />
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Terminal.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Types.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Vector.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Zycore.h" />
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />
     <ClInclude Include="..\..\include\Zydis\DecoderTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Formatter.h" />

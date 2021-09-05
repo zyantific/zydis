@@ -36,6 +36,8 @@
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <TargetVersion>Windows7</TargetVersion>
@@ -46,6 +48,8 @@
     <SupportsPackaging>false</SupportsPackaging>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <TargetVersion>Windows7</TargetVersion>
@@ -55,6 +59,8 @@
     <DriverType>WDM</DriverType>
     <SupportsPackaging>false</SupportsPackaging>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <TargetVersion>Windows7</TargetVersion>
@@ -65,6 +71,8 @@
     <SupportsPackaging>false</SupportsPackaging>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <DriverTargetPlatform>Desktop</DriverTargetPlatform>
+    <SpectreMitigation>false</SpectreMitigation>
+    <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -143,6 +151,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -192,6 +201,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
