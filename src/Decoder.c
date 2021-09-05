@@ -596,7 +596,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.B         = (data[1] >> 5) & 0x01;
     instruction->raw.evex.R2        = (data[1] >> 4) & 0x01;
 
-    if (((data[1] >> 3) & 0x01) != 0x00)
+    if (data[1] & 0x08)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_MALFORMED_EVEX;
@@ -604,7 +604,9 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
-    if (instruction->raw.evex.mmm == 0x00 || instruction->raw.evex.mmm == 0x07)
+    if ((instruction->raw.evex.mmm == 0x00) ||
+        (instruction->raw.evex.mmm == 0x04) ||
+        (instruction->raw.evex.mmm == 0x07))
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
@@ -2617,7 +2619,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         }
                     }
                 };
-                
+
                 const ZyanU8 size_index = context->evex.element_size >> 5;
                 ZYAN_ASSERT(size_index < 3);
 
