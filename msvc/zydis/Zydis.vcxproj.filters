@@ -19,6 +19,9 @@
     <Filter Include="Header Files\Internal">
       <UniqueIdentifier>{CEA317BE-1F0E-40DD-A546-67659EB71E9A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Zycore\API">
+      <UniqueIdentifier>{b6910af6-e4ae-410d-8f20-29d35667ecea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Decoder.c">
@@ -92,9 +95,6 @@
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\String.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Terminal.h">
-      <Filter>Header Files\Zycore</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Types.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
@@ -151,6 +151,30 @@
     </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Internal\String.h">
       <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Memory.h">
+      <Filter>Header Files\Zycore\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Synchronization.h">
+      <Filter>Header Files\Zycore\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Terminal.h">
+      <Filter>Header Files\Zycore\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Thread.h">
+      <Filter>Header Files\Zycore\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Zycore.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Process.h">
+      <Filter>Header Files\Zycore\API</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
+      <Filter>Header Files\Zycore</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

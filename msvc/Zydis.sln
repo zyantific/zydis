@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{4F5048C7-CB90-437E-AB21-32258F9650B6}"
 EndProject
@@ -403,7 +403,9 @@ Global
 		{45BD58A5-1711-417F-99E7-B640C56F8009}.Release MT|X86.ActiveCfg = Release|Win32
 		{45BD58A5-1711-417F-99E7-B640C56F8009}.Release MT|X86.Deploy.0 = Release|Win32
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug Kernel|X64.ActiveCfg = Debug Kernel|x64
+		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug Kernel|X64.Build.0 = Debug Kernel|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug Kernel|X86.ActiveCfg = Debug Kernel|Win32
+		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug Kernel|X86.Build.0 = Debug Kernel|Win32
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug MD DLL|X64.ActiveCfg = Debug MD DLL|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug MD DLL|X64.Build.0 = Debug MD DLL|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug MD DLL|X86.ActiveCfg = Debug MD DLL|Win32
@@ -421,7 +423,9 @@ Global
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug MT|X86.ActiveCfg = Debug MT|Win32
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Debug MT|X86.Build.0 = Debug MT|Win32
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release Kernel|X64.ActiveCfg = Release Kernel|x64
+		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release Kernel|X64.Build.0 = Release Kernel|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release Kernel|X86.ActiveCfg = Release Kernel|Win32
+		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release Kernel|X86.Build.0 = Release Kernel|Win32
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release MD DLL|X64.ActiveCfg = Release MD DLL|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release MD DLL|X64.Build.0 = Release MD DLL|x64
 		{E06E2E87-82B9-4DC2-A1E9-FE371CDBAAC2}.Release MD DLL|X86.ActiveCfg = Release MD DLL|Win32
