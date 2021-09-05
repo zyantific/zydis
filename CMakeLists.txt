@@ -43,11 +43,35 @@ option(ZYDIS_FUZZ_AFL_FAST
 option(ZYDIS_LIBFUZZER
     "Enables LLVM libfuzzer mode and reduces prints in ZydisFuzzIn"
     OFF)
+option(ZYDIS_FORCE_ASSERTS
+    "Forces asserts in release builds."
+    OFF)
 set(ZYDIS_ZYCORE_PATH
     "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore"
     CACHE
     PATH
     "The path to look for Zycore")
+
+# =============================================================================================== #
+# Forced assertions hack                                                                          #
+# =============================================================================================== #
+
+# The code for this is adapted from how LLVM forces asserts.
+if (ZYDIS_FORCE_ASSERTS)
+    add_compile_options($<$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>:-UNDEBUG>)
+
+    set(vars 
+        CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_CXX_FLAGS_MINSIZEREL
+        CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS_MINSIZEREL)
+    
+    foreach (var ${vars})
+        string (REGEX REPLACE "(^| )[/-]D *NDEBUG($| )" " " "${var}" "${${var}}")
+    endforeach()
+endif ()
 
 # =============================================================================================== #
 # Dependencies                                                                                    #
