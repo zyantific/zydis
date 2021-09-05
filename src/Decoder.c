@@ -2561,29 +2561,34 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             case ZYDIS_TUPLETYPE_FV:
             {
                 const ZyanU8 evex_b = instruction->raw.evex.b;
-                const ZyanU8 evex_w = context->cache.W;
                 ZYAN_ASSERT(evex_b < 2);
-                ZYAN_ASSERT(evex_w < 2);
-                ZYAN_ASSERT(!evex_b || ((!evex_w && context->evex.element_size == 32) ||
-                                        ( evex_w && context->evex.element_size == 64)));
+                ZYAN_ASSERT(!evex_b || ((!context->cache.W && (context->evex.element_size == 16 ||
+                                                               context->evex.element_size == 32)) ||
+                                        ( context->cache.W &&  context->evex.element_size == 64)));
                 ZYAN_ASSERT(!evex_b || def->functionality == ZYDIS_EVEX_FUNC_BC);
 
-                static const ZyanU8 scales[2][2][3] =
+                static const ZyanU8 scales[2][3][3] =
                 {
-                    /*B0*/ { /*W0*/ { 16, 32, 64 }, /*W1*/ { 16, 32, 64 } },
-                    /*B1*/ { /*W0*/ {  4,  4,  4 }, /*W1*/ {  8,  8,  8 } }
+                    /*B0*/ { /*16*/ { 16, 32, 64 }, /*32*/ { 16, 32, 64 }, /*64*/ { 16, 32, 64 } },
+                    /*B1*/ { /*16*/ {  2,  2,  2 }, /*32*/ {  4,  4,  4 }, /*64*/ {  8,  8,  8 } }
                 };
-                static const ZydisBroadcastMode broadcasts[2][2][3] =
+                static const ZydisBroadcastMode broadcasts[2][3][3] =
                 {
                     /*B0*/
                     {
-                        /*W0*/
+                        /*16*/
                         {
                             ZYDIS_BROADCAST_MODE_INVALID,
                             ZYDIS_BROADCAST_MODE_INVALID,
                             ZYDIS_BROADCAST_MODE_INVALID
                         },
-                        /*W1*/
+                        /*32*/
+                        {
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID,
+                            ZYDIS_BROADCAST_MODE_INVALID
+                        },
+                        /*64*/
                         {
                             ZYDIS_BROADCAST_MODE_INVALID,
                             ZYDIS_BROADCAST_MODE_INVALID,
@@ -2592,13 +2597,19 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     },
                     /*B1*/
                     {
-                        /*W0*/
+                        /*16*/
+                        {
+                            ZYDIS_BROADCAST_MODE_1_TO_8,
+                            ZYDIS_BROADCAST_MODE_1_TO_16,
+                            ZYDIS_BROADCAST_MODE_1_TO_32
+                        },
+                        /*32*/
                         {
                             ZYDIS_BROADCAST_MODE_1_TO_4,
                             ZYDIS_BROADCAST_MODE_1_TO_8,
                             ZYDIS_BROADCAST_MODE_1_TO_16
                         },
-                        /*W1*/
+                        /*64*/
                         {
                             ZYDIS_BROADCAST_MODE_1_TO_2,
                             ZYDIS_BROADCAST_MODE_1_TO_4,
@@ -2606,8 +2617,12 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                         }
                     }
                 };
-                context->cd8_scale = scales[evex_b][evex_w][vector_length];
-                instruction->avx.broadcast.mode = broadcasts[evex_b][evex_w][vector_length];
+                
+                const ZyanU8 size_index = context->evex.element_size >> 5;
+                ZYAN_ASSERT(size_index < 3);
+
+                context->cd8_scale = scales[evex_b][size_index][vector_length];
+                instruction->avx.broadcast.mode = broadcasts[evex_b][size_index][vector_length];
                 break;
             }
             case ZYDIS_TUPLETYPE_HV:
@@ -2659,6 +2674,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 };
 
                 const ZyanU8 size_index = context->evex.element_size >> 5;
+                ZYAN_ASSERT(size_index < 3);
+
                 context->cd8_scale = scales[evex_b][size_index][vector_length];
                 instruction->avx.broadcast.mode = broadcasts[evex_b][size_index][vector_length];
                 break;

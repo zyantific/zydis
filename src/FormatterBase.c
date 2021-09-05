@@ -626,11 +626,20 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
             case ZYDIS_BROADCAST_MODE_1_TO_16:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO16, formatter->case_decorators);
                 break;
+            case ZYDIS_BROADCAST_MODE_1_TO_32:
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO32, formatter->case_decorators);
+                break;
+            case ZYDIS_BROADCAST_MODE_1_TO_64:
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO64, formatter->case_decorators);
+                break;
             case ZYDIS_BROADCAST_MODE_4_TO_8:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_4TO8, formatter->case_decorators);
                 break;
             case ZYDIS_BROADCAST_MODE_4_TO_16:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_4TO16, formatter->case_decorators);
+                break;
+            case ZYDIS_BROADCAST_MODE_8_TO_16:
+                ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_8TO16, formatter->case_decorators);
                 break;
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
