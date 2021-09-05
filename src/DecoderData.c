@@ -77,7 +77,7 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
         ZYAN_ASSERT(index <  17);
         return &FILTERS_VEX[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_EMVEX:
-        ZYAN_ASSERT(index <  33);
+        ZYAN_ASSERT(index <  49);
         return &FILTERS_EMVEX[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_OPCODE:
         ZYAN_ASSERT(index < 256);

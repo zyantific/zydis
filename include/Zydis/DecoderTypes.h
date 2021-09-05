@@ -1343,7 +1343,7 @@ typedef struct ZydisDecodedInstruction_
             /**
              * Opcode-map specifier.
              */
-            ZyanU8 mm;
+            ZyanU8 mmm;
             /**
              * 64-bit operand-size promotion or opcode-extension.
              */

@@ -596,15 +596,15 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.B         = (data[1] >> 5) & 0x01;
     instruction->raw.evex.R2        = (data[1] >> 4) & 0x01;
 
-    if (((data[1] >> 2) & 0x03) != 0x00)
+    if (((data[1] >> 3) & 0x01) != 0x00)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
 
-    instruction->raw.evex.mm        = (data[1] >> 0) & 0x03;
+    instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
-    if (instruction->raw.evex.mm == 0x00)
+    if (instruction->raw.evex.mmm == 0x00 || instruction->raw.evex.mmm == 0x07)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
@@ -3794,11 +3794,11 @@ static ZyanStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, Zy
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
-        *index = instruction->raw.evex.mm + (instruction->raw.evex.pp << 2) + 1;
+        *index = instruction->raw.evex.mmm + (instruction->raw.evex.pp << 3) + 1;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MVEX);
-        *index = instruction->raw.mvex.mmmm + (instruction->raw.mvex.pp << 2) + 17;
+        *index = instruction->raw.mvex.mmmm + (instruction->raw.mvex.pp << 2) + 33;
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -3919,7 +3919,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
                             ZYAN_CHECK(ZydisDecodeEVEX(context, instruction, prefix_bytes));
                             instruction->opcode_map =
-                                ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.evex.mm;
+                                ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.evex.mmm;
                             break;
 #else
                             return ZYDIS_STATUS_DECODING_ERROR;
