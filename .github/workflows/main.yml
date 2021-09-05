@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   cmake-build-and-tests:
-    name: Build Zydis using CMake (${{ matrix.image_name }}, ${{ matrix.no_libc }})
+    name: CMake build + tests (${{ matrix.image_name }}, ${{ matrix.no_libc }})
     runs-on: ${{ matrix.image_name }}
 
     strategy:
@@ -38,6 +38,25 @@ jobs:
           cd tests
           python regression.py test ..\\build\\Release\\ZydisInfo.exe
         if: "!matrix.no_libc && matrix.image_name == 'windows-2019'"
+
+  msbuild-build:
+    name: MSBuild build (windows-2019)
+    runs-on: windows-2019
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: { submodules: recursive }
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.3
+        with: { vs-version: '[16.0,17)' }
+      - name: Build user-mode
+        run: |
+          cd msvc
+          msbuild.exe Zydis.sln /m /t:Rebuild '/p:Configuration="Release MD";Platform=X64'
+      - name: Build kernel-mode
+        run: |
+          cd msvc
+          msbuild.exe Zydis.sln /m /t:Rebuild '/p:Configuration="Release Kernel";Platform=X64'
 
   fuzzing:
     runs-on: ubuntu-20.04
