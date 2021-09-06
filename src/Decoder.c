@@ -1235,6 +1235,16 @@ static void ZydisSetOperandSizeAndElementInfo(ZydisDecoderContext* context,
                         operand->size = (ZyanU16)instruction->avx.vector_length / 2;
                     }
                     break;
+                case ZYDIS_TUPLETYPE_QUARTER:
+                    if (instruction->avx.broadcast.mode)
+                    {
+                        operand->size = context->evex.element_size;
+                    }
+                    else
+                    {
+                        operand->size = (ZyanU16)instruction->avx.vector_length / 4;
+                    }
+                    break;
                 default:
                     ZYAN_UNREACHABLE;
                 }
