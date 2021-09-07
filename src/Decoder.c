@@ -2730,18 +2730,20 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 break;
             };
             case ZYDIS_TUPLETYPE_T1F:
-                switch (context->evex.element_size)
+            {
+                static const ZyanU8 scales[3] =
                 {
-                case 32:
-                    context->cd8_scale = 4;
-                    break;
-                case 64:
-                    context->cd8_scale = 8;
-                    break;
-                default:
-                    ZYAN_UNREACHABLE;
-                }
+                    /* 16*/ 2,
+                    /* 32*/ 4,
+                    /* 64*/ 8
+                };
+
+                const ZyanU8 size_index = context->evex.element_size >> 5;
+                ZYAN_ASSERT(size_index < 3);
+
+                context->cd8_scale = scales[size_index];
                 break;
+            }    
             case ZYDIS_TUPLETYPE_T1_4X:
                 ZYAN_ASSERT(context->evex.element_size == 32);
                 ZYAN_ASSERT(context->cache.W == 0);
