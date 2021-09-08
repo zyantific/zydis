@@ -4471,7 +4471,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             // ZYDIS_MVEX_FUNC_SWIZZLE_64
             { 1, 1, 1, 1, 1, 1, 1, 1 },
             // ZYDIS_MVEX_FUNC_SF_32
-            { 1, 1, 1, 1, 1, 1, 1, 1 },
+            { 1, 1, 1, 1, 1, 0, 1, 1 },
             // ZYDIS_MVEX_FUNC_SF_32_BCST
             { 1, 1, 1, 0, 0, 0, 0, 0 },
             // ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16
