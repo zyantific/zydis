@@ -733,6 +733,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanU8 address_size_map                ZYAN_BITFIELD( 2); \
         ZyanU8 flags_reference                 ZYAN_BITFIELD( 7); \
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
+        ZyanBool no_compat_mode                ZYAN_BITFIELD( 1); \
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
         ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \

@@ -4386,6 +4386,13 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             return ZYDIS_STATUS_DECODING_ERROR;
         }
 
+        if (def->no_compat_mode &&
+            ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
+             (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32)))
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
+
         if (context->prefixes.has_lock && !def->accepts_LOCK)
         {
             return ZYDIS_STATUS_ILLEGAL_LOCK;
