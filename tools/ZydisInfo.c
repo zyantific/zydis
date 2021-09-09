@@ -841,11 +841,22 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
     const ZydisFormatterToken* token;
 
     PrintValueLabel("ABSOLUTE");
-    ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer, sizeof(buffer), 0, &token);
+    if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer,
+        sizeof(buffer), 0, &token)))
+    {
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to tokenize instruction%s\n",
+            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+        exit(status);
+    }
     PrintTokenizedInstruction(token);
     PrintValueLabel("RELATIVE");
-    ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer, sizeof(buffer),
-        ZYDIS_RUNTIME_ADDRESS_NONE, &token);
+    if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(&formatter, instruction, buffer,
+        sizeof(buffer), ZYDIS_RUNTIME_ADDRESS_NONE, &token)))
+    {
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to tokenize instruction%s\n",
+            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+        exit(status);
+    }
     PrintTokenizedInstruction(token);
 }
 
