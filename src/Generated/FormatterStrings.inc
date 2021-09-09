@@ -171,13 +171,13 @@ static const struct ZydisPredefinedTokenDECO_DDDD_
 } TOK_DATA_DECO_DDDD = { 19, 17, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 5, 'd', 'd', 'd', 'd', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
 static const ZydisPredefinedToken* const TOK_DECO_DDDD = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DDDD;
 
-static const ZydisShortString STR_DECO_EH = ZYDIS_MAKE_SHORTSTRING(" {cdab}");
+static const ZydisShortString STR_DECO_EH = ZYDIS_MAKE_SHORTSTRING(" {eh}");
 static const struct ZydisPredefinedTokenDECO_EH_
 {
   ZyanU8 size;
   ZyanU8 next;
-  ZyanU8 data[19];
-} TOK_DATA_DECO_EH = { 19, 17, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 5, 'c', 'd', 'a', 'b', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+  ZyanU8 data[17];
+} TOK_DATA_DECO_EH = { 17, 15, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 3, 'e', 'h', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
 static const ZydisPredefinedToken* const TOK_DECO_EH = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_EH;
 
 static const ZydisShortString STR_DECO_END = ZYDIS_MAKE_SHORTSTRING("}");
@@ -813,5 +813,4 @@ static const struct ZydisPredefinedTokenSUB_
 static const ZydisPredefinedToken* const TOK_SUB = (const ZydisPredefinedToken* const)&TOK_DATA_SUB;
 
 static const ZydisShortString STR_WHITESPACE = ZYDIS_MAKE_SHORTSTRING(" ");
-
 #pragma pack(pop)
