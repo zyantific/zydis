@@ -35,12 +35,12 @@
     CONVERT: NONE
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: vfmadd231pd 0x9F76F71(%rax) {4to8} {cdab}, %zmm23, %zmm24 {%k1}
-   RELATIVE: vfmadd231pd 0x9F76F71(%rax) {4to8} {cdab}, %zmm23, %zmm24 {%k1}
+   ABSOLUTE: vfmadd231pd 0x9F76F71(%rax) {4to8} {eh}, %zmm23, %zmm24 {%k1}
+   RELATIVE: vfmadd231pd 0x9F76F71(%rax) {4to8} {eh}, %zmm23, %zmm24 {%k1}
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: vfmadd231pd zmm24 {k1}, zmm23, ymmword ptr ds:[rax+0x9F76F71] {4to8} {cdab}
-   RELATIVE: vfmadd231pd zmm24 {k1}, zmm23, ymmword ptr ds:[rax+0x9F76F71] {4to8} {cdab}
+   ABSOLUTE: vfmadd231pd zmm24 {k1}, zmm23, ymmword ptr ds:[rax+0x9F76F71] {4to8} {eh}
+   RELATIVE: vfmadd231pd zmm24 {k1}, zmm23, ymmword ptr ds:[rax+0x9F76F71] {4to8} {eh}
 
 == [ SEGMENTS ] ============================================================================================
 62 62 C1 A1 B8 80 71 6F F7 09 

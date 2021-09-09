@@ -35,12 +35,12 @@
     CONVERT: UINT8
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: vblendmps (%r8) {uint8} {cdab}, %zmm23, %zmm30 {%k4}
-   RELATIVE: vblendmps (%r8) {uint8} {cdab}, %zmm23, %zmm30 {%k4}
+   ABSOLUTE: vblendmps (%r8) {uint8} {eh}, %zmm23, %zmm30 {%k4}
+   RELATIVE: vblendmps (%r8) {uint8} {eh}, %zmm23, %zmm30 {%k4}
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: vblendmps zmm30 {k4}, zmm23, xmmword ptr ds:[r8] {uint8} {cdab}
-   RELATIVE: vblendmps zmm30 {k4}, zmm23, xmmword ptr ds:[r8] {uint8} {cdab}
+   ABSOLUTE: vblendmps zmm30 {k4}, zmm23, xmmword ptr ds:[r8] {uint8} {eh}
+   RELATIVE: vblendmps zmm30 {k4}, zmm23, xmmword ptr ds:[r8] {uint8} {eh}
 
 == [ SEGMENTS ] ============================================================================================
 62 02 41 C4 65 30 

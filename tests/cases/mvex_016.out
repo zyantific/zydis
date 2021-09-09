@@ -36,12 +36,12 @@
     CONVERT: UINT8
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: vcmpps $0x69, 0x30844644(%r11) {uint8} {cdab}, %zmm2, %k4 {%k7}
-   RELATIVE: vcmpps $0x69, 0x30844644(%r11) {uint8} {cdab}, %zmm2, %k4 {%k7}
+   ABSOLUTE: vcmpps $0x69, 0x30844644(%r11) {uint8} {eh}, %zmm2, %k4 {%k7}
+   RELATIVE: vcmpps $0x69, 0x30844644(%r11) {uint8} {eh}, %zmm2, %k4 {%k7}
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: vcmpps k4 {k7}, zmm2, xmmword ptr ds:[r11+0x30844644] {uint8} {cdab}, 0x69
-   RELATIVE: vcmpps k4 {k7}, zmm2, xmmword ptr ds:[r11+0x30844644] {uint8} {cdab}, 0x69
+   ABSOLUTE: vcmpps k4 {k7}, zmm2, xmmword ptr ds:[r11+0x30844644] {uint8} {eh}, 0x69
+   RELATIVE: vcmpps k4 {k7}, zmm2, xmmword ptr ds:[r11+0x30844644] {uint8} {eh}, 0x69
 
 == [ SEGMENTS ] ============================================================================================
 62 91 68 CF C2 A3 44 46 84 30 69 

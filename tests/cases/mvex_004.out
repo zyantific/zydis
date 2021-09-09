@@ -35,12 +35,12 @@
     CONVERT: NONE
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: vfmsub132ps -0x1C4(%r10) {1to16} {cdab}, %zmm1, %zmm26 {%k5}
-   RELATIVE: vfmsub132ps -0x1C4(%r10) {1to16} {cdab}, %zmm1, %zmm26 {%k5}
+   ABSOLUTE: vfmsub132ps -0x1C4(%r10) {1to16} {eh}, %zmm1, %zmm26 {%k5}
+   RELATIVE: vfmsub132ps -0x1C4(%r10) {1to16} {eh}, %zmm1, %zmm26 {%k5}
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: vfmsub132ps zmm26 {k5}, zmm1, dword ptr ds:[r10-0x1C4] {1to16} {cdab}
-   RELATIVE: vfmsub132ps zmm26 {k5}, zmm1, dword ptr ds:[r10-0x1C4] {1to16} {cdab}
+   ABSOLUTE: vfmsub132ps zmm26 {k5}, zmm1, dword ptr ds:[r10-0x1C4] {1to16} {eh}
+   RELATIVE: vfmsub132ps zmm26 {k5}, zmm1, dword ptr ds:[r10-0x1C4] {1to16} {eh}
 
 == [ SEGMENTS ] ============================================================================================
 62 02 71 9D 9A 52 8F 

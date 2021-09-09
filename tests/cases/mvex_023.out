@@ -35,12 +35,12 @@
     CONVERT: SINT16
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: vblendmps -0x4BF7E790(%r15) {sint16} {cdab}, %zmm16, %zmm20
-   RELATIVE: vblendmps -0x4BF7E790(%r15) {sint16} {cdab}, %zmm16, %zmm20
+   ABSOLUTE: vblendmps -0x4BF7E790(%r15) {sint16} {eh}, %zmm16, %zmm20
+   RELATIVE: vblendmps -0x4BF7E790(%r15) {sint16} {eh}, %zmm16, %zmm20
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: vblendmps zmm20, zmm16, ymmword ptr ds:[r15-0x4BF7E790] {sint16} {cdab}
-   RELATIVE: vblendmps zmm20, zmm16, ymmword ptr ds:[r15-0x4BF7E790] {sint16} {cdab}
+   ABSOLUTE: vblendmps zmm20, zmm16, ymmword ptr ds:[r15-0x4BF7E790] {sint16} {eh}
+   RELATIVE: vblendmps zmm20, zmm16, ymmword ptr ds:[r15-0x4BF7E790] {sint16} {eh}
 
 == [ SEGMENTS ] ============================================================================================
 62 82 79 F0 65 A7 70 18 08 B4 
