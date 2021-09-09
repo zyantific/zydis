@@ -285,5 +285,6 @@ static const ZydisShortString STR_REGISTER[] =
     // Uncategorized
     ZYDIS_MAKE_SHORTSTRING("mxcsr"),
     ZYDIS_MAKE_SHORTSTRING("pkru"),
-    ZYDIS_MAKE_SHORTSTRING("xcr0")
+    ZYDIS_MAKE_SHORTSTRING("xcr0"),
+    ZYDIS_MAKE_SHORTSTRING("uif")
 };
