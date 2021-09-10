@@ -2905,7 +2905,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 break;
             case ZYDIS_EVEX_FUNC_RC:
                 instruction->avx.rounding.mode = ZYDIS_ROUNDING_MODE_RN + context->cache.LL;
-                // Intentional fallthrough
+                ZYAN_FALLTHROUGH;
             case ZYDIS_EVEX_FUNC_SAE:
                 instruction->avx.has_sae = ZYAN_TRUE;
                 break;
@@ -3083,7 +3083,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             break;
         case ZYDIS_MVEX_FUNC_RC:
             instruction->avx.rounding.mode = ZYDIS_ROUNDING_MODE_RN + (instruction->raw.mvex.SSS & 3);
-            // Intentional fallthrough
+            ZYAN_FALLTHROUGH;
         case ZYDIS_MVEX_FUNC_SAE:
             if (instruction->raw.mvex.SSS >= 4)
             {
