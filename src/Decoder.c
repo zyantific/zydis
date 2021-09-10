@@ -5063,7 +5063,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
 
 ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode, ZyanBool enabled)
 {
-    if (!decoder || (mode < 0) || (mode > ZYDIS_DECODER_MODE_MAX_VALUE))
+    if (!decoder || ((ZyanUSize)mode > ZYDIS_DECODER_MODE_MAX_VALUE))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
