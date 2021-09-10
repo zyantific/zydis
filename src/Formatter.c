@@ -110,7 +110,7 @@ void ZydisFormatterBufferInitTokenized(ZydisFormatterBuffer* buffer,
 
 ZyanStatus ZydisFormatterInit(ZydisFormatter* formatter, ZydisFormatterStyle style)
 {
-    if (!formatter || (style > ZYDIS_FORMATTER_STYLE_MAX_VALUE))
+    if (!formatter || ((ZyanUSize)style > ZYDIS_FORMATTER_STYLE_MAX_VALUE))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -174,7 +174,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_ADDR_BASE:
     {
-        if ((ZydisNumericBase)value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
+        if (value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -183,7 +183,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_ADDR_SIGNEDNESS:
     {
-        if ((ZydisSignedness)value > ZYDIS_SIGNEDNESS_MAX_VALUE)
+        if (value > ZYDIS_SIGNEDNESS_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -192,17 +192,27 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_ADDR_PADDING_ABSOLUTE:
     {
+        if (((ZydisPadding)value != ZYDIS_PADDING_AUTO) &&
+            (value > 0xFF))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
         formatter->addr_padding_absolute = (ZydisPadding)value;
         break;
     }
     case ZYDIS_FORMATTER_PROP_ADDR_PADDING_RELATIVE:
     {
+        if (((ZydisPadding)value != ZYDIS_PADDING_AUTO) &&
+            (value > 0xFF))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
         formatter->addr_padding_relative = (ZydisPadding)value;
         break;
     }
     case ZYDIS_FORMATTER_PROP_DISP_BASE:
     {
-        if ((ZydisNumericBase)value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
+        if (value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -211,7 +221,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_DISP_SIGNEDNESS:
     {
-        if ((ZydisSignedness)value > ZYDIS_SIGNEDNESS_MAX_VALUE)
+        if (value > ZYDIS_SIGNEDNESS_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -222,18 +232,22 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     {
         if ((ZydisPadding)value == ZYDIS_PADDING_AUTO)
         {
-            if (formatter->style > ZYDIS_FORMATTER_STYLE_MAX_VALUE)
+            if ((ZyanUSize)formatter->style > ZYDIS_FORMATTER_STYLE_MAX_VALUE)
             {
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             formatter->disp_padding = FORMATTER_PRESETS[formatter->style]->disp_padding;
+        }
+        else if (value > 0xFF)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         formatter->disp_padding = (ZydisPadding)value;
         break;
     }
     case ZYDIS_FORMATTER_PROP_IMM_BASE:
     {
-        if ((ZydisNumericBase)value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
+        if (value > ZYDIS_NUMERIC_BASE_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -242,7 +256,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_IMM_SIGNEDNESS:
     {
-        if ((ZydisSignedness)value  > ZYDIS_SIGNEDNESS_MAX_VALUE)
+        if (value > ZYDIS_SIGNEDNESS_MAX_VALUE)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -253,11 +267,15 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     {
         if ((ZydisPadding)value == ZYDIS_PADDING_AUTO)
         {
-            if (formatter->style > ZYDIS_FORMATTER_STYLE_MAX_VALUE)
+            if ((ZyanUSize)formatter->style > ZYDIS_FORMATTER_STYLE_MAX_VALUE)
             {
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
             formatter->imm_padding = FORMATTER_PRESETS[formatter->style]->imm_padding;
+        }
+        else if (value > 0xFF)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         formatter->imm_padding = (ZydisPadding)value;
         break;
@@ -349,7 +367,7 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
 ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFunction type,
     const void** callback)
 {
-    if (!formatter || !callback || (type > ZYDIS_FORMATTER_FUNC_MAX_VALUE))
+    if (!formatter || !callback || ((ZyanUSize)type > ZYDIS_FORMATTER_FUNC_MAX_VALUE))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
