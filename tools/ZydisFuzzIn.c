@@ -35,6 +35,7 @@
  */
 
 #include <stdio.h>
+#include <inttypes.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
@@ -115,6 +116,79 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 /* Main iteration                                                                                 */
 /* ============================================================================================== */
 
+// NOTE: This function doesn't validate flag values, yet.
+static void ZydisValidateEnumRanges(ZydisDecodedInstruction *insn)
+{
+#   define ZYDIS_CHECK_ENUM(value, max)                                                            \
+    if ((ZyanU64)(value) > (ZyanU64)(max))                                                         \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " is above expected max " #max          \
+            " = 0x%016" PRIX64 "\n", (ZyanU64)(value), (ZyanU64)(max));                            \
+        abort();                                                                                   \
+    }
+
+    ZYDIS_CHECK_ENUM(insn->length, ZYDIS_MAX_INSTRUCTION_LENGTH);
+
+    ZYDIS_CHECK_ENUM(insn->machine_mode, ZYDIS_MACHINE_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->mnemonic, ZYDIS_MNEMONIC_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->encoding, ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->opcode_map, ZYDIS_OPCODE_MAP_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->opcode_map, ZYDIS_OPCODE_MAP_MAX_VALUE);
+    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->accessed_flags); ++i)
+    {
+        ZYDIS_CHECK_ENUM(insn->accessed_flags[i].action, ZYDIS_CPUFLAG_MAX_VALUE);
+    }
+
+    // Operands.
+    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->operands); ++i)
+    {
+        const ZydisDecodedOperand* op = &insn->operands[i];
+        ZYDIS_CHECK_ENUM(op->type, ZYDIS_OPERAND_TYPE_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->visibility, ZYDIS_OPERAND_VISIBILITY_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->encoding, ZYDIS_OPERAND_ENCODING_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->element_type, ZYDIS_ELEMENT_TYPE_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->reg.value, ZYDIS_REGISTER_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->mem.type, ZYDIS_MEMOP_TYPE_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
+        ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
+        ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
+        ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+    }
+
+    // AVX.
+    ZYDIS_CHECK_ENUM(insn->avx.mask.mode, ZYDIS_MASK_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.mask.reg, ZYDIS_REGISTER_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.broadcast.is_static, ZYAN_TRUE);
+    ZYDIS_CHECK_ENUM(insn->avx.broadcast.mode, ZYDIS_BROADCAST_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.rounding.mode, ZYDIS_ROUNDING_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.swizzle.mode, ZYDIS_SWIZZLE_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.conversion.mode, ZYDIS_CONVERSION_MODE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->avx.has_sae, ZYAN_TRUE);
+    ZYDIS_CHECK_ENUM(insn->avx.has_eviction_hint, ZYAN_TRUE);
+
+    // Meta.
+    ZYDIS_CHECK_ENUM(insn->meta.category, ZYDIS_CATEGORY_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->meta.isa_set, ZYDIS_ISA_SET_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->meta.isa_ext, ZYDIS_ISA_SET_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->meta.branch_type, ZYDIS_BRANCH_TYPE_MAX_VALUE);
+    ZYDIS_CHECK_ENUM(insn->meta.exception_class, ZYDIS_EXCEPTION_CLASS_MAX_VALUE);
+
+    // Raw.
+    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->raw.prefixes); ++i)
+    {
+        ZYDIS_CHECK_ENUM(insn->raw.prefixes[i].type, ZYDIS_PREFIX_TYPE_MAX_VALUE);
+    }
+    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->raw.imm); ++i)
+    {
+        ZYDIS_CHECK_ENUM(insn->raw.imm[i].is_signed, ZYAN_TRUE);
+        ZYDIS_CHECK_ENUM(insn->raw.imm[i].is_relative, ZYAN_TRUE);
+    }
+
+#   undef ZYDIS_CHECK_ENUM
+}
+
 // We disable enum sanitization here because we actually want Zydis to be tested with
 // possibly invalid enum values in mind, thus need to be able to create them here.
 ZYAN_NO_SANITIZE("enum")
@@ -191,6 +265,8 @@ static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
     {
         return EXIT_FAILURE;
     }
+
+    ZydisValidateEnumRanges(&instruction);
 
     // Fuzz formatter.
     char format_buffer[256];
