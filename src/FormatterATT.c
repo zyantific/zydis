@@ -165,8 +165,18 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
                 }
             } else
             {
-                if ((i == (context->instruction->operand_count - 1)) ||
-                    (context->instruction->operands[i + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+                ZyanBool decorate_operand = ZYAN_FALSE;
+                if (i == (context->instruction->operand_count - 1))
+                {
+                    decorate_operand = operand->type != ZYDIS_OPERAND_TYPE_IMMEDIATE;
+                }
+                else
+                {
+                    decorate_operand =
+                        (context->instruction->operands[i + 1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE) ||
+                        (context->instruction->operands[i + 1].visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN);
+                }
+                if (decorate_operand)
                 {
                     if (context->instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
                     {
