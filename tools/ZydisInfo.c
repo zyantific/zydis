@@ -953,7 +953,13 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "E12",
         "E12NP",
         "K20",
-        "K21"
+        "K21",
+        "AMXE1",
+        "AMXE2",
+        "AMXE3",
+        "AMXE4",
+        "AMXE5",
+        "AMXE6"
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 
