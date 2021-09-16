@@ -379,6 +379,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "POINTER",
             "IMMEDIATE"
         };
+        ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_operand_type) == ZYDIS_OPERAND_TYPE_MAX_VALUE + 1);
+
         static const char* strings_operand_visibility[] =
         {
             "INVALID",
@@ -386,6 +388,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "IMPLICIT",
             "HIDDEN"
         };
+        ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_operand_visibility) == ZYDIS_OPERAND_VISIBILITY_MAX_VALUE + 1);
+
         static const char* strings_operand_actions[] =
         {
             "NONE",  // 0 0 0 0
@@ -404,6 +408,7 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "-",     // 1 1 0 1
             "-"      // 1 1 1 1
         };
+
         static const char* strings_element_type[] =
         {
             "INVALID",
@@ -417,6 +422,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "LONGBCD",
             "CC"
         };
+        ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_element_type) == ZYDIS_ELEMENT_TYPE_MAX_VALUE + 1);
+
         static const char* strings_operand_encoding[] =
         {
             "NONE",
@@ -455,6 +462,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "JIMM32_32_64",
             "JIMM16_32_32"
         };
+        ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_operand_encoding) == ZYDIS_OPERAND_ENCODING_MAX_VALUE + 1);
+
         static const char* strings_memop_type[] =
         {
             "INVALID",
@@ -462,6 +471,7 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "AGEN",
             "MIB"
         };
+        ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_memop_type) == ZYDIS_MEMOP_TYPE_MAX_VALUE + 1);
 
         ZYAN_PRINTF("%s%2d  %s%9s  %10s  %6s  %12s  %s%5d   %4d  %6d  %s%8s%s",
             CVT100_OUT(COLOR_VALUE_G),
@@ -596,6 +606,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
         "C2",
         "C3"
     };
+
     static const char* strings_flag_action[] =
     {
         "",
@@ -606,6 +617,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
         "1",
         "U"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_flag_action) == ZYDIS_CPUFLAG_ACTION_MAX_VALUE + 1);
 
     PrintSectionHeader("FLAGS");
 
@@ -661,6 +673,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "4_TO_16",
         "8_TO_16"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_broadcast_mode) == ZYDIS_BROADCAST_MODE_MAX_VALUE + 1);
 
     static const char* strings_mask_mode[] =
     {
@@ -671,6 +684,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "CONTROL",
         "CONTROL_ZEROING"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_mask_mode) == ZYDIS_MASK_MODE_MAX_VALUE + 1);
 
     static const char* strings_rounding_mode[] =
     {
@@ -680,6 +694,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "RU",
         "RZ"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_rounding_mode) == ZYDIS_ROUNDING_MODE_MAX_VALUE + 1);
 
     static const char* strings_swizzle_mode[] =
     {
@@ -693,6 +708,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "CCCC",
         "DDDD"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_swizzle_mode) == ZYDIS_SWIZZLE_MODE_MAX_VALUE + 1);
 
     static const char* strings_conversion_mode[] =
     {
@@ -703,6 +719,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
         "SINT16",
         "UINT16"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_conversion_mode) == ZYDIS_CONVERSION_MODE_MAX_VALUE + 1);
 
     PrintSectionHeader("AVX");
 
@@ -882,6 +899,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "XOP9",
         "XOPA"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(opcode_maps) == ZYDIS_OPCODE_MAP_MAX_VALUE + 1);
 
     static const char* instr_encodings[] =
     {
@@ -892,6 +910,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "EVEX",
         "MVEX"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(instr_encodings) == ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE + 1);
 
     static const char* exception_classes[] =
     {
@@ -936,6 +955,7 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         "K20",
         "K21"
     };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 
     struct
     {
@@ -990,7 +1010,9 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
         { ZYDIS_ATTRIB_HAS_SEGMENT_FS,           "HAS_SEGMENT_FS"           },
         { ZYDIS_ATTRIB_HAS_SEGMENT_GS,           "HAS_SEGMENT_GS"           },
         { ZYDIS_ATTRIB_HAS_OPERANDSIZE,          "HAS_OPERANDSIZE"          },
-        { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          }
+        { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          },
+        { ZYDIS_ATTRIB_ACCEPTS_NOTRACK,          "ACCEPTS_NOTRACK"          },
+        { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              }
     };
 
     PrintSectionHeader("BASIC");
