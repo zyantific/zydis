@@ -5096,7 +5096,7 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     ZydisDecoderContext context;
     ZYAN_MEMSET(&context, 0, sizeof(context));
     context.decoder = decoder;
-    context.buffer = (ZyanU8*)buffer;
+    context.buffer = (const ZyanU8*)buffer;
     context.buffer_len = length;
     context.prefixes.offset_notrack = -1;
 
