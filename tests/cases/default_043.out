@@ -8,7 +8,7 @@
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: HAS_MODRM ACCEPTS_BND ACCEPTS_SEGMENT 
+ ATTRIBUTES: HAS_MODRM ACCEPTS_BND ACCEPTS_SEGMENT ACCEPTS_NOTRACK HAS_NOTRACK 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
