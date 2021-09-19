@@ -181,15 +181,15 @@ typedef enum ZydisImplicitMemBase_
     ZYDIS_IMPLMEM_BASE_AAX,
     ZYDIS_IMPLMEM_BASE_ADX,
     ZYDIS_IMPLMEM_BASE_ABX,
-    ZYDIS_IMPLMEM_BASE_ASP,
-    ZYDIS_IMPLMEM_BASE_ABP,
     ZYDIS_IMPLMEM_BASE_ASI,
     ZYDIS_IMPLMEM_BASE_ADI,
+    ZYDIS_IMPLMEM_BASE_SSP,
+    ZYDIS_IMPLMEM_BASE_SBP,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_IMPLMEM_BASE_MAX_VALUE = ZYDIS_IMPLMEM_BASE_ADI,
+    ZYDIS_IMPLMEM_BASE_MAX_VALUE = ZYDIS_IMPLMEM_BASE_SBP,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
