@@ -1677,33 +1677,33 @@ static void ZydisDecodeOperandImplicitRegister(ZydisDecoderContext* context,
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
         operand->reg.value = ZydisRegisterEncode(
-            (instruction->address_width      == 16) ? ZYDIS_REGCLASS_GPR16  :
-            (instruction->address_width      == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
-            definition->op.reg.reg.id);
-        break;
-    case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
-        operand->reg.value = ZydisRegisterEncode(
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGCLASS_GPR16  :
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGCLASS_GPR32  :
-                                                                          ZYDIS_REGCLASS_GPR64,
+            (instruction->address_width    == 16) ? ZYDIS_REGCLASS_GPR16  :
+            (instruction->address_width    == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
             definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
         operand->reg.value =
-            (instruction->address_width      == 16) ? ZYDIS_REGISTER_IP     :
-            (instruction->address_width      == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
+            (instruction->address_width    == 16) ? ZYDIS_REGISTER_IP     :
+            (instruction->address_width    == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
+        break;
+    case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
+        operand->reg.value = ZydisRegisterEncode(
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGCLASS_GPR16 :
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGCLASS_GPR32 :
+                                                                      ZYDIS_REGCLASS_GPR64,
+            definition->op.reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
         operand->reg.value =
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
-                                                                          ZYDIS_REGISTER_RIP;
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
+                                                                      ZYDIS_REGISTER_RIP;
         break;
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
         operand->reg.value =
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
-            (context->decoder->address_width == ZYDIS_ADDRESS_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
-                                                                          ZYDIS_REGISTER_RFLAGS;
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
+            (context->decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
+                                                                      ZYDIS_REGISTER_RFLAGS;
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -2747,7 +2747,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 
                 context->cd8_scale = scales[size_index];
                 break;
-            }    
+            }
             case ZYDIS_TUPLETYPE_T1_4X:
                 ZYAN_ASSERT(context->evex.element_size == 32);
                 ZYAN_ASSERT(context->cache.W == 0);
@@ -3628,44 +3628,22 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
     };
 
     ZyanU8 index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
-    switch (context->decoder->machine_mode)
+    if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32) ||
+        (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_32))
     {
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-    case ZYDIS_MACHINE_MODE_LEGACY_16:
-    case ZYDIS_MACHINE_MODE_REAL_16:
-        index += 0;
-        break;
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-    case ZYDIS_MACHINE_MODE_LEGACY_32:
         index += 2;
-        break;
-    case ZYDIS_MACHINE_MODE_LONG_64:
+    }
+    else if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+    {
         index += 4;
         index += (context->cache.W & 0x01) << 1;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
     }
 
     ZYAN_ASSERT(definition->operand_size_map < ZYAN_ARRAY_LENGTH(operand_size_map));
     ZYAN_ASSERT(index < ZYAN_ARRAY_LENGTH(operand_size_map[definition->operand_size_map]));
 
     instruction->operand_width = operand_size_map[definition->operand_size_map][index];
-
-    switch (instruction->operand_width)
-    {
-    case 16:
-        context->eosz_index = 0;
-        break;
-    case 32:
-        context->eosz_index = 1;
-        break;
-    case 64:
-        context->eosz_index = 2;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
-    }
+    context->eosz_index = instruction->operand_width >> 5;
 
     // TODO: Cleanup code and remove hardcoded condition
     if (definition->operand_size_map == 1)
@@ -3696,7 +3674,7 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
             32, // 32 __
             16, // 32 67
             64, // 64 __
-            32, // 64 67
+            32  // 64 67
         },
         // The address-size override is ignored
         {
@@ -3705,7 +3683,7 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
             32, // 32 __
             32, // 32 67
             64, // 64 __
-            64, // 64 67
+            64  // 64 67
         },
         // The address-size is forced to 64-bit in 64-bit mode and 32-bit in non 64-bit mode. This
         // is used by e.g. `ENCLS`, `ENCLV`, `ENCLU`.
@@ -3715,44 +3693,26 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
             32, // 32 __
             32, // 32 67
             64, // 64 __
-            64 // 64 67
+            64  // 64 67
         }
     };
 
     ZyanU8 index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 0;
-    switch (context->decoder->address_width)
+    if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32) ||
+        (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_32))
     {
-    case ZYDIS_ADDRESS_WIDTH_16:
-        index += 0;
-        break;
-    case ZYDIS_ADDRESS_WIDTH_32:
         index += 2;
-        break;
-    case ZYDIS_ADDRESS_WIDTH_64:
-        index += 4;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
     }
+    else if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        index += 4;
+    }
+
     ZYAN_ASSERT(definition->address_size_map < ZYAN_ARRAY_LENGTH(address_size_map));
     ZYAN_ASSERT(index < ZYAN_ARRAY_LENGTH(address_size_map[definition->address_size_map]));
 
     instruction->address_width = address_size_map[definition->address_size_map][index];
-
-    switch (instruction->address_width)
-    {
-    case 16:
-        context->easz_index = 0;
-        break;
-    case 32:
-        context->easz_index = 1;
-        break;
-    case 64:
-        context->easz_index = 2;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
-    }
+    context->easz_index = instruction->address_width >> 5;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -4209,20 +4169,24 @@ static ZyanStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
         instruction->raw.prefixes[context->prefixes.offset_asz_override].type =
             ZYDIS_PREFIX_TYPE_EFFECTIVE;
     }*/
-    switch (context->decoder->address_width)
+    switch (context->decoder->machine_mode)
     {
-    case ZYDIS_ADDRESS_WIDTH_16:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 0;
         break;
-    case ZYDIS_ADDRESS_WIDTH_32:
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 0 : 1;
         break;
-    case ZYDIS_ADDRESS_WIDTH_64:
+    case ZYDIS_MACHINE_MODE_LONG_64:
         *index = (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE) ? 1 : 2;
         break;
     default:
         ZYAN_UNREACHABLE;
     }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -5010,7 +4974,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
 /* ============================================================================================== */
 
 ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
-    ZydisAddressWidth address_width)
+    ZydisStackWidth stack_width)
 {
     static const ZyanBool decoder_modes[ZYDIS_DECODER_MODE_MAX_VALUE + 1] =
     {
@@ -5036,7 +5000,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
     switch (machine_mode)
     {
     case ZYDIS_MACHINE_MODE_LONG_64:
-        if (address_width != ZYDIS_ADDRESS_WIDTH_64)
+        if (stack_width != ZYDIS_STACK_WIDTH_64)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -5046,7 +5010,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
     case ZYDIS_MACHINE_MODE_LEGACY_32:
     case ZYDIS_MACHINE_MODE_LEGACY_16:
     case ZYDIS_MACHINE_MODE_REAL_16:
-        if ((address_width != ZYDIS_ADDRESS_WIDTH_16) && (address_width != ZYDIS_ADDRESS_WIDTH_32))
+        if ((stack_width != ZYDIS_STACK_WIDTH_16) && (stack_width != ZYDIS_STACK_WIDTH_32))
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
@@ -5056,7 +5020,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
     }
 
     decoder->machine_mode = machine_mode;
-    decoder->address_width = address_width;
+    decoder->stack_width = stack_width;
     ZYAN_MEMCPY(&decoder->decoder_mode, &decoder_modes, sizeof(decoder_modes));
 
     return ZYAN_STATUS_SUCCESS;
@@ -5105,7 +5069,7 @@ ZyanStatus ZydisDecoderDecodeBuffer(const ZydisDecoder* decoder, const void* buf
     instruction->machine_mode = decoder->machine_mode;
 
     // Calculate stack width from address width using a mapping process: [0, 1, 2] -> [16, 32, 64]
-    instruction->stack_width = 16 << decoder->address_width;
+    instruction->stack_width = 16 << decoder->stack_width;
 
     ZYAN_CHECK(ZydisCollectOptionalPrefixes(&context, instruction));
     ZYAN_CHECK(ZydisDecodeInstruction(&context, instruction));

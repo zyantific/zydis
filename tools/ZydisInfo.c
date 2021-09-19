@@ -1122,19 +1122,19 @@ int main(int argc, char** argv)
     ZydisDecoder decoder;
     if (!ZYAN_STRCMP(argv[1], "-real"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_ADDRESS_WIDTH_16);
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_STACK_WIDTH_16);
     } else
     if (!ZYAN_STRCMP(argv[1], "-16"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_ADDRESS_WIDTH_16);
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_STACK_WIDTH_16);
     } else
     if (!ZYAN_STRCMP(argv[1], "-32"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_ADDRESS_WIDTH_32);
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_STACK_WIDTH_32);
     } else
     if (!ZYAN_STRCMP(argv[1], "-64"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64);
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
     } else
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [hexbytes]%s\n",
