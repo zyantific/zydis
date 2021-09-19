@@ -100,27 +100,27 @@ typedef enum ZydisMachineMode_
 } ZydisMachineMode;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Address width                                                                                  */
+/* Stack width                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Defines the `ZydisAddressWidth` enum.
+ * Defines the `ZydisStackWidth` enum.
  */
-typedef enum ZydisAddressWidth_
+typedef enum ZydisStackWidth_
 {
-    ZYDIS_ADDRESS_WIDTH_16,
-    ZYDIS_ADDRESS_WIDTH_32,
-    ZYDIS_ADDRESS_WIDTH_64,
+    ZYDIS_STACK_WIDTH_16,
+    ZYDIS_STACK_WIDTH_32,
+    ZYDIS_STACK_WIDTH_64,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_ADDRESS_WIDTH_MAX_VALUE = ZYDIS_ADDRESS_WIDTH_64,
+    ZYDIS_STACK_WIDTH_MAX_VALUE = ZYDIS_STACK_WIDTH_64,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ADDRESS_WIDTH_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_ADDRESS_WIDTH_MAX_VALUE)
-} ZydisAddressWidth;
+    ZYDIS_STACK_WIDTH_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_STACK_WIDTH_MAX_VALUE)
+} ZydisStackWidth;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Element type                                                                                   */

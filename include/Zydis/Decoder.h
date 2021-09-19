@@ -164,9 +164,9 @@ typedef struct ZydisDecoder_
      */
     ZydisMachineMode machine_mode;
     /**
-     * The address width.
+     * The stack width.
      */
-    ZydisAddressWidth address_width;
+    ZydisStackWidth stack_width;
     /**
      * The decoder mode array.
      */
@@ -190,12 +190,12 @@ typedef struct ZydisDecoder_
  *
  * @param   decoder         A pointer to the `ZydisDecoder` instance.
  * @param   machine_mode    The machine mode.
- * @param   address_width   The address width.
+ * @param   stack_width     The stack width.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
-    ZydisAddressWidth address_width);
+    ZydisStackWidth stack_width);
 
 /**
  * Enables or disables the specified decoder-mode.

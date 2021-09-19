@@ -963,23 +963,23 @@ static ZyanStatus DisassembleMappedPEFile(const ZydisPEContext* context)
 
     // Initialize decoder
     ZydisMachineMode machine_mode;
-    ZydisAddressWidth address_width;
+    ZydisStackWidth stack_width;
     switch (nt_headers->FileHeader.Machine)
     {
     case IMAGE_FILE_MACHINE_I386:
         machine_mode  = ZYDIS_MACHINE_MODE_LONG_COMPAT_32;
-        address_width = ZYDIS_ADDRESS_WIDTH_32;
+        stack_width = ZYDIS_STACK_WIDTH_32;
         break;
     case IMAGE_FILE_MACHINE_IA64:
     case IMAGE_FILE_MACHINE_AMD64:
         machine_mode  = ZYDIS_MACHINE_MODE_LONG_64;
-        address_width = ZYDIS_ADDRESS_WIDTH_64;
+        stack_width = ZYDIS_STACK_WIDTH_64;
         break;
     default:
         ZYAN_UNREACHABLE;
     }
     ZydisDecoder decoder;
-    if (!ZYAN_SUCCESS((status = ZydisDecoderInit(&decoder, machine_mode, address_width))))
+    if (!ZYAN_SUCCESS((status = ZydisDecoderInit(&decoder, machine_mode, stack_width))))
     {
         fputs("Failed to initialize instruction-decoder\n", stderr);
         return status;

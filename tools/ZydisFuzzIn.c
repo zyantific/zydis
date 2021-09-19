@@ -54,7 +54,7 @@
 typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machine_mode;
-    ZydisAddressWidth address_width;
+    ZydisStackWidth stack_width;
     ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
     ZydisFormatterStyle formatter_style;
     ZyanU64 u64; // u64 used for all kind of non-overlapping purposes
@@ -212,7 +212,7 @@ static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
 
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, control_block.machine_mode,
-        control_block.address_width)))
+        control_block.stack_width)))
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
         return EXIT_FAILURE;

@@ -292,7 +292,7 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64,
-        ZYDIS_ADDRESS_WIDTH_64)))
+        ZYDIS_STACK_WIDTH_64)))
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n",
             CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
@@ -358,7 +358,7 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_ADDRESS_WIDTH_64)))
+        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64)))
     {
         ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n", CVT100_ERR(COLOR_ERROR),
             CVT100_ERR(ZYAN_VT100SGR_RESET));

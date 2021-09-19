@@ -151,12 +151,13 @@ typedef enum ZydisInternalElementType_
  */
 typedef enum ZydisImplicitRegisterType_
 {
+    // TODO: Rename OSZ|ASZ|SSZ_
     ZYDIS_IMPLREG_TYPE_STATIC,
     ZYDIS_IMPLREG_TYPE_GPR_OSZ,
     ZYDIS_IMPLREG_TYPE_GPR_ASZ,
-    ZYDIS_IMPLREG_TYPE_GPR_SSZ,
     ZYDIS_IMPLREG_TYPE_IP_ASZ,
     ZYDIS_IMPLREG_TYPE_IP_SSZ,
+    ZYDIS_IMPLREG_TYPE_GPR_SSZ,
     ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
 
     /**
@@ -176,6 +177,7 @@ typedef enum ZydisImplicitRegisterType_
  */
 typedef enum ZydisImplicitMemBase_
 {
+    // TODO: Rename OSZ|ASZ|SSZ_
     ZYDIS_IMPLMEM_BASE_AGPR_REG,
     ZYDIS_IMPLMEM_BASE_AGPR_RM,
     ZYDIS_IMPLMEM_BASE_AAX,
