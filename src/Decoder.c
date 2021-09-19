@@ -1759,17 +1759,17 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
     case ZYDIS_IMPLMEM_BASE_ABX:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 3);
         break;
-    case ZYDIS_IMPLMEM_BASE_ASP:
-        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 4);
-        break;
-    case ZYDIS_IMPLMEM_BASE_ABP:
-        operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 5);
-        break;
     case ZYDIS_IMPLMEM_BASE_ASI:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 6);
         break;
     case ZYDIS_IMPLMEM_BASE_ADI:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 7);
+        break;
+    case ZYDIS_IMPLMEM_BASE_SSP:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->address_width], 4);
+        break;
+    case ZYDIS_IMPLMEM_BASE_SBP:
+        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->address_width], 5);
         break;
     default:
         ZYAN_UNREACHABLE;
