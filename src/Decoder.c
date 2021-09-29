@@ -4739,7 +4739,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             source1 = source1 & 0x07;
         }
 
-        if (dest == source1 || dest == source2)
+        if ((dest == source1) || ((dest == source2) && (instruction->raw.modrm.mod == 3)))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
