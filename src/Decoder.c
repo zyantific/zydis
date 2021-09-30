@@ -2672,9 +2672,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     {
                         /*16*/
                         {
+                            ZYDIS_BROADCAST_MODE_1_TO_4,
                             ZYDIS_BROADCAST_MODE_1_TO_8,
-                            ZYDIS_BROADCAST_MODE_1_TO_16,
-                            ZYDIS_BROADCAST_MODE_1_TO_32
+                            ZYDIS_BROADCAST_MODE_1_TO_16
                         },
                         /*32*/
                         {
