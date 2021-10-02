@@ -3299,25 +3299,17 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
         case 0x3E:
             ZYAN_FALLTHROUGH;
         case 0x26:
-            context->prefixes.group2 = prefix_byte;
-            context->prefixes.offset_group2 = offset;
-            if ((context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) ||
-               ((context->prefixes.effective_segment != 0x64) &&
-                (context->prefixes.effective_segment != 0x65)))
+            if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
             {
-                context->prefixes.effective_segment = prefix_byte;
-                context->prefixes.offset_segment = offset;
-
-                if (prefix_byte == 0x3E)
+                if ((prefix_byte == 0x3E) &&
+                    (context->prefixes.effective_segment != 0x64) &&
+                    (context->prefixes.effective_segment != 0x65))
                 {
                     context->prefixes.offset_notrack = offset;
-                } else
-                if (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
-                {
-                    context->prefixes.offset_notrack = -1;
                 }
+                break;
             }
-            break;
+            ZYAN_FALLTHROUGH;
         case 0x64:
             ZYAN_FALLTHROUGH;
         case 0x65:
@@ -3382,6 +3374,11 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderContext* context,
     {
         instruction->raw.prefixes[instruction->raw.rex.offset].type = ZYDIS_PREFIX_TYPE_EFFECTIVE;
         ZydisDecodeREX(context, instruction, rex);
+    }
+    if ((context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
+        (context->prefixes.group2 == 0x3E))
+    {
+        context->prefixes.offset_notrack = context->prefixes.offset_group2;
     }
 
     return ZYAN_STATUS_SUCCESS;

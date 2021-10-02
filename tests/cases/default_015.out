@@ -8,13 +8,13 @@
     ISA-SET: X87
     ISA-EXT: X87
  EXCEPTIONS: NONE
- ATTRIBUTES: HAS_MODRM CPUFLAG_ACCESS ACCEPTS_SEGMENT HAS_SEGMENT HAS_SEGMENT_ES 
+ ATTRIBUTES: HAS_MODRM CPUFLAG_ACCESS ACCEPTS_SEGMENT 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
  0     MEMORY    EXPLICIT       W      MODRM_RM     16      1      16       INT  TYPE  =                 MEM
-                                                                                 SEG   =                  es
+                                                                                 SEG   =                  ds
                                                                                  BASE  =                 rdi
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
@@ -30,12 +30,12 @@
   UNDEFINED: 0x03400000
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: fistw %st0, %es:(%rdi)
-   RELATIVE: fistw %st0, %es:(%rdi)
+   ABSOLUTE: fistw %st0, (%rdi)
+   RELATIVE: fistw %st0, (%rdi)
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: fist word ptr es:[rdi], st0
-   RELATIVE: fist word ptr es:[rdi], st0
+   ABSOLUTE: fist word ptr ds:[rdi], st0
+   RELATIVE: fist word ptr ds:[rdi], st0
 
 == [ SEGMENTS ] ============================================================================================
 26 DF 17 
