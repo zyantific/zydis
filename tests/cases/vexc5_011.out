@@ -8,7 +8,7 @@
     ISA-SET: KNCJKBR
     ISA-EXT: KNCV
  EXCEPTIONS: NONE
- ATTRIBUTES: HAS_VEX IS_RELATIVE HAS_SEGMENT HAS_SEGMENT_GS 
+ ATTRIBUTES: HAS_VEX IS_RELATIVE 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
