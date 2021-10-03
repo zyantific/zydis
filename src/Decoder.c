@@ -2411,30 +2411,34 @@ static void ZydisSetAttributes(ZydisDecoderContext* context, ZydisDecodedInstruc
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        if (context->prefixes.effective_segment)
+        if (definition->accepts_segment)
         {
-            switch (context->prefixes.effective_segment)
+            instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_SEGMENT;
+            if (context->prefixes.effective_segment)
             {
-            case 0x2E:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
-                break;
-            case 0x36:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
-                break;
-            case 0x3E:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
-                break;
-            case 0x26:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
-                break;
-            case 0x64:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
-                break;
-            case 0x65:
-                instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
-                break;
-            default:
-                ZYAN_UNREACHABLE;
+                switch (context->prefixes.effective_segment)
+                {
+                case 0x2E:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_CS;
+                    break;
+                case 0x36:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_SS;
+                    break;
+                case 0x3E:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_DS;
+                    break;
+                case 0x26:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_ES;
+                    break;
+                case 0x64:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_FS;
+                    break;
+                case 0x65:
+                    instruction->attributes |= ZYDIS_ATTRIB_HAS_SEGMENT_GS;
+                    break;
+                default:
+                    ZYAN_UNREACHABLE;
+                }
             }
             if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT)
             {
