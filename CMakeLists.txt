@@ -97,6 +97,9 @@ target_include_directories("Zydis"
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE "src")
 target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
+set_target_properties("Zydis" PROPERTIES
+    VERSION ${Zydis_VERSION}
+    SOVERSION ${Zydis_VERSION_MAJOR}.${Zydis_VERSION_MINOR})
 zyan_set_common_flags("Zydis")
 zyan_maybe_enable_wpo_for_lib("Zydis")
 generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
