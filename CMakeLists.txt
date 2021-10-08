@@ -43,6 +43,9 @@ option(ZYDIS_FUZZ_AFL_FAST
 option(ZYDIS_LIBFUZZER
     "Enables LLVM libfuzzer mode and reduces prints in ZydisFuzzIn"
     OFF)
+option(ZYDIS_SYSTEM_ZYCORE
+    "Use system Zycore library"
+    OFF)
 set(ZYDIS_ZYCORE_PATH
     "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore"
     CACHE
@@ -53,31 +56,35 @@ set(ZYDIS_ZYCORE_PATH
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
-# Try to initialize the Zycore submodule using Git
-if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt" AND 
-    "${ZYDIS_ZYCORE_PATH}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore")
-    find_package(Git QUIET)
-    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
-        execute_process(
-            COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive 
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+if (ZYDIS_SYSTEM_ZYCORE)
+    find_package(Zycore)
+else ()
+    # Try to initialize the Zycore submodule using Git
+    if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt" AND 
+        "${ZYDIS_ZYCORE_PATH}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore")
+        find_package(Git QUIET)
+        if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+            execute_process(
+                COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive 
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+            )
+        endif()
+    endif ()
+
+    if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
+        message(
+            FATAL_ERROR
+            "Can't find zycore submodule. Please make sure to clone the repo recursively.\n"
+            "You can fix this by running\n"
+            "    git submodule update --init\n"
+            "or by cloning using\n"
+            "    git clone --recursive <url>\n"
+            "Alternatively, you can manually clone zycore to some path and set ZYDIS_ZYCORE_PATH."
         )
-    endif()
-endif ()
+    endif ()
 
-if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
-    message(
-        FATAL_ERROR
-        "Can't find zycore submodule. Please make sure to clone the repo recursively.\n"
-        "You can fix this by running\n"
-        "    git submodule update --init\n"
-        "or by cloning using\n"
-        "    git clone --recursive <url>\n"
-        "Alternatively, you can manually clone zycore to some path and set ZYDIS_ZYCORE_PATH."
-    )
+    add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
 endif ()
-
-add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
 
 # =============================================================================================== #
 # Library configuration                                                                           #
