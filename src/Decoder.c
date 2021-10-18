@@ -1766,10 +1766,10 @@ static void ZydisDecodeOperandImplicitMemory(ZydisDecoderContext* context,
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index], 7);
         break;
     case ZYDIS_IMPLMEM_BASE_SSP:
-        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->address_width], 4);
+        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->stack_width], 4);
         break;
     case ZYDIS_IMPLMEM_BASE_SBP:
-        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->address_width], 5);
+        operand->mem.base = ZydisRegisterEncode(lookup[context->decoder->stack_width], 5);
         break;
     default:
         ZYAN_UNREACHABLE;
