@@ -35,6 +35,7 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>
 #include <inttypes.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
@@ -63,6 +64,15 @@ typedef struct ZydisFuzzControlBlock_
     ZyanU16 formatter_max_len;
 } ZydisFuzzControlBlock;
 
+/**
+ * Structure for fuzzing decoder inputs.
+ */
+typedef struct ZydisFuzzControlBlockDecoderOnly_
+{
+    ZydisMachineMode machine_mode;
+    ZydisStackWidth stack_width;
+} ZydisFuzzControlBlockDecoderOnly;
+
 /* ============================================================================================== */
 /* Macros                                                                                         */
 /* ============================================================================================== */
@@ -75,6 +85,13 @@ typedef struct ZydisFuzzControlBlock_
 #else
 #   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
 #endif
+
+#ifndef ZYDIS_FUZZ_TARGET
+#   define ZYDIS_FUZZ_TARGET ZydisFuzzDecoder
+#endif
+
+#define ZYDIS_SANITIZE_MASK(var, type, mask)      var = (type)((ZyanUSize)(var) & (mask))
+#define ZYDIS_SANITIZE_ENUM(var, type, max_value) var = (type)((ZyanUSize)(var) % (max_value + 1))
 
 /* ============================================================================================== */
 /* Stream reading abstraction                                                                     */
@@ -116,8 +133,60 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 /* Main iteration                                                                                 */
 /* ============================================================================================== */
 
+#if defined(ZYDIS_FUZZ_AFL_FAST) || defined(ZYDIS_LIBFUZZER)
+
+#define ZydisPrintInstruction(...)
+
+#else
+
+void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction, 
+    const ZyanU8 *instruction_bytes)
+{
+    printf("(ssz: %u) ", instruction->stack_width);
+    switch (instruction->machine_mode)
+    {
+    case ZYDIS_MACHINE_MODE_LONG_64:
+        printf("-64 ");
+        break;
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
+        printf("-32 ");
+        break;
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
+        printf("-16 ");
+        break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+
+    for (ZyanU8 i = 0; i < instruction->length; ++i)
+    {
+        printf("%02X", instruction_bytes[i]);
+    }
+
+    ZyanStatus status;
+    ZydisFormatter formatter;
+    if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+        !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
+        !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+            ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
+    {
+        fputs("Failed to initialize instruction formatter\n", ZYAN_STDERR);
+        abort();
+    }
+
+    char buffer[256];
+    ZydisFormatterFormatInstruction(&formatter, instruction, buffer, sizeof(buffer), 0);
+    printf(" %s\n", buffer);
+}
+
+#endif
+
 // NOTE: This function doesn't validate flag values, yet.
-static void ZydisValidateEnumRanges(ZydisDecodedInstruction *insn)
+static void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
 {
 #   define ZYDIS_CHECK_ENUM(value, max)                                                            \
     if ((ZyanU64)(value) > (ZyanU64)(max))                                                         \
@@ -189,19 +258,126 @@ static void ZydisValidateEnumRanges(ZydisDecodedInstruction *insn)
 #   undef ZYDIS_CHECK_ENUM
 }
 
+static void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1, 
+    const ZydisDecodedInstruction *insn2)
+{
+    ZydisSwizzleMode swizzle1 = insn1->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 
+        ZYDIS_SWIZZLE_MODE_INVALID : insn1->avx.swizzle.mode;
+    ZydisSwizzleMode swizzle2 = insn2->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 
+        ZYDIS_SWIZZLE_MODE_INVALID : insn2->avx.swizzle.mode;
+    if ((insn1->machine_mode != insn2->machine_mode) ||
+        (insn1->mnemonic != insn2->mnemonic) ||
+        (insn1->stack_width != insn2->stack_width) ||
+        (insn1->operand_count != insn2->operand_count) ||
+        (insn1->avx.mask.mode != insn2->avx.mask.mode) ||
+        (insn1->avx.broadcast.is_static != insn2->avx.broadcast.is_static) ||
+        (insn1->avx.broadcast.mode != insn2->avx.broadcast.mode) ||
+        (insn1->avx.conversion.mode != insn2->avx.conversion.mode) ||
+        (insn1->avx.rounding.mode != insn2->avx.rounding.mode) ||
+        (insn1->avx.has_sae != insn2->avx.has_sae) ||
+        (insn1->avx.has_eviction_hint != insn2->avx.has_eviction_hint) ||
+        (swizzle1 != swizzle2))
+    {
+        fputs("Basic instruction attributes mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+
+    for (ZyanU8 i = 0; i < insn1->operand_count; ++i)
+    {
+        const ZydisDecodedOperand *op1 = &insn1->operands[i];
+        const ZydisDecodedOperand *op2 = &insn2->operands[i];
+        if ((op1->type != op2->type) ||
+            (op1->size != op2->size && op1->type != ZYDIS_OPERAND_TYPE_IMMEDIATE))
+        {
+            fprintf(ZYAN_STDERR, "Mismatch for operand %u\n", i);
+            abort();
+        }
+        switch (op1->type)
+        {
+        case ZYDIS_OPERAND_TYPE_REGISTER:
+            if (op1->reg.value != op2->reg.value)
+            {
+                fprintf(ZYAN_STDERR, "Mismatch for register operand %u\n", i);
+                abort();
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_MEMORY:
+            if ((op1->mem.type != op2->mem.type) ||
+                (op1->mem.segment != op2->mem.segment) ||
+                (op1->mem.base != op2->mem.base) ||
+                (op1->mem.index != op2->mem.index) ||
+                (op1->mem.scale != op2->mem.scale && op1->mem.type != ZYDIS_MEMOP_TYPE_MIB) ||
+                (op1->mem.disp.value != op2->mem.disp.value))
+            {
+                ZyanBool acceptable_mismatch = ZYAN_FALSE;
+                if ((op1->mem.disp.has_displacement) && 
+                    (op2->mem.disp.has_displacement) &&
+                    (op1->mem.index == ZYDIS_REGISTER_NONE) &&
+                    ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
+                     (op1->mem.base == ZYDIS_REGISTER_EIP) ||
+                     (op1->mem.base == ZYDIS_REGISTER_RIP)))
+                {
+                    ZyanU64 addr1, addr2;
+                    ZydisCalcAbsoluteAddress(insn1, op1, 0, &addr1);
+                    ZydisCalcAbsoluteAddress(insn2, op2, 0, &addr2);
+                    acceptable_mismatch = (addr1 == addr2);
+                }
+                if (!acceptable_mismatch)
+                {
+                    fprintf(ZYAN_STDERR, "Mismatch for memory operand %u\n", i);
+                    abort();
+                }
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_POINTER:
+            if ((op1->ptr.segment != op2->ptr.segment) ||
+                (op1->ptr.offset != op2->ptr.offset))
+            {
+                fprintf(ZYAN_STDERR, "Mismatch for pointer operand %u\n", i);
+                abort();
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+            if ((op1->imm.is_relative != op2->imm.is_relative) ||
+                (op1->imm.is_signed != op2->imm.is_signed) ||
+                (op1->imm.value.u != op2->imm.value.u))
+            {
+                ZyanBool acceptable_mismatch = ZYAN_FALSE;
+                if ((insn1->meta.category == ZYDIS_CATEGORY_DATAXFER) ||
+                    (insn1->meta.category == ZYDIS_CATEGORY_LOGICAL))
+                {
+                    ZyanU8 size = ZYAN_MAX(op1->size, op2->size);
+                    if (size < 64)
+                    {
+                        ZyanU64 mask = (1ULL << size) - 1;
+                        acceptable_mismatch = 
+                            (op1->imm.value.u & mask) == (op2->imm.value.u & mask);
+                    }
+                    else
+                    {
+                        acceptable_mismatch = op1->imm.value.u == op2->imm.value.u;
+                    }
+                }
+                if (!acceptable_mismatch)
+                {
+                    fprintf(ZYAN_STDERR, "Mismatch for immediate operand %u\n", i);
+                    abort();
+                }
+            }
+            break;
+        default:
+            fprintf(ZYAN_STDERR, "Invalid operand type for operand %u\n", i);
+            abort();
+        }
+    }
+}
+
 // We disable enum sanitization here because we actually want Zydis to be tested with
 // possibly invalid enum values in mind, thus need to be able to create them here.
 ZYAN_NO_SANITIZE("enum")
-static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
+int ZydisFuzzDecoder(ZydisStreamRead read_fn, void* stream_ctx)
 {
     ZydisFuzzControlBlock control_block;
-
-#ifdef ZYAN_WINDOWS
-    // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
-    // binary mode
-    (void)_setmode(_fileno(ZYAN_STDIN), _O_BINARY);
-#endif
-
     if (read_fn(
         stream_ctx, (ZyanU8*)&control_block, sizeof(control_block)) != sizeof(control_block))
     {
@@ -341,9 +517,196 @@ static int ZydisFuzzIteration(ZydisStreamRead read_fn, void* stream_ctx)
     return EXIT_SUCCESS;
 }
 
+void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedInstruction *insn1, 
+    const ZyanU8 *insn1_bytes)
+{
+    ZydisPrintInstruction(insn1, insn1_bytes);
+    ZydisValidateEnumRanges(insn1);
+
+    ZydisEncoderRequest request;
+    ZyanStatus status = ZydisEncoderDecodedInstructionToEncoderRequest(insn1, &request);
+    if (!ZYAN_SUCCESS(status))
+    {
+        fputs("ZydisEncoderDecodedInstructionToEncoderRequest failed\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZyanU8 encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZyanUSize encoded_length = sizeof(encoded_instruction);
+    status = ZydisEncoderEncodeInstruction(&request, encoded_instruction, &encoded_length);
+    if (!ZYAN_SUCCESS(status))
+    {
+        fputs("Failed to re-encode instruction\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZydisDecodedInstruction insn2;
+    status = ZydisDecoderDecodeBuffer(decoder, encoded_instruction, encoded_length, &insn2);
+    if (!ZYAN_SUCCESS(status))
+    {
+        fputs("Failed to decode re-encoded instruction\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZydisPrintInstruction(&insn2, encoded_instruction);
+    ZydisValidateEnumRanges(&insn2);
+    ZydisValidateInstructionIdentity(insn1, &insn2);
+}
+
+ZYAN_NO_SANITIZE("enum")
+int ZydisFuzzDecoderEncoderDecoder(ZydisStreamRead read_fn, void *stream_ctx)
+{
+    ZydisFuzzControlBlockDecoderOnly control_block;
+    if (read_fn(
+        stream_ctx, (ZyanU8 *)&control_block, sizeof(control_block)) != sizeof(control_block))
+    {
+        ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", ZYAN_STDERR);
+        return EXIT_SUCCESS;
+    }
+
+    ZydisDecoder decoder;
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, control_block.machine_mode,
+        control_block.stack_width)))
+    {
+        ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
+        return EXIT_FAILURE;
+    }
+
+    ZyanU8 buffer[32];
+    ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
+    ZydisDecodedInstruction insn1;
+    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, input_len, &insn1);
+    if (!ZYAN_SUCCESS(status))
+    {
+        return EXIT_FAILURE;
+    }
+
+    ZydisReEncodeInstruction(&decoder, &insn1, buffer);
+
+    return EXIT_SUCCESS;
+}
+
+ZYAN_NO_SANITIZE("enum")
+int ZydisFuzzEncoderDecoderEncoderDecoder(ZydisStreamRead read_fn, void *stream_ctx)
+{
+    ZydisEncoderRequest request;
+    if (read_fn(stream_ctx, (ZyanU8 *)&request, sizeof(request)) != sizeof(request))
+    {
+        ZYDIS_MAYBE_FPUTS("Not enough bytes to fuzz\n", ZYAN_STDERR);
+        return EXIT_SUCCESS;
+    }
+
+    // Sanitization greatly improves coverage, without it most inputs will fail at basic checks
+    // inside `ZydisEncoderCheckRequestSanity`
+    request.operand_count %= ZYDIS_ENCODER_MAX_OPERANDS + 1;
+    ZYDIS_SANITIZE_MASK(request.allowed_encodings, ZydisEncodableEncoding,
+        ZYDIS_ENCODABLE_ENCODING_MAX_VALUE);
+    ZYDIS_SANITIZE_MASK(request.prefixes, ZydisEncodablePrefix, ZYDIS_ENCODABLE_PREFIX_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.machine_mode, ZydisMachineMode, ZYDIS_MACHINE_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.mnemonic, ZydisMnemonic, ZYDIS_MNEMONIC_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisEncodableBranchType,
+        ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.address_size_hint, ZydisAddressSizeHint,
+        ZYDIS_ADDRESS_SIZE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.operand_size_hint, ZydisOperandSizeHint,
+        ZYDIS_OPERAND_SIZE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.evex.broadcast, ZydisBroadcastMode, ZYDIS_BROADCAST_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.evex.rounding, ZydisRoundingMode, ZYDIS_ROUNDING_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.mvex.broadcast, ZydisBroadcastMode, ZYDIS_BROADCAST_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.mvex.conversion, ZydisConversionMode,
+        ZYDIS_CONVERSION_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.mvex.rounding, ZydisRoundingMode, ZYDIS_ROUNDING_MODE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.mvex.swizzle, ZydisSwizzleMode, ZYDIS_SWIZZLE_MODE_MAX_VALUE);
+    for (ZyanU8 i = 0; i < request.operand_count; ++i)
+    {
+        ZydisEncoderOperand *op = &request.operands[i];
+        op->type = (ZydisOperandType)(ZYDIS_OPERAND_TYPE_REGISTER +
+            ((ZyanUSize)op->type % ZYDIS_OPERAND_TYPE_MAX_VALUE));
+        switch (op->type)
+        {
+        case ZYDIS_OPERAND_TYPE_REGISTER:
+            ZYDIS_SANITIZE_ENUM(op->reg.value, ZydisRegister, ZYDIS_REGISTER_MAX_VALUE);
+            break;
+        case ZYDIS_OPERAND_TYPE_MEMORY:
+            ZYDIS_SANITIZE_ENUM(op->mem.base, ZydisRegister, ZYDIS_REGISTER_MAX_VALUE);
+            ZYDIS_SANITIZE_ENUM(op->mem.index, ZydisRegister, ZYDIS_REGISTER_MAX_VALUE);
+            break;
+        case ZYDIS_OPERAND_TYPE_POINTER:
+        case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+            break;
+        default:
+            ZYAN_UNREACHABLE;
+        }
+    }
+
+    ZyanU8 encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZyanUSize encoded_length = sizeof(encoded_instruction);
+    ZyanStatus status = ZydisEncoderEncodeInstruction(&request, encoded_instruction,
+        &encoded_length);
+    if (!ZYAN_SUCCESS(status))
+    {
+        return EXIT_SUCCESS;
+    }
+
+    ZydisStackWidth stack_width;
+    switch (request.machine_mode)
+    {
+    case ZYDIS_MACHINE_MODE_LONG_64:
+        stack_width = ZYDIS_STACK_WIDTH_64;
+        break;
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
+    case ZYDIS_MACHINE_MODE_LEGACY_32:
+        stack_width = ZYDIS_STACK_WIDTH_32;
+        break;
+    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
+    case ZYDIS_MACHINE_MODE_LEGACY_16:
+    case ZYDIS_MACHINE_MODE_REAL_16:
+        stack_width = ZYDIS_STACK_WIDTH_16;
+        break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+
+    ZydisDecoder decoder;
+    if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, request.machine_mode, stack_width)))
+    {
+        fputs("Failed to initialize decoder\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZydisDecodedInstruction insn1;
+    status = ZydisDecoderDecodeBuffer(&decoder, encoded_instruction, encoded_length, &insn1);
+    if (!ZYAN_SUCCESS(status))
+    {
+        fputs("Failed to decode instruction\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZydisReEncodeInstruction(&decoder, &insn1, encoded_instruction);
+
+    return EXIT_SUCCESS;
+}
+
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
+
+int ZydisFuzzerInit()
+{
+    if (ZydisGetVersion() != ZYDIS_VERSION)
+    {
+        fputs("Invalid Zydis version\n", ZYAN_STDERR);
+        return EXIT_FAILURE;
+    }
+
+#ifdef ZYAN_WINDOWS
+    // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
+    // binary mode
+    (void)_setmode(_fileno(ZYAN_STDIN), _O_BINARY);
+#endif
+
+    return EXIT_SUCCESS;
+}
 
 #ifdef ZYDIS_LIBFUZZER
 
@@ -356,13 +719,7 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     ZYAN_UNUSED(argc);
     ZYAN_UNUSED(argv);
 
-    if (ZydisGetVersion() != ZYDIS_VERSION)
-    {
-        fputs("Invalid zydis version\n", ZYAN_STDERR);
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    return ZydisFuzzerInit();
 }
 
 int LLVMFuzzerTestOneInput(ZyanU8 *buf, ZyanUSize len)
@@ -372,7 +729,7 @@ int LLVMFuzzerTestOneInput(ZyanU8 *buf, ZyanUSize len)
     ctx.buf_len = len;
     ctx.read_offs = 0;
 
-    ZydisFuzzIteration(&ZydisLibFuzzerRead, &ctx);
+    ZYDIS_FUZZ_TARGET(&ZydisLibFuzzerRead, &ctx);
     return 0;
 }
 
@@ -384,20 +741,19 @@ int LLVMFuzzerTestOneInput(ZyanU8 *buf, ZyanUSize len)
 
 int main(void)
 {
-    if (ZydisGetVersion() != ZYDIS_VERSION)
+    if (ZydisFuzzerInit() != EXIT_SUCCESS)
     {
-        fputs("Invalid zydis version\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
 #ifdef ZYDIS_FUZZ_AFL_FAST
     while (__AFL_LOOP(1000))
     {
-        ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
+        ZYDIS_FUZZ_TARGET(&ZydisStdinRead, ZYAN_NULL);
     }
     return EXIT_SUCCESS;
 #else
-    return ZydisFuzzIteration(&ZydisStdinRead, ZYAN_NULL);
+    return ZYDIS_FUZZ_TARGET(&ZydisStdinRead, ZYAN_NULL);
 #endif
 }
 

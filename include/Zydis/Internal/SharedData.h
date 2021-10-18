@@ -444,7 +444,7 @@ typedef enum ZydisEVEXTupleType_
     /**
      * Quarter of the vector-length.
      */
-     ZYDIS_TUPLETYPE_QUARTER,
+    ZYDIS_TUPLETYPE_QUARTER,
 
     /**
      * Maximum value of this enum.
