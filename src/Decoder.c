@@ -682,7 +682,7 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
 
     if (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
     {
-        // MVEX is only invalid in 64-bit mode
+        // MVEX is only valid in 64-bit mode
         return ZYDIS_STATUS_DECODING_ERROR;
     }
 

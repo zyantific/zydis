@@ -45,6 +45,12 @@ ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature)
 #else
         return ZYAN_STATUS_FALSE;
 #endif
+    case ZYDIS_FEATURE_ENCODER:
+#ifndef ZYDIS_DISABLE_ENCODER
+        return ZYAN_STATUS_TRUE;
+#else
+        return ZYAN_STATUS_FALSE;
+#endif
     case ZYDIS_FEATURE_FORMATTER:
 #ifndef ZYDIS_DISABLE_FORMATTER
         return ZYAN_STATUS_TRUE;

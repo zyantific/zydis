@@ -66,6 +66,12 @@
     <ClCompile Include="..\..\src\FormatterIntel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\EncoderData.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h">
@@ -151,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Internal\String.h">
       <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Encoder.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Memory.h">
       <Filter>Header Files\Zycore\API</Filter>

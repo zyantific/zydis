@@ -40,6 +40,10 @@
 #   include <Zydis/DecoderTypes.h>
 #endif
 
+#ifndef ZYDIS_DISABLE_ENCODER
+#   include <Zydis/Encoder.h>
+#endif
+
 #ifndef ZYDIS_DISABLE_FORMATTER
 #   include <Zydis/Formatter.h>
 #endif
@@ -66,7 +70,7 @@ extern "C" {
 /**
  * A macro that defines the zydis version.
  */
-#define ZYDIS_VERSION (ZyanU64)0x0003000200000000
+#define ZYDIS_VERSION (ZyanU64)0x0004000000000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
@@ -112,6 +116,7 @@ extern "C" {
 typedef enum ZydisFeature_
 {
     ZYDIS_FEATURE_DECODER,
+    ZYDIS_FEATURE_ENCODER,
     ZYDIS_FEATURE_FORMATTER,
     ZYDIS_FEATURE_AVX512,
     ZYDIS_FEATURE_KNC,

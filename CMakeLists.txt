@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
-project(Zydis VERSION 3.2.0.0 LANGUAGES C CXX)
+project(Zydis VERSION 4.0.0.0 LANGUAGES C CXX)
 
 include(GenerateExportHeader)
 include(GNUInstallDirs)
@@ -16,6 +16,9 @@ option(ZYDIS_MINIMAL_MODE
     OFF)
 option(ZYDIS_FEATURE_DECODER
     "Enable instruction decoding functionality"
+    ON)
+option(ZYDIS_FEATURE_ENCODER
+    "Enable instruction encoding functionality"
     ON)
 option(ZYDIS_FEATURE_FORMATTER
     "Enable instruction formatting functionality"
@@ -118,11 +121,25 @@ if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
     )
 endif ()
 
+if (ZYDIS_FEATURE_ENCODER AND (ZYDIS_MINIMAL_MODE OR
+                               NOT ZYDIS_FEATURE_DECODER OR
+                               NOT ZYDIS_FEATURE_AVX512 OR
+                               NOT ZYDIS_FEATURE_KNC))
+    message(
+        FATAL_ERROR
+        "\nZYDIS_FEATURE_ENCODER requires ZYDIS_FEATURE_DECODER in full mode (ZYDIS_MINIMAL_MODE \
+        disabled) with all ISA extensions (ZYDIS_FEATURE_AVX512 and ZYDIS_FEATURE_KNC enabled)"
+    )
+endif ()
+
 if (ZYDIS_MINIMAL_MODE)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_MINIMAL_MODE")
 endif ()
 if (NOT ZYDIS_FEATURE_DECODER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_DECODER")
+endif ()
+if (NOT ZYDIS_FEATURE_ENCODER)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_ENCODER")
 endif ()
 if (NOT ZYDIS_FEATURE_FORMATTER)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_FORMATTER")
@@ -162,6 +179,14 @@ if (ZYDIS_FEATURE_DECODER)
             "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/DecoderData.h"
             "src/Decoder.c"
             "src/DecoderData.c")
+    if (ZYDIS_FEATURE_ENCODER)
+        target_sources("Zydis"
+            PRIVATE
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Encoder.h"
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/EncoderData.h"
+                "src/Encoder.c"
+                "src/EncoderData.c")
+    endif ()
     if (ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         target_sources("Zydis"
             PRIVATE
