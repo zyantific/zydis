@@ -137,6 +137,10 @@ typedef struct ZydisEncodableInstruction_
      */
     ZyanU16 instruction_reference;
     /**
+     * Compressed information about operand count and types.
+     */
+    ZyanU16 operand_mask;
+    /**
      * The instruction-opcode.
      */
     ZyanU8 opcode;

@@ -1567,7 +1567,7 @@ ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *match,
         }
         break;
     default:
-        return ZYAN_FALSE;
+        ZYAN_UNREACHABLE;
     }
     
     if (user_op->reg.is4 != is4_expected_value)
@@ -2039,7 +2039,7 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         }
         break;
     default:
-        return ZYAN_FALSE;
+        ZYAN_UNREACHABLE;
     }
 
     return ZYAN_TRUE;
@@ -2057,15 +2057,11 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
 ZyanBool ZydisIsPointerOperandCompatible(ZydisEncoderInstructionMatch *match, 
     const ZydisEncoderOperand *user_op, const ZydisOperandDefinition *def_op)
 {
-    if (def_op->type != ZYDIS_SEMANTIC_OPTYPE_PTR)
-    {
-        return ZYAN_FALSE;
-    }
-
-    ZyanU8 min_disp_size = ZydisGetUnsignedImmSize(user_op->ptr.offset);
+    ZYAN_ASSERT(def_op->type == ZYDIS_SEMANTIC_OPTYPE_PTR);
     ZYAN_ASSERT(match->eosz == 0);
     ZYAN_ASSERT((match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16) ||
-        (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32));
+                (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32));
+    ZyanU8 min_disp_size = ZydisGetUnsignedImmSize(user_op->ptr.offset);
     if (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16)
     {
         if (min_disp_size > 16)
@@ -2135,7 +2131,7 @@ ZyanBool ZydisIsImmediateOperandCompabile(ZydisEncoderInstructionMatch *match,
         break;
     }
     default:
-        return ZYAN_FALSE;
+        ZYAN_UNREACHABLE;
     }
 
     return ZYAN_TRUE;
@@ -2815,6 +2811,26 @@ ZyanBool ZydisArePrefixesCompatible(const ZydisEncoderInstructionMatch *match)
 }
 
 /**
+ * Returns operand mask containing information about operand count and types in a compressed form.
+ *
+ * @param   request     A pointer to `ZydisEncoderRequest` struct.
+ *
+ * @return  Operand mask.
+ */
+ZyanU16 ZydisGetOperandMask(const ZydisEncoderRequest *request)
+{
+    ZyanU16 operand_mask = request->operand_count;
+    ZyanU8 bit_offset = 3;
+    for (ZyanU8 i = 0; i < request->operand_count; ++i)
+    {
+        operand_mask |= (request->operands[i].type - ZYDIS_OPERAND_TYPE_REGISTER) << bit_offset;
+        bit_offset += 2;
+    }
+
+    return operand_mask;
+}
+
+/**
  * This function attempts to find a matching instruction definition for provided encoder request.
  *
  * @param   request     A pointer to `ZydisEncoderRequest` struct.
@@ -2839,8 +2855,13 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
     ZyanU8 default_asz = ZydisGetAszFromHint(request->address_size_hint);
     ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint);
     ZydisBranchType branch_type = ZydisGetBranchType(request->branch_type);
+    ZyanU16 operand_mask = ZydisGetOperandMask(request);
     for (ZyanU8 i = 0; i < definition_count; ++i, ++definition)
     {
+        if (definition->operand_mask != operand_mask)
+        {
+            continue;
+        }
         const ZydisInstructionDefinition *base_definition = ZYAN_NULL;
         ZydisGetInstructionDefinition(definition->encoding, definition->instruction_reference, 
             &base_definition);
