@@ -2050,14 +2050,12 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
  *
  * @param   match       A pointer to `ZydisEncoderInstructionMatch` struct.
  * @param   user_op     Operand definition from `ZydisEncoderRequest` structure.
- * @param   def_op      Decoder's operand definition from current instruction definition.
  *
  * @return  True if operands match, false otherwise.
  */
 ZyanBool ZydisIsPointerOperandCompatible(ZydisEncoderInstructionMatch *match, 
-    const ZydisEncoderOperand *user_op, const ZydisOperandDefinition *def_op)
+    const ZydisEncoderOperand *user_op)
 {
-    ZYAN_ASSERT(def_op->type == ZYDIS_SEMANTIC_OPTYPE_PTR);
     ZYAN_ASSERT(match->eosz == 0);
     ZYAN_ASSERT((match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16) ||
                 (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32));
@@ -2566,7 +2564,7 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
             is_compatible = ZydisIsMemoryOperandCompatible(match, user_op, def_op);
             break;
         case ZYDIS_OPERAND_TYPE_POINTER:
-            is_compatible = ZydisIsPointerOperandCompatible(match, user_op, def_op);
+            is_compatible = ZydisIsPointerOperandCompatible(match, user_op);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             is_compatible = ZydisIsImmediateOperandCompabile(match, user_op, def_op);
