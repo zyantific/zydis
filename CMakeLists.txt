@@ -292,6 +292,16 @@ if (ZYDIS_BUILD_EXAMPLES AND NOT ZYAN_NO_LIBC)
             target_link_libraries("ZydisPerfTest" Threads::Threads)
         endif ()
     endif ()
+
+    if (ZYDIS_FEATURE_ENCODER)
+        add_executable("EncodeFromScratch" "examples/EncodeFromScratch.c")
+        target_link_libraries("EncodeFromScratch" "Zydis")
+        set_target_properties("EncodeFromScratch" PROPERTIES FOLDER "Examples/Encoder")
+        target_compile_definitions("EncodeFromScratch" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zyan_set_common_flags("EncodeFromScratch")
+        zyan_maybe_enable_wpo("EncodeFromScratch")
+        _maybe_set_emscripten_cfg("EncodeFromScratch")
+    endif ()
 endif ()
 
 # =============================================================================================== #
