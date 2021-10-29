@@ -29,10 +29,12 @@
  */
 
 #include <Zydis/Zydis.h>
+#include <Zycore/API/Memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
@@ -91,15 +93,40 @@ static ZyanUSize AssembleCode(ZyanU8* buffer, ZyanUSize buffer_length)
 
 int main(void)
 {
-    ZyanU8 buffer[64];
-    ZyanUSize length = AssembleCode(buffer, sizeof(buffer));
+    // Allocate 2 pages of memory. We won't need nearly as much, but it simplifies re-protecting
+    // the memory to RWX later.
+    const ZyanUSize alloc_size = 0x2000;
+    ZyanAllocator *alloc = ZyanAllocatorDefault();
+    ZyanU8* buffer = ZYAN_NULL;
+    ExpectSuccess(alloc->allocate(alloc, (void**)&buffer, 1, alloc_size));
 
+    // Assemble our function.
+    ZyanUSize length = AssembleCode(buffer, alloc_size);
+
+    // Print a hex-dump of the assembled code.
     puts("Created byte-code:");
     for (ZyanUSize i = 0; i < length; ++i)
     {
         printf("%02X ", buffer[i]);
     }
     puts("");
+
+#   ifdef ZYAN_X64
+    // Align pointer to typical page size.
+    void* aligned = (void*)((ZyanUPointer)buffer & ~(0x1000-1));
+
+    // Re-protect the heap region as RWX. Don't do this at home, kids!
+    ExpectSuccess(ZyanMemoryVirtualProtect(
+        aligned, 0x2000, ZYAN_PAGE_EXECUTE_READWRITE));
+
+    // Create a function pointer for our buffer.
+    typedef ZyanU64(*FnPtr)();
+    FnPtr func_ptr = (FnPtr)buffer;
+
+    // Call the function!
+    ZyanU64 result = func_ptr();
+    printf("Return value of JITed code: 0x%016" PRIx64 "\n", result);
+#   endif
 }
 
 /* ============================================================================================== */
