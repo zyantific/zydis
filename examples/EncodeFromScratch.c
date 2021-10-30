@@ -25,15 +25,15 @@
 ***************************************************************************************************/
 
 /**
- * @file Example on assembling a basic function returning `0x1337` in `rax`.
+ * @file
+ *
+ * Example on assembling a basic function returning `0x1337` in `rax`.
  */
 
 #include <Zydis/Zydis.h>
+#include <Zycore/LibC.h>
 #include <Zycore/API/Memory.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <inttypes.h>
 
 /* ============================================================================================== */
@@ -49,7 +49,8 @@ static void ExpectSuccess(ZyanStatus status)
     }
 }
 
-static void AppendInstruction(ZydisEncoderRequest* req, ZyanU8** buffer, ZyanUSize* buffer_length)
+static void AppendInstruction(const ZydisEncoderRequest* req, ZyanU8** buffer, 
+    ZyanUSize* buffer_length)
 {
     ZYAN_ASSERT(req);
     ZYAN_ASSERT(buffer);
@@ -71,7 +72,7 @@ static ZyanUSize AssembleCode(ZyanU8* buffer, ZyanUSize buffer_length)
 
     // Assemble `mov rax, 0x1337`.
     ZydisEncoderRequest req;
-    memset(&req, 0, sizeof(req));
+    ZYAN_MEMSET(&req, 0, sizeof(req));
     req.mnemonic = ZYDIS_MNEMONIC_MOV;
     req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
     req.operand_count = 2;
@@ -101,32 +102,33 @@ int main(void)
     ExpectSuccess(alloc->allocate(alloc, (void**)&buffer, 1, alloc_size));
 
     // Assemble our function.
-    ZyanUSize length = AssembleCode(buffer, alloc_size);
+    const ZyanUSize length = AssembleCode(buffer, alloc_size);
 
     // Print a hex-dump of the assembled code.
-    puts("Created byte-code:");
+    ZYAN_PUTS("Created byte-code:");
     for (ZyanUSize i = 0; i < length; ++i)
     {
         printf("%02X ", buffer[i]);
     }
-    puts("");
+    ZYAN_PUTS("");
 
-#   ifdef ZYAN_X64
+#ifdef ZYAN_X64
+
     // Align pointer to typical page size.
     void* aligned = (void*)((ZyanUPointer)buffer & ~(0x1000-1));
 
     // Re-protect the heap region as RWX. Don't do this at home, kids!
-    ExpectSuccess(ZyanMemoryVirtualProtect(
-        aligned, 0x2000, ZYAN_PAGE_EXECUTE_READWRITE));
+    ExpectSuccess(ZyanMemoryVirtualProtect(aligned, 0x2000, ZYAN_PAGE_EXECUTE_READWRITE));
 
     // Create a function pointer for our buffer.
     typedef ZyanU64(*FnPtr)();
-    FnPtr func_ptr = (FnPtr)buffer;
+    const FnPtr func_ptr = (FnPtr)buffer;
 
     // Call the function!
-    ZyanU64 result = func_ptr();
+    const ZyanU64 result = func_ptr();
     printf("Return value of JITed code: 0x%016" PRIx64 "\n", result);
-#   endif
+
+#endif
 }
 
 /* ============================================================================================== */
