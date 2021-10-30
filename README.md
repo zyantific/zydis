@@ -13,6 +13,7 @@
 <p align="center">Fast and lightweight x86/x86-64 disassembler library.</p>
 
 ## Features
+
 - Supports all x86 and x86-64 (AMD64) instructions and [extensions](./include/Zydis/Generated/EnumISAExt.h)
 - Optimized for high performance
 - No dynamic memory allocation ("malloc")
@@ -23,7 +24,8 @@
   - Should compile on any platform with a working C99 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
 
-## Quick Example
+## Decoder Example
+
 The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](./examples/)).
 
 ```C
@@ -75,6 +77,7 @@ int main()
 ```
 
 ## Sample Output
+
 The above example program generates the following output:
 
 ```asm
@@ -88,9 +91,16 @@ The above example program generates the following output:
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
+## Encoder Example
+
+```c
+TODO
+```
+
 ## Build
 
-#### Unix
+### Unix
+
 Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
 
 ```bash
@@ -101,7 +111,8 @@ cmake ..
 make
 ```
 
-#### Windows
+### Windows
+
 Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
 #### Building Zydis - Using vcpkg
@@ -118,28 +129,35 @@ vcpkg install zydis
 The Zydis port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 ## Using Zydis in a CMake project
+
 An example on how to use Zydis in your own CMake based project [can be found in this repo](https://github.com/zyantific/zydis-submodule-example).
 
-## `ZydisInfo` tool
+## ZydisInfo tool
+
 ![ZydisInfo](./assets/screenshots/ZydisInfo.png)
 
 ## Bindings
+
 Official bindings exist for a selection of languages:
+
 - [Pascal](https://github.com/zyantific/zydis-pascal)
 - [Python 3](https://github.com/zyantific/zydis-py)
 - [Rust](https://github.com/zyantific/zydis-rs)
 
 Unofficial but actively maintained bindings:
+
 - [Go](https://github.com/jpap/go-zydis)
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
 - [Haskell](https://github.com/nerded1337/zydiskell)
 
 ## Versions
 
-#### Scheme
+### Scheme
+
 Versions follow the [semantic versioning scheme](https://semver.org/). All stability guarantees apply to the API only — ABI stability between patches cannot be assumed unless explicitly mentioned in the release notes.
 
-#### Branches & Tags
+### Branches & Tags
+
 - `master` holds the bleeding edge code of the next, unreleased Zydis version. Elevated amounts of bugs and issues must be expected, API stability is not guaranteed outside of tagged commits.
 - Stable and preview versions are annotated with git tags
   - beta and other preview versions have `-beta`, `-rc`, etc. suffixes
@@ -147,6 +165,7 @@ Versions follow the [semantic versioning scheme](https://semver.org/). All stabi
   - v2 is now deprecated, but will receive security fixes until 2021
 
 ## Credits
+
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparison of our tables against theirs, improving both)
 - [LLVM](https://llvm.org) (for providing pretty solid instruction data as well)
 - Christian Ludloff (http://sandpile.org, insanely helpful)
@@ -155,7 +174,7 @@ Versions follow the [semantic versioning scheme](https://semver.org/). All stabi
 
 ## Troubleshooting
 
-#### `-fPIC` for shared library builds
+### `-fPIC` for shared library builds
 
 ```
 /usr/bin/ld: ./libfoo.a(foo.c.o): relocation R_X86_64_PC32 against symbol `bar' can not be used when making a shared object; recompile with -fPIC
@@ -167,6 +186,7 @@ might fail to detect that relocation information must be emitted. This can be fo
 by passing `-DCMAKE_POSITION_INDEPENDENT_CODE=ON` to the CMake invocation.
 
 ## Consulting and Business Support
+
 We offer consulting services and professional business support for Zydis. If you need a custom extension, require help in integrating Zydis into your product or simply want contractually guaranteed updates and turnaround times, we are happy to assist with that! Please contact us at business@zyantific.com.
 
 ## Donations
