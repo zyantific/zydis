@@ -2,22 +2,25 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{664BBE0B-918F-3B41-8D06-1875B10A7BE5}</UniqueIdentifier>
+      <UniqueIdentifier>{A0F8EAF9-228A-4DC6-AE0F-5388ED752F93}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{54CFF9CE-5525-3FCE-8ECE-9A26FB686F56}</UniqueIdentifier>
+      <UniqueIdentifier>{3F150437-2A8C-4E05-BDE1-9A7DA665343C}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Header Files\Zycore">
-      <UniqueIdentifier>{48794B8D-2E4F-4E2F-901F-77F8CB177A92}</UniqueIdentifier>
+      <UniqueIdentifier>{3649A1F6-474A-472D-9799-83D46C13C12E}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Zydis">
-      <UniqueIdentifier>{B4E29716-3340-4942-8633-40107E569597}</UniqueIdentifier>
+      <UniqueIdentifier>{CAF313CF-5C34-4BD9-82B7-86713B3B9B74}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\tools\ZydisFuzzIn.c">
+    <ClCompile Include="..\..\tools\ZydisFuzzReEncoding.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\ZydisFuzzShared.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -90,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Zydis.h">
       <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tools\ZydisFuzzShared.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

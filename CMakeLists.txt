@@ -327,18 +327,57 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         _maybe_set_emscripten_cfg("ZydisDisasm")
         install(TARGETS "ZydisDisasm" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-        add_executable("ZydisFuzzIn" "tools/ZydisFuzzIn.c")
-        target_link_libraries("ZydisFuzzIn" "Zydis")
-        set_target_properties("ZydisFuzzIn" PROPERTIES FOLDER "Tools")
-        target_compile_definitions("ZydisFuzzIn" PRIVATE "_CRT_SECURE_NO_WARNINGS")
-        zyan_set_common_flags("ZydisFuzzIn")
-        zyan_maybe_enable_wpo("ZydisFuzzIn")
-        _maybe_set_emscripten_cfg("ZydisFuzzIn")
+        add_executable("ZydisFuzzDecoder"
+            "tools/ZydisFuzzDecoder.c"
+            "tools/ZydisFuzzShared.c"
+            "tools/ZydisFuzzShared.h")
+        target_link_libraries("ZydisFuzzDecoder" "Zydis")
+        set_target_properties("ZydisFuzzDecoder" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisFuzzDecoder" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zyan_set_common_flags("ZydisFuzzDecoder")
+        zyan_maybe_enable_wpo("ZydisFuzzDecoder")
+        _maybe_set_emscripten_cfg("ZydisFuzzDecoder")
         if (ZYDIS_FUZZ_AFL_FAST)
-            target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+            target_compile_definitions("ZydisFuzzDecoder" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
         endif ()
         if (ZYDIS_LIBFUZZER)
-            target_compile_definitions("ZydisFuzzIn" PRIVATE "ZYDIS_LIBFUZZER")
+            target_compile_definitions("ZydisFuzzDecoder" PRIVATE "ZYDIS_LIBFUZZER")
+        endif ()
+
+        if (ZYDIS_FEATURE_ENCODER)
+            add_executable("ZydisFuzzEncoder"
+                "tools/ZydisFuzzEncoder.c"
+                "tools/ZydisFuzzShared.c"
+                "tools/ZydisFuzzShared.h")
+            target_link_libraries("ZydisFuzzEncoder" "Zydis")
+            set_target_properties("ZydisFuzzEncoder" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisFuzzEncoder" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            zyan_set_common_flags("ZydisFuzzEncoder")
+            zyan_maybe_enable_wpo("ZydisFuzzEncoder")
+            _maybe_set_emscripten_cfg("ZydisFuzzEncoder")
+            if (ZYDIS_FUZZ_AFL_FAST)
+                target_compile_definitions("ZydisFuzzEncoder" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+            endif ()
+            if (ZYDIS_LIBFUZZER)
+                target_compile_definitions("ZydisFuzzEncoder" PRIVATE "ZYDIS_LIBFUZZER")
+            endif ()
+
+            add_executable("ZydisFuzzReEncoding"
+                "tools/ZydisFuzzReEncoding.c"
+                "tools/ZydisFuzzShared.c"
+                "tools/ZydisFuzzShared.h")
+            target_link_libraries("ZydisFuzzReEncoding" "Zydis")
+            set_target_properties("ZydisFuzzReEncoding" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisFuzzReEncoding" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            zyan_set_common_flags("ZydisFuzzReEncoding")
+            zyan_maybe_enable_wpo("ZydisFuzzReEncoding")
+            _maybe_set_emscripten_cfg("ZydisFuzzReEncoding")
+            if (ZYDIS_FUZZ_AFL_FAST)
+                target_compile_definitions("ZydisFuzzReEncoding" PRIVATE "ZYDIS_FUZZ_AFL_FAST")
+            endif ()
+            if (ZYDIS_LIBFUZZER)
+                target_compile_definitions("ZydisFuzzReEncoding" PRIVATE "ZYDIS_LIBFUZZER")
+            endif ()
         endif ()
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
