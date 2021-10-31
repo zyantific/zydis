@@ -3041,30 +3041,16 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
  */
 ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *buffer)
 {
+    ZYAN_ASSERT(size == 1 || size == 2 || size == 4 || size == 8);
+
     ZyanUSize new_offset = buffer->offset + size;
     if (new_offset > buffer->size)
     {
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZyanU8 *output = buffer->buffer + buffer->offset;
-    switch (size)
-    {
-    case 1:
-        *output = (ZyanU8)data;
-        break;
-    case 2:
-        *(ZyanU16 *)output = (ZyanU16)data;
-        break;
-    case 4:
-        *(ZyanU32 *)output = (ZyanU32)data;
-        break;
-    case 8:
-        *(ZyanU64 *)output = data;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
-    }
+    // TODO: fix for big-endian systems
+    ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, size);
 
     buffer->offset = new_offset;
     return ZYAN_STATUS_SUCCESS;
