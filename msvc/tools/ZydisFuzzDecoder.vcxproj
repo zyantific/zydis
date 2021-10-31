@@ -70,7 +70,7 @@
     <ProjectGuid>{A0C9A331-13CC-3762-9D26-9F82C6518CAA}</ProjectGuid>
     <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>ZydisFuzzIn</ProjectName>
+    <ProjectName>ZydisFuzzDecoder</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
@@ -789,7 +789,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\tools\ZydisFuzzIn.c" />
+    <ClCompile Include="..\..\tools\ZydisFuzzDecoder.c" />
+    <ClCompile Include="..\..\tools\ZydisFuzzShared.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
@@ -815,6 +816,7 @@
     <ClInclude Include="..\..\include\Zydis\Status.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
+    <ClInclude Include="..\..\tools\ZydisFuzzShared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
