@@ -32,7 +32,7 @@
 #include <Zydis/Internal/SharedData.h>
 
 /**
- * Defines the `ZydisWidthFlag` enum.
+ * Used in encoder's table to represent standard ISA sizes in form of bit flags.
  */
 typedef enum ZydisWidthFlag_
 {
@@ -52,7 +52,8 @@ typedef enum ZydisWidthFlag_
 } ZydisWidthFlag;
 
 /**
- * Defines the `ZydisMandatoryPrefix` enum.
+ * Used in encoder's table to represent mandatory instruction prefix. Using this enum instead of
+ * actual prefix value saves space.
  */
 typedef enum ZydisMandatoryPrefix_
 {
@@ -72,7 +73,7 @@ typedef enum ZydisMandatoryPrefix_
 } ZydisMandatoryPrefix;
 
 /**
- * Defines the `ZydisVectorLength` enum.
+ * Used in encoder's table to represent vector size supported by instruction definition.
  */
 typedef enum ZydisVectorLength_
 {
@@ -92,7 +93,7 @@ typedef enum ZydisVectorLength_
 } ZydisVectorLength;
 
 /**
- * Defines the `ZydisSizeHint` enum.
+ * Used in encoder's table to represent hint type supported by instruction definition.
  */
 typedef enum ZydisSizeHint_
 {
@@ -111,7 +112,8 @@ typedef enum ZydisSizeHint_
 } ZydisSizeHint;
 
 /**
- * Defines the `ZydisEncoderLookupEntry` enum.
+ * Used in encoder's primary lookup table which allows to access a set of instruction definitions
+ * for specified mnemonic in constant time.
  */
 typedef struct ZydisEncoderLookupEntry_
 {
@@ -128,7 +130,7 @@ typedef struct ZydisEncoderLookupEntry_
 #pragma pack(push, 1)
 
 /**
- * Defines the `ZydisEncodableInstruction` enum.
+ * This structure is encoder's internal representation of encodable instruction definition.
  */
 typedef struct ZydisEncodableInstruction_
 {
@@ -137,7 +139,8 @@ typedef struct ZydisEncodableInstruction_
      */
     ZyanU16 instruction_reference;
     /**
-     * Compressed information about operand count and types.
+     * Compressed information about operand count and types. Operand count is stored in lowest bits.
+     * Types of subsequent operands are stored in higher bits.
      */
     ZyanU16 operand_mask;
     /**

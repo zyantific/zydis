@@ -10,7 +10,7 @@
   <a href="https://discord.zyantific.com/"><img src="https://img.shields.io/discord/390136917779415060.svg?logo=discord&label=Discord" alt="Discord"></a>
 </p>
 
-<p align="center">Fast and lightweight x86/x86-64 disassembler library.</p>
+<p align="center">Fast and lightweight x86/x86-64 disassembler and code generation library.</p>
 
 ## Features
 
@@ -73,6 +73,8 @@ int main()
         offset += instruction.length;
         runtime_address += instruction.length;
     }
+
+    return 0;
 }
 ```
 
@@ -94,7 +96,42 @@ The above example program generates the following output:
 ## Encoder Example
 
 ```c
-TODO
+#include <Zydis/Zydis.h>
+#include <Zycore/LibC.h>
+
+int main()
+{
+    ZyanU8 encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZyanUSize encoded_length = sizeof(encoded_instruction);
+    ZydisEncoderRequest req;
+    ZYAN_MEMSET(&req, 0, sizeof(req));
+    req.mnemonic = ZYDIS_MNEMONIC_MOV;
+    req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
+    req.operand_count = 2;
+    req.operands[0].type = ZYDIS_OPERAND_TYPE_REGISTER;
+    req.operands[0].reg.value = ZYDIS_REGISTER_RAX;
+    req.operands[1].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
+    req.operands[1].imm.u = 0x1337;
+    if (ZYAN_FAILED(ZydisEncoderEncodeInstruction(&req, encoded_instruction, &encoded_length)))
+    {
+        ZYAN_PUTS("Failed to encode instruction");
+        return 1;
+    }
+    for (ZyanUSize i = 0; i < encoded_length; ++i)
+    {
+        ZYAN_PRINTF("%02X ", encoded_instruction[i]);
+    }
+    ZYAN_PUTS("");
+    return 0;
+}
+```
+
+## Sample Output
+
+The above example program generates the following output:
+
+```
+48 C7 C0 37 13 00 00
 ```
 
 ## Build
@@ -113,7 +150,7 @@ make
 
 ### Windows
 
-Either use the [Visual Studio 2017 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
+Either use the [Visual Studio 2019 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
 #### Building Zydis - Using vcpkg
 
