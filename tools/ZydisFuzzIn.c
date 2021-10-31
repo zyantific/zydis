@@ -166,13 +166,12 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction,
         printf("%02X", instruction_bytes[i]);
     }
 
-    ZyanStatus status;
     ZydisFormatter formatter;
-    if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
-        !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
-        !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
-            ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
+    if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL)) ||
+        !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SEGMENT,
+            ZYAN_TRUE)) ||
+        !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter, ZYDIS_FORMATTER_PROP_FORCE_SIZE,
+            ZYAN_TRUE)))
     {
         fputs("Failed to initialize instruction formatter\n", ZYAN_STDERR);
         abort();
@@ -261,6 +260,25 @@ static void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
 static void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1, 
     const ZydisDecodedInstruction *insn2)
 {
+    // Special case, `xchg rAX, rAX` is an alias for `NOP`
+    if ((insn1->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
+        (insn1->operand_count == 2) &&
+        (insn1->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (insn1->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (insn1->operands[0].reg.value == insn1->operands[1].reg.value) &&
+        (insn2->mnemonic == ZYDIS_MNEMONIC_NOP))
+    {
+        switch (insn1->operands[0].reg.value)
+        {
+        case ZYDIS_REGISTER_AX:
+        case ZYDIS_REGISTER_EAX:
+        case ZYDIS_REGISTER_RAX:
+            return;
+        default:
+            break;
+        }
+    }
+
     ZydisSwizzleMode swizzle1 = insn1->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 
         ZYDIS_SWIZZLE_MODE_INVALID : insn1->avx.swizzle.mode;
     ZydisSwizzleMode swizzle2 = insn2->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 

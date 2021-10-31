@@ -48,7 +48,8 @@
 /* ============================================================================================== */
 
 /**
- * Defines the `ZydisEncoderRexType` enum.
+ * Usage of `REX.W` prefix makes it impossible to use some byte-sized registers. Values of this
+ * enum are used to track and facilitate enforcement of these restrictions.
  */
 typedef enum ZydisEncoderRexType_
 {
@@ -67,7 +68,8 @@ typedef enum ZydisEncoderRexType_
 } ZydisEncoderRexType;
 
 /**
- * Defines the `ZydisEncodableAttribute` enum.
+ * Defines encodable instruction attributes. User-visible attributes MUST reuse values from
+ * `ZydisEncodablePrefix`.
  */
 typedef enum ZydisEncoderInstructionAttribute_
 {
@@ -125,7 +127,9 @@ typedef enum ZydisEncoderInstructionAttribute_
 } ZydisEncodableAttribute;
 
 /**
- * Defines the `ZydisEncoderInstructionMatch` struct.
+ * Primary structure used during instruction matching phase. Once filled it contains information
+ * about matched instruction definition and some values deduced from encoder request. It gets
+ * converted to `ZydisEncoderInstruction` during instruction building phase.
  */
 typedef struct ZydisEncoderInstructionMatch_
 {
@@ -180,7 +184,7 @@ typedef struct ZydisEncoderInstructionMatch_
 } ZydisEncoderInstructionMatch;
 
 /**
- * Defines the `ZydisEncoderBuffer` struct.
+ * Encapsulates information about writable buffer.
  */
 typedef struct ZydisEncoderBuffer_
 {
@@ -199,7 +203,8 @@ typedef struct ZydisEncoderBuffer_
 } ZydisEncoderBuffer;
 
 /**
- * Defines the `ZydisEncoderInstruction` struct.
+ * Low-level instruction representation. Once filled this structure contains all information
+ * required for final instruction emission phase.
  */
 typedef struct ZydisEncoderInstruction_
 {
@@ -2674,7 +2679,7 @@ ZyanStatus ZydisParseEncodablePrefixes(ZydisEncodablePrefix prefixes,
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
 
-        ZyanU8 seg_override_count = 0; // TODO: ZyanPopcnt?
+        ZyanU8 seg_override_count = 0;
         if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS)
         {
             *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_CS;
@@ -2817,12 +2822,18 @@ ZyanBool ZydisArePrefixesCompatible(const ZydisEncoderInstructionMatch *match)
  */
 ZyanU16 ZydisGetOperandMask(const ZydisEncoderRequest *request)
 {
+    // If asserts are failing here remember to update encoder table generator before fixing asserts
+    ZYAN_STATIC_ASSERT(ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODER_MAX_OPERANDS) == 3);
+    ZYAN_STATIC_ASSERT(
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_TYPE_MAX_VALUE - ZYDIS_OPERAND_TYPE_REGISTER) == 2);
+
     ZyanU16 operand_mask = request->operand_count;
-    ZyanU8 bit_offset = 3;
+    ZyanU8 bit_offset = ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODER_MAX_OPERANDS);
     for (ZyanU8 i = 0; i < request->operand_count; ++i)
     {
         operand_mask |= (request->operands[i].type - ZYDIS_OPERAND_TYPE_REGISTER) << bit_offset;
-        bit_offset += 2;
+        bit_offset += ZYAN_BITS_TO_REPRESENT(
+            ZYDIS_OPERAND_TYPE_MAX_VALUE - ZYDIS_OPERAND_TYPE_REGISTER);
     }
 
     return operand_mask;
