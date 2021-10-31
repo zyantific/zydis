@@ -52,9 +52,9 @@ static void ExpectSuccess(ZyanStatus status)
 static void AppendInstruction(const ZydisEncoderRequest* req, ZyanU8** buffer, 
     ZyanUSize* buffer_length)
 {
-    ZYAN_ASSERT(req);
-    ZYAN_ASSERT(buffer);
-    ZYAN_ASSERT(buffer_length);
+    assert(req);
+    assert(buffer);
+    assert(buffer_length);
 
     ZyanUSize instr_length = *buffer_length;
     ExpectSuccess(ZydisEncoderEncodeInstruction(req, *buffer, &instr_length));
@@ -64,15 +64,15 @@ static void AppendInstruction(const ZydisEncoderRequest* req, ZyanU8** buffer,
 
 static ZyanUSize AssembleCode(ZyanU8* buffer, ZyanUSize buffer_length)
 {
-    ZYAN_ASSERT(buffer);
-    ZYAN_ASSERT(buffer_length);
+    assert(buffer);
+    assert(buffer_length);
 
     ZyanU8* write_ptr = buffer;
     ZyanUSize remaining_length = buffer_length;
 
     // Assemble `mov rax, 0x1337`.
     ZydisEncoderRequest req;
-    ZYAN_MEMSET(&req, 0, sizeof(req));
+    memset(&req, 0, sizeof(req));
     req.mnemonic = ZYDIS_MNEMONIC_MOV;
     req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
     req.operand_count = 2;
@@ -94,31 +94,30 @@ static ZyanUSize AssembleCode(ZyanU8* buffer, ZyanUSize buffer_length)
 
 int main(void)
 {
-    // Allocate 2 pages of memory. We won't need nearly as much, but it simplifies re-protecting
-    // the memory to RWX later.
-    const ZyanUSize alloc_size = 0x2000;
-    ZyanAllocator *alloc = ZyanAllocatorDefault();
-    ZyanU8* buffer = ZYAN_NULL;
-    ExpectSuccess(alloc->allocate(alloc, (void**)&buffer, 1, alloc_size));
+    // Allocate 2 pages of memory. We won't need nearly as much, but it simplifies
+    // re-protecting the memory to RWX later.
+    const ZyanUSize page_size = 0x1000;
+    const ZyanUSize alloc_size = page_size * 2;
+    ZyanU8* buffer = malloc(alloc_size);
 
     // Assemble our function.
     const ZyanUSize length = AssembleCode(buffer, alloc_size);
 
     // Print a hex-dump of the assembled code.
-    ZYAN_PUTS("Created byte-code:");
+    puts("Created byte-code:");
     for (ZyanUSize i = 0; i < length; ++i)
     {
         printf("%02X ", buffer[i]);
     }
-    ZYAN_PUTS("");
+    puts("");
 
 #ifdef ZYAN_X64
 
     // Align pointer to typical page size.
-    void* aligned = (void*)((ZyanUPointer)buffer & ~(0x1000-1));
+    void* aligned = (void*)((ZyanUPointer)buffer & ~(page_size-1));
 
     // Re-protect the heap region as RWX. Don't do this at home, kids!
-    ExpectSuccess(ZyanMemoryVirtualProtect(aligned, 0x2000, ZYAN_PAGE_EXECUTE_READWRITE));
+    ExpectSuccess(ZyanMemoryVirtualProtect(aligned, alloc_size, ZYAN_PAGE_EXECUTE_READWRITE));
 
     // Create a function pointer for our buffer.
     typedef ZyanU64(*FnPtr)();
