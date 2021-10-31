@@ -251,195 +251,195 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * The instruction has the `ModRM` byte.
  */
-#define ZYDIS_ATTRIB_HAS_MODRM                  (1 <<  0)
+#define ZYDIS_ATTRIB_HAS_MODRM                  (1ULL <<  0)
 /**
  * The instruction has the `SIB` byte.
  */
-#define ZYDIS_ATTRIB_HAS_SIB                    (1 <<  1)
+#define ZYDIS_ATTRIB_HAS_SIB                    (1ULL <<  1)
 /**
  * The instruction has the `REX` prefix.
  */
-#define ZYDIS_ATTRIB_HAS_REX                    (1 <<  2)
+#define ZYDIS_ATTRIB_HAS_REX                    (1ULL <<  2)
 /**
  * The instruction has the `XOP` prefix.
  */
-#define ZYDIS_ATTRIB_HAS_XOP                    (1 <<  3)
+#define ZYDIS_ATTRIB_HAS_XOP                    (1ULL <<  3)
 /**
  * The instruction has the `VEX` prefix.
  */
-#define ZYDIS_ATTRIB_HAS_VEX                    (1 <<  4)
+#define ZYDIS_ATTRIB_HAS_VEX                    (1ULL <<  4)
 /**
  * The instruction has the `EVEX` prefix.
  */
-#define ZYDIS_ATTRIB_HAS_EVEX                   (1 <<  5)
+#define ZYDIS_ATTRIB_HAS_EVEX                   (1ULL <<  5)
 /**
  * The instruction has the `MVEX` prefix.
  */
-#define ZYDIS_ATTRIB_HAS_MVEX                   (1 <<  6)
+#define ZYDIS_ATTRIB_HAS_MVEX                   (1ULL <<  6)
 /**
  * The instruction has one or more operands with position-relative offsets.
  */
-#define ZYDIS_ATTRIB_IS_RELATIVE                (1 <<  7)
+#define ZYDIS_ATTRIB_IS_RELATIVE                (1ULL <<  7)
 /**
  * The instruction is privileged.
  *
  * Privileged instructions are any instructions that require a current ring level below 3.
  */
-#define ZYDIS_ATTRIB_IS_PRIVILEGED              (1 <<  8)
+#define ZYDIS_ATTRIB_IS_PRIVILEGED              (1ULL <<  8)
 /**
  * The instruction accesses one or more CPU-flags.
  */
-#define ZYDIS_ATTRIB_CPUFLAG_ACCESS             (1 <<  9)
+#define ZYDIS_ATTRIB_CPUFLAG_ACCESS             (1ULL <<  9)
 /**
  * The instruction may conditionally read the general CPU state.
  */
-#define ZYDIS_ATTRIB_CPU_STATE_CR               (1 << 10)
+#define ZYDIS_ATTRIB_CPU_STATE_CR               (1ULL << 10)
 /**
  * The instruction may conditionally write the general CPU state.
  */
-#define ZYDIS_ATTRIB_CPU_STATE_CW               (1 << 11)
+#define ZYDIS_ATTRIB_CPU_STATE_CW               (1ULL << 11)
 /**
  * The instruction may conditionally read the FPU state (X87, MMX).
  */
-#define ZYDIS_ATTRIB_FPU_STATE_CR               (1 << 12)
+#define ZYDIS_ATTRIB_FPU_STATE_CR               (1ULL << 12)
 /**
  * The instruction may conditionally write the FPU state (X87, MMX).
  */
-#define ZYDIS_ATTRIB_FPU_STATE_CW               (1 << 13)
+#define ZYDIS_ATTRIB_FPU_STATE_CW               (1ULL << 13)
 /**
  * The instruction may conditionally read the XMM state (AVX, AVX2, AVX-512).
  */
-#define ZYDIS_ATTRIB_XMM_STATE_CR               (1 << 14)
+#define ZYDIS_ATTRIB_XMM_STATE_CR               (1ULL << 14)
 /**
  * The instruction may conditionally write the XMM state (AVX, AVX2, AVX-512).
  */
-#define ZYDIS_ATTRIB_XMM_STATE_CW               (1 << 15)
+#define ZYDIS_ATTRIB_XMM_STATE_CW               (1ULL << 15)
 /**
  * The instruction accepts the `LOCK` prefix (`0xF0`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_LOCK               (1 << 16)
+#define ZYDIS_ATTRIB_ACCEPTS_LOCK               (1ULL << 16)
 /**
  * The instruction accepts the `REP` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_REP                (1 << 17)
+#define ZYDIS_ATTRIB_ACCEPTS_REP                (1ULL << 17)
 /**
  * The instruction accepts the `REPE`/`REPZ` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_REPE               (1 << 18)
+#define ZYDIS_ATTRIB_ACCEPTS_REPE               (1ULL << 18)
 /**
  * The instruction accepts the `REPE`/`REPZ` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_REPZ               (1 << 18)
+#define ZYDIS_ATTRIB_ACCEPTS_REPZ               ZYDIS_ATTRIB_ACCEPTS_REPE
 /**
  * The instruction accepts the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_REPNE              (1 << 19)
+#define ZYDIS_ATTRIB_ACCEPTS_REPNE              (1ULL << 19)
 /**
  * The instruction accepts the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_REPNZ              (1 << 19)
+#define ZYDIS_ATTRIB_ACCEPTS_REPNZ              ZYDIS_ATTRIB_ACCEPTS_REPNE
 /**
  * The instruction accepts the `BND` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_BND                (1 << 20)
+#define ZYDIS_ATTRIB_ACCEPTS_BND                (1ULL << 20)
 /**
  * The instruction accepts the `XACQUIRE` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_XACQUIRE           (1 << 31)
+#define ZYDIS_ATTRIB_ACCEPTS_XACQUIRE           (1ULL << 21)
 /**
  * The instruction accepts the `XRELEASE` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_XRELEASE           (1 << 22)
+#define ZYDIS_ATTRIB_ACCEPTS_XRELEASE           (1ULL << 22)
 /**
  * The instruction accepts the `XACQUIRE`/`XRELEASE` prefixes (`0xF2`, `0xF3`)
  * without the `LOCK` prefix (`0x0F`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK   (1 << 23)
+#define ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK   (1ULL << 23)
 /**
  * The instruction accepts branch hints (0x2E, 0x3E).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS       (1 << 24)
+#define ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS       (1ULL << 24)
 /**
  * The instruction accepts the `CET` `no-track` prefix (`0x3E`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_NOTRACK            (1 << 25)
+#define ZYDIS_ATTRIB_ACCEPTS_NOTRACK            (1ULL << 25)
 /**
  * The instruction accepts segment prefixes (`0x2E`, `0x36`, `0x3E`, `0x26`,
  * `0x64`, `0x65`).
  */
-#define ZYDIS_ATTRIB_ACCEPTS_SEGMENT            (1 << 26)
+#define ZYDIS_ATTRIB_ACCEPTS_SEGMENT            (1ULL << 26)
 /**
  * The instruction has the `LOCK` prefix (`0xF0`).
  */
-#define ZYDIS_ATTRIB_HAS_LOCK                   (1 << 27)
+#define ZYDIS_ATTRIB_HAS_LOCK                   (1ULL << 27)
 /**
  * The instruction has the `REP` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_HAS_REP                    (1 << 28)
+#define ZYDIS_ATTRIB_HAS_REP                    (1ULL << 28)
 /**
  * The instruction has the `REPE`/`REPZ` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_HAS_REPE                   (1 << 29)
+#define ZYDIS_ATTRIB_HAS_REPE                   (1ULL << 29)
 /**
  * The instruction has the `REPE`/`REPZ` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_HAS_REPZ                   (1 << 29)
+#define ZYDIS_ATTRIB_HAS_REPZ                   (1ULL << 29)
 /**
  * The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_REPNE                  (1 << 30)
+#define ZYDIS_ATTRIB_HAS_REPNE                  (1ULL << 30)
 /**
  * The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_REPNZ                  (1 << 30)
+#define ZYDIS_ATTRIB_HAS_REPNZ                  (1ULL << 30)
 /**
  * The instruction has the `BND` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_BND                    (1 << 31)
+#define ZYDIS_ATTRIB_HAS_BND                    (1ULL << 31)
 /**
  * The instruction has the `XACQUIRE` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_XACQUIRE               (1 << 32)
+#define ZYDIS_ATTRIB_HAS_XACQUIRE               (1ULL << 32)
 /**
  * The instruction has the `XRELEASE` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_HAS_XRELEASE               (1 << 33)
+#define ZYDIS_ATTRIB_HAS_XRELEASE               (1ULL << 33)
 /**
  * The instruction has the branch-not-taken hint (`0x2E`).
  */
-#define ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN       (1 << 34)
+#define ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN       (1ULL << 34)
 /**
  * The instruction has the branch-taken hint (`0x3E`).
  */
-#define ZYDIS_ATTRIB_HAS_BRANCH_TAKEN           (1 << 35)
+#define ZYDIS_ATTRIB_HAS_BRANCH_TAKEN           (1ULL << 35)
 /**
  * The instruction has the `CET` `no-track` prefix (`0x3E`).
  */
-#define ZYDIS_ATTRIB_HAS_NOTRACK                (1 << 36)
+#define ZYDIS_ATTRIB_HAS_NOTRACK                (1ULL << 36)
 /**
  * The instruction has the `CS` segment modifier (`0x2E`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_CS             (1 << 37)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_CS             (1ULL << 37)
 /**
  * The instruction has the `SS` segment modifier (`0x36`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_SS             (1 << 38)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_SS             (1ULL << 38)
 /**
  * The instruction has the `DS` segment modifier (`0x3E`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_DS             (1 << 39)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_DS             (1ULL << 39)
 /**
  * The instruction has the `ES` segment modifier (`0x26`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_ES             (1 << 40)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_ES             (1ULL << 40)
 /**
  * The instruction has the `FS` segment modifier (`0x64`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_FS             (1 << 41)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_FS             (1ULL << 41)
 /**
  * The instruction has the `GS` segment modifier (`0x65`).
  */
-#define ZYDIS_ATTRIB_HAS_SEGMENT_GS             (1 << 42)
+#define ZYDIS_ATTRIB_HAS_SEGMENT_GS             (1ULL << 42)
 /**
  * The instruction has a segment modifier.
  */
@@ -452,17 +452,17 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * The instruction has the operand-size override prefix (`0x66`).
  */
-#define ZYDIS_ATTRIB_HAS_OPERANDSIZE            (1 << 43) // TODO: rename
+#define ZYDIS_ATTRIB_HAS_OPERANDSIZE            (1ULL << 43) // TODO: rename
 /**
  * The instruction has the address-size override prefix (`0x67`).
  */
-#define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            (1 << 44) // TODO: rename
+#define ZYDIS_ATTRIB_HAS_ADDRESSSIZE            (1ULL << 44) // TODO: rename
 /**
  * The instruction has the `EVEX.b` bit set.
  *
  * This attribute is mainly used by the encoder.
  */
-#define ZYDIS_ATTRIB_HAS_EVEX_B                 (1 << 45) // TODO: rename
+#define ZYDIS_ATTRIB_HAS_EVEX_B                 (1ULL << 45) // TODO: rename
 
 /* ---------------------------------------------------------------------------------------------- */
 /* R/E/FLAGS info                                                                                 */
