@@ -240,7 +240,7 @@ typedef struct ZydisDecodedOperand_
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
-/* R/E/FLAGS info                                                                                 */
+/* CPU/FPU flags                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
@@ -249,120 +249,73 @@ typedef struct ZydisDecodedOperand_
 typedef ZyanU32 ZydisCPUFlags;
 
 /**
- * Defines the `ZydisCPUFlag` data-type.
- */
-typedef ZyanU8 ZydisCPUFlag;
-
-/**
  * Carry flag.
  */
-#define ZYDIS_CPUFLAG_CF     0
+#define ZYDIS_CPUFLAG_CF    (1ul <<  0)
 /**
  * Parity flag.
  */
-#define ZYDIS_CPUFLAG_PF     2
+#define ZYDIS_CPUFLAG_PF    (1ul <<  2)
 /**
  * Adjust flag.
  */
-#define ZYDIS_CPUFLAG_AF     4
+#define ZYDIS_CPUFLAG_AF    (1ul <<  4)
 /**
  * Zero flag.
  */
-#define ZYDIS_CPUFLAG_ZF     6
+#define ZYDIS_CPUFLAG_ZF    (1ul <<  6)
 /**
  * Sign flag.
  */
-#define ZYDIS_CPUFLAG_SF     7
+#define ZYDIS_CPUFLAG_SF    (1ul <<  7)
 /**
  * Trap flag.
  */
-#define ZYDIS_CPUFLAG_TF     8
+#define ZYDIS_CPUFLAG_TF    (1ul <<  8)
 /**
  * Interrupt enable flag.
  */
-#define ZYDIS_CPUFLAG_IF     9
+#define ZYDIS_CPUFLAG_IF    (1ul <<  9)
 /**
  * Direction flag.
  */
-#define ZYDIS_CPUFLAG_DF    10
+#define ZYDIS_CPUFLAG_DF    (1ul << 10)
 /**
  * Overflow flag.
  */
-#define ZYDIS_CPUFLAG_OF    11
+#define ZYDIS_CPUFLAG_OF    (1ul << 11)
 /**
  * I/O privilege level flag.
  */
-#define ZYDIS_CPUFLAG_IOPL  12
+#define ZYDIS_CPUFLAG_IOPL  (1ul << 12)
 /**
  * Nested task flag.
  */
-#define ZYDIS_CPUFLAG_NT    14
+#define ZYDIS_CPUFLAG_NT    (1ul << 14)
 /**
  * Resume flag.
  */
-#define ZYDIS_CPUFLAG_RF    16
+#define ZYDIS_CPUFLAG_RF    (1ul << 16)
 /**
  * Virtual 8086 mode flag.
  */
-#define ZYDIS_CPUFLAG_VM    17
+#define ZYDIS_CPUFLAG_VM    (1ul << 17)
 /**
  * Alignment check.
  */
-#define ZYDIS_CPUFLAG_AC    18
+#define ZYDIS_CPUFLAG_AC    (1ul << 18)
 /**
  * Virtual interrupt flag.
  */
-#define ZYDIS_CPUFLAG_VIF   19
+#define ZYDIS_CPUFLAG_VIF   (1ul << 19)
 /**
  * Virtual interrupt pending.
  */
-#define ZYDIS_CPUFLAG_VIP   20
+#define ZYDIS_CPUFLAG_VIP   (1ul << 20)
 /**
  * Able to use CPUID instruction.
  */
-#define ZYDIS_CPUFLAG_ID    21
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * FPU condition-code flag 0.
- *
- * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
- * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
- * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
- */
-#define ZYDIS_CPUFLAG_C0    22
-/**
- * FPU condition-code flag 1.
- *
- * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
- * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
- * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
- */
-#define ZYDIS_CPUFLAG_C1    23
-/**
- * FPU condition-code flag 2.
- *
- * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
- * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
- * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
- */
-#define ZYDIS_CPUFLAG_C2    24
-/**
- * FPU condition-code flag 3.
- *
- * DEPRECATED. This flag is not actually part of `FLAGS/EFLAGS/RFLAGS` and will be removed in the
- * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
- * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
- */
-#define ZYDIS_CPUFLAG_C3    25
-
-/**
- * DEPRECATED. This define will be removed in the next major release.
- */
-#define ZYDIS_CPUFLAG_MAX_VALUE     ZYDIS_CPUFLAG_C3
-
- ///////////////////////////////////////////////////////////////////////////////////////////////////
+#define ZYDIS_CPUFLAG_ID    (1ul << 21)
 
  /**
   * Defines the `ZydisFPUFlags` data-type.
@@ -372,65 +325,19 @@ typedef ZyanU8 ZydisFPUFlags;
 /**
  * FPU condition-code flag 0.
  */
-#define ZYDIS_FPUFLAG_C0    0x00 // (1 << 0)
+#define ZYDIS_FPUFLAG_C0    (1 << 0)
 /**
  * FPU condition-code flag 1.
  */
-#define ZYDIS_FPUFLAG_C1    0x01 // (1 << 1)
+#define ZYDIS_FPUFLAG_C1    (1 << 1)
  /**
   * FPU condition-code flag 2.
   */
-#define ZYDIS_FPUFLAG_C2    0x02 // (1 << 2)
+#define ZYDIS_FPUFLAG_C2    (1 << 2)
 /**
  * FPU condition-code flag 3.
  */
-#define ZYDIS_FPUFLAG_C3    0x04 // (1 << 3)
-
-/**
- * Defines the `ZydisCPUFlagAction` enum.
- *
- * DEPRECATED. This enum will be removed in the next major release.
- */
-typedef enum ZydisCPUFlagAction_
-{
-    /**
-     * The CPU flag is not touched by the instruction.
-     */
-    ZYDIS_CPUFLAG_ACTION_NONE,
-    /**
-     * The CPU flag is tested (read).
-     */
-    ZYDIS_CPUFLAG_ACTION_TESTED,
-    /**
-     * The CPU flag is tested and modified afterwards (read-write).
-     */
-    ZYDIS_CPUFLAG_ACTION_TESTED_MODIFIED,
-    /**
-     * The CPU flag is modified (write).
-     */
-    ZYDIS_CPUFLAG_ACTION_MODIFIED,
-    /**
-     * The CPU flag is set to 0 (write).
-     */
-    ZYDIS_CPUFLAG_ACTION_SET_0,
-    /**
-     * The CPU flag is set to 1 (write).
-     */
-    ZYDIS_CPUFLAG_ACTION_SET_1,
-    /**
-     * The CPU flag is undefined (write).
-     */
-    ZYDIS_CPUFLAG_ACTION_UNDEFINED,
-
-    /**
-     * Maximum value of this enum.
-     */
-    ZYDIS_CPUFLAG_ACTION_MAX_VALUE = ZYDIS_CPUFLAG_ACTION_UNDEFINED,
-    /**
-     * The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_CPUFLAG_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_ACTION_MAX_VALUE)
-} ZydisCPUFlagAction;
+#define ZYDIS_FPUFLAG_C3    (1 << 3)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Branch types                                                                                   */
@@ -803,22 +710,34 @@ typedef struct ZydisDecodedInstruction_
      */
     ZydisInstructionAttributes attributes;
     /**
-     * Information about accessed CPU flags.
+     * Information about CPU/FPU flags accessed by the instruction.
      *
-     * DEPRECATED. This field will be removed in the next major release. Please use the
-     * `cpu_flags_read`/`cpu_flags_written` or `fpu_flags_read`/`fpu_flags_written` fields
-     * instead.
+     * The bits in the masks correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
+     * register.
      */
-    struct ZydisDecodedInstructionAccessedFlags_
+    struct ZydisAccessedCPUFlags_
     {
-        /**
-         * The CPU-flag action.
-         *
-         * Use `ZydisGetAccessedFlagsByAction` to get a mask with all flags matching a specific
-         * action.
+        /*
+         * As mask containing the CPU flags `TESTED` by the instruction.
          */
-        ZydisCPUFlagAction action;
-    } accessed_flags[ZYDIS_CPUFLAG_MAX_VALUE + 1];
+        ZydisCPUFlags tested;
+        /*
+         * As mask containing the CPU flags `MODIFIED` by the instruction.
+         */
+        ZydisCPUFlags modified;
+        /*
+         * As mask containing the CPU flags `SET_0` by the instruction.
+         */
+        ZydisCPUFlags set_0;
+        /*
+         * As mask containing the CPU flags `SET_1` by the instruction.
+         */
+        ZydisCPUFlags set_1;
+        /*
+         * As mask containing the CPU flags `SET_0` by the instruction.
+         */
+        ZydisCPUFlags undefined;
+    } cpu_flags;
     /**
      * A mask containing the CPU flags read by the instruction.
      *
@@ -826,8 +745,10 @@ typedef struct ZydisDecodedInstruction_
      * register.
      *
      * This mask includes the actions `TESTED` and `TESTED_MODIFIED`.
+     *
+     * DEPRECATED. Use the masks inside of `cpu_flags` instead.
      */
-    ZydisCPUFlags cpu_flags_read;
+    ZydisCPUFlags cpu_flags_read; // TODO: Remove in next version
     /**
      * A mask containing the CPU flags written by the instruction.
      *
@@ -835,8 +756,10 @@ typedef struct ZydisDecodedInstruction_
      * register.
      *
      * This mask includes the actions `TESTED_MODIFIED`, `SET_0`, `SET_1` and `UNDEFINED`.
+     *
+     * DEPRECATED. Use the masks inside of `cpu_flags` instead.
      */
-    ZydisCPUFlags cpu_flags_written;
+    ZydisCPUFlags cpu_flags_written; // TODO: Remove in next version
     /**
      * A mask containing the FPU flags read by the instruction.
      */

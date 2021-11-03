@@ -890,11 +890,15 @@ typedef struct ZydisInstructionDefinitionMVEX_
 
 typedef struct ZydisAccessedFlags_
 {
-    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_MAX_VALUE + 1];
-    ZyanU32 cpu_flags_read      ZYAN_BITFIELD(22);
-    ZyanU32 cpu_flags_written   ZYAN_BITFIELD(22);
-    ZyanU8 fpu_flags_read       ZYAN_BITFIELD( 4);
-    ZyanU8 fpu_flags_written    ZYAN_BITFIELD( 4);
+    ZyanU32 cpu_flags_read              ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_written           ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_tested            ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_modified          ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_set_0             ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_set_1             ZYAN_BITFIELD(22);
+    ZyanU32 cpu_flags_undefined         ZYAN_BITFIELD(22);
+    ZyanU8 fpu_flags_read               ZYAN_BITFIELD( 4);
+    ZyanU8 fpu_flags_written            ZYAN_BITFIELD( 4);
 } ZydisAccessedFlags;
 
 /* ---------------------------------------------------------------------------------------------- */

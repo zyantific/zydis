@@ -169,56 +169,6 @@ ZyanStatus ZydisCalcAbsoluteAddressEx(const ZydisDecodedInstruction* instruction
 }
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Accessed CPU flags                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlagAction action, ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = 0;
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
-    {
-        if (instruction->accessed_flags[i].action == action)
-        {
-            *flags |= (1 << i);
-        }
-    }
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZydisGetAccessedFlagsRead(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = instruction->cpu_flags_read;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZydisGetAccessedFlagsWritten(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = instruction->cpu_flags_written;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Instruction segments                                                                           */
 /* ---------------------------------------------------------------------------------------------- */
 

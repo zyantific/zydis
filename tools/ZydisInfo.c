@@ -577,7 +577,7 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
  */
 static void PrintFlags(const ZydisDecodedInstruction* instruction)
 {
-    static const char* strings_flag_name[] =
+    static const char* strings_cpu_flags[] =
     {
         "CF",
         ZYAN_NULL,
@@ -601,53 +601,101 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
         "VIF",
         "VIP",
         "ID",
+    };
+
+    static const char* strings_fpu_flags[] =
+    {
         "C0",
         "C1",
         "C2",
-        "C3"
+        "C3",
     };
 
-    static const char* strings_flag_action[] =
+    typedef struct FlagInfo_
     {
-        "",
-        "T",
-        "T_M",
-        "M",
-        "0",
-        "1",
-        "U"
-    };
-    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_flag_action) == ZYDIS_CPUFLAG_ACTION_MAX_VALUE + 1);
+        const char* name;
+        const char* action;
+    } FlagInfo;
+
+    FlagInfo flags[ZYAN_ARRAY_LENGTH(strings_cpu_flags) + ZYAN_ARRAY_LENGTH(strings_fpu_flags)];
+    ZYAN_MEMSET(flags, 0, sizeof(flags));
+
+    // CPU
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_cpu_flags); ++i)
+    {
+        flags[i].name = strings_cpu_flags[i];
+        if (instruction->cpu_flags.tested & (1 << i))
+        {
+            flags[i].action = "T";
+        }
+        if (instruction->cpu_flags.modified & (1 << i))
+        {
+            flags[i].action = (flags[i].action == ZYAN_NULL) ? "M" : "T_M";
+            continue;
+        }
+        if (instruction->cpu_flags.set_0 & (1 << i))
+        {
+            flags[i].action = "0";
+            continue;
+        }
+        if (instruction->cpu_flags.set_1 & (1 << i))
+        {
+            flags[i].action = "1";
+            continue;
+        }
+        if (instruction->cpu_flags.undefined & (1 << i))
+        {
+            flags[i].action = "U";
+        }
+    }
+
+    // FPU
+    const ZyanUSize offset = ZYAN_ARRAY_LENGTH(strings_cpu_flags);
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_fpu_flags); ++i)
+    {
+        flags[offset + i].name = strings_fpu_flags[i];
+        if (instruction->fpu_flags_read & (1 << i))
+        {
+            flags[offset + i].action = "T";
+            continue;
+        }
+        if (instruction->fpu_flags_written & (1 << i))
+        {
+            flags[offset + i].action = "M";
+        }
+    }
 
     PrintSectionHeader("FLAGS");
 
     PrintValueLabel("ACTIONS");
+
     ZyanU8 c = 0;
-    for (ZydisCPUFlag i = 0; (ZyanUSize)i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
+    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(flags); ++i)
     {
-        if (instruction->accessed_flags[i].action != ZYDIS_CPUFLAG_ACTION_NONE)
+        if (flags[i].action == ZYAN_NULL)
         {
-            if (c && (c % 8 == 0))
-            {
-                ZYAN_PRINTF("\n             ");
-            }
-            ++c;
-            ZYAN_PRINTF("%s[%s%-4s%s: %s%-3s%s]%s ",
-                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
-                strings_flag_name[i],
-                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
-                strings_flag_action[instruction->accessed_flags[i].action],
-                CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
+            continue;
         }
+        if (c && (c % 8 == 0))
+        {
+            ZYAN_PRINTF("\n             ");
+        }
+        ++c;
+        ZYAN_PRINTF("%s[%s%-4s%s: %s%-3s%s]%s ",
+            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+            flags[i].name,
+            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
+            flags[i].action,
+            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
     }
     ZYAN_PUTS("");
 
-    PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags_read);
-    PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32, instruction->cpu_flags_written);
-
-    ZydisCPUFlags flags;
-    ZydisGetAccessedFlagsByAction(instruction, ZYDIS_CPUFLAG_ACTION_UNDEFINED, &flags);
-    PRINT_VALUE_G("UNDEFINED", "0x%08" PRIX32, flags);
+    PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags.tested);
+    PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32, 
+        instruction->cpu_flags.modified | 
+        instruction->cpu_flags.set_0 | 
+        instruction->cpu_flags.set_1 | 
+        instruction->cpu_flags.undefined);
 }
 
 /**

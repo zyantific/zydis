@@ -55,6 +55,7 @@ typedef struct ZydisFuzzControlBlock_
 /* Fuzz target                                                                                    */
 /* ============================================================================================== */
 
+
 // We disable enum sanitization here because we actually want Zydis to be tested with
 // possibly invalid enum values in mind, thus need to be able to create them here.
 ZYAN_NO_SANITIZE("enum")
@@ -174,11 +175,6 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     // Mnemonic helpers.
     ZydisMnemonicGetString((ZydisMnemonic)control_block.u64);
     ZydisMnemonicGetStringWrapped((ZydisMnemonic)control_block.u64);
-
-    // Flag helpers.
-    ZydisCPUFlagAction flag_action = (ZydisCPUFlagAction)control_block.u64;
-    ZydisCPUFlags flags;
-    ZydisGetAccessedFlagsByAction(&instruction, flag_action, &flags);
 
     // Instruction segment helper.
     ZydisInstructionSegments segments;

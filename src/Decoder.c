@@ -4942,15 +4942,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                     if (ZydisGetAccessedFlags(definition, &flags))
                     {
                         instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
-                        ZYAN_ASSERT((ZYAN_ARRAY_LENGTH(instruction->accessed_flags) ==
-                                     ZYAN_ARRAY_LENGTH(flags->action             )) &&
-                                    (sizeof           (instruction->accessed_flags) ==
-                                     sizeof           (flags->action             )));
-                        ZYAN_MEMCPY(&instruction->accessed_flags, &flags->action,
-                            sizeof(flags->action));
-
                         instruction->cpu_flags_read = flags->cpu_flags_read;
                         instruction->cpu_flags_written = flags->cpu_flags_written;
+                        instruction->cpu_flags.tested = flags->cpu_flags_tested;
+                        instruction->cpu_flags.modified = flags->cpu_flags_modified;
+                        instruction->cpu_flags.set_0 = flags->cpu_flags_set_0;
+                        instruction->cpu_flags.set_1 = flags->cpu_flags_set_1;
+                        instruction->cpu_flags.undefined = flags->cpu_flags_undefined;
                         instruction->fpu_flags_read = flags->fpu_flags_read;
                         instruction->fpu_flags_written = flags->fpu_flags_written;
                     }
