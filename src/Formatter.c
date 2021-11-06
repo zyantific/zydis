@@ -62,13 +62,30 @@ void ZydisFormatterBufferInit(ZydisFormatterBuffer* buffer, char* user_buffer,
     ZYAN_ASSERT(user_buffer);
     ZYAN_ASSERT(length);
 
-    buffer->is_token_list              = ZYAN_FALSE;
-    buffer->string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    buffer->string.vector.allocator    = ZYAN_NULL;
-    buffer->string.vector.element_size = sizeof(char);
-    buffer->string.vector.size         = 1;
-    buffer->string.vector.capacity     = length;
-    buffer->string.vector.data         = user_buffer;
+    buffer->is_token_list                   = ZYAN_FALSE;
+    buffer->capacity                        = 0;
+    buffer->string.flags                    = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    buffer->string.vector.allocator         = ZYAN_NULL;
+#if defined(ZYAN_NO_LIBC) // no-libc correlates quite well with kernel environments
+    // We can't use floats in kernel. Initialize them via memcpy hack.
+    // Note: this is only required in the backported version for Zydis v3.0.
+    // Newer version depend on a version of zycore that got rid of the floats.
+
+    ZYAN_STATIC_ASSERT(sizeof(buffer->string.vector.growth_factor) == 4);
+    ZYAN_STATIC_ASSERT(sizeof(buffer->string.vector.shrink_threshold) == 4);
+
+    ZYAN_MEMCPY(&buffer->string.vector.growth_factor, "\x00\x00\x80\x3F", 4);
+    ZYAN_MEMCPY(&buffer->string.vector.shrink_threshold, "\x00\x00\x00\x00", 4);
+#else
+    buffer->string.vector.growth_factor     = 1.0f;
+    buffer->string.vector.shrink_threshold  = 0.0f;
+#endif
+    buffer->string.vector.destructor        = ZYAN_NULL;
+    buffer->string.vector.element_size      = sizeof(char);
+    buffer->string.vector.size              = 1;
+    buffer->string.vector.capacity          = length;
+    buffer->string.vector.data              = user_buffer;
+
     *user_buffer = '\0';
 }
 
@@ -87,14 +104,30 @@ void ZydisFormatterBufferInitTokenized(ZydisFormatterBuffer* buffer,
     user_buffer = (ZyanU8*)user_buffer + sizeof(ZydisFormatterToken);
     length -= sizeof(ZydisFormatterToken);
 
-    buffer->is_token_list              = ZYAN_TRUE;
-    buffer->capacity                   = length;
-    buffer->string.flags               = ZYAN_STRING_HAS_FIXED_CAPACITY;
-    buffer->string.vector.allocator    = ZYAN_NULL;
-    buffer->string.vector.element_size = sizeof(char);
-    buffer->string.vector.size         = 1;
-    buffer->string.vector.capacity     = length;
-    buffer->string.vector.data         = user_buffer;
+    buffer->is_token_list                  = ZYAN_TRUE;
+    buffer->capacity                       = length;
+    buffer->string.flags                   = ZYAN_STRING_HAS_FIXED_CAPACITY;
+    buffer->string.vector.allocator        = ZYAN_NULL;
+#if defined(ZYAN_NO_LIBC) // no-libc correlates quite well with kernel environments
+    // We can't use floats in kernel. Initialize them via memcpy hack.
+    // Note: this is only required in the backported version for Zydis v3.0.
+    // Newer version depend on a version of zycore that got rid of the floats.
+
+    ZYAN_STATIC_ASSERT(sizeof(buffer->string.vector.growth_factor) == 4);
+    ZYAN_STATIC_ASSERT(sizeof(buffer->string.vector.shrink_threshold) == 4);
+
+    ZYAN_MEMCPY(&buffer->string.vector.growth_factor, "\x00\x00\x80\x3F", 4);
+    ZYAN_MEMCPY(&buffer->string.vector.shrink_threshold, "\x00\x00\x00\x00", 4);
+#else
+    buffer->string.vector.growth_factor     = 1.0f;
+    buffer->string.vector.shrink_threshold  = 0.0f;
+#endif
+    buffer->string.vector.destructor       = ZYAN_NULL;
+    buffer->string.vector.element_size     = sizeof(char);
+    buffer->string.vector.size             = 1;
+    buffer->string.vector.capacity         = length;
+    buffer->string.vector.data             = user_buffer;
+
     *(char*)user_buffer = '\0';
 }
 
