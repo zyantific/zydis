@@ -38,10 +38,16 @@
 /* Constants                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-#define ZYDIS_OPSIZE_MAP_BYTEOP    1
-#define ZYDIS_OPSIZE_MAP_DEFAULT64 4
-#define ZYDIS_OPSIZE_MAP_FORCE64   5
-#define ZYDIS_ADSIZE_MAP_IGNORED   1
+#define ZYDIS_OPSIZE_MAP_BYTEOP                 1
+#define ZYDIS_OPSIZE_MAP_DEFAULT64              4
+#define ZYDIS_OPSIZE_MAP_FORCE64                5
+#define ZYDIS_ADSIZE_MAP_IGNORED                1
+#define ZYDIS_LEGACY_SEGMENTS                   (ZYDIS_ATTRIB_HAS_SEGMENT_CS | \
+                                                 ZYDIS_ATTRIB_HAS_SEGMENT_SS | \
+                                                 ZYDIS_ATTRIB_HAS_SEGMENT_DS | \
+                                                 ZYDIS_ATTRIB_HAS_SEGMENT_ES)
+#define ZYDIS_ENCODABLE_PREFIXES_NO_SEGMENTS    (ZYDIS_ENCODABLE_PREFIXES ^ \
+                                                 ZYDIS_ATTRIB_HAS_SEGMENT)
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -70,65 +76,6 @@ typedef enum ZydisEncoderRexType_
 } ZydisEncoderRexType;
 
 /**
- * Defines encodable instruction attributes. User-visible attributes MUST reuse values from
- * `ZydisEncodablePrefix`.
- */
-typedef enum ZydisEncoderInstructionAttribute_
-{
-    ZYDIS_ENCODABLE_ATTRIBUTE_INVALID               = 0x00000000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_LOCK                  = 0x00000001,
-    ZYDIS_ENCODABLE_ATTRIBUTE_REP                   = 0x00000002,
-    ZYDIS_ENCODABLE_ATTRIBUTE_REPEREPZ              = 0x00000004,
-    ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ            = 0x00000008,
-    ZYDIS_ENCODABLE_ATTRIBUTE_BND                   = 0x00000010,
-    ZYDIS_ENCODABLE_ATTRIBUTE_XACQUIRE              = 0x00000020,
-    ZYDIS_ENCODABLE_ATTRIBUTE_XRELEASE              = 0x00000040,
-    ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_NOT_TAKEN      = 0x00000080,
-    ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_TAKEN          = 0x00000100,
-    ZYDIS_ENCODABLE_ATTRIBUTE_NOTRACK               = 0x00000200,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_CS            = 0x00000400,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_SS            = 0x00000800,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_DS            = 0x00001000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_ES            = 0x00002000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_FS            = 0x00004000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_GS            = 0x00008000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE                = 0x00010000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_ADSIZE                = 0x00020000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_MODRM                 = 0x00040000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_SIB                   = 0x00080000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_REX                   = 0x00100000,
-    ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B                = 0x00200000,
-
-    ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_MASK          = (ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_CS |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_SS |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_DS |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_ES |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_FS |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_GS),
-    ZYDIS_ENCODABLE_ATTRIBUTE_PREFIX_MASK           = (ZYDIS_ENCODABLE_ATTRIBUTE_LOCK |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_REP |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_REPEREPZ |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_BND |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_XACQUIRE |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_XRELEASE |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_NOT_TAKEN |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_TAKEN |
-                                                       ZYDIS_ENCODABLE_ATTRIBUTE_NOTRACK),
-
-    /**
-     * Maximum value of this enum.
-     */
-    ZYDIS_ENCODABLE_ATTRIBUTE_MAX_VALUE             = (ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B |
-                                                       (ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B - 1)),
-    /**
-     * The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_ENCODABLE_ATTRIBUTE_REQUIRED_BITS         =
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODABLE_ATTRIBUTE_MAX_VALUE)
-} ZydisEncodableAttribute;
-
-/**
  * Primary structure used during instruction matching phase. Once filled it contains information
  * about matched instruction definition and some values deduced from encoder request. It gets
  * converted to `ZydisEncoderInstruction` during instruction building phase.
@@ -154,7 +101,7 @@ typedef struct ZydisEncoderInstructionMatch_
     /**
      * Encodable attributes for this instruction.
      */
-    ZydisEncodableAttribute attributes;
+    ZydisInstructionAttributes attributes;
     /**
      * Effective operand size attribute.
      */
@@ -213,7 +160,7 @@ typedef struct ZydisEncoderInstruction_
     /**
      * Encodable attributes for this instruction.
      */
-    ZydisEncodableAttribute attributes;
+    ZydisInstructionAttributes attributes;
     /**
      * The instruction encoding.
      */
@@ -1414,6 +1361,10 @@ ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *match,
             return ZYAN_FALSE;
         }
         if (!ZydisIsRegisterAllowed(match, user_op->reg.value, reg_class))
+        {
+            return ZYAN_FALSE;
+        }
+        if (!ZydisValidateRexType(match, user_op->reg.value, ZYAN_FALSE))
         {
             return ZYAN_FALSE;
         }
@@ -2747,88 +2698,6 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
 }
 
 /**
- * Validates a combination of `ZydisEncodablePrefix` values and converts them to matching
- * `ZydisEncodableAttribute` values.
- *
- * @param   prefixes       A combination of `ZydisEncodablePrefix` values to validate and convert.
- * @param   machine_mode   Machine mode.
- * @param   attributes     A pointer to `ZydisEncodableAttribute` variable that will receive
- *                         converted values if function completes successfully.
- *
- * @return  A zyan status code.
- */
-ZyanStatus ZydisParseEncodablePrefixes(ZydisEncodablePrefix prefixes, 
-    ZydisMachineMode machine_mode, ZydisEncodableAttribute *attributes)
-{
-    *attributes = prefixes & (~ZYDIS_ENCODABLE_PREFIX_SEGMENT_MASK);
-    if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_MASK)
-    {
-        if ((machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
-            (prefixes & (ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS | 
-                ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS | 
-                ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS | 
-                ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES)))
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-
-        ZyanU8 seg_override_count = 0;
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_CS;
-            ++seg_override_count;
-        }
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_SS;
-            ++seg_override_count;
-        }
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_DS;
-            ++seg_override_count;
-        }
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_ES;
-            ++seg_override_count;
-        }
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_FS)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_FS;
-            ++seg_override_count;
-        }
-        if (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS)
-        {
-            *attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_GS;
-            ++seg_override_count;
-        }
-        if (seg_override_count != 1)
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-    }
-    if ((prefixes & ZYDIS_ENCODABLE_ATTRIBUTE_XACQUIRE) &&
-        (prefixes & ZYDIS_ENCODABLE_PREFIX_XRELEASE))
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    if ((prefixes & ZYDIS_ENCODABLE_PREFIX_BRANCH_NOT_TAKEN) &&
-        (prefixes & ZYDIS_ENCODABLE_PREFIX_BRANCH_TAKEN))
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    if ((machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
-        (prefixes & ZYDIS_ENCODABLE_PREFIX_NOTRACK) &&
-        (prefixes & ZYDIS_ENCODABLE_PREFIX_SEGMENT_MASK))
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-/**
  * Checks if requested set of prefixes is compatible with instruction definition.
  *
  * @param   match A pointer to `ZydisEncoderInstructionMatch` struct.
@@ -2838,67 +2707,67 @@ ZyanStatus ZydisParseEncodablePrefixes(ZydisEncodablePrefix prefixes,
 ZyanBool ZydisArePrefixesCompatible(const ZydisEncoderInstructionMatch *match)
 {
     if ((!match->base_definition->accepts_segment) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_MASK))
+        (match->attributes & ZYDIS_ATTRIB_HAS_SEGMENT))
     {
         return ZYAN_FALSE;
     }
     if (match->definition->encoding != ZYDIS_INSTRUCTION_ENCODING_LEGACY)
     {
-        return (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_PREFIX_MASK) ? ZYAN_FALSE : ZYAN_TRUE;
+        return !(match->attributes & ZYDIS_ENCODABLE_PREFIXES_NO_SEGMENTS);
     }
 
     const ZydisInstructionDefinitionLEGACY *legacy_def = 
         (const ZydisInstructionDefinitionLEGACY *)match->base_definition;
     if ((!legacy_def->accepts_LOCK) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_LOCK))
+        (match->attributes & ZYDIS_ATTRIB_HAS_LOCK))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_REP) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REP))
+        (match->attributes & ZYDIS_ATTRIB_HAS_REP))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_REPEREPZ) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REPEREPZ))
+        (match->attributes & ZYDIS_ATTRIB_HAS_REPE))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_REPNEREPNZ) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ))
+        (match->attributes & ZYDIS_ATTRIB_HAS_REPNE))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_BOUND) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_BND))
+        (match->attributes & ZYDIS_ATTRIB_HAS_BND))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_XACQUIRE) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_XACQUIRE))
+        (match->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_XRELEASE) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_XRELEASE))
+        (match->attributes & ZYDIS_ATTRIB_HAS_XRELEASE))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_branch_hints) &&
-        (match->attributes & (ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_NOT_TAKEN | 
-                              ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_TAKEN)))
+        (match->attributes & (ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN |
+                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_NOTRACK) &&
-        (match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_NOTRACK))
+        (match->attributes & ZYDIS_ATTRIB_HAS_NOTRACK))
     {
         return ZYAN_FALSE;
     }
     if ((!legacy_def->accepts_hle_without_lock) &&
-        (match->attributes & (ZYDIS_ENCODABLE_ATTRIBUTE_XACQUIRE | 
-                              ZYDIS_ENCODABLE_ATTRIBUTE_XRELEASE)) &&
-        !(match->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_LOCK))
+        (match->attributes & (ZYDIS_ATTRIB_HAS_XACQUIRE |
+                              ZYDIS_ATTRIB_HAS_XRELEASE)) &&
+        !(match->attributes & ZYDIS_ATTRIB_HAS_LOCK))
     {
         return ZYAN_FALSE;
     }
@@ -2990,8 +2859,7 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
 {
     ZYAN_MEMSET(match, 0, sizeof(ZydisEncoderInstructionMatch));
     match->request = request;
-    ZYAN_CHECK(ZydisParseEncodablePrefixes(request->prefixes, request->machine_mode,
-        &match->attributes));
+    match->attributes = request->prefixes;
 
     const ZydisEncodableInstruction *definition = ZYAN_NULL;
     ZyanU8 definition_count = ZydisGetEncodableInstructions(request->mnemonic, &definition);
@@ -3242,61 +3110,61 @@ ZyanStatus ZydisEmitLegacyPrefixes(const ZydisEncoderInstruction *instruction,
     }
 
     // Group 1
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_LOCK)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
     {
         ZYAN_CHECK(ZydisEmitByte(0xF0, buffer));
     }
     if (!compressed_prefixes)
     {
-        if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ)
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
         {
             ZYAN_CHECK(ZydisEmitByte(0xF2, buffer));
         }
-        if (instruction->attributes & (ZYDIS_ENCODABLE_ATTRIBUTE_REP |
-                                       ZYDIS_ENCODABLE_ATTRIBUTE_REPEREPZ))
+        if (instruction->attributes & (ZYDIS_ATTRIB_HAS_REP |
+                                       ZYDIS_ATTRIB_HAS_REPE))
         {
             ZYAN_CHECK(ZydisEmitByte(0xF3, buffer));
         }
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_BND)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
     {
         ZYAN_CHECK(ZydisEmitByte(0xF2, buffer));
     }
 
     // Group 2
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_CS)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x2E, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_SS)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x36, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_DS)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x3E, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_ES)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
     {
         ZYAN_CHECK(ZydisEmitByte(0x26, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_FS)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x64, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SEGMENT_GS)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x65, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_NOT_TAKEN)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN)
     {
         ZYAN_CHECK(ZydisEmitByte(0x2E, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_BRANCH_TAKEN)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)
     {
         ZYAN_CHECK(ZydisEmitByte(0x3E, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_NOTRACK)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK)
     {
         ZYAN_CHECK(ZydisEmitByte(0x3E, buffer));
     }
@@ -3304,14 +3172,14 @@ ZyanStatus ZydisEmitLegacyPrefixes(const ZydisEncoderInstruction *instruction,
     // Group 3
     if (!compressed_prefixes)
     {
-        if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE)
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
         {
             ZYAN_CHECK(ZydisEmitByte(0x66, buffer));
         }
     }
 
     // Group 4
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_ADSIZE)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_ADDRESSSIZE)
     {
         ZYAN_CHECK(ZydisEmitByte(0x67, buffer));
     }
@@ -3336,8 +3204,8 @@ ZyanU8 ZydisEncodeRexLowNibble(const ZydisEncoderInstruction *instruction, ZyanB
     }
 
     ZyanU8 rex = 0;
-    if ((instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_MODRM) &&
-        (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SIB))
+    if ((instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) &&
+        (instruction->attributes & ZYDIS_ATTRIB_HAS_SIB))
     {
         if (instruction->base & 0x08)
         {
@@ -3356,7 +3224,7 @@ ZyanU8 ZydisEncodeRexLowNibble(const ZydisEncoderInstruction *instruction, ZyanB
             *high_r = ZYAN_TRUE;
         }
     }
-    else if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_MODRM)
+    else if (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM)
     {
         if (instruction->rm & 0x08)
         {
@@ -3402,7 +3270,7 @@ ZyanU8 ZydisEncodeRexLowNibble(const ZydisEncoderInstruction *instruction, ZyanB
 ZyanStatus ZydisEmitRex(const ZydisEncoderInstruction *instruction, ZydisEncoderBuffer *buffer)
 {
     ZyanU8 rex = ZydisEncodeRexLowNibble(instruction, ZYAN_NULL);
-    if (rex || (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REX))
+    if (rex || (instruction->attributes & ZYDIS_ATTRIB_HAS_REX))
     {
         ZYAN_CHECK(ZydisEmitByte(0x40 | rex, buffer));
     }
@@ -3445,15 +3313,15 @@ void ZydisEncodeVexCommons(ZydisEncoderInstruction *instruction, ZyanU8 *mmmmm, 
     instruction->opcode_map = ZYDIS_OPCODE_MAP_DEFAULT;
 
     *pp = 0;
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
     {
         *pp = 1;
     }
-    else if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REP)
+    else if (instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
     {
         *pp = 2;
     }
-    else if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ)
+    else if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
     {
         *pp = 3;
     }
@@ -3559,7 +3427,7 @@ ZyanStatus ZydisEmitEvex(ZydisEncoderInstruction *instruction, ZydisEncoderBuffe
     {
         p2 |= 0x80;
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX_B)
     {
         p2 |= 0x10;
     }
@@ -3665,14 +3533,14 @@ ZyanStatus ZydisEmitInstruction(ZydisEncoderInstruction *instruction, ZydisEncod
         ZYAN_CHECK(ZydisEmitByte(instruction->opcode, buffer));
     }
 
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_MODRM)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM)
     {
         ZyanU8 modrm = (instruction->mod << 6) | 
                        ((instruction->reg & 7) << 3) | 
                        (instruction->rm & 7);
         ZYAN_CHECK(ZydisEmitByte(modrm, buffer));
     }
-    if (instruction->attributes & ZYDIS_ENCODABLE_ATTRIBUTE_SIB)
+    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SIB)
     {
         ZyanU8 sib = (instruction->scale << 6) | 
                      ((instruction->index & 7) << 3) | 
@@ -3728,18 +3596,18 @@ void ZydisBuildRegisterOperand(const ZydisEncoderOperand *user_op,
         reg_id = reg8_lookup[user_op->reg.value - ZYDIS_REGISTER_AL];
         if (user_op->reg.value >= ZYDIS_REGISTER_SPL && user_op->reg.value <= ZYDIS_REGISTER_DIL)
         {
-            instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_REX;
+            instruction->attributes |= ZYDIS_ATTRIB_HAS_REX;
         }
     }
 
     switch (def_op->op.encoding)
     {
     case ZYDIS_OPERAND_ENCODING_MODRM_REG:
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_MODRM;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
         instruction->reg = reg_id;
         break;
     case ZYDIS_OPERAND_ENCODING_MODRM_RM:
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_MODRM;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
         instruction->rm = reg_id;
         break;
     case ZYDIS_OPERAND_ENCODING_OPCODE:
@@ -3771,7 +3639,7 @@ void ZydisBuildRegisterOperand(const ZydisEncoderOperand *user_op,
 void ZydisBuildMemoryOperand(ZydisEncoderInstructionMatch *match, 
     const ZydisEncoderOperand *user_op, ZydisEncoderInstruction *instruction)
 {
-    instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_MODRM;
+    instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
     instruction->disp = (ZyanU64)user_op->mem.displacement;
     if (match->easz == 16)
     {
@@ -3814,7 +3682,7 @@ void ZydisBuildMemoryOperand(ZydisEncoderInstructionMatch *match,
             if (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
             {
                 instruction->rm = 4;
-                instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SIB;
+                instruction->attributes |= ZYDIS_ATTRIB_HAS_SIB;
                 instruction->base = 5;
                 instruction->index = 4;
             }
@@ -3868,7 +3736,7 @@ void ZydisBuildMemoryOperand(ZydisEncoderInstructionMatch *match,
         return;
     }
     instruction->rm = 4;
-    instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_SIB;
+    instruction->attributes |= ZYDIS_ATTRIB_HAS_SIB;
     if (reg_base_id != 0xFF)
     {
         instruction->base = reg_base_id;
@@ -3928,7 +3796,7 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
     instruction->rm = match->definition->modrm & 7;
     if (match->definition->modrm)
     {
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_MODRM;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
     }
 
     switch (match->definition->vector_length)
@@ -3958,11 +3826,11 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
         if ((match->request->evex.sae) ||
             (match->request->evex.broadcast != ZYDIS_BROADCAST_MODE_INVALID))
         {
-            instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B;
+            instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX_B;
         }
         if (match->request->evex.rounding != ZYDIS_ROUNDING_MODE_INVALID)
         {
-            instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_EVEX_B;
+            instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX_B;
             switch (match->request->evex.rounding)
             {
             case ZYDIS_ROUNDING_MODE_RN:
@@ -4036,13 +3904,13 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
     case ZYDIS_MANDATORY_PREFIX_NONE:
         break;
     case ZYDIS_MANDATORY_PREFIX_66:
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
         break;
     case ZYDIS_MANDATORY_PREFIX_F2:
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_REPNEREPNZ;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_REPNE;
         break;
     case ZYDIS_MANDATORY_PREFIX_F3:
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_REP;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_REP;
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -4051,7 +3919,7 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
     ZyanU8 mode_width = ZydisGetMachineModeWidth(match->request->machine_mode);
     if (match->easz != mode_width)
     {
-        instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_ADSIZE;
+        instruction->attributes |= ZYDIS_ATTRIB_HAS_ADDRESSSIZE;
     }
     if ((match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
         (match->base_definition->operand_size_map != ZYDIS_OPSIZE_MAP_FORCE64))
@@ -4059,7 +3927,7 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
         switch (match->eosz)
         {
         case 16:
-            instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE;
+            instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
             break;
         case 32:
             break;
@@ -4075,7 +3943,7 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
     {
         if (match->eosz != mode_width)
         {
-            instruction->attributes |= ZYDIS_ENCODABLE_ATTRIBUTE_OPSIZE;
+            instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
         }
     }
 
@@ -4186,7 +4054,6 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
 
     if (((ZyanUSize)request->allowed_encodings > ZYDIS_ENCODABLE_ENCODING_MAX_VALUE) ||
         ((ZyanUSize)request->mnemonic > ZYDIS_MNEMONIC_MAX_VALUE) ||
-        ((ZyanUSize)request->prefixes > ZYDIS_ENCODABLE_PREFIX_MAX_VALUE) ||
         ((ZyanUSize)request->branch_type > ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE) ||
         ((ZyanUSize)request->address_size_hint > ZYDIS_ADDRESS_SIZE_MAX_VALUE) ||
         ((ZyanUSize)request->operand_size_hint > ZYDIS_OPERAND_SIZE_MAX_VALUE) ||
@@ -4197,7 +4064,63 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
         ((ZyanUSize)request->mvex.rounding > ZYDIS_ROUNDING_MODE_MAX_VALUE) ||
         ((ZyanUSize)request->mvex.swizzle > ZYDIS_SWIZZLE_MODE_MAX_VALUE) ||
         (request->operand_count > ZYDIS_ENCODER_MAX_OPERANDS) ||
-        (request->mnemonic == ZYDIS_MNEMONIC_INVALID))
+        (request->mnemonic == ZYDIS_MNEMONIC_INVALID) ||
+        (request->prefixes & ~ZYDIS_ENCODABLE_PREFIXES))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT)
+    {
+        if ((request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (request->prefixes & ZYDIS_LEGACY_SEGMENTS))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+
+        ZyanU8 seg_override_count = 0;
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
+        {
+            ++seg_override_count;
+        }
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
+        {
+            ++seg_override_count;
+        }
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
+        {
+            ++seg_override_count;
+        }
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
+        {
+            ++seg_override_count;
+        }
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
+        {
+            ++seg_override_count;
+        }
+        if (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
+        {
+            ++seg_override_count;
+        }
+        if (seg_override_count != 1)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    if ((request->prefixes & ZYDIS_ATTRIB_HAS_XACQUIRE) &&
+        (request->prefixes & ZYDIS_ATTRIB_HAS_XRELEASE))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if ((request->prefixes & ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN) &&
+        (request->prefixes & ZYDIS_ATTRIB_HAS_BRANCH_TAKEN))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if ((request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
+        (request->prefixes & ZYDIS_ATTRIB_HAS_NOTRACK) &&
+        (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -4276,6 +4199,11 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     ZYAN_MEMSET(request, 0, sizeof(ZydisEncoderRequest));
     request->machine_mode = instruction->machine_mode;
     request->mnemonic = instruction->mnemonic;
+    request->prefixes = instruction->attributes & ZYDIS_ENCODABLE_PREFIXES;
+    if (!(instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_SEGMENT))
+    {
+        request->prefixes &= ~ZYDIS_ATTRIB_HAS_SEGMENT;
+    }
 
     switch (instruction->address_width)
     {
@@ -4352,75 +4280,6 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_LOCK)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_LOCK;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REP)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_REP;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPE)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_REPE;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_REPNE;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_BND;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_XACQUIRE;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_XRELEASE)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_XRELEASE;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_BRANCH_NOT_TAKEN;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_BRANCH_TAKEN;
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK)
-    {
-        request->prefixes |= ZYDIS_ENCODABLE_PREFIX_NOTRACK;
-    }
-    
-    if (instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_SEGMENT)
-    {
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS;
-        }
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS;
-        }
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS;
-        }
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES;
-        }
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_FS;
-        }
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
-        {
-            request->prefixes |= ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS;
-        }
     }
 
     switch (instruction->encoding)

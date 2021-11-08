@@ -206,7 +206,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     request.operand_count %= ZYDIS_ENCODER_MAX_OPERANDS + 1;
     ZYDIS_SANITIZE_MASK(request.allowed_encodings, ZydisEncodableEncoding,
         ZYDIS_ENCODABLE_ENCODING_MAX_VALUE);
-    ZYDIS_SANITIZE_MASK(request.prefixes, ZydisEncodablePrefix, ZYDIS_ENCODABLE_PREFIX_MAX_VALUE);
+    ZYDIS_SANITIZE_MASK(request.prefixes, ZydisInstructionAttributes, ZYDIS_ENCODABLE_PREFIXES);
     ZYDIS_SANITIZE_ENUM(request.machine_mode, ZydisMachineMode, ZYDIS_MACHINE_MODE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.mnemonic, ZydisMnemonic, ZYDIS_MNEMONIC_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisEncodableBranchType,

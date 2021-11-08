@@ -34,25 +34,73 @@ ZydisEncodableEncoding = IntFlag('ZydisEncodableEncoding', [
 ], start=0)
 
 
-ZydisEncodablePrefix = IntFlag('ZydisEncodablePrefix', [
-    'ZYDIS_ENCODABLE_PREFIX_NONE',
-    'ZYDIS_ENCODABLE_PREFIX_LOCK',
-    'ZYDIS_ENCODABLE_PREFIX_REP',
-    'ZYDIS_ENCODABLE_PREFIX_REPE',
-    'ZYDIS_ENCODABLE_PREFIX_REPNE',
-    'ZYDIS_ENCODABLE_PREFIX_BND',
-    'ZYDIS_ENCODABLE_PREFIX_XACQUIRE',
-    'ZYDIS_ENCODABLE_PREFIX_XRELEASE',
-    'ZYDIS_ENCODABLE_PREFIX_BRANCH_NOT_TAKEN',
-    'ZYDIS_ENCODABLE_PREFIX_BRANCH_TAKEN',
-    'ZYDIS_ENCODABLE_PREFIX_NOTRACK',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_FS',
-    'ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS',
+ZydisInstructionAttributes = IntFlag('ZydisInstructionAttributes', [
+    'ZYDIS_ATTRIB_NONE',
+    'ZYDIS_ATTRIB_HAS_MODRM',
+    'ZYDIS_ATTRIB_HAS_SIB',
+    'ZYDIS_ATTRIB_HAS_REX',
+    'ZYDIS_ATTRIB_HAS_XOP',
+    'ZYDIS_ATTRIB_HAS_VEX',
+    'ZYDIS_ATTRIB_HAS_EVEX',
+    'ZYDIS_ATTRIB_HAS_MVEX',
+    'ZYDIS_ATTRIB_IS_RELATIVE',
+    'ZYDIS_ATTRIB_IS_PRIVILEGED',
+    'ZYDIS_ATTRIB_CPUFLAG_ACCESS',
+    'ZYDIS_ATTRIB_CPU_STATE_CR',
+    'ZYDIS_ATTRIB_CPU_STATE_CW',
+    'ZYDIS_ATTRIB_FPU_STATE_CR',
+    'ZYDIS_ATTRIB_FPU_STATE_CW',
+    'ZYDIS_ATTRIB_XMM_STATE_CR',
+    'ZYDIS_ATTRIB_XMM_STATE_CW',
+    'ZYDIS_ATTRIB_ACCEPTS_LOCK',
+    'ZYDIS_ATTRIB_ACCEPTS_REP',
+    'ZYDIS_ATTRIB_ACCEPTS_REPE',
+    'ZYDIS_ATTRIB_ACCEPTS_REPNE',
+    'ZYDIS_ATTRIB_ACCEPTS_BND',
+    'ZYDIS_ATTRIB_ACCEPTS_XACQUIRE',
+    'ZYDIS_ATTRIB_ACCEPTS_XRELEASE',
+    'ZYDIS_ATTRIB_ACCEPTS_HLE_WITHOUT_LOCK',
+    'ZYDIS_ATTRIB_ACCEPTS_BRANCH_HINTS',
+    'ZYDIS_ATTRIB_ACCEPTS_NOTRACK',
+    'ZYDIS_ATTRIB_ACCEPTS_SEGMENT',
+    'ZYDIS_ATTRIB_HAS_LOCK',
+    'ZYDIS_ATTRIB_HAS_REP',
+    'ZYDIS_ATTRIB_HAS_REPE',
+    'ZYDIS_ATTRIB_HAS_REPNE',
+    'ZYDIS_ATTRIB_HAS_BND',
+    'ZYDIS_ATTRIB_HAS_XACQUIRE',
+    'ZYDIS_ATTRIB_HAS_XRELEASE',
+    'ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN',
+    'ZYDIS_ATTRIB_HAS_BRANCH_TAKEN',
+    'ZYDIS_ATTRIB_HAS_NOTRACK',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_CS',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_SS',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_DS',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_ES',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_FS',
+    'ZYDIS_ATTRIB_HAS_SEGMENT_GS',
+    'ZYDIS_ATTRIB_HAS_OPERANDSIZE',
+    'ZYDIS_ATTRIB_HAS_ADDRESSSIZE',
+    'ZYDIS_ATTRIB_HAS_EVEX_B',
 ], start=0)
+
+
+ZYDIS_ENCODABLE_PREFIXES = ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_LOCK | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_REP | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_REPE | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_REPNE | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_BND | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_XACQUIRE | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_XRELEASE | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_BRANCH_TAKEN | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_NOTRACK | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_CS | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_SS | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_DS | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_ES | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_FS | \
+                           ZydisInstructionAttributes.ZYDIS_ATTRIB_HAS_SEGMENT_GS
 
 
 ZydisEncodableBranchType = IntEnum('ZydisEncodableBranchType', [
