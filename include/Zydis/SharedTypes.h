@@ -228,6 +228,10 @@ typedef enum ZydisOperandType_
     ZYDIS_OPERAND_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_TYPE_MAX_VALUE)
 } ZydisOperandType;
 
+// If asserts are failing here remember to update encoder table generator before fixing asserts
+ZYAN_STATIC_ASSERT(ZYAN_BITS_TO_REPRESENT(
+    ZYDIS_OPERAND_TYPE_MAX_VALUE - ZYDIS_OPERAND_TYPE_REGISTER) == 2);
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand encoding                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
