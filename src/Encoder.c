@@ -2784,11 +2784,6 @@ ZyanBool ZydisArePrefixesCompatible(const ZydisEncoderInstructionMatch *match)
  */
 ZyanU16 ZydisGetOperandMask(const ZydisEncoderRequest *request)
 {
-    // If asserts are failing here remember to update encoder table generator before fixing asserts
-    ZYAN_STATIC_ASSERT(ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODER_MAX_OPERANDS) == 3);
-    ZYAN_STATIC_ASSERT(
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_TYPE_MAX_VALUE - ZYDIS_OPERAND_TYPE_REGISTER) == 2);
-
     ZyanU16 operand_mask = request->operand_count;
     ZyanU8 bit_offset = ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODER_MAX_OPERANDS);
     for (ZyanU8 i = 0; i < request->operand_count; ++i)
