@@ -36,6 +36,161 @@
 /* Fuzz target                                                                                    */
 /* ============================================================================================== */
 
+// TODO: This could check `EVEX`/`MVEX` stuff as well
+void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
+    const ZydisDecodedInstruction *insn, const ZyanU8 *insn_bytes)
+{
+    // Special case, `xchg rAX, rAX` is an alias for `NOP`
+    if ((request->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
+        (request->operand_count == 2) &&
+        (request->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (request->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (request->operands[0].reg.value == request->operands[1].reg.value) &&
+        (insn->mnemonic == ZYDIS_MNEMONIC_NOP))
+    {
+        switch (request->operands[0].reg.value)
+        {
+        case ZYDIS_REGISTER_AX:
+        case ZYDIS_REGISTER_EAX:
+        case ZYDIS_REGISTER_RAX:
+            return;
+        default:
+            break;
+        }
+    }
+
+    // Handle possible KNC overlap
+    ZydisDecodedInstruction knc_insn;
+    if (request->mnemonic != insn->mnemonic)
+    {
+        ZydisDecoder decoder;
+        ZydisStackWidth stack_width = (ZydisStackWidth)(insn->stack_width >> 5);
+        if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, insn->machine_mode, stack_width)))
+        {
+            fputs("Failed to initialize decoder\n", ZYAN_STDERR);
+            abort();
+        }
+        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
+        {
+            fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
+            abort();
+        }
+        if (!ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, insn_bytes, insn->length, &knc_insn)))
+        {
+            fputs("Failed to decode instruction\n", ZYAN_STDERR);
+            abort();
+        }
+        insn = &knc_insn;
+    }
+
+    ZyanU8 visible_operand_count = 0;
+    while ((visible_operand_count < insn->operand_count) &&
+           (insn->operands[visible_operand_count].visibility != ZYDIS_OPERAND_VISIBILITY_HIDDEN))
+    {
+        ++visible_operand_count;
+    }
+    if ((request->machine_mode != insn->machine_mode) ||
+        (request->mnemonic != insn->mnemonic) ||
+        (request->operand_count != visible_operand_count))
+    {
+        fputs("Basic instruction attributes mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+
+    for (ZyanU8 i = 0; i < visible_operand_count; ++i)
+    {
+        const ZydisEncoderOperand *op1 = &request->operands[i];
+        const ZydisDecodedOperand *op2 = &insn->operands[i];
+        if (op1->type != op2->type)
+        {
+            fprintf(ZYAN_STDERR, "Mismatch for operand %u\n", i);
+            abort();
+        }
+        switch (op1->type)
+        {
+        case ZYDIS_OPERAND_TYPE_REGISTER:
+            if (op1->reg.value != op2->reg.value)
+            {
+                fprintf(ZYAN_STDERR, "Mismatch for register operand %u\n", i);
+                abort();
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_MEMORY:
+            if ((op1->mem.base != op2->mem.base) ||
+                (op1->mem.index != op2->mem.index) ||
+                (op1->mem.scale != op2->mem.scale && op2->mem.type != ZYDIS_MEMOP_TYPE_MIB) ||
+                (op1->mem.displacement != op2->mem.disp.value))
+            {
+                ZyanBool acceptable_mismatch = ZYAN_FALSE;
+                if (op1->mem.displacement != op2->mem.disp.value)
+                {
+                    if ((op2->mem.disp.has_displacement) &&
+                        (op1->mem.index == ZYDIS_REGISTER_NONE) &&
+                        ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
+                         (op1->mem.base == ZYDIS_REGISTER_EIP) ||
+                         (op1->mem.base == ZYDIS_REGISTER_RIP)))
+                    {
+                        ZyanU64 addr;
+                        ZydisCalcAbsoluteAddress(insn, op2, 0, &addr);
+                        acceptable_mismatch = (op1->mem.displacement == addr);
+                    }
+                    if ((insn->machine_mode == ZYDIS_MACHINE_MODE_REAL_16) ||
+                        (insn->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_16) ||
+                        (insn->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
+                        (insn->stack_width == 16) ||
+                        (insn->address_width == 16))
+                    {
+                        acceptable_mismatch = ((op1->mem.displacement & 0xFFFF) ==
+                            (op2->mem.disp.value & 0xFFFF));
+                    }
+                }
+                if (!acceptable_mismatch)
+                {
+                    fprintf(ZYAN_STDERR, "Mismatch for memory operand %u\n", i);
+                    abort();
+                }
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_POINTER:
+            if ((op1->ptr.segment != op2->ptr.segment) ||
+                (op1->ptr.offset != op2->ptr.offset))
+            {
+                fprintf(ZYAN_STDERR, "Mismatch for pointer operand %u\n", i);
+                abort();
+            }
+            break;
+        case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+            if (op1->imm.u != op2->imm.value.u)
+            {
+                ZyanBool acceptable_mismatch = ZYAN_FALSE;
+                if ((insn->meta.category == ZYDIS_CATEGORY_DATAXFER) ||
+                    (insn->meta.category == ZYDIS_CATEGORY_LOGICAL))
+                {
+                    if (op2->size < 64)
+                    {
+                        ZyanU64 mask = (1ULL << op2->size) - 1;
+                        acceptable_mismatch =
+                            (op1->imm.u & mask) == (op2->imm.value.u & mask);
+                    }
+                    else
+                    {
+                        acceptable_mismatch = op1->imm.u == op2->imm.value.u;
+                    }
+                }
+                if (!acceptable_mismatch)
+                {
+                    fprintf(ZYAN_STDERR, "Mismatch for immediate operand %u\n", i);
+                    abort();
+                }
+            }
+            break;
+        default:
+            fprintf(ZYAN_STDERR, "Invalid operand type for operand %u\n", i);
+            abort();
+        }
+    }
+}
+
 ZYAN_NO_SANITIZE("enum")
 int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
 {
@@ -132,6 +287,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         abort();
     }
 
+    ZydisCompareRequestToInstruction(&request, &insn1, encoded_instruction);
     ZydisReEncodeInstruction(&decoder, &insn1, encoded_instruction);
 
     return EXIT_SUCCESS;

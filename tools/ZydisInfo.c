@@ -1093,6 +1093,15 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction)
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
+void PrintUsage(int argc, char *argv[])
+{
+    ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s <machine_mode> [stack_width] <hexbytes>\n\n"
+                              "Machine mode:      -real|-16|-32|-64\n"
+                              "Stack width:       -16|-32|-64%s\n",
+        CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
+        CVT100_ERR(ZYAN_VT100SGR_RESET));
+}
+
 int main(int argc, char** argv)
 {
     // Enable VT100 escape sequences on Windows, if the output is not redirected
@@ -1113,39 +1122,69 @@ int main(int argc, char** argv)
 
     if (argc < 3)
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [hexbytes]%s\n",
-            CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
-            CVT100_ERR(ZYAN_VT100SGR_RESET));
+        PrintUsage(argc, argv);
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     ZydisDecoder decoder;
+    ZydisMachineMode machine_mode;
+    ZydisStackWidth stack_width;
+    ZyanU8 hexbytes_index = 2;
     if (!ZYAN_STRCMP(argv[1], "-real"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_STACK_WIDTH_16);
+        machine_mode = ZYDIS_MACHINE_MODE_REAL_16;
+        stack_width = ZYDIS_STACK_WIDTH_16;
     } else
     if (!ZYAN_STRCMP(argv[1], "-16"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_STACK_WIDTH_16);
+        machine_mode = ZYDIS_MACHINE_MODE_LONG_COMPAT_16;
+        stack_width = ZYDIS_STACK_WIDTH_16;
     } else
     if (!ZYAN_STRCMP(argv[1], "-32"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_STACK_WIDTH_32);
+        machine_mode = ZYDIS_MACHINE_MODE_LONG_COMPAT_32;
+        stack_width = ZYDIS_STACK_WIDTH_32;
     } else
     if (!ZYAN_STRCMP(argv[1], "-64"))
     {
-        ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
+        machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
+        stack_width = ZYDIS_STACK_WIDTH_64;
     } else
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [hexbytes]%s\n",
-            CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
-            CVT100_ERR(ZYAN_VT100SGR_RESET));
+        PrintUsage(argc, argv);
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if ((argc > 3) && (argv[2][0] == '-'))
+    {
+        ++hexbytes_index;
+        if (!ZYAN_STRCMP(argv[2], "-16"))
+        {
+            stack_width = ZYDIS_STACK_WIDTH_16;
+        } else
+        if (!ZYAN_STRCMP(argv[2], "-32"))
+        {
+            stack_width = ZYDIS_STACK_WIDTH_32;
+        } else
+        if (!ZYAN_STRCMP(argv[2], "-64"))
+        {
+            stack_width = ZYDIS_STACK_WIDTH_64;
+        } else
+        {
+            PrintUsage(argc, argv);
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    ZyanStatus status = ZydisDecoderInit(&decoder, machine_mode, stack_width);
+    if (!ZYAN_SUCCESS(status))
+    {
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n",
+            CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
     ZyanU8 byte_length = 0;
-    for (ZyanU8 i = 2; i < argc; ++i)
+    for (ZyanU8 i = hexbytes_index; i < argc; ++i)
     {
         char* cur_arg = argv[i];
 
@@ -1188,7 +1227,7 @@ int main(int argc, char** argv)
     }
 
     ZydisDecodedInstruction instruction;
-    const ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, &data, byte_length, &instruction);
+    status = ZydisDecoderDecodeBuffer(&decoder, &data, byte_length, &instruction);
     if (!ZYAN_SUCCESS(status))
     {
         if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)

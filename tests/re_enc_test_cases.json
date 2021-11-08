@@ -688,5 +688,17 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "6426626205007EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
         "description": "vpermt2d xmm31, xmm31, xmm7"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "4DC7C730000000",
+        "description": "mov r15, 0x30"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LEGACY_32",
+        "stack_width": "ZYDIS_STACK_WIDTH_16",
+        "payload": "D324FF",
+        "description": "shl dword ptr ds:[edi+edi*8], cl"
     }
 ]

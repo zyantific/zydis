@@ -49,8 +49,12 @@ typedef ZyanUSize(*ZydisStreamRead)(void *ctx, ZyanU8 *buf, ZyanUSize max_len);
 #   define ZYDIS_MAYBE_FPUTS(x, y) fputs(x, y)
 #endif
 
-#define ZYDIS_SANITIZE_MASK(var, type, mask)      var = (type)((ZyanUSize)(var) & (mask))
-#define ZYDIS_SANITIZE_ENUM(var, type, max_value) var = (type)((ZyanUSize)(var) % (max_value + 1))
+// Existing tools and seed corpora depend on this heavily
+ZYAN_STATIC_ASSERT(sizeof(enum ZyanEnumSizeCheck_ { ZYAN_ENUM_SIZE_CHECK = 1 }) == 4);
+
+#define ZYDIS_SANITIZE_MASK(var, type, mask)      var = (type)((ZyanUSize)(ZyanU32)(var) & (mask))
+#define ZYDIS_SANITIZE_ENUM(var, type, max_value) var = (type)((ZyanUSize)(ZyanU32)(var) % \
+                                                        (max_value + 1))
 
 /* ============================================================================================== */
 /* Function declarations                                                                          */
