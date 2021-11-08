@@ -51,7 +51,30 @@ extern "C" {
 /* Constants                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * Maximum number of encodable (explicit and implicit) operands
+ */
 #define ZYDIS_ENCODER_MAX_OPERANDS 5
+
+/**
+ * Combination of all user-encodable prefixes
+ */
+#define ZYDIS_ENCODABLE_PREFIXES   (ZYDIS_ATTRIB_HAS_LOCK | \
+                                    ZYDIS_ATTRIB_HAS_REP | \
+                                    ZYDIS_ATTRIB_HAS_REPE | \
+                                    ZYDIS_ATTRIB_HAS_REPNE | \
+                                    ZYDIS_ATTRIB_HAS_BND | \
+                                    ZYDIS_ATTRIB_HAS_XACQUIRE | \
+                                    ZYDIS_ATTRIB_HAS_XRELEASE | \
+                                    ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN | \
+                                    ZYDIS_ATTRIB_HAS_BRANCH_TAKEN | \
+                                    ZYDIS_ATTRIB_HAS_NOTRACK | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_CS | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_SS | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_DS | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_ES | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_FS | \
+                                    ZYDIS_ATTRIB_HAS_SEGMENT_GS)
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -84,51 +107,6 @@ typedef enum ZydisEncodableEncoding_
     ZYDIS_ENCODABLE_ENCODING_REQUIRED_BITS          = 
         ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODABLE_ENCODING_MAX_VALUE)
 } ZydisEncodableEncoding;
-
-/**
- * Defines user-encodable instruction prefixes. Some prefixes e.g. address/operand size overrides
- * cannot be requested explicitly. It's encoder's responsibility to use them as needed.
- */
-typedef enum ZydisEncodablePrefix_
-{
-    ZYDIS_ENCODABLE_PREFIX_NONE                     = 0x00000000,
-    ZYDIS_ENCODABLE_PREFIX_LOCK                     = 0x00000001,
-    ZYDIS_ENCODABLE_PREFIX_REP                      = 0x00000002,
-    ZYDIS_ENCODABLE_PREFIX_REPE                     = 0x00000004,
-    ZYDIS_ENCODABLE_PREFIX_REPZ                     = ZYDIS_ENCODABLE_PREFIX_REPE,
-    ZYDIS_ENCODABLE_PREFIX_REPNE                    = 0x00000008,
-    ZYDIS_ENCODABLE_PREFIX_REPNZ                    = ZYDIS_ENCODABLE_PREFIX_REPNE,
-    ZYDIS_ENCODABLE_PREFIX_BND                      = 0x00000010,
-    ZYDIS_ENCODABLE_PREFIX_XACQUIRE                 = 0x00000020,
-    ZYDIS_ENCODABLE_PREFIX_XRELEASE                 = 0x00000040,
-    ZYDIS_ENCODABLE_PREFIX_BRANCH_NOT_TAKEN         = 0x00000080,
-    ZYDIS_ENCODABLE_PREFIX_BRANCH_TAKEN             = 0x00000100,
-    ZYDIS_ENCODABLE_PREFIX_NOTRACK                  = 0x00000200,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS               = 0x00000400,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS               = 0x00000800,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS               = 0x00001000,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES               = 0x00002000,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_FS               = 0x00004000,
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS               = 0x00008000,
-
-    ZYDIS_ENCODABLE_PREFIX_SEGMENT_MASK             = (ZYDIS_ENCODABLE_PREFIX_SEGMENT_CS |
-                                                       ZYDIS_ENCODABLE_PREFIX_SEGMENT_SS |
-                                                       ZYDIS_ENCODABLE_PREFIX_SEGMENT_DS |
-                                                       ZYDIS_ENCODABLE_PREFIX_SEGMENT_ES |
-                                                       ZYDIS_ENCODABLE_PREFIX_SEGMENT_FS |
-                                                       ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS),
-
-    /**
-     * Maximum value of this enum.
-     */
-    ZYDIS_ENCODABLE_PREFIX_MAX_VALUE                = (ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS |
-                                                       (ZYDIS_ENCODABLE_PREFIX_SEGMENT_GS - 1)),
-    /**
-     * The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_ENCODABLE_PREFIX_REQUIRED_BITS            =
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODABLE_PREFIX_MAX_VALUE)
-} ZydisEncodablePrefix;
 
 /**
  * Defines encodable branch types.
@@ -302,9 +280,10 @@ typedef struct ZydisEncoderRequest_
      */
     ZydisMnemonic mnemonic;
     /**
-     * A combination of requested encodable prefixes for desired instruction.
+     * A combination of requested encodable prefixes (`ZYDIS_ATTRIB_HAS_*` flags) for desired
+     * instruction. See `ZYDIS_ENCODABLE_PREFIXES` for list of available prefixes.
      */
-    ZydisEncodablePrefix prefixes;
+    ZydisInstructionAttributes prefixes;
     /**
      * Branch type (required for branching instructions only).
      */

@@ -617,7 +617,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * The instruction has the `REPE`/`REPZ` prefix (`0xF3`).
  */
-#define ZYDIS_ATTRIB_HAS_REPZ                   (1ULL << 29)
+#define ZYDIS_ATTRIB_HAS_REPZ                   ZYDIS_ATTRIB_HAS_REPE
 /**
  * The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
@@ -625,7 +625,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * The instruction has the `REPNE`/`REPNZ` prefix (`0xF2`).
  */
-#define ZYDIS_ATTRIB_HAS_REPNZ                  (1ULL << 30)
+#define ZYDIS_ATTRIB_HAS_REPNZ                  ZYDIS_ATTRIB_HAS_REPNE
 /**
  * The instruction has the `BND` prefix (`0xF2`).
  */

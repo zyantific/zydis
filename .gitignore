@@ -100,3 +100,4 @@ doc/html
 .idea
 cmake-build-debug
 !tests/cases/*.out
+*.pyc
