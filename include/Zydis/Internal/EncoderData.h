@@ -187,6 +187,17 @@ typedef struct ZydisEncodableInstruction_
      * The accepted sizing hint.
      */
     ZyanU8 accepts_hint             ZYAN_BITFIELD(ZYDIS_SIZE_HINT_REQUIRED_BITS);
+    /**
+     * Indicates that next instruction definition can be safely used instead of current one. This
+     * is used with some `VEX` instructions to take advantage of 2-byte `VEX` prefix when possible.
+     * 2-byte `VEX` allows to use high registers only when operand is encoded in `modrm_reg`
+     * (high bit in `REX.R`). Encoder uses swappable definitions to take advantage of this
+     * optimization opportunity.
+     *
+     * Second use of this field is to handle special case for `mov` instruction. This particular
+     * conflict is described in detail inside `ZydisHandleSwappableDefinition`.
+     */
+    ZyanU8 swappable                ZYAN_BITFIELD(1);
 } ZydisEncodableInstruction;
 
 #pragma pack(pop)

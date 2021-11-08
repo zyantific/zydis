@@ -26,6 +26,7 @@
 
 #include <Zycore/LibC.h>
 #include <Zydis/Encoder.h>
+#include <Zydis/Utils.h>
 #include <Zydis/Internal/EncoderData.h>
 #include <Zydis/Internal/SharedData.h>
 
@@ -40,6 +41,7 @@
 #define ZYDIS_OPSIZE_MAP_BYTEOP    1
 #define ZYDIS_OPSIZE_MAP_DEFAULT64 4
 #define ZYDIS_OPSIZE_MAP_FORCE64   5
+#define ZYDIS_ADSIZE_MAP_IGNORED   1
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -450,7 +452,7 @@ ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *match,
         }
     }
     else if ((match->base_definition->operand_size_map == ZYDIS_OPSIZE_MAP_FORCE64) &&
-        (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
+             (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
     {
         if (size_table[2] == desired_size)
         {
@@ -459,17 +461,18 @@ ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *match,
     }
     else
     {
-        static const ZyanU8 eosz_priority_lookup[4][3] =
+        static const ZyanI8 eosz_priority_lookup[4][3] =
         {
-            { 0, 1, 2 },
-            { 1, 0, 2 },
-            { 1, 2, 0 },
+            {  0,  1, -1 },
+            {  1,  0, -1 },
+            {  1,  2,  0 },
         };
         ZyanU8 eosz_index = ZydisGetMachineModeWidth(match->request->machine_mode) >> 5;
         for (int i = 0; i < 3; ++i)
         {
-            ZyanU8 eosz_candidate = eosz_priority_lookup[eosz_index][i];
-            if (!(match->definition->operand_sizes & (1 << eosz_candidate)))
+            ZyanI8 eosz_candidate = eosz_priority_lookup[eosz_index][i];
+            if ((eosz_candidate == -1) ||
+                !(match->definition->operand_sizes & (1 << eosz_candidate)))
             {
                 continue;
             }
@@ -669,6 +672,10 @@ ZyanU8 ZydisGetEffectiveImmSize(ZydisEncoderInstructionMatch *match, ZyanI64 imm
         ZYAN_ASSERT(match->easz == 0);
         if (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
         {
+            if (min_size < 32)
+            {
+                min_size = 32;
+            }
             if (min_size == 32 || min_size == 64)
             {
                 match->easz = eisz = min_size;
@@ -676,6 +683,10 @@ ZyanU8 ZydisGetEffectiveImmSize(ZydisEncoderInstructionMatch *match, ZyanI64 imm
         }
         else
         {
+            if (min_size < 16)
+            {
+                min_size = 16;
+            }
             if (min_size == 16 || min_size == 32)
             {
                 match->easz = eisz = min_size;
@@ -744,6 +755,11 @@ ZyanBool ZydisCheckAsz(ZydisEncoderInstructionMatch *match, ZydisRegisterWidth r
     ZYAN_ASSERT(reg_width <= ZYAN_UINT8_MAX);
     if (match->easz == 0)
     {
+        if ((match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (reg_width == 16))
+        {
+            return ZYAN_FALSE;
+        }
         match->easz = (ZyanU8)reg_width;
         return ZYAN_TRUE;
     }
@@ -791,38 +807,6 @@ ZyanBool ZydisIsRegisterAllowed(ZydisEncoderInstructionMatch *match, ZydisRegist
 }
 
 /**
- * Checks if specified register is valid for use with SIB addressing.
- *
- * @param   machine_mode   Machine mode.
- * @param   reg_class      Register class.
- * @param   reg            `ZydisRegister` value.
- *
- * @return  True if register value is allowed, false otherwise.
- */
-ZyanBool ZydisIsValidAddressingClass(ZydisMachineMode machine_mode, ZydisRegisterClass reg_class, 
-    ZydisRegister reg)
-{
-    ZyanBool is_64 = (machine_mode == ZYDIS_MACHINE_MODE_LONG_64);
-    switch (reg_class)
-    {
-    case ZYDIS_REGCLASS_INVALID:
-        return ZYAN_TRUE;
-    case ZYDIS_REGCLASS_GPR16:
-        return !is_64;
-    case ZYDIS_REGCLASS_GPR32:
-        if (!is_64 && (ZydisRegisterGetId(reg) >= 8))
-        {
-            return ZYAN_FALSE;
-        }
-        return ZYAN_TRUE;
-    case ZYDIS_REGCLASS_GPR64:
-        return is_64;
-    default:
-        return ZYAN_FALSE;
-    }
-}
-
-/**
  * Checks if specified scale value is valid for use with SIB addressing.
  *
  * @param   scale Scale value.
@@ -847,12 +831,15 @@ ZyanBool ZydisIsScaleValid(ZyanU8 scale)
 /**
  * Enforces register usage constraints associated with usage of `REX` prefix.
  *
- * @param   match   A pointer to `ZydisEncoderInstructionMatch` struct.
- * @param   reg     `ZydisRegister` value.
+ * @param   match               A pointer to `ZydisEncoderInstructionMatch` struct.
+ * @param   reg                 `ZydisRegister` value.
+ * @param   addressing_mode     True if checked address is used for address calculations. This
+ *                              implies more permissive checks.
  *
  * @return  True if register usage is allowed, false otherwise.
  */
-ZyanBool ZydisValidateRexType(ZydisEncoderInstructionMatch *match, ZydisRegister reg)
+ZyanBool ZydisValidateRexType(ZydisEncoderInstructionMatch *match, ZydisRegister reg,
+    ZyanBool addressing_mode)
 {
     switch (reg)
     {
@@ -896,10 +883,56 @@ ZyanBool ZydisValidateRexType(ZydisEncoderInstructionMatch *match, ZydisRegister
         }
         break;
     default:
-        ZYAN_UNREACHABLE;
+        if ((ZydisRegisterGetId(reg) > 7) ||
+            (!addressing_mode && (ZydisRegisterGetClass(reg) == ZYDIS_REGCLASS_GPR64)))
+        {
+            if (match->rex_type == ZYDIS_REX_TYPE_UNKNOWN)
+            {
+                match->rex_type = ZYDIS_REX_TYPE_REQUIRED;
+            }
+            else if (match->rex_type == ZYDIS_REX_TYPE_FORBIDDEN)
+            {
+                return ZYAN_FALSE;
+            }
+        }
+        break;
     }
 
     return ZYAN_TRUE;
+}
+
+/**
+ * Checks if specified register is valid for use with SIB addressing.
+ *
+ * @param   match          A pointer to `ZydisEncoderInstructionMatch` struct.
+ * @param   reg_class      Register class.
+ * @param   reg            `ZydisRegister` value.
+ *
+ * @return  True if register value is allowed, false otherwise.
+ */
+ZyanBool ZydisIsValidAddressingClass(ZydisEncoderInstructionMatch *match,
+    ZydisRegisterClass reg_class, ZydisRegister reg)
+{
+    ZyanBool result;
+    ZyanBool is_64 = (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64);
+    switch (reg_class)
+    {
+    case ZYDIS_REGCLASS_INVALID:
+        return ZYAN_TRUE;
+    case ZYDIS_REGCLASS_GPR16:
+        result = !is_64;
+        break;
+    case ZYDIS_REGCLASS_GPR32:
+        result = is_64 || ZydisRegisterGetId(reg) < 8;
+        break;
+    case ZYDIS_REGCLASS_GPR64:
+        result = is_64;
+        break;
+    default:
+        return ZYAN_FALSE;
+    }
+
+    return result && ZydisValidateRexType(match, reg, ZYAN_TRUE);
 }
 
 /**
@@ -1338,7 +1371,7 @@ ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *match,
         {
             return ZYAN_FALSE;
         }
-        if (!ZydisValidateRexType(match, user_op->reg.value))
+        if (!ZydisValidateRexType(match, user_op->reg.value, ZYAN_FALSE))
         {
             return ZYAN_FALSE;
         }
@@ -1407,6 +1440,10 @@ ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *match,
             return ZYAN_FALSE;
         }
         if (!ZydisIsRegisterAllowed(match, user_op->reg.value, reg_class))
+        {
+            return ZYAN_FALSE;
+        }
+        if (!ZydisValidateRexType(match, user_op->reg.value, ZYAN_FALSE))
         {
             return ZYAN_FALSE;
         }
@@ -1617,6 +1654,17 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
             if (disp_size > 32)
             {
                 return ZYAN_FALSE;
+            }
+            if (ZydisGetMachineModeWidth(match->request->machine_mode) == 16)
+            {
+                if ((ZyanI16)displacement == 0)
+                {
+                    disp_size = 0;
+                }
+                else
+                {
+                    disp_size = ZydisGetSignedImmSize((ZyanI16)displacement);
+                }
             }
 
             match->cd8_scale = ZydisGetCompDispScale(match);
@@ -1891,7 +1939,7 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
                 return ZYAN_FALSE;
             }
             if ((reg_base_class == ZYDIS_REGCLASS_GPR32) &&
-                (mode_width == 32) &&
+                (mode_width != 64) &&
                 (ZydisRegisterGetId(user_op->mem.base) > 7))
             {
                 return ZYAN_FALSE;
@@ -1910,16 +1958,14 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         }
         else
         {
-            if (!ZydisIsValidAddressingClass(match->request->machine_mode, reg_base_class, 
-                user_op->mem.base))
+            if (!ZydisIsValidAddressingClass(match, reg_base_class, user_op->mem.base))
             {
                 if (!is_rip_relative || match->request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
                 {
                     return ZYAN_FALSE;
                 }
             }
-            if (!ZydisIsValidAddressingClass(match->request->machine_mode, reg_index_class, 
-                user_op->mem.index))
+            if (!ZydisIsValidAddressingClass(match, reg_index_class, user_op->mem.index))
             {
                 return ZYAN_FALSE;
             }
@@ -1964,7 +2010,7 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         {
             if (is_vsib)
             {
-                candidate_easz = ZydisRegisterGetId(user_op->mem.index) > 7 ? 64 : 32;
+                candidate_easz = ZydisGetMachineModeWidth(match->request->machine_mode);
             }
             else
             {
@@ -1974,12 +2020,15 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         }
         else
         {
-            ZyanU8 min_disp_size = match->easz == 0 ? 
-                ZydisGetMachineModeWidth(match->request->machine_mode) : match->easz;
+            ZyanU8 min_disp_size = match->easz ? match->easz : 16;
             if (((min_disp_size == 16) && !(match->definition->address_sizes & ZYDIS_WIDTH_16)) ||
                  (min_disp_size == 64))
             {
                 min_disp_size = 32;
+            }
+            if (ZydisGetUnsignedImmSize(displacement) == 16)
+            {
+                disp_size = 16;
             }
             if (disp_size < min_disp_size)
             {
@@ -2010,7 +2059,13 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
                 {
                     return ZYAN_FALSE;
                 }
-                if (ZydisGetRm16(user_op->mem.base, user_op->mem.index) == -1)
+                ZyanI8 rm16 = ZydisGetRm16(user_op->mem.base, user_op->mem.index);
+                if (rm16 == -1)
+                {
+                    return ZYAN_FALSE;
+                }
+                ZyanU8 allowed_scale = rm16 < 4 ? 1 : 0;
+                if (user_op->mem.scale != allowed_scale)
                 {
                     return ZYAN_FALSE;
                 }
@@ -2027,6 +2082,11 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         {
             match->easz = candidate_easz;
         }
+        if ((match->base_definition->address_size_map == ZYDIS_ADSIZE_MAP_IGNORED) &&
+            (match->easz != ZydisGetMachineModeWidth(match->request->machine_mode)))
+        {
+            return ZYAN_FALSE;
+        }
         match->disp_size = disp_size;
         break;
     }
@@ -2037,8 +2097,41 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
         {
             return ZYAN_FALSE;
         }
+        if (match->eosz != 0)
+        {
+            ZyanU8 eosz_index = match->eosz >> 5;
+            if (def_op->size[eosz_index] != user_op->mem.size)
+            {
+                return ZYAN_FALSE;
+            }
+        }
+        else
+        {
+            match->eosz = ZydisGetOperandSizeFromElementSize(match, def_op->size,
+                user_op->mem.size, ZYAN_TRUE);
+            if (match->eosz == 0)
+            {
+                return ZYAN_FALSE;
+            }
+        }
         match->disp_size = ZydisGetEffectiveImmSize(match, user_op->mem.displacement, def_op);
         if (match->disp_size == 0)
+        {
+            return ZYAN_FALSE;
+        }
+        // This is not a standard rejection. It's a special case for `mov` instructions (only ones
+        // to use `moffs` operandard). Size of `moffs` is tied to address size attribute, so its
+        // signedness doesn't matter. However if displacement can be represented as a signed
+        // integer of smaller size we reject `moffs` variant because it's guaranteed that better
+        // alternative exists (in terms of size).
+        ZyanU8 alternative_size = ZydisGetSignedImmSize(user_op->mem.displacement);
+        ZyanU8 min_disp_size = (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) ?
+            32 : 16;
+        if (alternative_size < min_disp_size)
+        {
+            alternative_size = min_disp_size;
+        }
+        if (alternative_size < match->disp_size)
         {
             return ZYAN_FALSE;
         }
@@ -2840,6 +2933,51 @@ ZyanU16 ZydisGetOperandMask(const ZydisEncoderRequest *request)
 }
 
 /**
+ * Handles optimization opportunities indicated by `swappable` field in instruction definition
+ * structure. See `ZydisEncodableInstruction` for more information.
+ *
+ * @param   match       A pointer to `ZydisEncoderInstructionMatch` struct.
+ *
+ * @return  True if definition has been swapped, false otherwise.
+ */
+ZyanBool ZydisHandleSwappableDefinition(ZydisEncoderInstructionMatch *match)
+{
+    if (!match->definition->swappable)
+    {
+        return ZYAN_FALSE;
+    }
+
+    // Special case for ISA-wide unique conflict between two `mov` variants
+    // mov gpr16_32_64(encoding=opcode), imm(encoding=uimm16_32_64,scale_factor=osz)
+    // mov gpr16_32_64(encoding=modrm_rm), imm(encoding=simm16_32_32,scale_factor=osz)
+    if (match->request->mnemonic == ZYDIS_MNEMONIC_MOV)
+    {
+        ZyanU8 imm_size = ZydisGetSignedImmSize(match->request->operands[1].imm.s);
+        if ((match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (match->eosz == 64) &&
+            (imm_size < 64))
+        {
+            return ZYAN_TRUE;
+        }
+    }
+
+    ZYAN_ASSERT((match->request->operand_count == 2) || (match->request->operand_count == 3));
+    ZyanU8 src_index = (match->request->operand_count == 3) ? 2 : 1;
+    ZyanI8 dest_id = ZydisRegisterGetId(match->request->operands[0].reg.value);
+    ZyanI8 src_id = ZydisRegisterGetId(match->request->operands[src_index].reg.value);
+    if ((dest_id <= 7) && (src_id > 7))
+    {
+        ++match->definition;
+        ZydisGetInstructionDefinition(match->definition->encoding,
+            match->definition->instruction_reference, &match->base_definition);
+        ZydisGetOperandDefinitions(match->base_definition, &match->operands);
+        return ZYAN_TRUE;
+    }
+
+    return ZYAN_FALSE;
+}
+
+/**
  * This function attempts to find a matching instruction definition for provided encoder request.
  *
  * @param   request     A pointer to `ZydisEncoderRequest` struct.
@@ -2934,6 +3072,16 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
         if (!ZydisIsDefinitionCompatible(match, request))
         {
             continue;
+        }
+        if (ZydisHandleSwappableDefinition(match))
+        {
+            if (definition == match->definition)
+            {
+                continue;
+            }
+            ++i;
+            definition = match->definition;
+            base_definition = match->base_definition;
         }
 
         if (match->easz == 0)
@@ -4020,6 +4168,22 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
+    if (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        if (request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_16)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    else
+    {
+        if ((request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_64) ||
+            (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_64))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
+
     if (((ZyanUSize)request->allowed_encodings > ZYDIS_ENCODABLE_ENCODING_MAX_VALUE) ||
         ((ZyanUSize)request->mnemonic > ZYDIS_MNEMONIC_MAX_VALUE) ||
         ((ZyanUSize)request->prefixes > ZYDIS_ENCODABLE_PREFIX_MAX_VALUE) ||
@@ -4319,8 +4483,16 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
             enc_op->mem.base = dec_op->mem.base;
             enc_op->mem.index = dec_op->mem.index;
             enc_op->mem.scale = dec_op->mem.type != ZYDIS_MEMOP_TYPE_MIB ? dec_op->mem.scale : 0;
-            enc_op->mem.displacement = dec_op->mem.disp.has_displacement ? 
-                dec_op->mem.disp.value : 0;
+            if (dec_op->encoding == ZYDIS_OPERAND_ENCODING_DISP16_32_64)
+            {
+                ZydisCalcAbsoluteAddress(instruction, dec_op, 0,
+                    (ZyanU64 *)&enc_op->mem.displacement);
+            }
+            else
+            {
+                enc_op->mem.displacement = dec_op->mem.disp.has_displacement ?
+                    dec_op->mem.disp.value : 0;
+            }
             enc_op->mem.size = dec_op->size / 8;
             break;
         case ZYDIS_OPERAND_TYPE_POINTER:

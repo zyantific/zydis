@@ -16,9 +16,11 @@ def run_test_collection(test_db_file, binary, converter):
     for i, case in enumerate(cases):
         test_result = run_test(binary, converter(case, True))
         tests_passed &= test_result
-        description = 'Case #%d' % i
+        description = 'Case #%d: ' % i
         if 'description' in case:
-            description += ': ' + case['description']
+            description += case['description']
+        else:
+            description += case['mnemonic'][case['mnemonic'].rfind('_') + 1:].lower()
         print('[%s] %s' % ('PASSED' if test_result else 'FAILED', description))
     return tests_passed
 
@@ -41,4 +43,4 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         print('SOME TESTS FAILED')
-        sys.exit(0)
+        sys.exit(1)

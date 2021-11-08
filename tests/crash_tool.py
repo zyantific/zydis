@@ -29,7 +29,7 @@ def get_enum_max(enum_class):
 
 
 def get_sanitized_enum(reader, enum_class):
-    raw_value = unpack('<Q', pack('<q', reader.read_int32()))[0]  # Mimic amazing C-style cast behavior
+    raw_value = reader.read_uint32()
     if issubclass(enum_class, IntEnum):
         return enum_class(raw_value % (get_enum_max(enum_class) + 1))
     elif issubclass(enum_class, IntFlag):
@@ -261,8 +261,10 @@ if __name__ == "__main__":
     parser.add_argument('input_type', choices=['enc', 're-enc'])
     parser.add_argument('input_format', choices=['crash', 'json'])
     parser.add_argument('input_file')
-    parser.add_argument('output_file', default='stdout')
+    parser.add_argument('output_file', help='Pass "stdout" to print result to stdout')
     parser.add_argument('--zydis-info')
+    parser.add_argument('--extract-single', type=int, default=-1)
+    parser.add_argument('--append', action='store_true')
     args = parser.parse_args()
 
     if args.input_format == 'crash':
@@ -280,6 +282,8 @@ if __name__ == "__main__":
         else:
             result = convert_re_enc_crash_to_json(content, args.zydis_info)
     else:
+        if args.extract_single >= 0:
+            content = to_json(json.loads(content)[args.extract_single])
         if args.input_type == 'enc':
             result = convert_enc_json_to_crash(content)
         else:
@@ -291,5 +295,10 @@ if __name__ == "__main__":
         else:
             print(result)
     else:
+        if args.append and write_mode == 'w':
+            with open(args.output_file, 'r') as f:
+                existing_db = json.loads(f.read())
+            existing_db.append(json.loads(result))
+            result = to_json(existing_db)
         with open(args.output_file, write_mode) as f:
             f.write(result)

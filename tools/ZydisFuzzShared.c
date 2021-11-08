@@ -84,7 +84,6 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction, 
     const ZyanU8 *instruction_bytes)
 {
-    printf("(ssz: %u) ", instruction->stack_width);
     switch (instruction->machine_mode)
     {
     case ZYDIS_MACHINE_MODE_LONG_64:
@@ -102,6 +101,7 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction,
     default:
         ZYAN_UNREACHABLE;
     }
+    printf("-%u ", instruction->stack_width);
 
     for (ZyanU8 i = 0; i < instruction->length; ++i)
     {
@@ -270,17 +270,30 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
                 (op1->mem.disp.value != op2->mem.disp.value))
             {
                 ZyanBool acceptable_mismatch = ZYAN_FALSE;
-                if ((op1->mem.disp.has_displacement) && 
-                    (op2->mem.disp.has_displacement) &&
-                    (op1->mem.index == ZYDIS_REGISTER_NONE) &&
-                    ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
-                     (op1->mem.base == ZYDIS_REGISTER_EIP) ||
-                     (op1->mem.base == ZYDIS_REGISTER_RIP)))
+                if (op1->mem.disp.value != op2->mem.disp.value)
                 {
-                    ZyanU64 addr1, addr2;
-                    ZydisCalcAbsoluteAddress(insn1, op1, 0, &addr1);
-                    ZydisCalcAbsoluteAddress(insn2, op2, 0, &addr2);
-                    acceptable_mismatch = (addr1 == addr2);
+                    if ((op1->mem.disp.has_displacement) &&
+                        (op2->mem.disp.has_displacement) &&
+                        (op1->mem.index == ZYDIS_REGISTER_NONE) &&
+                        ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
+                         (op1->mem.base == ZYDIS_REGISTER_EIP) ||
+                         (op1->mem.base == ZYDIS_REGISTER_RIP)))
+                    {
+                        ZyanU64 addr1, addr2;
+                        ZydisCalcAbsoluteAddress(insn1, op1, 0, &addr1);
+                        ZydisCalcAbsoluteAddress(insn2, op2, 0, &addr2);
+                        acceptable_mismatch = (addr1 == addr2);
+                    }
+                    if ((insn1->machine_mode == ZYDIS_MACHINE_MODE_REAL_16) ||
+                        (insn1->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_16) ||
+                        (insn1->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
+                        (insn1->stack_width == 16) ||
+                        (insn1->address_width == 16) ||
+                        (insn2->address_width == 16))
+                    {
+                        acceptable_mismatch = ((op1->mem.disp.value & 0xFFFF) ==
+                                               (op2->mem.disp.value & 0xFFFF));
+                    }
                 }
                 if (!acceptable_mismatch)
                 {
@@ -366,6 +379,12 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
     ZydisPrintInstruction(&insn2, encoded_instruction);
     ZydisValidateEnumRanges(&insn2);
     ZydisValidateInstructionIdentity(insn1, &insn2);
+
+    if (insn2.length > insn1->length)
+    {
+        fputs("Suboptimal output size detected\n", ZYAN_STDERR);
+        abort();
+    }
 }
 
 /* ============================================================================================== */
