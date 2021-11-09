@@ -145,6 +145,47 @@ static const char* FormatZyanStatus(ZyanStatus status)
     ZYAN_UNREACHABLE;
 }
 
+/**
+ * Returns the action string for a specific CPU/FPU flag.
+ *
+ * @param accessed_flags    A pointer to the `ZydisAccessedFlags` struct.
+ * @param flag              The number of the flag.
+ *
+ * @return The action string for the requested flag, or `ZYAN_NULL`.
+ */
+static const char* GetAccessedFlagActionString(const ZydisAccessedFlags* accessed_flags, 
+    ZyanU8 flag)
+{
+    ZYAN_ASSERT(flag < 32);
+
+    const char* result = ZYAN_NULL;
+
+    if (accessed_flags->tested & (1 << flag))
+    {
+        result = "T";
+    }
+    if (accessed_flags->modified & (1 << flag))
+    {
+        result = (result == ZYAN_NULL) ? "M" : "T_M";
+        return result;
+    }
+
+    if (accessed_flags->set_0 & (1 << flag))
+    {
+        return "0";
+    }
+    if (accessed_flags->set_1 & (1 << flag))
+    {
+        return "1";
+    }
+    if (accessed_flags->undefined & (1 << flag))
+    {
+        return "U";
+    }
+
+    return result;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Text output                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
@@ -624,29 +665,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_cpu_flags); ++i)
     {
         flags[i].name = strings_cpu_flags[i];
-        if (instruction->cpu_flags->tested & (1 << i))
-        {
-            flags[i].action = "T";
-        }
-        if (instruction->cpu_flags->modified & (1 << i))
-        {
-            flags[i].action = (flags[i].action == ZYAN_NULL) ? "M" : "T_M";
-            continue;
-        }
-        if (instruction->cpu_flags->set_0 & (1 << i))
-        {
-            flags[i].action = "0";
-            continue;
-        }
-        if (instruction->cpu_flags->set_1 & (1 << i))
-        {
-            flags[i].action = "1";
-            continue;
-        }
-        if (instruction->cpu_flags->undefined & (1 << i))
-        {
-            flags[i].action = "U";
-        }
+        flags[i].action = GetAccessedFlagActionString(instruction->cpu_flags, (ZyanU8)i);
     }
 
     // FPU
@@ -654,29 +673,7 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_fpu_flags); ++i)
     {
         flags[offset + i].name = strings_fpu_flags[i];
-        if (instruction->fpu_flags->tested & (1 << i))
-        {
-            flags[offset + i].action = "T";
-        }
-        if (instruction->fpu_flags->modified & (1 << i))
-        {
-            flags[offset + i].action = (flags[offset + i].action == ZYAN_NULL) ? "M" : "T_M";
-            continue;
-        }
-        if (instruction->fpu_flags->set_0 & (1 << i))
-        {
-            flags[offset + i].action = "0";
-            continue;
-        }
-        if (instruction->fpu_flags->set_1 & (1 << i))
-        {
-            flags[offset + i].action = "1";
-            continue;
-        }
-        if (instruction->fpu_flags->undefined & (1 << i))
-        {
-            flags[offset + i].action = "U";
-        }
+        flags[offset + i].action = GetAccessedFlagActionString(instruction->fpu_flags, (ZyanU8)i);
     }
 
     PrintSectionHeader("FLAGS");
