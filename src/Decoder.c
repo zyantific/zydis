@@ -4938,19 +4938,26 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         break;
                     }
                     ZYAN_CHECK(ZydisDecodeOperands(context, instruction, definition));
-                    const ZydisAccessedFlags* flags;
+                    const ZydisDefinitionAccessedFlags* flags;
                     if (ZydisGetAccessedFlags(definition, &flags))
                     {
                         instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
-                        instruction->cpu_flags_read = flags->cpu_flags_read;
-                        instruction->cpu_flags_written = flags->cpu_flags_written;
-                        instruction->cpu_flags.tested = flags->cpu_flags_tested;
-                        instruction->cpu_flags.modified = flags->cpu_flags_modified;
-                        instruction->cpu_flags.set_0 = flags->cpu_flags_set_0;
-                        instruction->cpu_flags.set_1 = flags->cpu_flags_set_1;
-                        instruction->cpu_flags.undefined = flags->cpu_flags_undefined;
-                        instruction->fpu_flags_read = flags->fpu_flags_read;
-                        instruction->fpu_flags_written = flags->fpu_flags_written;
+                        instruction->cpu_flags = &flags->cpu_flags;
+                        instruction->fpu_flags = &flags->fpu_flags;
+
+                        // TODO: Remove in next version
+                        instruction->cpu_flags_read = instruction->cpu_flags->tested;
+                        instruction->cpu_flags_written = 
+                            flags->cpu_flags.modified | 
+                            flags->cpu_flags.set_0 | 
+                            flags->cpu_flags.set_1 | 
+                            flags->cpu_flags.undefined;
+                        instruction->fpu_flags_read = instruction->fpu_flags->tested;
+                        instruction->fpu_flags_written = 
+                            flags->fpu_flags.modified | 
+                            flags->fpu_flags.set_0 | 
+                            flags->fpu_flags.set_1 | 
+                            flags->fpu_flags.undefined;
                     }
                 }
 #endif

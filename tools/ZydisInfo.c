@@ -624,26 +624,26 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_cpu_flags); ++i)
     {
         flags[i].name = strings_cpu_flags[i];
-        if (instruction->cpu_flags.tested & (1 << i))
+        if (instruction->cpu_flags->tested & (1 << i))
         {
             flags[i].action = "T";
         }
-        if (instruction->cpu_flags.modified & (1 << i))
+        if (instruction->cpu_flags->modified & (1 << i))
         {
             flags[i].action = (flags[i].action == ZYAN_NULL) ? "M" : "T_M";
             continue;
         }
-        if (instruction->cpu_flags.set_0 & (1 << i))
+        if (instruction->cpu_flags->set_0 & (1 << i))
         {
             flags[i].action = "0";
             continue;
         }
-        if (instruction->cpu_flags.set_1 & (1 << i))
+        if (instruction->cpu_flags->set_1 & (1 << i))
         {
             flags[i].action = "1";
             continue;
         }
-        if (instruction->cpu_flags.undefined & (1 << i))
+        if (instruction->cpu_flags->undefined & (1 << i))
         {
             flags[i].action = "U";
         }
@@ -654,14 +654,28 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(strings_fpu_flags); ++i)
     {
         flags[offset + i].name = strings_fpu_flags[i];
-        if (instruction->fpu_flags_read & (1 << i))
+        if (instruction->fpu_flags->tested & (1 << i))
         {
             flags[offset + i].action = "T";
+        }
+        if (instruction->fpu_flags->modified & (1 << i))
+        {
+            flags[offset + i].action = (flags[offset + i].action == ZYAN_NULL) ? "M" : "T_M";
             continue;
         }
-        if (instruction->fpu_flags_written & (1 << i))
+        if (instruction->fpu_flags->set_0 & (1 << i))
         {
-            flags[offset + i].action = "M";
+            flags[offset + i].action = "0";
+            continue;
+        }
+        if (instruction->fpu_flags->set_1 & (1 << i))
+        {
+            flags[offset + i].action = "1";
+            continue;
+        }
+        if (instruction->fpu_flags->undefined & (1 << i))
+        {
+            flags[offset + i].action = "U";
         }
     }
 
@@ -690,12 +704,12 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     }
     ZYAN_PUTS("");
 
-    PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags.tested);
+    PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags->tested);
     PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32, 
-        instruction->cpu_flags.modified | 
-        instruction->cpu_flags.set_0 | 
-        instruction->cpu_flags.set_1 | 
-        instruction->cpu_flags.undefined);
+        instruction->cpu_flags->modified | 
+        instruction->cpu_flags->set_0 | 
+        instruction->cpu_flags->set_1 | 
+        instruction->cpu_flags->undefined);
 }
 
 /**

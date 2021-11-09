@@ -244,9 +244,9 @@ typedef struct ZydisDecodedOperand_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Defines the `ZydisCPUFlags` data-type.
+ * Defines the `ZydisAccessedFlagsMask` data-type.
  */
-typedef ZyanU32 ZydisCPUFlags;
+typedef ZyanU32 ZydisAccessedFlagsMask;
 
 /**
  * Carry flag.
@@ -317,27 +317,58 @@ typedef ZyanU32 ZydisCPUFlags;
  */
 #define ZYDIS_CPUFLAG_ID    (1ul << 21)
 
- /**
-  * Defines the `ZydisFPUFlags` data-type.
-  */
-typedef ZyanU8 ZydisFPUFlags;
+/*
+ * DEPRECATED. Use `ZydisAccessedFlagsMask` instead.
+ */
+typedef ZydisAccessedFlagsMask ZydisCPUFlags; // TODO: Remove in next version
+/*
+ * DEPRECATED. Use `ZydisAccessedFlagsMask` instead.
+ */
+typedef ZydisAccessedFlagsMask ZydisFPUFlags; // TODO: Remove in next version
 
 /**
  * FPU condition-code flag 0.
  */
-#define ZYDIS_FPUFLAG_C0    (1 << 0)
+#define ZYDIS_FPUFLAG_C0    (1ul <<  0)
 /**
  * FPU condition-code flag 1.
  */
-#define ZYDIS_FPUFLAG_C1    (1 << 1)
+#define ZYDIS_FPUFLAG_C1    (1ul <<  1)
  /**
   * FPU condition-code flag 2.
   */
-#define ZYDIS_FPUFLAG_C2    (1 << 2)
+#define ZYDIS_FPUFLAG_C2    (1ul <<  2)
 /**
  * FPU condition-code flag 3.
  */
-#define ZYDIS_FPUFLAG_C3    (1 << 3)
+#define ZYDIS_FPUFLAG_C3    (1ul <<  3)
+
+/*
+ * Information about CPU/FPU flags accessed by the instruction.
+ */
+typedef struct ZydisAccessedFlags_
+{
+    /*
+     * As mask containing the flags `TESTED` by the instruction.
+     */
+    ZydisAccessedFlagsMask tested;
+    /*
+     * As mask containing the flags `MODIFIED` by the instruction.
+     */
+    ZydisAccessedFlagsMask modified;
+    /*
+     * As mask containing the flags `SET_0` by the instruction.
+     */
+    ZydisAccessedFlagsMask set_0;
+    /*
+     * As mask containing the flags `SET_1` by the instruction.
+     */
+    ZydisAccessedFlagsMask set_1;
+    /*
+     * As mask containing the flags `SET_0` by the instruction.
+     */
+    ZydisAccessedFlagsMask undefined;
+} ZydisAccessedFlags;
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Branch types                                                                                   */
@@ -710,34 +741,16 @@ typedef struct ZydisDecodedInstruction_
      */
     ZydisInstructionAttributes attributes;
     /**
-     * Information about CPU/FPU flags accessed by the instruction.
+     * Information about CPU flags accessed by the instruction.
      *
      * The bits in the masks correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
      * register.
      */
-    struct ZydisAccessedCPUFlags_
-    {
-        /*
-         * As mask containing the CPU flags `TESTED` by the instruction.
-         */
-        ZydisCPUFlags tested;
-        /*
-         * As mask containing the CPU flags `MODIFIED` by the instruction.
-         */
-        ZydisCPUFlags modified;
-        /*
-         * As mask containing the CPU flags `SET_0` by the instruction.
-         */
-        ZydisCPUFlags set_0;
-        /*
-         * As mask containing the CPU flags `SET_1` by the instruction.
-         */
-        ZydisCPUFlags set_1;
-        /*
-         * As mask containing the CPU flags `SET_0` by the instruction.
-         */
-        ZydisCPUFlags undefined;
-    } cpu_flags;
+    const ZydisAccessedFlags* cpu_flags;
+    /**
+     * Information about FPU flags accessed by the instruction.
+     */
+    const ZydisAccessedFlags* fpu_flags;
     /**
      * A mask containing the CPU flags read by the instruction.
      *
@@ -762,12 +775,16 @@ typedef struct ZydisDecodedInstruction_
     ZydisCPUFlags cpu_flags_written; // TODO: Remove in next version
     /**
      * A mask containing the FPU flags read by the instruction.
+     *
+     * DEPRECATED. Use the masks inside of `fpu_flags` instead.
      */
-    ZydisFPUFlags fpu_flags_read;
+    ZydisFPUFlags fpu_flags_read; // TODO: Remove in next version
     /**
      * A mask containing the FPU flags written by the instruction.
+     *
+     * DEPRECATED. Use the masks inside of `fpu_flags` instead.
      */
-    ZydisFPUFlags fpu_flags_written;
+    ZydisFPUFlags fpu_flags_written; // TODO: Remove in next version
     /**
      * Extended info for `AVX` instructions.
      */

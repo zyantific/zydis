@@ -98,7 +98,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             case ZYDIS_MACHINE_MODE_LEGACY_32:
                 // `XBEGIN` is a special case as it doesn't truncate computed address
                 // This behavior is documented by Intel (SDM Vol. 2C):
-                // Use of the 16-bit operand size does not cause this address to be truncated to 
+                // Use of the 16-bit operand size does not cause this address to be truncated to
                 // 16 bits, unlike a near jump to a relative offset.
                 if ((instruction->operand_width == 16) &&
                     (instruction->mnemonic != ZYDIS_MNEMONIC_XBEGIN))
