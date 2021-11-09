@@ -132,7 +132,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
                     {
                         ZyanU64 addr;
                         ZydisCalcAbsoluteAddress(insn, op2, 0, &addr);
-                        acceptable_mismatch = (op1->mem.displacement == addr);
+                        acceptable_mismatch = ((ZyanU64)op1->mem.displacement == addr);
                     }
                     if ((insn->machine_mode == ZYDIS_MACHINE_MODE_REAL_16) ||
                         (insn->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_16) ||

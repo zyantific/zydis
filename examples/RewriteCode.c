@@ -66,7 +66,7 @@ int main(int argc, char** argv)
     // Parse arguments.
     uint8_t bytes[ZYDIS_MAX_INSTRUCTION_LENGTH];
     size_t num_bytes = ZYAN_MIN(ZYDIS_MAX_INSTRUCTION_LENGTH, argc - 1);
-    for (int i = 0; i < num_bytes; ++i)
+    for (size_t i = 0; i < num_bytes; ++i)
     {
         unsigned long int val = strtoul(argv[i + 1], NULL, 16);
         if (errno == ERANGE)
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 
     // Print the new instruction as hex-bytes.
     printf("New raw bytes:        ");
-    for (int i = 0; i < new_instr_length; ++i)
+    for (ZyanUSize i = 0; i < new_instr_length; ++i)
     {
         printf("%02" PRIx8 " ", new_bytes[i]);
     }

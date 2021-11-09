@@ -121,7 +121,7 @@ int main(void)
 
     // Create a function pointer for our buffer.
     typedef ZyanU64(*FnPtr)();
-    const FnPtr func_ptr = (FnPtr)buffer;
+    const FnPtr func_ptr = (FnPtr)(uintptr_t)buffer;
 
     // Call the function!
     const ZyanU64 result = func_ptr();
