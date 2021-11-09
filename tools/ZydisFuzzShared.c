@@ -144,10 +144,6 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
     ZYDIS_CHECK_ENUM(insn->encoding, ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE);
     ZYDIS_CHECK_ENUM(insn->opcode_map, ZYDIS_OPCODE_MAP_MAX_VALUE);
     ZYDIS_CHECK_ENUM(insn->opcode_map, ZYDIS_OPCODE_MAP_MAX_VALUE);
-    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->accessed_flags); ++i)
-    {
-        ZYDIS_CHECK_ENUM(insn->accessed_flags[i].action, ZYDIS_CPUFLAG_MAX_VALUE);
-    }
 
     // Operands.
     for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->operands); ++i)
@@ -319,10 +315,10 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
                 if ((insn1->meta.category == ZYDIS_CATEGORY_DATAXFER) ||
                     (insn1->meta.category == ZYDIS_CATEGORY_LOGICAL))
                 {
-                    ZyanU8 size = ZYAN_MAX(op1->size, op2->size);
+                    const ZyanU16 size = ZYAN_MAX(op1->size, op2->size);
                     if (size < 64)
                     {
-                        ZyanU64 mask = (1ULL << size) - 1;
+                        const ZyanU64 mask = (1ULL << size) - 1;
                         acceptable_mismatch = 
                             (op1->imm.value.u & mask) == (op2->imm.value.u & mask);
                     }

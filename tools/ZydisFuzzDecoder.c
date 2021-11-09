@@ -55,7 +55,6 @@ typedef struct ZydisFuzzControlBlock_
 /* Fuzz target                                                                                    */
 /* ============================================================================================== */
 
-
 // We disable enum sanitization here because we actually want Zydis to be tested with
 // possibly invalid enum values in mind, thus need to be able to create them here.
 ZYAN_NO_SANITIZE("enum")

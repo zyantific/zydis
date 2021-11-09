@@ -50,7 +50,8 @@ typedef ZyanUSize(*ZydisStreamRead)(void *ctx, ZyanU8 *buf, ZyanUSize max_len);
 #endif
 
 // Existing tools and seed corpora depend on this heavily
-ZYAN_STATIC_ASSERT(sizeof(enum ZyanEnumSizeCheck_ { ZYAN_ENUM_SIZE_CHECK = 1 }) == 4);
+enum ZyanEnumSizeCheck_ { ZYAN_ENUM_SIZE_CHECK = 1 };
+ZYAN_STATIC_ASSERT(sizeof(enum ZyanEnumSizeCheck_) == 4);
 
 #define ZYDIS_SANITIZE_MASK(var, type, mask)      var = (type)((ZyanUSize)(ZyanU32)(var) & (mask))
 #define ZYDIS_SANITIZE_ENUM(var, type, max_value) var = (type)((ZyanUSize)(ZyanU32)(var) % \
