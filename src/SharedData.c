@@ -175,7 +175,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
 
 #ifndef ZYDIS_MINIMAL_MODE
 ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
-    const ZydisAccessedFlags** flags)
+    const ZydisDefinitionAccessedFlags** flags)
 {
     ZYAN_ASSERT(definition->flags_reference < ZYAN_ARRAY_LENGTH(ACCESSED_FLAGS));
     *flags = &ACCESSED_FLAGS[definition->flags_reference];

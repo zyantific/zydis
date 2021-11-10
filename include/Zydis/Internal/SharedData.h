@@ -885,25 +885,30 @@ typedef struct ZydisInstructionDefinitionMVEX_
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Accessed CPU flags                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
-
-typedef struct ZydisAccessedFlags_
-{
-    ZydisCPUFlagAction action[ZYDIS_CPUFLAG_MAX_VALUE + 1];
-    ZyanU32 cpu_flags_read      ZYAN_BITFIELD(22);
-    ZyanU32 cpu_flags_written   ZYAN_BITFIELD(22);
-    ZyanU8 fpu_flags_read       ZYAN_BITFIELD( 4);
-    ZyanU8 fpu_flags_written    ZYAN_BITFIELD( 4);
-} ZydisAccessedFlags;
-
-/* ---------------------------------------------------------------------------------------------- */
 
 #pragma pack(pop)
 
 #ifdef ZYAN_MSVC
 #   pragma warning(pop)
 #endif
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Accessed CPU/FPU flags                                                                         */
+/* ---------------------------------------------------------------------------------------------- */
+
+/*
+ * Contains information about the CPU/FPU flags accessed by an instruction.
+ *
+ * We don't want this struct to be packed! A pointer to the individual members will be used by the
+ * `ZydisDecodedInstruction` struct.
+ */
+typedef struct ZydisDefinitionAccessedFlags_
+{
+    ZydisAccessedFlags cpu_flags;
+    ZydisAccessedFlags fpu_flags;
+} ZydisDefinitionAccessedFlags;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 /* Functions                                                                                      */
@@ -967,12 +972,13 @@ ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, Zydis
  * Returns the the operand-definitions for the given instruction-`definition`.
  *
  * @param   definition  A pointer to the instruction-definition.
- * @param   flags       A pointer to the variable that receives the `ZydisAccessedFlags` struct.
+ * @param   flags       A pointer to the variable that receives the `ZydisDefinitionAccessedFlags`
+ *                      struct.
  *
  * @return  `ZYAN_TRUE`, if the instruction accesses any flags, or `ZYAN_FALSE`, if not.
  */
 ZYDIS_NO_EXPORT ZyanBool ZydisGetAccessedFlags(const ZydisInstructionDefinition* definition,
-    const ZydisAccessedFlags** flags);
+    const ZydisDefinitionAccessedFlags** flags);
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -98,7 +98,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             case ZYDIS_MACHINE_MODE_LEGACY_32:
                 // `XBEGIN` is a special case as it doesn't truncate computed address
                 // This behavior is documented by Intel (SDM Vol. 2C):
-                // Use of the 16-bit operand size does not cause this address to be truncated to 
+                // Use of the 16-bit operand size does not cause this address to be truncated to
                 // 16 bits, unlike a near jump to a relative offset.
                 if ((instruction->operand_width == 16) &&
                     (instruction->mnemonic != ZYDIS_MNEMONIC_XBEGIN))
@@ -166,56 +166,6 @@ ZyanStatus ZydisCalcAbsoluteAddressEx(const ZydisDecodedInstruction* instruction
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Accessed CPU flags                                                                             */
-/* ---------------------------------------------------------------------------------------------- */
-
-ZyanStatus ZydisGetAccessedFlagsByAction(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlagAction action, ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = 0;
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(instruction->accessed_flags); ++i)
-    {
-        if (instruction->accessed_flags[i].action == action)
-        {
-            *flags |= (1 << i);
-        }
-    }
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZydisGetAccessedFlagsRead(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = instruction->cpu_flags_read;
-
-    return ZYAN_STATUS_SUCCESS;
-}
-
-ZyanStatus ZydisGetAccessedFlagsWritten(const ZydisDecodedInstruction* instruction,
-    ZydisCPUFlags* flags)
-{
-    if (!instruction || !flags)
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    *flags = instruction->cpu_flags_written;
-
-    return ZYAN_STATUS_SUCCESS;
 }
 
 /* ---------------------------------------------------------------------------------------------- */
