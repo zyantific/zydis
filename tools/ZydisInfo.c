@@ -153,7 +153,7 @@ static const char* FormatZyanStatus(ZyanStatus status)
  *
  * @return The action string for the requested flag, or `ZYAN_NULL`.
  */
-static const char* GetAccessedFlagActionString(const ZydisAccessedFlags* accessed_flags, 
+static const char* GetAccessedFlagActionString(const ZydisAccessedFlags* accessed_flags,
     ZyanU8 flag)
 {
     ZYAN_ASSERT(flag < 32);
@@ -702,10 +702,10 @@ static void PrintFlags(const ZydisDecodedInstruction* instruction)
     ZYAN_PUTS("");
 
     PRINT_VALUE_G("READ", "0x%08" PRIX32, instruction->cpu_flags->tested);
-    PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32, 
-        instruction->cpu_flags->modified | 
-        instruction->cpu_flags->set_0 | 
-        instruction->cpu_flags->set_1 | 
+    PRINT_VALUE_G("WRITTEN", "0x%08" PRIX32,
+        instruction->cpu_flags->modified |
+        instruction->cpu_flags->set_0 |
+        instruction->cpu_flags->set_1 |
         instruction->cpu_flags->undefined);
 }
 

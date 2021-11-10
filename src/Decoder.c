@@ -24,6 +24,10 @@
 
 ***************************************************************************************************/
 
+// ReSharper disable CppClangTidyClangDiagnosticImplicitFallthrough
+// ReSharper disable CppClangTidyClangDiagnosticSwitchEnum
+// ReSharper disable CppClangTidyClangDiagnosticCoveredSwitchDefault
+
 #include <Zycore/LibC.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Status.h>
@@ -3717,7 +3721,7 @@ static void ZydisSetEffectiveAddressWidth(ZydisDecoderContext* context,
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static ZyanStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerXOP(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
@@ -3737,7 +3741,7 @@ static ZyanStatus ZydisNodeHandlerXOP(ZydisDecodedInstruction* instruction, Zyan
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerVEX(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
@@ -3757,7 +3761,7 @@ static ZyanStatus ZydisNodeHandlerVEX(ZydisDecodedInstruction* instruction, Zyan
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEMVEX(ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEMVEX(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
@@ -3990,7 +3994,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerMode(const ZydisDecoderContext* context, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(index);
@@ -4015,7 +4019,7 @@ static ZyanStatus ZydisNodeHandlerMode(ZydisDecoderContext* context, ZyanU16* in
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerModeCompact(ZydisDecoderContext* context, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerModeCompact(const ZydisDecoderContext* context, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(index);
@@ -4086,7 +4090,7 @@ static ZyanStatus ZydisNodeHandlerModrmRm(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerMandatoryPrefix(ZydisDecoderContext* context,
+static ZyanStatus ZydisNodeHandlerMandatoryPrefix(const ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
@@ -4120,7 +4124,7 @@ static ZyanStatus ZydisNodeHandlerMandatoryPrefix(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context,
+static ZyanStatus ZydisNodeHandlerOperandSize(const ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
@@ -4157,7 +4161,7 @@ static ZyanStatus ZydisNodeHandlerOperandSize(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
+static ZyanStatus ZydisNodeHandlerAddressSize(const ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
@@ -4190,8 +4194,8 @@ static ZyanStatus ZydisNodeHandlerAddressSize(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context,
-    ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerVectorLength(const ZydisDecoderContext* context,
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -4223,8 +4227,8 @@ static ZyanStatus ZydisNodeHandlerVectorLength(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context,
-    ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerRexW(const ZydisDecoderContext* context,
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -4254,8 +4258,8 @@ static ZyanStatus ZydisNodeHandlerRexW(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
-    ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -4286,7 +4290,7 @@ static ZyanStatus ZydisNodeHandlerRexB(ZydisDecoderContext* context,
 }
 
 #ifndef ZYDIS_DISABLE_AVX512
-static ZyanStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexB(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
@@ -4299,7 +4303,7 @@ static ZyanStatus ZydisNodeHandlerEvexB(ZydisDecodedInstruction* instruction, Zy
 #endif
 
 #ifndef ZYDIS_DISABLE_KNC
-static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
@@ -4325,7 +4329,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(ZydisDecodedInstruction* instruction, Zy
  * This function is called immediately after a valid instruction-definition was found.
  */
 static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
-    ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
+    const ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
     const ZydisRegisterConstraint constr_REG = definition->constr_REG;
     const ZydisRegisterConstraint constr_RM  = definition->constr_RM;
@@ -4826,7 +4830,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
             status = ZydisNodeHandlerMandatoryPrefix(context, instruction, &index);
             temp = ZydisDecoderTreeGetChildNode(node, 0);
             // TODO: Return to this point, if index == 0 contains a value and the previous path
-            // TODO: was not successfull
+            // TODO: was not successful
             // TODO: Restore consumed prefix
             break;
         case ZYDIS_NODETYPE_FILTER_OPERAND_SIZE:
@@ -4944,20 +4948,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderContext* context,
                         instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
                         instruction->cpu_flags = &flags->cpu_flags;
                         instruction->fpu_flags = &flags->fpu_flags;
-
-                        // TODO: Remove in next version
-                        instruction->cpu_flags_read = instruction->cpu_flags->tested;
-                        instruction->cpu_flags_written = 
-                            flags->cpu_flags.modified | 
-                            flags->cpu_flags.set_0 | 
-                            flags->cpu_flags.set_1 | 
-                            flags->cpu_flags.undefined;
-                        instruction->fpu_flags_read = instruction->fpu_flags->tested;
-                        instruction->fpu_flags_written = 
-                            flags->fpu_flags.modified | 
-                            flags->fpu_flags.set_0 | 
-                            flags->fpu_flags.set_1 | 
-                            flags->fpu_flags.undefined;
                     }
                 }
 #endif
