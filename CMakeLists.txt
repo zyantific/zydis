@@ -40,6 +40,9 @@ option(ZYDIS_BUILD_EXAMPLES
 option(ZYDIS_BUILD_TOOLS
     "Build tools"
     ON)
+option(ZYDIS_BUILD_MAN
+    "Build manpages for the tools (requires Ronn-NG)"
+    OFF)
 option(ZYDIS_FUZZ_AFL_FAST
     "Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
     OFF)
@@ -389,4 +392,24 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         _maybe_set_emscripten_cfg("ZydisInfo")
         install(TARGETS "ZydisInfo" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     endif ()
+endif ()
+
+# =============================================================================================== #
+# Manpages                                                                                        #
+# =============================================================================================== #
+
+if (ZYDIS_BUILD_MAN)
+    set(MAN_NAMES "ZydisDisasm.1" "ZydisInfo.1")
+    find_program(RONN_BIN "ronn")
+    foreach(MAN_NAME ${MAN_NAMES})
+        add_custom_command(
+            OUTPUT ${MAN_NAME}
+            COMMAND ${RONN_BIN} ARGS
+                "--roff"
+                "--output-dir=${CMAKE_CURRENT_BINARY_DIR}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/man/${MAN_NAME}.ronn"
+        )
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${MAN_NAME}" TYPE MAN)
+    endforeach()
+    add_custom_target(man ALL DEPENDS ${MAN_NAMES})
 endif ()
