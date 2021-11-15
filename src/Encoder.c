@@ -2573,6 +2573,86 @@ ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatch *matc
 }
 
 /**
+ * Checks if operands specified in encoder request satisfy additional constraints mandated by
+ * matched instruction definition.
+ *
+ * @param   match   A pointer to `ZydisEncoderInstructionMatch` struct.
+ *
+ * @return  True if operands passed the checks, false otherwise.
+ */
+ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
+{
+    const ZydisEncoderOperand *operands = match->request->operands;
+    switch (match->definition->encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_VEX:
+    {
+        const ZydisInstructionDefinitionVEX *vex_def =
+            (const ZydisInstructionDefinitionVEX *)match->base_definition;
+        if (vex_def->is_gather)
+        {
+            ZYAN_ASSERT(match->request->operand_count == 3);
+            ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT(operands[1].type == ZYDIS_OPERAND_TYPE_MEMORY);
+            ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            const ZyanI8 dest = ZydisRegisterGetId(operands[0].reg.value);
+            const ZyanI8 index = ZydisRegisterGetId(operands[1].mem.index);
+            const ZyanI8 mask = ZydisRegisterGetId(operands[2].reg.value);
+            // If any pair of the index, mask, or destination registers are the same, the
+            // instruction results a UD fault.
+            if ((dest == index) || (dest == mask) || (index == mask))
+            {
+                return ZYAN_FALSE;
+            }
+        }
+
+        return ZYAN_TRUE;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+    {
+        const ZydisInstructionDefinitionEVEX *evex_def =
+            (const ZydisInstructionDefinitionEVEX *)match->base_definition;
+        if ((evex_def->is_gather) && (operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER))
+        {
+            ZYAN_ASSERT(match->request->operand_count == 3);
+            ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_MEMORY);
+            const ZyanI8 dest = ZydisRegisterGetId(operands[0].reg.value);
+            const ZyanI8 index = ZydisRegisterGetId(operands[2].mem.index);
+            // The instruction will #UD fault if the destination vector zmm1 is the same as
+            // index vector VINDEX.
+            if (dest == index)
+            {
+                return ZYAN_FALSE;
+            }
+        }
+
+        if (evex_def->no_source_dest_match)
+        {
+            ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT((operands[3].type == ZYDIS_OPERAND_TYPE_REGISTER) ||
+                        (operands[3].type == ZYDIS_OPERAND_TYPE_MEMORY));
+            const ZydisRegister dest = operands[0].reg.value;
+            const ZydisRegister source1 = operands[2].reg.value;
+            const ZydisRegister source2 = (operands[3].type == ZYDIS_OPERAND_TYPE_REGISTER)
+                ? operands[3].reg.value
+                : ZYDIS_REGISTER_NONE;
+
+            if ((dest == source1) || (dest == source2))
+            {
+                return ZYAN_FALSE;
+            }
+        }
+
+        return ZYAN_TRUE;
+    }
+    default:
+        return ZYAN_TRUE;
+    }
+}
+
+/**
  * Checks if operands and encoding-specific features from `ZydisEncoderRequest` match
  * encoder's instruction definition.
  *
@@ -2676,28 +2756,9 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
         }
     }
 
-    if (match->definition->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
+    if (!ZydisCheckConstraints(match))
     {
-        const ZydisInstructionDefinitionEVEX *evex_def =
-            (const ZydisInstructionDefinitionEVEX *)match->base_definition;
-        if (evex_def->no_source_dest_match)
-        {
-            ZYAN_ASSERT(request->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
-            ZYAN_ASSERT(request->operands[2].type == ZYDIS_OPERAND_TYPE_REGISTER);
-            ZYAN_ASSERT((request->operands[3].type == ZYDIS_OPERAND_TYPE_REGISTER) ||
-                        (request->operands[3].type == ZYDIS_OPERAND_TYPE_MEMORY));
-
-            const ZydisRegister dest = request->operands[0].reg.value;
-            const ZydisRegister source1 = request->operands[2].reg.value;
-            const ZydisRegister source2 = (request->operands[3].type == ZYDIS_OPERAND_TYPE_REGISTER)
-                ? request->operands[3].reg.value
-                : ZYDIS_REGISTER_NONE;
-
-            if ((dest == source1) || (dest == source2))
-            {
-                return ZYAN_FALSE;
-            }
-        }
+        return ZYAN_FALSE;
     }
 
     return ZYAN_TRUE;
