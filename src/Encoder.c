@@ -2583,6 +2583,7 @@ ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatch *matc
 ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
 {
     const ZydisEncoderOperand *operands = match->request->operands;
+    ZyanBool is_gather = ZYAN_FALSE;
     switch (match->definition->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -2612,21 +2613,7 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
     {
         const ZydisInstructionDefinitionEVEX *evex_def =
             (const ZydisInstructionDefinitionEVEX *)match->base_definition;
-        if ((evex_def->is_gather) && (operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER))
-        {
-            ZYAN_ASSERT(match->request->operand_count == 3);
-            ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
-            ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_MEMORY);
-            const ZyanI8 dest = ZydisRegisterGetId(operands[0].reg.value);
-            const ZyanI8 index = ZydisRegisterGetId(operands[2].mem.index);
-            // The instruction will #UD fault if the destination vector zmm1 is the same as
-            // index vector VINDEX.
-            if (dest == index)
-            {
-                return ZYAN_FALSE;
-            }
-        }
-
+        is_gather = evex_def->is_gather;
         if (evex_def->no_source_dest_match)
         {
             ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
@@ -2644,12 +2631,37 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
                 return ZYAN_FALSE;
             }
         }
-
-        return ZYAN_TRUE;
+        break;
+    }
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+    {
+        const ZydisInstructionDefinitionMVEX *mvex_def =
+            (const ZydisInstructionDefinitionMVEX *)match->base_definition;
+        is_gather = mvex_def->is_gather;
+        break;
     }
     default:
         return ZYAN_TRUE;
     }
+
+    if ((is_gather) && (operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER))
+    {
+        ZYAN_ASSERT(match->request->operand_count == 3);
+        ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
+        ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_MEMORY);
+        const ZyanI8 dest = ZydisRegisterGetId(operands[0].reg.value);
+        const ZyanI8 index = ZydisRegisterGetId(operands[2].mem.index);
+        // EVEX: The instruction will #UD fault if the destination vector zmm1 is the same as
+        // index vector VINDEX.
+        // MVEX: The KNC GATHER instructions forbid using the same vector register for destination
+        // and for the index. (https://github.com/intelxed/xed/issues/281#issuecomment-970074554)
+        if (dest == index)
+        {
+            return ZYAN_FALSE;
+        }
+    }
+
+    return ZYAN_TRUE;
 }
 
 /**
