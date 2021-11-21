@@ -1056,6 +1056,9 @@ static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
             case ZYDIS_REGCLASS_ZMM:
                 return context->cache.v_vvvv;
             case ZYDIS_REGCLASS_MASK:
+            case ZYDIS_REGCLASS_TMM:
+                // TODO: Both cases should never be hit due to register constraints. Try to confirm
+                // TODO: and remove if true.
                 return context->cache.v_vvvv & 0x07;
             default:
                 return context->cache.v_vvvv & 0x0F;
@@ -4334,7 +4337,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     const ZydisRegisterConstraint constr_REG = definition->constr_REG;
     const ZydisRegisterConstraint constr_RM  = definition->constr_RM;
     // We set this to `NONE` instead of `UNUSED` to save up some unnecessary runtime checks
-    ZydisRegisterConstraint constr_NDSNDD = ZYDIS_REG_CONSTRAINTS_NONE;
+    ZydisRegisterConstraint constr_NDSNDD    = ZYDIS_REG_CONSTRAINTS_NONE;
     ZyanBool has_VSIB             = ZYAN_FALSE;
     ZyanBool is_gather            = ZYAN_FALSE;
     ZyanBool no_source_dest_match = ZYAN_FALSE;
@@ -4531,7 +4534,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         break;
     }
     case ZYDIS_REG_CONSTRAINTS_DR:
-        // Attempts to reference DR8DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
+        // Attempts to reference DR8..DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
         // are only valid, if the debug extension (DE) flag in CR4 is set. As we can't check this,
         // we just allow them.
         if (context->cache.R)
@@ -4540,6 +4543,9 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_REG_CONSTRAINTS_MASK:
+    case ZYDIS_REG_CONSTRAINTS_TMM:
+        ZYAN_ASSERT((constr_REG != ZYDIS_REG_CONSTRAINTS_TMM) ||
+                    (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX));
         if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
             (context->cache.R || context->cache.R2))
         {
@@ -4584,6 +4590,12 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             return ZYDIS_STATUS_BAD_REGISTER;
         }
         break;
+    case ZYDIS_REG_CONSTRAINTS_TMM:
+        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) && context->cache.B)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+        break;
     case ZYDIS_REG_CONSTRAINTS_VSIB:
         has_VSIB = ZYAN_TRUE;
         break;
@@ -4624,6 +4636,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
         break;
     case ZYDIS_REG_CONSTRAINTS_MASK:
+    case ZYDIS_REG_CONSTRAINTS_TMM:
         if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
             (context->cache.v_vvvv > 7))
         {
@@ -4691,7 +4704,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
 
     // Check if any source register matches the destination register
-    if (no_source_dest_match)
+    if (no_source_dest_match || (instruction->meta.exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4))
     {
         ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
 
@@ -4709,6 +4722,12 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         }
 
         if ((dest == source1) || ((dest == source2) && (instruction->raw.modrm.mod == 3)))
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+
+        if ((instruction->meta.exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4) &&
+            (source1 == source2))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
