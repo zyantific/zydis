@@ -28,10 +28,15 @@ jobs:
       - name: Building
         run: |
           cmake --build build --config Release
-      - name: Running regression tests
+      - name: Running regression tests (decoder)
         run: |
           cd tests
           python3 regression.py test ../build/ZydisInfo
+        if: "!matrix.no_libc && matrix.image_name != 'windows-2019'"
+      - name: Running regression tests (encoder)
+        run: |
+          cd tests
+          python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder
         if: "!matrix.no_libc && matrix.image_name != 'windows-2019'"
       - name: Running regression tests
         run: |
