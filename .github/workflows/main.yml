@@ -15,6 +15,10 @@ jobs:
         - image_name: ubuntu-20.04
           no_libc: -DCMAKE_BUILD_TYPE=Release
           dev_mode: -DZYAN_DEV_MODE=ON
+        - image_name: ubuntu-20.04
+          no_libc: ""
+          dev_mode: ""
+          minimal_mode: "-DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF"
 
     steps:
       - name: Checkout
@@ -24,7 +28,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ${{ matrix.dev_mode }} ${{ matrix.no_libc }} ..
+          cmake ${{ matrix.dev_mode }} ${{ matrix.no_libc }} ${{ matrix.minimal_mode }} ..
       - name: Building
         run: |
           cmake --build build --config Release
@@ -32,17 +36,17 @@ jobs:
         run: |
           cd tests
           python3 regression.py test ../build/ZydisInfo
-        if: "!matrix.no_libc && matrix.image_name != 'windows-2019'"
+        if: "!matrix.no_libc && matrix.image_name != 'windows-2019' && !matrix.minimal_mode"
       - name: Running regression tests (encoder)
         run: |
           cd tests
           python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder
-        if: "!matrix.no_libc && matrix.image_name != 'windows-2019'"
+        if: "!matrix.no_libc && matrix.image_name != 'windows-2019' && !matrix.minimal_mode"
       - name: Running regression tests
         run: |
           cd tests
           python regression.py test ..\\build\\Release\\ZydisInfo.exe
-        if: "!matrix.no_libc && matrix.image_name == 'windows-2019'"
+        if: "!matrix.no_libc && matrix.image_name == 'windows-2019' && !matrix.minimal_mode"
 
   msbuild-build:
     name: MSBuild build (windows-2019)
