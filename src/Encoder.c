@@ -2607,6 +2607,22 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
             }
         }
 
+        if (match->base_definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4)
+        {
+            ZYAN_ASSERT(match->request->operand_count == 3);
+            ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT(operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            ZYAN_ASSERT(operands[2].type == ZYDIS_OPERAND_TYPE_REGISTER);
+            const ZydisRegister dest = operands[0].reg.value;
+            const ZydisRegister source1 = operands[1].reg.value;
+            const ZydisRegister source2 = operands[2].reg.value;
+            // AMX-E4: #UD if srcdest == src1 OR src1 == src2 OR srcdest == src2.
+            if ((dest == source1) || (source1 == source2) || (dest == source2))
+            {
+                return ZYAN_FALSE;
+            }
+        }
+
         return ZYAN_TRUE;
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
