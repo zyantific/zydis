@@ -4704,9 +4704,10 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     }
 
     // Check if any source register matches the destination register
-    if (no_source_dest_match || (instruction->meta.exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4))
+    if (no_source_dest_match || (definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4))
     {
-        ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+        ZYAN_ASSERT((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                    (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX));
 
         ZyanU8 dest    = instruction->raw.modrm.reg;
         ZyanU8 source1 = context->cache.v_vvvv;
@@ -4726,7 +4727,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
             return ZYDIS_STATUS_BAD_REGISTER;
         }
 
-        if ((instruction->meta.exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4) &&
+        if ((definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4) &&
             (source1 == source2))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
