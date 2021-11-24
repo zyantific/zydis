@@ -201,7 +201,8 @@ ZyanStatus ZydisFormatterIntelFormatOperandMEM(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
-    if (context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM)
+    if ((context->operand->mem.type == ZYDIS_MEMOP_TYPE_MEM) || 
+        (context->operand->mem.type == ZYDIS_MEMOP_TYPE_VSIB))
     {
         ZYAN_CHECK(formatter->func_print_typecast(formatter, buffer, context));
     }

@@ -270,36 +270,6 @@ typedef enum ZydisReadWriteAction_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Defines the `ZydisRegisterConstraint` enum.
- */
-typedef enum ZydisRegisterConstraint_
-{
-    ZYDIS_REG_CONSTRAINTS_UNUSED,
-    ZYDIS_REG_CONSTRAINTS_NONE,
-    ZYDIS_REG_CONSTRAINTS_GPR,
-    ZYDIS_REG_CONSTRAINTS_SR_DEST,
-    ZYDIS_REG_CONSTRAINTS_SR,
-    ZYDIS_REG_CONSTRAINTS_CR,
-    ZYDIS_REG_CONSTRAINTS_DR,
-    ZYDIS_REG_CONSTRAINTS_MASK,
-    ZYDIS_REG_CONSTRAINTS_BND,
-    ZYDIS_REG_CONSTRAINTS_TMM,
-    ZYDIS_REG_CONSTRAINTS_VSIB,
-    ZYDIS_REG_CONSTRAINTS_NO_REL,
-
-    /**
-     * Maximum value of this enum.
-     */
-    ZYDIS_REG_CONSTRAINTS_MAX_VALUE = ZYDIS_REG_CONSTRAINTS_NO_REL,
-    /**
-     * The minimum number of bits required to represent all values of this enum.
-     */
-    ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REG_CONSTRAINTS_MAX_VALUE)
-} ZydisRegisterConstraint;
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
  * Defines the `ZydisInternalVectorLength` enum.
  */
 typedef enum ZydisInternalVectorLength_
@@ -716,6 +686,21 @@ typedef enum ZydisMaskOverride_
 
 /* ---------------------------------------------------------------------------------------------- */
 
+#define ZYDIS_OPDEF_REQUIRED_BITS \
+    ZYAN_MAX(ZYDIS_REGKIND_REQUIRED_BITS, ZYDIS_MEMOP_TYPE_REQUIRED_BITS + 1) + 1
+
+#define ZYDIS_OPDEF_GET_REG(operand_definition) \
+    ((operand_definition) & ((1 << ZYDIS_REGKIND_REQUIRED_BITS   ) - 1))
+
+#define ZYDIS_OPDEF_GET_MEM(operand_definition) \
+    ((operand_definition) & ((1 << ZYDIS_MEMOP_TYPE_REQUIRED_BITS) - 1))
+
+#define ZYDIS_OPDEF_GET_REG_HIGH_BIT(operand_definition) \
+    (((operand_definition) >> ZYDIS_REGKIND_REQUIRED_BITS   ) & 0x01)
+
+#define ZYDIS_OPDEF_MEM_GET_HIGH_BIT(operand_definition) \
+    (((operand_definition) >> ZYDIS_MEMOP_TYPE_REQUIRED_BITS) & 0x01)
+
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
 // enum types
 ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
@@ -724,7 +709,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_BRANCH_TYPE_REQUIRED_BITS     <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
-ZYAN_STATIC_ASSERT(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_OPDEF_REQUIRED_BITS           <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
 
 #ifndef ZYDIS_MINIMAL_MODE
@@ -742,8 +727,8 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
         ZyanU8 branch_type                     ZYAN_BITFIELD(ZYDIS_BRANCH_TYPE_REQUIRED_BITS); \
         ZyanU8 exception_class                 ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
-        ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
+        ZyanU8 op_reg                          ZYAN_BITFIELD(ZYDIS_OPDEF_REQUIRED_BITS); \
+        ZyanU8 op_rm                           ZYAN_BITFIELD(ZYDIS_OPDEF_REQUIRED_BITS); \
         ZyanU8 cpu_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
         ZyanU8 fpu_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
         ZyanU8 xmm_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
@@ -755,18 +740,19 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanU8 address_size_map                ZYAN_BITFIELD( 2); \
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
         ZyanBool no_compat_mode                ZYAN_BITFIELD( 1); \
-        ZyanU8 constr_REG                      ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS); \
-        ZyanU8 constr_RM                       ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+        ZyanU8 op_reg                          ZYAN_BITFIELD(ZYDIS_OPDEF_REQUIRED_BITS); \
+        ZyanU8 op_rm                           ZYAN_BITFIELD(ZYDIS_OPDEF_REQUIRED_BITS)
 #endif
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR \
     ZYDIS_INSTRUCTION_DEFINITION_BASE; \
-    ZyanU8 constr_NDSNDD                   ZYAN_BITFIELD(ZYDIS_REG_CONSTRAINTS_REQUIRED_BITS)
+    ZyanU8 op_ndsndd                       ZYAN_BITFIELD(ZYDIS_OPDEF_REQUIRED_BITS)
 
 #define ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR_INTEL \
     ZYDIS_INSTRUCTION_DEFINITION_BASE_VECTOR; \
     ZyanBool is_gather                     ZYAN_BITFIELD( 1); \
-    ZyanBool no_source_dest_match          ZYAN_BITFIELD( 1)
+    ZyanBool no_source_dest_match          ZYAN_BITFIELD( 1); \
+    ZyanBool no_source_source_match        ZYAN_BITFIELD( 1)        // TODO: Could be moved to VEX
 
 /**
  * Defines the `ZydisInstructionDefinition` struct.

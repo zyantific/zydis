@@ -28,6 +28,9 @@
 // ReSharper disable CppClangTidyClangDiagnosticSwitchEnum
 // ReSharper disable CppClangTidyClangDiagnosticCoveredSwitchDefault
 
+// Temporarily disabled due to a LLVM issue:
+// ReSharper disable CppClangTidyBugproneNarrowingConversions
+
 #include <Zycore/LibC.h>
 #include <Zydis/Decoder.h>
 #include <Zydis/Status.h>
@@ -162,9 +165,21 @@ typedef struct ZydisDecoderContext_
         ZyanU8 LL;
         ZyanU8 R2;
         ZyanU8 V2;
-        ZyanU8 v_vvvv;
+        ZyanU8 vvvv;
         ZyanU8 mask;
     } cache;
+    /**
+     * Combined register ids.
+     */
+    struct
+    {
+        ZyanBool is_reg;
+        ZyanU8 reg;
+        ZyanU8 rm;
+        ZyanU8 ndsndd;
+        ZyanU8 base;
+        ZyanU8 index;
+    } reg_ids;
 #ifndef ZYDIS_DISABLE_AVX512
     /**
      * Internal EVEX-specific information.
@@ -212,45 +227,55 @@ typedef enum ZydisRegisterEncoding_
 {
     ZYDIS_REG_ENCODING_INVALID,
     /**
-     * The register-id is encoded as part of the opcode.
+     * The register-id is encoded as part of the opcode (bits [3..0]).
      *
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.B`.
+     * Possible extension by:
+     * - `REX.B`
      */
     ZYDIS_REG_ENCODING_OPCODE,
     /**
      * The register-id is encoded in `modrm.reg`.
      *
-     * Possible extension by `EVEX/MVEX.R'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.R`.
+     * Possible extension by:
+     * - `.R`
+     * - `.R'` (vector only, EVEX/MVEX)
      */
     ZYDIS_REG_ENCODING_REG,
     /**
-     * The register-id is encoded in `XOP/VEX/EVEX/MVEX.vvvv`.
+     * The register-id is encoded in `.vvvv`.
      *
-     * Possible extension by `EVEX/MVEX.v'` (vector only).
+     * Possible extension by:
+     * - `.v'` (vector only, EVEX/MVEX).
      */
     ZYDIS_REG_ENCODING_NDSNDD,
     /**
      * The register-id is encoded in `modrm.rm`.
      *
-     * Possible extension by `EVEX/MVEX.X` (vector only) and `REX/XOP/VEX/EVEX/MVEX.B`.
+     * Possible extension by:
+     * - `.B`
+     * - `.X` (vector only, EVEX/MVEX)`
      */
     ZYDIS_REG_ENCODING_RM,
     /**
-     * The register-id is encoded in `modrm.rm` or `sib.base` (if SIB is present).
+     * The register-id is encoded in `modrm.rm` or `sib.base` (if `SIB` is present).
      *
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.B`.
+     * Possible extension by:
+     * - `.B`
      */
     ZYDIS_REG_ENCODING_BASE,
     /**
      * The register-id is encoded in `sib.index`.
      *
-     * Possible extension by `REX/XOP/VEX/EVEX/MVEX.X`.
+     * Possible extension by:
+     * - `.X`
      */
     ZYDIS_REG_ENCODING_INDEX,
     /**
      * The register-id is encoded in `sib.index`.
      *
-     * Possible extension by `EVEX/MVEX.V'` (vector only) and `REX/XOP/VEX/EVEX/MVEX.X`.
+     * Possible extension by:
+     * - `.X`
+     * - `.V'` (vector only, EVEX/MVEX)
      */
     ZYDIS_REG_ENCODING_VIDX,
     /**
@@ -491,7 +516,7 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     context->cache.B = 0x01 & ~instruction->raw.xop.B;
     context->cache.L = instruction->raw.xop.L;
     context->cache.LL = instruction->raw.xop.L;
-    context->cache.v_vvvv = (0x0F & ~instruction->raw.xop.vvvv);
+    context->cache.vvvv = (0x0F & ~instruction->raw.xop.vvvv);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -566,7 +591,7 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     context->cache.B = 0x01 & ~instruction->raw.vex.B;
     context->cache.L = instruction->raw.vex.L;
     context->cache.LL = instruction->raw.vex.L;
-    context->cache.v_vvvv = (0x0F & ~instruction->raw.vex.vvvv);
+    context->cache.vvvv = (0x0F & ~instruction->raw.vex.vvvv);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -649,8 +674,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     context->cache.LL = (data[3] >> 5) & 0x03;
     context->cache.R2 = 0x01 & ~instruction->raw.evex.R2;
     context->cache.V2 = 0x01 & ~instruction->raw.evex.V2;
-    context->cache.v_vvvv =
-        ((0x01 & ~instruction->raw.evex.V2) << 4) | (0x0F & ~instruction->raw.evex.vvvv);
+    context->cache.vvvv = 0x0F & ~instruction->raw.evex.vvvv;
     context->cache.mask = instruction->raw.evex.aaa;
 
     if (!instruction->raw.evex.V2 && (context->decoder->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
@@ -722,8 +746,7 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     context->cache.R2 = 0x01 & ~instruction->raw.mvex.R2;
     context->cache.V2 = 0x01 & ~instruction->raw.mvex.V2;
     context->cache.LL = 2;
-    context->cache.v_vvvv =
-        ((0x01 & ~instruction->raw.mvex.V2) << 4) | (0x0F & ~instruction->raw.mvex.vvvv);
+    context->cache.vvvv = 0x0F & ~instruction->raw.mvex.vvvv;
     context->cache.mask = instruction->raw.mvex.kkk;
 
     return ZYAN_STATUS_SUCCESS;
@@ -936,220 +959,71 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderContext* context,
  * decoded structs.
  */
 static ZyanU8 ZydisCalcRegisterId(ZydisDecoderContext* context,
-    ZydisDecodedInstruction* instruction, ZydisRegisterEncoding encoding,
+    const ZydisDecodedInstruction* instruction, ZydisRegisterEncoding encoding,
     ZydisRegisterClass register_class)
 {
-    switch (context->decoder->machine_mode)
+    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(instruction);
+
+    // TODO: Combine OPCODE and IS4 in `ZydisPopulateRegisterIds` and get rid of this
+    // TODO: function entirely
+
+    switch (encoding)
     {
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-    case ZYDIS_MACHINE_MODE_LEGACY_16:
-    case ZYDIS_MACHINE_MODE_REAL_16:
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-    case ZYDIS_MACHINE_MODE_LEGACY_32:
-        switch (encoding)
+    case ZYDIS_REG_ENCODING_REG:
+        return context->reg_ids.reg;
+    case ZYDIS_REG_ENCODING_NDSNDD:
+        return context->reg_ids.ndsndd;
+    case ZYDIS_REG_ENCODING_RM:
+        return context->reg_ids.rm;
+    case ZYDIS_REG_ENCODING_BASE:
+        return context->reg_ids.base;
+    case ZYDIS_REG_ENCODING_INDEX:
+    case ZYDIS_REG_ENCODING_VIDX:
+        return context->reg_ids.index;
+    case ZYDIS_REG_ENCODING_OPCODE:
+    {
+        ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_GPR8) ||
+                    (register_class == ZYDIS_REGCLASS_GPR16) ||
+                    (register_class == ZYDIS_REGCLASS_GPR32) ||
+                    (register_class == ZYDIS_REGCLASS_GPR64));
+        ZyanU8 value = (instruction->opcode & 0x0F);
+        if (value > 7)
         {
-        case ZYDIS_REG_ENCODING_OPCODE:
+            value = value - 8;
+        }
+        if (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
         {
-            ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_GPR8) ||
-                        (register_class == ZYDIS_REGCLASS_GPR16) ||
-                        (register_class == ZYDIS_REGCLASS_GPR32) ||
-                        (register_class == ZYDIS_REGCLASS_GPR64));
-            ZyanU8 value = (instruction->opcode & 0x0F);
-            if (value > 7)
-            {
-                value = value - 8;
-            }
             return value;
         }
-        case ZYDIS_REG_ENCODING_REG:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            return instruction->raw.modrm.reg;
-        case ZYDIS_REG_ENCODING_NDSNDD:
-            return context->cache.v_vvvv & 0x07;
-        case ZYDIS_REG_ENCODING_RM:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            return instruction->raw.modrm.rm;
-        case ZYDIS_REG_ENCODING_BASE:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            if (instruction->raw.modrm.rm == 4)
-            {
-                ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-                return instruction->raw.sib.base;
-            }
-            return instruction->raw.modrm.rm;
-        case ZYDIS_REG_ENCODING_INDEX:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-            return instruction->raw.sib.index;
-        case ZYDIS_REG_ENCODING_VIDX:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-            ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_XMM) ||
-                        (register_class == ZYDIS_REGCLASS_YMM) ||
-                        (register_class == ZYDIS_REGCLASS_ZMM));
-            return instruction->raw.sib.index;
-        case ZYDIS_REG_ENCODING_IS4:
+        return value | (context->cache.B << 3);
+    }
+    case ZYDIS_REG_ENCODING_IS4:
+    {
+        if (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+        {
             return (instruction->raw.imm[0].value.u >> 4) & 0x07;
-        case ZYDIS_REG_ENCODING_MASK:
-            return context->cache.mask;
-        default:
-            ZYAN_UNREACHABLE;
         }
-    case ZYDIS_MACHINE_MODE_LONG_64:
-        switch (encoding)
+        ZyanU8 value = (instruction->raw.imm[0].value.u >> 4) & 0x0F;
+        // We have to check the instruction-encoding, because the extension by bit [3] is only
+        // valid for EVEX and MVEX instructions
+        if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+            (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
         {
-        case ZYDIS_REG_ENCODING_OPCODE:
-        {
-            ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_GPR8) ||
-                        (register_class == ZYDIS_REGCLASS_GPR16) ||
-                        (register_class == ZYDIS_REGCLASS_GPR32) ||
-                        (register_class == ZYDIS_REGCLASS_GPR64));
-            ZyanU8 value = (instruction->opcode & 0x0F);
-            if (value > 7)
-            {
-                value = value - 8;
-            }
-            return value | (context->cache.B << 3);
-        }
-        case ZYDIS_REG_ENCODING_REG:
-        {
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZyanU8 value = instruction->raw.modrm.reg;
-            switch (register_class)
-            {
-            case ZYDIS_REGCLASS_GPR8:
-            case ZYDIS_REGCLASS_GPR16:
-            case ZYDIS_REGCLASS_GPR32:
-            case ZYDIS_REGCLASS_GPR64:
-            case ZYDIS_REGCLASS_XMM:
-            case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
-            case ZYDIS_REGCLASS_CONTROL:
-            case ZYDIS_REGCLASS_DEBUG:
-                value |= (context->cache.R << 3);
-                break;
-            default:
-                break;
-            }
-            // R' only exists for EVEX and MVEX. No encoding check needed
             switch (register_class)
             {
             case ZYDIS_REGCLASS_XMM:
             case ZYDIS_REGCLASS_YMM:
             case ZYDIS_REGCLASS_ZMM:
-                value |= (context->cache.R2 << 4);
-                break;
+                value |= ((instruction->raw.imm[0].value.u & 0x08) << 1);
             default:
                 break;
             }
-            return value;
         }
-        case ZYDIS_REG_ENCODING_NDSNDD:
-            // v' only exists for EVEX and MVEX. No encoding check needed
-            switch (register_class)
-            {
-            case ZYDIS_REGCLASS_XMM:
-            case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
-                return context->cache.v_vvvv;
-            case ZYDIS_REGCLASS_MASK:
-            case ZYDIS_REGCLASS_TMM:
-                // TODO: Both cases should never be hit due to register constraints. Try to confirm
-                // TODO: and remove if true.
-                return context->cache.v_vvvv & 0x07;
-            default:
-                return context->cache.v_vvvv & 0x0F;
-            }
-        case ZYDIS_REG_ENCODING_RM:
-        {
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZyanU8 value = instruction->raw.modrm.rm;
-            switch (register_class)
-            {
-            case ZYDIS_REGCLASS_GPR8:
-            case ZYDIS_REGCLASS_GPR16:
-            case ZYDIS_REGCLASS_GPR32:
-            case ZYDIS_REGCLASS_GPR64:
-            case ZYDIS_REGCLASS_XMM:
-            case ZYDIS_REGCLASS_YMM:
-            case ZYDIS_REGCLASS_ZMM:
-            case ZYDIS_REGCLASS_CONTROL:
-            case ZYDIS_REGCLASS_DEBUG:
-                value |= (context->cache.B << 3);
-                break;
-            default:
-                break;
-            }
-            // We have to check the instruction-encoding, because the extension by X is only valid
-            // for EVEX and MVEX instructions
-            if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
-                (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
-            {
-                switch (register_class)
-                {
-                case ZYDIS_REGCLASS_XMM:
-                case ZYDIS_REGCLASS_YMM:
-                case ZYDIS_REGCLASS_ZMM:
-                    value |= (context->cache.X << 4);
-                    break;
-                default:
-                    break;
-                }
-            }
-            return value;
-        }
-        case ZYDIS_REG_ENCODING_BASE:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            if (instruction->raw.modrm.rm == 4)
-            {
-                ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-                return instruction->raw.sib.base | (context->cache.B << 3);
-            }
-            return instruction->raw.modrm.rm | (context->cache.B << 3);
-        case ZYDIS_REG_ENCODING_INDEX:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-            return instruction->raw.sib.index | (context->cache.X << 3);
-        case ZYDIS_REG_ENCODING_VIDX:
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-            ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
-            ZYAN_ASSERT((register_class == ZYDIS_REGCLASS_XMM) ||
-                        (register_class == ZYDIS_REGCLASS_YMM) ||
-                        (register_class == ZYDIS_REGCLASS_ZMM));
-            // v' only exists for EVEX and MVEX. No encoding check needed
-            return instruction->raw.sib.index | (context->cache.X << 3) |
-                (context->cache.V2 << 4);
-        case ZYDIS_REG_ENCODING_IS4:
-        {
-            ZyanU8 value = (instruction->raw.imm[0].value.u >> 4) & 0x0F;
-            // We have to check the instruction-encoding, because the extension by bit [3] is only
-            // valid for EVEX and MVEX instructions
-            if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
-                (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
-            {
-                switch (register_class)
-                {
-                case ZYDIS_REGCLASS_XMM:
-                case ZYDIS_REGCLASS_YMM:
-                case ZYDIS_REGCLASS_ZMM:
-                    value |= ((instruction->raw.imm[0].value.u & 0x08) << 1);
-                default:
-                    break;
-                }
-            }
-            return value;
-        }
-        case ZYDIS_REG_ENCODING_MASK:
-            return context->cache.mask;
-        default:
-            ZYAN_UNREACHABLE;
-        }
+        return value;
+    }
+    case ZYDIS_REG_ENCODING_MASK:
+        return context->cache.mask;
     default:
         ZYAN_UNREACHABLE;
     }
@@ -1610,7 +1484,7 @@ static ZyanStatus ZydisDecodeOperandMemory(ZydisDecoderContext* context,
                     ZydisCalcRegisterId(context, instruction,
                         vidx_register_class ? ZYDIS_REG_ENCODING_VIDX : ZYDIS_REG_ENCODING_INDEX,
                         vidx_register_class ? vidx_register_class : ZYDIS_REGCLASS_GPR64));
-            operand->mem.scale = (1 << instruction->raw.sib.scale);;
+            operand->mem.scale = (1 << instruction->raw.sib.scale);
             if (operand->mem.index == ZYDIS_REGISTER_RSP)
             {
                 operand->mem.index = ZYDIS_REGISTER_NONE;
@@ -2008,16 +1882,19 @@ static ZyanStatus ZydisDecodeOperands(ZydisDecoderContext* context,
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_XMM));
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBY:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_YMM));
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &instruction->operands[i], ZYDIS_REGCLASS_ZMM));
+            instruction->operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:
             ZYAN_ASSERT((instruction->raw.imm[0].size == 16) ||
@@ -3421,10 +3298,11 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* conte
             ZYAN_CHECK(ZydisInputNext(context, instruction, &modrm_byte));
             ZydisDecodeModRM(instruction, modrm_byte);
         }
-        ZyanU8 has_sib = 0;
-        ZyanU8 displacement_size = 0;
+
         if (!(info->flags & ZYDIS_INSTR_ENC_FLAG_FORCE_REG_FORM))
         {
+            ZyanU8 has_sib = 0;
+            ZyanU8 displacement_size = 0;
             switch (instruction->address_width)
             {
             case 16:
@@ -3495,6 +3373,9 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderContext* conte
                 ZYAN_CHECK(ZydisReadDisplacement(context, instruction, displacement_size));
             }
         }
+
+        context->reg_ids.is_reg = (instruction->raw.modrm.mod == 3) ||
+            (info->flags & ZYDIS_INSTR_ENC_FLAG_FORCE_REG_FORM);
     }
 
     if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_DISP)
@@ -4321,6 +4202,208 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * Populates the internal register id fields for `REG`, `RM`, `NDSNDD`, `BASE` and `INDEX`/`VIDX`
+ * encoded operands and performs sanity checks.
+ *
+ * @param   context     A pointer to the `ZydisDecoderContext` instance.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   def_reg     The type definition for the `.reg` encoded operand.
+ * @param   def_rm      The type definition for the `.rm` encoded operand.
+ * @param   def_ndsndd  The type definition for the `.vvvv` encoded operand.
+ *
+ * @return  A zyan status code.
+ *
+ * This function sets all unused register ids to `-1`. This rule does currently not apply to
+ * `base` and `index`.
+ *
+ * Definition encoding:
+ * - `def_reg`    -> `ZydisRegisterKind`
+ * - `def_ndsndd` -> `ZydisRegisterKind`
+ * - `def_rm`     -> `ZydisRegisterKind` (`.mod == 3`) or ZydisMemoryOperandType (`.mod != 3`)
+ */
+static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
+    const ZydisDecodedInstruction* instruction, ZyanU8 def_reg, ZyanU8 def_rm, ZyanU8 def_ndsndd)
+{
+    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(instruction);
+
+    const ZyanBool is_64_bit = (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64);
+    const ZyanBool is_reg    = context->reg_ids.is_reg;
+    const ZyanBool has_sib   = !is_reg && (instruction->raw.modrm.rm == 4);
+    const ZyanBool has_vsib  = has_sib && (def_rm == ZYDIS_MEMOP_TYPE_VSIB);
+
+    ZyanU8 id_reg    = instruction->raw.modrm.reg;
+    ZyanU8 id_rm     = instruction->raw.modrm.rm;
+    ZyanU8 id_ndsndd = is_64_bit ? context->cache.vvvv : context->cache.vvvv & 0x07;
+    ZyanU8 id_base   = has_sib ? instruction->raw.sib.base : instruction->raw.modrm.rm;
+    ZyanU8 id_index  = instruction->raw.sib.index;
+
+    if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        const ZyanBool is_emvex = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                                  (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
+
+        // The `index` extension by `.v'` is only valid for VSIB operands
+        const ZyanU8 vsib_v2 = has_vsib ? context->cache.V2 : 0;
+        // The `rm` extension by `.X` is only valid for EVEX/MVEX instructions
+        const ZyanU8 evex_x  = is_emvex ? context->cache.X  : 0;
+
+        id_reg    |= (context->cache.R2 << 4) | (context->cache.R << 3);
+        id_rm     |= (evex_x            << 4) | (context->cache.B << 3);
+        id_ndsndd |= (context->cache.V2 << 4)                          ;
+        id_base   |=                            (context->cache.B << 3);
+        id_index  |= (vsib_v2           << 4) | (context->cache.X << 3);
+
+        // The masking emulates the actual CPU behavior and does not verify if the resulting ids
+        // are actually valid for the given register kind.
+
+        static const ZyanU8 mask_reg[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        {
+            /* INVALID */ 0,
+            /* GPR     */ (1 << 5) - 1,
+            /* X87     */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
+            /* MMX     */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
+            /* VR      */ (1 << 5) - 1,
+            /* TMM     */ (1 << 5) - 1,
+            /* SEGMENT */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
+            /* TEST    */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
+            /* CONTROL */ (1 << 4) - 1, //              ignore `.R'`
+            /* DEBUG   */ (1 << 4) - 1, //              ignore `.R'`
+            /* MASK    */ (1 << 5) - 1,
+            /* BOUND   */ (1 << 4) - 1  //              ignore `.R'`
+        };
+        id_reg &= mask_reg[def_reg];
+
+        static const ZyanU8 mask_rm[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        {
+            /* INVALID */ 0,
+            /* GPR     */ (1 << 4) - 1, //              ignore `.X`
+            /* X87     */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
+            /* MMX     */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
+            /* VR      */ (1 << 5) - 1,
+            /* TMM     */ (1 << 4) - 1, //              ignore `.X`
+            /* SEGMENT */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
+            /* TEST    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
+            /* CONTROL */ (1 << 4) - 1, //              ignore `.X`
+            /* DEBUG   */ (1 << 4) - 1, //              ignore `.X`
+            /* MASK    */ (1 << 4) - 1, // ignore `.B`, ignore `.X`
+            /* BOUND   */ (1 << 4) - 1  //              ignore `.X`
+        };
+        id_rm &= (is_reg ? mask_rm[def_rm] : 0xFF);
+
+        // Commented out for future reference. Not required at the moment as it's always either
+        // a "take all" or "take nothing" situation.
+
+        //static const ZyanU8 mask_ndsndd[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        //{
+        //    /* INVALID */ 0,
+        //    /* GPR     */ (1 << 5) - 1,
+        //    /* X87     */ 0,            // never encoded in `.vvvv`
+        //    /* MMX     */ 0,            // never encoded in `.vvvv`
+        //    /* VR      */ (1 << 5) - 1,
+        //    /* TMM     */ (1 << 5) - 1,
+        //    /* SEGMENT */ 0,            // never encoded in `.vvvv`
+        //    /* TEST    */ 0,            // never encoded in `.vvvv`
+        //    /* CONTROL */ 0,            // never encoded in `.vvvv`
+        //    /* DEBUG   */ 0,            // never encoded in `.vvvv`
+        //    /* MASK    */ (1 << 5) - 1,
+        //    /* BOUND   */ 0             // never encoded in `.vvvv`
+        //};
+    }
+
+    // Validate
+
+    // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
+    if (!def_ndsndd && context->cache.vvvv)
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
+    }
+    // `.v'` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
+    if (!def_ndsndd && !has_vsib && context->cache.V2)
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
+    }
+
+    static const ZyanU8 available_regs[2][ZYDIS_REGKIND_MAX_VALUE + 1] =
+    {
+        // 16/32 bit mode
+        {
+            /* INVALID */ 255,
+            /* GPR     */   8,
+            /* X87     */   8,
+            /* MMX     */   8,
+            /* VR      */   8,
+            /* TMM     */   8,
+            /* SEGMENT */   6,
+            /* TEST    */   8,
+            /* CONTROL */   8,
+            /* DEBUG   */   8,
+            /* MASK    */   8,
+            /* BOUND   */   4
+        },
+        // 64 bit mode
+        {
+            /* INVALID */ 255,
+            /* GPR     */  16,
+            /* X87     */   8,
+            /* MMX     */   8,
+            /* VR      */  32,
+            /* TMM     */   8,
+            /* SEGMENT */   6,
+            /* TEST    */   8,
+            /* CONTROL */  16,
+            // Attempts to reference DR8..DR15 result in undefined opcode (#UD) exceptions. DR4 and
+            // DR5 are only valid, if the debug extension (DE) flag in CR4 is set. As we can't
+            // check this at runtime we just allow them.
+            /* DEBUG   */   8,
+            /* MASK    */   8,
+            /* BOUND   */   4
+        }
+    };
+
+    if ((id_reg >= available_regs[is_64_bit][def_reg]) ||
+        (id_ndsndd >= available_regs[is_64_bit][def_ndsndd]) ||
+        (is_reg && (id_rm >= available_regs[is_64_bit][def_rm])))
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
+    }
+
+    ZyanI8 id_cr = -1;
+    if (def_reg == ZYDIS_REGKIND_CONTROL)
+    {
+        id_cr = id_reg;
+    }
+    if (is_reg && (def_rm == ZYDIS_REGKIND_CONTROL))
+    {
+        id_cr = id_rm;
+    }
+    if (id_cr >= 0)
+    {
+        // Attempts to reference CR1, CR5, CR6, CR7, and CR9..CR15 result in undefined opcode (#UD)
+        // exceptions
+        static const ZyanU8 lookup[16] =
+        {
+            1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+        };
+        ZYAN_ASSERT(id_cr < ZYAN_ARRAY_LENGTH(lookup));
+        if (!lookup[id_cr])
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+    }
+
+    // Assign to context
+
+    context->reg_ids.reg    = def_reg           ? id_reg    : -1;
+    context->reg_ids.rm     = def_rm && is_reg  ? id_rm     : -1;
+    context->reg_ids.ndsndd = def_ndsndd        ? id_ndsndd : -1;
+    context->reg_ids.base   = id_base;  // TODO: Set unused register to -1 as well
+    context->reg_ids.index  = id_index; // TODO: Set unused register to -1 as well
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/**
  * Checks for certain post-decode error-conditions.
  *
  * @param   context     A pointer to the `ZydisDecoderContext` instance.
@@ -4334,15 +4417,14 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
 static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     const ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
-    const ZydisRegisterConstraint constr_REG = definition->constr_REG;
-    const ZydisRegisterConstraint constr_RM  = definition->constr_RM;
-    // We set this to `NONE` instead of `UNUSED` to save up some unnecessary runtime checks
-    ZydisRegisterConstraint constr_NDSNDD    = ZYDIS_REG_CONSTRAINTS_NONE;
-    ZyanBool has_VSIB             = ZYAN_FALSE;
-    ZyanBool is_gather            = ZYAN_FALSE;
-    ZyanBool no_source_dest_match = ZYAN_FALSE;
+    ZyanU8 def_reg                  = definition->op_reg;
+    ZyanU8 def_rm                   = definition->op_rm;
+    ZyanU8 def_ndsndd               = ZYDIS_REGKIND_INVALID;
+    ZyanBool is_gather              = ZYAN_FALSE;
+    ZyanBool no_source_dest_match   = ZYAN_FALSE;
+    ZyanBool no_source_source_match = ZYAN_FALSE;
 #if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
-    ZydisMaskPolicy mask_policy = ZYDIS_MASK_POLICY_INVALID;
+    ZydisMaskPolicy mask_policy     = ZYDIS_MASK_POLICY_INVALID;
 #endif
 
     switch (instruction->encoding)
@@ -4379,15 +4461,16 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
     {
         const ZydisInstructionDefinitionXOP* def =
             (const ZydisInstructionDefinitionXOP*)definition;
-        constr_NDSNDD = def->constr_NDSNDD;
+        def_ndsndd = def->op_ndsndd;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
     {
         const ZydisInstructionDefinitionVEX* def =
             (const ZydisInstructionDefinitionVEX*)definition;
-        constr_NDSNDD = def->constr_NDSNDD;
-        is_gather = def->is_gather;
+        def_ndsndd             = def->op_ndsndd;
+        is_gather              = def->is_gather;
+        no_source_source_match = def->no_source_source_match;
         break;
     }
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
@@ -4395,10 +4478,10 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 #ifndef ZYDIS_DISABLE_AVX512
         const ZydisInstructionDefinitionEVEX* def =
             (const ZydisInstructionDefinitionEVEX*)definition;
-        constr_NDSNDD = def->constr_NDSNDD;
-        is_gather = def->is_gather;
+        def_ndsndd           = def->op_ndsndd;
+        is_gather            = def->is_gather;
         no_source_dest_match = def->no_source_dest_match;
-        mask_policy = def->mask_policy;
+        mask_policy          = def->mask_policy;
 
         // Check for invalid zero-mask
         if ((instruction->raw.evex.z) && (!def->accepts_zero_mask))
@@ -4415,8 +4498,8 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
 #ifndef ZYDIS_DISABLE_KNC
         const ZydisInstructionDefinitionMVEX* def =
             (const ZydisInstructionDefinitionMVEX*)definition;
-        constr_NDSNDD = def->constr_NDSNDD;
-        is_gather = def->is_gather;
+        def_ndsndd  = def->op_ndsndd;
+        is_gather   = def->is_gather;
         mask_policy = def->mask_policy;
 
         // Check for invalid MVEX.SSS values
@@ -4490,245 +4573,127 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         ZYAN_UNREACHABLE;
     }
 
-    // Validate register constraints
-    switch (constr_REG)
+    const ZyanBool is_reg = context->reg_ids.is_reg;
+
+    ZyanU8 no_rip_rel     = ZYAN_FALSE;
+    ZyanU8 is_sr_dest_reg = ZYAN_FALSE;
+    ZyanU8 is_sr_dest_rm  = ZYAN_FALSE;
+    if (def_reg)
     {
-    case ZYDIS_REG_CONSTRAINTS_UNUSED:
-    case ZYDIS_REG_CONSTRAINTS_NONE:
-        break;
-    case ZYDIS_REG_CONSTRAINTS_GPR:
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) && context->cache.R2)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_SR_DEST:
-        // `ZYDIS_REGISTER_CS` is not allowed as `MOV` target
-        if (instruction->raw.modrm.reg == 1)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        ZYAN_FALLTHROUGH;
-    case ZYDIS_REG_CONSTRAINTS_SR:
-    {
-        if (instruction->raw.modrm.reg > 5)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
+        is_sr_dest_reg = ZYDIS_OPDEF_GET_REG_HIGH_BIT(def_reg);
+        def_reg = ZYDIS_OPDEF_GET_REG(def_reg);
     }
-    case ZYDIS_REG_CONSTRAINTS_CR:
+    if (def_rm)
     {
-        // Attempts to reference CR1, CR5, CR6, CR7, and CR9CR15 result in undefined opcode (#UD)
-        // exceptions
-        const ZyanU8 value = instruction->raw.modrm.reg | (context->cache.R << 3);
-        static const ZyanU8 lookup[16] =
+        if (is_reg)
         {
-            1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
-        };
-        ZYAN_ASSERT(value < ZYAN_ARRAY_LENGTH(lookup));
-        if (!lookup[value])
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
+            is_sr_dest_rm = ZYDIS_OPDEF_GET_REG_HIGH_BIT(def_rm);
+            def_rm = ZYDIS_OPDEF_GET_REG(def_rm);
         }
-        break;
+        else
+        {
+            
+            no_rip_rel = ZYDIS_OPDEF_MEM_GET_HIGH_BIT(def_rm);
+            def_rm = ZYDIS_OPDEF_GET_MEM(def_rm);
+        }
     }
-    case ZYDIS_REG_CONSTRAINTS_DR:
-        // Attempts to reference DR8..DR15 result in undefined opcode (#UD) exceptions. DR4 and DR5
-        // are only valid, if the debug extension (DE) flag in CR4 is set. As we can't check this,
-        // we just allow them.
-        if (context->cache.R)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_MASK:
-    case ZYDIS_REG_CONSTRAINTS_TMM:
-        ZYAN_ASSERT((constr_REG != ZYDIS_REG_CONSTRAINTS_TMM) ||
-                    (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX));
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
-            (context->cache.R || context->cache.R2))
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_BND:
-        ZYAN_ASSERT(!context->cache.R2);
-        if (context->cache.R || instruction->raw.modrm.reg > 3)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    default:
-        ZYAN_UNREACHABLE;
-    }
-    switch (constr_RM)
+
+    // Check RIP-relative memory addressing
+    if (no_rip_rel)
     {
-    case ZYDIS_REG_CONSTRAINTS_UNUSED:
-    case ZYDIS_REG_CONSTRAINTS_NONE:
-        break;
-    case ZYDIS_REG_CONSTRAINTS_SR_DEST:
-        // `ZYDIS_REGISTER_CR` is not allowed as `MOV` target
-        if (instruction->raw.modrm.rm == 1)
+        const ZyanBool is_rip_rel =
+            (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (instruction->raw.modrm.mod == 0) && (instruction->raw.modrm.rm == 5);
+        if (is_rip_rel)
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
-        ZYAN_FALLTHROUGH;
-    case ZYDIS_REG_CONSTRAINTS_SR:
-    {
-        if (instruction->raw.modrm.rm > 6)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
     }
-    case ZYDIS_REG_CONSTRAINTS_MASK:
-        break;
-    case ZYDIS_REG_CONSTRAINTS_BND:
-        if (context->cache.B || instruction->raw.modrm.rm > 3)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_TMM:
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) && context->cache.B)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_VSIB:
-        has_VSIB = ZYAN_TRUE;
-        break;
-    case ZYDIS_REG_CONSTRAINTS_NO_REL:
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
-            (instruction->raw.modrm.mod == 0) &&
-            (instruction->raw.modrm.rm  == 5))
-        {
-            return ZYDIS_STATUS_DECODING_ERROR;
-        }
-        break;
-    default:
-        ZYAN_UNREACHABLE;
-    }
-    switch (constr_NDSNDD)
+
+    // Populate- and validate register constraints
+    ZYAN_CHECK(ZydisPopulateRegisterIds(context, instruction, def_reg, def_rm, def_ndsndd));
+
+    // `ZYDIS_REGISTER_CS` is not allowed as `MOV` target
+    if (is_sr_dest_reg && (context->reg_ids.reg == 1))
     {
-    case ZYDIS_REG_CONSTRAINTS_UNUSED:
-        // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
-        if (context->cache.v_vvvv & 0x0F)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        // `.v'` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
-        if (!has_VSIB && context->cache.V2)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_NONE:
-        ZYAN_ASSERT(!has_VSIB || ((instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_EVEX) &&
-                                  (instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_MVEX)));
-        break;
-    case ZYDIS_REG_CONSTRAINTS_GPR:
-        // `.v'` is invalid for GPR-registers
-        if (context->cache.V2)
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    case ZYDIS_REG_CONSTRAINTS_MASK:
-    case ZYDIS_REG_CONSTRAINTS_TMM:
-        if ((context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
-            (context->cache.v_vvvv > 7))
-        {
-            return ZYDIS_STATUS_BAD_REGISTER;
-        }
-        break;
-    default:
-        ZYAN_UNREACHABLE;
+        return ZYDIS_STATUS_BAD_REGISTER;
+    }
+    if (is_sr_dest_rm && (context->reg_ids.rm == 1))
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
     }
 
     // Check gather registers
     if (is_gather)
     {
-        ZYAN_ASSERT(has_VSIB);
+        // ZYAN_ASSERT(has_VSIB);
         ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
         ZYAN_ASSERT(instruction->raw.modrm.rm  == 4);
 
-        ZyanU8 dest  = instruction->raw.modrm.reg;
-        ZyanU8 index = instruction->raw.sib.index;
-        ZyanU8 mask  = 0xF0;
-        if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+        const ZyanU8 index = context->reg_ids.index;
+        ZyanU8 dest        = context->reg_ids.reg;
+        ZyanU8 mask        = 0xF0;
+
+        if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX)
         {
-            dest  = dest  | (context->cache.R << 3) | (context->cache.R2 << 4);
-            index = index | (context->cache.X << 3) | (context->cache.V2 << 4);
+            ZYAN_ASSERT((def_reg    == ZYDIS_REGKIND_VR) &&
+                        (def_rm     == ZYDIS_MEMOP_TYPE_VSIB) &&
+                        (def_ndsndd == ZYDIS_REGKIND_VR));
+            mask = context->reg_ids.ndsndd;
         }
 
-        switch (instruction->encoding)
+        if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+            (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
         {
-        case ZYDIS_INSTRUCTION_ENCODING_VEX:
-            ZYAN_ASSERT((constr_REG    == ZYDIS_REG_CONSTRAINTS_NONE) &&
-                        (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
-                        (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_NONE));
-            if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
-            {
-                mask = context->cache.v_vvvv;
-            } else
-            {
-                // Ignore the high-register bits in 16- and 32-bit mode
-                mask = context->cache.v_vvvv & 0x07;
-            }
-            break;
-        case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-            ZYAN_ASSERT(((constr_REG    == ZYDIS_REG_CONSTRAINTS_UNUSED) ||
-                         (constr_REG    == ZYDIS_REG_CONSTRAINTS_NONE)) &&
-                         (constr_RM     == ZYDIS_REG_CONSTRAINTS_VSIB) &&
-                         (constr_NDSNDD == ZYDIS_REG_CONSTRAINTS_UNUSED));
+            ZYAN_ASSERT(((def_reg    == ZYDIS_REGKIND_INVALID) ||
+                         (def_reg    == ZYDIS_REGKIND_VR)) &&
+                         (def_rm     == ZYDIS_MEMOP_TYPE_VSIB) &&
+                         (def_ndsndd == ZYDIS_REGKIND_INVALID));
 
             // Some gather instructions (like `VGATHERPF0{D|Q}{PS|PD}`) do not have a destination
             // operand
-            if (constr_REG == ZYDIS_REG_CONSTRAINTS_UNUSED)
+            if (!def_reg)
             {
                 dest = 0xF1;
             }
-            break;
-        default:
-            ZYAN_UNREACHABLE;
         }
+
         // If any pair of the index, mask, or destination registers are the same, the instruction
-        // results a UD fault.
-        if (dest == index || dest == mask || index == mask)
+        // results a UD fault
+        if ((dest == index) || (dest == mask) || (index == mask))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
     }
 
     // Check if any source register matches the destination register
-    if (no_source_dest_match || (definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4))
+    if (no_source_dest_match)
     {
         ZYAN_ASSERT((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                     (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX));
 
-        ZyanU8 dest    = instruction->raw.modrm.reg;
-        ZyanU8 source1 = context->cache.v_vvvv;
-        ZyanU8 source2 = instruction->raw.modrm.rm;
+        const ZyanU8 dest    = context->reg_ids.reg;
+        const ZyanU8 source1 = context->reg_ids.ndsndd;
+        const ZyanU8 source2 = context->reg_ids.rm;
 
-        if (context->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
-        {
-            dest = dest | (context->cache.R << 3) | (context->cache.R2 << 4);
-            source2 = source2 | (context->cache.B << 3) | (context->cache.X << 4);
-        } else
-        {
-            source1 = source1 & 0x07;
-        }
-
-        if ((dest == source1) || ((dest == source2) && (instruction->raw.modrm.mod == 3)))
+        if ((dest == source1) || (is_reg && (dest == source2)))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
+    }
 
-        if ((definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4) &&
-            (source1 == source2))
+    // If any pair of the source or destination registers are the same, the instruction results a
+    // UD fault
+    if (no_source_source_match) // TODO: Find better name
+    {
+        ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX);
+        ZYAN_ASSERT(is_reg);
+
+        const ZyanU8 dest    = context->reg_ids.reg;
+        const ZyanU8 source1 = context->reg_ids.ndsndd;
+        const ZyanU8 source2 = context->reg_ids.rm;
+
+        if ((dest == source1) || (dest == source2) || (source1 == source2))
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }

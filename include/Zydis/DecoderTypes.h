@@ -89,11 +89,15 @@ typedef enum ZydisMemoryOperandType_
      * in address calculation and scale is ignored. No real memory-access is caused.
      */
     ZYDIS_MEMOP_TYPE_MIB,
+    /**
+     * A vector `SIB` memory addressing operand (`VSIB`).
+     */
+    ZYDIS_MEMOP_TYPE_VSIB,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_MEMOP_TYPE_MAX_VALUE = ZYDIS_MEMOP_TYPE_MIB,
+    ZYDIS_MEMOP_TYPE_MAX_VALUE = ZYDIS_MEMOP_TYPE_VSIB,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -158,7 +162,6 @@ typedef struct ZydisDecodedOperand_
          * The register value.
          */
         ZydisRegister value;
-        // TODO: AVX512_4VNNIW MULTISOURCE registers
     } reg;
     /**
      * Extended info for memory-operands.
