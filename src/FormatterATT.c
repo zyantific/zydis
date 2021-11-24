@@ -307,7 +307,8 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
             break;
         }
         if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
-            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
+            ((operand->mem.type == ZYDIS_MEMOP_TYPE_MEM) || 
+             (operand->mem.type == ZYDIS_MEMOP_TYPE_VSIB)))
         {
             size = ZydisFormatterHelperGetExplicitSize(formatter, context, i);
             break;

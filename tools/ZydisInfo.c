@@ -510,7 +510,8 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction)
             "INVALID",
             "MEM",
             "AGEN",
-            "MIB"
+            "MIB",
+            "VSIB"
         };
         ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_memop_type) == ZYDIS_MEMOP_TYPE_MAX_VALUE + 1);
 

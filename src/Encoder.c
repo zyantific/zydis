@@ -1864,8 +1864,9 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
                                          (user_op->mem.base == ZYDIS_REGISTER_EIP);
         if (is_rip_relative)
         {
-            if ((match->base_definition->constr_RM == ZYDIS_REG_CONSTRAINTS_NO_REL) ||
-                ((match->definition->modrm & 7) == 4))
+            const ZyanBool no_rip_rel = 
+                ((match->base_definition->op_rm >> ZYDIS_MEMOP_TYPE_REQUIRED_BITS) & 0x01);
+            if (no_rip_rel || ((match->definition->modrm & 7) == 4))
             {
                 return ZYAN_FALSE;
             }
@@ -2607,7 +2608,7 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
             }
         }
 
-        if (match->base_definition->exception_class == ZYDIS_EXCEPTION_CLASS_AMXE4)
+        if (vex_def->no_source_source_match)
         {
             ZYAN_ASSERT(match->request->operand_count == 3);
             ZYAN_ASSERT(operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER);

@@ -86,7 +86,8 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
 
     const ZydisDecodedOperand* const operand = &context->instruction->operands[memop_id];
     ZYAN_ASSERT(operand->type == ZYDIS_OPERAND_TYPE_MEMORY);
-    ZYAN_ASSERT(operand->mem.type == ZYDIS_MEMOP_TYPE_MEM);
+    ZYAN_ASSERT((operand->mem.type == ZYDIS_MEMOP_TYPE_MEM) ||
+                (operand->mem.type == ZYDIS_MEMOP_TYPE_VSIB));
 
     if (formatter->force_memory_size)
     {
