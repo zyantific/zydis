@@ -1864,8 +1864,7 @@ ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *match,
                                          (user_op->mem.base == ZYDIS_REGISTER_EIP);
         if (is_rip_relative)
         {
-            const ZyanBool no_rip_rel = 
-                ((match->base_definition->op_rm >> ZYDIS_MEMOP_TYPE_REQUIRED_BITS) & 0x01);
+            const ZyanBool no_rip_rel = ZYDIS_OPDEF_GET_MEM_HIGH_BIT(match->base_definition->op_rm);
             if (no_rip_rel || ((match->definition->modrm & 7) == 4))
             {
                 return ZYAN_FALSE;

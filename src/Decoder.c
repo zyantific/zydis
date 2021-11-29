@@ -4593,7 +4593,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderContext* context,
         else
         {
             
-            no_rip_rel = ZYDIS_OPDEF_MEM_GET_HIGH_BIT(def_rm);
+            no_rip_rel = ZYDIS_OPDEF_GET_MEM_HIGH_BIT(def_rm);
             def_rm = ZYDIS_OPDEF_GET_MEM(def_rm);
         }
     }

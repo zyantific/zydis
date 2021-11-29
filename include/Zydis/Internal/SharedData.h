@@ -698,7 +698,7 @@ typedef enum ZydisMaskOverride_
 #define ZYDIS_OPDEF_GET_REG_HIGH_BIT(operand_definition) \
     (((operand_definition) >> ZYDIS_REGKIND_REQUIRED_BITS   ) & 0x01)
 
-#define ZYDIS_OPDEF_MEM_GET_HIGH_BIT(operand_definition) \
+#define ZYDIS_OPDEF_GET_MEM_HIGH_BIT(operand_definition) \
     (((operand_definition) >> ZYDIS_MEMOP_TYPE_REQUIRED_BITS) & 0x01)
 
 // MSVC does not correctly execute the `pragma pack(1)` compiler-directive, if we use the correct
