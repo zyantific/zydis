@@ -252,7 +252,7 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
  *
  * @param   formatter   A pointer to the `ZydisFormatter` instance.
  * @param   context     A pointer to the `ZydisFormatterContext` struct.
- * @param   memop_id    The operand-id of the instructions first memory operand.
+ * @param   operand     The instructions first memory operand.
  *
  * @return  Returns the explicit size, if required, or `0`, if not needed.
  *
@@ -260,7 +260,7 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
  * is set to `ZYAN_TRUE`.
  */
 ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
-    ZydisFormatterContext* context, ZyanU8 memop_id);
+    ZydisFormatterContext* context, const ZydisDecodedOperand* operand);
 
 /* ---------------------------------------------------------------------------------------------- */
 

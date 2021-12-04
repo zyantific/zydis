@@ -67,16 +67,18 @@ ZYAN_STATIC_ASSERT(sizeof(enum ZyanEnumSizeCheck_) == 4);
 
 #else
 
-void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction,
-    const ZyanU8 *instruction_bytes);
+void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction, 
+    const ZydisDecodedOperand* operands, ZyanU8 operand_count, const ZyanU8 *instruction_bytes);
 
 #endif
 
-void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn);
-void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
-    const ZydisDecodedInstruction *insn2);
-void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedInstruction *insn1,
-    const ZyanU8 *insn1_bytes);
+void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn, 
+    const ZydisDecodedOperand* operands, ZyanU8 operand_count);
+void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1, 
+    const ZydisDecodedOperand* operands1, const ZydisDecodedInstruction* insn2, 
+    const ZydisDecodedOperand* operands2);
+void ZydisReEncodeInstruction(const ZydisDecoder* decoder, const ZydisDecodedInstruction* insn1,
+    const ZydisDecodedOperand* operands1, ZyanU8 operand_count, const ZyanU8 *insn1_bytes);
 
 // One `ZydisFuzzTarget` must be defined for every fuzz target project
 extern int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx);

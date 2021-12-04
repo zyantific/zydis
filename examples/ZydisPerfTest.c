@@ -223,34 +223,37 @@ static void AdjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
+typedef struct TestContext_
+{
+    ZydisDecoderContext context;
+    ZydisDecodedInstruction instruction;
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
+    char format_buffer[256];
+    ZyanBool minimal_mode;
+    ZyanBool format;
+    ZyanBool tokenize;
+} TestContext;
+
 static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* formatter,
-    /* const ZydisCacheTable* cache, */
-    const ZyanU8* buffer, ZyanUSize length, ZyanBool format, ZyanBool tokenize, ZyanBool use_cache)
+    TestContext* context, const ZyanU8* buffer, ZyanUSize length)
 {
     ZyanU64 count = 0;
     ZyanUSize offset = 0;
     ZyanStatus status;
-    ZydisDecodedInstruction instruction_data;
-    ZydisDecodedInstruction* instruction;
-    char format_buffer[256];
 
     while (length > offset)
     {
-        if (use_cache)
-        {
-            ZYAN_UNREACHABLE;
-            // status = ZydisDecoderDecodeBufferCached(decoder, cache, buffer + offset,
-            //     length - offset, &instruction);
-        } else
-        {
-            status = ZydisDecoderDecodeBuffer(decoder, buffer + offset, length - offset,
-                &instruction_data);
-            instruction = &instruction_data;
-        }
+        status = ZydisDecoderDecodeInstruction(decoder, &context->context, buffer + offset,
+            length - offset, &context->instruction);
 
         if (status == ZYDIS_STATUS_NO_MORE_DATA)
         {
             break;
+        }
+        if (!context->minimal_mode && ZYAN_SUCCESS(status))
+        {
+            status = ZydisDecoderDecodeOperands(decoder, &context->context, &context->instruction,
+                context->operands, context->instruction.operand_count);
         }
         if (!ZYAN_SUCCESS(status))
         {
@@ -266,21 +269,23 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
             exit(EXIT_FAILURE);
         }
 
-        if (format)
+        if (context->format)
         {
-            if (tokenize)
+            if (context->tokenize)
             {
                 const ZydisFormatterToken* token;
-                ZydisFormatterTokenizeInstruction(formatter, instruction, format_buffer,
-                    sizeof(format_buffer), offset, &token);
+                ZydisFormatterTokenizeInstruction(formatter, &context->instruction,
+                    context->operands, context->instruction.operand_count_visible, 
+                    context->format_buffer, sizeof(context->format_buffer), offset, &token);
             } else
             {
-                ZydisFormatterFormatInstruction(formatter, instruction, format_buffer,
-                    sizeof(format_buffer), offset);
+                ZydisFormatterFormatInstruction(formatter, &context->instruction,
+                    context->operands, context->instruction.operand_count_visible, 
+                    context->format_buffer, sizeof(context->format_buffer), offset);
             }
         }
 
-        offset += instruction->length;
+        offset += context->instruction.length;
         ++count;
     }
 
@@ -328,16 +333,20 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
         }
     }
 
+    TestContext context;
+    context.minimal_mode = minimal_mode;
+    context.format = format;
+    context.tokenize = tokenize;
+
     // Cache warmup
-    ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format, tokenize, use_cache);
+    ProcessBuffer(&decoder, &formatter, &context, buffer, length);
 
     // Testing
     ZyanU64 count = 0;
     StartCounter();
     for (ZyanU8 j = 0; j < 100; ++j)
     {
-        count += ProcessBuffer(&decoder, &formatter, /* cache, */ buffer, length, format,
-            tokenize, use_cache);
+        count += ProcessBuffer(&decoder, &formatter, &context, buffer, length);
     }
     const char* color[4];
     color[0] = minimal_mode ? CVT100_OUT(COLOR_VALUE_G) : CVT100_OUT(COLOR_VALUE_B);
@@ -400,7 +409,8 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
         default:
             ZYAN_UNREACHABLE;
         }
-        if (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data, sizeof(data), &instruction)))
+        if (ZYAN_SUCCESS(ZydisDecoderDecodeInstruction(&decoder, ZYAN_NULL, data, 
+            sizeof(data), &instruction)))
         {
             ZyanBool b = ZYAN_FALSE;
             switch (encoding)
@@ -438,7 +448,6 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
                     last = p;
                     ZYAN_PRINTF("%3.0d%%\n", p);
                 }
-
             }
         }
     }

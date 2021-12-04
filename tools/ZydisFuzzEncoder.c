@@ -38,7 +38,7 @@
 
 // TODO: This could check `EVEX`/`MVEX` stuff as well
 void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
-    const ZydisDecodedInstruction *insn, const ZyanU8 *insn_bytes)
+    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand* operands, const ZyanU8 *insn_bytes)
 {
     // Special case, `xchg rAX, rAX` is an alias for `NOP`
     if ((request->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
@@ -61,6 +61,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
 
     // Handle possible KNC overlap
     ZydisDecodedInstruction knc_insn;
+    ZydisDecodedOperand knc_operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
     if (request->mnemonic != insn->mnemonic)
     {
         ZydisDecoder decoder;
@@ -75,32 +76,28 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
             fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
             abort();
         }
-        if (!ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, insn_bytes, insn->length, &knc_insn)))
+        if (!ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, insn_bytes, insn->length, &knc_insn,
+            knc_operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY)))
         {
             fputs("Failed to decode instruction\n", ZYAN_STDERR);
             abort();
         }
         insn = &knc_insn;
+        operands = knc_operands;
     }
 
-    ZyanU8 visible_operand_count = 0;
-    while ((visible_operand_count < insn->operand_count) &&
-           (insn->operands[visible_operand_count].visibility != ZYDIS_OPERAND_VISIBILITY_HIDDEN))
-    {
-        ++visible_operand_count;
-    }
     if ((request->machine_mode != insn->machine_mode) ||
         (request->mnemonic != insn->mnemonic) ||
-        (request->operand_count != visible_operand_count))
+        (request->operand_count != insn->operand_count_visible))
     {
         fputs("Basic instruction attributes mismatch\n", ZYAN_STDERR);
         abort();
     }
 
-    for (ZyanU8 i = 0; i < visible_operand_count; ++i)
+    for (ZyanU8 i = 0; i < insn->operand_count_visible; ++i)
     {
         const ZydisEncoderOperand *op1 = &request->operands[i];
-        const ZydisDecodedOperand *op2 = &insn->operands[i];
+        const ZydisDecodedOperand *op2 = &operands[i];
         if (op1->type != op2->type)
         {
             fprintf(ZYAN_STDERR, "Mismatch for operand %u\n", i);
@@ -280,15 +277,18 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     }
 
     ZydisDecodedInstruction insn1;
-    status = ZydisDecoderDecodeBuffer(&decoder, encoded_instruction, encoded_length, &insn1);
+    ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
+    status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1, 
+        operands1, ZYDIS_MAX_OPERAND_COUNT, 0);
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode instruction\n", ZYAN_STDERR);
         abort();
     }
 
-    ZydisCompareRequestToInstruction(&request, &insn1, encoded_instruction);
-    ZydisReEncodeInstruction(&decoder, &insn1, encoded_instruction);
+    ZydisCompareRequestToInstruction(&request, &insn1, operands1, encoded_instruction);
+    ZydisReEncodeInstruction(&decoder, &insn1, operands1, insn1.operand_count, 
+        encoded_instruction);
 
     return EXIT_SUCCESS;
 }

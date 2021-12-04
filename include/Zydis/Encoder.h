@@ -398,18 +398,22 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest 
  * Converts decoded instruction to encoder request that can be passed to
  * `ZydisEncoderEncodeInstruction`.
  *
- * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
- * @param   request     A pointer to the `ZydisEncoderRequest` struct, that receives information 
- *                      necessary for encoder to re-encode the instruction. This function 
- *                      performs simple structure conversion and does minimal sanity checks on the 
- *                      input. There's no guarantee that produced request will be accepted by
- *                      `ZydisEncoderEncodeInstruction` if malformed `ZydisDecodedInstruction` is 
- *                      passed to this function.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   operands        A pointer to the decoded operands.
+ * @param   operand_count   The operand count.
+ * @param   request         A pointer to the `ZydisEncoderRequest` struct, that receives
+ *                          information necessary for encoder to re-encode the instruction.
+ *
+ * This function performs simple structure conversion and does minimal sanity checks on the 
+ * input. There's no guarantee that produced request will be accepted by
+ * `ZydisEncoderEncodeInstruction` if malformed `ZydisDecodedInstruction` or malformed
+ * `ZydisDecodedOperands` is passed to this function.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
-    const ZydisDecodedInstruction *instruction, ZydisEncoderRequest *request);
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
+    ZyanU8 operand_count, ZydisEncoderRequest* request);
 
 /** @} */
 

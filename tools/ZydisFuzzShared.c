@@ -79,8 +79,8 @@ ZyanUSize ZydisLibFuzzerRead(void* ctx, ZyanU8* buf, ZyanUSize max_len)
 
 #if !defined(ZYDIS_FUZZ_AFL_FAST) && !defined(ZYDIS_LIBFUZZER)
 
-void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction, 
-    const ZyanU8 *instruction_bytes)
+void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
+    const ZydisDecodedOperand* operands, ZyanU8 operand_count, const ZyanU8* instruction_bytes)
 {
     switch (instruction->machine_mode)
     {
@@ -118,14 +118,16 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction *instruction,
     }
 
     char buffer[256];
-    ZydisFormatterFormatInstruction(&formatter, instruction, buffer, sizeof(buffer), 0);
+    ZydisFormatterFormatInstruction(&formatter, instruction, operands, operand_count, buffer,
+        sizeof(buffer), 0);
     printf(" %s\n", buffer);
 }
 
 #endif
 
 // NOTE: This function doesn't validate flag values, yet.
-void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
+void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
+    const ZydisDecodedOperand* operands, ZyanU8 operand_count)
 {
 #   define ZYDIS_CHECK_ENUM(value, max)                                                            \
     if ((ZyanU64)(value) > (ZyanU64)(max))                                                         \
@@ -144,9 +146,9 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
     ZYDIS_CHECK_ENUM(insn->opcode_map, ZYDIS_OPCODE_MAP_MAX_VALUE);
 
     // Operands.
-    for (ZyanU32 i = 0; i < ZYAN_ARRAY_LENGTH(insn->operands); ++i)
+    for (ZyanU32 i = 0; i < operand_count; ++i)
     {
-        const ZydisDecodedOperand* op = &insn->operands[i];
+        const ZydisDecodedOperand* op = &operands[i];
         ZYDIS_CHECK_ENUM(op->type, ZYDIS_OPERAND_TYPE_MAX_VALUE);
         ZYDIS_CHECK_ENUM(op->visibility, ZYDIS_OPERAND_VISIBILITY_MAX_VALUE);
         ZYDIS_CHECK_ENUM(op->encoding, ZYDIS_OPERAND_ENCODING_MAX_VALUE);
@@ -193,18 +195,22 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction *insn)
 #   undef ZYDIS_CHECK_ENUM
 }
 
-void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1, 
-    const ZydisDecodedInstruction *insn2)
+void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
+    const ZydisDecodedOperand* operands1, const ZydisDecodedInstruction* insn2,
+    const ZydisDecodedOperand* operands2)
 {
+    // TODO: Probably a good idea to input validate operand_counts to this function
+    // TODO: I don't like accessing buffers without having their actual sizes available...
+
     // Special case, `xchg rAX, rAX` is an alias for `NOP`
     if ((insn1->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
         (insn1->operand_count == 2) &&
-        (insn1->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-        (insn1->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-        (insn1->operands[0].reg.value == insn1->operands[1].reg.value) &&
+        (operands1[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (operands1[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+        (operands1[0].reg.value == operands1[1].reg.value) &&
         (insn2->mnemonic == ZYDIS_MNEMONIC_NOP))
     {
-        switch (insn1->operands[0].reg.value)
+        switch (operands1[0].reg.value)
         {
         case ZYDIS_REGISTER_AX:
         case ZYDIS_REGISTER_EAX:
@@ -215,9 +221,9 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
         }
     }
 
-    ZydisSwizzleMode swizzle1 = insn1->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 
+    ZydisSwizzleMode swizzle1 = insn1->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ?
         ZYDIS_SWIZZLE_MODE_INVALID : insn1->avx.swizzle.mode;
-    ZydisSwizzleMode swizzle2 = insn2->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ? 
+    ZydisSwizzleMode swizzle2 = insn2->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ?
         ZYDIS_SWIZZLE_MODE_INVALID : insn2->avx.swizzle.mode;
     if ((insn1->machine_mode != insn2->machine_mode) ||
         (insn1->mnemonic != insn2->mnemonic) ||
@@ -238,8 +244,8 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
 
     for (ZyanU8 i = 0; i < insn1->operand_count; ++i)
     {
-        const ZydisDecodedOperand *op1 = &insn1->operands[i];
-        const ZydisDecodedOperand *op2 = &insn2->operands[i];
+        const ZydisDecodedOperand *op1 = &operands1[i];
+        const ZydisDecodedOperand *op2 = &operands2[i];
         if ((op1->type != op2->type) ||
             (op1->size != op2->size && op1->type != ZYDIS_OPERAND_TYPE_IMMEDIATE))
         {
@@ -317,7 +323,7 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
                     if (size < 64)
                     {
                         const ZyanU64 mask = (1ULL << size) - 1;
-                        acceptable_mismatch = 
+                        acceptable_mismatch =
                             (op1->imm.value.u & mask) == (op2->imm.value.u & mask);
                     }
                     else
@@ -339,14 +345,17 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction *insn1,
     }
 }
 
-void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedInstruction *insn1, 
-    const ZyanU8 *insn1_bytes)
+void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedInstruction *insn1,
+    const ZydisDecodedOperand* operands1, ZyanU8 operand_count, const ZyanU8 *insn1_bytes)
 {
-    ZydisPrintInstruction(insn1, insn1_bytes);
-    ZydisValidateEnumRanges(insn1);
+    ZydisPrintInstruction(insn1, operands1, operand_count, insn1_bytes);
+    ZydisValidateEnumRanges(insn1, operands1, operand_count);
+
+    ZYAN_ASSERT(operand_count >= insn1->operand_count_visible);
 
     ZydisEncoderRequest request;
-    ZyanStatus status = ZydisEncoderDecodedInstructionToEncoderRequest(insn1, &request);
+    ZyanStatus status = ZydisEncoderDecodedInstructionToEncoderRequest(insn1, operands1,
+        insn1->operand_count_visible, &request);
     if (!ZYAN_SUCCESS(status))
     {
         fputs("ZydisEncoderDecodedInstructionToEncoderRequest failed\n", ZYAN_STDERR);
@@ -363,16 +372,18 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
     }
 
     ZydisDecodedInstruction insn2;
-    status = ZydisDecoderDecodeBuffer(decoder, encoded_instruction, encoded_length, &insn2);
+    ZydisDecodedOperand operands2[ZYDIS_MAX_OPERAND_COUNT];
+    status = ZydisDecoderDecodeFull(decoder, encoded_instruction, encoded_length, &insn2, 
+        operands2, ZYDIS_MAX_OPERAND_COUNT, 0);
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode re-encoded instruction\n", ZYAN_STDERR);
         abort();
     }
 
-    ZydisPrintInstruction(&insn2, encoded_instruction);
-    ZydisValidateEnumRanges(&insn2);
-    ZydisValidateInstructionIdentity(insn1, &insn2);
+    ZydisPrintInstruction(&insn2, operands2, insn2.operand_count_visible, encoded_instruction);
+    ZydisValidateEnumRanges(&insn2, operands2, insn2.operand_count_visible);
+    ZydisValidateInstructionIdentity(insn1, operands1, &insn2, operands2);
 
     if (insn2.length > insn1->length)
     {

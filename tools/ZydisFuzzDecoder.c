@@ -117,27 +117,29 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     ZyanU8 buffer[32];
     ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
     ZydisDecodedInstruction instruction;
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
     // Fuzz decoder.
-    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, buffer, input_len, &instruction);
+    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, 
+        operands, ZYDIS_MAX_OPERAND_COUNT, 0);
     if (!ZYAN_SUCCESS(status))
     {
         return EXIT_FAILURE;
     }
 
-    ZydisValidateEnumRanges(&instruction);
+    ZydisValidateEnumRanges(&instruction, operands, instruction.operand_count);
 
     // Fuzz formatter.
     char format_buffer[256];
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
-    ZydisFormatterFormatInstruction(&formatter, &instruction, format_buffer, output_len,
-        control_block.u64);
+    ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
+        instruction.operand_count_visible, format_buffer, output_len, control_block.u64);
 
     // Fuzz tokenizer.
     const ZydisFormatterToken* token;
-    status = ZydisFormatterTokenizeInstruction(&formatter, &instruction, format_buffer, output_len,
-        control_block.u64, &token);
+    status = ZydisFormatterTokenizeInstruction(&formatter, &instruction, operands,
+        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, &token);
 
     // Walk tokens.
     while (ZYAN_SUCCESS(status))
@@ -153,22 +155,23 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         status = ZydisFormatterTokenNext(&token);
     }
 
-    if (instruction.operand_count > 0)
+    if (instruction.operand_count_visible > 0)
     {
         // Fuzz single operand formatting. We reuse rt-address for operand selection.
         // It's casted to u8 because modulo is way cheaper on that.
-        ZyanU8 op_idx = (ZyanU8)control_block.u64 % instruction.operand_count;
-        ZydisFormatterFormatOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
+        ZyanU8 op_idx = (ZyanU8)control_block.u64 % instruction.operand_count_visible;
+        const ZydisDecodedOperand* op = &operands[op_idx];
+
+        ZydisFormatterFormatOperand(&formatter, &instruction, op, format_buffer, output_len,
             control_block.u64);
 
         // Fuzz single operand tokenization.
-        ZydisFormatterTokenizeOperand(&formatter, &instruction, op_idx, format_buffer, output_len,
+        ZydisFormatterTokenizeOperand(&formatter, &instruction, op, format_buffer, output_len,
             control_block.u64, &token);
 
         // Address translation helper.
         ZyanU64 abs_addr;
-        ZydisCalcAbsoluteAddress(&instruction, &instruction.operands[op_idx],
-            control_block.u64, &abs_addr);
+        ZydisCalcAbsoluteAddress(&instruction, op, control_block.u64, &abs_addr);
     }
 
     // Mnemonic helpers.
