@@ -716,6 +716,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
         ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
         ZyanU8 operand_count                   ZYAN_BITFIELD( 4); \
+        ZyanU8 operand_count_visible           ZYAN_BITFIELD( 3); \
         ZyanU16 operand_reference              ZYAN_BITFIELD(15); \
         ZyanU8 operand_size_map                ZYAN_BITFIELD( 3); \
         ZyanU8 address_size_map                ZYAN_BITFIELD( 2); \
@@ -926,13 +927,11 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
  * Returns the the operand-definitions for the given instruction-`definition`.
  *
  * @param   definition  A pointer to the instruction-definition.
- * @param   operand     A pointer to the variable that receives a pointer to the first operand-
- *                      definition of the instruction.
  *
- * @return  The number of operands for the given instruction-definition.
+ * @return  A pointer to the first operand definition of the instruction, or `ZYAN_NULL`.
  */
-ZYDIS_NO_EXPORT ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
-    const ZydisOperandDefinition** operand);
+ZYDIS_NO_EXPORT const ZydisOperandDefinition* ZydisGetOperandDefinitions(
+    const ZydisInstructionDefinition* definition);
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */

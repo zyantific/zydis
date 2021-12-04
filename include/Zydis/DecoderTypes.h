@@ -720,16 +720,19 @@ typedef struct ZydisDecodedInstruction_
     ZyanU8 address_width;
     /**
      * The number of instruction-operands.
+     *
+     * Explicit and implicit operands are guaranteed to be in the front and ordered as they are
+     * printed by the formatter in `Intel` mode. No assumptions can be made about the order of
+     * hidden operands, except that they always located behind the explicit and implicit operands.
      */
     ZyanU8 operand_count;
     /**
-     * Detailed info for all instruction operands.
+     * The number of explicit (visible) instruction-operands.
      *
-     * Explicit operands are guaranteed to be in the front and ordered as they are printed
-     * by the formatter in Intel mode. No assumptions can be made about the order of hidden
-     * operands, except that they always located behind the explicit operands.
+     * Explicit and implicit operands are guaranteed to be in the front and ordered as they are
+     * printed by the formatter in `Intel` mode.
      */
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
+    ZyanU8 operand_count_visible;
     /**
      * Instruction attributes.
      */
@@ -1230,6 +1233,123 @@ typedef struct ZydisDecodedInstruction_
         } imm[2];
     } raw;
 } ZydisDecodedInstruction;
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Decoder context                                                                                */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * The decoder context is used to preserve some internal state between subsequent decode
+ * operations for THE SAME instruction.
+ *
+ * The context is initialized by @c ZydisDecoderDecodeInstruction and required by e.g.
+ * @c ZydisDecoderDecodeOperands.
+ *
+ * All fields in this struct should be considered as "private". Any changes may lead to unexpected
+ * behavior.
+ *
+ * This struct is neither ABI nor API stable!
+ */
+typedef struct ZydisDecoderContext_
+{
+    /**
+     * A pointer to the internal instruction definition.
+     */
+    const void* definition;
+    /**
+     * Contains the effective operand-size index.
+     *
+     * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
+     */
+    ZyanU8 eosz_index;
+    /**
+     * Contains the effective address-size index.
+     *
+     * 0 = 16 bit, 1 = 32 bit, 2 = 64 bit
+     */
+    ZyanU8 easz_index;
+    /**
+     * Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
+     */
+    struct
+    {
+        ZyanU8 W;
+        ZyanU8 R;
+        ZyanU8 X;
+        ZyanU8 B;
+        ZyanU8 L;
+        ZyanU8 LL;
+        ZyanU8 R2;
+        ZyanU8 V2;
+        ZyanU8 vvvv;
+        ZyanU8 mask;
+    } vector_unified;
+    /**
+     * Information about encoded operand registers.
+     */
+    struct
+    {
+        /**
+         * Signals if the `modrm.mod == 3` or `reg` form is forced for the instruction.
+         */
+        ZyanBool is_mod_reg;
+        /**
+         * The final register id for the `reg` encoded register.
+         */
+        ZyanU8 id_reg;
+        /**
+         * The final register id for the `rm` encoded register.
+         *
+         * This value is only set, if a register is encoded in `modrm.rm`.
+         */
+        ZyanU8 id_rm;
+        /**
+         * The final register id for the `ndsndd` (`.vvvv`) encoded register.
+         */
+        ZyanU8 id_ndsndd;
+        /**
+         * The final register id for the base register.
+         *
+         * This value is only set, if a memory operand is encoded in `modrm.rm`.
+         */
+        ZyanU8 id_base;
+        /**
+         * The final register id for the index register.
+         *
+         * This value is only set, if a memory operand is encoded in `modrm.rm` and the `SIB` byte
+         * is present.
+         */
+        ZyanU8 id_index;
+    } reg_info;
+    /**
+     * Internal EVEX-specific information.
+     */
+    struct
+    {
+        /**
+         * The EVEX tuple-type.
+         */
+        ZyanU8 tuple_type;
+        /**
+         * The EVEX element-size.
+         */
+        ZyanU8 element_size;
+    } evex;
+    /**
+     * Internal MVEX-specific information.
+     */
+    struct
+    {
+        /**
+         * The MVEX functionality.
+         */
+        ZyanU8 functionality;
+    } mvex;
+    /**
+     * The scale factor for EVEX/MVEX compressed 8-bit displacement values.
+     */
+    ZyanU8 cd8_scale; // TODO: Could make sense to expose this in the ZydisDecodedInstruction
+} ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
 

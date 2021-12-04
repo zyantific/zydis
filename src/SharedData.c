@@ -108,17 +108,15 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
 /* ---------------------------------------------------------------------------------------------- */
 
 #ifndef ZYDIS_MINIMAL_MODE
-ZyanU8 ZydisGetOperandDefinitions(const ZydisInstructionDefinition* definition,
-    const ZydisOperandDefinition** operand)
+const ZydisOperandDefinition* ZydisGetOperandDefinitions(
+    const ZydisInstructionDefinition* definition)
 {
     if (definition->operand_count == 0)
     {
-        *operand = ZYAN_NULL;
-        return 0;
+        return ZYAN_NULL;
     }
     ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
-    *operand = &OPERAND_DEFINITIONS[definition->operand_reference];
-    return definition->operand_count;
+    return &OPERAND_DEFINITIONS[definition->operand_reference];
 }
 #endif
 

@@ -89,7 +89,9 @@ int main(int argc, char** argv)
 
     // Attempt to decode the given bytes as an X86-64 instruction.
     ZydisDecodedInstruction instr;
-    ZyanStatus status = ZydisDecoderDecodeBuffer(&decoder, bytes, num_bytes, &instr);
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, bytes, num_bytes, &instr, operands,
+        ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY);
     if (ZYAN_FAILED(status))
     {
         fprintf(stderr, "Failed to decode instruction: %02" PRIx32, status);
@@ -102,12 +104,14 @@ int main(int argc, char** argv)
 
     // Format & print the original instruction.
     char fmt_buf[256];
-    ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, fmt_buf, sizeof(fmt_buf), 0));
+    ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, operands,
+        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0));
     printf("Original instruction: %s\n", fmt_buf);
 
     // Create an encoder request from the previously decoded instruction.
     ZydisEncoderRequest enc_req;
-    ExpectSuccess(ZydisEncoderDecodedInstructionToEncoderRequest(&instr, &enc_req));
+    ExpectSuccess(ZydisEncoderDecodedInstructionToEncoderRequest(&instr, operands,
+        instr.operand_count_visible, &enc_req));
 
     // Now, change some things about the instruction!
 
@@ -152,8 +156,10 @@ int main(int argc, char** argv)
     ExpectSuccess(ZydisEncoderEncodeInstruction(&enc_req, new_bytes, &new_instr_length));
 
     // Decode and print the new instruction. We re-use the old buffers.
-    ExpectSuccess(ZydisDecoderDecodeBuffer(&decoder, new_bytes, new_instr_length, &instr));
-    ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, fmt_buf, sizeof(fmt_buf), 0));
+    ExpectSuccess(ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instr,
+        operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY));
+    ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, operands,
+        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0));
     printf("New instruction:      %s\n", fmt_buf);
 
     // Print the new instruction as hex-bytes.

@@ -2692,8 +2692,11 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
 ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
     const ZydisEncoderRequest *request)
 {
-    const ZyanU8 def_op_count =
-        ZydisGetOperandDefinitions(match->base_definition, &match->operands);
+    match->operands = ZydisGetOperandDefinitions(match->base_definition);
+    const ZyanU8 def_op_count = match->base_definition->operand_count;
+
+    // TODO: Use new `operand_count_visible` field
+
     if (def_op_count < request->operand_count)
     {
         return ZYAN_FALSE;
@@ -2929,7 +2932,7 @@ ZyanBool ZydisHandleSwappableDefinition(ZydisEncoderInstructionMatch *match)
         ++match->definition;
         ZydisGetInstructionDefinition(match->definition->encoding,
             match->definition->instruction_reference, &match->base_definition);
-        ZydisGetOperandDefinitions(match->base_definition, &match->operands);
+        match->operands = ZydisGetOperandDefinitions(match->base_definition);
         return ZYAN_TRUE;
     }
 
@@ -4281,9 +4284,10 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest 
 }
 
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
-    const ZydisDecodedInstruction *instruction, ZydisEncoderRequest *request)
+    const ZydisDecodedInstruction *instruction, const ZydisDecodedOperand* operands, 
+    ZyanU8 operand_count, ZydisEncoderRequest *request)
 {
-    if (!instruction || !request)
+    if (!instruction || !request || (operand_count && !operands))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -4404,24 +4408,16 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     }
     request->allowed_encodings = 1 << instruction->encoding;
 
-    if (instruction->operand_count > ZYAN_ARRAY_LENGTH(instruction->operands))
+    if ((operand_count > ZYDIS_ENCODER_MAX_OPERANDS) || 
+        (operand_count > instruction->operand_count_visible))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    request->operand_count = instruction->operand_count;
-    for (ZyanU8 i = 0; i < instruction->operand_count; ++i)
+    request->operand_count = operand_count;
+    for (ZyanU8 i = 0; i < operand_count; ++i)
     {
-        const ZydisDecodedOperand *dec_op = &instruction->operands[i];
+        const ZydisDecodedOperand *dec_op = &operands[i];
         ZydisEncoderOperand *enc_op = &request->operands[i];
-        if (dec_op->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
-        {
-            request->operand_count = i;
-            break;
-        }
-        if (i >= ZYAN_ARRAY_LENGTH(request->operands))
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
 
         enc_op->type = dec_op->type;
         switch (dec_op->type)

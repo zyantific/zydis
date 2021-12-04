@@ -57,17 +57,20 @@ int main()
     ZyanU64 runtime_address = 0x007FFFFFFF400000;
     ZyanUSize offset = 0;
     const ZyanUSize length = sizeof(data);
+    ZydisDecoderContext context;
     ZydisDecodedInstruction instruction;
-    while (ZYAN_SUCCESS(ZydisDecoderDecodeBuffer(&decoder, data + offset, length - offset,
-        &instruction)))
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+    while (ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, data + offset, length - offset,
+        &instruction, operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, 
+        ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY)))
     {
         // Print current instruction pointer.
         printf("%016" PRIX64 "  ", runtime_address);
 
         // Format & print the binary instruction structure to human readable format
         char buffer[256];
-        ZydisFormatterFormatInstruction(&formatter, &instruction, buffer, sizeof(buffer),
-            runtime_address);
+        ZydisFormatterFormatInstruction(&formatter, &instruction, &operands, 
+            instruction.operand_count_visible, buffer, sizeof(buffer), runtime_address);
         puts(buffer);
 
         offset += instruction.length;

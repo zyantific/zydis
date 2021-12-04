@@ -78,13 +78,12 @@ static const ZydisPredefinedToken* const TOK_PREF_REX[16] =
 /* ============================================================================================== */
 
 ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
-    ZydisFormatterContext* context, ZyanU8 memop_id)
+    ZydisFormatterContext* context, const ZydisDecodedOperand* operand)
 {
     ZYAN_ASSERT(formatter);
     ZYAN_ASSERT(context);
-    ZYAN_ASSERT(memop_id < context->instruction->operand_count);
+    ZYAN_ASSERT(operand);
 
-    const ZydisDecodedOperand* const operand = &context->instruction->operands[memop_id];
     ZYAN_ASSERT(operand->type == ZYDIS_OPERAND_TYPE_MEMORY);
     ZYAN_ASSERT((operand->mem.type == ZYDIS_MEMOP_TYPE_MEM) ||
                 (operand->mem.type == ZYDIS_MEMOP_TYPE_VSIB));
@@ -94,31 +93,42 @@ ZyanU32 ZydisFormatterHelperGetExplicitSize(const ZydisFormatter* formatter,
         return operand->size;
     }
 
+    if (!context->operands)
+    {
+        // Single operand formatting. We can not derive the explicit size by using the other
+        // operands.
+        return 0;
+    }
+
     switch (operand->id)
     {
     case 0:
-        if ((context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_UNUSED) ||
-            (context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+        if (context->instruction->operand_count_visible < 2)
         {
-            return context->instruction->operands[0].size;
+            return 0;
         }
-        if (context->instruction->operands[0].size != context->instruction->operands[1].size)
+        if ((context->operands[1].type == ZYDIS_OPERAND_TYPE_UNUSED) ||
+            (context->operands[1].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
         {
-            return context->instruction->operands[0].size;
+            return context->operands[0].size;
         }
-        if ((context->instruction->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
-            (context->instruction->operands[1].visibility == ZYDIS_OPERAND_VISIBILITY_IMPLICIT) &&
-            (context->instruction->operands[1].reg.value == ZYDIS_REGISTER_CL))
+        if (context->operands[0].size != context->operands[1].size)
         {
-            return context->instruction->operands[0].size;
+            return context->operands[0].size;
+        }
+        if ((context->operands[1].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
+            (context->operands[1].visibility == ZYDIS_OPERAND_VISIBILITY_IMPLICIT) &&
+            (context->operands[1].reg.value == ZYDIS_REGISTER_CL))
+        {
+            return context->operands[0].size;
         }
         break;
     case 1:
     case 2:
-        if (context->instruction->operands[operand->id - 1].size !=
-            context->instruction->operands[operand->id].size)
+        if (context->operands[operand->id - 1].size !=
+            context->operands[operand->id].size)
         {
-            return context->instruction->operands[operand->id].size;
+            return context->operands[operand->id].size;
         }
         break;
     default:
