@@ -2692,15 +2692,9 @@ ZyanBool ZydisCheckConstraints(const ZydisEncoderInstructionMatch *match)
 ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
     const ZydisEncoderRequest *request)
 {
+    ZYAN_ASSERT(request->operand_count == match->base_definition->operand_count_visible);
     match->operands = ZydisGetOperandDefinitions(match->base_definition);
-    const ZyanU8 def_op_count = match->base_definition->operand_count;
 
-    // TODO: Use new `operand_count_visible` field
-
-    if (def_op_count < request->operand_count)
-    {
-        return ZYAN_FALSE;
-    }
     if (!ZydisAreEvexFeaturesCompatible(match, request))
     {
         return ZYAN_FALSE;
@@ -2714,11 +2708,7 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
     {
         const ZydisEncoderOperand *user_op = &request->operands[i];
         const ZydisOperandDefinition *def_op = &match->operands[i];
-        if (def_op->visibility == ZYDIS_OPERAND_VISIBILITY_HIDDEN)
-        {
-            return ZYAN_FALSE;
-        }
-
+        ZYAN_ASSERT(def_op->visibility != ZYDIS_OPERAND_VISIBILITY_HIDDEN);
         ZyanBool is_compatible = ZYAN_FALSE;
         switch (user_op->type)
         {
@@ -2739,13 +2729,6 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
         }
 
         if (!is_compatible)
-        {
-            return ZYAN_FALSE;
-        }
-    }
-    for (ZyanU8 i = request->operand_count; i < def_op_count; ++i)
-    {
-        if (match->operands[i].visibility != ZYDIS_OPERAND_VISIBILITY_HIDDEN)
         {
             return ZYAN_FALSE;
         }
