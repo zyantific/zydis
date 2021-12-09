@@ -1319,11 +1319,6 @@ int main(int argc, char** argv)
     ZYAN_PUTS("");
     PrintSegments(&instruction, &data[0]);
 
-    ZydisEncoderRequest request;
-    ZyanUSize len = instruction.length;
-    status = ZydisEncoderDecodedInstructionToEncoderRequest(&instruction, operands, instruction.operand_count_visible, &request);
-    status = ZydisEncoderEncodeInstruction(&request, data, &len);
-
     return EXIT_SUCCESS;
 }
 
