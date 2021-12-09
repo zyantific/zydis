@@ -1258,7 +1258,7 @@ ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *match,
     const ZydisRegisterClass reg_class = ZydisRegisterGetClass(user_op->reg.value);
     const ZydisRegisterWidth reg_width = ZydisRegisterClassGetWidth(match->request->machine_mode,
         reg_class);
-    if (reg_width == 0 && (reg_class != ZYDIS_REGCLASS_MASK))
+    if (reg_width == 0)
     {
         return ZYAN_FALSE;
     }

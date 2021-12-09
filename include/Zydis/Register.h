@@ -160,6 +160,10 @@ typedef enum ZydisRegisterClass_
      */
     ZYDIS_REGCLASS_SEGMENT,
     /**
+     * Table registers.
+    */
+    ZYDIS_REGCLASS_TABLE,
+    /**
      * Test registers.
      */
     ZYDIS_REGCLASS_TEST,
