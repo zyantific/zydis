@@ -100,32 +100,34 @@ static const char* FormatZyanStatus(ZyanStatus status)
 {
     static const char* strings_zycore[] =
     {
-        "SUCCESS",
-        "FAILED",
-        "TRUE",
-        "FALSE",
-        "INVALID_ARGUMENT",
-        "INVALID_OPERATION",
-        "NOT_FOUND",
-        "OUT_OF_RANGE",
-        "INSUFFICIENT_BUFFER_SIZE",
-        "NOT_ENOUGH_MEMORY",
-        "NOT_ENOUGH_MEMORY",
-        "BAD_SYSTEMCALL"
+        /* 00 */ "SUCCESS",
+        /* 01 */ "FAILED",
+        /* 02 */ "TRUE",
+        /* 03 */ "FALSE",
+        /* 04 */ "INVALID_ARGUMENT",
+        /* 05 */ "INVALID_OPERATION",
+        /* 06 */ "NOT_FOUND",
+        /* 07 */ "OUT_OF_RANGE",
+        /* 08 */ "INSUFFICIENT_BUFFER_SIZE",
+        /* 09 */ "NOT_ENOUGH_MEMORY",
+        /* 0A */ "NOT_ENOUGH_MEMORY",
+        /* 0B */ "BAD_SYSTEMCALL"
     };
     static const char* strings_zydis[] =
     {
-        "NO_MORE_DATA",
-        "DECODING_ERROR",
-        "INSTRUCTION_TOO_LONG",
-        "BAD_REGISTER",
-        "ILLEGAL_LOCK",
-        "ILLEGAL_LEGACY_PFX",
-        "ILLEGAL_REX",
-        "INVALID_MAP",
-        "MALFORMED_EVEX",
-        "MALFORMED_MVEX",
-        "INVALID_MASK"
+        /* 00 */ "NO_MORE_DATA",
+        /* 01 */ "DECODING_ERROR",
+        /* 02 */ "INSTRUCTION_TOO_LONG",
+        /* 03 */ "BAD_REGISTER",
+        /* 04 */ "ILLEGAL_LOCK",
+        /* 05 */ "ILLEGAL_LEGACY_PFX",
+        /* 06 */ "ILLEGAL_REX",
+        /* 07 */ "INVALID_MAP",
+        /* 08 */ "MALFORMED_EVEX",
+        /* 09 */ "MALFORMED_MVEX",
+        /* 0A */ "INVALID_MASK",
+        /* 0B */ "SKIP_TOKEN",
+        /* 0C */ "IMPOSSIBLE_INSTRUCTION"
     };
 
     if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYCORE)
@@ -189,6 +191,30 @@ static const char* GetAccessedFlagActionString(const ZydisAccessedFlags* accesse
 /* ---------------------------------------------------------------------------------------------- */
 /* Text output                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Prints the given error message and status code.
+ * @param   status  The status code.
+ * @param   message The error message.
+*/
+static void PrintStatusError(ZyanStatus status, const char* message)
+{
+    ZYAN_ASSERT(ZYAN_FAILED(status));
+
+    if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
+    {
+        ZYAN_FPRINTF(ZYAN_STDERR,
+            "%s%s: User defined status code [0x%" PRIx32 "]%s\n",
+            CVT100_ERR(COLOR_ERROR), message, status,
+            CVT100_ERR(ZYAN_VT100SGR_RESET));
+    }
+    else
+    {
+        ZYAN_FPRINTF(ZYAN_STDERR, "%s%s: %s [0x%" PRIx32 "]%s\n",
+            CVT100_ERR(COLOR_ERROR), message, FormatZyanStatus(status), status,
+            CVT100_ERR(ZYAN_VT100SGR_RESET));
+    }
+}
 
 /**
  * Prints a section header.
@@ -262,11 +288,11 @@ static void PrintValueLabel(const char* name)
  *
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   buffer      The buffer that contains the instruction bytes.
+ * @param   print_hints Controls the printing of descriptive hints.
  */
-static void PrintSegments(const ZydisDecodedInstruction* instruction, const ZyanU8* buffer)
+static void PrintSegments(const ZydisDecodedInstruction* instruction, const ZyanU8* buffer,
+    ZyanBool print_hints)
 {
-    PrintSectionHeader("SEGMENTS");
-
     ZydisInstructionSegments segments;
     ZydisGetInstructionSegments(instruction, &segments);
 
@@ -373,6 +399,11 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
     }
     ZYAN_PRINTF("%s\n", CVT100_OUT(COLOR_DEFAULT));
 
+    if (!print_hints)
+    {
+        return;
+    }
+
     for (ZyanU8 i = 0; i < segments.count; ++i)
     {
         ZyanU8 j = 0;
@@ -394,6 +425,47 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
     }
 
     ZYAN_PRINTF(CVT100_OUT(COLOR_DEFAULT));
+}
+
+/**
+ * Prints a size optimized form of the input instruction.
+ *
+ * @param decoder       A pointer to the `ZydisDecoder` instance.
+ * @param instruction   A pointer to the `ZydisDecodedInstruction` struct.
+ * @param operands      A pointer to the `operands` array.
+ * @param operand_count The length of the `operands` array.
+ */
+static void PrintSizeOptimizedForm(const ZydisDecoder* decoder,
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
+    ZyanU8 operand_count)
+{
+    ZydisEncoderRequest request;
+    ZyanStatus status = ZydisEncoderDecodedInstructionToEncoderRequest(instruction, operands,
+        operand_count, &request);
+    if (!ZYAN_SUCCESS(status))
+    {
+        PrintStatusError(status, "Failed to craft encoder request");
+        exit(status);
+    }
+
+    ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
+    ZyanUSize len = sizeof(data);
+    status = ZydisEncoderEncodeInstruction(&request, data, &len);
+    if (!ZYAN_SUCCESS(status))
+    {
+        PrintStatusError(status, "Could not encode instruction");
+        exit(status);
+    }
+
+    ZydisDecodedInstruction new_instruction;
+    status = ZydisDecoderDecodeFull(decoder, &data, len, &new_instruction, ZYAN_NULL, 0, 0);
+    if (!ZYAN_SUCCESS(status))
+    {
+        PrintStatusError(status, "Could not decode instruction");
+        exit(status);
+    }
+
+    PrintSegments(&new_instruction, &data[0], ZYAN_FALSE);
 }
 
 /**
@@ -829,8 +901,7 @@ static void PrintTokenizedInstruction(const ZydisFormatterToken* token)
         ZyanConstCharPointer value;
         if (!ZYAN_SUCCESS(status = ZydisFormatterTokenGetValue(token, &type, &value)))
         {
-            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to get token value%s\n",
-                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            PrintStatusError(status, "Failed to get token value");
             exit(status);
         }
 
@@ -894,8 +965,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
     case ZYDIS_FORMATTER_STYLE_ATT:
         if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_ATT)))
         {
-            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
-                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            PrintStatusError(status, "Failed to initialize instruction-formatter");
             exit(status);
         }
         PrintSectionHeader("ATT");
@@ -907,8 +977,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
             !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
                 ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
         {
-            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
-                CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+            PrintStatusError(status, "Failed to initialize instruction-formatter");
             exit(status);
         }
         PrintSectionHeader("INTEL");
@@ -924,8 +993,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
     if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(&formatter, instruction, operands,
         instruction->operand_count_visible, buffer, sizeof(buffer), 0, &token)))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to tokenize instruction%s\n",
-            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+        PrintStatusError(status, "Failed to tokenize instruction");
         exit(status);
     }
     PrintTokenizedInstruction(token);
@@ -934,8 +1002,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
         instruction->operand_count_visible, buffer, sizeof(buffer), ZYDIS_RUNTIME_ADDRESS_NONE,
         &token)))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to tokenize instruction%s\n",
-            CVT100_OUT(COLOR_ERROR), CVT100_OUT(ZYAN_VT100SGR_RESET));
+        PrintStatusError(status, "Failed to tokenize instruction");
         exit(status);
     }
     PrintTokenizedInstruction(token);
@@ -944,11 +1011,12 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
 /**
  * Dumps basic instruction info.
  *
+ * @param   decoder     A pointer to the `ZydisDecoder` instance.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operands    A pointer to the first `ZydisDecodedOperand` struct of the instruction.
  */
-static void PrintInstruction(const ZydisDecodedInstruction* instruction,
-    const ZydisDecodedOperand* operands)
+static void PrintInstruction(const ZydisDecoder* decoder,
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands)
 {
     static const char* opcode_maps[] =
     {
@@ -1128,6 +1196,9 @@ static void PrintInstruction(const ZydisDecodedInstruction* instruction,
         ZYAN_PUTS(CVT100_OUT(COLOR_DEFAULT));
     }
 
+    PrintValueLabel("OPTIMIZED");
+    PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);
+
     if (instruction->operand_count > 0)
     {
         ZYAN_PUTS("");
@@ -1243,9 +1314,8 @@ int main(int argc, char** argv)
     ZyanStatus status = ZydisDecoderInit(&decoder, machine_mode, stack_width);
     if (!ZYAN_SUCCESS(status))
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n",
-            CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
-        return ZYAN_STATUS_INVALID_ARGUMENT;
+        PrintStatusError(status, "Failed to initialize decoder");
+        return status;
     }
 
     ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
@@ -1299,25 +1369,15 @@ int main(int argc, char** argv)
         ZYDIS_MAX_OPERAND_COUNT, 0);
     if (!ZYAN_SUCCESS(status))
     {
-        if (ZYAN_STATUS_MODULE(status) >= ZYAN_MODULE_USER)
-        {
-            ZYAN_FPRINTF(ZYAN_STDERR,
-                "%sCould not decode instruction: User defined status code 0x%" PRIx32 "%s\n",
-                CVT100_ERR(COLOR_ERROR), status,
-                CVT100_ERR(ZYAN_VT100SGR_RESET));
-        } else
-        {
-            ZYAN_FPRINTF(ZYAN_STDERR, "%sCould not decode instruction: %s%s\n",
-                CVT100_ERR(COLOR_ERROR), FormatZyanStatus(status),
-                CVT100_ERR(ZYAN_VT100SGR_RESET));
-        }
+        PrintStatusError(status, "Could not decode instruction");
         return status;
     }
 
-    PrintInstruction(&instruction, operands);
+    PrintInstruction(&decoder, &instruction, operands);
 
     ZYAN_PUTS("");
-    PrintSegments(&instruction, &data[0]);
+    PrintSectionHeader("SEGMENTS");
+    PrintSegments(&instruction, &data[0], ZYAN_TRUE);
 
     return EXIT_SUCCESS;
 }

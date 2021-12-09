@@ -9,6 +9,7 @@
     ISA-EXT: KNCV
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_VEX IS_RELATIVE 
+  OPTIMIZED: C5 E8 84 E3 7C FE 42 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

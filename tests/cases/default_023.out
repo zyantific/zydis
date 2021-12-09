@@ -8,6 +8,7 @@
     ISA-SET: X87
     ISA-EXT: X87
  EXCEPTIONS: NONE
+  OPTIMIZED: 9B 
 
 == [      ATT ] ============================================================================================
    ABSOLUTE: fwait

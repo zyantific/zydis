@@ -9,6 +9,7 @@
     ISA-EXT: AVX
  EXCEPTIONS: AVX2
  ATTRIBUTES: HAS_MODRM HAS_VEX 
+  OPTIMIZED: C5 6D 5D C3 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
