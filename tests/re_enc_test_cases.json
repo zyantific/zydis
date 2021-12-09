@@ -700,5 +700,11 @@
         "stack_width": "ZYDIS_STACK_WIDTH_16",
         "payload": "D324FF",
         "description": "shl dword ptr ds:[edi+edi*8], cl"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "CACACA",
+        "description": "ret far 0xCACA"
     }
 ]

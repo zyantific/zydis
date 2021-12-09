@@ -112,29 +112,26 @@ typedef enum ZydisEncodableEncoding_
 } ZydisEncodableEncoding;
 
 /**
- * Defines encodable branch types.
+ * Defines encodable physical/effective sizes of relative immediate operands. See
+ * `ZydisEncoderRequest.branch_width` for more details.
  */
-typedef enum ZydisEncodableBranchType_
+typedef enum ZydisBranchWidth_
 {
-    ZYDIS_ENCODABLE_BRANCH_TYPE_NONE,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_SHORT,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32,
-    ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64,
+    ZYDIS_BRANCH_WIDTH_NONE,
+    ZYDIS_BRANCH_WIDTH_8,
+    ZYDIS_BRANCH_WIDTH_16,
+    ZYDIS_BRANCH_WIDTH_32,
+    ZYDIS_BRANCH_WIDTH_64,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE = ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64,
+    ZYDIS_BRANCH_WIDTH_MAX_VALUE = ZYDIS_BRANCH_WIDTH_64,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ENCODABLE_BRANCH_TYPE_REQUIRED_BITS = 
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE)
-} ZydisEncodableBranchType;
+    ZYDIS_BRANCH_WIDTH_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_BRANCH_WIDTH_MAX_VALUE)
+} ZydisBranchWidth;
 
 /**
  * Defines possible values for address size hints. See `ZydisEncoderRequest` for more information
@@ -288,9 +285,18 @@ typedef struct ZydisEncoderRequest_
      */
     ZydisInstructionAttributes prefixes;
     /**
-     * Branch type (required for branching instructions only).
+     * Branch type (required for branching instructions only). Use `ZYDIS_BRANCH_TYPE_NONE` to let
+     * encoder pick size-optimal branch type automatically (`short` and `near` are prioritized over
+     * `far`).
      */
-    ZydisEncodableBranchType branch_type;
+    ZydisBranchType branch_type;
+    /**
+     * Specifies physical size for relative immediate operands. Use `ZYDIS_BRANCH_WIDTH_NONE` to
+     * let encoder pick size-optimal branch width automatically. For segment:offset `far` branches
+     * this field applies to physical size of the offset part. For branching instructions without
+     * relative operands this field affects effective operand size attribute.
+     */
+    ZydisBranchWidth branch_width;
     /**
      * Optional address size hint used to resolve ambiguities for some instructions. Generally
      * encoder deduces address size from `ZydisEncoderOperand` structures that represent

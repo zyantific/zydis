@@ -206,8 +206,8 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     ZYDIS_SANITIZE_MASK(request.prefixes, ZydisInstructionAttributes, ZYDIS_ENCODABLE_PREFIXES);
     ZYDIS_SANITIZE_ENUM(request.machine_mode, ZydisMachineMode, ZYDIS_MACHINE_MODE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.mnemonic, ZydisMnemonic, ZYDIS_MNEMONIC_MAX_VALUE);
-    ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisEncodableBranchType,
-        ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisBranchType, ZYDIS_BRANCH_TYPE_MAX_VALUE);
+    ZYDIS_SANITIZE_ENUM(request.branch_width, ZydisBranchWidth, ZYDIS_BRANCH_WIDTH_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.address_size_hint, ZydisAddressSizeHint,
         ZYDIS_ADDRESS_SIZE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.operand_size_hint, ZydisOperandSizeHint,

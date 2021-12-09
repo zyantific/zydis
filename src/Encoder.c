@@ -134,6 +134,10 @@ typedef struct ZydisEncoderInstructionMatch_
      * True for special cases where operand size attribute must be lower than 64 bits.
      */
     ZyanBool eosz64_forbidden;
+    /**
+     * True when instruction definition has relative operand (used for branching instructions).
+     */
+    ZyanBool has_rel_operand;
 } ZydisEncoderInstructionMatch;
 
 /**
@@ -349,34 +353,6 @@ ZyanU8 ZydisGetOszFromHint(ZydisOperandSizeHint hint)
 }
 
 /**
- * Converts `ZydisEncodableBranchType` to `ZydisBranchType`.
- *
- * @param   encodable_branch_type Encodable branch type.
- *
- * @return  `ZydisBranchType` value.
- */
-ZydisBranchType ZydisGetBranchType(ZydisEncodableBranchType encodable_branch_type)
-{
-    switch (encodable_branch_type)
-    {
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NONE:
-        return ZYDIS_BRANCH_TYPE_NONE;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_SHORT:
-        return ZYDIS_BRANCH_TYPE_SHORT;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64:
-        return ZYDIS_BRANCH_TYPE_NEAR;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64:
-        return ZYDIS_BRANCH_TYPE_FAR;
-    default:
-        ZYAN_UNREACHABLE;
-    }
-}
-
-/**
  * Calculates effective operand size.
  *
  * @param   match            A pointer to `ZydisEncoderInstructionMatch` struct.
@@ -579,7 +555,6 @@ ZyanU8 ZydisGetEffectiveImmSize(ZydisEncoderInstructionMatch *match, ZyanI64 imm
     {
     case ZYDIS_OPERAND_ENCODING_UIMM8:
     case ZYDIS_OPERAND_ENCODING_SIMM8:
-    case ZYDIS_OPERAND_ENCODING_JIMM8:
         eisz = 8;
         break;
     case ZYDIS_OPERAND_ENCODING_IS4:
@@ -588,17 +563,14 @@ ZyanU8 ZydisGetEffectiveImmSize(ZydisEncoderInstructionMatch *match, ZyanI64 imm
         break;
     case ZYDIS_OPERAND_ENCODING_UIMM16:
     case ZYDIS_OPERAND_ENCODING_SIMM16:
-    case ZYDIS_OPERAND_ENCODING_JIMM16:
         eisz = 16;
         break;
     case ZYDIS_OPERAND_ENCODING_UIMM32:
     case ZYDIS_OPERAND_ENCODING_SIMM32:
-    case ZYDIS_OPERAND_ENCODING_JIMM32:
         eisz = 32;
         break;
     case ZYDIS_OPERAND_ENCODING_UIMM64:
     case ZYDIS_OPERAND_ENCODING_SIMM64:
-    case ZYDIS_OPERAND_ENCODING_JIMM64:
         eisz = 64;
         break;
     case ZYDIS_OPERAND_ENCODING_UIMM16_32_64:
@@ -644,20 +616,37 @@ ZyanU8 ZydisGetEffectiveImmSize(ZydisEncoderInstructionMatch *match, ZyanI64 imm
             }
         }
         break;
-    case ZYDIS_OPERAND_ENCODING_JIMM16_32_32:
-        switch (match->request->branch_type)
+    case ZYDIS_OPERAND_ENCODING_JIMM8:
+    case ZYDIS_OPERAND_ENCODING_JIMM16:
+    case ZYDIS_OPERAND_ENCODING_JIMM32:
+    case ZYDIS_OPERAND_ENCODING_JIMM64:
+    {
+        ZyanU8 jimm_index = def_op->op.encoding - ZYDIS_OPERAND_ENCODING_JIMM8;
+        if ((match->request->branch_width != ZYDIS_BRANCH_WIDTH_NONE) &&
+            (match->request->branch_width != (ZydisBranchWidth)(ZYDIS_BRANCH_WIDTH_8 + jimm_index)))
         {
-        case ZYDIS_ENCODABLE_BRANCH_TYPE_NONE:
+            return 0;
+        }
+        eisz = 8 << jimm_index;
+        break;
+    }
+    case ZYDIS_OPERAND_ENCODING_JIMM16_32_32:
+        switch (match->request->branch_width)
+        {
+        case ZYDIS_BRANCH_WIDTH_NONE:
         {
             static const ZyanU16 jimm16_32_32_sizes[3] = { 16, 32, 32 };
             return ZydisGetScaledImmSize(match, jimm16_32_32_sizes, min_size);
         }
-        case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16:
+        case ZYDIS_BRANCH_WIDTH_16:
             eisz = 16;
             break;
-        case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32:
+        case ZYDIS_BRANCH_WIDTH_32:
             eisz = 32;
             break;
+        case ZYDIS_BRANCH_WIDTH_8:
+        case ZYDIS_BRANCH_WIDTH_64:
+            return 0;
         default:
             ZYAN_UNREACHABLE;
         }
@@ -2110,26 +2099,18 @@ ZyanBool ZydisIsPointerOperandCompatible(ZydisEncoderInstructionMatch *match,
     const ZydisEncoderOperand *user_op)
 {
     ZYAN_ASSERT(match->eosz == 0);
-    ZYAN_ASSERT((match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16) ||
-                (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32));
+    ZYAN_ASSERT(match->request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64);
+    ZYAN_ASSERT((match->request->branch_type == ZYDIS_BRANCH_TYPE_NONE) ||
+                (match->request->branch_type == ZYDIS_BRANCH_TYPE_FAR));
     const ZyanU8 min_disp_size = ZydisGetUnsignedImmSize(user_op->ptr.offset);
-    if (match->request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16)
+    const ZyanU8 desired_disp_size = (match->request->branch_width == ZYDIS_BRANCH_WIDTH_NONE)
+        ? ZydisGetMachineModeWidth(match->request->machine_mode)
+        : (4 << match->request->branch_width);
+    if (min_disp_size > desired_disp_size)
     {
-        if (min_disp_size > 16)
-        {
-            return ZYAN_FALSE;
-        }
-        match->eosz = match->disp_size = 16;
+        return ZYAN_FALSE;
     }
-    else
-    {
-        if (min_disp_size > 32)
-        {
-            return ZYAN_FALSE;
-        }
-        match->eosz = match->disp_size = 32;
-    }
-
+    match->eosz = match->disp_size = desired_disp_size;
     match->imm_size = 16;
     return ZYAN_TRUE;
 }
@@ -2179,6 +2160,7 @@ ZyanBool ZydisIsImmediateOperandCompabile(ZydisEncoderInstructionMatch *match,
             }
         }
         match->imm_size = imm_size;
+        match->has_rel_operand = (def_op->type == ZYDIS_SEMANTIC_OPTYPE_REL);
         break;
     }
     default:
@@ -2735,25 +2717,39 @@ ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
     }
 
     ZyanU8 eosz = 0;
-    switch (request->branch_type)
+    if (match->base_definition->branch_type != ZYDIS_BRANCH_TYPE_NONE)
     {
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NONE:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_SHORT:
-        break;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16:
-        eosz = 16;
-        break;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32:
-        eosz = 32;
-        break;
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64:
-    case ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64:
-        eosz = 64;
-        break;
-    default:
-        ZYAN_UNREACHABLE;
+        switch (request->branch_width)
+        {
+        case ZYDIS_BRANCH_WIDTH_NONE:
+            break;
+        case ZYDIS_BRANCH_WIDTH_8:
+            if ((!match->has_rel_operand) ||
+                (match->base_definition->branch_type != ZYDIS_BRANCH_TYPE_SHORT))
+            {
+                return ZYAN_FALSE;
+            }
+            break;
+        case ZYDIS_BRANCH_WIDTH_16:
+            eosz = 16;
+            break;
+        case ZYDIS_BRANCH_WIDTH_32:
+            eosz = ((match->has_rel_operand) &&
+                    (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+                    (match->base_definition->operand_size_map == ZYDIS_OPSIZE_MAP_FORCE64))
+                ? 64
+                : 32;
+            break;
+        case ZYDIS_BRANCH_WIDTH_64:
+            if (match->has_rel_operand)
+            {
+                return ZYAN_FALSE;
+            }
+            eosz = 64;
+            break;
+        default:
+            ZYAN_UNREACHABLE;
+        }
     }
     if (eosz)
     {
@@ -2945,7 +2941,6 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
         (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32);
     const ZyanU8 default_asz = ZydisGetAszFromHint(request->address_size_hint);
     const ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint);
-    const ZydisBranchType branch_type = ZydisGetBranchType(request->branch_type);
     const ZyanU16 operand_mask = ZydisGetOperandMask(request);
 
     for (ZyanU8 i = 0; i < definition_count; ++i, ++definition)
@@ -2992,7 +2987,13 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
         {
             continue;
         }
-        if (branch_type != base_definition->branch_type)
+        if ((request->branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
+            (request->branch_type != base_definition->branch_type))
+        {
+            continue;
+        }
+        if ((base_definition->branch_type == ZYDIS_BRANCH_TYPE_NONE) &&
+            (request->branch_width != ZYDIS_BRANCH_WIDTH_NONE))
         {
             continue;
         }
@@ -3005,6 +3006,7 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
         match->disp_size = match->imm_size = match->cd8_scale = 0;
         match->rex_type = ZYDIS_REX_TYPE_UNKNOWN;
         match->eosz64_forbidden = ZYAN_FALSE;
+        match->has_rel_operand = ZYAN_FALSE;
         if ((base_definition->operand_size_map != ZYDIS_OPSIZE_MAP_BYTEOP) &&
             (match->eosz == 8))
         {
@@ -4095,44 +4097,11 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
  */
 ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
 {
-    switch (request->machine_mode)
-    {
-    case ZYDIS_MACHINE_MODE_LONG_64:
-        break;
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
-    case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
-    case ZYDIS_MACHINE_MODE_LEGACY_32:
-    case ZYDIS_MACHINE_MODE_LEGACY_16:
-    case ZYDIS_MACHINE_MODE_REAL_16:
-        if ((request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64) ||
-            (request->branch_type == ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64))
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-        break;
-    default:
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
-    {
-        if (request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_16)
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-    }
-    else
-    {
-        if ((request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_64) ||
-            (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_64))
-        {
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-    }
-
-    if (((ZyanUSize)request->allowed_encodings > ZYDIS_ENCODABLE_ENCODING_MAX_VALUE) ||
+    if (((ZyanUSize)request->machine_mode > ZYDIS_MACHINE_MODE_MAX_VALUE) ||
+        ((ZyanUSize)request->allowed_encodings > ZYDIS_ENCODABLE_ENCODING_MAX_VALUE) ||
         ((ZyanUSize)request->mnemonic > ZYDIS_MNEMONIC_MAX_VALUE) ||
-        ((ZyanUSize)request->branch_type > ZYDIS_ENCODABLE_BRANCH_TYPE_MAX_VALUE) ||
+        ((ZyanUSize)request->branch_type > ZYDIS_BRANCH_TYPE_MAX_VALUE) ||
+        ((ZyanUSize)request->branch_width > ZYDIS_BRANCH_WIDTH_MAX_VALUE) ||
         ((ZyanUSize)request->address_size_hint > ZYDIS_ADDRESS_SIZE_MAX_VALUE) ||
         ((ZyanUSize)request->operand_size_hint > ZYDIS_OPERAND_SIZE_MAX_VALUE) ||
         ((ZyanUSize)request->evex.broadcast > ZYDIS_BROADCAST_MODE_MAX_VALUE) ||
@@ -4201,6 +4170,37 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
         (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    static const ZyanBool branch_lookup
+        [ZYDIS_BRANCH_WIDTH_MAX_VALUE + 1][ZYDIS_BRANCH_TYPE_MAX_VALUE + 1] =
+    {
+        /* NONE */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE  },
+        /* 8    */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE, ZYAN_FALSE },
+        /* 16   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
+        /* 32   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
+        /* 64   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
+    };
+    if (!branch_lookup[request->branch_width][request->branch_type])
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+    {
+        if (request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_16)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    else
+    {
+        if ((request->branch_width == ZYDIS_BRANCH_WIDTH_64) ||
+            (request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_64) ||
+            (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_64))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
     }
 
     for (ZyanU8 i = 0; i < request->operand_count; ++i)
@@ -4279,6 +4279,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     request->machine_mode = instruction->machine_mode;
     request->mnemonic = instruction->mnemonic;
     request->prefixes = instruction->attributes & ZYDIS_ENCODABLE_PREFIXES;
+    request->branch_type = instruction->meta.branch_type;
     if (!(instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_SEGMENT))
     {
         request->prefixes &= ~ZYDIS_ATTRIB_HAS_SEGMENT;
@@ -4317,44 +4318,29 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    switch (instruction->meta.branch_type)
+    switch (request->branch_type)
     {
     case ZYDIS_BRANCH_TYPE_NONE:
-        request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_NONE;
+        request->branch_width = ZYDIS_BRANCH_WIDTH_NONE;
         break;
     case ZYDIS_BRANCH_TYPE_SHORT:
-        request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_SHORT;
+        request->branch_width = ZYDIS_BRANCH_WIDTH_8;
         break;
     case ZYDIS_BRANCH_TYPE_NEAR:
-        switch (instruction->operand_width)
-        {
-        case 16:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16;
-            break;
-        case 32:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32;
-            break;
-        case 64:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64;
-            break;
-        default:
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
-        break;
     case ZYDIS_BRANCH_TYPE_FAR:
         switch (instruction->operand_width)
         {
         case 16:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16;
+            request->branch_width = ZYDIS_BRANCH_WIDTH_16;
             break;
         case 32:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32;
+            request->branch_width = ZYDIS_BRANCH_WIDTH_32;
             break;
         case 64:
-            request->branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64;
+            request->branch_width = ZYDIS_BRANCH_WIDTH_64;
             break;
         default:
-            return ZYAN_STATUS_INVALID_ARGUMENT;
+            ZYAN_UNREACHABLE;
         }
         break;
     default:
@@ -4431,6 +4417,28 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             enc_op->imm.u = dec_op->imm.value.u;
+            // `XBEGIN` is an ISA-wide unique instruction because it's not a branching instruction
+            // but it has a relative operand which behaves differently from all other relatives
+            // (no truncating behavior in 16-bit mode). Encoder treats it as non-branching
+            // instruction that scales with hidden operand size.
+            if ((dec_op->imm.is_relative) &&
+                (instruction->mnemonic != ZYDIS_MNEMONIC_XBEGIN))
+            {
+                switch (instruction->raw.imm->size)
+                {
+                case 8:
+                    request->branch_width = ZYDIS_BRANCH_WIDTH_8;
+                    break;
+                case 16:
+                    request->branch_width = ZYDIS_BRANCH_WIDTH_16;
+                    break;
+                case 32:
+                    request->branch_width = ZYDIS_BRANCH_WIDTH_32;
+                    break;
+                default:
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
+            }
             break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;

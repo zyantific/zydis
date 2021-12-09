@@ -85,7 +85,6 @@ static ZyanUSize AssembleCode(ZyanU8* buffer, ZyanUSize buffer_length)
     // Assemble `ret`.
     memset(&req, 0, sizeof(req));
     req.mnemonic = ZYDIS_MNEMONIC_RET;
-    req.branch_type = ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64;
     req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
     AppendInstruction(&req, &write_ptr, &remaining_length);
 

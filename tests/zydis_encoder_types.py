@@ -96,6 +96,22 @@ ZydisStackWidth = IntEnum('ZydisStackWidth', [
 ], start=0)
 
 
+ZydisBranchType = IntEnum('ZydisBranchType', [
+    'ZYDIS_BRANCH_TYPE_NONE',
+    'ZYDIS_BRANCH_TYPE_SHORT',
+    'ZYDIS_BRANCH_TYPE_NEAR',
+    'ZYDIS_BRANCH_TYPE_FAR',
+], start=0)
+
+
+ZydisBranchWidth = IntEnum('ZydisBranchWidth', [
+    'ZYDIS_BRANCH_WIDTH_NONE',
+    'ZYDIS_BRANCH_WIDTH_8',
+    'ZYDIS_BRANCH_WIDTH_16',
+    'ZYDIS_BRANCH_WIDTH_32',
+], start=0)
+
+
 ZydisEncodableEncoding = IntFlag('ZydisEncodableEncoding', [
     'ZYDIS_ENCODABLE_ENCODING_DEFAULT',
     'ZYDIS_ENCODABLE_ENCODING_LEGACY',
@@ -104,18 +120,6 @@ ZydisEncodableEncoding = IntFlag('ZydisEncodableEncoding', [
     'ZYDIS_ENCODABLE_ENCODING_VEX',
     'ZYDIS_ENCODABLE_ENCODING_EVEX',
     'ZYDIS_ENCODABLE_ENCODING_MVEX',
-], start=0)
-
-
-ZydisEncodableBranchType = IntEnum('ZydisEncodableBranchType', [
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_NONE',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_SHORT',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR32',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR64',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_FAR32',
-    'ZYDIS_ENCODABLE_BRANCH_TYPE_FAR64',
 ], start=0)
 
 
