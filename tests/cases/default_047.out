@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM ACCEPTS_BND ACCEPTS_SEGMENT HAS_SEGMENT HAS_SEGMENT_FS ACCEPTS_NOTRACK 
+  OPTIMIZED: 64 FF 10 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

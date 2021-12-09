@@ -9,6 +9,7 @@
     ISA-EXT: XOP
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM HAS_XOP 
+  OPTIMIZED: 8F 48 68 A6 C0 20 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

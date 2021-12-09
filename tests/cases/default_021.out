@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: ACCEPTS_SEGMENT 
+  OPTIMIZED: A3 7B 10 A8 C6 E9 7A 88 0F 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

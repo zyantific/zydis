@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: CPUFLAG_ACCESS ACCEPTS_REPE ACCEPTS_REPZ ACCEPTS_REPNE ACCEPTS_REPNZ 
+  OPTIMIZED: AF 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

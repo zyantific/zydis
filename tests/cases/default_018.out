@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM CPUFLAG_ACCESS ACCEPTS_LOCK ACCEPTS_XACQUIRE ACCEPTS_XRELEASE ACCEPTS_SEGMENT 
+  OPTIMIZED: 09 A7 6F E3 10 1B 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

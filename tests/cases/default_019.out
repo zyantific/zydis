@@ -8,6 +8,7 @@
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
+  OPTIMIZED: BB 01 10 F1 11 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

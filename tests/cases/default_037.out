@@ -9,6 +9,7 @@
     ISA-EXT: RTM
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM IS_RELATIVE HAS_OPERANDSIZE 
+  OPTIMIZED: 66 C7 F8 FA FF 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

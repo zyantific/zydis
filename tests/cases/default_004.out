@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: IS_RELATIVE CPUFLAG_ACCESS ACCEPTS_BND ACCEPTS_BRANCH_HINTS 
+  OPTIMIZED: 75 3E 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

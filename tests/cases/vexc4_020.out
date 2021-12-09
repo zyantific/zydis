@@ -9,6 +9,7 @@
     ISA-EXT: BMI2
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM HAS_VEX 
+  OPTIMIZED: C4 E2 F3 F6 F8 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

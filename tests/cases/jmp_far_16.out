@@ -9,6 +9,7 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: ACCEPTS_SEGMENT HAS_OPERANDSIZE ACCEPTS_NOTRACK 
+  OPTIMIZED: 66 9A AD E4 4E 6D 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

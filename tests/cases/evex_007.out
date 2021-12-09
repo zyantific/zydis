@@ -9,6 +9,7 @@
     ISA-EXT: AVX512EVEX
  EXCEPTIONS: E4NF
  ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F1 B5 DB C6 22 27 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

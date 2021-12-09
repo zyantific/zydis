@@ -9,6 +9,7 @@
     ISA-EXT: AMX_INT8
  EXCEPTIONS: AMXE4
  ATTRIBUTES: HAS_MODRM HAS_VEX 
+  OPTIMIZED: C4 E2 5A 5E DE 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

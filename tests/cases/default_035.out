@@ -9,6 +9,7 @@
     ISA-EXT: MPX
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM HAS_SIB ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 1A 84 03 37 13 37 13 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE

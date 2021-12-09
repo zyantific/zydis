@@ -9,6 +9,7 @@
     ISA-EXT: KNCE
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM HAS_MVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 C2 79 F0 65 A7 70 18 08 B4 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
