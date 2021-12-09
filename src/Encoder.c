@@ -3977,6 +3977,24 @@ ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
         {
             instruction->sss |= 4;
         }
+
+        // Following instructions violate general `MVEX.EH` handling rules. In all other cases this
+        // bit is used either as eviction hint (memory operands present) or to encode MVEX-specific
+        // functionality (register forms). Instructions listed below use `MVEX.EH` to identify
+        // different instructions with memory operands and don't treat it as eviction hint.
+        switch (match->request->mnemonic)
+        {
+        case ZYDIS_MNEMONIC_VMOVNRAPD:
+        case ZYDIS_MNEMONIC_VMOVNRAPS:
+            instruction->eviction_hint = ZYAN_FALSE;
+            break;
+        case ZYDIS_MNEMONIC_VMOVNRNGOAPD:
+        case ZYDIS_MNEMONIC_VMOVNRNGOAPS:
+            instruction->eviction_hint = ZYAN_TRUE;
+            break;
+        default:
+            break;
+        }
     }
 
     switch (match->definition->mandatory_prefix)
