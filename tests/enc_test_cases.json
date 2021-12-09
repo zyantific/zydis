@@ -4,7 +4,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_TILESTORED",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_8",
         "operands": [
@@ -49,7 +50,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VPMOVZXBW",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -98,7 +100,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SYSRET",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_8",
         "operands": [],
@@ -122,7 +125,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_NOP",
         "prefixes": "ZYDIS_ATTRIB_HAS_SEGMENT_ES",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -164,7 +168,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_MOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -206,7 +211,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SHL",
         "prefixes": "ZYDIS_ATTRIB_HAS_SEGMENT_SS",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -248,7 +254,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP|ZYDIS_ENCODABLE_ENCODING_EVEX|ZYDIS_ENCODABLE_ENCODING_MVEX",
         "mnemonic": "ZYDIS_MNEMONIC_VGETEXPSS",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -283,7 +290,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP",
         "mnemonic": "ZYDIS_MNEMONIC_INVALID",
         "prefixes": "ZYDIS_ATTRIB_HAS_BRANCH_TAKEN|ZYDIS_ATTRIB_HAS_NOTRACK",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_FAR16",
+        "branch_type": "ZYDIS_BRANCH_TYPE_FAR",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_16",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [],
@@ -307,7 +315,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SUBSD",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_16",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -363,7 +372,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_XSHA256",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [],
@@ -387,7 +397,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SUB",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -422,7 +433,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY",
         "mnemonic": "ZYDIS_MNEMONIC_MOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -464,7 +476,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SUB",
         "prefixes": "ZYDIS_ATTRIB_HAS_LOCK",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_8",
         "operands": [
@@ -505,7 +518,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_BNDMOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -547,7 +561,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_BLSIC",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -586,7 +601,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VFCMADDCPH",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -642,7 +658,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_MOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -683,7 +700,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_T1MSKC",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -722,7 +740,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VPSHLB",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [],
@@ -746,7 +765,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VPCMPGTQ",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -802,7 +822,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VPSRLD",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -854,7 +875,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_BNDMK",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -896,7 +918,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_TILESTORED",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -938,7 +961,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP|ZYDIS_ENCODABLE_ENCODING_EVEX|ZYDIS_ENCODABLE_ENCODING_MVEX",
         "mnemonic": "ZYDIS_MNEMONIC_VGETEXPSS",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -973,7 +997,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_NOT",
         "prefixes": "ZYDIS_ATTRIB_HAS_LOCK",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1005,7 +1030,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY",
         "mnemonic": "ZYDIS_MNEMONIC_BNDCL",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1047,7 +1073,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY|ZYDIS_ENCODABLE_ENCODING_XOP",
         "mnemonic": "ZYDIS_MNEMONIC_UMONITOR",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1079,7 +1106,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_BNDMK",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1121,7 +1149,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_PUSH",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_64",
         "operands": [
@@ -1152,7 +1181,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_CRC32",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_8",
         "operands": [
@@ -1191,7 +1221,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_MOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1232,7 +1263,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_JMP",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NEAR16",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NEAR",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_16",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1263,7 +1295,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_SUB",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1301,7 +1334,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_PUSH",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1332,7 +1366,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY",
         "mnemonic": "ZYDIS_MNEMONIC_MOV",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1374,7 +1409,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_IMUL",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1409,7 +1445,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_CRC32",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_8",
         "operands": [
@@ -1448,7 +1485,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY|ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP|ZYDIS_ENCODABLE_ENCODING_VEX|ZYDIS_ENCODABLE_ENCODING_EVEX|ZYDIS_ENCODABLE_ENCODING_MVEX",
         "mnemonic": "ZYDIS_MNEMONIC_VSCATTERPF1QPD",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_16",
         "operands": [
@@ -1490,7 +1528,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_MOVZX",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
         "operands": [
@@ -1529,7 +1568,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY|ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP|ZYDIS_ENCODABLE_ENCODING_VEX|ZYDIS_ENCODABLE_ENCODING_EVEX|ZYDIS_ENCODABLE_ENCODING_MVEX",
         "mnemonic": "ZYDIS_MNEMONIC_VGATHERDPS",
         "prefixes": "ZYDIS_ATTRIB_HAS_SEGMENT_CS",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1578,7 +1618,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
         "mnemonic": "ZYDIS_MNEMONIC_VGATHERQPS",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1627,7 +1668,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_LEGACY|ZYDIS_ENCODABLE_ENCODING_3DNOW|ZYDIS_ENCODABLE_ENCODING_XOP|ZYDIS_ENCODABLE_ENCODING_VEX|ZYDIS_ENCODABLE_ENCODING_EVEX|ZYDIS_ENCODABLE_ENCODING_MVEX",
         "mnemonic": "ZYDIS_MNEMONIC_TDPBSUD",
         "prefixes": "ZYDIS_ATTRIB_HAS_SEGMENT_CS",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1673,7 +1715,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_VEX",
         "mnemonic": "ZYDIS_MNEMONIC_TDPBSUD",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1719,7 +1762,8 @@
         "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_VEX",
         "mnemonic": "ZYDIS_MNEMONIC_TDPBSUD",
         "prefixes": "ZYDIS_ATTRIB_NONE",
-        "branch_type": "ZYDIS_ENCODABLE_BRANCH_TYPE_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
         "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_64",
         "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
         "operands": [
@@ -1742,6 +1786,45 @@
                 "reg": {
                     "value": "ZYDIS_REGISTER_TMM4",
                     "is4": false
+                }
+            }
+        ],
+        "evex": {
+            "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
+            "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
+            "sae": false,
+            "zeroing_mask": false
+        },
+        "mvex": {
+            "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
+            "conversion": "ZYDIS_CONVERSION_MODE_INVALID",
+            "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
+            "swizzle": "ZYDIS_SWIZZLE_MODE_INVALID",
+            "sae": false,
+            "eviction_hint": false
+        }
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
+        "mnemonic": "ZYDIS_MNEMONIC_JKZD",
+        "prefixes": "ZYDIS_ATTRIB_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_16",
+        "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
+        "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_32",
+        "operands": [
+            {
+                "operand_type": "ZYDIS_OPERAND_TYPE_REGISTER",
+                "reg": {
+                    "value": "ZYDIS_REGISTER_K1",
+                    "is4": false
+                }
+            },
+            {
+                "operand_type": "ZYDIS_OPERAND_TYPE_IMMEDIATE",
+                "imm": {
+                    "value": "0"
                 }
             }
         ],

@@ -70,11 +70,12 @@ def convert_enc_crash_to_json(crash, return_dict=False):
     mnemonic = get_sanitized_enum(reader, ZydisMnemonic)
     reader.read_bytes(4)
     prefixes = ZydisInstructionAttributes(reader.read_uint64() & ZYDIS_ENCODABLE_PREFIXES)
-    branch_type = get_sanitized_enum(reader, ZydisEncodableBranchType)
+    branch_type = get_sanitized_enum(reader, ZydisBranchType)
+    branch_width = get_sanitized_enum(reader, ZydisBranchWidth)
     address_size_hint = get_sanitized_enum(reader, ZydisAddressSizeHint)
     operand_size_hint = get_sanitized_enum(reader, ZydisOperandSizeHint)
     operand_count = reader.read_uint8() % (ZYDIS_ENCODER_MAX_OPERANDS + 1)
-    reader.read_bytes(3)
+    reader.read_bytes(7)
     operands = []
     for i in range(ZYDIS_ENCODER_MAX_OPERANDS):
         if i >= operand_count:
@@ -141,6 +142,7 @@ def convert_enc_crash_to_json(crash, return_dict=False):
         'mnemonic': mnemonic.name,
         'prefixes': get_decomposed_flags(prefixes),
         'branch_type': branch_type.name,
+        'branch_width': branch_width.name,
         'address_size_hint': address_size_hint.name,
         'operand_size_hint': operand_size_hint.name,
         'operands': operands,
@@ -191,12 +193,13 @@ def convert_enc_json_to_crash(test_case_json, from_dict=False):
     writer.write_uint32(ZydisMnemonic[test_case['mnemonic']])
     writer.write_padding(4)
     writer.write_uint64(get_combined_flags(test_case['prefixes'], ZydisInstructionAttributes))
-    writer.write_uint32(ZydisEncodableBranchType[test_case['branch_type']])
+    writer.write_uint32(ZydisBranchType[test_case['branch_type']])
+    writer.write_uint32(ZydisBranchWidth[test_case['branch_width']])
     writer.write_uint32(ZydisAddressSizeHint[test_case['address_size_hint']])
     writer.write_uint32(ZydisOperandSizeHint[test_case['operand_size_hint']])
     operand_count = len(test_case['operands'])
     writer.write_uint8(operand_count)
-    writer.write_padding(3)
+    writer.write_padding(7)
     for i in range(ZYDIS_ENCODER_MAX_OPERANDS):
         if i >= operand_count:
             writer.write_padding(SIZE_OF_ZYDIS_ENCODER_OPERAND)
