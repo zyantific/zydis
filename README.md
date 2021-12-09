@@ -57,7 +57,6 @@ int main()
     ZyanU64 runtime_address = 0x007FFFFFFF400000;
     ZyanUSize offset = 0;
     const ZyanUSize length = sizeof(data);
-    ZydisDecoderContext context;
     ZydisDecodedInstruction instruction;
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
     while (ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, data + offset, length - offset,
@@ -69,7 +68,7 @@ int main()
 
         // Format & print the binary instruction structure to human readable format
         char buffer[256];
-        ZydisFormatterFormatInstruction(&formatter, &instruction, &operands, 
+        ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
             instruction.operand_count_visible, buffer, sizeof(buffer), runtime_address);
         puts(buffer);
 
