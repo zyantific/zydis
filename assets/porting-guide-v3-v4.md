@@ -1,5 +1,7 @@
 # Porting Guide v3 -> v4
 
+- Zydis now requires a C11 capable compiler
+
 ## API changes
 
 ### ZydisDecodedInstruction
@@ -9,7 +11,7 @@
 2. Added field `operand_count_visible`
    - Contains the number of visible (explicit and implicit) operands
 
-### ZydisDecoder
+### Decoder
 
 #### 1
 
@@ -63,3 +65,5 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
 - The `ZYDIS_ATTRIB_` defines were rebased (underlying bits were changed)
 - New type: `ZydisDecodingFlags`
 - New type: `ZydisDecoderContext`
+- `ZydisDecodedOperand::type` was moved to a different location in the struct
+- Unions were added around fields in `ZydisDecodedOperand` and `ZydisDecodedInstruction`
