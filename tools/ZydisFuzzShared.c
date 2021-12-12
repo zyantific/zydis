@@ -153,14 +153,26 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
         ZYDIS_CHECK_ENUM(op->visibility, ZYDIS_OPERAND_VISIBILITY_MAX_VALUE);
         ZYDIS_CHECK_ENUM(op->encoding, ZYDIS_OPERAND_ENCODING_MAX_VALUE);
         ZYDIS_CHECK_ENUM(op->element_type, ZYDIS_ELEMENT_TYPE_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->reg.value, ZYDIS_REGISTER_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->mem.type, ZYDIS_MEMOP_TYPE_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
-        ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
-        ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
-        ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+
+        switch (op->type)
+        {
+        case ZYDIS_OPERAND_TYPE_REGISTER:
+            ZYDIS_CHECK_ENUM(op->reg.value, ZYDIS_REGISTER_MAX_VALUE);
+            break;
+        case ZYDIS_OPERAND_TYPE_MEMORY:
+            ZYDIS_CHECK_ENUM(op->mem.type, ZYDIS_MEMOP_TYPE_MAX_VALUE);
+            ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
+            ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
+            ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
+            ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
+            break;
+        case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+            ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
+            ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+            break;
+        default:
+            break;
+        }
     }
 
     // AVX.

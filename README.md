@@ -21,7 +21,7 @@
 - Very small file-size overhead compared to other common disassembler libraries
 - [Complete doxygen documentation](https://zydis.re/doc/3/)
 - Absolutely no third party dependencies — not even libc
-  - Should compile on any platform with a working C99 compiler
+  - Should compile on any platform with a working C11 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
 
 ## Decoder Example
@@ -140,7 +140,7 @@ The above example program generates the following output:
 
 ### Unix
 
-Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C99 compiler.
+Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C11 compiler.
 
 ```bash
 git clone --recursive 'https://github.com/zyantific/zydis.git'
