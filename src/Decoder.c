@@ -4942,6 +4942,9 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
     decoder->stack_width = stack_width;
     ZYAN_MEMCPY(&decoder->decoder_mode, &decoder_modes, sizeof(decoder_modes));
 
+    // Ensure that the pointer to the common instruction cache is 'ZYAN_NULL'.
+    decoder->common_instruction_cache_table = ZYAN_NULL;
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -4964,6 +4967,189 @@ ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecoderMode mode, 
     return ZYAN_STATUS_SUCCESS;
 }
 
+/**
+ * Tries to find a matching cached common instruction.
+ *
+ * @param   decoder        A pointer to the `ZydisDecoder` instance.
+ * @param   buffer         A pointer to the input buffer.
+ * @param   length         The length of the input buffer.
+ * @param   instruction    A pointer to the `ZydisDecodedInstruction` struct, that receives the
+ *                         details about the decoded instruction.
+ * @param   operands       The array that receives the decoded operands. This should be 'ZYAN_NULL` if
+                           'store_operands' is `ZYAN_TRUE`
+ * @param   operand_count  The length of the `operands` array. This should be 'ZYAN_NULL` if
+                           'store_operands' is `ZYAN_TRUE`
+ * @param   store_operands Decides whether the operands are stored or not. This is ignored by default in
+                           'MINIMAL_MODE'
+ *
+ * @return  'ZYAN_STATUS_SUCCESS', if a matching cached common instruction was found and
+ *          'ZYAN_STATUS_FAILED' otherwise.
+ */
+static ZyanStatus ZydisDecoderTryToFindCachedCommonInstruction(const ZydisDecoder* decoder, const void* buffer,
+                                                               ZyanUSize length, ZydisDecodedInstruction * instruction,
+                                                               ZydisDecodedOperand * operands, ZyanU8 operand_count,
+                                                               ZyanBool store_operands)
+{
+    ZydisDecodedCommonInstruction * common_instruction_pointer
+        = &decoder->common_instruction_cache_table[ZYDIS_COMMON_INSTRUCTION_00_00];
+    ZyanU8 * pointer_to_data = (ZyanU8 *)buffer;
+    ZyanBool found = ZYAN_FALSE;
+    // Try to match 0x00, 0x00.
+    if ((!pointer_to_data[0]) & (!pointer_to_data[1]))
+    {
+        // A match was found.
+        found = ZYAN_TRUE;
+    }
+    // Try to match all the other 1-byte long instructions.
+    else
+    {
+        ++common_instruction_pointer;
+        // Go through each one of the common instructions, aside from 0x00, 0x00.
+        for (ZydisCommonInstruction common_instruction = ZYDIS_COMMON_INSTRUCTION_00_00 + 1;
+             common_instruction <= ZYDIS_COMMON_INSTRUCTION_MAX_VALUE; ++common_instruction)
+        {
+            // If the bytes match.
+            if (common_instruction_pointer->data[0] == pointer_to_data[0])
+            {
+                // A match was found.
+                found = ZYAN_TRUE;
+                break;
+            }
+        }
+    }
+    if (found)
+    {
+        // Store the instruction information.
+        ZYAN_MEMCPY(instruction, &common_instruction_pointer->instruction,
+                    sizeof(common_instruction_pointer->instruction));
+#ifndef ZYDIS_MINIMAL_MODE
+        if (store_operands)
+        {
+            // Store the operands.
+            ZYAN_MEMCPY(operands, &common_instruction_pointer->operands,
+                        sizeof(*common_instruction_pointer->operands)
+                        * ZYAN_MIN(operand_count, ZYDIS_COMMON_INSTRUCTION_MAXIMUM_OPERAND_COUNT));
+        }
+#endif
+        return ZYAN_STATUS_SUCCESS;
+    }
+    return ZYAN_STATUS_FAILED;
+}
+
+/**
+ * The state of the table of cached common instruction
+ */
+static ZyanU32 g_ZydisDecodedCommonInstructionTableState = 0;
+
+/**
+ * Table of cached common instructions.
+ */
+#ifdef ZYDIS_MINIMAL_MODE
+    /**
+     * The additional stack width abstraction only matters for the operands, which
+     * are not available when `MINIMAL_MODE` is enabled.
+     */
+    static ZydisDecodedCommonInstruction g_ZydisDecodedCommonInstructionTable
+    [ZYDIS_COMMON_INSTRUCTION_MAX_VALUE + 1] =
+    {
+        [ZYDIS_COMMON_INSTRUCTION_00_00] = { { 0x00, 0x00 } },
+        [ZYDIS_COMMON_INSTRUCTION_CC] = { { 0xCC } },
+        [ZYDIS_COMMON_INSTRUCTION_90] = { { 0x90 } },
+        [ZYDIS_COMMON_INSTRUCTION_C3] = { { 0xC3 } },
+        [ZYDIS_COMMON_INSTRUCTION_55] = { { 0x55 } },
+        [ZYDIS_COMMON_INSTRUCTION_5D] = { { 0x5D }, ZYAN_TRUE }
+    };
+#else
+    static ZydisDecodedCommonInstruction g_ZydisDecodedCommonInstructionTable
+    [ZYDIS_STACK_WIDTH_MAX_VALUE + 1][ZYDIS_COMMON_INSTRUCTION_MAX_VALUE + 1] =
+    {
+        [ZYDIS_STACK_WIDTH_16] =
+        {
+            [ZYDIS_COMMON_INSTRUCTION_00_00] = { { 0x00, 0x00 } },
+            [ZYDIS_COMMON_INSTRUCTION_CC] = { { 0xCC } },
+            [ZYDIS_COMMON_INSTRUCTION_90] = { { 0x90 } },
+            [ZYDIS_COMMON_INSTRUCTION_C3] = { { 0xC3 } },
+            [ZYDIS_COMMON_INSTRUCTION_55] = { { 0x55 } },
+            [ZYDIS_COMMON_INSTRUCTION_5D] = { { 0x5D }, ZYAN_TRUE },
+        },
+        [ZYDIS_STACK_WIDTH_32] =
+        {
+            [ZYDIS_COMMON_INSTRUCTION_00_00] = { { 0x00, 0x00 } },
+            [ZYDIS_COMMON_INSTRUCTION_CC] = { { 0xCC } },
+            [ZYDIS_COMMON_INSTRUCTION_90] = { { 0x90 } },
+            [ZYDIS_COMMON_INSTRUCTION_C3] = { { 0xC3 } },
+            [ZYDIS_COMMON_INSTRUCTION_55] = { { 0x55 } },
+            [ZYDIS_COMMON_INSTRUCTION_5D] = { { 0x5D }, ZYAN_TRUE },
+        },
+        [ZYDIS_STACK_WIDTH_64] =
+        {
+            [ZYDIS_COMMON_INSTRUCTION_00_00] = { { 0x00, 0x00 } },
+            [ZYDIS_COMMON_INSTRUCTION_CC] = { { 0xCC } },
+            [ZYDIS_COMMON_INSTRUCTION_90] = { { 0x90 } },
+            [ZYDIS_COMMON_INSTRUCTION_C3] = { { 0xC3 } },
+            [ZYDIS_COMMON_INSTRUCTION_55] = { { 0x55 } },
+            [ZYDIS_COMMON_INSTRUCTION_5D] = { { 0x5D }, ZYAN_TRUE },
+        }
+    };
+#endif
+
+ZyanStatus ZydisDecoderInitializeCommonInstructionCache(ZydisDecoder* const decoder)
+{
+    // If the table was already stored, exit.
+    if (decoder->common_instruction_cache_table)
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+#ifdef ZYAN_MINIMAL_MODE
+    // If the table was already initialized, store it and exit.
+    else if (g_ZydisDecodedCommonInstructionTableState)
+    {
+        decoder->common_instruction_cache_table = &g_ZydisDecodedCommonInstructionTable;
+        return ZYAN_STATUS_SUCCESS;
+    }
+#else
+    // If the table for the current decoder's stack width was already initialized, store it and exit.
+    else if (g_ZydisDecodedCommonInstructionTableState & (1 << decoder->stack_width))
+    {
+        decoder->common_instruction_cache_table = &g_ZydisDecodedCommonInstructionTable[decoder->stack_width];
+        return ZYAN_STATUS_SUCCESS;
+    }
+#endif
+    ZydisDecodedCommonInstruction * common_instruction_cache_table_temporary = ZYAN_NULL;
+#ifdef ZYDIS_MINIMAL_MODE
+    common_instruction_cache_table_temporary = &g_ZydisDecodedCommonInstructionTable;
+#else
+    common_instruction_cache_table_temporary = &g_ZydisDecodedCommonInstructionTable[decoder->stack_width];
+#endif
+    // Go through each one of the common instructions.
+    for (ZydisCommonInstruction common_instruction = ZYDIS_COMMON_INSTRUCTION_00_00;
+         common_instruction <= ZYDIS_COMMON_INSTRUCTION_MAX_VALUE; ++common_instruction)
+    {
+        // Decode the current common instruction.
+#ifdef ZYDIS_MINIMAL_MODE
+        ZYAN_CHECK(ZydisDecoderDecodeInstruction(decoder, ZYAN_NULL, &common_instruction_cache_table_temporary[common_instruction].data,
+                                                 ZYDIS_COMMON_INSTRUCTION_MAXIMUM_LENGTH,
+                                                 &common_instruction_cache_table_temporary[common_instruction].instruction));
+#else
+        ZYAN_CHECK(ZydisDecoderDecodeFull(decoder, &common_instruction_cache_table_temporary[common_instruction].data,
+                                          ZYDIS_COMMON_INSTRUCTION_MAXIMUM_LENGTH,
+                                          &common_instruction_cache_table_temporary[common_instruction].instruction,
+                                          &common_instruction_cache_table_temporary[common_instruction].operands,
+                                          ZYDIS_COMMON_INSTRUCTION_MAXIMUM_OPERAND_COUNT,
+                                          0));
+#endif
+    }
+    // Update the common instruction table state.
+#ifdef ZYDIS_MINIMAL_MODE
+    g_ZydisDecodedCommonInstructionTableState = ZYAN_TRUE;
+#else
+    g_ZydisDecodedCommonInstructionTableState = 1 << decoder->stack_width;
+#endif
+    // Store the proper common instruction table in the current instace of the decoder.
+    decoder->common_instruction_cache_table = common_instruction_cache_table_temporary;
+    return ZYAN_STATUS_SUCCESS;
+}
+
 ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand* operands, ZyanU8 operand_count, ZydisDecodingFlags flags)
@@ -4977,6 +5163,20 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     if (decoder->decoder_mode[ZYDIS_DECODER_MODE_MINIMAL])
     {
         return ZYAN_STATUS_MISSING_DEPENDENCY; // TODO: Introduce better status code
+    }
+
+    // If the table of common instructions was initialized.
+    if (decoder->common_instruction_cache_table)
+    {
+        // Try to find a match for a common instruction.
+        if (ZYAN_SUCCESS(ZydisDecoderTryToFindCachedCommonInstruction(decoder, buffer, length, instruction, operands,
+                                                                      operand_count, ZYAN_TRUE)))
+        {
+            // A match was found and stored.
+            return ZYAN_STATUS_SUCCESS;
+        }
+        // Otherwise, decode as usual.
+        g_ZydisDecodedCommonInstructionTableState |= ZYDIS_COMMON_INSTRUCTION_STATE_FLAG_CALLED_ONCE;
     }
 
     ZydisDecoderContext context;
@@ -5007,6 +5207,25 @@ ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decoder, ZydisDecod
     if (!buffer || !length)
     {
         return ZYDIS_STATUS_NO_MORE_DATA;
+    }
+
+    // If the common instruction cache finder was called once.
+    if (ZYDIS_COMMON_INSTRUCTION_STATE_FLAG_CALLED_ONCE & g_ZydisDecodedCommonInstructionTableState)
+    {
+        // Remove the flag.
+        g_ZydisDecodedCommonInstructionTableState ^= ZYDIS_COMMON_INSTRUCTION_STATE_FLAG_CALLED_ONCE;
+    }
+    // Otherwise, if the table of common instructions was initialized.
+    else if (decoder->common_instruction_cache_table)
+    {
+        // Try to find a match for a common instruction.
+        if (ZYAN_SUCCESS(ZydisDecoderTryToFindCachedCommonInstruction(decoder, buffer, length, instruction, ZYAN_NULL,
+                                                                      0, ZYAN_FALSE)))
+        {
+            // A match was found and stored.
+            return ZYAN_STATUS_SUCCESS;
+        }
+        // Otherwise, decode as usual.
     }
 
     ZydisDecoderState state;

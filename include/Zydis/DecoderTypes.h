@@ -1352,6 +1352,125 @@ typedef struct ZydisDecoderContext_
 } ZydisDecoderContext;
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Common Instruction Cache                                                                       */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * This flag is used to prevent double-calling of the common cache instruction finder when it fails
+ * inside 'ZydisDecoderDecodeFull'
+ */
+#define ZYDIS_COMMON_INSTRUCTION_STATE_FLAG_CALLED_ONCE (1 << 0)
+
+/**
+ * Defines the `ZydisCommonInstruction` enum.
+ */
+ typedef enum _ZydisCommonInstruction
+ {
+   /**
+    * 0x00 0x00
+    *
+    * 16-bit address size: 'add byte ptr [bx + si], al'
+    * 32-bit address size: 'add byte ptr [eax], al'
+    * 64-bit address size: 'add byte ptr [rax], al'
+    *
+    * Zero bytes are the most likely to be encountered in a file.
+    */
+    ZYDIS_COMMON_INSTRUCTION_00_00,
+   /**
+    * 0xCC
+    *
+    * Any address size: 'int 3'
+    *
+    * Inserted by compilers into executable files as padding, as well as to
+    * trigger a debugging exception if the instruction pointer somehow finds
+    * its way outside of a function.
+    */
+    ZYDIS_COMMON_INSTRUCTION_CC,
+   /**
+    * 0x90
+    *
+    * Any address size: 'nop'
+    *
+    * Used to pad instructions.
+    */
+    ZYDIS_COMMON_INSTRUCTION_90,
+   /**
+    * 0xC3
+    *
+    * Any address size: 'ret'
+    *
+    * Used to return from a function.
+    */
+    ZYDIS_COMMON_INSTRUCTION_C3,
+   /**
+    * 0x55
+    *
+    * 16-bit address size: 'push bp'
+    * 32-bit address size: 'push ebp'
+    * 64-bit address size: 'push rbp'
+    *
+    * Used for the function epilogue.
+    */
+    ZYDIS_COMMON_INSTRUCTION_55,
+   /**
+    * 0x5D
+    *
+    * 16-bit address size: 'pop bp'
+    * 32-bit address size: 'pop ebp'
+    * 64-bit address size: 'pop rbp'
+    *
+    * Used for the function prologue.
+    */
+    ZYDIS_COMMON_INSTRUCTION_5D,
+
+   /**
+    * Maximum value of this enum.
+    */
+    ZYDIS_COMMON_INSTRUCTION_MAX_VALUE = ZYDIS_COMMON_INSTRUCTION_5D,
+   /**
+    * The minimum number of bits required to represent all values of this enum.
+    */
+    ZYDIS_COMMON_INSTRUCTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_COMMON_INSTRUCTION_MAX_VALUE)
+} ZydisCommonInstruction;
+ 
+/**
+ * The maximum length of a common instruction.
+ */
+#define ZYDIS_COMMON_INSTRUCTION_MAXIMUM_LENGTH 2
+
+/**
+ * The operands of a common instruction are not provided when `MINIMAL_MODE` is enabled.
+ */
+#ifndef ZYDIS_MINIMAL_MODE
+    /**
+     * The maximum number of operands required for a common instruction.
+     */
+    #define ZYDIS_COMMON_INSTRUCTION_MAXIMUM_OPERAND_COUNT 3
+#endif
+
+/**
+ * Defines the `_ZydisDecodedCommonInstruction` struct.
+ */
+typedef struct _ZydisDecodedCommonInstruction
+{
+    /**
+     * Contains the bytes of the instruction, which is filled at compile-time.  
+     */
+    ZyanU8 data[ZYDIS_COMMON_INSTRUCTION_MAXIMUM_LENGTH];
+    /**
+     * Contains details about the decoded instruction.
+     */
+    ZydisDecodedInstruction instruction;
+#ifndef ZYDIS_MINIMAL_MODE
+    /**
+     * Contains the operands of the common instruction.
+     * The operands are not available when `MINIMAL_MODE` is enabled.
+     */
+    ZydisDecodedOperand operands[ZYDIS_COMMON_INSTRUCTION_MAXIMUM_OPERAND_COUNT];
+#endif
+} ZydisDecodedCommonInstruction;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
 

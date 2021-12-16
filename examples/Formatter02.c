@@ -260,6 +260,8 @@ int main(void)
 
     ZydisDecoder decoder;
     ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
+    // Use the common instruction cache
+    // ZydisDecoderInitializeCommonInstructionCache(&decoder);
 
     DisassembleBuffer(&decoder, &data[0], sizeof(data), ZYAN_FALSE);
     ZYAN_PUTS("");
