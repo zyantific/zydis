@@ -3196,23 +3196,23 @@ ZyanStatus ZydisEmitLegacyPrefixes(const ZydisEncoderInstruction *instruction,
     }
     if (!compressed_prefixes)
     {
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_REPNE)
+        if (instruction->attributes & (ZYDIS_ATTRIB_HAS_REPNE |
+                                       ZYDIS_ATTRIB_HAS_BND |
+                                       ZYDIS_ATTRIB_HAS_XACQUIRE))
         {
             ZYAN_CHECK(ZydisEmitByte(0xF2, buffer));
         }
         if (instruction->attributes & (ZYDIS_ATTRIB_HAS_REP |
-                                       ZYDIS_ATTRIB_HAS_REPE))
+                                       ZYDIS_ATTRIB_HAS_REPE |
+                                       ZYDIS_ATTRIB_HAS_XRELEASE))
         {
             ZYAN_CHECK(ZydisEmitByte(0xF3, buffer));
         }
     }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BND)
-    {
-        ZYAN_CHECK(ZydisEmitByte(0xF2, buffer));
-    }
 
     // Group 2
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_CS)
+    if (instruction->attributes & (ZYDIS_ATTRIB_HAS_SEGMENT_CS |
+                                   ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN))
     {
         ZYAN_CHECK(ZydisEmitByte(0x2E, buffer));
     }
@@ -3220,7 +3220,8 @@ ZyanStatus ZydisEmitLegacyPrefixes(const ZydisEncoderInstruction *instruction,
     {
         ZYAN_CHECK(ZydisEmitByte(0x36, buffer));
     }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
+    if (instruction->attributes & (ZYDIS_ATTRIB_HAS_SEGMENT_DS |
+                                   ZYDIS_ATTRIB_HAS_BRANCH_TAKEN))
     {
         ZYAN_CHECK(ZydisEmitByte(0x3E, buffer));
     }
@@ -3235,14 +3236,6 @@ ZyanStatus ZydisEmitLegacyPrefixes(const ZydisEncoderInstruction *instruction,
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
     {
         ZYAN_CHECK(ZydisEmitByte(0x65, buffer));
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN)
-    {
-        ZYAN_CHECK(ZydisEmitByte(0x2E, buffer));
-    }
-    if (instruction->attributes & ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)
-    {
-        ZYAN_CHECK(ZydisEmitByte(0x3E, buffer));
     }
     if (instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK)
     {
@@ -4173,6 +4166,23 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
     }
+    ZyanU8 rep_family_count = 0;
+    if (request->prefixes & ZYDIS_ATTRIB_HAS_REP)
+    {
+        ++rep_family_count;
+    }
+    if (request->prefixes & ZYDIS_ATTRIB_HAS_REPE)
+    {
+        ++rep_family_count;
+    }
+    if (request->prefixes & ZYDIS_ATTRIB_HAS_REPNE)
+    {
+        ++rep_family_count;
+    }
+    if (rep_family_count > 1)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
     if ((request->prefixes & ZYDIS_ATTRIB_HAS_XACQUIRE) &&
         (request->prefixes & ZYDIS_ATTRIB_HAS_XRELEASE))
     {
@@ -4183,8 +4193,7 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if ((request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
-        (request->prefixes & ZYDIS_ATTRIB_HAS_NOTRACK) &&
+    if ((request->prefixes & ZYDIS_ATTRIB_HAS_NOTRACK) &&
         (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
