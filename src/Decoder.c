@@ -83,7 +83,7 @@ typedef struct ZydisDecoderState_
          */
         ZyanU8 group1;
         /**
-         * The effective prefix of group 3 (`2E`,`36`, `3E`, `26`, `64` or `65`).
+         * The effective prefix of group 2 (`2E`, `36`, `3E`, `26`, `64` or `65`).
          */
         ZyanU8 group2;
         /**
@@ -3119,6 +3119,8 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderState* state,
                 {
                     state->prefixes.offset_notrack = offset;
                 }
+                state->prefixes.group2 = prefix_byte;
+                state->prefixes.offset_group2 = offset;
                 break;
             }
             ZYAN_FALLTHROUGH;

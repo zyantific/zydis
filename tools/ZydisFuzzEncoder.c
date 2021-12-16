@@ -86,9 +86,20 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
         operands = knc_operands;
     }
 
+    ZyanBool prefixes_match = ((insn->attributes & request->prefixes) == request->prefixes);
+    if (!prefixes_match &&
+        (request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
+        (request->prefixes & ZYDIS_ATTRIB_HAS_SEGMENT_DS))
+    {
+        // Encoder allows specifying DS override even when it might be interpreted as NOTRACK
+        ZyanU64 acceptable_prefixes = (request->prefixes & (~ZYDIS_ATTRIB_HAS_SEGMENT_DS)) |
+                                      ZYDIS_ATTRIB_HAS_NOTRACK;
+        prefixes_match = ((insn->attributes & acceptable_prefixes) == acceptable_prefixes);
+    }
     if ((request->machine_mode != insn->machine_mode) ||
         (request->mnemonic != insn->mnemonic) ||
-        (request->operand_count != insn->operand_count_visible))
+        (request->operand_count != insn->operand_count_visible) ||
+        !prefixes_match)
     {
         fputs("Basic instruction attributes mismatch\n", ZYAN_STDERR);
         abort();
@@ -201,9 +212,9 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     // Sanitization greatly improves coverage, without it most inputs will fail at basic checks
     // inside `ZydisEncoderCheckRequestSanity`
     request.operand_count %= ZYDIS_ENCODER_MAX_OPERANDS + 1;
-    ZYDIS_SANITIZE_MASK(request.allowed_encodings, ZydisEncodableEncoding,
+    ZYDIS_SANITIZE_MASK32(request.allowed_encodings, ZydisEncodableEncoding,
         ZYDIS_ENCODABLE_ENCODING_MAX_VALUE);
-    ZYDIS_SANITIZE_MASK(request.prefixes, ZydisInstructionAttributes, ZYDIS_ENCODABLE_PREFIXES);
+    ZYDIS_SANITIZE_MASK64(request.prefixes, ZydisInstructionAttributes, ZYDIS_ENCODABLE_PREFIXES);
     ZYDIS_SANITIZE_ENUM(request.machine_mode, ZydisMachineMode, ZYDIS_MACHINE_MODE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.mnemonic, ZydisMnemonic, ZYDIS_MNEMONIC_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisBranchType, ZYDIS_BRANCH_TYPE_MAX_VALUE);

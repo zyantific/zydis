@@ -53,7 +53,10 @@ typedef ZyanUSize(*ZydisStreamRead)(void *ctx, ZyanU8 *buf, ZyanUSize max_len);
 enum ZyanEnumSizeCheck_ { ZYAN_ENUM_SIZE_CHECK = 1 };
 ZYAN_STATIC_ASSERT(sizeof(enum ZyanEnumSizeCheck_) == 4);
 
-#define ZYDIS_SANITIZE_MASK(var, type, mask)      var = (type)((ZyanUSize)(ZyanU32)(var) & (mask))
+#define ZYDIS_SANITIZE_MASK(var, type, type_size, mask) \
+    var = (type)((ZyanU##type_size)(var) & (mask))
+#define ZYDIS_SANITIZE_MASK32(var, type, mask)    ZYDIS_SANITIZE_MASK(var, type, 32, mask)
+#define ZYDIS_SANITIZE_MASK64(var, type, mask)    ZYDIS_SANITIZE_MASK(var, type, 64, mask)
 #define ZYDIS_SANITIZE_ENUM(var, type, max_value) var = (type)((ZyanUSize)(ZyanU32)(var) % \
                                                         (max_value + 1))
 
