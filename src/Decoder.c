@@ -4214,7 +4214,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* TEST    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
             /* CONTROL */ (1 << 4) - 1, //              ignore `.X`
             /* DEBUG   */ (1 << 4) - 1, //              ignore `.X`
-            /* MASK    */ (1 << 4) - 1, // ignore `.B`, ignore `.X`
+            /* MASK    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
             /* BOUND   */ (1 << 4) - 1  //              ignore `.X`
         };
         id_rm &= (is_reg ? mask_rm[def_rm] : 0xFF);
