@@ -1253,9 +1253,11 @@ typedef struct ZydisDecodedInstruction_
 typedef struct ZydisDecoderContext_
 {
     /**
-     * A pointer to the internal instruction definition.
+     * The instruction definition id.
+     *
+     * Only valid in combination with the instruction encoding.
      */
-    const void* definition;
+    ZyanU16 definition_id;
     /**
      * Contains the effective operand-size index.
      *

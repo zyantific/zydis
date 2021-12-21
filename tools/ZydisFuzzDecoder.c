@@ -120,7 +120,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
     // Fuzz decoder.
-    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, 
+    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction,
         operands, ZYDIS_MAX_OPERAND_COUNT, 0);
     if (!ZYAN_SUCCESS(status))
     {
