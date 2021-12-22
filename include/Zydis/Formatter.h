@@ -299,6 +299,16 @@ typedef enum ZydisFormatterProperty_
      */
     ZYDIS_FORMATTER_PROP_HEX_UPPERCASE,
     /**
+     * Controls whether to prepend hexadecimal values with a leading zero, if the first character
+     * is non-numeric.
+     *
+     * Pass `ZYAN_TRUE` to prepend a leading zero, if the first character is non-numeric or
+     * `ZYAN_FALSE` to disable this functionality.
+     *
+     * The default value is `ZYAN_FALSE`.
+     */
+    ZYDIS_FORMATTER_PROP_HEX_FORCE_LEADING_NUMBER,
+    /**
      * Controls the prefix for hexadecimal values.
      *
      * Pass a pointer to a null-terminated C-style string with a maximum length of 10 characters
@@ -851,6 +861,10 @@ struct ZydisFormatter_
      * The `ZYDIS_FORMATTER_HEX_UPPERCASE` property.
      */
     ZyanBool hex_uppercase;
+    /**
+     * The `ZYDIS_FORMATTER_HEX_FORCE_LEADING_NUMBER` property.
+     */
+    ZyanBool hex_force_leading_number;
     /**
      * The number formats for all numeric bases.
      *

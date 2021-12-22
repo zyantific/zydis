@@ -165,7 +165,7 @@ ZyanStatus ZydisFormatterBaseFormatOperandPTR(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
-        context->operand->ptr.segment, 4);
+        context->operand->ptr.segment, 4, formatter->hex_force_leading_number);
     ZYDIS_BUFFER_APPEND(buffer, DELIM_SEGMENT);
 
     ZyanU8 padding;
@@ -183,7 +183,7 @@ ZyanStatus ZydisFormatterBaseFormatOperandPTR(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
-        context->operand->ptr.offset , padding);
+        context->operand->ptr.offset , padding, formatter->hex_force_leading_number);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -249,7 +249,8 @@ ZyanStatus ZydisFormatterBasePrintAddressABS(const ZydisFormatter* formatter,
     }
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_ADDRESS_ABS);
-    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string, address, padding);
+    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string, address, padding,
+        formatter->hex_force_leading_number);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -293,12 +294,12 @@ ZyanStatus ZydisFormatterBasePrintAddressREL(const ZydisFormatter* formatter,
     case ZYDIS_SIGNEDNESS_AUTO:
     case ZYDIS_SIGNEDNESS_SIGNED:
         ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->addr_base, &buffer->string, address,
-            padding, ZYAN_TRUE);
+            padding, formatter->hex_force_leading_number, ZYAN_TRUE);
         break;
     case ZYDIS_SIGNEDNESS_UNSIGNED:
         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ADD));
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string, address,
-            padding);
+            padding, formatter->hex_force_leading_number);
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -322,7 +323,8 @@ ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
     if (is_signed && (context->operand->imm.value.s < 0))
     {
         ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->imm_base, &buffer->string,
-            context->operand->imm.value.s, formatter->imm_padding, ZYAN_FALSE);
+            context->operand->imm.value.s, formatter->imm_padding,
+            formatter->hex_force_leading_number, ZYAN_FALSE);
         return ZYAN_STATUS_SUCCESS;
     }
     ZyanU64 value;
@@ -361,7 +363,8 @@ ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->imm_base, &buffer->string, value, padding);
+    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->imm_base, &buffer->string, value, padding,
+        formatter->hex_force_leading_number);
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -474,7 +477,8 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
                     default:
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_PREFIX);
                         ZYAN_CHECK(ZydisStringAppendHexU(&buffer->string, value, 0,
-                            formatter->hex_uppercase, ZYAN_NULL, ZYAN_NULL));
+                            formatter->hex_force_leading_number, formatter->hex_uppercase,
+                            ZYAN_NULL, ZYAN_NULL));
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
                         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
                         break;

@@ -343,7 +343,8 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
             }
             ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
             ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-                ZyanAbsI64(context->operand->mem.disp.value), formatter->disp_padding);
+                ZyanAbsI64(context->operand->mem.disp.value), formatter->disp_padding,
+                formatter->hex_force_leading_number);
             break;
         }
         ZYAN_FALLTHROUGH;
@@ -355,7 +356,8 @@ ZyanStatus ZydisFormatterIntelPrintDISP(const ZydisFormatter* formatter,
         }
         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DISPLACEMENT);
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-            context->operand->mem.disp.value, formatter->disp_padding);
+            context->operand->mem.disp.value, formatter->disp_padding,
+            formatter->hex_force_leading_number);
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -443,7 +445,7 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND(buffer, ADDR_RELATIVE);
     ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->addr_base, &buffer->string, address, padding,
-        ZYAN_TRUE);
+        formatter->hex_force_leading_number, ZYAN_TRUE);
 
     return ZYAN_STATUS_SUCCESS;
 }
