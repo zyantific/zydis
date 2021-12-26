@@ -189,6 +189,10 @@ Unofficial but actively maintained bindings:
 - [LuaJIT](https://github.com/Wiladams/lj2zydis)
 - [Haskell](https://github.com/nerded1337/zydiskell)
 
+## asmjit-style C++ front-end
+
+If you're looking for an asmjit-style assembler front-end for the encoder, check out [zasm](https://github.com/ZehMatt/zasm)!
+
 ## Versions
 
 ### Scheme
