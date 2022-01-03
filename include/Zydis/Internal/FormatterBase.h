@@ -55,7 +55,7 @@ extern "C" {
  * @param   str                     The destination string.
  * @param   value                   The value to append.
  * @param   padding_length          The padding length.
- * @param   force_leading_number    Enable this option to prepend a leading `0`, if the first
+ * @param   force_leading_number    Enable this option to prepend a leading `0` if the first
  *                                  character is non-numeric.
  */
 #define ZYDIS_STRING_APPEND_NUM_U(formatter, base, str, value, padding_length, \
