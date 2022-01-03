@@ -390,9 +390,9 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
  *
  * @param   string                  A pointer to the `ZyanString` instance.
  * @param   value                   The value to append.
- * @param   padding_length          Padds the converted value with leading zeros, if the number of
+ * @param   padding_length          Pads the converted value with leading zeros if the number of
  *                                  chars is less than the `padding_length`.
- * @param   force_leading_number    Enable this option to prepend a leading `0`, if the first
+ * @param   force_leading_number    Enable this option to prepend a leading `0` if the first
  *                                  character is non-numeric.
  * @param   uppercase               Enable this option to use uppercase letters ('A'-'F') instead
  *                                  of lowercase ones ('a'-'f').
