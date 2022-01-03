@@ -299,10 +299,10 @@ typedef enum ZydisFormatterProperty_
      */
     ZYDIS_FORMATTER_PROP_HEX_UPPERCASE,
     /**
-     * Controls whether to prepend hexadecimal values with a leading zero, if the first character
+     * Controls whether to prepend hexadecimal values with a leading zero if the first character
      * is non-numeric.
      *
-     * Pass `ZYAN_TRUE` to prepend a leading zero, if the first character is non-numeric or
+     * Pass `ZYAN_TRUE` to prepend a leading zero if the first character is non-numeric or
      * `ZYAN_FALSE` to disable this functionality.
      *
      * The default value is `ZYAN_FALSE`.
