@@ -427,7 +427,7 @@ ZyanStatus ZydisStringAppendHexU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
  *
  * @return  A zyan status code.
  *
- * This function will fail, if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
+ * This function will fail if the `ZYAN_STRING_IS_IMMUTABLE` flag is set for the specified
  * `ZyanString` instance.
  */
 ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
