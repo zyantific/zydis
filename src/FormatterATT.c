@@ -391,11 +391,13 @@ ZyanStatus ZydisFormatterATTPrintDISP(const ZydisFormatter* formatter,
     case ZYDIS_SIGNEDNESS_AUTO:
     case ZYDIS_SIGNEDNESS_SIGNED:
         ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->disp_base, &buffer->string,
-            context->operand->mem.disp.value, formatter->disp_padding, ZYAN_FALSE);
+            context->operand->mem.disp.value, formatter->disp_padding, 
+            formatter->hex_force_leading_number, ZYAN_FALSE);
         break;
     case ZYDIS_SIGNEDNESS_UNSIGNED:
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->disp_base, &buffer->string,
-            context->operand->mem.disp.value, formatter->disp_padding);
+            context->operand->mem.disp.value, formatter->disp_padding, 
+            formatter->hex_force_leading_number);
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
