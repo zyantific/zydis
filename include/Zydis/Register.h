@@ -34,6 +34,7 @@
 
 #include <Zycore/Defines.h>
 #include <Zycore/Types.h>
+#include <Zydis/Defines.h>
 #include <Zydis/SharedTypes.h>
 #include <Zydis/ShortString.h>
 

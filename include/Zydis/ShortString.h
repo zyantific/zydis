@@ -33,7 +33,6 @@
 #ifndef ZYDIS_SHORTSTRING_H
 #define ZYDIS_SHORTSTRING_H
 
-#include <ZydisExportConfig.h>
 #include <Zycore/Defines.h>
 #include <Zycore/Types.h>
 

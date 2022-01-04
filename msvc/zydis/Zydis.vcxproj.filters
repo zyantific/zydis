@@ -107,6 +107,9 @@
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Vector.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Decoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
