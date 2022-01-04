@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 
 project(Zydis VERSION 4.0.0.0 LANGUAGES C CXX)
 
-include(GenerateExportHeader)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
@@ -100,6 +99,7 @@ if (ZYDIS_BUILD_SHARED_LIB)
     add_library("Zydis" SHARED)
 else ()
     add_library("Zydis" STATIC)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_STATIC_BUILD")
 endif ()
 
 target_link_libraries("Zydis" PUBLIC "Zycore")
@@ -109,13 +109,13 @@ target_include_directories("Zydis"
         $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE "src")
-target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS" "ZYDIS_EXPORTS")
+target_compile_definitions("Zydis" PRIVATE "_CRT_SECURE_NO_WARNINGS")
 set_target_properties("Zydis" PROPERTIES
-    VERSION ${Zydis_VERSION}
-    SOVERSION ${Zydis_VERSION_MAJOR}.${Zydis_VERSION_MINOR})
+    VERSION "${Zydis_VERSION}"
+    SOVERSION "${Zydis_VERSION_MAJOR}.${Zydis_VERSION_MINOR}"
+    DEFINE_SYMBOL "ZYDIS_SHOULD_EXPORT")
 zyan_set_common_flags("Zydis")
 zyan_maybe_enable_wpo_for_lib("Zydis")
-generate_export_header("Zydis" BASE_NAME "ZYDIS" EXPORT_FILE_NAME "ZydisExportConfig.h")
 
 if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
     message(
@@ -156,6 +156,7 @@ endif ()
 
 target_sources("Zydis"
     PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Defines.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/MetaInfo.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
@@ -234,9 +235,6 @@ install(TARGETS "Zydis"
 install(EXPORT "zydis-targets"
     NAMESPACE "Zydis::"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zydis")
-install(FILES
-    "${PROJECT_BINARY_DIR}/ZydisExportConfig.h"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 function (_maybe_set_emscripten_cfg target)
