@@ -49,10 +49,12 @@ option(ZYDIS_FUZZ_AFL_FAST
 option(ZYDIS_LIBFUZZER
     "Enables LLVM libfuzzer mode and reduces prints in ZydisFuzzIn"
     OFF)
-option(ZYDIS_SYSTEM_ZYCORE
+
+# Dependencies
+option(ZYAN_SYSTEM_ZYCORE
     "Use system Zycore library"
     OFF)
-set(ZYDIS_ZYCORE_PATH
+set(ZYAN_ZYCORE_PATH
     "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore"
     CACHE
     PATH
@@ -62,12 +64,12 @@ set(ZYDIS_ZYCORE_PATH
 # Dependencies                                                                                    #
 # =============================================================================================== #
 
-if (ZYDIS_SYSTEM_ZYCORE)
+if (ZYAN_SYSTEM_ZYCORE)
     find_package(Zycore)
 else ()
     # Try to initialize the Zycore submodule using Git
-    if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt" AND 
-        "${ZYDIS_ZYCORE_PATH}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore")
+    if (NOT EXISTS "${ZYAN_ZYCORE_PATH}/CMakeLists.txt" AND 
+        "${ZYAN_ZYCORE_PATH}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/dependencies/zycore")
         find_package(Git QUIET)
         if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
             execute_process(
@@ -77,7 +79,7 @@ else ()
         endif()
     endif ()
 
-    if (NOT EXISTS "${ZYDIS_ZYCORE_PATH}/CMakeLists.txt")
+    if (NOT EXISTS "${ZYAN_ZYCORE_PATH}/CMakeLists.txt")
         message(
             FATAL_ERROR
             "Can't find zycore submodule. Please make sure to clone the repo recursively.\n"
@@ -89,7 +91,7 @@ else ()
         )
     endif ()
 
-    add_subdirectory(${ZYDIS_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
+    add_subdirectory(${ZYAN_ZYCORE_PATH} "zycore" EXCLUDE_FROM_ALL)
 endif ()
 
 # =============================================================================================== #
