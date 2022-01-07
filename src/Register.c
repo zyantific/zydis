@@ -144,35 +144,9 @@ ZydisRegisterWidth ZydisRegisterGetWidth(ZydisMachineMode mode, ZydisRegister re
         return 0;
     }
 
-    // Special cases
-    switch (reg)
-    {
-    case ZYDIS_REGISTER_X87CONTROL:
-    case ZYDIS_REGISTER_X87STATUS:
-    case ZYDIS_REGISTER_X87TAG:
-        return 16;
-    case ZYDIS_REGISTER_IP:
-    case ZYDIS_REGISTER_FLAGS:
-        return 16;
-    case ZYDIS_REGISTER_EIP:
-    case ZYDIS_REGISTER_EFLAGS:
-        return 32;
-    case ZYDIS_REGISTER_RIP:
-    case ZYDIS_REGISTER_RFLAGS:
-        return (mode == ZYDIS_MACHINE_MODE_LONG_64) ? 64 : 0;
-    case ZYDIS_REGISTER_BNDCFG:
-    case ZYDIS_REGISTER_BNDSTATUS:
-        return 64;
-    case ZYDIS_REGISTER_XCR0:
-        return 64;
-    case ZYDIS_REGISTER_PKRU:
-    case ZYDIS_REGISTER_MXCSR:
-        return 32;
-    default:
-        break;
-    }
-
-    return (mode == ZYDIS_MACHINE_MODE_LONG_64) ? REG_LOOKUP[reg].width64 : REG_LOOKUP[reg].width;
+    return (mode == ZYDIS_MACHINE_MODE_LONG_64)
+        ? REG_LOOKUP[reg].width64
+        : REG_LOOKUP[reg].width;
 }
 
 ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegister reg)
