@@ -67,6 +67,21 @@ jobs:
           cd msvc
           msbuild.exe Zydis.sln /m /t:Rebuild '/p:Configuration="Release Kernel";Platform=X64'
 
+  amalgamated:
+    name: Amalgamated build (Ubuntu 20.04)
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with: { submodules: recursive }
+      - name: Amalgamating sources
+        run: |
+          ./assets/amalgamate.py
+      - name: Compiling library
+        run: |
+          cd amalgamated-dist
+          gcc -shared -I. -fPIC -olibzydis.so Zydis.c
+
   fuzzing:
     runs-on: ubuntu-20.04
     strategy:
