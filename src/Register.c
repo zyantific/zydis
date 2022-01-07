@@ -225,22 +225,22 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
 
 const char* ZydisRegisterGetString(ZydisRegister reg)
 {
-    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
+    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTERS))
     {
         return ZYAN_NULL;
     }
 
-    return STR_REGISTER[reg].data;
+    return STR_REGISTERS[reg].data;
 }
 
 const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
 {
-    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTER))
+    if ((ZyanUSize)reg >= ZYAN_ARRAY_LENGTH(STR_REGISTERS))
     {
         return ZYAN_NULL;
     }
 
-    return &STR_REGISTER[reg];
+    return &STR_REGISTERS[reg];
 }
 
 /* ---------------------------------------------------------------------------------------------- */
