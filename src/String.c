@@ -200,7 +200,7 @@ ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 pad
                 continue;
             }
             const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i) ? 1 : 0;
-            if (remaining <= (ZyanU8)i + zero)
+            if (remaining <= (ZyanUSize)i + zero)
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
@@ -274,7 +274,7 @@ ZyanStatus ZydisStringAppendHexU64(ZyanString* string, ZyanU64 value, ZyanU8 pad
                 continue;
             }
             const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i) ? 1 : 0;
-            if (remaining <= (ZyanU8)i + zero)
+            if (remaining <= (ZyanUSize)i + zero)
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
