@@ -54,6 +54,9 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
   - Constants added: `ZYDIS_MEMOP_TYPE_VSIB`
 - Decoding behavior changed:
   - In case of vector SIB addressing memory operands, `ZYDIS_MEMOP_TYPE_VSIB` will be reported by the decoder instead of `ZYDIS_MEMOP_TYPE_MEM` (in `ZydisDecodedOperand.mem.type`)
+- Constants renamed:
+  - `ZYDIS_STATIC_DEFINE` -> `ZYDIS_STATIC_BUILD`
+  - `Zydis_EXPORTS` -> `ZYDIS_SHOULD_EXPORT`
 
 ## Changes relevant for language bindings
 
