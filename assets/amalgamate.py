@@ -57,7 +57,7 @@ def merge_headers(
     # Locate and load header contents.
     path = find_include_path(header, search_paths)
     with path.open() as f:
-        lines = [x.strip() for x in f]
+        lines = [x.rstrip() for x in f]
 
     if path in covered_headers:
         return []
@@ -162,7 +162,7 @@ def main():
 
     covered_headers = set()
     with open(OUTPUT_DIR / 'Zydis.h', 'w') as f:
-        f.write(os.linesep.join(FILE_HEADER + merge_headers(
+        f.write('\n'.join(FILE_HEADER + merge_headers(
             header='Zydis/Zydis.h', 
             search_paths=PUBLIC_INCLUDE_PATHS,
             covered_headers=covered_headers, 
@@ -172,8 +172,8 @@ def main():
     print(covered_headers)
 
     with open(OUTPUT_DIR / 'Zydis.c', 'w') as f:
-        f.write(os.linesep.join(FILE_HEADER + merge_sources(
-            source_dir=Path('src'),
+        f.write('\n'.join(FILE_HEADER + merge_sources(
+            source_dir=ZYDIS_ROOT / 'src',
             covered_headers=covered_headers,
         )))
 
