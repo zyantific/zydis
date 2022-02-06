@@ -311,45 +311,29 @@ ZyanU8 ZydisGetMachineModeWidth(ZydisMachineMode machine_mode)
  */
 ZyanU8 ZydisGetAszFromHint(ZydisAddressSizeHint hint)
 {
-    switch (hint)
-    {
-    case ZYDIS_ADDRESS_SIZE_HINT_NONE:
-        return 0;
-    case ZYDIS_ADDRESS_SIZE_HINT_16:
-        return 16;
-    case ZYDIS_ADDRESS_SIZE_HINT_32:
-        return 32;
-    case ZYDIS_ADDRESS_SIZE_HINT_64:
-        return 64;
-    default:
-        ZYAN_UNREACHABLE;
-    }
+    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_ADDRESS_SIZE_MAX_VALUE);
+    static const ZyanU8 lookup[ZYDIS_ADDRESS_SIZE_MAX_VALUE + 1] = { 0, 16, 32, 64 };
+    return lookup[hint];
 }
 
 /**
  * Converts `ZydisOperandSizeHint` to operand size expressed in bits.
  *
- * @param   hint Operand size hint.
+ * @param   hint        Operand size hint.
+ * @param   mode_width  Default width for desired machine mode.
  *
  * @return  Operand size in bits.
  */
-ZyanU8 ZydisGetOszFromHint(ZydisOperandSizeHint hint)
+ZyanU8 ZydisGetOszFromHint(ZydisOperandSizeHint hint, ZydisWidthFlag mode_width)
 {
-    switch (hint)
+    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_OPERAND_SIZE_MAX_VALUE);
+    ZYAN_ASSERT((ZyanUSize)mode_width <= ZYDIS_WIDTH_MAX_VALUE);
+    if (hint == ZYDIS_OPERAND_SIZE_HINT_NONE)
     {
-    case ZYDIS_OPERAND_SIZE_HINT_NONE:
-        return 0;
-    case ZYDIS_OPERAND_SIZE_HINT_8:
-        return 8;
-    case ZYDIS_OPERAND_SIZE_HINT_16:
-        return 16;
-    case ZYDIS_OPERAND_SIZE_HINT_32:
-        return 32;
-    case ZYDIS_OPERAND_SIZE_HINT_64:
-        return 64;
-    default:
-        ZYAN_UNREACHABLE;
+        return (ZyanU8)(mode_width << 4);
     }
+
+    return 4 << hint;
 }
 
 /**
@@ -2937,10 +2921,11 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
     const ZyanU8 definition_count = ZydisGetEncodableInstructions(request->mnemonic, &definition);
     ZYAN_ASSERT(definition && definition_count);
     const ZydisWidthFlag mode_width = ZydisGetMachineModeWidth(request->machine_mode) >> 4;
-    const ZyanBool is_compat = (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
+    const ZyanBool is_compat =
+        (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
         (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32);
     const ZyanU8 default_asz = ZydisGetAszFromHint(request->address_size_hint);
-    const ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint);
+    const ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint, mode_width);
     const ZyanU16 operand_mask = ZydisGetOperandMask(request);
 
     for (ZyanU8 i = 0; i < definition_count; ++i, ++definition)
