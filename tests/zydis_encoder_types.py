@@ -109,6 +109,7 @@ ZydisBranchWidth = IntEnum('ZydisBranchWidth', [
     'ZYDIS_BRANCH_WIDTH_8',
     'ZYDIS_BRANCH_WIDTH_16',
     'ZYDIS_BRANCH_WIDTH_32',
+    'ZYDIS_BRANCH_WIDTH_64',
 ], start=0)
 
 
