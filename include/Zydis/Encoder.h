@@ -147,12 +147,12 @@ typedef enum ZydisAddressSizeHint_
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_ADDRESS_SIZE_MAX_VALUE = ZYDIS_ADDRESS_SIZE_HINT_64,
+    ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE = ZYDIS_ADDRESS_SIZE_HINT_64,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ADDRESS_SIZE_MAX_REQUIRED_BITS = 
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_ADDRESS_SIZE_MAX_VALUE)
+    ZYDIS_ADDRESS_SIZE_HINT_MAX_REQUIRED_BITS =
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE)
 } ZydisAddressSizeHint;
 
 /**
@@ -170,12 +170,12 @@ typedef enum ZydisOperandSizeHint_
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_OPERAND_SIZE_MAX_VALUE = ZYDIS_OPERAND_SIZE_HINT_64,
+    ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE = ZYDIS_OPERAND_SIZE_HINT_64,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_OPERAND_SIZE_REQUIRED_BITS = 
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_SIZE_MAX_VALUE)
+    ZYDIS_OPERAND_SIZE_HINT_REQUIRED_BITS =
+        ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE)
 } ZydisOperandSizeHint;
 
 /**

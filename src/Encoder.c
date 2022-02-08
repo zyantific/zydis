@@ -311,29 +311,23 @@ ZyanU8 ZydisGetMachineModeWidth(ZydisMachineMode machine_mode)
  */
 ZyanU8 ZydisGetAszFromHint(ZydisAddressSizeHint hint)
 {
-    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_ADDRESS_SIZE_MAX_VALUE);
-    static const ZyanU8 lookup[ZYDIS_ADDRESS_SIZE_MAX_VALUE + 1] = { 0, 16, 32, 64 };
+    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE);
+    static const ZyanU8 lookup[ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE + 1] = { 0, 16, 32, 64 };
     return lookup[hint];
 }
 
 /**
  * Converts `ZydisOperandSizeHint` to operand size expressed in bits.
  *
- * @param   hint        Operand size hint.
- * @param   mode_width  Default width for desired machine mode.
+ * @param   hint Operand size hint.
  *
  * @return  Operand size in bits.
  */
-ZyanU8 ZydisGetOszFromHint(ZydisOperandSizeHint hint, ZydisWidthFlag mode_width)
+ZyanU8 ZydisGetOszFromHint(ZydisOperandSizeHint hint)
 {
-    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_OPERAND_SIZE_MAX_VALUE);
-    ZYAN_ASSERT((ZyanUSize)mode_width <= ZYDIS_WIDTH_MAX_VALUE);
-    if (hint == ZYDIS_OPERAND_SIZE_HINT_NONE)
-    {
-        return (ZyanU8)(mode_width << 4);
-    }
-
-    return 4 << hint;
+    ZYAN_ASSERT((ZyanUSize)hint <= ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE);
+    static const ZyanU8 lookup[ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE + 1] = { 0, 8, 16, 32, 64 };
+    return lookup[hint];
 }
 
 /**
@@ -353,7 +347,8 @@ ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *match,
     if ((match->base_definition->operand_size_map == ZYDIS_OPSIZE_MAP_DEFAULT64) &&
         (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
     {
-        if (size_table[2] == desired_size)
+        if ((exact_match_mode && (size_table[2] == desired_size)) ||
+            (!exact_match_mode && (size_table[2] >= desired_size)))
         {
             return 64;
         }
@@ -2925,7 +2920,7 @@ ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request,
         (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
         (request->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32);
     const ZyanU8 default_asz = ZydisGetAszFromHint(request->address_size_hint);
-    const ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint, mode_width);
+    const ZyanU8 default_osz = ZydisGetOszFromHint(request->operand_size_hint);
     const ZyanU16 operand_mask = ZydisGetOperandMask(request);
 
     for (ZyanU8 i = 0; i < definition_count; ++i, ++definition)
@@ -4098,8 +4093,8 @@ ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *request)
         ((ZyanUSize)request->mnemonic > ZYDIS_MNEMONIC_MAX_VALUE) ||
         ((ZyanUSize)request->branch_type > ZYDIS_BRANCH_TYPE_MAX_VALUE) ||
         ((ZyanUSize)request->branch_width > ZYDIS_BRANCH_WIDTH_MAX_VALUE) ||
-        ((ZyanUSize)request->address_size_hint > ZYDIS_ADDRESS_SIZE_MAX_VALUE) ||
-        ((ZyanUSize)request->operand_size_hint > ZYDIS_OPERAND_SIZE_MAX_VALUE) ||
+        ((ZyanUSize)request->address_size_hint > ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE) ||
+        ((ZyanUSize)request->operand_size_hint > ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE) ||
         ((ZyanUSize)request->evex.broadcast > ZYDIS_BROADCAST_MODE_MAX_VALUE) ||
         ((ZyanUSize)request->evex.rounding > ZYDIS_ROUNDING_MODE_MAX_VALUE) ||
         ((ZyanUSize)request->mvex.broadcast > ZYDIS_BROADCAST_MODE_MAX_VALUE) ||

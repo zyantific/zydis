@@ -220,9 +220,9 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     ZYDIS_SANITIZE_ENUM(request.branch_type, ZydisBranchType, ZYDIS_BRANCH_TYPE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.branch_width, ZydisBranchWidth, ZYDIS_BRANCH_WIDTH_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.address_size_hint, ZydisAddressSizeHint,
-        ZYDIS_ADDRESS_SIZE_MAX_VALUE);
+        ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.operand_size_hint, ZydisOperandSizeHint,
-        ZYDIS_OPERAND_SIZE_MAX_VALUE);
+        ZYDIS_OPERAND_SIZE_HINT_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.evex.broadcast, ZydisBroadcastMode, ZYDIS_BROADCAST_MODE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.evex.rounding, ZydisRoundingMode, ZYDIS_ROUNDING_MODE_MAX_VALUE);
     ZYDIS_SANITIZE_ENUM(request.mvex.broadcast, ZydisBroadcastMode, ZYDIS_BROADCAST_MODE_MAX_VALUE);

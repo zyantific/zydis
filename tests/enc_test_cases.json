@@ -2071,5 +2071,37 @@
             "sae": true,
             "eviction_hint": true
         }
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "allowed_encodings": "ZYDIS_ENCODABLE_ENCODING_DEFAULT",
+        "mnemonic": "ZYDIS_MNEMONIC_PUSH",
+        "prefixes": "ZYDIS_ATTRIB_NONE",
+        "branch_type": "ZYDIS_BRANCH_TYPE_NONE",
+        "branch_width": "ZYDIS_BRANCH_WIDTH_NONE",
+        "address_size_hint": "ZYDIS_ADDRESS_SIZE_HINT_NONE",
+        "operand_size_hint": "ZYDIS_OPERAND_SIZE_HINT_NONE",
+        "operands": [
+            {
+                "operand_type": "ZYDIS_OPERAND_TYPE_IMMEDIATE",
+                "imm": {
+                    "value": "1953184666629517322"
+                }
+            }
+        ],
+        "evex": {
+            "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
+            "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
+            "sae": false,
+            "zeroing_mask": false
+        },
+        "mvex": {
+            "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
+            "conversion": "ZYDIS_CONVERSION_MODE_INVALID",
+            "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
+            "swizzle": "ZYDIS_SWIZZLE_MODE_DCBA",
+            "sae": false,
+            "eviction_hint": false
+        }
     }
 ]
