@@ -185,6 +185,11 @@ typedef struct ZydisDecoder_
      * The decoder mode array.
      */
     ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    /**
+     * A pointer corresponding to the common instruction cache table
+     * for the current stack width.
+     */
+    ZydisDecodedCommonInstruction * common_instruction_cache_table;
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -315,6 +320,17 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decode
 ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
     const ZydisDecoderContext* context, const ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand* operands, ZyanU8 operand_count);
+
+/**
+ * Initializes a cache that contains commonly encountered instructions.
+ *
+ * @param   decoder  A pointer to the `ZydisDecoder` instance.
+ *
+ * This function must be called after the decoder is initialized.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisDecoderInitializeCommonInstructionCache(const ZydisDecoder* decoder);
 
 /** @} */
 
