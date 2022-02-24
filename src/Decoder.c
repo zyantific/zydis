@@ -4968,10 +4968,15 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand* operands, ZyanU8 operand_count, ZydisDecodingFlags flags)
 {
-    if (!decoder || !buffer || !length || !instruction || (operand_count && !operands) ||
+    if (!decoder || !instruction || (operand_count && !operands) ||
         (operand_count > ZYDIS_MAX_OPERAND_COUNT))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (!buffer || !length)
+    {
+        return ZYDIS_STATUS_NO_MORE_DATA;
     }
 
     if (decoder->decoder_mode[ZYDIS_DECODER_MODE_MINIMAL])
