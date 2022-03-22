@@ -45,7 +45,9 @@
 #include <Zycore/Types.h>
 #include <Zycore/Format.h>
 #include <Zydis/ShortString.h>
-#include <Zydis/Status.h>
+#include <Zycore/Defines.h>
+#include <Zycore/Status.h>
+#include <Zycore/Vector.h>
 
 #ifdef __cplusplus
 extern "C" {

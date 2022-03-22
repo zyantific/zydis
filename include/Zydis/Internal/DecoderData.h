@@ -28,7 +28,8 @@
 #define ZYDIS_INTERNAL_DECODERDATA_H
 
 #include <Zycore/Defines.h>
-#include <Zydis/DecoderTypes.h>
+#include <Zycore/Types.h>
+#include <Zydis/Defines.h>
 
 #ifdef __cplusplus
 extern "C" {
