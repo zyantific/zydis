@@ -29,8 +29,7 @@
 
 #include <Zycore/Defines.h>
 #include <Zydis/Mnemonic.h>
-#include <Zydis/Internal/SharedData.h>
-
+#include <Zydis/SharedTypes.h>
 /**
  * Used in encoder's table to represent standard ISA sizes in form of bit flags.
  */

@@ -33,7 +33,6 @@
 #define ZYDIS_METAINFO_H
 
 #include <Zydis/Defines.h>
-#include <Zycore/Types.h>
 
 #ifdef __cplusplus
 extern "C" {
