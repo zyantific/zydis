@@ -130,6 +130,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <ControlFlowGuard>false</ControlFlowGuard>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <DisableSpecificWarnings>4201;4748;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalOptions>/NOVCFEATURE /NOCOFFGRPINFO %(AdditionalOptions)</AdditionalOptions>
@@ -156,6 +157,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <SupportJustMyCode>false</SupportJustMyCode>
       <Optimization>MaxSpeed</Optimization>
+      <DisableSpecificWarnings>4201;4603;4627;4986;4987;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
@@ -180,6 +182,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <ControlFlowGuard>false</ControlFlowGuard>
       <SupportJustMyCode>false</SupportJustMyCode>
+      <DisableSpecificWarnings>4201;4748;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalOptions>/NOVCFEATURE /NOCOFFGRPINFO %(AdditionalOptions)</AdditionalOptions>
@@ -206,6 +209,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <SupportJustMyCode>false</SupportJustMyCode>
       <Optimization>MaxSpeed</Optimization>
+      <DisableSpecificWarnings>4201;4603;4627;4986;4987;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
