@@ -1,104 +1,12 @@
-# Created by https://www.gitignore.io/api/c,c++,cmake
-
-### C ###
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-
-
-### C++ ###
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-
-### CMake ###
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Makefile
-cmake_install.cmake
-install_manifest.txt
-CTestTestfile.cmake
-
-
-# MacOS
 .DS_Store
-
-build*
-
-# MSVC
-.vs
-*.vcxproj.user
-*.suo
-*.sdf
-*.opensdf
-*.VC.db
-*.VC.opendb
-msvc/**/*.user
-msvc/**/obj/
-msvc/**/bin/
-
-doc/html
-
 .vscode
 .idea
-cmake-build-debug
-!tests/cases/*.out
-*.pyc
+__pycache__
+
+/build*
+/msvc/**/*.user
+/msvc/**/obj/
+/msvc/**/bin/
+/doc
+/cmake-build-debug
 /amalgamated-dist
