@@ -108,15 +108,16 @@ typedef enum ZydisMemoryOperandType_
 /* Decoded operand                                                                                */
 /* ---------------------------------------------------------------------------------------------- */
 
-   /**
-      * Extended info for register-operands.
-      */
+/**
+ * Extended info for register-operands.
+ */
 typedef struct ZydisDecodedOperandReg_ {
     /**
      * The register value.
      */
     ZydisRegister value;
 } ZydisDecodedOperandReg;
+
 /**
  * Extended info for memory-operands.
  */
@@ -155,6 +156,7 @@ typedef struct ZydisDecodedOperandMem_ {
         ZyanI64 value;
     } disp;
 } ZydisDecodedOperandMem;
+
 /**
  * Extended info for pointer-operands.
  */
@@ -162,6 +164,7 @@ typedef struct ZydisDecodedOperandPtr_ {
     ZyanU16 segment;
     ZyanU32 offset;
 } ZydisDecodedOperandPtr;
+
 /**
  * Extended info for immediate-operands.
  */
@@ -683,8 +686,8 @@ typedef enum ZydisPrefixType_
 /* Decoded instruction                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
 /**
-     * Detailed info about the `XOP` prefix.
-     */
+ * Detailed info about the `XOP` prefix.
+ */
 typedef struct ZydisDecodedInstructionRawXop_ {
     /**
      * Extension of the `ModRM.reg` field (inverted).
@@ -725,6 +728,7 @@ typedef struct ZydisDecodedInstructionRawXop_ {
      */
     ZyanU8 offset;
 } ZydisDecodedInstructionRawXop;
+
 /**
  * Detailed info about the `VEX` prefix.
  */
@@ -772,6 +776,7 @@ typedef struct ZydisDecodedInstructionRawVex_ {
      */
     ZyanU8 size;
 } ZydisDecodedInstructionRawVex;
+
 /**
  * Detailed info about the `EVEX` prefix.
  */
@@ -839,6 +844,7 @@ typedef struct ZydisDecodedInstructionRawEvex {
      */
     ZyanU8 offset;
 } ZydisDecodedInstructionRawEvex;
+
 /**
  * Detailed info about the `MVEX` prefix.
  */
@@ -898,6 +904,7 @@ typedef struct ZydisDecodedInstructionRawMvex_ {
      */
     ZyanU8 offset;
 } ZydisDecodedInstructionRawMvex;
+
 /**
  * Information about a decoded instruction.
  */
