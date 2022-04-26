@@ -20,7 +20,7 @@
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
                                                                                  DISP  =  0x0000000000000000
- 1   REGISTER    IMPLICIT       R          NONE     80      1      80   FLOAT80                          st0
+ 1   REGISTER      HIDDEN       R          NONE     80      1      80   FLOAT80                          st0
  2   REGISTER      HIDDEN       W          NONE     16      1      16    STRUCT                    x87status
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
@@ -30,12 +30,12 @@
     WRITTEN: 0x00000000
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: fistw %st0, (%rdi)
-   RELATIVE: fistw %st0, (%rdi)
+   ABSOLUTE: fist (%rdi)
+   RELATIVE: fist (%rdi)
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: fist word ptr ds:[rdi], st0
-   RELATIVE: fist word ptr ds:[rdi], st0
+   ABSOLUTE: fist word ptr ds:[rdi]
+   RELATIVE: fist word ptr ds:[rdi]
 
 == [ SEGMENTS ] ============================================================================================
 26 DF 17 
