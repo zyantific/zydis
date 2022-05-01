@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 project(Zydis VERSION 4.0.0.0 LANGUAGES C CXX)
 
@@ -117,7 +117,7 @@ set_target_properties("Zydis" PROPERTIES
     SOVERSION "${Zydis_VERSION_MAJOR}.${Zydis_VERSION_MINOR}"
     DEFINE_SYMBOL "ZYDIS_SHOULD_EXPORT")
 zyan_set_common_flags("Zydis")
-zyan_maybe_enable_wpo_for_lib("Zydis")
+zyan_maybe_enable_wpo("Zydis")
 
 if (ZYDIS_FEATURE_FORMATTER AND NOT ZYDIS_FEATURE_DECODER)
     message(
