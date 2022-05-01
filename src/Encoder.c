@@ -2762,6 +2762,12 @@ static ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
  */
 static ZyanBool ZydisArePrefixesCompatible(const ZydisEncoderInstructionMatch *match)
 {
+    // Early-exit optimization for when no prefixes are requested at all.
+    if (!(match->attributes & ZYDIS_ENCODABLE_PREFIXES))
+    {
+        return ZYAN_TRUE;
+    }
+
     if ((!match->base_definition->accepts_segment) &&
         (match->attributes & ZYDIS_ATTRIB_HAS_SEGMENT))
     {
