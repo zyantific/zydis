@@ -14,10 +14,10 @@
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512     16      32       INT                         zmm9
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512     16      32      UINT                         zmm9
  1   REGISTER    EXPLICIT       R          MASK     16     16       1       INT                           k4
- 2   REGISTER    EXPLICIT       R        NDSNDD    512     16      32       INT                         zmm1
- 3   REGISTER    EXPLICIT       R      MODRM_RM    512     16      32       INT                         zmm7
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     16      32      UINT                         zmm1
+ 3   REGISTER    EXPLICIT       R      MODRM_RM    512     16      32      UINT                         zmm7
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      AVX ] ============================================================================================

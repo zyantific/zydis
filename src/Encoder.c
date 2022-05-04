@@ -2874,7 +2874,7 @@ static ZyanBool ZydisHandleSwappableDefinition(ZydisEncoderInstructionMatch *mat
     }
 
     // Special case for ISA-wide unique conflict between two `mov` variants
-    // mov gpr16_32_64(encoding=opcode), imm(encoding=uimm16_32_64,scale_factor=osz)
+    // mov gpr16_32_64(encoding=opcode), imm(encoding=simm16_32_64,scale_factor=osz)
     // mov gpr16_32_64(encoding=modrm_rm), imm(encoding=simm16_32_32,scale_factor=osz)
     if (match->request->mnemonic == ZYDIS_MNEMONIC_MOV)
     {
