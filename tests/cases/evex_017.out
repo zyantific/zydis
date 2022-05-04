@@ -16,8 +16,8 @@
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
  0   REGISTER    EXPLICIT     RCW     MODRM_REG    512     64       8      UINT                         zmm8
  1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k1
- 2   REGISTER    EXPLICIT       R        NDSNDD    512     32      16      UINT                        zmm25
- 3   REGISTER    EXPLICIT       R      MODRM_RM    512     32      16      UINT                        zmm15
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     32      16       INT                        zmm25
+ 3   REGISTER    EXPLICIT       R      MODRM_RM    512     32      16       INT                        zmm15
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      AVX ] ============================================================================================

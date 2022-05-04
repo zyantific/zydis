@@ -16,8 +16,8 @@
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
  0   REGISTER    EXPLICIT       W     MODRM_REG     64     64       1       INT                           k4
  1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k6
- 2   REGISTER    EXPLICIT       R        NDSNDD    128      4      32      UINT                         xmm1
- 3     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32      UINT  TYPE  =                 MEM
+ 2   REGISTER    EXPLICIT       R        NDSNDD    128      4      32       INT                         xmm1
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
                                                                                  SEG   =                  ss
                                                                                  BASE  =                 rbp
                                                                                  INDEX =                none

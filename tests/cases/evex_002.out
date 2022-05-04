@@ -14,10 +14,10 @@
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512      8      64      UINT                        zmm15
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512      8      64       INT                        zmm15
  1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k7
- 2   REGISTER    EXPLICIT       R        NDSNDD    512      8      64      UINT                         zmm3
- 3     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64      UINT  TYPE  =                 MEM
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512      8      64       INT                         zmm3
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
                                                                                  SEG   =                  ds
                                                                                  BASE  =                  r8
                                                                                  INDEX =                 r14
