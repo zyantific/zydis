@@ -3132,6 +3132,8 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
     }
 
     // TODO: fix for big-endian systems
+    // The size variable is not passed on purpose to allow the compiler
+    // to generate better code with a known size at compile time.
     if (size == 1)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 1);
@@ -3147,6 +3149,10 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
     else if (size == 8)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 8);
+    }
+    else
+    {
+        ZYAN_UNREACHABLE;
     }
 
     buffer->offset = new_offset;
