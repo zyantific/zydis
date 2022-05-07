@@ -151,7 +151,7 @@ typedef enum ZydisAddressSizeHint_
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_ADDRESS_SIZE_HINT_MAX_REQUIRED_BITS =
+    ZYDIS_ADDRESS_SIZE_HINT_REQUIRED_BITS =
         ZYAN_BITS_TO_REPRESENT(ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE)
 } ZydisAddressSizeHint;
 
