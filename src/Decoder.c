@@ -5037,6 +5037,8 @@ ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decoder, ZydisDecod
     ZYAN_CHECK(ZydisCollectOptionalPrefixes(&state, instruction));
     ZYAN_CHECK(ZydisDecodeInstruction(&state, instruction));
 
+    instruction->raw.encoding2 = instruction->encoding;
+
     return ZYAN_STATUS_SUCCESS;
 }
 

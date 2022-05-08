@@ -1143,6 +1143,13 @@ typedef struct ZydisDecodedInstruction_
         } rex;
 
         /*
+         * Copy of the `encoding` field.
+         *
+         * This is here to allow the Rust bindings to treat the following union as an `enum`,
+         * sparing us a lot of unsafe code. Prefer using the regular `encoding` field in C/C++ code.
+         */
+        ZydisInstructionEncoding encoding2;
+        /*
          * Union for things from various mutually exclusive vector extensions.
          */
         union {
@@ -1151,6 +1158,7 @@ typedef struct ZydisDecodedInstruction_
             ZydisDecodedInstructionRawEvex evex;
             ZydisDecodedInstructionRawMvex mvex;
         };
+
         /**
          * Detailed info about the `ModRM` byte.
          */
