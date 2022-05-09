@@ -4869,9 +4869,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     if (ZydisGetAccessedFlags(definition, &flags))
                     {
                         instruction->attributes |= ZYDIS_ATTRIB_CPUFLAG_ACCESS;
-                        instruction->cpu_flags = &flags->cpu_flags;
-                        instruction->fpu_flags = &flags->fpu_flags;
                     }
+                    instruction->cpu_flags = &flags->cpu_flags;
+                    instruction->fpu_flags = &flags->fpu_flags;
                 }
 
 #endif
