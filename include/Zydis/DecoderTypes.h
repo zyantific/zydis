@@ -685,6 +685,42 @@ typedef enum ZydisPrefixType_
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoded instruction                                                                            */
 /* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Detailed info about the `REX` prefix.
+ */
+typedef struct ZydisDecodedInstructionRawRex_
+{
+    /**
+     * 64-bit operand-size promotion.
+     */
+    ZyanU8 W;
+    /**
+     * Extension of the `ModRM.reg` field.
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index` field.
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     */
+    ZyanU8 B;
+    /**
+     * The offset of the effective `REX` byte, relative to the beginning of the
+     * instruction, in bytes.
+     *
+     * This offset always points to the "effective" `REX` prefix (the one closest to the
+     * instruction opcode), if multiple `REX` prefixes are present.
+     *
+     * Note that the `REX` byte can be the first byte of the instruction, which would lead
+     * to an offset of `0`. Please refer to the instruction attributes to check for the
+     * presence of the `REX` prefix.
+     */
+    ZyanU8 offset;
+} ZydisDecodedInstructionRawRex;
+
 /**
  * Detailed info about the `XOP` prefix.
  */
@@ -1107,40 +1143,6 @@ typedef struct ZydisDecodedInstruction_
              */
             ZyanU8 value;
         } prefixes[ZYDIS_MAX_INSTRUCTION_LENGTH];
-        /**
-         * Detailed info about the `REX` prefix.
-         */
-        struct ZydisDecodedInstructionRawRex_
-        {
-            /**
-             * 64-bit operand-size promotion.
-             */
-            ZyanU8 W;
-            /**
-             * Extension of the `ModRM.reg` field.
-             */
-            ZyanU8 R;
-            /**
-             * Extension of the `SIB.index` field.
-             */
-            ZyanU8 X;
-            /**
-             * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
-             */
-            ZyanU8 B;
-            /**
-             * The offset of the effective `REX` byte, relative to the beginning of the
-             * instruction, in bytes.
-             *
-             * This offset always points to the "effective" `REX` prefix (the one closest to the
-             * instruction opcode), if multiple `REX` prefixes are present.
-             *
-             * Note that the `REX` byte can be the first byte of the instruction, which would lead
-             * to an offset of `0`. Please refer to the instruction attributes to check for the
-             * presence of the `REX` prefix.
-             */
-            ZyanU8 offset;
-        } rex;
 
         /*
          * Copy of the `encoding` field.
@@ -1150,9 +1152,10 @@ typedef struct ZydisDecodedInstruction_
          */
         ZydisInstructionEncoding encoding2;
         /*
-         * Union for things from various mutually exclusive vector extensions.
+         * Union for things from various mutually exclusive encodings.
          */
         union {
+            ZydisDecodedInstructionRawRex rex;
             ZydisDecodedInstructionRawXop xop;
             ZydisDecodedInstructionRawVex vex;
             ZydisDecodedInstructionRawEvex evex;
