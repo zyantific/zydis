@@ -190,7 +190,7 @@ Unofficial but actively maintained bindings:
 
 ## asmjit-style C++ front-end
 
-If you're looking for an asmjit-style assembler front-end for the encoder, check out [zasm](https://github.com/ZehMatt/zasm)!
+If you're looking for an asmjit-style assembler front-end for the encoder, check out [zasm](https://github.com/zyantific/zasm)!
 
 ## Versions
 
