@@ -111,7 +111,8 @@ typedef enum ZydisMemoryOperandType_
 /**
  * Extended info for register-operands.
  */
-typedef struct ZydisDecodedOperandReg_ {
+typedef struct ZydisDecodedOperandReg_
+{
     /**
      * The register value.
      */
@@ -121,7 +122,8 @@ typedef struct ZydisDecodedOperandReg_ {
 /**
  * Extended info for memory-operands.
  */
-typedef struct ZydisDecodedOperandMem_ {
+typedef struct ZydisDecodedOperandMem_
+{
     /**
      * The type of the memory operand.
      */
@@ -145,7 +147,8 @@ typedef struct ZydisDecodedOperandMem_ {
     /**
      * Extended info for memory-operands with displacement.
      */
-    struct ZydisDecodedOperandMemDisp_ {
+    struct ZydisDecodedOperandMemDisp_
+    {
         /**
          * Signals, if the displacement value is used.
          */
@@ -160,7 +163,8 @@ typedef struct ZydisDecodedOperandMem_ {
 /**
  * Extended info for pointer-operands.
  */
-typedef struct ZydisDecodedOperandPtr_ {
+typedef struct ZydisDecodedOperandPtr_
+{
     ZyanU16 segment;
     ZyanU32 offset;
 } ZydisDecodedOperandPtr;
@@ -168,7 +172,8 @@ typedef struct ZydisDecodedOperandPtr_ {
 /**
  * Extended info for immediate-operands.
  */
-typedef struct ZydisDecodedOperandImm_ {
+typedef struct ZydisDecodedOperandImm_
+{
     /**
      * Signals, if the immediate value is signed.
      */
@@ -181,7 +186,8 @@ typedef struct ZydisDecodedOperandImm_ {
     /**
      * The immediate value.
      */
-    union ZydisDecodedOperandImmValue_ {
+    union ZydisDecodedOperandImmValue_
+    {
         ZyanU64 u;
         ZyanI64 s;
     } value;
@@ -237,7 +243,8 @@ typedef struct ZydisDecodedOperand_
      *
      * The enabled union variant is determined by the `type` field.
      */
-    union {
+    union
+    {
         ZydisDecodedOperandReg reg;
         ZydisDecodedOperandMem mem;
         ZydisDecodedOperandPtr ptr;
@@ -724,7 +731,8 @@ typedef struct ZydisDecodedInstructionRawRex_
 /**
  * Detailed info about the `XOP` prefix.
  */
-typedef struct ZydisDecodedInstructionRawXop_ {
+typedef struct ZydisDecodedInstructionRawXop_
+{
     /**
      * Extension of the `ModRM.reg` field (inverted).
      */
@@ -768,7 +776,8 @@ typedef struct ZydisDecodedInstructionRawXop_ {
 /**
  * Detailed info about the `VEX` prefix.
  */
-typedef struct ZydisDecodedInstructionRawVex_ {
+typedef struct ZydisDecodedInstructionRawVex_
+{
     /**
      * Extension of the `ModRM.reg` field (inverted).
      */
@@ -816,7 +825,8 @@ typedef struct ZydisDecodedInstructionRawVex_ {
 /**
  * Detailed info about the `EVEX` prefix.
  */
-typedef struct ZydisDecodedInstructionRawEvex {
+typedef struct ZydisDecodedInstructionRawEvex
+{
     /**
      * Extension of the `ModRM.reg` field (inverted).
      */
@@ -884,7 +894,8 @@ typedef struct ZydisDecodedInstructionRawEvex {
 /**
  * Detailed info about the `MVEX` prefix.
  */
-typedef struct ZydisDecodedInstructionRawMvex_ {
+typedef struct ZydisDecodedInstructionRawMvex_
+{
     /**
      * Extension of the `ModRM.reg` field (inverted).
      */
@@ -1154,7 +1165,8 @@ typedef struct ZydisDecodedInstruction_
         /*
          * Union for things from various mutually exclusive encodings.
          */
-        union {
+        union
+        {
             ZydisDecodedInstructionRawRex rex;
             ZydisDecodedInstructionRawXop xop;
             ZydisDecodedInstructionRawVex vex;
