@@ -357,6 +357,8 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
     }
 }
 
+#if !defined(ZYDIS_DISABLE_ENCODER)
+
 void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedInstruction *insn1,
     const ZydisDecodedOperand* operands1, ZyanU8 operand_count, const ZyanU8 *insn1_bytes)
 {
@@ -403,6 +405,8 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
         abort();
     }
 }
+
+#endif
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */

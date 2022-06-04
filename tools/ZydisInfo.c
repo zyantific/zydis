@@ -427,6 +427,8 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
     ZYAN_PRINTF(CVT100_OUT(COLOR_DEFAULT));
 }
 
+#if !defined(ZYDIS_DISABLE_ENCODER)
+
 /**
  * Prints a size optimized form of the input instruction.
  *
@@ -467,6 +469,8 @@ static void PrintSizeOptimizedForm(const ZydisDecoder* decoder,
 
     PrintSegments(&new_instruction, &data[0], ZYAN_FALSE);
 }
+
+#endif
 
 /**
  * Prints instruction operands info.
@@ -1196,8 +1200,14 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         ZYAN_PUTS(CVT100_OUT(COLOR_DEFAULT));
     }
 
+#if !defined(ZYDIS_DISABLE_ENCODER)
+
     PrintValueLabel("OPTIMIZED");
     PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);
+
+#else
+    ZYAN_UNUSED(decoder);
+#endif
 
     if (instruction->operand_count > 0)
     {
