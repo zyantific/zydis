@@ -699,22 +699,6 @@ typedef enum ZydisPrefixType_
 typedef struct ZydisDecodedInstructionRawRex_
 {
     /**
-     * 64-bit operand-size promotion.
-     */
-    ZyanU8 W;
-    /**
-     * Extension of the `ModRM.reg` field.
-     */
-    ZyanU8 R;
-    /**
-     * Extension of the `SIB.index` field.
-     */
-    ZyanU8 X;
-    /**
-     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
-     */
-    ZyanU8 B;
-    /**
      * The offset of the effective `REX` byte, relative to the beginning of the
      * instruction, in bytes.
      *

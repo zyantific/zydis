@@ -378,16 +378,12 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
     ZYAN_ASSERT((data & 0xF0) == 0x40);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_REX;
-    instruction->raw.rex.W   = (data >> 3) & 0x01;
-    instruction->raw.rex.R   = (data >> 2) & 0x01;
-    instruction->raw.rex.X   = (data >> 1) & 0x01;
-    instruction->raw.rex.B   = (data >> 0) & 0x01;
 
     // Update internal fields
-    context->vector_unified.W = instruction->raw.rex.W;
-    context->vector_unified.R = instruction->raw.rex.R;
-    context->vector_unified.X = instruction->raw.rex.X;
-    context->vector_unified.B = instruction->raw.rex.B;
+    context->vector_unified.W = (data >> 3) & 0x01;
+    context->vector_unified.R = (data >> 2) & 0x01;
+    context->vector_unified.X = (data >> 1) & 0x01;
+    context->vector_unified.B = (data >> 0) & 0x01;
 }
 
 /**
