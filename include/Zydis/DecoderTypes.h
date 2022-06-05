@@ -1044,17 +1044,17 @@ typedef struct ZydisDecodedInstruction_
         struct ZydisDecodedInstructionModRm_
         {
             /**
+             * Register specifier or opcode-extension.
+             */
+            ZyanU8 rm: 3;
+            /**
+             * Register specifier or opcode-extension.
+             */
+            ZyanU8 reg: 3;
+            /**
              * The addressing mode.
              */
-            ZyanU8 mod;
-            /**
-             * Register specifier or opcode-extension.
-             */
-            ZyanU8 reg;
-            /**
-             * Register specifier or opcode-extension.
-             */
-            ZyanU8 rm;
+            ZyanU8 mod: 2;
             /**
              * The offset of the `ModRM` byte, relative to the beginning of the
              * instruction, in bytes.
