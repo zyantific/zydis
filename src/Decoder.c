@@ -606,10 +606,10 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_MVEX;
-    instruction->raw.mvex.R    = (data[1] >> 7) & 0x01;
-    instruction->raw.mvex.X    = (data[1] >> 6) & 0x01;
-    instruction->raw.mvex.B    = (data[1] >> 5) & 0x01;
-    instruction->raw.mvex.R2   = (data[1] >> 4) & 0x01;
+    context->vector_unified.R  = 0x01 & ~((data[1] >> 7) & 0x01);
+    context->vector_unified.X  = 0x01 & ~((data[1] >> 6) & 0x01);
+    context->vector_unified.B  = 0x01 & ~((data[1] >> 5) & 0x01);
+    context->vector_unified.R2 = 0x01 & ~((data[1] >> 4) & 0x01);
     instruction->raw.mvex.mmmm = (data[1] >> 0) & 0x0F;
 
     if (instruction->raw.mvex.mmmm > 0x03)
@@ -618,27 +618,18 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MAP;
     }
 
-    instruction->raw.mvex.W    = (data[2] >> 7) & 0x01;
-    instruction->raw.mvex.vvvv = (data[2] >> 3) & 0x0F;
+    context->vector_unified.W    = (data[2] >> 7) & 0x01;
+    context->vector_unified.vvvv = 0x0F & ~((data[2] >> 3) & 0x0F);
 
     ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x00);
 
-    instruction->raw.mvex.pp   = (data[2] >> 0) & 0x03;
-    instruction->raw.mvex.E    = (data[3] >> 7) & 0x01;
-    instruction->raw.mvex.SSS  = (data[3] >> 4) & 0x07;
-    instruction->raw.mvex.V2   = (data[3] >> 3) & 0x01;
-    instruction->raw.mvex.kkk  = (data[3] >> 0) & 0x07;
-
-    // Update internal fields
-    context->vector_unified.W    = instruction->raw.mvex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.mvex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.mvex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.mvex.B;
-    context->vector_unified.R2   = 0x01 & ~instruction->raw.mvex.R2;
-    context->vector_unified.V2   = 0x01 & ~instruction->raw.mvex.V2;
+    instruction->raw.mvex.pp     = (data[2] >> 0) & 0x03;
+    instruction->raw.mvex.E      = (data[3] >> 7) & 0x01;
+    instruction->raw.mvex.SSS    = (data[3] >> 4) & 0x07;
+    context->vector_unified.V2   = 0x01 & ~((data[3] >> 3) & 0x01);
+    context->vector_unified.mask = (data[3] >> 0) & 0x07;
     context->vector_unified.LL   = 2;
-    context->vector_unified.vvvv = 0x0F & ~instruction->raw.mvex.vvvv;
-    context->vector_unified.mask = instruction->raw.mvex.kkk;
+
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -3018,7 +3009,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
 
         // Mask
         instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGING;
-        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.mvex.kkk;
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + context->vector_unified.mask;
 #else
         ZYAN_UNREACHABLE;
 #endif
