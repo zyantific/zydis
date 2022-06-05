@@ -523,10 +523,10 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
-    context->vector_unified.R       = 0x01 & ~((data[1] >> 7) & 0x01);
-    context->vector_unified.X       = 0x01 & ~((data[1] >> 6) & 0x01);
-    context->vector_unified.B       = 0x01 & ~((data[1] >> 5) & 0x01);
-    context->vector_unified.R2      = 0x01 & ~((data[1] >> 4) & 0x01);
+    context->vector_unified.R  = 0x01 & ~((data[1] >> 7) & 0x01);
+    context->vector_unified.X  = 0x01 & ~((data[1] >> 6) & 0x01);
+    context->vector_unified.B  = 0x01 & ~((data[1] >> 5) & 0x01);
+    context->vector_unified.R2 = 0x01 & ~((data[1] >> 4) & 0x01);
 
     if (data[1] & 0x08)
     {
@@ -534,7 +534,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
 
-    instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
+    instruction->raw.evex.mmm = (data[1] >> 0) & 0x07;
 
     if ((instruction->raw.evex.mmm == 0x00) ||
         (instruction->raw.evex.mmm == 0x04) ||
@@ -544,24 +544,23 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MAP;
     }
 
-    context->vector_unified.W       = (data[2] >> 7) & 0x01;
-    context->vector_unified.vvvv    = 0x0F & ~((data[2] >> 3) & 0x0F);
-
     ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x01);
 
-    instruction->raw.evex.pp        = (data[2] >> 0) & 0x03;
-    instruction->raw.evex.z         = (data[3] >> 7) & 0x01;
-    context->vector_unified.LL      = (data[3] >> 5) & 0x03;
-    instruction->raw.evex.b         = (data[3] >> 4) & 0x01;
-    ZyanU8 V2                       = (data[3] >> 3) & 0x01;
-    context->vector_unified.V2      = 0x01 & ~V2;
+    context->vector_unified.W    = (data[2] >> 7) & 0x01;
+    context->vector_unified.vvvv = 0x0F & ~((data[2] >> 3) & 0x0F);
+    instruction->raw.evex.pp     = (data[2] >> 0) & 0x03;
+    instruction->raw.evex.z      = (data[3] >> 7) & 0x01;
+    context->vector_unified.LL   = (data[3] >> 5) & 0x03;
+    instruction->raw.evex.b      = (data[3] >> 4) & 0x01;
+    ZyanU8 V2                    = (data[3] >> 3) & 0x01;
+    context->vector_unified.V2   = 0x01 & ~V2;
 
     if (!V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
 
-    instruction->raw.evex.aaa       = (data[3] >> 0) & 0x07;
+    instruction->raw.evex.aaa = (data[3] >> 0) & 0x07;
 
     if (instruction->raw.evex.z && !instruction->raw.evex.aaa)
     {
