@@ -421,12 +421,12 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
 
     // Update internal fields
     context->vector_unified.W    = (data[2] >> 7) & 0x01;
-    context->vector_unified.R    = 0x01 & ~((data[1] >> 7) & 0x01);
-    context->vector_unified.X    = 0x01 & ~((data[1] >> 6) & 0x01);
-    context->vector_unified.B    = 0x01 & ~((data[1] >> 5) & 0x01);
+    context->vector_unified.R    = 0x01 & ~(data[1] >> 7);
+    context->vector_unified.X    = 0x01 & ~(data[1] >> 6);
+    context->vector_unified.B    = 0x01 & ~(data[1] >> 5);
     context->vector_unified.L    = (data[2] >> 2) & 0x01;
     context->vector_unified.LL   = (data[2] >> 2) & 0x01;
-    context->vector_unified.vvvv = 0x0F & ~((data[2] >> 3) & 0x0F);
+    context->vector_unified.vvvv = 0x0F & ~(data[2] >> 3);
 
     return ZYAN_STATUS_SUCCESS;
 }
