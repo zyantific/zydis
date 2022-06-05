@@ -552,10 +552,9 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.z      = 0x01 &  (data[3] >> 7);
     context->vector_unified.LL   = 0x03 &  (data[3] >> 5);
     instruction->raw.evex.b      = 0x01 &  (data[3] >> 4);
-    ZyanU8 V2                    = 0x01 &  (data[3] >> 3);
-    context->vector_unified.V2   = 0x01 &  ~V2;
+    context->vector_unified.V2   = 0x01 & ~(data[3] >> 3);
 
-    if (!V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
+    if (context->vector_unified.V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
@@ -569,7 +568,7 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     context->vector_unified.mask = instruction->raw.evex.aaa;
 
-    if (!V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
+    if (context->vector_unified.V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
