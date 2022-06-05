@@ -523,10 +523,10 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
-    instruction->raw.evex.R         = (data[1] >> 7) & 0x01;
-    instruction->raw.evex.X         = (data[1] >> 6) & 0x01;
-    instruction->raw.evex.B         = (data[1] >> 5) & 0x01;
-    instruction->raw.evex.R2        = (data[1] >> 4) & 0x01;
+    context->vector_unified.R       = 0x01 & ~((data[1] >> 7) & 0x01);
+    context->vector_unified.X       = 0x01 & ~((data[1] >> 6) & 0x01);
+    context->vector_unified.B       = 0x01 & ~((data[1] >> 5) & 0x01);
+    context->vector_unified.R2      = 0x01 & ~((data[1] >> 4) & 0x01);
 
     if (data[1] & 0x08)
     {
@@ -544,20 +544,19 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MAP;
     }
 
-    instruction->raw.evex.W         = (data[2] >> 7) & 0x01;
-    instruction->raw.evex.vvvv      = (data[2] >> 3) & 0x0F;
+    context->vector_unified.W       = (data[2] >> 7) & 0x01;
+    context->vector_unified.vvvv    = 0x0F & ~((data[2] >> 3) & 0x0F);
 
     ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x01);
 
     instruction->raw.evex.pp        = (data[2] >> 0) & 0x03;
     instruction->raw.evex.z         = (data[3] >> 7) & 0x01;
-    instruction->raw.evex.L2        = (data[3] >> 6) & 0x01;
-    instruction->raw.evex.L         = (data[3] >> 5) & 0x01;
+    context->vector_unified.LL      = (data[3] >> 5) & 0x03;
     instruction->raw.evex.b         = (data[3] >> 4) & 0x01;
-    instruction->raw.evex.V2        = (data[3] >> 3) & 0x01;
+    ZyanU8 V2                       = (data[3] >> 3) & 0x01;
+    context->vector_unified.V2      = 0x01 & ~V2;
 
-    if (!instruction->raw.evex.V2 &&
-        (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
+    if (!V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
@@ -569,18 +568,9 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MASK; // TODO: Dedicated status code
     }
 
-    // Update internal fields
-    context->vector_unified.W    = instruction->raw.evex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.evex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.evex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.evex.B;
-    context->vector_unified.LL   = (data[3] >> 5) & 0x03;
-    context->vector_unified.R2   = 0x01 & ~instruction->raw.evex.R2;
-    context->vector_unified.V2   = 0x01 & ~instruction->raw.evex.V2;
-    context->vector_unified.vvvv = 0x0F & ~instruction->raw.evex.vvvv;
     context->vector_unified.mask = instruction->raw.evex.aaa;
 
-    if (!instruction->raw.evex.V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
+    if (!V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
