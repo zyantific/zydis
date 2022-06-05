@@ -267,22 +267,22 @@ static ZyanStatus ZydisInputPeek(ZydisDecoderState* state,
 /**
  * Increases the read-position of the input data-source by one byte.
  *
- * @param   context     A pointer to the `ZydisDecoderContext` instance
+ * @param   state       A pointer to the `ZydisDecoderState` instance
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  *
  * This function is supposed to get called ONLY after a successful call of `ZydisInputPeek`.
  *
  * This function increases the `length` field of the `ZydisDecodedInstruction` struct by one.
  */
-static void ZydisInputSkip(ZydisDecoderState* context, ZydisDecodedInstruction* instruction)
+static void ZydisInputSkip(ZydisDecoderState* state, ZydisDecodedInstruction* instruction)
 {
-    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(instruction->length < ZYDIS_MAX_INSTRUCTION_LENGTH);
 
     ++instruction->length;
-    ++context->buffer;
-    --context->buffer_len;
+    ++state->buffer;
+    --state->buffer_len;
 }
 
 /**
