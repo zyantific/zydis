@@ -738,34 +738,9 @@ typedef struct ZydisDecodedInstructionRawXop_
 typedef struct ZydisDecodedInstructionRawVex_
 {
     /**
-     * Extension of the `ModRM.reg` field (inverted).
-     */
-    ZyanU8 R;
-    /**
-     * Extension of the `SIB.index` field (inverted).
-     */
-    ZyanU8 X;
-    /**
-     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (inverted).
-     */
-    ZyanU8 B;
-    /**
      * Opcode-map specifier.
      */
     ZyanU8 m_mmmm;
-    /**
-     * 64-bit operand-size promotion or opcode-extension.
-     */
-    ZyanU8 W;
-    /**
-     * `NDS`/`NDD` (non-destructive-source/destination) register specifier
-     *  (inverted).
-     */
-    ZyanU8 vvvv;
-    /**
-     * Vector-length specifier.
-     */
-    ZyanU8 L;
     /**
      * Compressed legacy prefix.
      */

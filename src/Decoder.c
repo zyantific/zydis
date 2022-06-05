@@ -458,25 +458,27 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     case 0xC4:
         ZYAN_ASSERT(instruction->raw.vex.offset == instruction->length - 3);
         instruction->raw.vex.size    = 3;
-        instruction->raw.vex.R       = (data[1] >> 7) & 0x01;
-        instruction->raw.vex.X       = (data[1] >> 6) & 0x01;
-        instruction->raw.vex.B       = (data[1] >> 5) & 0x01;
+        context->vector_unified.R    = 0x01 & ~((data[1] >> 7) & 0x01);
+        context->vector_unified.X    = 0x01 & ~((data[1] >> 6) & 0x01);
+        context->vector_unified.B    = 0x01 & ~((data[1] >> 5) & 0x01);
         instruction->raw.vex.m_mmmm  = (data[1] >> 0) & 0x1F;
-        instruction->raw.vex.W       = (data[2] >> 7) & 0x01;
-        instruction->raw.vex.vvvv    = (data[2] >> 3) & 0x0F;
-        instruction->raw.vex.L       = (data[2] >> 2) & 0x01;
+        context->vector_unified.W    = (data[2] >> 7) & 0x01;
+        context->vector_unified.vvvv = (0x0F & ~((data[2] >> 3) & 0x0F));
+        context->vector_unified.L    = (data[2] >> 2) & 0x01;
+        context->vector_unified.LL   = context->vector_unified.L;
         instruction->raw.vex.pp      = (data[2] >> 0) & 0x03;
         break;
     case 0xC5:
         ZYAN_ASSERT(instruction->raw.vex.offset == instruction->length - 2);
         instruction->raw.vex.size    = 2;
-        instruction->raw.vex.R       = (data[1] >> 7) & 0x01;
-        instruction->raw.vex.X       = 1;
-        instruction->raw.vex.B       = 1;
+        context->vector_unified.R    = 0x01 & ~((data[1] >> 7) & 0x01);
+        context->vector_unified.X    = 0x01 & ~1;
+        context->vector_unified.B    = 0x01 & ~1;
         instruction->raw.vex.m_mmmm  = 1;
-        instruction->raw.vex.W       = 0;
-        instruction->raw.vex.vvvv    = (data[1] >> 3) & 0x0F;
-        instruction->raw.vex.L       = (data[1] >> 2) & 0x01;
+        context->vector_unified.W    = 0;
+        context->vector_unified.vvvv = (0x0F & ~((data[1] >> 3) & 0x0F));
+        context->vector_unified.L    = (data[1] >> 2) & 0x01;
+        context->vector_unified.LL   = context->vector_unified.L;
         instruction->raw.vex.pp      = (data[1] >> 0) & 0x03;
         break;
     default:
@@ -493,15 +495,6 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
     }
-
-    // Update internal fields
-    context->vector_unified.W    = instruction->raw.vex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.vex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.vex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.vex.B;
-    context->vector_unified.L    = instruction->raw.vex.L;
-    context->vector_unified.LL   = instruction->raw.vex.L;
-    context->vector_unified.vvvv = (0x0F & ~instruction->raw.vex.vvvv);
 
     return ZYAN_STATUS_SUCCESS;
 }
