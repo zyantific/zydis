@@ -410,10 +410,8 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_XOP;
-    instruction->raw.xop.R       = (data[1] >> 7) & 0x01;
-    instruction->raw.xop.X       = (data[1] >> 6) & 0x01;
-    instruction->raw.xop.B       = (data[1] >> 5) & 0x01;
-    instruction->raw.xop.m_mmmm  = (data[1] >> 0) & 0x1F;
+    instruction->raw.xop.m_mmmm = (data[1] >> 0) & 0x1F;
+    instruction->raw.xop.pp     = (data[2] >> 0) & 0x03;
 
     if ((instruction->raw.xop.m_mmmm < 0x08) || (instruction->raw.xop.m_mmmm > 0x0A))
     {
@@ -421,19 +419,14 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
         return ZYDIS_STATUS_INVALID_MAP;
     }
 
-    instruction->raw.xop.W    = (data[2] >> 7) & 0x01;
-    instruction->raw.xop.vvvv = (data[2] >> 3) & 0x0F;
-    instruction->raw.xop.L    = (data[2] >> 2) & 0x01;
-    instruction->raw.xop.pp   = (data[2] >> 0) & 0x03;
-
     // Update internal fields
-    context->vector_unified.W    = instruction->raw.xop.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.xop.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.xop.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.xop.B;
-    context->vector_unified.L    = instruction->raw.xop.L;
-    context->vector_unified.LL   = instruction->raw.xop.L;
-    context->vector_unified.vvvv = (0x0F & ~instruction->raw.xop.vvvv);
+    context->vector_unified.W    = (data[2] >> 7) & 0x01;
+    context->vector_unified.R    = 0x01 & ~((data[1] >> 7) & 0x01);
+    context->vector_unified.X    = 0x01 & ~((data[1] >> 6) & 0x01);
+    context->vector_unified.B    = 0x01 & ~((data[1] >> 5) & 0x01);
+    context->vector_unified.L    = (data[2] >> 2) & 0x01;
+    context->vector_unified.LL   = (data[2] >> 2) & 0x01;
+    context->vector_unified.vvvv = 0x0F & ~((data[2] >> 3) & 0x0F);
 
     return ZYAN_STATUS_SUCCESS;
 }
