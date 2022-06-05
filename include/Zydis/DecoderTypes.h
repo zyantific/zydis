@@ -1067,17 +1067,17 @@ typedef struct ZydisDecodedInstruction_
         struct ZydisDecodedInstructionRawSib_
         {
             /**
-             * The scale factor.
+             * The base-register specifier.
              */
-            ZyanU8 scale;
+            ZyanU8 base: 3;
             /**
              * The index-register specifier.
              */
-            ZyanU8 index;
+            ZyanU8 index: 3;
             /**
-             * The base-register specifier.
+             * The scale factor.
              */
-            ZyanU8 base;
+            ZyanU8 scale: 2;
             /**
              * The offset of the `SIB` byte, relative to the beginning of the
              * instruction, in bytes.
