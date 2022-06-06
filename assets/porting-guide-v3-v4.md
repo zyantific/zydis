@@ -53,6 +53,7 @@
 ### Segments
 
 - `ZydisInstructionSegment` was renamed to `ZydisInstructionSegmentKind`
+- `ZydisGetInstructionSegments` gained two new arguments to support new functionality
 
 ### Changes relevant for language bindings
 
@@ -69,3 +70,4 @@
 - Some of the previously anonymous sub-structs in `ZydisDecodedInstruction` were lifted to the top level scope as well
 - `ZydisDecodedOperand::type` was moved to a different location in the struct
 - Unions were added around fields in `ZydisDecodedOperand` and `ZydisDecodedInstruction`
+- The `ZydisInstructionSegments` struct changed
