@@ -28,6 +28,9 @@ option(ZYDIS_FEATURE_AVX512
 option(ZYDIS_FEATURE_KNC
     "Enable support for KNC instructions"
     ON)
+option(ZYDIS_FEATURE_SEGMENT
+    "Enable instruction segment API"
+    ON)
 
 # Build configuration
 option(ZYDIS_BUILD_SHARED_LIB
@@ -155,6 +158,9 @@ endif ()
 if (NOT ZYDIS_FEATURE_KNC)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_KNC")
 endif ()
+if (NOT ZYDIS_FEATURE_SEGMENT)
+    target_compile_definitions("Zydis" PUBLIC "ZYDIS_DISABLE_SEGMENT")
+endif ()
 
 target_sources("Zydis"
     PRIVATE
@@ -208,6 +214,12 @@ if (ZYDIS_FEATURE_DECODER)
                 "src/FormatterATT.c"
                 "src/FormatterBase.c"
                 "src/FormatterIntel.c")
+    endif ()
+    if (ZYDIS_FEATURE_SEGMENT)
+        target_sources("Zydis"
+            PRIVATE
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Segment.h"
+                "src/Segment.c")
     endif ()
 endif ()
 
