@@ -72,6 +72,9 @@
     <ClCompile Include="..\..\src\EncoderData.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\Segment.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
       <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Segment.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -91,5 +91,8 @@
     <ClInclude Include="..\..\include\Zydis\Zydis.h">
       <Filter>Header Files\Zydis</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Segment.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

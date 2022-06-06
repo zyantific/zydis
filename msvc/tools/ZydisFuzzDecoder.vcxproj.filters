@@ -97,5 +97,8 @@
     <ClInclude Include="..\..\tools\ZydisFuzzShared.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Segment.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
