@@ -48,10 +48,13 @@
 #   include <Zydis/Formatter.h>
 #endif
 
+#ifndef ZYDIS_DISABLE_SEGMENT
+#   include <Zydis/Segment.h>
+#endif
+
 #include <Zydis/MetaInfo.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/Register.h>
-#include <Zydis/Segment.h>
 #include <Zydis/SharedTypes.h>
 #include <Zydis/Status.h>
 #include <Zydis/Utils.h>
@@ -121,6 +124,7 @@ typedef enum ZydisFeature_
     ZYDIS_FEATURE_FORMATTER,
     ZYDIS_FEATURE_AVX512,
     ZYDIS_FEATURE_KNC,
+    ZYDIS_FEATURE_SEGMENT,
 
     /**
      * Maximum value of this enum.

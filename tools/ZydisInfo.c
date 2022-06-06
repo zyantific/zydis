@@ -283,6 +283,8 @@ static void PrintValueLabel(const char* name)
 /* Print functions                                                                                */
 /* ============================================================================================== */
 
+#if !defined(ZYDIS_DISABLE_SEGMENT)
+
 /**
  * Prints instruction segments (parts).
  *
@@ -427,6 +429,8 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
     ZYAN_PRINTF(CVT100_OUT(COLOR_DEFAULT));
 }
 
+#endif
+
 #if !defined(ZYDIS_DISABLE_ENCODER)
 
 /**
@@ -467,7 +471,9 @@ static void PrintSizeOptimizedForm(const ZydisDecoder* decoder,
         exit(status);
     }
 
+#if !defined(ZYDIS_DISABLE_SEGMENT)
     PrintSegments(&new_instruction, &data[0], ZYAN_FALSE);
+#endif
 }
 
 #endif
@@ -1385,9 +1391,11 @@ int main(int argc, char** argv)
 
     PrintInstruction(&decoder, &instruction, operands);
 
+#if !defined(ZYDIS_DISABLE_SEGMENT)
     ZYAN_PUTS("");
     PrintSectionHeader("SEGMENTS");
     PrintSegments(&instruction, &data[0], ZYAN_TRUE);
+#endif
 
     return EXIT_SUCCESS;
 }
