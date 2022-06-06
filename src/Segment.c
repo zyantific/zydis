@@ -62,7 +62,7 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
     }
 
     // Encoding prefixes
-    ZydisInstructionSegment segment_type = ZYDIS_INSTR_SEGMENT_NONE;
+    ZydisInstructionSegmentKind segment_type = ZYDIS_INSTR_SEGMENT_NONE;
     ZyanU8 segment_offset = 0;
     ZyanU8 segment_size = 0;
     switch (instruction->encoding)

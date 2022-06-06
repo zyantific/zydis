@@ -63,9 +63,9 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * Defines the `ZydisInstructionSegment` struct.
+ * Determines the kind of an instruction segment.
  */
-typedef enum ZydisInstructionSegment_
+typedef enum ZydisInstructionSegmentKind_
 {
     ZYDIS_INSTR_SEGMENT_NONE,
     /**
@@ -121,7 +121,7 @@ typedef enum ZydisInstructionSegment_
      * The minimum number of bits required to represent all values of this enum.
      */
     ZYDIS_INSTR_SEGMENT_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTR_SEGMENT_MAX_VALUE)
-} ZydisInstructionSegment;
+} ZydisInstructionSegmentKind;
 
 /**
  * Defines the `ZydisInstructionSegments` struct.
@@ -137,7 +137,7 @@ typedef struct ZydisInstructionSegments_
         /**
          * The type of the segment.
          */
-        ZydisInstructionSegment type;
+        ZydisInstructionSegmentKind type;
         /**
          * The offset of the segment relative to the start of the instruction (in bytes).
          */
@@ -154,10 +154,9 @@ typedef struct ZydisInstructionSegments_
 /* ============================================================================================== */
 
 /**
- * Returns offsets and sizes of all logical instruction segments (e.g. `OPCODE`,
- * `MODRM`, ...).
+ * Returns information about logical instruction segments (e.g. `OPCODE`, `MODRM`, ...).
  *
- * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   instruction The instruction to create segments for.
  * @param   segments    Receives the instruction segments information.
  *
  * @return  A zyan status code.

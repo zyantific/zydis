@@ -50,6 +50,10 @@
   - `ZydisGetAccessedFlagsRead`
   - `ZydisGetAccessedFlagsWritten`
 
+### Segments
+
+- `ZydisInstructionSegment` was renamed to `ZydisInstructionSegmentKind`
+
 ### Changes relevant for language bindings
 
 - Encoder added
