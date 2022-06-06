@@ -181,7 +181,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     // Instruction segment helper.
 #   ifndef ZYDIS_DISABLE_SEGMENT
     ZydisInstructionSegments segments;
-    ZydisGetInstructionSegments(&instruction, &segments);
+    ZydisGetInstructionSegments(&instruction, buffer, instruction.length, &segments);
 #   endif
 
     // Feature enable check helper.

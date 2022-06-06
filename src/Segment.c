@@ -31,10 +31,10 @@
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
-ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instruction,
-        ZydisInstructionSegments* segments)
+ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* const instruction,
+    const ZyanU8* buffer, ZyanUSize length, ZydisInstructionSegments* const segments)
 {
-    if (!instruction || !segments)
+    if (!instruction || !segments || !buffer || (length < instruction->length))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }

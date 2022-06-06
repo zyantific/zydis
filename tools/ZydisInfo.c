@@ -296,7 +296,14 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
     ZyanBool print_hints)
 {
     ZydisInstructionSegments segments;
-    ZydisGetInstructionSegments(instruction, &segments);
+
+    ZyanStatus status = ZydisGetInstructionSegments(
+        instruction, buffer, instruction->length, &segments);
+    if (ZYAN_FAILED(status))
+    {
+        PrintStatusError(status, "Failed to get instruction segments");
+        exit(status);
+    }
 
     struct
     {

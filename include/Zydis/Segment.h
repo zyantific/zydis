@@ -157,12 +157,15 @@ typedef struct ZydisInstructionSegments_
  * Returns information about logical instruction segments (e.g. `OPCODE`, `MODRM`, ...).
  *
  * @param   instruction The instruction to create segments for.
+ * @param   buffer      A pointer to the raw instruction bytes.
+ * @param   length      The length of the buffer passed in `buffer`. Must be at least
+ *                      `instruction.length`.
  * @param   segments    Receives the instruction segments information.
  *
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instruction,
-        ZydisInstructionSegments* segments);
+    const ZyanU8* buffer, ZyanUSize length, ZydisInstructionSegments* segments);
 
 /* ============================================================================================== */
 
