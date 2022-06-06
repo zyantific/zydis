@@ -16,6 +16,8 @@
 - `ZydisCPUFlagAction` got replaced by `ZydisAccessedFlagsMask`
 - `ZydisAccessedFlags` was added as a replacement for the CPU flag arrays
 - `ZYDIS_CPUFLAG_C[0-3]` were replaced with `ZYDIS_FPUFLAG_C[0-3]`
+- The segment API (`ZydisGetInstructionSegments` and corresponding types) was moved to a separate
+  header file
 
 ### Decoder
 
