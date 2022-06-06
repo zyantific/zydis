@@ -59,8 +59,284 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* Enums and types                                                                                */
+/* Types                                                                                          */
 /* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Structs for each segment kind                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * This instruction segment doesn't have individual bits to be decoded.
+ */
+typedef struct ZydisInstructionSegmentNoBits_
+{
+    /**
+     * The C standard doesn't permit empty structs, so we need to add a one byte dummy member.
+     */
+    ZyanU8 dummy;
+} ZydisInstructionSegmentNoBits;
+
+/**
+ * The `REX` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentREX_
+{
+    /**
+     * 64-bit operand-size promotion.
+     */
+    ZyanU8 W;
+    /**
+     * Extension of the `ModRM.reg` field.
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index` field.
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     */
+    ZyanU8 B;
+} ZydisInstructionSegmentREX;
+
+/**
+ * The `VEX` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentVEX_
+{
+    /**
+     * Extension of the `ModRM.reg` field (inverted).
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index` field (inverted).
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (inverted).
+     */
+    ZyanU8 B;
+    /**
+     * Opcode-map specifier.
+     */
+    ZyanU8 m_mmmm;
+    /**
+     * 64-bit operand-size promotion or opcode-extension.
+     */
+    ZyanU8 W;
+    /**
+     * `NDS`/`NDD` (non-destructive-source/destination) register specifier
+     *  (inverted).
+     */
+    ZyanU8 vvvv;
+    /**
+     * Vector-length specifier.
+     */
+    ZyanU8 L;
+    /**
+     * Compressed legacy prefix.
+     */
+    ZyanU8 pp;
+} ZydisInstructionSegmentVEX;
+
+/**
+ * The `XOP` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentXOP_
+{
+    /**
+     * Extension of the `ModRM.reg` field (inverted).
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index` field (inverted).
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (inverted).
+     */
+    ZyanU8 B;
+    /**
+     * Opcode-map specifier.
+     */
+    ZyanU8 m_mmmm;
+    /**
+     * 64-bit operand-size promotion or opcode-extension.
+     */
+    ZyanU8 W;
+    /**
+     * `NDS`/`NDD` (non-destructive-source/destination) register
+     * specifier (inverted).
+     */
+    ZyanU8 vvvv;
+    /**
+     * Vector-length specifier.
+     */
+    ZyanU8 L;
+    /**
+     * Compressed legacy prefix.
+     */
+    ZyanU8 pp;
+} ZydisInstructionSegmentXOP;
+
+/**
+ * The `EVEX` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentEVEX_
+{
+    /**
+     * Extension of the `ModRM.reg` field (inverted).
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index/vidx` field (inverted).
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm` or `SIB.base` field (inverted).
+     */
+    ZyanU8 B;
+    /**
+     * High-16 register specifier modifier (inverted).
+     */
+    ZyanU8 R2;
+    /**
+     * Opcode-map specifier.
+     */
+    ZyanU8 mmm;
+    /**
+     * 64-bit operand-size promotion or opcode-extension.
+     */
+    ZyanU8 W;
+    /**
+     * `NDS`/`NDD` (non-destructive-source/destination) register specifier
+     * (inverted).
+     */
+    ZyanU8 vvvv;
+    /**
+     * Compressed legacy prefix.
+     */
+    ZyanU8 pp;
+    /**
+     * Zeroing/Merging.
+     */
+    ZyanU8 z;
+    /**
+     * Vector-length specifier or rounding-control (most significant bit).
+     */
+    ZyanU8 L2;
+    /**
+     * Vector-length specifier or rounding-control (least significant bit).
+     */
+    ZyanU8 L;
+    /**
+     * Broadcast/RC/SAE context.
+     */
+    ZyanU8 b;
+    /**
+     * High-16 `NDS`/`VIDX` register specifier.
+     */
+    ZyanU8 V2;
+    /**
+     * Embedded opmask register specifier.
+     */
+    ZyanU8 aaa;
+} ZydisInstructionSegmentEVEX;
+
+/**
+ * The `MVEX` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentMVEX_
+{
+    /**
+     * Extension of the `ModRM.reg` field (inverted).
+     */
+    ZyanU8 R;
+    /**
+     * Extension of the `SIB.index/vidx` field (inverted).
+     */
+    ZyanU8 X;
+    /**
+     * Extension of the `ModRM.rm` or `SIB.base` field (inverted).
+     */
+    ZyanU8 B;
+    /**
+     * High-16 register specifier modifier (inverted).
+     */
+    ZyanU8 R2;
+    /**
+     * Opcode-map specifier.
+     */
+    ZyanU8 mmmm;
+    /**
+     * 64-bit operand-size promotion or opcode-extension.
+     */
+    ZyanU8 W;
+    /**
+     * `NDS`/`NDD` (non-destructive-source/destination) register specifier
+     *  (inverted).
+     */
+    ZyanU8 vvvv;
+    /**
+     * Compressed legacy prefix.
+     */
+    ZyanU8 pp;
+    /**
+     * Non-temporal/eviction hint.
+     */
+    ZyanU8 E;
+    /**
+     * Swizzle/broadcast/up-convert/down-convert/static-rounding controls.
+     */
+    ZyanU8 SSS;
+    /**
+     * High-16 `NDS`/`VIDX` register specifier.
+     */
+    ZyanU8 V2;
+    /**
+     * Embedded opmask register specifier.
+     */
+    ZyanU8 kkk;
+} ZydisInstructionSegmentMVEX;
+
+/**
+ * The `ModRM` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentModRM_
+{
+    /**
+     * The addressing mode.
+     */
+    ZyanU8 mod;
+    /**
+     * Register specifier or opcode-extension.
+     */
+    ZyanU8 reg;
+    /**
+     * Register specifier or opcode-extension.
+     */
+    ZyanU8 rm;
+} ZydisInstructionSegmentModRM;
+
+/**
+ * The `SIB` prefix, decoded into individual bit-fields.
+ */
+typedef struct ZydisInstructionSegmentSIB_
+{
+    /**
+     * The scale factor.
+     */
+    ZyanU8 scale;
+    /**
+     * The index-register specifier.
+     */
+    ZyanU8 index;
+    /**
+     * The base-register specifier.
+     */
+    ZyanU8 base;
+} ZydisInstructionSegmentSIB;
 
 /**
  * Determines the kind of an instruction segment.
@@ -124,7 +400,44 @@ typedef enum ZydisInstructionSegmentKind_
 } ZydisInstructionSegmentKind;
 
 /**
- * Defines the `ZydisInstructionSegments` struct.
+ * Information about an individual instruction segment.
+ */
+typedef struct ZydisInstructionSegment_
+{
+    /**
+     * The offset of the segment relative to the start of the instruction (in bytes).
+     */
+    ZyanU8 offset;
+    /**
+     * The size of the segment, in bytes.
+     */
+    ZyanU8 size;
+    /**
+     * The type of the segment.
+     */
+    ZydisInstructionSegmentKind type;
+    /**
+     * The individual bits of the segment, decoded into a struct.
+     *
+     * The active union variant is determined by the preceding `type` field.
+     */
+    union {
+        ZydisInstructionSegmentNoBits prefix;
+        ZydisInstructionSegmentREX rex;
+        ZydisInstructionSegmentVEX vex;
+        ZydisInstructionSegmentXOP xop;
+        ZydisInstructionSegmentEVEX evex;
+        ZydisInstructionSegmentMVEX mvex;
+        ZydisInstructionSegmentNoBits opcode;
+        ZydisInstructionSegmentModRM modrm;
+        ZydisInstructionSegmentSIB sib;
+        ZydisInstructionSegmentNoBits disp;
+        ZydisInstructionSegmentNoBits imm;
+    };
+} ZydisInstructionSegment;
+
+/**
+ * Container for instruction segments.
  */
 typedef struct ZydisInstructionSegments_
 {
@@ -132,21 +445,10 @@ typedef struct ZydisInstructionSegments_
      * The number of logical instruction segments.
      */
     ZyanU8 count;
-    struct
-    {
-        /**
-         * The type of the segment.
-         */
-        ZydisInstructionSegmentKind type;
-        /**
-         * The offset of the segment relative to the start of the instruction (in bytes).
-         */
-        ZyanU8 offset;
-        /**
-         * The size of the segment, in bytes.
-         */
-        ZyanU8 size;
-    } segments[ZYDIS_MAX_INSTRUCTION_SEGMENT_COUNT];
+    /**
+     * The information about each individual segment.
+     */
+    ZydisInstructionSegment segments[ZYDIS_MAX_INSTRUCTION_SEGMENT_COUNT];
 } ZydisInstructionSegments;
 
 /* ============================================================================================== */
