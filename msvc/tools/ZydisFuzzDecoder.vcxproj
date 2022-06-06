@@ -811,6 +811,7 @@
     <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
     <ClInclude Include="..\..\include\Zydis\Mnemonic.h" />
     <ClInclude Include="..\..\include\Zydis\Register.h" />
+    <ClInclude Include="..\..\include\Zydis\Segment.h" />
     <ClInclude Include="..\..\include\Zydis\SharedTypes.h" />
     <ClInclude Include="..\..\include\Zydis\ShortString.h" />
     <ClInclude Include="..\..\include\Zydis\Status.h" />
