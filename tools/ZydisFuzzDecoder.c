@@ -179,8 +179,10 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     ZydisMnemonicGetStringWrapped((ZydisMnemonic)control_block.u64);
 
     // Instruction segment helper.
+#   ifndef ZYDIS_DISABLE_SEGMENT
     ZydisInstructionSegments segments;
     ZydisGetInstructionSegments(&instruction, &segments);
+#   endif
 
     // Feature enable check helper.
     ZydisIsFeatureEnabled((ZydisFeature)control_block.u64);

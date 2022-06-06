@@ -71,6 +71,13 @@ ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature)
         return ZYAN_STATUS_FALSE;
 #endif
 
+    case ZYDIS_FEATURE_SEGMENT:
+#ifndef ZYDIS_DISABLE_SEGMENT
+        return ZYAN_STATUS_TRUE;
+#else
+        return ZYAN_STATUS_FALSE;
+#endif
+
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
