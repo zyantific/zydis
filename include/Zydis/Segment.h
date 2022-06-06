@@ -26,39 +26,25 @@
 
 /**
  * @file
- * Master include file. Includes everything else.
+ * Functions and types providing encoding information about individual instruction bytes.
  */
 
-#ifndef ZYDIS_H
-#define ZYDIS_H
+#ifndef ZYDIS_SEGMENT_H
+#define ZYDIS_SEGMENT_H
 
 #include <Zycore/Defines.h>
-#include <Zycore/Types.h>
-
-#ifndef ZYDIS_DISABLE_DECODER
-#   include <Zydis/Decoder.h>
-#   include <Zydis/DecoderTypes.h>
-#endif
-
-#ifndef ZYDIS_DISABLE_ENCODER
-#   include <Zydis/Encoder.h>
-#endif
-
-#ifndef ZYDIS_DISABLE_FORMATTER
-#   include <Zydis/Formatter.h>
-#endif
-
-#include <Zydis/MetaInfo.h>
-#include <Zydis/Mnemonic.h>
-#include <Zydis/Register.h>
-#include <Zydis/Segment.h>
-#include <Zydis/SharedTypes.h>
+#include <Zydis/DecoderTypes.h>
 #include <Zydis/Status.h>
-#include <Zydis/Utils.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+* @addtogroup segment Segment
+* Functions and types providing encoding information about individual instruction bytes.
+* @{
+*/
 
 /* ============================================================================================== */
 /* Macros                                                                                         */
@@ -68,42 +54,7 @@ extern "C" {
 /* Constants                                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
-/**
- * A macro that defines the zydis version.
- */
-#define ZYDIS_VERSION (ZyanU64)0x0004000000000000
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Helper macros                                                                                  */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * Extracts the major-part of the zydis version.
- *
- * @param   version The zydis version value
- */
-#define ZYDIS_VERSION_MAJOR(version) (ZyanU16)(((version) & 0xFFFF000000000000) >> 48)
-
-/**
- * Extracts the minor-part of the zydis version.
- *
- * @param   version The zydis version value
- */
-#define ZYDIS_VERSION_MINOR(version) (ZyanU16)(((version) & 0x0000FFFF00000000) >> 32)
-
-/**
- * Extracts the patch-part of the zydis version.
- *
- * @param   version The zydis version value
- */
-#define ZYDIS_VERSION_PATCH(version) (ZyanU16)(((version) & 0x00000000FFFF0000) >> 16)
-
-/**
- * Extracts the build-part of the zydis version.
- *
- * @param   version The zydis version value
- */
-#define ZYDIS_VERSION_BUILD(version) (ZyanU16)((version) & 0x000000000000FFFF)
+#define ZYDIS_MAX_INSTRUCTION_SEGMENT_COUNT 9
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -112,64 +63,116 @@ extern "C" {
 /* ============================================================================================== */
 
 /**
- * Defines the `ZydisFeature` enum.
+ * Defines the `ZydisInstructionSegment` struct.
  */
-typedef enum ZydisFeature_
+typedef enum ZydisInstructionSegment_
 {
-    ZYDIS_FEATURE_DECODER,
-    ZYDIS_FEATURE_ENCODER,
-    ZYDIS_FEATURE_FORMATTER,
-    ZYDIS_FEATURE_AVX512,
-    ZYDIS_FEATURE_KNC,
+    ZYDIS_INSTR_SEGMENT_NONE,
+    /**
+     * The legacy prefixes (including ignored `REX` prefixes).
+     */
+    ZYDIS_INSTR_SEGMENT_PREFIXES,
+    /**
+     * The effective `REX` prefix byte.
+     */
+    ZYDIS_INSTR_SEGMENT_REX,
+    /**
+     * The `XOP` prefix bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_XOP,
+    /**
+     * The `VEX` prefix bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_VEX,
+    /**
+     * The `EVEX` prefix bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_EVEX,
+    /**
+     * The `MVEX` prefix bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_MVEX,
+    /**
+     * The opcode bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_OPCODE,
+    /**
+     * The `ModRM` byte.
+     */
+    ZYDIS_INSTR_SEGMENT_MODRM,
+    /**
+     * The `SIB` byte.
+     */
+    ZYDIS_INSTR_SEGMENT_SIB,
+    /**
+     * The displacement bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_DISPLACEMENT,
+    /**
+     * The immediate bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_IMMEDIATE,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_KNC,
+    ZYDIS_INSTR_SEGMENT_MAX_VALUE = ZYDIS_INSTR_SEGMENT_IMMEDIATE,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_FEATURE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_FEATURE_MAX_VALUE)
-} ZydisFeature;
+    ZYDIS_INSTR_SEGMENT_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTR_SEGMENT_MAX_VALUE)
+} ZydisInstructionSegment;
+
+/**
+ * Defines the `ZydisInstructionSegments` struct.
+ */
+typedef struct ZydisInstructionSegments_
+{
+    /**
+     * The number of logical instruction segments.
+     */
+    ZyanU8 count;
+    struct
+    {
+        /**
+         * The type of the segment.
+         */
+        ZydisInstructionSegment type;
+        /**
+         * The offset of the segment relative to the start of the instruction (in bytes).
+         */
+        ZyanU8 offset;
+        /**
+         * The size of the segment, in bytes.
+         */
+        ZyanU8 size;
+    } segments[ZYDIS_MAX_INSTRUCTION_SEGMENT_COUNT];
+} ZydisInstructionSegments;
 
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
 
 /**
- * @addtogroup version Version
- * Functions for checking the library version and build options.
- * @{
+ * Returns offsets and sizes of all logical instruction segments (e.g. `OPCODE`,
+ * `MODRM`, ...).
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   segments    Receives the instruction segments information.
+ *
+ * @return  A zyan status code.
  */
+ZYDIS_EXPORT ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instruction,
+        ZydisInstructionSegments* segments);
 
-/**
- * Returns the zydis version.
- *
- * @return  The zydis version.
- *
- * Use the macros provided in this file to extract the major, minor, patch and build part from the
- * returned version value.
- */
-ZYDIS_EXPORT ZyanU64 ZydisGetVersion(void);
-
-/**
- * Checks, if the specified feature is enabled in the current zydis library instance.
- *
- * @param   feature The feature.
- *
- * @return  `ZYAN_STATUS_TRUE` if the feature is enabled, `ZYAN_STATUS_FALSE` if not. Another
- *          zyan status code, if an error occured.
- */
-ZYDIS_EXPORT ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature);
+/* ============================================================================================== */
 
 /**
  * @}
  */
 
-/* ============================================================================================== */
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ZYDIS_H */
+#endif /* ZYDIS_SEGMENT_H */
