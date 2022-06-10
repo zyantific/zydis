@@ -338,6 +338,10 @@ typedef struct ZydisInstructionSegmentSIB_
     ZyanU8 base;
 } ZydisInstructionSegmentSIB;
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Types for ZydisGetInstructionSegments                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
 /**
  * Determines the kind of an instruction segment.
  */
@@ -451,6 +455,43 @@ typedef struct ZydisInstructionSegments_
     ZydisInstructionSegment segments[ZYDIS_MAX_INSTRUCTION_SEGMENT_COUNT];
 } ZydisInstructionSegments;
 
+/* ---------------------------------------------------------------------------------------------- */
+/* Types for ZydisGetInstructionSegments                                                          */
+/* ---------------------------------------------------------------------------------------------- */
+
+typedef struct ZydisInstructionSegmentReflectionInfo_ {
+    /**
+     * Name of the struct field.
+     */
+    const char* field_name;
+    /**
+     * Bit width of the field.
+     *
+     * `0` means that the field is "virtual" (not actually read from the prefix).
+     */
+    ZyanU8 bit_width;
+    /**
+     * Where to find the value for this field of the segment.
+     *
+     * The active variant is determined by whether `bit_width` is `0` (`constant`) or not
+     * (`bit_offset`).
+     */
+    union {
+        /**
+         * The field is virtual and the value is always `constant`.
+         */
+        ZyanU8 constant;
+        /**
+         * The value lives at bit offset within the segment (0..=31).
+         */
+        ZyanU8 bit_offset;
+    } value_source;
+    /**
+     * Struct offset in the active union variant of `ZydisInstructionSegment`.
+     */
+    ZyanU8 struct_offset;
+} ZydisInstructionSegmentReflectionInfo;
+
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
@@ -468,6 +509,26 @@ typedef struct ZydisInstructionSegments_
  */
 ZYDIS_EXPORT ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instruction,
     const ZyanU8* buffer, ZyanUSize length, ZydisInstructionSegments* segments);
+
+/**
+ * Return reflection information for the segment bit structure of a given kind.
+ *
+ * @param   kind    The segment kind to retrieve information for.
+ * @param   length  The length of the instruction segment.
+ *
+ * @return  The reflection info, or `ZYAN_NULL` for invalid segment kinds.
+ */
+ZYDIS_EXPORT const ZydisInstructionSegmentReflectionInfo* ZydisSegmentGetReflectionInfo(
+    ZydisInstructionSegmentKind kind, ZyanU8 length);
+
+/**
+ * Return the string representation for a segment kind.
+ *
+ * @param kind  The kind to get the string for.
+ *
+ * @return The segment kind as a string, or `ZYAN_NULL` for invalid values.
+ */
+ZYDIS_EXPORT const char* ZydisSegmentKindGetString(ZydisInstructionSegmentKind kind);
 
 /* ============================================================================================== */
 

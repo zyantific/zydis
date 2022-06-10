@@ -370,6 +370,174 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* const inst
     return ZYAN_STATUS_SUCCESS;
 }
 
-/* ---------------------------------------------------------------------------------------------- */
+const ZydisInstructionSegmentReflectionInfo* ZydisSegmentGetReflectionInfo(
+    ZydisInstructionSegmentKind kind, ZyanU8 length)
+{
+#   define ZYDIS_DEF_OFFS(name, width, offs, struc)                             \
+        {                                                                       \
+            .field_name = #name,                                                \
+            .bit_width = (width),                                               \
+            .value_source.bit_offset = (offs),                                  \
+            .struct_offset = offsetof(ZydisInstructionSegment##struc, name)     \
+        }
+#   define ZYDIS_DEF_CNST(name, c, struc)                                       \
+        {                                                                       \
+            .field_name = #name,                                                \
+            .bit_width = 0,                                                     \
+            .value_source.constant = (c),                                       \
+            .struct_offset = offsetof(ZydisInstructionSegment##struc, name)     \
+        }
+
+    static const ZydisInstructionSegmentReflectionInfo rex[] =
+    {
+        ZYDIS_DEF_OFFS(W, 1, 3, REX),
+        ZYDIS_DEF_OFFS(R, 1, 2, REX),
+        ZYDIS_DEF_OFFS(X, 1, 1, REX),
+        ZYDIS_DEF_OFFS(B, 1, 0, REX),
+        {}, // terminating empty record
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo vex2[] =
+    {
+        ZYDIS_DEF_OFFS(R,      1, 15, VEX),
+        ZYDIS_DEF_CNST(X,      1,     VEX),
+        ZYDIS_DEF_CNST(B,      1,     VEX),
+        ZYDIS_DEF_CNST(m_mmmm, 1,     VEX),
+        ZYDIS_DEF_CNST(W,      0,     VEX),
+        ZYDIS_DEF_OFFS(vvvv,   4, 11, VEX),
+        ZYDIS_DEF_OFFS(L,      1, 10, VEX),
+        ZYDIS_DEF_OFFS(pp,     2, 8,  VEX),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo vex3[] =
+    {
+        ZYDIS_DEF_OFFS(R,      15, 1, VEX),
+        ZYDIS_DEF_OFFS(X,      14, 1, VEX),
+        ZYDIS_DEF_OFFS(B,      13, 1, VEX),
+        ZYDIS_DEF_OFFS(m_mmmm,  8, 5, VEX),
+        ZYDIS_DEF_OFFS(W,      23, 1, VEX),
+        ZYDIS_DEF_OFFS(vvvv,   19, 4, VEX),
+        ZYDIS_DEF_OFFS(L,      18, 1, VEX),
+        ZYDIS_DEF_OFFS(pp,     16, 2, VEX),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo xop[] =
+    {
+        ZYDIS_DEF_OFFS(R,      15, 1, XOP),
+        ZYDIS_DEF_OFFS(X,      14, 1, XOP),
+        ZYDIS_DEF_OFFS(B,      13, 1, XOP),
+        ZYDIS_DEF_OFFS(m_mmmm,  8, 5, XOP),
+        ZYDIS_DEF_OFFS(W,      23, 1, XOP),
+        ZYDIS_DEF_OFFS(vvvv,   19, 4, XOP),
+        ZYDIS_DEF_OFFS(L,      18, 1, XOP),
+        ZYDIS_DEF_OFFS(pp,     16, 2, XOP),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo evex[] =
+    {
+        ZYDIS_DEF_OFFS(R,    15, 1, EVEX),
+        ZYDIS_DEF_OFFS(X,    14, 1, EVEX),
+        ZYDIS_DEF_OFFS(B,    13, 1, EVEX),
+        ZYDIS_DEF_OFFS(R2,   12, 1, EVEX),
+        ZYDIS_DEF_OFFS(mmm,   8, 3, EVEX),
+        ZYDIS_DEF_OFFS(W,    23, 1, EVEX),
+        ZYDIS_DEF_OFFS(vvvv, 19, 4, EVEX),
+        ZYDIS_DEF_OFFS(pp,   16, 2, EVEX),
+        ZYDIS_DEF_OFFS(z,    31, 1, EVEX),
+        ZYDIS_DEF_OFFS(L2,   30, 1, EVEX),
+        ZYDIS_DEF_OFFS(L,    29, 1, EVEX),
+        ZYDIS_DEF_OFFS(b,    28, 1, EVEX),
+        ZYDIS_DEF_OFFS(V2,   27, 1, EVEX),
+        ZYDIS_DEF_OFFS(aaa,  24, 3, EVEX),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo mvex[] =
+    {
+        ZYDIS_DEF_OFFS(R,    15, 1, MVEX),
+        ZYDIS_DEF_OFFS(X,    14, 1, MVEX),
+        ZYDIS_DEF_OFFS(B,    13, 1, MVEX),
+        ZYDIS_DEF_OFFS(R2,   12, 1, MVEX),
+        ZYDIS_DEF_OFFS(mmmm,  8, 4, MVEX),
+        ZYDIS_DEF_OFFS(W,    23, 1, MVEX),
+        ZYDIS_DEF_OFFS(vvvv, 19, 4, MVEX),
+        ZYDIS_DEF_OFFS(pp,   16, 2, MVEX),
+        ZYDIS_DEF_OFFS(E,    31, 1, MVEX),
+        ZYDIS_DEF_OFFS(SSS,  28, 3, MVEX),
+        ZYDIS_DEF_OFFS(V2,   27, 1, MVEX),
+        ZYDIS_DEF_OFFS(kkk,  24, 3, MVEX),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo modrm[] =
+    {
+        ZYDIS_DEF_OFFS(mod, 6, 2, ModRM),
+        ZYDIS_DEF_OFFS(reg, 3, 3, ModRM),
+        ZYDIS_DEF_OFFS(rm,  0, 3, ModRM),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo sib[] =
+    {
+        ZYDIS_DEF_OFFS(scale, 6, 2, SIB),
+        ZYDIS_DEF_OFFS(index, 3, 3, SIB),
+        ZYDIS_DEF_OFFS(base,  0, 3, SIB),
+        {},
+    };
+
+    static const ZydisInstructionSegmentReflectionInfo nobits[] = {{}};
+
+    switch (kind)
+    {
+    case ZYDIS_INSTR_SEGMENT_OPCODE:        return nobits;
+    case ZYDIS_INSTR_SEGMENT_MODRM:         return modrm;
+    case ZYDIS_INSTR_SEGMENT_REX:           return rex;
+    case ZYDIS_INSTR_SEGMENT_DISPLACEMENT:  return nobits;
+    case ZYDIS_INSTR_SEGMENT_PREFIXES:      return nobits;
+    case ZYDIS_INSTR_SEGMENT_XOP:           return xop;
+    case ZYDIS_INSTR_SEGMENT_EVEX:          return evex;
+    case ZYDIS_INSTR_SEGMENT_MVEX:          return mvex;
+    case ZYDIS_INSTR_SEGMENT_SIB:           return sib;
+    case ZYDIS_INSTR_SEGMENT_IMMEDIATE:     return nobits;
+    case ZYDIS_INSTR_SEGMENT_VEX:
+        return length == 2 ? vex2 :
+               length == 3 ? vex3 :
+               ZYAN_NULL;
+    default:
+        return ZYAN_NULL;
+    }
+
+#   undef ZYDIS_DEF_OFFS
+#   undef ZYDIS_DEF_CONST
+}
+
+const char* ZydisSegmentKindGetString(ZydisInstructionSegmentKind kind)
+{
+    static const char* segments[ZYDIS_INSTR_SEGMENT_MAX_VALUE + 1] = {
+        [ZYDIS_INSTR_SEGMENT_PREFIXES       ] = "prefixes",
+        [ZYDIS_INSTR_SEGMENT_REX            ] = "rex",
+        [ZYDIS_INSTR_SEGMENT_XOP            ] = "xop",
+        [ZYDIS_INSTR_SEGMENT_VEX            ] = "vex",
+        [ZYDIS_INSTR_SEGMENT_EVEX           ] = "evex",
+        [ZYDIS_INSTR_SEGMENT_MVEX           ] = "mvex",
+        [ZYDIS_INSTR_SEGMENT_OPCODE         ] = "opcode",
+        [ZYDIS_INSTR_SEGMENT_MODRM          ] = "modrm",
+        [ZYDIS_INSTR_SEGMENT_SIB            ] = "sib",
+        [ZYDIS_INSTR_SEGMENT_DISPLACEMENT   ] = "displacement",
+        [ZYDIS_INSTR_SEGMENT_IMMEDIATE      ] = "immediate",
+    };
+
+    if (kind > ZYDIS_INSTR_SEGMENT_MAX_VALUE)
+    {
+        return ZYAN_NULL;
+    }
+
+    const char* str = segments[kind];
+    ZYAN_ASSERT(str);
+    return str;
+}
 
 /* ============================================================================================== */
