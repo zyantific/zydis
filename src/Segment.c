@@ -48,23 +48,23 @@
 
 static const ZydisInstructionSegmentFieldInfo REX_FIELD_LIST[] =
 {
-    ZYDIS_DEF_OFFS(W, 1, 3, REX),
-    ZYDIS_DEF_OFFS(R, 1, 2, REX),
+    ZYDIS_DEF_OFFS(W, 3, 1, REX),
+    ZYDIS_DEF_OFFS(R, 2, 1, REX),
     ZYDIS_DEF_OFFS(X, 1, 1, REX),
-    ZYDIS_DEF_OFFS(B, 1, 0, REX),
+    ZYDIS_DEF_OFFS(B, 0, 1, REX),
     {}, // terminating empty record
 };
 
 static const ZydisInstructionSegmentFieldInfo VEX2_FIELD_LIST[] =
 {
-    ZYDIS_DEF_OFFS(R,      1, 15, VEX),
+    ZYDIS_DEF_OFFS(R,      15, 1, VEX),
     ZYDIS_DEF_CNST(X,      1,     VEX),
     ZYDIS_DEF_CNST(B,      1,     VEX),
     ZYDIS_DEF_CNST(m_mmmm, 1,     VEX),
     ZYDIS_DEF_CNST(W,      0,     VEX),
-    ZYDIS_DEF_OFFS(vvvv,   4, 11, VEX),
-    ZYDIS_DEF_OFFS(L,      1, 10, VEX),
-    ZYDIS_DEF_OFFS(pp,     2, 8,  VEX),
+    ZYDIS_DEF_OFFS(vvvv,   11, 4, VEX),
+    ZYDIS_DEF_OFFS(L,      10, 1, VEX),
+    ZYDIS_DEF_OFFS(pp,     8,  2, VEX),
     {},
 };
 
