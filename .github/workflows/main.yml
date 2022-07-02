@@ -21,6 +21,8 @@ jobs:
           cmake_flags: -DZYAN_DEV_MODE=ON
         - image_name: ubuntu-20.04
           minimal_mode: "-DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF"
+        - image_name: windows-2019
+          cmake_flags: -DZYAN_DEV_MODE=ON -TClangCL
 
     steps:
       - name: Checkout
