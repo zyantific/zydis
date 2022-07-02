@@ -8,7 +8,10 @@ on:
 
 jobs:
   cmake-build-and-tests:
-    name: CMake build + tests (${{ matrix.image_name }}, ${{ matrix.no_libc }})
+    name: >-
+      CMake build + tests (${{ matrix.image_name }} 
+      ${{ matrix.no_libc }}
+      ${{ matrix.cmake_flags }})
     runs-on: ${{ matrix.image_name }}
 
     strategy:
