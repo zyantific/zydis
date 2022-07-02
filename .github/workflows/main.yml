@@ -20,8 +20,6 @@ jobs:
           no_libc: -DCMAKE_BUILD_TYPE=Release
           cmake_flags: -DZYAN_DEV_MODE=ON
         - image_name: ubuntu-20.04
-          no_libc: ""
-          cmake_flags: ""
           minimal_mode: "-DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF"
 
     steps:
