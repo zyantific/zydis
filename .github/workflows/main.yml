@@ -18,10 +18,10 @@ jobs:
         include:
         - image_name: ubuntu-20.04
           no_libc: -DCMAKE_BUILD_TYPE=Release
-          dev_mode: -DZYAN_DEV_MODE=ON
+          cmake_flags: -DZYAN_DEV_MODE=ON
         - image_name: ubuntu-20.04
           no_libc: ""
-          dev_mode: ""
+          cmake_flags: ""
           minimal_mode: "-DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF"
 
     steps:
@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ${{ matrix.dev_mode }} ${{ matrix.no_libc }} ${{ matrix.minimal_mode }} ..
+          cmake ${{ matrix.cmake_flags }} ${{ matrix.no_libc }} ${{ matrix.minimal_mode }} ..
       - name: Building
         run: |
           cmake --build build --config Release
