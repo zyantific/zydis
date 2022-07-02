@@ -4313,7 +4313,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         {
             1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
         };
-        ZYAN_ASSERT(id_cr < ZYAN_ARRAY_LENGTH(lookup));
+        ZYAN_ASSERT((ZyanUSize)id_cr < ZYAN_ARRAY_LENGTH(lookup));
         if (!lookup[id_cr])
         {
             return ZYDIS_STATUS_BAD_REGISTER;
