@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     // Format & print the original instruction.
     char fmt_buf[256];
     ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, operands,
-        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0));
+        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0, NULL));
     printf("Original instruction: %s\n", fmt_buf);
 
     // Create an encoder request from the previously decoded instruction.
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
     ExpectSuccess(ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instr,
         operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY));
     ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, operands,
-        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0));
+        instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0, NULL));
     printf("New instruction:      %s\n", fmt_buf);
 
     // Print the new instruction as hex-bytes.

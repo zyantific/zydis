@@ -281,7 +281,7 @@ static ZyanU64 ProcessBuffer(const ZydisDecoder* decoder, const ZydisFormatter* 
             {
                 ZydisFormatterFormatInstruction(formatter, &context->instruction,
                     context->operands, context->instruction.operand_count_visible, 
-                    context->format_buffer, sizeof(context->format_buffer), offset);
+                    context->format_buffer, sizeof(context->format_buffer), offset, ZYAN_NULL);
             }
         }
 

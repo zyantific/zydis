@@ -449,14 +449,6 @@ ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter, ZydisFormatterFuncti
 
 ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter,
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
-    ZyanU8 operand_count, char* buffer, ZyanUSize length, ZyanU64 runtime_address)
-{
-     return ZydisFormatterFormatInstructionEx(formatter, instruction, operands, operand_count,
-         buffer, length, runtime_address, ZYAN_NULL);
-}
-
-ZyanStatus ZydisFormatterFormatInstructionEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
     ZyanU8 operand_count, char* buffer, ZyanUSize length, ZyanU64 runtime_address, void* user_data)
 {
     if (!formatter || !instruction || (operand_count && !operands) ||

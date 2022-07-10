@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 
             ZydisFormatterFormatInstruction(&formatter, &instruction, operands, 
                 instruction.operand_count_visible, format_buffer, sizeof(format_buffer),
-                runtime_address);
+                runtime_address, ZYAN_NULL);
             ZYAN_PUTS(format_buffer);
 
             read_offset += instruction.length;

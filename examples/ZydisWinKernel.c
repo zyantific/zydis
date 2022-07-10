@@ -180,7 +180,7 @@ DriverEntry(
         const ZyanU64 instrAddress = (ZyanU64)(imageBase + entryPointRva + readOffset);
         ZydisFormatterFormatInstruction(
             &formatter, &instruction, operands, instruction.operand_count_visible, printBuffer, 
-            sizeof(printBuffer), instrAddress);
+            sizeof(printBuffer), instrAddress, NULL);
         Print("+%-4X 0x%-16llX\t\t%hs\n", (ULONG)readOffset, instrAddress, printBuffer);
 
         readOffset += instruction.length;
