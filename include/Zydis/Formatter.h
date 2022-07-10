@@ -1047,7 +1047,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
- *                          callbacks.
+ *                          callbacks. Can be `ZYAN_NULL`.
  *
  * @return  A zyan status code.
  */
@@ -1067,7 +1067,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* fo
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
- *                          callbacks.
+ *                          callbacks. Can be `ZYAN_NULL`.
  *
  * @return  A zyan status code.
  *
@@ -1097,7 +1097,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  *                          to print relative addresses.
  * @param   token           Receives a pointer to the first token in the output buffer.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
- *                          callbacks.
+ *                          callbacks. Can be `ZYAN_NULL`.
  *
  * @return  A zyan status code.
  */
@@ -1118,7 +1118,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* 
  *                          to print relative addresses.
  * @param   token           Receives a pointer to the first token in the output buffer.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
- *                          callbacks.
+ *                          callbacks. Can be `ZYAN_NULL`.
  *
  * @return  A zyan status code.
  *
