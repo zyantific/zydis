@@ -44,7 +44,9 @@
   - The signature of `ZydisFormatterFormatOperand` changed
   - The functionality of `ZydisFormatterFormatOperandEx` was integrated into the non-`Ex`
     variant of the function
-  - The signature of `ZydisFormatterTokenizeInstruction(Ex)?` changed
+  - The signature of `ZydisFormatterTokenizeInstruction` changed
+  - The functionality of `ZydisFormatterTokenizeInstructionEx` was integrated into the non-`Ex`
+    variant of the function
   - The signature of `ZydisFormatterTokenizeOperand(Ex)?` changed
 
 ### Utils

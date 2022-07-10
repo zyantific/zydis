@@ -80,7 +80,7 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
         const ZydisFormatterToken* token;
         if (ZYAN_SUCCESS(ZydisFormatterTokenizeInstruction(&formatter, &instruction, operands,
             instruction.operand_count_visible , &buffer[0], sizeof(buffer), runtime_address,
-            &token)))
+            &token, ZYAN_NULL)))
         {
             ZydisTokenType token_type;
             ZyanConstCharPointer token_value = ZYAN_NULL;
