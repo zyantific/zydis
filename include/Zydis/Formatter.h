@@ -1066,26 +1066,6 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* fo
  * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
  *                          to print relative addresses.
- *
- * @return  A zyan status code.
- *
- * Use `ZydisFormatterFormatInstruction` or `ZydisFormatterFormatInstructionEx` to format a
- * complete instruction.
- */
-ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand,
-    char* buffer, ZyanUSize length, ZyanU64 runtime_address);
-
-/**
- * Formats the given operand and writes it into the output buffer.
- *
- * @param   formatter       A pointer to the `ZydisFormatter` instance.
- * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
- * @param   operand         A pointer to the `ZydisDecodedOperand` struct of the operand to format.
- * @param   buffer          A pointer to the output buffer.
- * @param   length          The length of the output buffer (in characters).
- * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
- *                          to print relative addresses.
  * @param   user_data       A pointer to user-defined data which can be used in custom formatter
  *                          callbacks.
  *
@@ -1094,7 +1074,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  * Use `ZydisFormatterFormatInstruction` or `ZydisFormatterFormatInstructionEx` to format a
  * complete instruction.
  */
-ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperandEx(const ZydisFormatter* formatter,
+ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* formatter,
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand,
     char* buffer, ZyanUSize length, ZyanU64 runtime_address, void* user_data);
 

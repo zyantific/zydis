@@ -163,7 +163,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         const ZydisDecodedOperand* op = &operands[op_idx];
 
         ZydisFormatterFormatOperand(&formatter, &instruction, op, format_buffer, output_len,
-            control_block.u64);
+            control_block.u64, NULL);
 
         // Fuzz single operand tokenization.
         ZydisFormatterTokenizeOperand(&formatter, &instruction, op, format_buffer, output_len,
