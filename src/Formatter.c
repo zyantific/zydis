@@ -589,14 +589,6 @@ ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* formatter,
 
 ZyanStatus ZydisFormatterTokenizeOperand(const ZydisFormatter* formatter,
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand,
-    void* buffer, ZyanUSize length, ZyanU64 runtime_address, ZydisFormatterTokenConst** token)
-{
-    return ZydisFormatterTokenizeOperandEx(formatter, instruction, operand, buffer, length,
-        runtime_address, token, ZYAN_NULL);
-}
-
-ZyanStatus ZydisFormatterTokenizeOperandEx(const ZydisFormatter* formatter,
-    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operand,
     void* buffer, ZyanUSize length, ZyanU64 runtime_address, ZydisFormatterTokenConst** token,
     void* user_data)
 {

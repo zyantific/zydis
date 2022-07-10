@@ -168,7 +168,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
 
         // Fuzz single operand tokenization.
         ZydisFormatterTokenizeOperand(&formatter, &instruction, op, format_buffer, output_len,
-            control_block.u64, &token);
+            control_block.u64, &token, NULL);
 
         // Address translation helper.
         ZyanU64 abs_addr;
