@@ -126,7 +126,8 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
         // We have to pass a `runtime_address` different to `ZYDIS_RUNTIME_ADDRESS_NONE` to
         // enable printing of absolute addresses
         ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
-            instruction.operand_count_visible, &buffer[0], sizeof(buffer), runtime_address);
+            instruction.operand_count_visible, &buffer[0], sizeof(buffer), runtime_address,
+            ZYAN_NULL);
         ZYAN_PRINTF(" %s\n", &buffer[0]);
 
         data += instruction.length;

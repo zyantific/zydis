@@ -134,7 +134,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
     ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
-        instruction.operand_count_visible, format_buffer, output_len, control_block.u64);
+        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, NULL);
 
     // Fuzz tokenizer.
     const ZydisFormatterToken* token;

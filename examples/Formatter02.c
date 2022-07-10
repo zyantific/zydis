@@ -220,7 +220,7 @@ static void DisassembleBuffer(ZydisDecoder* decoder, ZyanU8* data, ZyanUSize len
     {
         ZYAN_PRINTF("%016" PRIX64 "  ", runtime_address);
 
-        ZydisFormatterFormatInstructionEx(&formatter, &instruction, operands,
+        ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
             instruction.operand_count_visible, &buffer[0], sizeof(buffer), runtime_address,
             &user_data);
         ZYAN_PRINTF(" %s\n", &buffer[0]);

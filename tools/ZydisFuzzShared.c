@@ -119,7 +119,7 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
 
     char buffer[256];
     ZydisFormatterFormatInstruction(&formatter, instruction, operands, operand_count, buffer,
-        sizeof(buffer), 0);
+        sizeof(buffer), 0, NULL);
     printf(" %s\n", buffer);
 }
 
