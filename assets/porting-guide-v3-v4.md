@@ -38,18 +38,13 @@
 ### Formatter
 
 - Added arguments to accommodate the new decoder API changes
-  - The signature of `ZydisFormatterFormatInstruction` changed
-  - The functionality of `ZydisFormatterFormatInstructionEx` was integrated into the non-`Ex`
-    variant of the function
-  - The signature of `ZydisFormatterFormatOperand` changed
-  - The functionality of `ZydisFormatterFormatOperandEx` was integrated into the non-`Ex`
-    variant of the function
-  - The signature of `ZydisFormatterTokenizeInstruction` changed
-  - The functionality of `ZydisFormatterTokenizeInstructionEx` was integrated into the non-`Ex`
-    variant of the function
-  - The signature of `ZydisFormatterTokenizeOperand` changed
-  - The functionality of `ZydisFormatterTokenizeOperandEx` was integrated into the non-`Ex`
-    variant of the function
+- Arguments from `Ex` variants of various functions were integrated into the non-`Ex` variant
+  - All of these varied by only a single argument and didn't warrant the additional complexity 
+- As a result, the signature of the following functions changed:
+  - `ZydisFormatterFormatInstruction`
+  - `ZydisFormatterFormatOperand`
+  - `ZydisFormatterTokenizeInstruction`
+  - `ZydisFormatterTokenizeOperand`
 
 ### Utils
 
