@@ -139,7 +139,8 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     // Fuzz tokenizer.
     const ZydisFormatterToken* token;
     status = ZydisFormatterTokenizeInstruction(&formatter, &instruction, operands,
-        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, &token);
+        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, &token,
+        NULL);
 
     // Walk tokens.
     while (ZYAN_SUCCESS(status))
