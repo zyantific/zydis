@@ -9,23 +9,34 @@ on:
 jobs:
   cmake-build-and-tests:
     name: >-
-      CMake build + tests (${{ matrix.image_name }} 
-      ${{ matrix.no_libc }}
-      ${{ matrix.cmake_flags }})
+      CMake build + tests (${{ matrix.image_name }} ${{ matrix.cmake_flags }})
     runs-on: ${{ matrix.image_name }}
 
     strategy:
       matrix:
-        image_name: [macOS-latest, windows-2019, ubuntu-20.04]
-        no_libc: ["", -DZYAN_NO_LIBC=ON]
         include:
-        - image_name: ubuntu-20.04
-          no_libc: -DCMAKE_BUILD_TYPE=Release
-          cmake_flags: -DZYAN_DEV_MODE=ON
-        - image_name: ubuntu-20.04
-          minimal_mode: "-DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF"
-        - image_name: windows-2019
-          cmake_flags: -DZYAN_DEV_MODE=ON -TClangCL
+          # Do a regular and a no-libc build for each platform.
+          - image_name: macOS-latest
+          - image_name: macOS-latest
+            cmake_flags: -DZYAN_NO_LIBC=ON
+            skip_tests: yes
+          - image_name: windows-2019
+          - image_name: windows-2019
+            cmake_flags: -DZYAN_NO_LIBC=ON
+            skip_tests: yes
+          - image_name: ubuntu-20.04
+          - image_name: ubuntu-20.04
+            cmake_flags: -DZYAN_NO_LIBC=ON
+            skip_tests: yes
+
+          # Do a few more specialized configurations.
+          - image_name: ubuntu-20.04
+            cmake_flags: -DCMAKE_BUILD_TYPE=Release -DZYAN_DEV_MODE=ON
+          - image_name: ubuntu-20.04
+            cmake_flags: -DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF
+            skip_tests: yes
+          - image_name: windows-2019
+            cmake_flags: -TClangCL
 
     steps:
       - name: Checkout
@@ -35,7 +46,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ${{ matrix.cmake_flags }} ${{ matrix.no_libc }} ${{ matrix.minimal_mode }} ..
+          cmake ${{ matrix.cmake_flags }} ..
       - name: Building
         run: |
           cmake --build build --config Release
@@ -43,17 +54,17 @@ jobs:
         run: |
           cd tests
           python3 regression.py test ../build/ZydisInfo
-        if: "!matrix.no_libc && matrix.image_name != 'windows-2019' && !matrix.minimal_mode"
+        if: "matrix.image_name != 'windows-2019' && !matrix.skip_tests"
       - name: Running regression tests (encoder)
         run: |
           cd tests
           python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder ../build/ZydisTestEncoderAbsolute
-        if: "!matrix.no_libc && matrix.image_name != 'windows-2019' && !matrix.minimal_mode"
+        if: "matrix.image_name != 'windows-2019' && !matrix.skip_tests"
       - name: Running regression tests
         run: |
           cd tests
           python regression.py test ..\\build\\Release\\ZydisInfo.exe
-        if: "!matrix.no_libc && matrix.image_name == 'windows-2019' && !matrix.minimal_mode"
+        if: "matrix.image_name == 'windows-2019' && !matrix.skip_tests"
 
   msbuild-build:
     name: MSBuild build (windows-2019)
