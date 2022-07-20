@@ -202,6 +202,27 @@ typedef struct ZydisEncodableInstruction_
 #pragma pack(pop)
 
 /**
+ * Contains information used by instruction size prediction algorithm inside
+ * `ZydisEncoderEncodeInstructionAbsolute`.
+ */
+typedef struct ZydisEncoderRelInfo_
+{
+    /**
+     * Sizes of instruction variants. First index is effective address size. Second index is
+	 * desired immediate size (8, 16 and 32 bits respectively).
+     */
+    ZyanU8 size[3][3];
+    /**
+     * See `ZydisSizeHint`.
+     */
+    ZyanU8 accepts_scaling_hints;
+    /**
+     * True if instruction accepts branch hint prefixes.
+     */
+    ZyanBool accepts_branch_hints;
+} ZydisEncoderRelInfo;
+
+/**
  * Fetches array of `ZydisEncodableInstruction` structures and its size for given instruction 
  * mnemonic. 
  *
@@ -213,5 +234,15 @@ typedef struct ZydisEncodableInstruction_
  */
 ZyanU8 ZydisGetEncodableInstructions(ZydisMnemonic mnemonic, 
     const ZydisEncodableInstruction **instruction);
+
+/**
+ * Fetches `ZydisEncoderRelInfo` record for given instruction mnemonic.
+ *
+ * @param   mnemonic    Instruction mnemonic.
+ *
+ * @return  Pointer to `ZydisEncoderRelInfo` structure or `ZYAN_NULL` if instruction doesn't have
+ *          relative operands.
+ */
+const ZydisEncoderRelInfo *ZydisGetRelInfo(ZydisMnemonic mnemonic);
 
 #endif /* ZYDIS_INTERNAL_ENCODERDATA_H */

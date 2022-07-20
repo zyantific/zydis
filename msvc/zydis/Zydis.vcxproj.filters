@@ -194,6 +194,9 @@
     <ClInclude Include="..\..\include\Zydis\Segment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Internal\EncoderData.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\resources\VersionInfo.rc">

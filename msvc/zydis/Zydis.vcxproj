@@ -922,6 +922,7 @@
     <ClInclude Include="..\..\include\Zydis\Defines.h" />
     <ClInclude Include="..\..\include\Zydis\Encoder.h" />
     <ClInclude Include="..\..\include\Zydis\Formatter.h" />
+    <ClInclude Include="..\..\include\Zydis\Internal\EncoderData.h" />
     <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
     <ClInclude Include="..\..\include\Zydis\Mnemonic.h" />
     <ClInclude Include="..\..\include\Zydis\Register.h" />

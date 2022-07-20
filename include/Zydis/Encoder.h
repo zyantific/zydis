@@ -401,6 +401,24 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest 
     void *buffer, ZyanUSize *length);
 
 /**
+ * Encodes instruction with semantics specified in encoder request structure. This function expects
+ * absolute addresses inside encoder request instead of `EIP`/`RIP`-relative values. Function
+ * predicts final instruction length prior to encoding and writes back calculated relative operands
+ * to provided encoder request.
+ *
+ * @param   request         A pointer to the `ZydisEncoderRequest` struct.
+ * @param   buffer          A pointer to the output buffer receiving encoded instruction.
+ * @param   length          A pointer to the variable containing length of the output buffer. Upon
+ *                          successful return this variable receives length of the encoded
+                            instruction.
+ * @param   runtime_address The runtime address of the instruction.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderRequest *request,
+    void *buffer, ZyanUSize *length, ZyanU64 runtime_address);
+
+/**
  * Converts decoded instruction to encoder request that can be passed to
  * `ZydisEncoderEncodeInstruction`.
  *
