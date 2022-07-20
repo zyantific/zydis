@@ -2965,7 +2965,7 @@ static ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request
             }
         }
         else if ((request->machine_mode != ZYDIS_MACHINE_MODE_LONG_64) &&
-            (definition->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
+                 (definition->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX))
         {
             continue;
         }
@@ -4275,6 +4275,33 @@ static ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *requ
     return ZYAN_STATUS_SUCCESS;
 }
 
+/**
+ * Encodes instruction with semantics specified in encoder request structure.
+ *
+ * @param   request     A pointer to the `ZydisEncoderRequest` struct. Must be validated before
+ *                      calling this function.
+ * @param   buffer      A pointer to the output buffer receiving encoded instruction.
+ * @param   length      A pointer to the variable containing length of the output buffer. Upon
+ *                      successful return this variable receives length of the encoded instruction.
+ * @param   instruction Internal state of the encoder.
+ *
+ * @return  A zyan status code.
+ */
+static ZyanStatus ZydisEncoderEncodeInstructionInternal(const ZydisEncoderRequest *request,
+    void *buffer, ZyanUSize *length, ZydisEncoderInstruction *instruction)
+{
+    ZydisEncoderInstructionMatch match;
+    ZYAN_CHECK(ZydisFindMatchingDefinition(request, &match));
+    ZydisEncoderBuffer output;
+    output.buffer = (ZyanU8 *)buffer;
+    output.size = *length;
+    output.offset = 0;
+    ZYAN_CHECK(ZydisBuildInstruction(&match, instruction));
+    ZYAN_CHECK(ZydisEmitInstruction(instruction, &output));
+    *length = output.offset;
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ============================================================================================== */
 /* Exported functions                                                                             */
 /* ============================================================================================== */
@@ -4288,17 +4315,212 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest 
     }
     ZYAN_CHECK(ZydisEncoderCheckRequestSanity(request));
 
-    ZydisEncoderInstructionMatch match;
-    ZYAN_CHECK(ZydisFindMatchingDefinition(request, &match));
-    ZydisEncoderBuffer output;
-    output.buffer = (ZyanU8 *)buffer;
-    output.size = *length;
-    output.offset = 0;
     ZydisEncoderInstruction instruction;
-    ZYAN_CHECK(ZydisBuildInstruction(&match, &instruction));
-    ZYAN_CHECK(ZydisEmitInstruction(&instruction, &output));
+    return ZydisEncoderEncodeInstructionInternal(request, buffer, length, &instruction);
+}
 
-    *length = output.offset;
+ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderRequest *request,
+    void *buffer, ZyanUSize *length, ZyanU64 runtime_address)
+{
+    if (!request || !buffer || !length)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    ZYAN_CHECK(ZydisEncoderCheckRequestSanity(request));
+
+    const ZydisEncoderRelInfo *rel_info = ZydisGetRelInfo(request->mnemonic);
+    ZydisEncoderOperand *op_rip_rel = ZYAN_NULL;
+    ZyanBool adjusted_rel = ZYAN_FALSE;
+    ZyanU64 absolute_address = 0;
+    ZyanU8 mode_index = ZydisGetMachineModeWidth(request->machine_mode) >> 5;
+    for (ZyanU8 i = 0; i < request->operand_count; ++i)
+    {
+        ZydisEncoderOperand *op = &request->operands[i];
+        if ((op->type == ZYDIS_OPERAND_TYPE_IMMEDIATE) && rel_info)
+        {
+            if (adjusted_rel)
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
+
+            switch (rel_info->accepts_scaling_hints)
+            {
+            case ZYDIS_SIZE_HINT_NONE:
+            case ZYDIS_SIZE_HINT_OSZ:
+            {
+                static const ZyanI8 asz_priority[3][3] =
+                {
+                    { 0, 1, 2 },
+                    { 0, 2, 1 },
+                    { 0, 2, -1 },
+                };
+                static const ZyanI8 osz_priority[3][3] =
+                {
+                    { 0, 1, 2 },
+                    { 0, 2, 1 },
+                    { 0, 2, 1 },
+                };
+                ZyanI8 forced_priority_row[3] = { -1, -1, -1 };
+                ZyanI8 *priority_row = ZYAN_NULL;
+                ZyanU8 extra_length = 0;
+                ZyanU8 start_offset = 0;
+                if (rel_info->accepts_scaling_hints == ZYDIS_SIZE_HINT_NONE)
+                {
+                    if ((request->branch_type == ZYDIS_BRANCH_TYPE_FAR) ||
+                        (request->branch_width == ZYDIS_BRANCH_WIDTH_64))
+                    {
+                        return ZYAN_STATUS_INVALID_ARGUMENT;
+                    }
+                    if ((rel_info->accepts_branch_hints) &&
+                        (request->prefixes & (ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN |
+                                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)))
+                    {
+                        extra_length = 1;
+                    }
+                    if (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE)
+                    {
+                        if (request->branch_type == ZYDIS_BRANCH_TYPE_NEAR)
+                        {
+                            start_offset = 1;
+                        }
+                        priority_row = (ZyanI8 *)&asz_priority[mode_index];
+                    }
+                    else
+                    {
+                        forced_priority_row[0] = (ZyanI8)(request->branch_width - 1);
+                        priority_row = (ZyanI8 *)&forced_priority_row;
+                    }
+                }
+                else
+                {
+                    if (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_NONE)
+                    {
+                        priority_row = (ZyanI8 *)&osz_priority[mode_index];
+                    }
+                    else
+                    {
+                        if (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_64)
+                        {
+                            extra_length = 1;
+                            forced_priority_row[0] = 2;
+                        }
+                        else
+                        {
+                            forced_priority_row[0] = (ZyanI8)(request->operand_size_hint - 1);
+                        }
+                        priority_row = (ZyanI8 *)&forced_priority_row;
+                    }
+                }
+                ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(asz_priority[0]) ==
+                            ZYAN_ARRAY_LENGTH(osz_priority[0]));
+                for (ZyanU8 j = start_offset; j < ZYAN_ARRAY_LENGTH(asz_priority[0]); ++j)
+                {
+                    ZyanI8 size_index = priority_row[j];
+                    if (size_index < 0)
+                    {
+                        break;
+                    }
+                    ZyanU8 base_size = rel_info->size[mode_index][size_index];
+                    if (base_size == 0)
+                    {
+                        continue;
+                    }
+                    ZyanU8 predicted_size = base_size + extra_length;
+                    if (runtime_address > ZYAN_UINT64_MAX - predicted_size + 1)
+                    {
+                        continue;
+                    }
+                    ZyanI64 rel = (ZyanI64)(op->imm.u - (runtime_address + predicted_size));
+                    ZyanU8 rel_size = ZydisGetSignedImmSize(rel);
+                    if (rel_size > (8 << size_index))
+                    {
+                        continue;
+                    }
+                    op->imm.s = rel;
+                    adjusted_rel = ZYAN_TRUE;
+                    break;
+                }
+                break;
+            }
+            case ZYDIS_SIZE_HINT_ASZ:
+            {
+                static const ZyanI8 asz_prefix_lookup[3][ZYDIS_ADDRESS_SIZE_HINT_MAX_VALUE + 1] =
+                {
+                    { 0, 0, 1, -1 },
+                    { 0, 1, 0, -1 },
+                    { 0, -1, 1, 0 },
+                };
+                ZyanI8 extra_length = asz_prefix_lookup[mode_index][request->address_size_hint];
+                if (extra_length < 0)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
+                ZyanU8 asz_index = (request->address_size_hint == ZYDIS_ADDRESS_SIZE_HINT_NONE)
+                    ? mode_index
+                    : ZydisGetAszFromHint(request->address_size_hint) >> 5;
+                ZYAN_ASSERT((rel_info->size[asz_index][0] != 0) &&
+                            (rel_info->size[asz_index][1] == 0) &&
+                            (rel_info->size[asz_index][2] == 0) &&
+                            !rel_info->accepts_branch_hints);
+                ZyanU8 predicted_size = rel_info->size[asz_index][0] + extra_length;
+                if (runtime_address > ZYAN_UINT64_MAX - predicted_size + 1)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
+                ZyanI64 rel = (ZyanI64)(op->imm.u - (runtime_address + predicted_size));
+                ZyanU8 rel_size = ZydisGetSignedImmSize(rel);
+                if (rel_size > 8)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
+                op->imm.s = rel;
+                adjusted_rel = ZYAN_TRUE;
+                break;
+            }
+            default:
+                ZYAN_UNREACHABLE;
+            }
+            if (!adjusted_rel)
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
+        }
+        else if ((op->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
+                 ((op->mem.base == ZYDIS_REGISTER_EIP) ||
+                  (op->mem.base == ZYDIS_REGISTER_RIP)))
+        {
+            if (op_rip_rel)
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
+
+            absolute_address = op->mem.displacement;
+            op->mem.displacement = 0;
+            op_rip_rel = op;
+        }
+    }
+
+    ZydisEncoderInstruction instruction;
+    ZYAN_CHECK(ZydisEncoderEncodeInstructionInternal(request, buffer, length, &instruction));
+    if (op_rip_rel)
+    {
+        ZyanUSize instruction_size = *length;
+        if (runtime_address > ZYAN_UINT64_MAX - instruction_size + 1)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        ZyanI64 rip_rel = (ZyanI64)(absolute_address - (runtime_address + instruction_size));
+        if (ZydisGetSignedImmSize(rip_rel) > 32)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+        ZYAN_ASSERT(instruction.disp_size != 0);
+        ZyanU8 disp_offset = (instruction.disp_size >> 3) + (instruction.imm_size >> 3);
+        ZYAN_ASSERT(instruction_size > disp_offset);
+        ZYAN_MEMCPY((ZyanU8 *)buffer + instruction_size - disp_offset, &rip_rel, sizeof(ZyanI32));
+        op_rip_rel->mem.displacement = rip_rel;
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
