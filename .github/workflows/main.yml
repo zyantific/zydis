@@ -44,7 +44,7 @@ jobs:
       - name: Running regression tests (encoder)
         run: |
           cd tests
-          python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder
+          python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder ../build/ZydisTestEncoderAbsolute
         if: "!matrix.no_libc && matrix.image_name != 'windows-2019' && !matrix.minimal_mode"
       - name: Running regression tests
         run: |
