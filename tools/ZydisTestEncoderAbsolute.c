@@ -30,6 +30,7 @@
  * Test set for `ZydisEncoderEncodeInstructionAbsolute`.
  */
 
+#include <inttypes.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 #include <Zydis/Internal/EncoderData.h>
@@ -312,7 +313,7 @@ static ZyanBool RunBranchingTests()
         }
 
         char test_name[256];
-        snprintf(test_name, sizeof(test_name), "%s:%s:%08llX:%s:%s:%s",
+        snprintf(test_name, sizeof(test_name), "%s:%s:%08" PRIX64 ":%s:%s:%s",
             ZydisMnemonicGetString(mnemonic),
             str_modes[iter_branches[1].value],
             rel,
@@ -378,7 +379,7 @@ static ZyanBool RunBranchingTests()
         req.operands[0].imm.u = rel;
 
         char test_name[256];
-        snprintf(test_name, sizeof(test_name), "%s:%s:%08llX:%s",
+        snprintf(test_name, sizeof(test_name), "%s:%s:%08" PRIX64 ":%s",
             ZydisMnemonicGetString(req.mnemonic),
             str_modes[iter_osz_branches[0].value],
             rel,
