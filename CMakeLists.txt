@@ -399,6 +399,15 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
             if (ZYDIS_LIBFUZZER)
                 target_compile_definitions("ZydisFuzzReEncoding" PRIVATE "ZYDIS_LIBFUZZER")
             endif ()
+
+            add_executable("ZydisTestEncoderAbsolute"
+                "tools/ZydisTestEncoderAbsolute.c")
+            target_link_libraries("ZydisTestEncoderAbsolute" "Zydis")
+            set_target_properties("ZydisTestEncoderAbsolute" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisTestEncoderAbsolute" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            zyan_set_common_flags("ZydisTestEncoderAbsolute")
+            zyan_maybe_enable_wpo("ZydisTestEncoderAbsolute")
+            _maybe_set_emscripten_cfg("ZydisTestEncoderAbsolute")
         endif ()
 
         add_executable("ZydisInfo" "tools/ZydisInfo.c")
