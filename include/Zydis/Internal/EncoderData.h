@@ -30,6 +30,7 @@
 #include <Zycore/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/SharedTypes.h>
+
 /**
  * Used in encoder's table to represent standard ISA sizes in form of bit flags.
  */
@@ -209,7 +210,7 @@ typedef struct ZydisEncoderRelInfo_
 {
     /**
      * Sizes of instruction variants. First index is effective address size. Second index is
-	 * desired immediate size (8, 16 and 32 bits respectively).
+     * desired immediate size (8, 16 and 32 bits respectively).
      */
     ZyanU8 size[3][3];
     /**
