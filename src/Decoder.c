@@ -1862,6 +1862,7 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
         {
         case ZYDIS_SEMANTIC_OPTYPE_REL:
             ZYAN_ASSERT(instruction->raw.imm[imm_id].is_relative);
+            ZYAN_FALLTHROUGH;
         case ZYDIS_SEMANTIC_OPTYPE_IMM:
             ZYAN_ASSERT((imm_id == 0) || (imm_id == 1));
             operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
