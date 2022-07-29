@@ -31,8 +31,6 @@ jobs:
 
           # Do a few more specialized configurations.
           - image_name: ubuntu-20.04
-            cmake_flags: -DCMAKE_BUILD_TYPE=Release -DZYAN_DEV_MODE=ON
-          - image_name: ubuntu-20.04
             cmake_flags: -DZYDIS_MINIMAL_MODE=ON -DZYDIS_FEATURE_ENCODER=OFF
             skip_tests: yes
           - image_name: windows-2019
@@ -46,7 +44,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ${{ matrix.cmake_flags }} ..
+          cmake -DZYAN_DEV_MODE=ON ${{ matrix.cmake_flags }} ..
       - name: Building
         run: |
           cmake --build build --config Release
