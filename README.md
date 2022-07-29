@@ -66,10 +66,10 @@ int main()
         // Print current instruction pointer.
         printf("%016" PRIX64 "  ", runtime_address);
 
-        // Format & print the binary instruction structure to human readable format
+        // Format & print the binary instruction structure to human-readable format
         char buffer[256];
         ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
-            instruction.operand_count_visible, buffer, sizeof(buffer), runtime_address);
+            instruction.operand_count_visible, buffer, sizeof(buffer), runtime_address, ZYAN_NULL);
         puts(buffer);
 
         offset += instruction.length;
