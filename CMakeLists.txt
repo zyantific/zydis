@@ -204,11 +204,13 @@ if (ZYDIS_FEATURE_DECODER)
     if (ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
         target_sources("Zydis"
             PRIVATE
+                "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Disassembler.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Formatter.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/FormatterBuffer.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterATT.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterBase.h"
                 "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Internal/FormatterIntel.h"
+                "src/Disassembler.c"
                 "src/Formatter.c"
                 "src/FormatterBuffer.c"
                 "src/FormatterATT.c"

@@ -35,21 +35,25 @@
 #include <Zycore/Defines.h>
 #include <Zycore/Types.h>
 
-#ifndef ZYDIS_DISABLE_DECODER
+#if !defined(ZYDIS_DISABLE_DECODER)
 #   include <Zydis/Decoder.h>
 #   include <Zydis/DecoderTypes.h>
 #endif
 
-#ifndef ZYDIS_DISABLE_ENCODER
+#if !defined(ZYDIS_DISABLE_ENCODER)
 #   include <Zydis/Encoder.h>
 #endif
 
-#ifndef ZYDIS_DISABLE_FORMATTER
+#if !defined(ZYDIS_DISABLE_FORMATTER)
 #   include <Zydis/Formatter.h>
 #endif
 
-#ifndef ZYDIS_DISABLE_SEGMENT
+#if !defined(ZYDIS_DISABLE_SEGMENT)
 #   include <Zydis/Segment.h>
+#endif
+
+#if !defined(ZYDIS_DISABLE_DECODER) && !defined(ZYDIS_DISABLE_FORMATTER)
+#   include <Zydis/Disassembler.h>
 #endif
 
 #include <Zydis/MetaInfo.h>
