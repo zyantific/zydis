@@ -1039,9 +1039,8 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterSetHook(ZydisFormatter* formatter,
  * @param   formatter       A pointer to the `ZydisFormatter` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operands        A pointer to the decoded operands array.
- * @param   operand_count   The number of operands to format and read from the decoded `operands`
- *                          array.
- *                          Must be equal to the value of `instruction.operand_count_visible`.
+ * @param   operand_count   The length of the `operands` array. Must be equal to or greater than
+ *                          the value of `instruction->operand_count_visible`.
  * @param   buffer          A pointer to the output buffer.
  * @param   length          The length of the output buffer (in characters).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`
@@ -1088,9 +1087,8 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterFormatOperand(const ZydisFormatter* format
  * @param   formatter       A pointer to the `ZydisFormatter` instance.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operands        A pointer to the decoded operands array.
- * @param   operand_count   The number of operands to format and read from the decoded `operands`
- *                          array.
- *                          Must be equal to the value of `instruction.operand_count_visible`.
+ * @param   operand_count   The length of the `operands` array. Must be equal to or greater than
+ *                          the value of `instruction->operand_count_visible`.
  * @param   buffer          A pointer to the output buffer.
  * @param   length          The length of the output buffer (in bytes).
  * @param   runtime_address The runtime address of the instruction or `ZYDIS_RUNTIME_ADDRESS_NONE`

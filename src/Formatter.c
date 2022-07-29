@@ -453,7 +453,7 @@ ZyanStatus ZydisFormatterFormatInstruction(const ZydisFormatter* formatter,
 {
     if (!formatter || !instruction || (operand_count && !operands) ||
         (operand_count > ZYDIS_MAX_OPERAND_COUNT) ||
-        (operand_count != instruction->operand_count_visible) || !buffer || (length == 0))
+        (operand_count < instruction->operand_count_visible) || !buffer || (length == 0))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -547,7 +547,7 @@ ZyanStatus ZydisFormatterTokenizeInstruction(const ZydisFormatter* formatter,
 {
     if (!formatter || !instruction || (operand_count && !operands) ||
         (operand_count > ZYDIS_MAX_OPERAND_COUNT) || 
-        (operand_count != instruction->operand_count_visible) || !buffer ||
+        (operand_count < instruction->operand_count_visible) || !buffer ||
         (length <= sizeof(ZydisFormatterToken)) || !token)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
