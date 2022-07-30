@@ -1,0 +1,4 @@
+@INCLUDE               = Doxyfile
+GENERATE_TREEVIEW      = YES
+HTML_EXTRA_STYLESHEET  = ../doxygen-awesome-css/doxygen-awesome.css \
+                         ../doxygen-awesome-css/doxygen-awesome-sidebar-only.css
