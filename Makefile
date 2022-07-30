@@ -1,7 +1,7 @@
 .PHONY: build install amalgamate clean test doc-plain doc-mcss
 
 BUILD_DIR ?= build
-MCSS_DIR  ?=../m.css
+CSS_DIR   ?= ../doxygen-awesome-css
 
 build: dependencies/zycore/CMakeLists.txt
 	@if ! command -v cmake &> /dev/null; then \
@@ -28,12 +28,12 @@ test: build
 doc-plain:
 	doxygen
 
-doc-mcss:
-	@if [ ! -d "../m.css" ]; then \
-		git clone https://github.com/mosra/m.css.git $(MCSS_DIR); \
+doc-themed:
+	@if [ ! -d "$(CSS_DIR)" ]; then \
+		git clone https://github.com/jothepro/doxygen-awesome-css.git $(CSS_DIR); \
 	fi
 
-	$(MCSS_DIR)/documentation/doxygen.py Doxyfile-mcss
+	doxygen Doxyfile-themed
 
 dependencies/zycore/CMakeLists.txt:
 	@if ! command -v git &> /dev/null; then \
