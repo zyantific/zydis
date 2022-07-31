@@ -19,7 +19,7 @@
 - No dynamic memory allocation ("malloc")
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
-- [Complete doxygen documentation](https://zydis.re/doc/3/)
+- [Complete doxygen documentation](https://doc.zydis.re/)
 - Absolutely no third party dependencies — not even libc
   - Should compile on any platform with a working C11 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
