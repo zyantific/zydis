@@ -21,6 +21,9 @@ jobs:
       - name: Install doxygen
         run: |
           sudo apt-get install -y doxygen
+      - name: Clone doxygen theme
+        run: |
+          git clone https://github.com/jothepro/doxygen-awesome-css.git ../doxygen-awesome-css
       - name: Download & install zydoc
         run: |
           wget -O zydoc.tar.gz https://github.com/zyantific/zydoc/releases/download/v0.3.0/zydoc_v0.3.0_x86_64-unknown-linux-musl.tar.gz
