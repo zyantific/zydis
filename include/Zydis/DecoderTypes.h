@@ -268,6 +268,15 @@ typedef struct ZydisDecodedOperand_
 typedef ZyanU32 ZydisAccessedFlagsMask;
 
 /**
+ * @defgroup decoder_cpu_flags CPU flags
+ * @ingroup decoder
+ *
+ * Constants used for testing CPU flags accessed by an instruction.
+ *
+ * @{
+ */
+
+/**
  * Carry flag.
  */
 #define ZYDIS_CPUFLAG_CF    (1ul <<  0)
@@ -337,6 +346,19 @@ typedef ZyanU32 ZydisAccessedFlagsMask;
 #define ZYDIS_CPUFLAG_ID    (1ul << 21)
 
 /**
+ * @}
+ */
+
+/**
+ * @defgroup decoder_fpu_flags FPU flags
+ * @ingroup decoder
+ *
+ * Constants used for testing FPU flags accessed by an instruction.
+ *
+ * @{
+ */
+
+/**
  * FPU condition-code flag 0.
  */
 #define ZYDIS_FPUFLAG_C0    (1ul <<  0)
@@ -352,6 +374,10 @@ typedef ZyanU32 ZydisAccessedFlagsMask;
  * FPU condition-code flag 3.
  */
 #define ZYDIS_FPUFLAG_C3    (1ul <<  3)
+
+/**
+ * @}
+ */
 
 /*
  * Information about CPU/FPU flags accessed by the instruction.
@@ -1009,18 +1035,20 @@ typedef struct ZydisDecodedInstruction_
      */
     ZyanU8 operand_count_visible;
     /**
-     * Instruction attributes.
+     * See @ref InstructionAttributeMacros.
      */
     ZydisInstructionAttributes attributes;
     /**
      * Information about CPU flags accessed by the instruction.
      *
      * The bits in the masks correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
-     * register.
+     * register. See @ref CPUFlagMacros.
      */
     const ZydisAccessedFlags* cpu_flags;
     /**
      * Information about FPU flags accessed by the instruction.
+     * 
+     * See @ref FPUFlagMacros.
      */
     const ZydisAccessedFlags* fpu_flags;
     /**
