@@ -483,6 +483,15 @@ typedef enum ZydisOpcodeMap_
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
+ * @defgroup instruction_attributes Instruction attributes
+ *
+ * Constants describing various properties of an instruction. Used in the 
+ * @ref ZydisDecodedInstruction.attributes and @ref ZydisEncoderRequest.prefixes fields.
+ *
+ * @{
+ */
+
+/**
  * Defines the `ZydisInstructionAttributes` data-type.
  */
 typedef ZyanU64 ZydisInstructionAttributes;
@@ -702,6 +711,10 @@ typedef ZyanU64 ZydisInstructionAttributes;
  * This attribute is mainly used by the encoder.
  */
 #define ZYDIS_ATTRIB_HAS_EVEX_B                 (1ULL << 45) // TODO: rename
+
+/**
+ * @}
+ */
 
 /* ---------------------------------------------------------------------------------------------- */
 

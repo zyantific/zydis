@@ -63,6 +63,14 @@
 extern "C" {
 #endif
 
+/**
+ * @addtogroup version Version
+ *
+ * Functions for checking the library version and build options.
+ *
+ * @{
+ */
+
 /* ============================================================================================== */
 /* Macros                                                                                         */
 /* ============================================================================================== */
@@ -141,12 +149,6 @@ typedef enum ZydisFeature_
 /* ============================================================================================== */
 
 /**
- * @addtogroup version Version
- * Functions for checking the library version and build options.
- * @{
- */
-
-/**
  * Returns the zydis version.
  *
  * @return  The zydis version.
@@ -166,11 +168,11 @@ ZYDIS_EXPORT ZyanU64 ZydisGetVersion(void);
  */
 ZYDIS_EXPORT ZyanStatus ZydisIsFeatureEnabled(ZydisFeature feature);
 
+/* ============================================================================================== */
+
 /**
  * @}
  */
-
-/* ============================================================================================== */
 
 #ifdef __cplusplus
 }
