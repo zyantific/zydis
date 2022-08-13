@@ -4706,4 +4706,37 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZYDIS_EXPORT ZyanStatus ZydisEncoderNopFill(void *buffer, ZyanUSize length)
+{
+    if (!buffer)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // Intel SDM Vol. 2B "Recommended Multi-Byte Sequence of NOP Instruction"
+    static const ZyanU8 nops[9][9] =
+    {
+        { 0x90 },
+        { 0x66, 0x90 },
+        { 0x0F, 0x1F, 0x00 },
+        { 0x0F, 0x1F, 0x40, 0x00 },
+        { 0x0F, 0x1F, 0x44, 0x00, 0x00 },
+        { 0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00 },
+        { 0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00 },
+        { 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00 },
+        { 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00 },
+    };
+
+    ZyanU8 *output = (ZyanU8 *)buffer;
+    while (length)
+    {
+        ZyanUSize nop_size = (length > 9) ? 9 : length;
+        ZYAN_MEMCPY(output, nops[nop_size - 1], nop_size);
+        output += nop_size;
+        length -= nop_size;
+    }
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ============================================================================================== */
