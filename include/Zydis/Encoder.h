@@ -410,7 +410,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstruction(const ZydisEncoderRequest 
  * @param   buffer          A pointer to the output buffer receiving encoded instruction.
  * @param   length          A pointer to the variable containing length of the output buffer. Upon
  *                          successful return this variable receives length of the encoded
-                            instruction.
+ *                          instruction.
  * @param   runtime_address The runtime address of the instruction.
  *
  * @return  A zyan status code.
@@ -438,6 +438,16 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
     ZyanU8 operand_count, ZydisEncoderRequest* request);
+
+/**
+ * Fills provided buffer with `NOP` instructions using longest possible multi-byte instructions.
+ *
+ * @param   buffer  A pointer to the output buffer receiving encoded instructions.
+ * @param   length  Size of the output buffer.
+ *
+ * @return  A zyan status code.
+ */
+ZYDIS_EXPORT ZyanStatus ZydisEncoderNopFill(void *buffer, ZyanUSize length);
 
 /** @} */
 
