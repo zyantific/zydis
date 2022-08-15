@@ -1035,20 +1035,20 @@ typedef struct ZydisDecodedInstruction_
      */
     ZyanU8 operand_count_visible;
     /**
-     * See @ref InstructionAttributeMacros.
+     * See @ref instruction_attributes.
      */
     ZydisInstructionAttributes attributes;
     /**
      * Information about CPU flags accessed by the instruction.
      *
      * The bits in the masks correspond to the actual bits in the `FLAGS/EFLAGS/RFLAGS`
-     * register. See @ref CPUFlagMacros.
+     * register. See @ref decoder_cpu_flags.
      */
     const ZydisAccessedFlags* cpu_flags;
     /**
      * Information about FPU flags accessed by the instruction.
      * 
-     * See @ref FPUFlagMacros.
+     * See @ref decoder_fpu_flags.
      */
     const ZydisAccessedFlags* fpu_flags;
     /**
