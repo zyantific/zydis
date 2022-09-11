@@ -24,11 +24,13 @@
   - Should compile on any platform with a working C11 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
 
-## Decoder Example
+## Examples
 
-The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console ([more examples here](./examples/)).
+### Disassembler
 
-https://github.com/zyantific/zydis/blob/9cb54996c215422a398d7d2a287a08a185344200/examples/Disassemble.c#L27-L75
+The following example program uses Zydis to disassemble a given memory buffer and prints the output to the console.
+
+https://github.com/zyantific/zydis/blob/214536a814ba20d2e33d2a907198d1a329aac45c/examples/DisassembleSimple.c#L38-L63
 
 The above example program generates the following output:
 
@@ -43,15 +45,19 @@ The above example program generates the following output:
 007FFFFFFF400013   js 0x007FFFFFFF42DB15
 ```
 
-## Encoder Example
+### Encoder
 
-https://github.com/zyantific/zydis/blob/b37076e69f5aa149fde540cae43c50f15a380dfc/examples/EncodeMov.c#L32-L66
+https://github.com/zyantific/zydis/blob/b37076e69f5aa149fde540cae43c50f15a380dfc/examples/EncodeMov.c#L39-L62
 
 The above example program generates the following output:
 
 ```
 48 C7 C0 37 13 00 00
 ```
+
+### More Examples
+
+More examples can be found in the [examples](./examples/) directory of this repository.
 
 ## Build
 
