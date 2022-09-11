@@ -24,6 +24,14 @@
 
 ***************************************************************************************************/
 
+/**
+ * @file
+ * Demonstrates disassembling using the decoder and formatter API.
+ *
+ * Compared to the disassemble API, they are a bit more complicated to use, but provide much more
+ * control about the decoding and formatting process.
+ */
+
 #include <stdio.h>
 #include <inttypes.h>
 #include <Zydis/Zydis.h>
