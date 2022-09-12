@@ -89,9 +89,8 @@ int main(int argc, char** argv)
 
     // Attempt to decode the given bytes as an X86-64 instruction.
     ZydisDecodedInstruction instr;
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
-    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, bytes, num_bytes, &instr, operands,
-        ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY);
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
+    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, bytes, num_bytes, &instr, operands);
     if (ZYAN_FAILED(status))
     {
         fprintf(stderr, "Failed to decode instruction: %02" PRIx32, status);
@@ -157,7 +156,7 @@ int main(int argc, char** argv)
 
     // Decode and print the new instruction. We re-use the old buffers.
     ExpectSuccess(ZydisDecoderDecodeFull(&decoder, new_bytes, new_instr_length, &instr,
-        operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY));
+        operands));
     ExpectSuccess(ZydisFormatterFormatInstruction(&fmt, &instr, operands,
         instr.operand_count_visible, fmt_buf, sizeof(fmt_buf), 0, NULL));
     printf("New instruction:      %s\n", fmt_buf);
