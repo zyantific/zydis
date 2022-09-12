@@ -159,15 +159,14 @@ DriverEntry(
 
     SIZE_T readOffset = 0;
     ZydisDecodedInstruction instruction;
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
     ZyanStatus status;
     CHAR printBuffer[128];
 
     // Start the decode loop
     while ((status = ZydisDecoderDecodeFull(&decoder, 
         (PVOID)(imageBase + entryPointRva + readOffset), length - readOffset, &instruction,
-        operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY)) != 
-        ZYDIS_STATUS_NO_MORE_DATA)
+        operands)) != ZYDIS_STATUS_NO_MORE_DATA)
     {
         NT_ASSERT(ZYAN_SUCCESS(status));
         if (!ZYAN_SUCCESS(status))

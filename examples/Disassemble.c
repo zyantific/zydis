@@ -61,10 +61,9 @@ int main()
     ZyanUSize offset = 0;
     const ZyanUSize length = sizeof(data);
     ZydisDecodedInstruction instruction;
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
     while (ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, data + offset, length - offset,
-        &instruction, operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE,
-        ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY)))
+        &instruction, operands)))
     {
         // Print current instruction pointer.
         printf("%016" PRIX64 "  ", runtime_address);
