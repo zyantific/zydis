@@ -148,20 +148,6 @@ typedef enum ZydisDecoderMode_
 } ZydisDecoderMode;
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Decoder flags                                                                                  */
-/* ---------------------------------------------------------------------------------------------- */
-
-/**
- * Defines the `ZydisDecodingFlags` data-type.
- */
-typedef ZyanU8 ZydisDecodingFlags;
-
-/**
- * Only decode visible operands.
- */
-#define ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY   (1 << 0)
-
-/* ---------------------------------------------------------------------------------------------- */
 /* Decoder struct                                                                                 */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -232,30 +218,20 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
  *                          actual size of the instruction -- you don't have to know the size up
  *                          front. This length is merely used to prevent Zydis from doing
  *                          out-of-bounds reads on your buffer.
- * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct, that receives the
- *                          details about the decoded instruction.
- * @param   operands        The array that receives the decoded operands.
- *                          Refer to `ZYDIS_MAX_OPERAND_COUNT` or `ZYDIS_MAX_OPERAND_COUNT_VISIBLE`
- *                          when allocating space for the array to ensure that the buffer size is
- *                          sufficient to always fit all instruction operands.
- * @param   operand_count   The length of the `operands` array.
- *                          This argument as well limits the maximum amount of operands to decode.
- *                          If this value is `0`, no operands will be decoded and `ZYAN_NULL` will
- *                          be accepted for the `operands` argument.
- * @param   flags           Additional decoding flags.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct receiving the details
+ *                          about the decoded instruction.
+ * @param   operands        A pointer to an array with `ZYDIS_MAX_OPERAND_COUNT` entries that
+ *                          receives the decoded operands. The number of operands decoded is
+ *                          determined by the `instruction.operand_count` field. Excess entries are
+ *                          zeroed.
  *
- * This function decodes `MIN(operand_count, instruction.operand_count)` operands. The excess
- * items in the `operands` array are not zeroed. The `instruction.operand_count` field must be
- * checked in addition to the passed `operand_count`, to determine the actual amount of decoded
- * operands.
- *
- * The `ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY` can be passed to only decode visible operands. In this
- * case `MIN(operand_count, instruction.operand_count_visible)` operands are decoded by this
- * function and the `instruction.operand_count_visible` field must be checked in addition to the
- * passed `operand_count`, to determine the actual amount of decoded operands.
- *
- * Please refer to `ZydisDecoderDecodeInstruction` and `ZydisDecoderDecodeOperands`, if operand
- * decoding is not required or should be done separately.
+ * This is a convenience function that combines the following functions into one call:
+ * 
+ *   - `ZydisDecoderDecodeInstruction`
+ *   - `ZydisDecoderDecodeOperands`
+ * 
+ * Please refer to `ZydisDecoderDecodeInstruction` if operand decoding is not required or should
+ * be done separately (`ZydisDecoderDecodeOperands`).
  *
  * This function is not available in MINIMAL_MODE.
  *
@@ -263,7 +239,7 @@ ZYDIS_EXPORT ZyanStatus ZydisDecoderEnableMode(ZydisDecoder* decoder, ZydisDecod
  */
 ZYDIS_EXPORT ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operands, ZyanU8 operand_count, ZydisDecodingFlags flags);
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT]);
 
 /**
  * Decodes the instruction in the given input `buffer`.
