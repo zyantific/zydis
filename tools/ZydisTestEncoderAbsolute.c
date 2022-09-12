@@ -119,7 +119,7 @@ static ZyanBool RunTest(ZydisEncoderRequest *req, const char *test_name, ZyanU8 
         return ZYAN_FALSE;
     }
     if (ZYAN_FAILED(ZydisDecoderDecodeFull(&decoder, instruction1, sizeof(instruction1),
-        &dec_instruction, dec_operands, ZYDIS_MAX_OPERAND_COUNT, 0)))
+        &dec_instruction, dec_operands)))
     {
         ZYAN_PRINTF("%s: FAILED TO DECODE INSTRUCTION\n", test_name);
         return ZYAN_FALSE;

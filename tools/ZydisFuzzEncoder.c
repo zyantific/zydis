@@ -61,7 +61,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
 
     // Handle possible KNC overlap
     ZydisDecodedInstruction knc_insn;
-    ZydisDecodedOperand knc_operands[ZYDIS_MAX_OPERAND_COUNT_VISIBLE];
+    ZydisDecodedOperand knc_operands[ZYDIS_MAX_OPERAND_COUNT];
     if (request->mnemonic != insn->mnemonic)
     {
         ZydisDecoder decoder;
@@ -77,7 +77,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
             abort();
         }
         if (!ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, insn_bytes, insn->length, &knc_insn,
-            knc_operands, ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY)))
+            knc_operands)))
         {
             fputs("Failed to decode instruction\n", ZYAN_STDERR);
             abort();
@@ -289,8 +289,8 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
 
     ZydisDecodedInstruction insn1;
     ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
-    status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1, 
-        operands1, ZYDIS_MAX_OPERAND_COUNT, 0);
+    status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
+        operands1);
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode instruction\n", ZYAN_STDERR);

@@ -464,7 +464,7 @@ static void PrintSizeOptimizedForm(const ZydisDecoder* decoder,
     }
 
     ZydisDecodedInstruction new_instruction;
-    status = ZydisDecoderDecodeFull(decoder, &data, len, &new_instruction, ZYAN_NULL, 0, 0);
+    status = ZydisDecoderDecodeInstruction(decoder, ZYAN_NULL, &data, len, &new_instruction);
     if (!ZYAN_SUCCESS(status))
     {
         PrintStatusError(status, "Could not decode instruction");
@@ -1381,8 +1381,7 @@ int main(int argc, char** argv)
     ZydisDecodedInstruction instruction;
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
-    status = ZydisDecoderDecodeFull(&decoder, &data, byte_length, &instruction, operands,
-        ZYDIS_MAX_OPERAND_COUNT, 0);
+    status = ZydisDecoderDecodeFull(&decoder, &data, byte_length, &instruction, operands);
     if (!ZYAN_SUCCESS(status))
     {
         PrintStatusError(status, "Could not decode instruction");

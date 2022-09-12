@@ -387,8 +387,8 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
 
     ZydisDecodedInstruction insn2;
     ZydisDecodedOperand operands2[ZYDIS_MAX_OPERAND_COUNT];
-    status = ZydisDecoderDecodeFull(decoder, encoded_instruction, encoded_length, &insn2, 
-        operands2, ZYDIS_MAX_OPERAND_COUNT, 0);
+    status = ZydisDecoderDecodeFull(decoder, encoded_instruction, encoded_length, &insn2,
+        operands2);
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode re-encoded instruction\n", ZYAN_STDERR);
