@@ -115,6 +115,9 @@
     <SupportsPackaging>false</SupportsPackaging>
     <SpectreMitigation>false</SpectreMitigation>
     <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &lt;= '10.0.22000.0'">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &gt; '10.0.22000.0'">10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD DLL|Win32'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -151,6 +154,9 @@
     <SupportsPackaging>false</SupportsPackaging>
     <SpectreMitigation>false</SpectreMitigation>
     <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &lt;= '10.0.22000.0'">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &gt; '10.0.22000.0'">10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD DLL|Win32'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -189,6 +195,9 @@
     <SupportsPackaging>false</SupportsPackaging>
     <SpectreMitigation>false</SpectreMitigation>
     <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &lt;= '10.0.22000.0'">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &gt; '10.0.22000.0'">10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD DLL|x64'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -225,6 +234,9 @@
     <SupportsPackaging>false</SupportsPackaging>
     <SpectreMitigation>false</SpectreMitigation>
     <Driver_SpectreMitigation>false</Driver_SpectreMitigation>
+    <LatestTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</LatestTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &lt;= '10.0.22000.0'">$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(LatestTargetPlatformVersion)' &gt; '10.0.22000.0'">10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD DLL|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
