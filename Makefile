@@ -1,17 +1,19 @@
-.PHONY: build install amalgamate clean test doc-plain doc-mcss
+.PHONY: build configure install amalgamate clean test doc doc-plain doc-themed
 
 BUILD_DIR ?= build
 CSS_DIR   ?= ../doxygen-awesome-css
 
-build: dependencies/zycore/CMakeLists.txt
-	@if ! command -v cmake &> /dev/null; then \
+build: configure
+	cmake --build $(BUILD_DIR) -j$(nproc)
+
+configure: dependencies/zycore/CMakeLists.txt
+	@if ! command -v cmake > /dev/null; then \
 		echo >&2 "ERROR: cmake is not installed. Please install it first."; \
 	fi
-	mkdir -p $(BUILD_DIR)
-	cd $(BUILD_DIR) && cmake .. && make -j$(nproc)
+	cmake -B $(BUILD_DIR)
 
 install: build
-	cd $(BUILD_DIR) && make install
+	cmake --install $(BUILD_DIR)
 
 amalgamate:
 	assets/amalgamate.py
@@ -25,18 +27,21 @@ test: build
 	cd tests && ./regression.py test ../build/ZydisInfo
 	cd tests && ./regression_encoder.py ../build/ZydisFuzz{ReEncoding,Encoder}
 
+doc: configure
+	cmake --build $(BUILD_DIR) --target doc
+
 doc-plain:
-	doxygen
+	rm -rf "$(CSS_DIR)"
+	$(MAKE) doc
 
 doc-themed:
 	@if [ ! -d "$(CSS_DIR)" ]; then \
-		git clone https://github.com/jothepro/doxygen-awesome-css.git $(CSS_DIR); \
+		git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css.git $(CSS_DIR); \
 	fi
-
-	doxygen Doxyfile-themed
+	$(MAKE) doc
 
 dependencies/zycore/CMakeLists.txt:
-	@if ! command -v git &> /dev/null; then \
+	@if ! command -v git > /dev/null; then \
 		echo >&2 -n "ERROR: git is not installed. Please either manually place all"; \
 		echo >&2    "dependencies in their respective paths or install git first."; \
 		exit 1; \
