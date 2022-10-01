@@ -441,6 +441,73 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
 endif ()
 
 # =============================================================================================== #
+# Doxygen documentation                                                                           #
+# =============================================================================================== #
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    find_file(DOXYGEN_AWESOME_CSS
+        "doxygen-awesome.css"
+        PATHS "." ".." "/usr/share"
+        PATH_SUFFIXES "doxygen-awesome-css"
+        NO_DEFAULT_PATH
+    )
+    find_file(DOXYGEN_AWESOME_SIDEBAR_ONLY_CSS
+        "doxygen-awesome-sidebar-only.css"
+        PATHS "." ".." "/usr/share"
+        PATH_SUFFIXES "doxygen-awesome-css"
+        NO_DEFAULT_PATH
+    )
+
+    # Read Doxygen options from the Doxyfile and set them as CMake variables
+    # to accomodate doxygen_add_docs()
+    file(READ "Doxyfile" DOXYFILE)
+    # Remove comments
+    string(REGEX REPLACE "\n?#[^\n]*\n" "" DOXYFILE ${DOXYFILE})
+    # Remove empty lines
+    string(REGEX REPLACE "\n[ \t\r\n]" "\n" DOXYFILE "${DOXYFILE}")
+    # Strip leading and trailing spaces
+    string(STRIP "${DOXYFILE}" DOXYFILE)
+    # Tranform the file in a list of '='-separated options
+    string(REPLACE "\n" ";" DOXYFILE "${DOXYFILE}")
+
+    foreach(option IN LISTS DOXYFILE)
+        string(REPLACE "=" ";" option "${option}")
+        list(GET option 0 opt_name)
+        list(GET option 1 opt_value)
+        string(STRIP "${opt_name}" opt_name)
+        string(STRIP "${opt_value}" opt_value)
+
+        if (opt_name STREQUAL "INPUT")
+            # Save the INPUTs in a list to be used later
+            string(REGEX REPLACE "[ ]+" ";" DOC_PATHS "${opt_value}")
+            # Skip as the input files are not set by a DOXYGEN_INPUT variable
+            continue()
+        endif()
+
+        if (opt_name STREQUAL "OUTPUT_DIRECTORY")
+            # Skip as CMake writes the output files in the build directory
+            continue()
+        endif()
+
+        set("DOXYGEN_${opt_name}" ${opt_value})
+    endforeach()
+
+    set(DOXYGEN_QUIET YES)
+    set(DOXYGEN_WARNINGS NO)
+    set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
+    set(DOXYGEN_HTML_EXTRA_STYLESHEET "${DOXYGEN_AWESOME_CSS}" "${DOXYGEN_AWESOME_SIDEBAR_ONLY_CSS}")
+
+    doxygen_add_docs(doc ${DOC_PATHS} ALL)
+
+    install(
+        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html/"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}/api"
+        COMPONENT Documentation
+    )
+endif()
+
+# =============================================================================================== #
 # Manpages                                                                                        #
 # =============================================================================================== #
 
