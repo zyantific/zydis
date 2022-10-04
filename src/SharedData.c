@@ -71,33 +71,58 @@
 /* Instruction definition                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
+static const ZyanUSize len_legacy = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_LEGACY);
+static const ZyanUSize len_3dnow  = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_3DNOW );
+static const ZyanUSize len_xop    = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_XOP   );
+static const ZyanUSize len_vex    = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_VEX   );
+static const ZyanUSize len_evex   = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_EVEX  );
+static const ZyanUSize len_mvex   = ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_MVEX  );
+
 void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id,
     const ZydisInstructionDefinition** definition)
 {
     switch (encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
+        *definition = (id >= len_legacy)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
         break;
+
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_3DNOW[id];
+        *definition = (id >= len_3dnow)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_3DNOW[id];
         break;
+
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_XOP[id];
+        *definition = (id >= len_xop)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_XOP[id];
         break;
+
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_VEX[id];
+        *definition = (id >= len_vex)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_VEX[id];
         break;
+
 #ifndef ZYDIS_DISABLE_AVX512
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_EVEX[id];
+        *definition = (id >= len_evex)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_EVEX[id];
         break;
 #endif
+
 #ifndef ZYDIS_DISABLE_KNC
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_MVEX[id];
+        *definition = (id >= len_mvex)
+            ? ZYAN_NULL
+            : (const ZydisInstructionDefinition*)&ISTR_DEFINITIONS_MVEX[id];
         break;
 #endif
+
     default:
         ZYAN_UNREACHABLE;
     }
@@ -115,7 +140,10 @@ const ZydisOperandDefinition* ZydisGetOperandDefinitions(
     {
         return ZYAN_NULL;
     }
+
     ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
+    ZYAN_ASSERT(definition->operand_reference < ZYAN_ARRAY_LENGTH(OPERAND_DEFINITIONS));
+
     return &OPERAND_DEFINITIONS[definition->operand_reference];
 }
 #endif

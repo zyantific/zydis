@@ -194,6 +194,9 @@ typedef struct ZydisDecoderTreeNode_
     ZydisDecoderTreeNodeValue value;
 } ZydisDecoderTreeNode;
 
+// See `ZydisDecoderContext.instruction_id` 
+ZYAN_STATIC_ASSERT(sizeof(ZydisDecoderTreeNodeValue) == sizeof(ZyanU16));
+
 /* ---------------------------------------------------------------------------------------------- */
 
 #pragma pack(pop)

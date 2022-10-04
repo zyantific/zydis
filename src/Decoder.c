@@ -959,12 +959,15 @@ static ZyanU8 ZydisCalcRegisterId(const ZydisDecoderContext* context,
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
  * @param   definition      A pointer to the `ZydisOperandDefinition` struct.
+ *
+ * @return A zyan status code.
  */
-static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context,
+static ZyanStatus ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context,
     const ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operand,
     const ZydisOperandDefinition* definition)
 {
     ZYAN_ASSERT(context);
+    ZYAN_ASSERT(context->eosz_index < 3);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(operand);
     ZYAN_ASSERT(definition);
@@ -1000,8 +1003,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                 operand->element_type = ZYDIS_ELEMENT_TYPE_INT;
             } else
             {
-                ZYAN_ASSERT(definition->size[context->eosz_index] ||
-                    (instruction->meta.category == ZYDIS_CATEGORY_AMX_TILE));
+                // ZYAN_ASSERT(definition->size[context->eosz_index] || (instruction->meta.category == ZYDIS_CATEGORY_AMX_TILE));
                 operand->size = definition->size[context->eosz_index] * 8;
             }
             break;
@@ -1015,8 +1017,10 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
             {
                 // Operand size depends on the tuple-type, the element-size and the number of
                 // elements
-                ZYAN_ASSERT(instruction->avx.vector_length);
-                ZYAN_ASSERT(context->evex.element_size);
+                if (!instruction->avx.vector_length || !context->evex.element_size)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
                 switch (context->evex.tuple_type)
                 {
                 case ZYDIS_TUPLETYPE_FV:
@@ -1048,7 +1052,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                     }
                     break;
                 default:
-                    ZYAN_UNREACHABLE;
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
                 }
             }
             ZYAN_ASSERT(operand->size);
@@ -1065,7 +1069,10 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
             } else
             {
                 ZYAN_ASSERT(definition->element_type == ZYDIS_IELEMENT_TYPE_VARIABLE);
-                ZYAN_ASSERT(instruction->avx.vector_length == 512);
+                if (instruction->avx.vector_length != 512)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
 
                 switch (instruction->avx.conversion.mode)
                 {
@@ -1110,7 +1117,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                         operand->element_size = 64;
                         break;
                     default:
-                        ZYAN_UNREACHABLE;
+                        return ZYAN_STATUS_INVALID_ARGUMENT;
                     }
                     break;
                 case ZYDIS_CONVERSION_MODE_FLOAT16:
@@ -1139,7 +1146,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                     operand->element_size = 8;
                     break;
                 default:
-                    ZYAN_UNREACHABLE;
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
                 }
 
                 switch (instruction->avx.broadcast.mode)
@@ -1156,7 +1163,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                     operand->size = operand->element_size * 4;
                     break;
                 default:
-                    ZYAN_UNREACHABLE;
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
                 }
             }
 #else
@@ -1168,9 +1175,11 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
         }
         break;
     case ZYDIS_OPERAND_TYPE_POINTER:
-        ZYAN_ASSERT((instruction->raw.imm[0].size == 16) ||
-                    (instruction->raw.imm[0].size == 32));
-        ZYAN_ASSERT( instruction->raw.imm[1].size == 16);
+        if (((instruction->raw.imm[0].size != 16) && (instruction->raw.imm[0].size != 32)) ||
+            (instruction->raw.imm[1].size != 16))
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
         operand->size = instruction->raw.imm[0].size + instruction->raw.imm[1].size;
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
@@ -1201,6 +1210,8 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
     {
         operand->element_count = 1;
     }
+
+    return ZYAN_STATUS_SUCCESS;
 }
 #endif
 
@@ -1232,14 +1243,13 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
         {
             operand->reg.value = ZYDIS_REGISTER_AL + register_id;
         }
-    } else
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    operand->reg.value = ZydisRegisterEncode(register_class, register_id);
+    if (!operand->reg.value)
     {
-        operand->reg.value = ZydisRegisterEncode(register_class, register_id);
-        ZYAN_ASSERT(operand->reg.value);
-        /*if (!operand->reg.value)
-        {
-            return ZYAN_STATUS_BAD_REGISTER;
-        }*/
+        return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -1263,21 +1273,31 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
     ZydisRegisterClass vidx_register_class)
 {
     ZYAN_ASSERT(context);
+    ZYAN_ASSERT(context->easz_index < 3);
     ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(instruction->machine_mode <= ZYDIS_MACHINE_MODE_MAX_VALUE);
     ZYAN_ASSERT(operand);
-    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-    ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
-    ZYAN_ASSERT(!vidx_register_class || ((instruction->raw.modrm.rm == 4) &&
-        ((instruction->address_width == 32) || (instruction->address_width == 64))));
+
+    const ZyanU8 mod = instruction->raw.modrm.mod;
+    const ZyanU8 rm  = instruction->raw.modrm.rm;
+    if (!(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) || (mod > 2) || (rm > 7) ||
+        (instruction->raw.sib.scale > 3))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (vidx_register_class && ((rm != 4) || (context->easz_index == 0)))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
-    const ZyanU8 modrm_rm = instruction->raw.modrm.rm;
     ZyanU8 displacement_size = 0;
-    switch (instruction->address_width)
+    switch (context->easz_index)
     {
-    case 16:
+    case 0: // 16-bit
     {
         static const ZydisRegister bases[] =
         {
@@ -1289,13 +1309,13 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
             ZYDIS_REGISTER_SI,   ZYDIS_REGISTER_DI,   ZYDIS_REGISTER_SI,   ZYDIS_REGISTER_DI,
             ZYDIS_REGISTER_NONE, ZYDIS_REGISTER_NONE, ZYDIS_REGISTER_NONE, ZYDIS_REGISTER_NONE
         };
-        operand->mem.base = bases[modrm_rm];
-        operand->mem.index = indices[modrm_rm];
+        operand->mem.base = bases[rm];
+        operand->mem.index = indices[rm];
         operand->mem.scale = (operand->mem.index == ZYDIS_REGISTER_NONE) ? 0 : 1;
-        switch (instruction->raw.modrm.mod)
+        switch (mod)
         {
         case 0:
-            if (modrm_rm == 6)
+            if (rm == 6)
             {
                 displacement_size = 16;
                 operand->mem.base = ZYDIS_REGISTER_NONE;
@@ -1312,14 +1332,14 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
         }
         break;
     }
-    case 32:
+    case 1: // 32-bit
     {
         operand->mem.base = ZYDIS_REGISTER_EAX + ZydisCalcRegisterId(context, instruction,
             ZYDIS_REG_ENCODING_BASE, ZYDIS_REGCLASS_GPR32);
-        switch (instruction->raw.modrm.mod)
+        switch (mod)
         {
         case 0:
-            if (modrm_rm == 5)
+            if (rm == 5)
             {
                 if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
                 {
@@ -1340,9 +1360,12 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
         default:
             ZYAN_UNREACHABLE;
         }
-        if (modrm_rm == 4)
+        if (rm == 4)
         {
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
+            if (!(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB))
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
             operand->mem.index =
                 ZydisRegisterEncode(vidx_register_class ? vidx_register_class : ZYDIS_REGCLASS_GPR32,
                     ZydisCalcRegisterId(context, instruction,
@@ -1356,11 +1379,11 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
             }
             if (operand->mem.base == ZYDIS_REGISTER_EBP)
             {
-                if (instruction->raw.modrm.mod == 0)
+                if (mod == 0)
                 {
                     operand->mem.base = ZYDIS_REGISTER_NONE;
                 }
-                displacement_size = (instruction->raw.modrm.mod == 1) ? 8 : 32;
+                displacement_size = (mod == 1) ? 8 : 32;
             }
         } else
         {
@@ -1369,14 +1392,14 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
         }
         break;
     }
-    case 64:
+    case 2: // 64-bit
     {
         operand->mem.base = ZYDIS_REGISTER_RAX + ZydisCalcRegisterId(context, instruction,
             ZYDIS_REG_ENCODING_BASE, ZYDIS_REGCLASS_GPR64);
-        switch (instruction->raw.modrm.mod)
+        switch (mod)
         {
         case 0:
-            if (modrm_rm == 5)
+            if (rm == 5)
             {
                 if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
                 {
@@ -1397,9 +1420,12 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
         default:
             ZYAN_UNREACHABLE;
         }
-        if ((modrm_rm & 0x07) == 4)
+        if (rm == 4)
         {
-            ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB);
+            if (!(instruction->attributes & ZYDIS_ATTRIB_HAS_SIB))
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
             operand->mem.index =
                 ZydisRegisterEncode(vidx_register_class ? vidx_register_class : ZYDIS_REGCLASS_GPR64,
                     ZydisCalcRegisterId(context, instruction,
@@ -1414,11 +1440,11 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
             if ((operand->mem.base == ZYDIS_REGISTER_RBP) ||
                 (operand->mem.base == ZYDIS_REGISTER_R13))
             {
-                if (instruction->raw.modrm.mod == 0)
+                if (mod == 0)
                 {
                     operand->mem.base = ZYDIS_REGISTER_NONE;
                 }
-                displacement_size = (instruction->raw.modrm.mod == 1) ? 8 : 32;
+                displacement_size = (mod == 1) ? 8 : 32;
             }
         } else
         {
@@ -1430,12 +1456,17 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
     default:
         ZYAN_UNREACHABLE;
     }
+
     if (displacement_size)
     {
-        ZYAN_ASSERT(instruction->raw.disp.size == displacement_size);
+        if (instruction->raw.disp.size != displacement_size)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
         operand->mem.disp.has_displacement = ZYAN_TRUE;
         operand->mem.disp.value = instruction->raw.disp.value;
     }
+
     return ZYAN_STATUS_SUCCESS;
 }
 #endif
@@ -1451,11 +1482,15 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
  * @param   definition      A pointer to the `ZydisOperandDefinition` struct.
  */
 static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
-    const ZydisDecoderContext* context, const ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operand, const ZydisOperandDefinition* definition)
+    const ZydisDecoderContext* context, ZydisDecodedOperand* operand,
+    const ZydisOperandDefinition* definition)
 {
+    ZYAN_ASSERT(decoder);
+    ZYAN_ASSERT((decoder->stack_width >= 0) &&
+                (decoder->stack_width <= ZYDIS_STACK_WIDTH_MAX_VALUE));
     ZYAN_ASSERT(context);
-    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(context->eosz_index < 3);
+    ZYAN_ASSERT(context->easz_index < 3);
     ZYAN_ASSERT(operand);
     ZYAN_ASSERT(definition);
 
@@ -1479,35 +1514,62 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
         break;
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
-        operand->reg.value = ZydisRegisterEncode(
-            (instruction->address_width    == 16) ? ZYDIS_REGCLASS_GPR16  :
-            (instruction->address_width    == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
-            definition->op.reg.reg.id);
+    {
+        static const ZydisRegisterClass lookup[3] =
+        {
+            ZYDIS_REGCLASS_GPR16,
+            ZYDIS_REGCLASS_GPR32,
+            ZYDIS_REGCLASS_GPR64
+        };
+        operand->reg.value =
+            ZydisRegisterEncode(lookup[context->easz_index], definition->op.reg.reg.id);
         break;
+    }
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
-        operand->reg.value =
-            (instruction->address_width    == 16) ? ZYDIS_REGISTER_IP     :
-            (instruction->address_width    == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
+    {
+        static const ZydisRegister lookup[3] =
+        {
+            ZYDIS_REGISTER_IP,
+            ZYDIS_REGISTER_EIP,
+            ZYDIS_REGISTER_RIP
+        };
+        operand->reg.value = lookup[context->easz_index];
         break;
+    }
     case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
-        operand->reg.value = ZydisRegisterEncode(
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGCLASS_GPR16 :
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGCLASS_GPR32 :
-                                                             ZYDIS_REGCLASS_GPR64,
-            definition->op.reg.reg.id);
+    {
+        static const ZydisRegisterClass lookup[3] =
+        {
+            ZYDIS_REGCLASS_GPR16,
+            ZYDIS_REGCLASS_GPR32,
+            ZYDIS_REGCLASS_GPR64
+        };
+        operand->reg.value =
+            ZydisRegisterEncode(lookup[decoder->stack_width], definition->op.reg.reg.id);
         break;
+    }
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
-        operand->reg.value =
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGISTER_EIP    :
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGISTER_EIP    :
-                                                             ZYDIS_REGISTER_RIP;
+    {
+        static const ZydisRegister lookup[3] =
+        {
+            ZYDIS_REGISTER_EIP,
+            ZYDIS_REGISTER_EIP,
+            ZYDIS_REGISTER_RIP
+        };
+        operand->reg.value = lookup[decoder->stack_width];
         break;
+    }
     case ZYDIS_IMPLREG_TYPE_FLAGS_SSZ:
-        operand->reg.value =
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGISTER_FLAGS  :
-            (decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGISTER_EFLAGS :
-                                                             ZYDIS_REGISTER_RFLAGS;
+    {
+        static const ZydisRegister lookup[3] =
+        {
+            ZYDIS_REGISTER_FLAGS,
+            ZYDIS_REGISTER_EFLAGS,
+            ZYDIS_REGISTER_RFLAGS
+        };
+        operand->reg.value = lookup[decoder->stack_width];
         break;
+    }
     default:
         ZYAN_UNREACHABLE;
     }
@@ -1528,7 +1590,11 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
     const ZydisDecoderContext* context, const ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand* operand, const ZydisOperandDefinition* definition)
 {
+    ZYAN_ASSERT(decoder);
+    ZYAN_ASSERT((decoder->stack_width >= 0) &&
+                (decoder->stack_width <= ZYDIS_STACK_WIDTH_MAX_VALUE));
     ZYAN_ASSERT(context);
+    ZYAN_ASSERT(context->easz_index < 3);
     ZYAN_ASSERT(operand);
     ZYAN_ASSERT(definition);
 
@@ -1590,17 +1656,20 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
 
 #ifndef ZYDIS_MINIMAL_MODE
 ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderContext* context,
-    const ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operands, ZyanU8 operand_count)
+    const ZydisInstructionDefinition* definition, const ZydisDecodedInstruction* instruction,
+    ZydisDecodedOperand* operands, ZyanU8 operand_count)
 {
     ZYAN_ASSERT(decoder);
     ZYAN_ASSERT(context);
-    ZYAN_ASSERT(context->definition);
+    ZYAN_ASSERT(context->eosz_index < 3);
+    ZYAN_ASSERT(context->easz_index < 3);
+    ZYAN_ASSERT(definition);
+    ZYAN_ASSERT(instruction->encoding <= ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(operands);
     ZYAN_ASSERT(operand_count);
     ZYAN_ASSERT(operand_count <= instruction->operand_count);
 
-    const ZydisInstructionDefinition* definition = context->definition;
     const ZydisOperandDefinition* operand = ZydisGetOperandDefinitions(definition);
 
     ZYAN_MEMSET(operands, 0, sizeof(ZydisDecodedOperand) * operand_count);
@@ -1626,7 +1695,7 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG:
-            ZydisDecodeOperandImplicitRegister(decoder, context, instruction, &operands[i], operand);
+            ZydisDecodeOperandImplicitRegister(decoder, context, &operands[i], operand);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
             ZydisDecodeOperandImplicitMemory(decoder, context, instruction, &operands[i], operand);
@@ -1664,32 +1733,49 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
             register_class = ZYDIS_REGCLASS_GPR64;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64:
-            ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
-                (instruction->operand_width == 64));
-            register_class =
-                (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR16 : (
-                    (instruction->operand_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
+        {
+            static const ZydisRegisterClass lookup[3] =
+            {
+                ZYDIS_REGCLASS_GPR16,
+                ZYDIS_REGCLASS_GPR32,
+                ZYDIS_REGCLASS_GPR64
+            };
+            register_class = lookup[context->eosz_index];
             break;
+        }
         case ZYDIS_SEMANTIC_OPTYPE_GPR32_32_64:
-            ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
-                (instruction->operand_width == 64));
-            register_class =
-                (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR32 : (
-                    (instruction->operand_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
+        {
+            static const ZydisRegisterClass lookup[3] =
+            {
+                ZYDIS_REGCLASS_GPR32,
+                ZYDIS_REGCLASS_GPR32,
+                ZYDIS_REGCLASS_GPR64
+            };
+            register_class = lookup[context->eosz_index];
             break;
+        }
         case ZYDIS_SEMANTIC_OPTYPE_GPR16_32_32:
-            ZYAN_ASSERT((instruction->operand_width == 16) || (instruction->operand_width == 32) ||
-                (instruction->operand_width == 64));
-            register_class =
-                (instruction->operand_width == 16) ? ZYDIS_REGCLASS_GPR16 : ZYDIS_REGCLASS_GPR32;
+        {
+            static const ZydisRegisterClass lookup[3] =
+            {
+                ZYDIS_REGCLASS_GPR16,
+                ZYDIS_REGCLASS_GPR32,
+                ZYDIS_REGCLASS_GPR32
+            };
+            register_class = lookup[context->eosz_index];
             break;
+        }
         case ZYDIS_SEMANTIC_OPTYPE_GPR_ASZ:
-            ZYAN_ASSERT((instruction->address_width == 16) || (instruction->address_width == 32) ||
-                (instruction->address_width == 64));
-            register_class =
-                (instruction->address_width == 16) ? ZYDIS_REGCLASS_GPR16 : (
-                    (instruction->address_width == 32) ? ZYDIS_REGCLASS_GPR32 : ZYDIS_REGCLASS_GPR64);
+        {
+            static const ZydisRegisterClass lookup[3] =
+            {
+                ZYDIS_REGCLASS_GPR16,
+                ZYDIS_REGCLASS_GPR32,
+                ZYDIS_REGCLASS_GPR64
+            };
+            register_class = lookup[context->easz_index];
             break;
+        }
         case ZYDIS_SEMANTIC_OPTYPE_FPR:
             register_class = ZYDIS_REGCLASS_X87;
             break;
@@ -1811,9 +1897,11 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
             operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:
-            ZYAN_ASSERT((instruction->raw.imm[0].size == 16) ||
-                (instruction->raw.imm[0].size == 32));
-            ZYAN_ASSERT(instruction->raw.imm[1].size == 16);
+            if (((instruction->raw.imm[0].size != 16) && (instruction->raw.imm[0].size != 32)) ||
+                (instruction->raw.imm[1].size != 16))
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
             operands[i].type = ZYDIS_OPERAND_TYPE_POINTER;
             operands[i].ptr.offset = (ZyanU32)instruction->raw.imm[0].value.u;
             operands[i].ptr.segment = (ZyanU16)instruction->raw.imm[1].value.u;
@@ -1826,7 +1914,10 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
             operands[i].mem.type = ZYDIS_MEMOP_TYPE_AGEN;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
-            ZYAN_ASSERT(instruction->raw.disp.size);
+            if (!instruction->raw.disp.size)
+            {
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
             operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
             operands[i].mem.type = ZYDIS_MEMOP_TYPE_MEM;
             operands[i].mem.disp.has_displacement = ZYAN_TRUE;
@@ -1870,7 +1961,10 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
             if (operand->op.encoding == ZYDIS_OPERAND_ENCODING_IS4)
             {
                 // The upper half of the 8-bit immediate is used to encode a register specifier
-                ZYAN_ASSERT(instruction->raw.imm[imm_id].size == 8);
+                if (instruction->raw.imm[imm_id].size != 8)
+                {
+                    return ZYAN_STATUS_INVALID_ARGUMENT;
+                }
                 operands[i].imm.value.u = (ZyanU8)instruction->raw.imm[imm_id].value.u & 0x0F;
             }
             else
@@ -1946,7 +2040,7 @@ ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderCo
                                 }
         }
 
-        ZydisSetOperandSizeAndElementInfo(context, instruction, &operands[i], operand);
+        ZYAN_CHECK(ZydisSetOperandSizeAndElementInfo(context, instruction, &operands[i], operand));
         ++operand;
     }
 
@@ -4805,6 +4899,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             {
                 const ZydisInstructionDefinition* definition;
                 ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
+                ZYAN_ASSERT(definition);
                 ZydisSetEffectiveOperandWidth(state->context, instruction, definition);
                 ZydisSetEffectiveAddressWidth(state->context, instruction, definition);
 
@@ -4838,7 +4933,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
 
                 instruction->operand_count = definition->operand_count;
                 instruction->operand_count_visible = definition->operand_count_visible;
-                state->context->definition = definition;
+                state->context->definition_id = node->value;
 
                 instruction->meta.category = definition->category;
                 instruction->meta.isa_set = definition->isa_set;
@@ -4999,13 +5094,22 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
         return ZYAN_STATUS_SUCCESS;
     }
 
-    return ZydisDecoderDecodeOperands(decoder, &context, instruction, operands, operand_count);
+    const ZydisInstructionDefinition* definition;
+    ZydisGetInstructionDefinition(instruction->encoding, context.definition_id, &definition);
+    ZYAN_ASSERT(definition);
+
+    return ZydisDecodeOperands(decoder, &context, definition, instruction, operands, operand_count);
 }
 
 ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decoder, ZydisDecoderContext* context,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction)
 {
     if (!decoder || !instruction)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if ((decoder->machine_mode > ZYDIS_MACHINE_MODE_MAX_VALUE) || (decoder->stack_width < 0) ||
+        (decoder->stack_width > ZYDIS_STACK_WIDTH_MAX_VALUE))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -5059,8 +5163,24 @@ ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
 
 #else
 
-    if (!decoder || !context || !context->definition || !instruction ||
-        (operand_count && !operands) || (operand_count > ZYDIS_MAX_OPERAND_COUNT))
+    if (!decoder || !context || !instruction || (operand_count && !operands) ||
+        (operand_count > ZYDIS_MAX_OPERAND_COUNT))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // The following validations are required to prevent internal assertions from being
+    // triggered...
+    if ((decoder->machine_mode > ZYDIS_MACHINE_MODE_MAX_VALUE) || (decoder->stack_width < 0) ||
+        (decoder->stack_width > ZYDIS_STACK_WIDTH_MAX_VALUE))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (!context->definition_id || (context->eosz_index > 2) || (context->easz_index > 2))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    if (instruction->encoding > ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -5076,7 +5196,14 @@ ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
         return ZYAN_STATUS_SUCCESS;
     }
 
-    return ZydisDecodeOperands(decoder, context, instruction, operands, operand_count);
+    const ZydisInstructionDefinition* definition;
+    ZydisGetInstructionDefinition(instruction->encoding, context->definition_id, &definition);
+    if (!definition)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    return ZydisDecodeOperands(decoder, context, definition, instruction, operands, operand_count);
 
 #endif
 }
