@@ -25,7 +25,7 @@ clean:
 
 test: build
 	cd tests && ./regression.py test ../build/ZydisInfo
-	cd tests && ./regression_encoder.py ../build/ZydisFuzz{ReEncoding,Encoder}
+	cd tests && ./regression_encoder.py ../build/Zydis{Fuzz{ReEncoding,Encoder},TestEncoderAbsolute}
 
 doc: configure
 	cmake --build $(BUILD_DIR) --target doc
