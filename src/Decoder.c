@@ -4969,11 +4969,11 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction,
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT])
 {
-    if (!decoder || !instruction || !operands)
+    if (!decoder || !instruction || !buffer || !operands)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
-    if (!buffer || !length)
+    if (!length)
     {
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
@@ -4995,12 +4995,12 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
 ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decoder, ZydisDecoderContext* context,
     const void* buffer, ZyanUSize length, ZydisDecodedInstruction* instruction)
 {
-    if (!decoder || !instruction)
+    if (!decoder || !instruction || !buffer)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (!buffer || !length)
+    if (!length)
     {
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
