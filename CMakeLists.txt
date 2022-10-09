@@ -457,7 +457,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
     set(DOXYGEN_HTML_EXTRA_STYLESHEET "${DOXYGEN_AWESOME_CSS}" "${DOXYGEN_AWESOME_SIDEBAR_ONLY_CSS}")
 
-    doxygen_add_docs(doc ${DOC_PATHS} ALL)
+    doxygen_add_docs(ZydisDoc ${DOC_PATHS} ALL)
 
     install(
         DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html/"
