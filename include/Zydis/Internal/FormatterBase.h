@@ -168,7 +168,7 @@ extern "C" {
  *
  * @param   buffer      A pointer to the `ZydisFormatterBuffer` struct.
  * @param   name        The base name (without prefix) of the string- or token.
- * @param   letter-case The desired letter-case.
+ * @param   letter_case The desired letter-case.
  */
 #define ZYDIS_BUFFER_APPEND_CASE(buffer, name, letter_case) \
     if ((buffer)->is_token_list) \
