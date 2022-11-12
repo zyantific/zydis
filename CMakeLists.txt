@@ -405,21 +405,10 @@ endif ()
 # =============================================================================================== #
 # Doxygen documentation                                                                           #
 # =============================================================================================== #
-if(ZYDIS_BUILD_DOXYGEN)
+
+if (ZYDIS_BUILD_DOXYGEN)
     find_package(Doxygen)
     if (DOXYGEN_FOUND)
-        find_file(DOXYGEN_AWESOME_CSS
-            "doxygen-awesome.css"
-            PATHS "." ".." "/usr/share"
-            PATH_SUFFIXES "doxygen-awesome-css"
-            NO_DEFAULT_PATH
-        )
-        find_file(DOXYGEN_AWESOME_SIDEBAR_ONLY_CSS
-            "doxygen-awesome-sidebar-only.css"
-            PATHS "." ".." "/usr/share"
-            PATH_SUFFIXES "doxygen-awesome-css"
-            NO_DEFAULT_PATH
-        )
         # Read Doxygen options from the Doxyfile and set them as CMake variables
         # to accomodate doxygen_add_docs()
         file(READ "Doxyfile" DOXYFILE)
@@ -457,7 +446,6 @@ if(ZYDIS_BUILD_DOXYGEN)
         set(DOXYGEN_QUIET YES)
         set(DOXYGEN_WARNINGS NO)
         set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
-        set(DOXYGEN_HTML_EXTRA_STYLESHEET "${DOXYGEN_AWESOME_CSS}" "${DOXYGEN_AWESOME_SIDEBAR_ONLY_CSS}")
 
         doxygen_add_docs(ZydisDoc ${DOC_PATHS} ALL)
 
@@ -466,10 +454,10 @@ if(ZYDIS_BUILD_DOXYGEN)
             DESTINATION "${CMAKE_INSTALL_DOCDIR}/api"
             COMPONENT Documentation
         )
-    else()
+    else ()
         message("Can't generate documentation, Doxygen not found.")
-    endif()
-endif()
+    endif ()
+endif ()
 
 # =============================================================================================== #
 # Manpages                                                                                        #
