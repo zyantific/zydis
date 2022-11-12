@@ -30,16 +30,6 @@ test: build
 doc: configure
 	cmake --build $(BUILD_DIR) --target ZydisDoc
 
-doc-plain:
-	rm -rf "$(CSS_DIR)"
-	$(MAKE) doc
-
-doc-themed:
-	@if [ ! -d "$(CSS_DIR)" ]; then \
-		git clone --depth 1 https://github.com/jothepro/doxygen-awesome-css.git $(CSS_DIR); \
-	fi
-	$(MAKE) doc
-
 dependencies/zycore/CMakeLists.txt:
 	@if ! command -v git > /dev/null; then \
 		echo >&2 -n "ERROR: git is not installed. Please either manually place all"; \
