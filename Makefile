@@ -28,7 +28,7 @@ test: build
 	cd tests && ./regression_encoder.py ../build/Zydis{Fuzz{ReEncoding,Encoder},TestEncoderAbsolute}
 
 doc: configure
-	cmake --build $(BUILD_DIR) --target doc
+	cmake --build $(BUILD_DIR) --target ZydisDoc
 
 doc-plain:
 	rm -rf "$(CSS_DIR)"
