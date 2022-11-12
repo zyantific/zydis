@@ -38,7 +38,7 @@ jobs:
           --repo .
           --output-dir doc.zydis.re
           --config-ref master
-          --doxyfile ./Doxyfile-themed
+          --doxyfile ./Doxyfile
           --refs 'refs/heads/master'
           --refs 'refs/tags/.*'
           --exclude-refs 'refs/tags/v1.*'
