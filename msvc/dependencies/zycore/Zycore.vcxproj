@@ -925,10 +925,13 @@
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\API\Terminal.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\API\Thread.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\ArgParse.h" />
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Atomic.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Bitset.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Comparison.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Defines.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Format.h" />
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Internal\AtomicGNU.h" />
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Internal\AtomicMSVC.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\LibC.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\List.h" />
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Object.h" />
