@@ -52,9 +52,6 @@
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\String.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Terminal.h">
-      <Filter>Header Files\Zycore</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Types.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
@@ -98,6 +95,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Segment.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Zycore.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Defines.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Disassembler.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Encoder.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\FormatterBuffer.h">
       <Filter>Header Files\Zydis</Filter>
     </ClInclude>
   </ItemGroup>

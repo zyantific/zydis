@@ -238,20 +238,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Bitset.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Comparison.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Defines.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Format.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\LibC.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Object.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Status.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\String.h" />
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Terminal.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Types.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Vector.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Zycore.h" />
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />
     <ClInclude Include="..\..\include\Zydis\DecoderTypes.h" />
+    <ClInclude Include="..\..\include\Zydis\Defines.h" />
+    <ClInclude Include="..\..\include\Zydis\Disassembler.h" />
+    <ClInclude Include="..\..\include\Zydis\Encoder.h" />
     <ClInclude Include="..\..\include\Zydis\Formatter.h" />
+    <ClInclude Include="..\..\include\Zydis\FormatterBuffer.h" />
     <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
     <ClInclude Include="..\..\include\Zydis\Mnemonic.h" />
     <ClInclude Include="..\..\include\Zydis\Register.h" />

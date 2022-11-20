@@ -901,6 +901,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\Disassembler.c" />
     <ClCompile Include="..\..\src\Encoder.c" />
     <ClCompile Include="..\..\src\EncoderData.c" />
     <ClCompile Include="..\..\src\FormatterATT.c" />
@@ -927,6 +928,7 @@
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Terminal.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\API\Thread.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h" />
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Bitset.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Comparison.h" />
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Defines.h" />
@@ -942,8 +944,10 @@
     <ClInclude Include="..\..\include\Zydis\Decoder.h" />
     <ClInclude Include="..\..\include\Zydis\DecoderTypes.h" />
     <ClInclude Include="..\..\include\Zydis\Defines.h" />
+    <ClInclude Include="..\..\include\Zydis\Disassembler.h" />
     <ClInclude Include="..\..\include\Zydis\Encoder.h" />
     <ClInclude Include="..\..\include\Zydis\Formatter.h" />
+    <ClInclude Include="..\..\include\Zydis\FormatterBuffer.h" />
     <ClInclude Include="..\..\include\Zydis\Internal\EncoderData.h" />
     <ClInclude Include="..\..\include\Zydis\MetaInfo.h" />
     <ClInclude Include="..\..\include\Zydis\Mnemonic.h" />
