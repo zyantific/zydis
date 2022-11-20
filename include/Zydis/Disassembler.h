@@ -114,7 +114,7 @@ typedef struct ZydisDisassembledInstruction_
  * @return  A zyan status code.
  */
 ZYDIS_EXPORT ZyanStatus ZydisDisassembleIntel(ZydisMachineMode machine_mode,
-    ZyanUSize runtime_address, const void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, const void* buffer, ZyanUSize length,
     ZydisDisassembledInstruction *instruction);
 
 /**
@@ -123,7 +123,7 @@ ZYDIS_EXPORT ZyanStatus ZydisDisassembleIntel(ZydisMachineMode machine_mode,
  * @copydetails ZydisDisassembleIntel
  */
 ZYDIS_EXPORT ZyanStatus ZydisDisassembleATT(ZydisMachineMode machine_mode,
-    ZyanUSize runtime_address, const void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, const void* buffer, ZyanUSize length,
     ZydisDisassembledInstruction *instruction);
 
 /* ============================================================================================== */
