@@ -32,7 +32,7 @@
 /* ============================================================================================== */
 
 static ZyanStatus ZydisDisassemble(ZydisMachineMode machine_mode,
-    ZyanUSize runtime_address, const void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, const void* buffer, ZyanUSize length,
     ZydisDisassembledInstruction *instruction, ZydisFormatterStyle style)
 {
     if (!buffer || !instruction)
@@ -87,7 +87,7 @@ static ZyanStatus ZydisDisassemble(ZydisMachineMode machine_mode,
 /* ============================================================================================== */
 
 ZyanStatus ZydisDisassembleIntel(ZydisMachineMode machine_mode,
-    ZyanUSize runtime_address, const void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, const void* buffer, ZyanUSize length,
     ZydisDisassembledInstruction *instruction)
 {
     return ZydisDisassemble(machine_mode, runtime_address, buffer, length, instruction,
@@ -95,7 +95,7 @@ ZyanStatus ZydisDisassembleIntel(ZydisMachineMode machine_mode,
 }
 
 ZyanStatus ZydisDisassembleATT(ZydisMachineMode machine_mode,
-    ZyanUSize runtime_address, const void* buffer, ZyanUSize length,
+    ZyanU64 runtime_address, const void* buffer, ZyanUSize length,
     ZydisDisassembledInstruction *instruction)
 {
     return ZydisDisassemble(machine_mode, runtime_address, buffer, length, instruction,
