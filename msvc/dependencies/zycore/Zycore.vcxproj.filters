@@ -18,6 +18,9 @@
     <Filter Include="Source Files\API">
       <UniqueIdentifier>{298b98fc-7866-4dc9-b65b-7f865143646d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Internal">
+      <UniqueIdentifier>{bf591fd3-c73f-4f75-971e-7d7d0c9de126}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\dependencies\zycore\src\Allocator.c">
@@ -116,6 +119,15 @@
       <Filter>Header Files\API</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\ArgParse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Internal\AtomicGNU.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Internal\AtomicMSVC.h">
+      <Filter>Header Files\Internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\dependencies\zycore\include\Zycore\Atomic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

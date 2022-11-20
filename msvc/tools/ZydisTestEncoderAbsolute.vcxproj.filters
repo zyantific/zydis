@@ -15,6 +15,9 @@
     <Filter Include="Header Files\Zydis">
       <UniqueIdentifier>{DE5D4F5B-8BCD-4BFF-8A6D-66FE1698701E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Zydis\Internal">
+      <UniqueIdentifier>{2d4f61cf-4774-4ac3-aa98-a6a7d22f5e10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\ZydisTestEncoderAbsolute.c">
@@ -47,9 +50,6 @@
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\String.h">
-      <Filter>Header Files\Zycore</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Terminal.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Types.h">
@@ -93,6 +93,33 @@
     </ClInclude>
     <ClInclude Include="..\..\include\Zydis\Segment.h">
       <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Zycore.h">
+      <Filter>Header Files\Zycore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Defines.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Disassembler.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Encoder.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\FormatterBuffer.h">
+      <Filter>Header Files\Zydis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Zydis\Internal\EncoderData.h">
+      <Filter>Header Files\Zydis\Internal</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

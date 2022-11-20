@@ -67,10 +67,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{3B52F35B-17B4-4BCD-B0FC-D32955E7C501}</ProjectGuid>
+    <ProjectGuid>{0FE9CA7E-80FD-4FB6-ABB4-6A2E3704DE51}</ProjectGuid>
     <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>ZydisFuzzEncoder</ProjectName>
+    <ProjectName>Disassemble</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
@@ -805,8 +805,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\tools\ZydisFuzzEncoder.c" />
-    <ClCompile Include="..\..\tools\ZydisFuzzShared.c" />
+    <ClCompile Include="..\..\examples\Disassemble.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
@@ -840,7 +839,6 @@
     <ClInclude Include="..\..\include\Zydis\Status.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
-    <ClInclude Include="..\..\tools\ZydisFuzzShared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

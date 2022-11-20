@@ -2,22 +2,22 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{1E428BB6-354B-440D-9F6C-501808E19B2E}</UniqueIdentifier>
+      <UniqueIdentifier>{84146602-A423-4EA6-AD29-A5F3E4E4474C}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{4D41ED45-7EA3-4C1B-AD5D-25E17BE47901}</UniqueIdentifier>
+      <UniqueIdentifier>{B20999C7-4C3A-43D0-B4D0-5BA283624A8A}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Header Files\Zycore">
-      <UniqueIdentifier>{7BADE0F7-E82D-4D21-896B-50E56085AC85}</UniqueIdentifier>
+      <UniqueIdentifier>{372C68B3-C260-4B52-9201-114F03B5B76D}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Zydis">
-      <UniqueIdentifier>{7F3EEF39-FFB3-4D06-A971-72D16E95597F}</UniqueIdentifier>
+      <UniqueIdentifier>{B00E1936-C1A9-437D-8537-106F8FFF8BC1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\examples\EncodeFromScratch.c">
+    <ClCompile Include="..\..\examples\EncodeMov.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -91,10 +91,10 @@
     <ClInclude Include="..\..\include\Zydis\Segment.h">
       <Filter>Header Files\Zydis</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h">
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\ArgParse.h">
+    <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Atomic.h">
       <Filter>Header Files\Zycore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\List.h">
