@@ -59,7 +59,6 @@
   - `Encoder.h`, various new types and functions
 - Type `ZydisRegisterKind` added
 - The `ZYDIS_ATTRIB_` defines were rebased (underlying bits were changed)
-- New type `ZydisDecodingFlags`
 - New type `ZydisDecoderContext`
 - An anonymous union was added around some fields in the `raw` part of `ZydisDecodedInstruction`
 - An anonymous union was added around the operand type specific fields in `ZydisDecodedOperand`
