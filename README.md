@@ -1,5 +1,9 @@
 <p align="center">
-  <img alt="zydis logo" src="https://zydis.re/img/logo.svg" width="400px">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/img/logo-dark.png" width="400px">
+    <source media="(prefers-color-scheme: light)" srcset="assets/img/logo-light.png" width="400px">
+    <img alt="zydis logo" src="assets/img/logo-dark.png" width="400px">
+  </picture>
 </p>
 
 <p align="center">
