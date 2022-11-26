@@ -1,9 +1,11 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-dark.svg" width="400px">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-light.svg" width="400px">
-    <img alt="zydis logo" src="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-dark.svg" width="400px">
-  </picture>
+  <a href="https://zydis.re/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-dark.svg" width="400px">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-light.svg" width="400px">
+      <img alt="zydis logo" src="https://raw.githubusercontent.com/zyantific/zydis/master/assets/img/logo-dark.svg" width="400px">
+    </picture>
+  </a>
 </p>
 
 <p align="center">
