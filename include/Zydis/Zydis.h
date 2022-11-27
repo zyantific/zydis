@@ -141,7 +141,7 @@ typedef enum ZydisFeature_
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_KNC,
+    ZYDIS_FEATURE_MAX_VALUE = ZYDIS_FEATURE_SEGMENT,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
