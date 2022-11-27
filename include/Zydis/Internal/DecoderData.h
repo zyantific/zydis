@@ -173,7 +173,11 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * Reference to a CLDEMOTE-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1B
+    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1B,
+    /**
+     * Reference to a IPREFETCH-mode filter.
+     */
+    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1C
 };
 
 /* ---------------------------------------------------------------------------------------------- */
