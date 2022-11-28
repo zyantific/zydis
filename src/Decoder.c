@@ -4800,6 +4800,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE:
             index = state->decoder->decoder_mode[ZYDIS_DECODER_MODE_CLDEMOTE] ? 1 : 0;
             break;
+        case ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH:
+            index = state->decoder->decoder_mode[ZYDIS_DECODER_MODE_IPREFETCH] ? 1 : 0;
+            break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
             {
@@ -4910,7 +4913,8 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_LZCNT
         ZYAN_TRUE , // ZYDIS_DECODER_MODE_TZCNT
         ZYAN_FALSE, // ZYDIS_DECODER_MODE_WBNOINVD
-        ZYAN_TRUE   // ZYDIS_DECODER_MODE_CLDEMOTE
+        ZYAN_TRUE,  // ZYDIS_DECODER_MODE_CLDEMOTE
+        ZYAN_FALSE  // ZYDIS_DECODER_MODE_IPREFETCH
     };
 
     if (!decoder)
