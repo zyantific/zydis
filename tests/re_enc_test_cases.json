@@ -302,7 +302,7 @@
     {
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
         "stack_width": "ZYDIS_STACK_WIDTH_64",
-        "payload": "C55C851600000085855C5C5C90000A00000000",
+        "payload": "C558851600000085855C5C5C90000A00000000",
         "description": "jknzd k4, 0x000000000000001D"
     },
     {
