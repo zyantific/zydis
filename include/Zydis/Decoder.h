@@ -136,11 +136,19 @@ typedef enum ZydisDecoderMode_
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_CLDEMOTE,
+    /**
+     * Enables the `IPREFETCH` mode.
+     *
+     * The `IPREFETCH` isa-extension reuses (overrides) some of the widenop instruction opcodes.
+     *
+     * This mode is enabled by default.
+     */
+    ZYDIS_DECODER_MODE_IPREFETCH,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_CLDEMOTE,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_IPREFETCH,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */

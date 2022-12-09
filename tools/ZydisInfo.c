@@ -544,6 +544,7 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction,
             "FLOAT32",
             "FLOAT64",
             "FLOAT80",
+            "BFLOAT16",
             "LONGBCD",
             "CC"
         };
