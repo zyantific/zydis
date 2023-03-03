@@ -81,7 +81,7 @@ make
 
 ### Windows
 
-Either use the [Visual Studio 2019 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
+Either use the [Visual Studio 2022 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
 
 #### Building Zydis - Using vcpkg
 
