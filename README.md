@@ -139,7 +139,7 @@ Versions follow the [semantic versioning scheme](https://semver.org/). All stabi
 
 - Intel (for open-sourcing [XED](https://github.com/intelxed/xed), allowing for automatic comparison of our tables against theirs, improving both)
 - [LLVM](https://llvm.org) (for providing pretty solid instruction data as well)
-- Christian Ludloff (http://sandpile.org, insanely helpful)
+- Christian Ludloff (https://sandpile.org, insanely helpful)
 - [LekoArts](https://www.lekoarts.de/) (for creating the project logo)
 - Our [contributors on GitHub](https://github.com/zyantific/zydis/graphs/contributors)
 
