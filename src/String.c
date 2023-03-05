@@ -122,7 +122,7 @@ ZyanStatus ZydisStringAppendDecU64(ZyanString* string, ZyanU64 value, ZyanU8 pad
     {
         const ZyanU64 value_old = value;
         buffer_write_pointer -= 2;
-        value /= 100;
+        ZYAN_DIV64(value, 100);
         ZYAN_MEMCPY(buffer_write_pointer, &DECIMAL_LOOKUP[(value_old - (value * 100)) * 2], 2);
     }
     buffer_write_pointer -= 2;
