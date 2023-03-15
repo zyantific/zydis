@@ -2006,7 +2006,6 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
             /* WRITE     */ ZYDIS_ATTRIB_CPU_STATE_CW,
             /* READWRITE */ ZYDIS_ATTRIB_CPU_STATE_CR | ZYDIS_ATTRIB_CPU_STATE_CW
         };
-        ZYAN_ASSERT(definition->cpu_state < ZYAN_ARRAY_LENGTH(mapping));
         instruction->attributes |= mapping[definition->cpu_state];
     }
 
@@ -2019,7 +2018,6 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
             /* WRITE     */ ZYDIS_ATTRIB_FPU_STATE_CW,
             /* READWRITE */ ZYDIS_ATTRIB_FPU_STATE_CR | ZYDIS_ATTRIB_FPU_STATE_CW
         };
-        ZYAN_ASSERT(definition->fpu_state < ZYAN_ARRAY_LENGTH(mapping));
         instruction->attributes |= mapping[definition->fpu_state];
     }
 
@@ -2032,7 +2030,6 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
             /* WRITE     */ ZYDIS_ATTRIB_XMM_STATE_CW,
             /* READWRITE */ ZYDIS_ATTRIB_XMM_STATE_CR | ZYDIS_ATTRIB_XMM_STATE_CW
         };
-        ZYAN_ASSERT(definition->xmm_state < ZYAN_ARRAY_LENGTH(mapping));
         instruction->attributes |= mapping[definition->xmm_state];
     }
 
@@ -3456,7 +3453,6 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
         index += (context->vector_unified.W & 0x01) << 1;
     }
 
-    ZYAN_ASSERT(definition->operand_size_map < ZYAN_ARRAY_LENGTH(operand_size_map));
     ZYAN_ASSERT(index < ZYAN_ARRAY_LENGTH(operand_size_map[definition->operand_size_map]));
 
     instruction->operand_width = operand_size_map[definition->operand_size_map][index];
