@@ -65,6 +65,7 @@ static const char* STR_INSTRUCTIONCATEGORY[] =
     "NOP",
     "PADLOCK",
     "PCLMULQDQ",
+    "PCOMMIT",
     "PCONFIG",
     "PKU",
     "POP",
