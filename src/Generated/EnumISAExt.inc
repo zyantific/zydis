@@ -55,6 +55,7 @@ static const char* STR_ISAEXT[] =
     "PADLOCK",
     "PAUSE",
     "PCLMULQDQ",
+    "PCOMMIT",
     "PCONFIG",
     "PKU",
     "PREFETCHWT1",

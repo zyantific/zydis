@@ -533,6 +533,7 @@ static const ZydisShortString STR_MNEMONIC[] =
     ZYDIS_MAKE_SHORTSTRING("pcmpgtw"),
     ZYDIS_MAKE_SHORTSTRING("pcmpistri"),
     ZYDIS_MAKE_SHORTSTRING("pcmpistrm"),
+    ZYDIS_MAKE_SHORTSTRING("pcommit"),
     ZYDIS_MAKE_SHORTSTRING("pconfig"),
     ZYDIS_MAKE_SHORTSTRING("pdep"),
     ZYDIS_MAKE_SHORTSTRING("pext"),

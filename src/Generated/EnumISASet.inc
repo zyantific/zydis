@@ -138,6 +138,7 @@ static const char* STR_ISASET[] =
     "PADLOCK_RNG",
     "PAUSE",
     "PCLMULQDQ",
+    "PCOMMIT",
     "PCONFIG",
     "PENTIUMMMX",
     "PENTIUMREAL",
