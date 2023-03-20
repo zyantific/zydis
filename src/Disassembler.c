@@ -40,10 +40,8 @@ static ZyanStatus ZydisDisassemble(ZydisMachineMode machine_mode,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    *instruction = (ZydisDisassembledInstruction)
-    {
-      .runtime_address = runtime_address
-    };
+    ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
+    instruction->runtime_address = runtime_address;
 
     // Derive the stack width from the address width.
     ZydisStackWidth stack_width;
