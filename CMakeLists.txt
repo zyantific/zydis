@@ -264,7 +264,7 @@ install(EXPORT "zydis-targets"
 install(DIRECTORY "include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 function (_maybe_set_emscripten_cfg target)
-    if (EMSCRIPTEN)
+    if (EMSCRIPTEN OR EMSDK)
         # Yep, that madness below is how Emscripten likes its quotes.
         set_target_properties("${target}"
             PROPERTIES COMPILE_FLAGS
@@ -315,6 +315,15 @@ endif ()
 # =============================================================================================== #
 # Tools                                                                                           #
 # =============================================================================================== #
+
+add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+target_link_libraries("ZydisDisasm" "Zydis")
+set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
+target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+zyan_set_common_flags("ZydisDisasm")
+zyan_maybe_enable_wpo("ZydisDisasm")
+_maybe_set_emscripten_cfg("ZydisDisasm")
+install(TARGETS "ZydisDisasm" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))

@@ -31,6 +31,9 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
@@ -47,52 +50,52 @@ int main(int argc, char** argv)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        ZYAN_FPUTS("Invalid zydis version\n", ZYAN_STDERR);
+        fputs("Invalid zydis version\n", stderr);
         return EXIT_FAILURE;
     }
 
     if (argc < 2 || argc > 3)
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n",
             (argc > 0 ? argv[0] : "ZydisDisasm"));
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
     ZydisDecoder decoder;
-    if (!ZYAN_STRCMP(argv[1], "-real"))
+    if (!strcmp(argv[1], "-real"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_STACK_WIDTH_16);
     } else
-    if (!ZYAN_STRCMP(argv[1], "-16"))
+    if (!strcmp(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_STACK_WIDTH_16);
     } else
-    if (!ZYAN_STRCMP(argv[1], "-32"))
+    if (!strcmp(argv[1], "-32"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_STACK_WIDTH_32);
     } else
-    if (!ZYAN_STRCMP(argv[1], "-64"))
+    if (!strcmp(argv[1], "-64"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
     } else
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
+        fprintf(stderr, "Usage: %s -[real|16|32|64] [input file]\n",
             (argc > 0 ? argv[0] : "ZydisDisasm"));
-        return EXIT_FAILURE;
+        return EXIT_SUCCESS;
     }
 
-    FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : ZYAN_STDIN;
+    FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : stdin;
     if (!file)
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Can not open file: %s\n", strerror(ZYAN_ERRNO));
+        fprintf(stderr, "Can not open file: %s\n", strerror(errno));
         return EXIT_FAILURE;
     }
 #ifdef ZYAN_WINDOWS
     // The `stdin` pipe uses text-mode on Windows platforms by default. We need it to be opened in
     // binary mode
-    if (file == ZYAN_STDIN)
+    if (file == stdin)
     {
-        (void)_setmode(_fileno(ZYAN_STDIN), _O_BINARY);
+        (void)_setmode(_fileno(stdin), _O_BINARY);
     }
 #endif
 
@@ -103,7 +106,7 @@ int main(int argc, char** argv)
         !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
     {
-        ZYAN_FPUTS("Failed to initialized instruction-formatter\n", ZYAN_STDERR);
+        fputs("Failed to initialized instruction-formatter\n", stderr);
         return EXIT_FAILURE;
     }
 
@@ -137,14 +140,14 @@ int main(int argc, char** argv)
 
             if (!ZYAN_SUCCESS(status))
             {
-                ZYAN_PRINTF("db %02X\n", buffer[read_offset++]);
+                printf("db %02X\n", buffer[read_offset++]);
                 continue;
             }
 
             ZydisFormatterFormatInstruction(&formatter, &instruction, operands, 
                 instruction.operand_count_visible, format_buffer, sizeof(format_buffer),
                 runtime_address, ZYAN_NULL);
-            ZYAN_PUTS(format_buffer);
+            puts(format_buffer);
 
             read_offset += instruction.length;
         }
