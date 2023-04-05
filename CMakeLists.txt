@@ -318,7 +318,10 @@ endif ()
 
 if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
     if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND (NOT ZYDIS_MINIMAL_MODE))
-        add_executable("ZydisDisasm" "tools/ZydisDisasm.c")
+        add_executable("ZydisDisasm"
+            "tools/ZydisDisasm.c"
+            "tools/ZydisToolsShared.c"
+            "tools/ZydisToolsShared.h")
         target_link_libraries("ZydisDisasm" "Zydis")
         set_target_properties ("ZydisDisasm" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisDisasm" PRIVATE "_CRT_SECURE_NO_WARNINGS")
@@ -395,7 +398,10 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
             endif ()
         endif ()
 
-        add_executable("ZydisInfo" "tools/ZydisInfo.c")
+        add_executable("ZydisInfo"
+            "tools/ZydisInfo.c"
+            "tools/ZydisToolsShared.c"
+            "tools/ZydisToolsShared.h")
         target_link_libraries("ZydisInfo" "Zydis")
         set_target_properties ("ZydisInfo" PROPERTIES FOLDER "Tools")
         target_compile_definitions("ZydisInfo" PRIVATE "_CRT_SECURE_NO_WARNINGS")

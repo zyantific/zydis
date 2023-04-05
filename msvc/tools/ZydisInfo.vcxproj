@@ -806,6 +806,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tools\ZydisInfo.c" />
+    <ClCompile Include="..\..\tools\ZydisToolsShared.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dependencies\zycore\include\Zycore\Allocator.h" />
@@ -839,6 +840,7 @@
     <ClInclude Include="..\..\include\Zydis\Status.h" />
     <ClInclude Include="..\..\include\Zydis\Utils.h" />
     <ClInclude Include="..\..\include\Zydis\Zydis.h" />
+    <ClInclude Include="..\..\tools\ZydisToolsShared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

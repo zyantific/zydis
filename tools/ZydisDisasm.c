@@ -30,7 +30,12 @@
  * representation of the decoded data.
  */
 
+#include "ZydisToolsShared.h"
+
+#include <inttypes.h>
 #include <stdio.h>
+
+#include <Zycore/API/Terminal.h>
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
@@ -40,21 +45,86 @@
 #endif
 
 /* ============================================================================================== */
+/* Colors                                                                                         */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Configuration                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+#define COLOR_ADDRESS   ZYAN_VT100SGR_FG_BRIGHT_BLACK
+#define COLOR_INVALID   ZYAN_VT100SGR_FG_BRIGHT_BLACK
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
+/* Print functions                                                                                */
+/* ============================================================================================== */
+
+/**
+ * Prints the instruction runtime address
+ *
+ * @param   runtime_address The runtime address of the instruction.
+ */
+static void PrintRuntimeAddress(ZyanU64 runtime_address)
+{
+    ZYAN_FPRINTF(ZYAN_STDOUT, "%s%016" PRIX64 "%s ",
+        CVT100_ERR(COLOR_ADDRESS), runtime_address,
+        CVT100_ERR(ZYAN_VT100SGR_RESET));
+}
+
+/**
+ * Prints the formatted instruction disassembly.
+ *
+ * @param   formatter       A pointer to the `ZydisFormatter` instance.
+ * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   operands        A pointer to the first `ZydisDecodedOperand` struct of the instruction.
+ * @param   buffer          A pointer to the output buffer.
+ * @param   length          The length of the output buffer (in bytes).
+ * @param   runtime_address The runtime address of the instruction.
+ */
+static void PrintDisassembly(const ZydisFormatter* formatter,
+    const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
+    ZyanU8* buffer, ZyanUSize length, ZyanU64 runtime_address)
+{
+    ZyanStatus status;
+    const ZydisFormatterToken* token;
+
+    if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(formatter, instruction, operands,
+        instruction->operand_count_visible, buffer, length, runtime_address, &token, NULL)))
+    {
+        PrintStatusError(status, "Failed to tokenize instruction");
+        exit(status);
+    }
+
+    PrintTokenizedInstruction(token);
+}
+
+/* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
+void PrintUsage(int argc, char* argv[])
+{
+    ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s -[real|16|32|64] [input file]%s\n",
+        CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisDisasm"),
+        CVT100_ERR(ZYAN_VT100SGR_RESET));
+}
+
 int main(int argc, char** argv)
 {
+    InitVT100();
+
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {
-        ZYAN_FPUTS("Invalid zydis version\n", ZYAN_STDERR);
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sInvalid zydis version%s\n",
+            CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         return EXIT_FAILURE;
     }
 
     if (argc < 2 || argc > 3)
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
-            (argc > 0 ? argv[0] : "ZydisDisasm"));
+        PrintUsage(argc, argv);
         return EXIT_FAILURE;
     }
 
@@ -62,29 +132,31 @@ int main(int argc, char** argv)
     if (!ZYAN_STRCMP(argv[1], "-real"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_STACK_WIDTH_16);
-    } else
-    if (!ZYAN_STRCMP(argv[1], "-16"))
+    }
+    else if (!ZYAN_STRCMP(argv[1], "-16"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_STACK_WIDTH_16);
-    } else
-    if (!ZYAN_STRCMP(argv[1], "-32"))
+    }
+    else if (!ZYAN_STRCMP(argv[1], "-32"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_STACK_WIDTH_32);
-    } else
-    if (!ZYAN_STRCMP(argv[1], "-64"))
+    }
+    else if (!ZYAN_STRCMP(argv[1], "-64"))
     {
         ZydisDecoderInit(&decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
-    } else
+    }
+    else
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Usage: %s -[real|16|32|64] [input file]\n",
-            (argc > 0 ? argv[0] : "ZydisDisasm"));
+        PrintUsage(argc, argv);
         return EXIT_FAILURE;
     }
 
     FILE* file = (argc >= 3) ? fopen(argv[2], "rb") : ZYAN_STDIN;
     if (!file)
     {
-        ZYAN_FPRINTF(ZYAN_STDERR, "Can not open file: %s\n", strerror(ZYAN_ERRNO));
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sCan not open file '%s': %s%s\n",
+            CVT100_ERR(COLOR_ERROR), argv[2], strerror(ZYAN_ERRNO),
+            CVT100_ERR(ZYAN_VT100SGR_RESET));
         return EXIT_FAILURE;
     }
 #ifdef ZYAN_WINDOWS
@@ -103,7 +175,8 @@ int main(int argc, char** argv)
         !ZYAN_SUCCESS(ZydisFormatterSetProperty(&formatter,
             ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
     {
-        ZYAN_FPUTS("Failed to initialized instruction-formatter\n", ZYAN_STDERR);
+        ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize instruction-formatter%s\n",
+            CVT100_ERR(COLOR_ERROR), CVT100_ERR(ZYAN_VT100SGR_RESET));
         return EXIT_FAILURE;
     }
 
@@ -128,23 +201,24 @@ int main(int argc, char** argv)
         ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
         ZyanStatus status;
         ZyanUSize read_offset = 0;
-        char format_buffer[256];
+        ZyanU8 format_buffer[256];
 
         while ((status = ZydisDecoderDecodeFull(&decoder, buffer + read_offset,
             buffer_size - read_offset, &instruction, operands)) != ZYDIS_STATUS_NO_MORE_DATA)
         {
             const ZyanU64 runtime_address = read_offset_base + read_offset;
 
+            PrintRuntimeAddress(runtime_address);
+
             if (!ZYAN_SUCCESS(status))
             {
-                ZYAN_PRINTF("db %02X\n", buffer[read_offset++]);
+                ZYAN_FPRINTF(ZYAN_STDOUT, "%sdb %02X%s\n", CVT100_OUT(COLOR_INVALID),
+                    buffer[read_offset++], CVT100_OUT(ZYAN_VT100SGR_RESET));
                 continue;
             }
 
-            ZydisFormatterFormatInstruction(&formatter, &instruction, operands, 
-                instruction.operand_count_visible, format_buffer, sizeof(format_buffer),
-                runtime_address, ZYAN_NULL);
-            ZYAN_PUTS(format_buffer);
+            PrintDisassembly(&formatter, &instruction, operands, format_buffer,
+                sizeof(format_buffer), runtime_address);
 
             read_offset += instruction.length;
         }
