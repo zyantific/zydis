@@ -1589,7 +1589,7 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
 #endif
 
 #ifndef ZYDIS_MINIMAL_MODE
-ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderContext* context,
+static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDecoderContext* context,
     const ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operands, ZyanU8 operand_count)
 {
     ZYAN_ASSERT(decoder);

@@ -3652,7 +3652,7 @@ static ZyanStatus ZydisEmitInstruction(ZydisEncoderInstruction *instruction,
  * @param   def_op      Decoder's operand definition from instruction definition.
  * @param   instruction A pointer to `ZydisEncoderInstruction` struct.
  */
-void ZydisBuildRegisterOperand(const ZydisEncoderOperand *user_op,
+static void ZydisBuildRegisterOperand(const ZydisEncoderOperand *user_op,
     const ZydisOperandDefinition *def_op, ZydisEncoderInstruction *instruction)
 {
     if (def_op->type == ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG)

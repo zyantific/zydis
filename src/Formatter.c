@@ -55,7 +55,7 @@ static const ZydisFormatter* const FORMATTER_PRESETS[ZYDIS_FORMATTER_STYLE_MAX_V
 /* Helper functions                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
-void ZydisFormatterBufferInit(ZydisFormatterBuffer* buffer, char* user_buffer,
+static void ZydisFormatterBufferInit(ZydisFormatterBuffer* buffer, char* user_buffer,
     ZyanUSize length)
 {
     ZYAN_ASSERT(buffer);
@@ -77,7 +77,7 @@ void ZydisFormatterBufferInit(ZydisFormatterBuffer* buffer, char* user_buffer,
     *user_buffer = '\0';
 }
 
-void ZydisFormatterBufferInitTokenized(ZydisFormatterBuffer* buffer,
+static void ZydisFormatterBufferInitTokenized(ZydisFormatterBuffer* buffer,
     ZydisFormatterToken** first_token, void* user_buffer, ZyanUSize length)
 {
     ZYAN_ASSERT(buffer);
