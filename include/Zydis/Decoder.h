@@ -176,9 +176,9 @@ typedef struct ZydisDecoder_
      */
     ZydisStackWidth stack_width;
     /**
-     * The decoder mode array.
+     * The decoder mode bitmap.
      */
-    ZyanBool decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
+    ZyanU32 decoder_mode;
 } ZydisDecoder;
 
 /* ---------------------------------------------------------------------------------------------- */
