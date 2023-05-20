@@ -43,27 +43,15 @@ jobs:
         with: { submodules: recursive }
       - name: Configuring
         run: |
-          mkdir build
-          cd build
-          cmake -DZYAN_DEV_MODE=ON ${{ matrix.cmake_flags }} ..
+          cmake -B build -DZYDIS_BUILD_TESTS=ON -DZYAN_DEV_MODE=ON ${{ matrix.cmake_flags }} .
       - name: Building
         run: |
-          cmake --build build --config Release
-      - name: Running regression tests (decoder)
+          cmake --build build --config Release -j2
+      - name: Running tests
+        if: "!matrix.skip_tests"
         run: |
-          cd tests
-          python3 regression.py test ../build/ZydisInfo
-        if: "matrix.image_name != 'windows-2022' && !matrix.skip_tests"
-      - name: Running regression tests (encoder)
-        run: |
-          cd tests
-          python3 regression_encoder.py ../build/ZydisFuzzReEncoding ../build/ZydisFuzzEncoder ../build/ZydisTestEncoderAbsolute
-        if: "matrix.image_name != 'windows-2022' && !matrix.skip_tests"
-      - name: Running regression tests
-        run: |
-          cd tests
-          python regression.py test ..\\build\\Release\\ZydisInfo.exe
-        if: "matrix.image_name == 'windows-2022' && !matrix.skip_tests"
+          cd build
+          ctest -C Release --output-on-failure
 
   msbuild-build:
     name: MSBuild build (windows-2022)
