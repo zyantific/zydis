@@ -59,11 +59,11 @@ def merge_headers(
     with path.open() as f:
         lines = [x.rstrip() for x in f]
 
-    if path in covered_headers:
+    if header in covered_headers:
         return []
 
     print(f'Processing header "{header}"')
-    covered_headers.add(path)
+    covered_headers.add(header)
 
     # Print the header we emit next & the include stack (if non-root).
     include_stack = []
@@ -168,8 +168,6 @@ def main():
             covered_headers=covered_headers, 
             stack=[],
         )))
-
-    print(covered_headers)
 
     with open(OUTPUT_DIR / 'Zydis.c', 'w') as f:
         f.write('\n'.join(FILE_HEADER + merge_sources(
