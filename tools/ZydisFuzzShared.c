@@ -412,7 +412,7 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
 /* Entry point                                                                                    */
 /* ============================================================================================== */
 
-int ZydisFuzzerInit()
+int ZydisFuzzerInit(void)
 {
     if (ZydisGetVersion() != ZYDIS_VERSION)
     {

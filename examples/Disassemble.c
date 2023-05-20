@@ -36,7 +36,7 @@
 #include <inttypes.h>
 #include <Zydis/Zydis.h>
 
-int main()
+int main(void)
 {
     ZyanU8 data[] =
     {
