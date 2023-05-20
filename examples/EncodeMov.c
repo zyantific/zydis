@@ -34,7 +34,7 @@
 
 #include <Zydis/Zydis.h>
 
-int main()
+int main(void)
 {
     ZydisEncoderRequest req;
     memset(&req, 0, sizeof(req));
