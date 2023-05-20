@@ -163,7 +163,7 @@ static ZyanBool RunTest(ZydisEncoderRequest *req, const char *test_name, ZyanU8 
     return ZYAN_TRUE;
 }
 
-static ZyanBool RunBranchingTests()
+static ZyanBool RunBranchingTests(void)
 {
     static const ZydisMnemonic instructions[] =
     {
@@ -390,7 +390,7 @@ static ZyanBool RunBranchingTests()
     return all_passed;
 }
 
-static ZyanBool RunRipRelativeTests()
+static ZyanBool RunRipRelativeTests(void)
 {
     ZydisEncoderRequest req;
     ZyanBool all_passed = ZYAN_TRUE;

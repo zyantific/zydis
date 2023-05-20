@@ -119,7 +119,7 @@ int main(void)
     ExpectSuccess(ZyanMemoryVirtualProtect(aligned, alloc_size, ZYAN_PAGE_EXECUTE_READWRITE));
 
     // Create a function pointer for our buffer.
-    typedef ZyanU64(*FnPtr)();
+    typedef ZyanU64(*FnPtr)(void);
     const FnPtr func_ptr = (FnPtr)(uintptr_t)buffer;
 
     // Call the function!
