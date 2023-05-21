@@ -490,7 +490,7 @@ if (ZYDIS_BUILD_MAN)
                 "--output-dir=${CMAKE_CURRENT_BINARY_DIR}"
                 "${CMAKE_CURRENT_SOURCE_DIR}/man/${MAN_NAME}.ronn"
         )
-        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${MAN_NAME}" TYPE MAN)
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${MAN_NAME}" DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
     endforeach()
     add_custom_target(man ALL DEPENDS ${MAN_NAMES})
 endif ()
