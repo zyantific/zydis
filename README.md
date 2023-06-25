@@ -12,7 +12,6 @@
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT">
   <a href="https://github.com/zyantific/zydis/actions"><img src="https://github.com/zyantific/zydis/workflows/CI/badge.svg" alt="GitHub Actions"></a>
   <a href="https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:zydis"><img src="https://oss-fuzz-build-logs.storage.googleapis.com/badges/zydis.svg" alt="Fuzzing Status"></a>
-  <a href="https://gitter.im/zyantific/zydis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge"><img src="https://badges.gitter.im/zyantific/zyan-disassembler-engine.svg" alt="Gitter"></a>
   <a href="https://discord.zyantific.com/"><img src="https://img.shields.io/discord/390136917779415060.svg?logo=discord&label=Discord" alt="Discord"></a>
 </p>
 
@@ -26,9 +25,15 @@
 - Thread-safe by design
 - Very small file-size overhead compared to other common disassembler libraries
 - [Complete doxygen documentation](https://doc.zydis.re/)
+- Trusted by many major open-source projects
+  - Examples include [x64dbg][zydis-x64dbg], [Mozilla Firefox][zydis-firefox] and [Webkit][zydis-webkit]
 - Absolutely no third party dependencies — not even libc
   - Should compile on any platform with a working C11 compiler
   - Tested on Windows, macOS, FreeBSD, Linux and UEFI, both user and kernel mode
+
+[zydis-x64dbg]: https://github.com/x64dbg/x64dbg/tree/729285ef82580812edf7167c41aa6a2c23d8d72d/src/zydis_wrapper
+[zydis-firefox]: https://github.com/mozilla/gecko-dev/tree/3ddbce3c426a55080bd84974444f9ac4869e580b/js/src/zydis
+[zydis-webkit]: https://github.com/WebKit/WebKit/tree/1f2d2a92eeb831bedd01bbb5b694a0e29fa9af81/Source/JavaScriptCore/disassembler/zydis
 
 ## Examples
 
@@ -67,40 +72,75 @@ More examples can be found in the [examples](./examples/) directory of this repo
 
 ## Build
 
-### Unix
+There are many ways to make Zydis available on your system. The following sub-sections list commonly used options.
 
-Zydis builds cleanly on most platforms without any external dependencies. You can use CMake to generate project files for your favorite C11 compiler.
+### CMake Build
+
+**Platforms:** Windows, macOS, Linux, BSDs
+
+You can use CMake to build Zydis on all supported platforms. 
+Instructions on how to install CMake can be found [here](https://cmake.org/install/).
 
 ```bash
 git clone --recursive 'https://github.com/zyantific/zydis.git'
 cd zydis
-mkdir build && cd build
-cmake ..
-make
+cmake -B build
+cmake --build build -j4
 ```
 
-### Windows
+### Visual Studio 2022 project
 
-Either use the [Visual Studio 2022 project](./msvc/) or build Zydis using [CMake](https://cmake.org/download/) ([video guide](https://www.youtube.com/watch?v=fywLDK1OAtQ)).
+**Platforms:** Windows
 
-#### Building Zydis - Using vcpkg
+We manually maintain a [Visual Studio 2022 project](./msvc/) in addition to the CMake build logic.
 
-You can download and install Zydis using the [vcpkg](https://github.com/Microsoft/vcpkg) dependency manager:
+### CMake generated VS project
 
-```bash
-git clone https://github.com/Microsoft/vcpkg.git
-cd vcpkg
-./bootstrap-vcpkg.sh
-./vcpkg integrate install
-./vcpkg install zydis
-```
-The Zydis port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+**Platforms:** Windows
+
+CMake can be instructed to generate a Visual Studio project for pretty much any VS version. A video guide describing how to use the CMake GUI to generate such project files is available [here](https://www.youtube.com/watch?v=fywLDK1OAtQ). Don't be confused by the apparent use of macOS in the video: Windows is simply running in a virtual machine.
+
+### Amalgamated distribution
+
+**Platforms:** any platform with a working C11 compiler
+
+We provide an auto-generated single header & single source file variant of Zydis. To use this variant
+of Zydis in your project, all you need to do is to copy these two files into your project. The 
+amalgamated builds can be found on our [release page](https://github.com/zyantific/zydis/releases)
+as `zydis-amalgamated.tar.gz`.
+
+These files are generated with the [`amalgamate.py`](./assets/amalgamate.py) script.
+
+### Package managers
+
+**Platforms:** Windows, macOS, Linux, FreeBSD
+
+Pre-built headers, shared libraries and executables are available through a variety of package managers.
+
+<details>
+  <summary>Zydis version in various package repositories</summary>
+  
+  [![Packaging status](https://repology.org/badge/vertical-allrepos/zydis.svg)](https://repology.org/project/zydis/versions)
+  
+</details>
+
+| Repository | Install command                            | 
+|------------|--------------------------------------------|
+| Arch Linux | `pacman -S zydis`                          |
+| Debian     | `apt-get install libzydis-dev zydis-tools` |
+| Homebrew   | `brew install zydis`                       |
+| NixOS      | `nix-shell -p zydis`                       |
+| Ubuntu     | `apt-get install libzydis-dev zydis-tools` |
+| vcpkg      | `vcpkg install zydis`                      |
 
 ## Using Zydis in a CMake project
 
 An example on how to use Zydis in your own CMake based project [can be found in this repo](https://github.com/zyantific/zydis-submodule-example).
 
-## ZydisInfo tool
+## `ZydisInfo` tool
+
+The `ZydisInfo` command-line tool can be used to inspect essentially all information 
+that Zydis provides about an instruction.
 
 ![ZydisInfo](./assets/screenshots/ZydisInfo.png)
 
@@ -108,32 +148,29 @@ An example on how to use Zydis in your own CMake based project [can be found in 
 
 Official bindings exist for a selection of languages:
 
-- [Pascal](https://github.com/zyantific/zydis-pascal)
-- [Python 3](https://github.com/zyantific/zydis-py)
 - [Rust](https://github.com/zyantific/zydis-rs)
+- [Python 3](https://github.com/zyantific/zydis-py)
 
-Unofficial but actively maintained bindings:
+### asmjit-style C++ front-end
 
-- [Go](https://github.com/jpap/go-zydis)
-- [Haskell](https://github.com/nerded1337/zydiskell)
-
-## asmjit-style C++ front-end
-
-If you're looking for an asmjit-style assembler front-end for the encoder, check out [zasm](https://github.com/zyantific/zasm)!
+If you're looking for an asmjit-style assembler front-end for the encoder, check out [zasm](https://github.com/zyantific/zasm).
+zasm also provides an idiomatic C++ wrapper around the decoder and formatter interface.
 
 ## Versions
 
 ### Scheme
 
-Versions follow the [semantic versioning scheme](https://semver.org/). All stability guarantees apply to the API only — ABI stability between patches cannot be assumed unless explicitly mentioned in the release notes.
+Versions follow the [semantic versioning scheme](https://semver.org/). All stability guarantees apply to the API only. ABI stability is provided only between patch versions.
 
 ### Branches & Tags
 
 - `master` holds the bleeding edge code of the next, unreleased Zydis version. Elevated amounts of bugs and issues must be expected, API stability is not guaranteed outside of tagged commits.
 - Stable and preview versions are annotated with git tags
   - beta and other preview versions have `-beta`, `-rc`, etc. suffixes
-- `maintenance/v2` contains the code of the latest legacy release of v2
-  - v2 is now deprecated, but will receive security fixes until 2021
+- `maintenance/v3` points to the code of the latest release of v3
+  - v3 won't get any feature updates but will receive security updates until 2025
+- `maintenance/v2` points to the code of the last legacy release of v2
+  - v2 is has reached end-of-life and won't receive any security updates
 
 ## Credits
 
@@ -162,7 +199,7 @@ We offer consulting services and professional business support for Zydis. If you
 
 ## Donations
 
-Since GitHub Sponsors currently doesn't support sponsoring teams directly, donations are collected and distributed using [flobernd](https://github.com/users/flobernd/sponsorship)s account.
+Donations are collected and distributed using [flobernd](https://github.com/users/flobernd/sponsorship)'s account.
 
 ## License
 
