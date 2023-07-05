@@ -1,10 +1,15 @@
 .PHONY: build configure install amalgamate clean test doc doc-plain doc-themed
 
 BUILD_DIR ?= build
-CSS_DIR   ?= ../doxygen-awesome-css
+
+ifeq ($(shell uname -s),Darwin)
+	NPROC ?= $(shell sysctl -n hw.physicalcpu)
+else
+	NPROC ?= $(shell nproc)
+endif
 
 build: configure
-	cmake --build $(BUILD_DIR) -j$(nproc)
+	cmake --build $(BUILD_DIR) -j$(NPROC)
 
 configure: dependencies/zycore/CMakeLists.txt
 	@if ! command -v cmake > /dev/null; then \
