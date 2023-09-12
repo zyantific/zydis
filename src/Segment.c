@@ -88,6 +88,12 @@ ZyanStatus ZydisGetInstructionSegments(const ZydisDecodedInstruction* instructio
         segment_size = 4;
         break;
     default:
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+        {
+            segment_type = ZYDIS_INSTR_SEGMENT_REX2;
+            segment_offset = instruction->raw.rex2.offset;
+            segment_size = 2;
+        }
         break;
     }
     if (segment_type)

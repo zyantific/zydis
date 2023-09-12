@@ -1267,7 +1267,9 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
 
     if (register_class == ZYDIS_REGCLASS_GPR8)
     {
-        if ((instruction->attributes & ZYDIS_ATTRIB_HAS_REX) && (register_id >= 4))
+        const ZyanBool has_high_register = (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ||
+                                           (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
+        if (has_high_register && (register_id >= 4))
         {
             operand->reg.value = ZYDIS_REGISTER_SPL + (register_id - 4);
         } else
@@ -3781,6 +3783,10 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
                     }
+                    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_REX2;
+                    }
                     if (state->prefixes.has_lock)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LOCK;
@@ -3816,6 +3822,8 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                     {
                         instruction->opcode_map = ZYDIS_OPCODE_MAP_0F;
                     }
+
+                    return ZydisNodeHandlerOpcode(state, instruction, index);
                 }
                 break;
             }
@@ -4401,7 +4409,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         // 64 bit mode
         {
             /* INVALID */ 255,
-            /* GPR     */  16,
+            /* GPR     */  32, // TODO: 16 if APX is not enabled
             /* X87     */   8,
             /* MMX     */   8,
             /* VR      */  32,

@@ -213,6 +213,10 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
             print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
             print_info[i].name  = "REX";
             break;
+        case ZYDIS_INSTR_SEGMENT_REX2:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
+            print_info[i].name = "REX2";
+            break;
         case ZYDIS_INSTR_SEGMENT_XOP:
             print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
             print_info[i].name  = "XOP";
@@ -975,6 +979,7 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                },
         { ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                  },
         { ZYDIS_ATTRIB_HAS_REX,                  "HAS_REX"                  },
+        { ZYDIS_ATTRIB_HAS_REX2,                  "HAS_REX2"                },
         { ZYDIS_ATTRIB_HAS_XOP,                  "HAS_XOP"                  },
         { ZYDIS_ATTRIB_HAS_VEX,                  "HAS_VEX"                  },
         { ZYDIS_ATTRIB_HAS_EVEX,                 "HAS_EVEX"                 },
