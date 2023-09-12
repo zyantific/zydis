@@ -100,34 +100,40 @@ extern "C" {
     ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x05u)
 
 /**
- * A rex-prefix was found while decoding a XOP/VEX/EVEX/MVEX instruction.
+ * A REX-prefix was found while decoding a REX2/XOP/VEX/EVEX/MVEX instruction.
  */
 #define ZYDIS_STATUS_ILLEGAL_REX \
     ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x06u)
+
+ /**
+  * A REX2-prefix was found while decoding a REX/XOP/VEX/EVEX/MVEX instruction.
+  */
+#define ZYDIS_STATUS_ILLEGAL_REX2 \
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x07u)
 
 /**
  * An invalid opcode-map value was found while decoding a XOP/VEX/EVEX/MVEX-prefix.
  */
 #define ZYDIS_STATUS_INVALID_MAP \
-    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x07u)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x08u)
 
 /**
  * An error occured while decoding the EVEX-prefix.
  */
 #define ZYDIS_STATUS_MALFORMED_EVEX \
-    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x08u)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x09u)
 
 /**
  * An error occured while decoding the MVEX-prefix.
  */
 #define ZYDIS_STATUS_MALFORMED_MVEX \
-    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x09u)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Au)
 
 /**
  * An invalid write-mask was specified for an EVEX/MVEX instruction.
  */
 #define ZYDIS_STATUS_INVALID_MASK \
-    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Au)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Bu)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Formatter                                                                                      */
@@ -146,14 +152,14 @@ extern "C" {
  * - `ZYDIS_FORMATTER_FUNC_FORMAT_OPERAND_IMM`
  */
 #define ZYDIS_STATUS_SKIP_TOKEN \
-    ZYAN_MAKE_STATUS(0u, ZYAN_MODULE_ZYDIS, 0x0Bu)
+    ZYAN_MAKE_STATUS(0u, ZYAN_MODULE_ZYDIS, 0x0Cu)
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Encoder                                                                                        */
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_STATUS_IMPOSSIBLE_INSTRUCTION \
-    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Cu)
+    ZYAN_MAKE_STATUS(1u, ZYAN_MODULE_ZYDIS, 0x0Du)
 
 /* ---------------------------------------------------------------------------------------------- */
 

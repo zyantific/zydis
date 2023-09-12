@@ -926,19 +926,23 @@ typedef struct ZydisDecodedInstructionRawEvex
     /**
      * Extension of the `ModRM.reg` field (inverted).
      */
-    ZyanU8 R;
+    ZyanU8 R3;
     /**
      * Extension of the `SIB.index/vidx` field (inverted).
      */
-    ZyanU8 X;
+    ZyanU8 X3;
     /**
      * Extension of the `ModRM.rm` or `SIB.base` field (inverted).
      */
-    ZyanU8 B;
+    ZyanU8 B3;
     /**
-     * High-16 register specifier modifier (inverted).
+     * High-16 register specifier modifier for the `ModRM.reg` field (inverted).
      */
-    ZyanU8 R2;
+    ZyanU8 R4;
+    /**
+     * High-16 register specifier modifier for the `ModRM.rm` or `SIB.base` field.
+     */
+    ZyanU8 B4;
     /**
      * Opcode-map specifier.
      */
@@ -952,6 +956,10 @@ typedef struct ZydisDecodedInstructionRawEvex
      * (inverted).
      */
     ZyanU8 vvvv;
+    /**
+     * High-16 register specifier modifier for the `SIB.index/vidx` field (inverted).
+     */
+    ZyanU8 X4;
     /**
      * Compressed legacy prefix.
      */
@@ -975,11 +983,16 @@ typedef struct ZydisDecodedInstructionRawEvex
     /**
      * High-16 `NDS`/`VIDX` register specifier.
      */
-    ZyanU8 V2;
+    ZyanU8 V4;
     /**
      * Embedded opmask register specifier.
      */
     ZyanU8 aaa;
+
+    ZyanU8 ND;
+    ZyanU8 NF;
+    ZyanU8 SCC;
+
     /**
      * The offset of the first evex byte, relative to the beginning of the
      * instruction, in bytes.
@@ -1430,13 +1443,15 @@ typedef struct ZydisDecoderContext_
     struct
     {
         ZyanU8 W;
-        ZyanU8 R;
-        ZyanU8 X;
-        ZyanU8 B;
+        ZyanU8 R3;
+        ZyanU8 R4;
+        ZyanU8 X3;
+        ZyanU8 X4;
+        ZyanU8 B3;
+        ZyanU8 B4;
         ZyanU8 L;
         ZyanU8 LL;
-        ZyanU8 R2;
-        ZyanU8 V2;
+        ZyanU8 V4;
         ZyanU8 vvvv;
         ZyanU8 mask;
     } vector_unified;

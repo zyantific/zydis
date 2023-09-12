@@ -384,10 +384,10 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
     instruction->raw.rex.B   = (data >> 0) & 0x01;
 
     // Update internal fields
-    context->vector_unified.W = instruction->raw.rex.W;
-    context->vector_unified.R = instruction->raw.rex.R;
-    context->vector_unified.X = instruction->raw.rex.X;
-    context->vector_unified.B = instruction->raw.rex.B;
+    context->vector_unified.W  = instruction->raw.rex.W;
+    context->vector_unified.R3 = instruction->raw.rex.R;
+    context->vector_unified.X3 = instruction->raw.rex.X;
+    context->vector_unified.B3 = instruction->raw.rex.B;
 }
 
 // TODO: REX2 is not valid for all instructions and UDs otherwise
@@ -403,23 +403,27 @@ static void ZydisDecodeREX2(ZydisDecoderContext* context, ZydisDecodedInstructio
     const ZyanU8 payload)
 {
     ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(instruction->raw.rex2.offset == instruction->length - 2);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_REX2;
-    instruction->raw.rex2.M0 = (payload >> 0) & 0x01;
-    instruction->raw.rex2.R4 = (payload >> 1) & 0x01;
-    instruction->raw.rex2.X4 = (payload >> 2) & 0x01;
-    instruction->raw.rex2.B4 = (payload >> 3) & 0x01;
-    instruction->raw.rex2.W  = (payload >> 4) & 0x01;
-    instruction->raw.rex2.R3 = (payload >> 5) & 0x01;
-    instruction->raw.rex2.X3 = (payload >> 6) & 0x01;
-    instruction->raw.rex2.B3 = (payload >> 7) & 0x01;
+    instruction->raw.rex2.B3 = (payload >> 0) & 0x01;
+    instruction->raw.rex2.X3 = (payload >> 1) & 0x01;
+    instruction->raw.rex2.R3 = (payload >> 2) & 0x01;
+    instruction->raw.rex2.W  = (payload >> 3) & 0x01;
+    instruction->raw.rex2.B4 = (payload >> 4) & 0x01;
+    instruction->raw.rex2.X4 = (payload >> 5) & 0x01;
+    instruction->raw.rex2.R4 = (payload >> 6) & 0x01;
+    instruction->raw.rex2.M0 = (payload >> 7) & 0x01;
 
 
     // Update internal fields
-    context->vector_unified.W = instruction->raw.rex2.W;
-    context->vector_unified.R = instruction->raw.rex2.R3;
-    context->vector_unified.X = instruction->raw.rex2.X3;
-    context->vector_unified.B = instruction->raw.rex2.B3;
+    context->vector_unified.W  = instruction->raw.rex2.W;
+    context->vector_unified.R3  = instruction->raw.rex2.R3;
+    context->vector_unified.R4 = instruction->raw.rex2.R4;
+    context->vector_unified.X3 = instruction->raw.rex2.X3;
+    context->vector_unified.X4 = instruction->raw.rex2.X4;
+    context->vector_unified.B3 = instruction->raw.rex2.B3;
+    context->vector_unified.B4 = instruction->raw.rex2.B4;
 }
 
 /**
@@ -464,9 +468,9 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
 
     // Update internal fields
     context->vector_unified.W    = instruction->raw.xop.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.xop.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.xop.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.xop.B;
+    context->vector_unified.R3   = 0x01 & ~instruction->raw.xop.R;
+    context->vector_unified.X3   = 0x01 & ~instruction->raw.xop.X;
+    context->vector_unified.B3   = 0x01 & ~instruction->raw.xop.B;
     context->vector_unified.L    = instruction->raw.xop.L;
     context->vector_unified.LL   = instruction->raw.xop.L;
     context->vector_unified.vvvv = (0x0F & ~instruction->raw.xop.vvvv);
@@ -539,9 +543,9 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
 
     // Update internal fields
     context->vector_unified.W    = instruction->raw.vex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.vex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.vex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.vex.B;
+    context->vector_unified.R3   = 0x01 & ~instruction->raw.vex.R;
+    context->vector_unified.X3   = 0x01 & ~instruction->raw.vex.X;
+    context->vector_unified.B3   = 0x01 & ~instruction->raw.vex.B;
     context->vector_unified.L    = instruction->raw.vex.L;
     context->vector_unified.LL   = instruction->raw.vex.L;
     context->vector_unified.vvvv = (0x0F & ~instruction->raw.vex.vvvv);
@@ -573,18 +577,19 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     }
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX;
-    instruction->raw.evex.R         = (data[1] >> 7) & 0x01;
-    instruction->raw.evex.X         = (data[1] >> 6) & 0x01;
-    instruction->raw.evex.B         = (data[1] >> 5) & 0x01;
-    instruction->raw.evex.R2        = (data[1] >> 4) & 0x01;
-
-    if (data[1] & 0x08)
-    {
-        // Invalid according to the intel documentation
-        return ZYDIS_STATUS_MALFORMED_EVEX;
-    }
-
+    instruction->raw.evex.R3        = (data[1] >> 7) & 0x01;
+    instruction->raw.evex.X3        = (data[1] >> 6) & 0x01;
+    instruction->raw.evex.B3        = (data[1] >> 5) & 0x01;
+    instruction->raw.evex.R4        = (data[1] >> 4) & 0x01;
+    instruction->raw.evex.B4        = (data[1] >> 3) & 0x01;
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
+
+    // TODO: Still invalid if APX is not enabled
+    // if (data[1] & 0x08)
+    // {
+    //     // Invalid according to the intel documentation
+    //     return ZYDIS_STATUS_MALFORMED_EVEX;
+    // }
 
     if ((instruction->raw.evex.mmm == 0x00) ||
         (instruction->raw.evex.mmm == 0x07))
@@ -595,23 +600,26 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     instruction->raw.evex.W         = (data[2] >> 7) & 0x01;
     instruction->raw.evex.vvvv      = (data[2] >> 3) & 0x0F;
-
-    ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x01);
-
+    instruction->raw.evex.X4        = (data[2] >> 2) & 0x01;
     instruction->raw.evex.pp        = (data[2] >> 0) & 0x03;
+
+    // TODO: X4 must be 0x01 if APX is not enabled
+
     instruction->raw.evex.z         = (data[3] >> 7) & 0x01;
     instruction->raw.evex.L2        = (data[3] >> 6) & 0x01;
     instruction->raw.evex.L         = (data[3] >> 5) & 0x01;
     instruction->raw.evex.b         = (data[3] >> 4) & 0x01;
-    instruction->raw.evex.V2        = (data[3] >> 3) & 0x01;
+    instruction->raw.evex.ND        = (data[3] >> 4) & 0x01; // uses same bit as 'b'
+    instruction->raw.evex.V4        = (data[3] >> 3) & 0x01;
+    instruction->raw.evex.NF        = (data[3] >> 2) & 0x01; // uses bit 3 of 'aaa'
+    instruction->raw.evex.aaa       = (data[3] >> 0) & 0x07;
+    instruction->raw.evex.SCC       = (data[3] >> 0) & 0x0F; // uses same bits as 'V4' and 'aaa'
 
-    if (!instruction->raw.evex.V2 &&
+    if (!instruction->raw.evex.V4 &&
         (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
-
-    instruction->raw.evex.aaa       = (data[3] >> 0) & 0x07;
 
     if (instruction->raw.evex.z && !instruction->raw.evex.aaa)
     {
@@ -620,19 +628,22 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
 
     // Update internal fields
     context->vector_unified.W    = instruction->raw.evex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.evex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.evex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.evex.B;
+    context->vector_unified.R3   = 0x01 & ~instruction->raw.evex.R3;
+    context->vector_unified.X3   = 0x01 & ~instruction->raw.evex.X3;
+    context->vector_unified.X4   = 0x01 & ~instruction->raw.evex.X4;
+    context->vector_unified.B3   = 0x01 & ~instruction->raw.evex.B3;
+    context->vector_unified.B4   = instruction->raw.evex.B4;
     context->vector_unified.LL   = (data[3] >> 5) & 0x03;
-    context->vector_unified.R2   = 0x01 & ~instruction->raw.evex.R2;
-    context->vector_unified.V2   = 0x01 & ~instruction->raw.evex.V2;
+    context->vector_unified.R4   = 0x01 & ~instruction->raw.evex.R4;
+    context->vector_unified.V4   = 0x01 & ~instruction->raw.evex.V4;
     context->vector_unified.vvvv = 0x0F & ~instruction->raw.evex.vvvv;
     context->vector_unified.mask = instruction->raw.evex.aaa;
 
-    if (!instruction->raw.evex.V2 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
+    if (!instruction->raw.evex.V4 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
     {
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
+
     if (!instruction->raw.evex.b && (context->vector_unified.LL == 3))
     {
         // LL = 3 is only valid for instructions with embedded rounding control
@@ -692,11 +703,11 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
 
     // Update internal fields
     context->vector_unified.W    = instruction->raw.mvex.W;
-    context->vector_unified.R    = 0x01 & ~instruction->raw.mvex.R;
-    context->vector_unified.X    = 0x01 & ~instruction->raw.mvex.X;
-    context->vector_unified.B    = 0x01 & ~instruction->raw.mvex.B;
-    context->vector_unified.R2   = 0x01 & ~instruction->raw.mvex.R2;
-    context->vector_unified.V2   = 0x01 & ~instruction->raw.mvex.V2;
+    context->vector_unified.R3   = 0x01 & ~instruction->raw.mvex.R;
+    context->vector_unified.X3   = 0x01 & ~instruction->raw.mvex.X;
+    context->vector_unified.B3   = 0x01 & ~instruction->raw.mvex.B;
+    context->vector_unified.R4   = 0x01 & ~instruction->raw.mvex.R2;
+    context->vector_unified.V4   = 0x01 & ~instruction->raw.mvex.V2;
     context->vector_unified.LL   = 2;
     context->vector_unified.vvvv = 0x0F & ~instruction->raw.mvex.vvvv;
     context->vector_unified.mask = instruction->raw.mvex.kkk;
@@ -948,7 +959,7 @@ static ZyanU8 ZydisCalcRegisterId(const ZydisDecoderContext* context,
         {
             return value;
         }
-        return value | (context->vector_unified.B << 3);
+        return value | (context->vector_unified.B3 << 3);
     }
     case ZYDIS_REG_ENCODING_IS4:
     {
@@ -1929,55 +1940,50 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             {
                 operands[i].mem.segment = ZYDIS_REGISTER_CS;
             }
+            else if (!operand->ignore_seg_override &&
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
+            {
+                operands[i].mem.segment = ZYDIS_REGISTER_SS;
+            }
+            else if (!operand->ignore_seg_override &&
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
+            {
+                operands[i].mem.segment = ZYDIS_REGISTER_DS;
+            } 
+            else if (!operand->ignore_seg_override &&
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
+            {
+                operands[i].mem.segment = ZYDIS_REGISTER_ES;
+            }
+            else if (!operand->ignore_seg_override &&
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
+            {
+                operands[i].mem.segment = ZYDIS_REGISTER_FS;
+            }
+            else if (!operand->ignore_seg_override &&
+                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
+            {
+                operands[i].mem.segment = ZYDIS_REGISTER_GS;
+            }
             else
-                if (!operand->ignore_seg_override &&
-                    instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_SS)
+            {
+                if (operands[i].mem.segment == ZYDIS_REGISTER_NONE)
                 {
-                    operands[i].mem.segment = ZYDIS_REGISTER_SS;
-                }
-                else
-                    if (!operand->ignore_seg_override &&
-                        instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_DS)
+                    if ((operands[i].mem.base == ZYDIS_REGISTER_RSP) ||
+                        (operands[i].mem.base == ZYDIS_REGISTER_RBP) ||
+                        (operands[i].mem.base == ZYDIS_REGISTER_ESP) ||
+                        (operands[i].mem.base == ZYDIS_REGISTER_EBP) ||
+                        (operands[i].mem.base == ZYDIS_REGISTER_SP) ||
+                        (operands[i].mem.base == ZYDIS_REGISTER_BP))
+                    {
+                        operands[i].mem.segment = ZYDIS_REGISTER_SS;
+                    }
+                    else
                     {
                         operands[i].mem.segment = ZYDIS_REGISTER_DS;
                     }
-                    else
-                        if (!operand->ignore_seg_override &&
-                            instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_ES)
-                        {
-                            operands[i].mem.segment = ZYDIS_REGISTER_ES;
-                        }
-                        else
-                            if (!operand->ignore_seg_override &&
-                                instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_FS)
-                            {
-                                operands[i].mem.segment = ZYDIS_REGISTER_FS;
-                            }
-                            else
-                                if (!operand->ignore_seg_override &&
-                                    instruction->attributes & ZYDIS_ATTRIB_HAS_SEGMENT_GS)
-                                {
-                                    operands[i].mem.segment = ZYDIS_REGISTER_GS;
-                                }
-                                else
-                                {
-                                    if (operands[i].mem.segment == ZYDIS_REGISTER_NONE)
-                                    {
-                                        if ((operands[i].mem.base == ZYDIS_REGISTER_RSP) ||
-                                            (operands[i].mem.base == ZYDIS_REGISTER_RBP) ||
-                                            (operands[i].mem.base == ZYDIS_REGISTER_ESP) ||
-                                            (operands[i].mem.base == ZYDIS_REGISTER_EBP) ||
-                                            (operands[i].mem.base == ZYDIS_REGISTER_SP) ||
-                                            (operands[i].mem.base == ZYDIS_REGISTER_BP))
-                                        {
-                                            operands[i].mem.segment = ZYDIS_REGISTER_SS;
-                                        }
-                                        else
-                                        {
-                                            operands[i].mem.segment = ZYDIS_REGISTER_DS;
-                                        }
-                                    }
-                                }
+                }
+            }
         }
 
         ZydisSetOperandSizeAndElementInfo(context, instruction, &operands[i], operand);
@@ -3120,8 +3126,6 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderState* state,
 
     ZyanU8 rex = 0x00;
     ZyanU8 offset = 0;
-    ZyanU8 rex2 = 0x00;
-    ZyanBool has_rex2 = ZYAN_FALSE;
     ZyanBool done = ZYAN_FALSE;
     do
     {
@@ -3667,6 +3671,10 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
                     }
+                    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                    {
+                        return ZYDIS_STATUS_ILLEGAL_REX2;
+                    }
                     if (state->prefixes.has_lock)
                     {
                         return ZYDIS_STATUS_ILLEGAL_LOCK;
@@ -3799,7 +3807,15 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                 {
                     ZyanU8 rex2;
                     ZYAN_CHECK(ZydisInputNext(state, instruction, &rex2));
+
+                    instruction->raw.rex2.offset = instruction->length - 2;
+
                     ZydisDecodeREX2(state->context, instruction, rex2);
+
+                    if (instruction->raw.rex2.M0)
+                    {
+                        instruction->opcode_map = ZYDIS_OPCODE_MAP_0F;
+                    }
                 }
                 break;
             }
@@ -4144,7 +4160,7 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
     default:
         ZYAN_UNREACHABLE;
     }
-    *index = context->vector_unified.B;
+    *index = context->vector_unified.B3;
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -4167,7 +4183,7 @@ static ZyanStatus ZydisNodeHandlerEvexND(const ZydisDecodedInstruction* instruct
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
-    *index = instruction->raw.evex.nd;
+    *index = instruction->raw.evex.ND;
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -4178,18 +4194,31 @@ static ZyanStatus ZydisNodeHandlerEvexNF(const ZydisDecodedInstruction* instruct
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
-    *index = instruction->raw.evex.nf;
+    *index = instruction->raw.evex.NF;
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexSCC(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context, 
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
+    ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
-    *index = instruction->raw.evex.scc;
+
+    // APX conditional CMP and TEST uses a special form of the EVEX prefix which reuses
+    // the `.V4` bit and the `.aaa` bits as the `.SCC` condition code and the `.vvvv` bits
+    // as the DFV specifier. Other than the regular `.vvvv` NDS/NDD specifier, the DFV
+    // specifier bits are not inverted.
+
+    // All APX conditional CMP and TEST instructions must have a SCC filter!
+
+    context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
+    context->vector_unified.V4   = 0;
+
+    *index = instruction->raw.evex.SCC;
     return ZYAN_STATUS_SUCCESS;
 }
 #endif
@@ -4251,16 +4280,34 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         const ZyanBool is_emvex = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                                   (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
 
-        // The `index` extension by `.v'` is only valid for VSIB operands
-        const ZyanU8 vsib_v2 = has_vsib ? context->vector_unified.V2 : 0;
-        // The `rm` extension by `.X` is only valid for EVEX/MVEX instructions
-        const ZyanU8 evex_x  = is_emvex ? context->vector_unified.X  : 0;
+        // TODO: These extensions are only valid if APX is enabled
+        const ZyanU8 apx_x4 = context->vector_unified.X4;
+        const ZyanU8 apx_b4 = context->vector_unified.B4;
 
-        id_reg    |= (context->vector_unified.R2 << 4) | (context->vector_unified.R << 3);
-        id_rm     |= (evex_x                     << 4) | (context->vector_unified.B << 3);
-        id_ndsndd |= (context->vector_unified.V2 << 4)                                   ;
-        id_base   |=                                     (context->vector_unified.B << 3);
-        id_index  |= (vsib_v2                    << 4) | (context->vector_unified.X << 3);
+        // The `index` extension by `.v'` is only valid for VSIB operands
+        const ZyanU8 vsib_v2 = has_vsib ? context->vector_unified.V4 : apx_x4;
+        
+        ZyanU8 evex_x  = 0;
+        if (is_emvex)
+        {
+            // The `rm` extension by `.X3` is only valid for EVEX/MVEX instructions and VR registers
+            if (def_rm == ZYDIS_REGKIND_VR)
+            {
+                evex_x = context->vector_unified.X3;
+            }
+
+            // The `rm` extension by `.B4` is only valid for EVEX/MVEX instructions and GPR registers
+            if (def_rm == ZYDIS_REGKIND_GPR)
+            {
+                evex_x = apx_b4;
+            }
+        }
+
+        id_reg    |= (context->vector_unified.R4 << 4) | (context->vector_unified.R3 << 3);
+        id_rm     |= (evex_x                     << 4) | (context->vector_unified.B3 << 3);
+        id_ndsndd |= (context->vector_unified.V4 << 4)                                   ;
+        id_base   |= (apx_b4                     << 4) | (context->vector_unified.B3 << 3);
+        id_index  |= (vsib_v2                    << 4) | (context->vector_unified.X3 << 3);
 
         // The masking emulates the actual CPU behavior and does not verify if the resulting ids
         // are actually valid for the given register kind.
@@ -4278,7 +4325,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ (1 << 4) - 1, //              ignore `.R'`
             /* DEBUG   */ (1 << 4) - 1, //              ignore `.R'`
             /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ (1 << 4) - 1  //              ignore `.R'`
+            /* BOUND   */ (1 << 4) - 1, //              ignore `.R'`
+            /* DFV     */ 0             // never encoded in `.reg`
         };
         id_reg &= mask_reg[def_reg];
 
@@ -4295,28 +4343,28 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ (1 << 4) - 1, //              ignore `.X`
             /* DEBUG   */ (1 << 4) - 1, //              ignore `.X`
             /* MASK    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
-            /* BOUND   */ (1 << 4) - 1  //              ignore `.X`
+            /* BOUND   */ (1 << 4) - 1, //              ignore `.X`
+            /* DFV     */ 0             // never encoded in `.rm`
         };
         id_rm &= (is_reg ? mask_rm[def_rm] : 0xFF);
 
-        // Commented out for future reference. Not required at the moment as it's always either
-        // a "take all" or "take nothing" situation.
-
-        //static const ZyanU8 mask_ndsndd[ZYDIS_REGKIND_MAX_VALUE + 1] =
-        //{
-        //    /* INVALID */ 0,
-        //    /* GPR     */ (1 << 5) - 1,
-        //    /* X87     */ 0,            // never encoded in `.vvvv`
-        //    /* MMX     */ 0,            // never encoded in `.vvvv`
-        //    /* VR      */ (1 << 5) - 1,
-        //    /* TMM     */ (1 << 5) - 1,
-        //    /* SEGMENT */ 0,            // never encoded in `.vvvv`
-        //    /* TEST    */ 0,            // never encoded in `.vvvv`
-        //    /* CONTROL */ 0,            // never encoded in `.vvvv`
-        //    /* DEBUG   */ 0,            // never encoded in `.vvvv`
-        //    /* MASK    */ (1 << 5) - 1,
-        //    /* BOUND   */ 0             // never encoded in `.vvvv`
-        //};
+        static const ZyanU8 mask_ndsndd[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        {
+            /* INVALID */ 0,
+            /* GPR     */ (1 << 5) - 1,
+            /* X87     */ 0,            // never encoded in `.vvvv`
+            /* MMX     */ 0,            // never encoded in `.vvvv`
+            /* VR      */ (1 << 5) - 1,
+            /* TMM     */ (1 << 5) - 1,
+            /* SEGMENT */ 0,            // never encoded in `.vvvv`
+            /* TEST    */ 0,            // never encoded in `.vvvv`
+            /* CONTROL */ 0,            // never encoded in `.vvvv`
+            /* DEBUG   */ 0,            // never encoded in `.vvvv`
+            /* MASK    */ (1 << 5) - 1,
+            /* BOUND   */ 0,            // never encoded in `.vvvv`
+            /* DFV     */ (1 << 4) - 1  // ignore `.V'`
+        };
+        id_ndsndd &= mask_ndsndd[def_reg];
     }
 
     // Validate
@@ -4326,8 +4374,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     {
         return ZYDIS_STATUS_BAD_REGISTER;
     }
-    // `.v'` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
-    if (!def_ndsndd && !has_vsib && context->vector_unified.V2)
+    // `.V4` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
+    if (!def_ndsndd && !has_vsib && context->vector_unified.V4)
     {
         return ZYDIS_STATUS_BAD_REGISTER;
     }
@@ -4347,7 +4395,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */   8,
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4
+            /* BOUND   */   4,
+            /* DFV     */   0 // APX is only available in 64-bit mode
         },
         // 64 bit mode
         {
@@ -4365,7 +4414,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             // check this at runtime we just allow them.
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4
+            /* BOUND   */   4,
+            /* DFV     */  16
         }
     };
 
@@ -4889,7 +4939,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerEvexNF(instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
-            status = ZydisNodeHandlerEvexSCC(instruction, &index);
+            status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_REX2:
             index = !!(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
@@ -4959,6 +5009,8 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     default:
                         break;
                     }
+
+                    // TODO: Include DFV
 
                     const ZydisDefinitionAccessedFlags* flags;
                     if (ZydisGetAccessedFlags(definition, &flags))
