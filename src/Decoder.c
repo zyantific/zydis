@@ -397,25 +397,29 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
  *
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
- * @param   data        The `REX2` bytes.
+ * @param   payload     The `REX2` payload (second byte).
  */
 static void ZydisDecodeREX2(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction,
-    const ZyanU8 data[2])
+    const ZyanU8 payload)
 {
     ZYAN_ASSERT(instruction);
-    ZYAN_ASSERT(data[0] == 0xD5);
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_REX2;
-    instruction->raw.rex2.W = (data >> 3) & 0x01;
-    instruction->raw.rex2.R = (data >> 2) & 0x01;
-    instruction->raw.rex2.X = (data >> 1) & 0x01;
-    instruction->raw.rex2.B = (data >> 0) & 0x01;
+    instruction->raw.rex2.M0 = (payload >> 0) & 0x01;
+    instruction->raw.rex2.R4 = (payload >> 1) & 0x01;
+    instruction->raw.rex2.X4 = (payload >> 2) & 0x01;
+    instruction->raw.rex2.B4 = (payload >> 3) & 0x01;
+    instruction->raw.rex2.W  = (payload >> 4) & 0x01;
+    instruction->raw.rex2.R3 = (payload >> 5) & 0x01;
+    instruction->raw.rex2.X3 = (payload >> 6) & 0x01;
+    instruction->raw.rex2.B3 = (payload >> 7) & 0x01;
+
 
     // Update internal fields
     context->vector_unified.W = instruction->raw.rex2.W;
-    context->vector_unified.R = instruction->raw.rex2.R;
-    context->vector_unified.X = instruction->raw.rex2.X;
-    context->vector_unified.B = instruction->raw.rex2.B;
+    context->vector_unified.R = instruction->raw.rex2.R3;
+    context->vector_unified.X = instruction->raw.rex2.X3;
+    context->vector_unified.B = instruction->raw.rex2.B3;
 }
 
 /**
@@ -3116,6 +3120,8 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderState* state,
 
     ZyanU8 rex = 0x00;
     ZyanU8 offset = 0;
+    ZyanU8 rex2 = 0x00;
+    ZyanBool has_rex2 = ZYAN_FALSE;
     ZyanBool done = ZYAN_FALSE;
     do
     {
@@ -3776,14 +3782,24 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                         return ZYDIS_STATUS_ILLEGAL_LEGACY_PFX;
                     }
                     instruction->raw.xop.offset = instruction->length - 1;
-                    ZyanU8 prefixBytes[3] = { 0x8F, 0x00, 0x00 };
+                    ZyanU8 prefix_bytes[3] = { 0x8F, 0x00, 0x00 };
                     // Read additional xop-prefix data
-                    ZYAN_CHECK(ZydisInputNextBytes(state, instruction, &prefixBytes[1], 2));
+                    ZYAN_CHECK(ZydisInputNextBytes(state, instruction, &prefix_bytes[1], 2));
                     // Decode xop-prefix
                     instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_XOP;
-                    ZYAN_CHECK(ZydisDecodeXOP(state->context, instruction, prefixBytes));
+                    ZYAN_CHECK(ZydisDecodeXOP(state->context, instruction, prefix_bytes));
                     instruction->opcode_map =
                         ZYDIS_OPCODE_MAP_XOP8 + instruction->raw.xop.m_mmmm - 0x08;
+                }
+                break;
+            }
+            case 0xD5:
+            {
+                if (state->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+                {
+                    ZyanU8 rex2;
+                    ZYAN_CHECK(ZydisInputNext(state, instruction, &rex2));
+                    ZydisDecodeREX2(state->context, instruction, rex2);
                 }
                 break;
             }

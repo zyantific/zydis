@@ -786,35 +786,36 @@ typedef struct ZydisDecodedInstructionRawRex2_
      */
     ZyanU8 M0;
     /**
-     * Extension of the `ModRM.reg` field.
+     * Extension of the `ModRM.reg` field (bit 4).
      */
     ZyanU8 R4;
     /**
-     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     * Extension of the `SIB.index` field (bit 4).
+     */
+    ZyanU8 X4;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (bit 4).
      */
     ZyanU8 B4;
     /**
-     * 64-bit operand-size promotion or opcode-extension. TODO: repurposed in special cases
+     * 64-bit operand-size promotion, opcode-extension or PPX hint.
      */
     ZyanU8 W;
     /**
-     * Extension of the `ModRM.reg` field.
+     * Extension of the `ModRM.reg` field (bit 3).
      */
     ZyanU8 R3;
     /**
-     * Extension of the `SIB.index` field.
+     * Extension of the `SIB.index` field (bit 3).
      */
     ZyanU8 X3;
     /**
-     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field (bit 3).
      */
     ZyanU8 B3;
     /**
      * The offset of the effective `REX2` byte, relative to the beginning of the
      * instruction, in bytes.
-     *
-     * This offset always points to the "effective" `REX2` prefix (the one closest to the
-     * instruction opcode), if multiple `REX2` prefixes are present.
      *
      * Note that the `REX2` byte can be the first byte of the instruction, which would lead
      * to an offset of `0`. Please refer to the instruction attributes to check for the
