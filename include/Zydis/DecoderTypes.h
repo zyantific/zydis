@@ -777,6 +777,53 @@ typedef struct ZydisDecodedInstructionRawRex_
 } ZydisDecodedInstructionRawRex;
 
 /**
+ * Detailed info about the `REX2` prefix.
+ */
+typedef struct ZydisDecodedInstructionRawRex2_
+{
+    /**
+     * Legacy map 0 (0x0F) selector bit.
+     */
+    ZyanU8 M0;
+    /**
+     * Extension of the `ModRM.reg` field.
+     */
+    ZyanU8 R4;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     */
+    ZyanU8 B4;
+    /**
+     * 64-bit operand-size promotion or opcode-extension. TODO: repurposed in special cases
+     */
+    ZyanU8 W;
+    /**
+     * Extension of the `ModRM.reg` field.
+     */
+    ZyanU8 R3;
+    /**
+     * Extension of the `SIB.index` field.
+     */
+    ZyanU8 X3;
+    /**
+     * Extension of the `ModRM.rm`, `SIB.base`, or `opcode.reg` field.
+     */
+    ZyanU8 B3;
+    /**
+     * The offset of the effective `REX2` byte, relative to the beginning of the
+     * instruction, in bytes.
+     *
+     * This offset always points to the "effective" `REX2` prefix (the one closest to the
+     * instruction opcode), if multiple `REX2` prefixes are present.
+     *
+     * Note that the `REX2` byte can be the first byte of the instruction, which would lead
+     * to an offset of `0`. Please refer to the instruction attributes to check for the
+     * presence of the `REX2` prefix.
+     */
+    ZyanU8 offset;
+} ZydisDecodedInstructionRawRex2;
+
+/**
  * Detailed info about the `XOP` prefix.
  */
 typedef struct ZydisDecodedInstructionRawXop_
@@ -1147,6 +1194,7 @@ typedef struct ZydisDecodedInstructionRaw_
     union
     {
         ZydisDecodedInstructionRawRex rex;
+        ZydisDecodedInstructionRawRex2 rex2;
         ZydisDecodedInstructionRawXop xop;
         ZydisDecodedInstructionRawVex vex;
         ZydisDecodedInstructionRawEvex evex;

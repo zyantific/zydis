@@ -390,6 +390,34 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
     context->vector_unified.B = instruction->raw.rex.B;
 }
 
+// TODO: REX2 is not valid for all instructions and UDs otherwise
+
+/**
+ * Decodes the `REX2`-prefix.
+ *
+ * @param   context     A pointer to the `ZydisDecoderContext` struct.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   data        The `REX2` bytes.
+ */
+static void ZydisDecodeREX2(ZydisDecoderContext* context, ZydisDecodedInstruction* instruction,
+    const ZyanU8 data[2])
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(data[0] == 0xD5);
+
+    instruction->attributes |= ZYDIS_ATTRIB_HAS_REX2;
+    instruction->raw.rex2.W = (data >> 3) & 0x01;
+    instruction->raw.rex2.R = (data >> 2) & 0x01;
+    instruction->raw.rex2.X = (data >> 1) & 0x01;
+    instruction->raw.rex2.B = (data >> 0) & 0x01;
+
+    // Update internal fields
+    context->vector_unified.W = instruction->raw.rex2.W;
+    context->vector_unified.R = instruction->raw.rex2.R;
+    context->vector_unified.X = instruction->raw.rex2.X;
+    context->vector_unified.B = instruction->raw.rex2.B;
+}
+
 /**
  * Decodes the `XOP`-prefix.
  *
@@ -555,7 +583,6 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
     if ((instruction->raw.evex.mmm == 0x00) ||
-        (instruction->raw.evex.mmm == 0x04) ||
         (instruction->raw.evex.mmm == 0x07))
     {
         // Invalid according to the intel documentation
@@ -4116,6 +4143,39 @@ static ZyanStatus ZydisNodeHandlerEvexB(const ZydisDecodedInstruction* instructi
     *index = instruction->raw.evex.b;
     return ZYAN_STATUS_SUCCESS;
 }
+
+static ZyanStatus ZydisNodeHandlerEvexND(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(index);
+
+    ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+    *index = instruction->raw.evex.nd;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+static ZyanStatus ZydisNodeHandlerEvexNF(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(index);
+
+    ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+    *index = instruction->raw.evex.nf;
+    return ZYAN_STATUS_SUCCESS;
+}
+
+static ZyanStatus ZydisNodeHandlerEvexSCC(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(index);
+
+    ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+    *index = instruction->raw.evex.scc;
+    return ZYAN_STATUS_SUCCESS;
+}
 #endif
 
 #ifndef ZYDIS_DISABLE_KNC
@@ -4805,6 +4865,18 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH:
             index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_IPREFETCH));
+            break;
+        case ZYDIS_NODETYPE_FILTER_EVEX_ND:
+            status = ZydisNodeHandlerEvexND(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_FILTER_EVEX_NF:
+            status = ZydisNodeHandlerEvexNF(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
+            status = ZydisNodeHandlerEvexSCC(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_FILTER_REX2:
+            index = !!(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
             break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
