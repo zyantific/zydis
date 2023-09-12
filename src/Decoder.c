@@ -1723,6 +1723,9 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_MASK:
             register_class = ZYDIS_REGCLASS_MASK;
             break;
+        case ZYDIS_SEMANTIC_OPTYPE_DFV:
+            register_class = ZYDIS_REGCLASS_DFV;
+            break;
         default:
             break;
         }

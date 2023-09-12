@@ -177,7 +177,23 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * Reference to a IPREFETCH-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1C
+    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1C,
+    /**
+     * Reference to an EVEX.nd filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_ND           = 0x1D,
+    /**
+     * Reference to an EVEX.nf filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_NF           = 0x1E,
+    /**
+     * Reference to an EVEX.scc filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_SCC          = 0x1F,
+    /**
+     * Reference to a REX2 filter.
+     */
+    ZYDIS_NODETYPE_FILTER_REX2              = 0x20
 };
 
 /* ---------------------------------------------------------------------------------------------- */

@@ -91,11 +91,12 @@ typedef enum ZydisSemanticOperandType_
     ZYDIS_SEMANTIC_OPTYPE_AGEN,
     ZYDIS_SEMANTIC_OPTYPE_MOFFS,
     ZYDIS_SEMANTIC_OPTYPE_MIB,
+    ZYDIS_SEMANTIC_OPTYPE_DFV,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE = ZYDIS_SEMANTIC_OPTYPE_MIB,
+    ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE = ZYDIS_SEMANTIC_OPTYPE_DFV,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -121,6 +122,7 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_INT16X2,
     ZYDIS_IELEMENT_TYPE_INT32,
     ZYDIS_IELEMENT_TYPE_INT64,
+    ZYDIS_IELEMENT_TYPE_INT128,
     ZYDIS_IELEMENT_TYPE_UINT8,
     ZYDIS_IELEMENT_TYPE_UINT8X4,
     ZYDIS_IELEMENT_TYPE_UINT16,
