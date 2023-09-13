@@ -828,7 +828,7 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderState* state,
  */
 static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     ZydisDecodedInstruction* instruction, ZyanU8 id, ZyanU8 size, ZyanBool is_signed,
-    ZyanBool is_relative)
+    ZyanBool is_address, ZyanBool is_relative)
 {
     ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);
@@ -839,6 +839,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     instruction->raw.imm[id].size = size;
     instruction->raw.imm[id].offset = instruction->length;
     instruction->raw.imm[id].is_signed = is_signed;
+    instruction->raw.imm[id].is_address = is_address;
     instruction->raw.imm[id].is_relative = is_relative;
     switch (size)
     {
@@ -1895,6 +1896,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             // Handle compressed 8-bit displacement
             if (((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                 (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)) &&
+                (context->evex.tuple_type != ZYDIS_TUPLETYPE_NO_SCALE) &&
                 (instruction->raw.disp.size == 8))
             {
                 operands[i].mem.disp.value *= context->cd8_scale;
@@ -1908,7 +1910,9 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_REL:
-            ZYAN_ASSERT(instruction->raw.imm[imm_id].is_relative);
+        case ZYDIS_SEMANTIC_OPTYPE_ABS:
+            ZYAN_ASSERT((operand->type == ZYDIS_SEMANTIC_OPTYPE_REL) || !instruction->raw.imm[imm_id].is_relative);
+            ZYAN_ASSERT((operand->type == ZYDIS_SEMANTIC_OPTYPE_ABS) ||  instruction->raw.imm[imm_id].is_relative);
             ZYAN_FALLTHROUGH;
         case ZYDIS_SEMANTIC_OPTYPE_IMM:
             ZYAN_ASSERT((imm_id == 0) || (imm_id == 1));
@@ -1925,6 +1929,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
                 operands[i].imm.value.u = instruction->raw.imm[imm_id].value.u;
             }
             operands[i].imm.is_signed = instruction->raw.imm[imm_id].is_signed;
+            operands[i].imm.is_address = instruction->raw.imm[imm_id].is_address;
             operands[i].imm.is_relative = instruction->raw.imm[imm_id].is_relative;
             ++imm_id;
             break;
@@ -2393,6 +2398,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         const ZydisInstructionDefinitionEVEX* def =
             (const ZydisInstructionDefinitionEVEX*)definition;
 
+        // TODO: Don't set vector length, etc. for scalar instructions
+
         // Vector length
         ZyanU8 vector_length = context->vector_unified.LL;
         if (def->vector_length)
@@ -2409,7 +2416,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         instruction->avx.vector_length = lookup[vector_length];
 
         context->evex.tuple_type = def->tuple_type;
-        if (def->tuple_type)
+        if (def->tuple_type && (def->tuple_type != ZYDIS_TUPLETYPE_NO_SCALE))
         {
             ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
             ZYAN_ASSERT(def->element_size);
@@ -2721,7 +2728,8 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             }
         } else
         {
-            ZYAN_ASSERT(instruction->raw.modrm.mod == 3);
+            ZYAN_ASSERT((instruction->raw.modrm.mod == 3) || 
+                        (def->tuple_type == ZYDIS_TUPLETYPE_NO_SCALE));
         }
 
         // Static broadcast-factor
@@ -3363,15 +3371,15 @@ static ZyanStatus ZydisDecodeOptionalInstructionParts(ZydisDecoderState* state,
         }
         ZYAN_CHECK(ZydisReadImmediate(state, instruction, 0,
             info->imm[0].size[context->eosz_index], info->imm[0].is_signed,
-            info->imm[0].is_relative));
+            info->imm[0].is_address, info->imm[0].is_relative));
     }
 
     if (info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_IMM1)
     {
         ZYAN_ASSERT(!(info->flags & ZYDIS_INSTR_ENC_FLAG_HAS_DISP));
         ZYAN_CHECK(ZydisReadImmediate(state, instruction, 1,
-            info->imm[1].size[context->eosz_index], info->imm[1].is_signed,
-            info->imm[1].is_relative));
+            info->imm[1].size[context->eosz_index], info->imm[1].is_signed, 
+            info->imm[1].is_address, info->imm[1].is_relative));
     }
 
     return ZYAN_STATUS_SUCCESS;
@@ -4184,8 +4192,11 @@ static ZyanStatus ZydisNodeHandlerEvexB(const ZydisDecodedInstruction* instructi
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexND(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexND(ZydisDecoderContext* context, 
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
+    ZYAN_ASSERT(context); // TODO: remove
+    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
@@ -4195,8 +4206,11 @@ static ZyanStatus ZydisNodeHandlerEvexND(const ZydisDecodedInstruction* instruct
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexNF(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context, 
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
+    ZYAN_ASSERT(context); // TODO: remove
+    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
@@ -4944,10 +4958,10 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_IPREFETCH));
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_ND:
-            status = ZydisNodeHandlerEvexND(instruction, &index);
+            status = ZydisNodeHandlerEvexND(state->context, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_NF:
-            status = ZydisNodeHandlerEvexNF(instruction, &index);
+            status = ZydisNodeHandlerEvexNF(state->context, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
             status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);

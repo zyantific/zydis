@@ -766,9 +766,38 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_conversion_mode) == ZYDIS_CONVERSION_MODE_MAX_VALUE + 1);
 
+    static const char* strings_scc[] =
+    {
+        "O",
+        "NO",
+        "B",
+        "NB",
+        "Z",
+        "NZ",
+        "BE",
+        "NBE",
+        "S",
+        "NS",
+        "TRUE",
+        "FALSE",
+        "L",
+        "NL",
+        "LE",
+        "NLE"
+    };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_scc) == ZYDIS_SCC_MAX_VALUE + 1);
+
     PrintSectionHeader("AVX");
 
-    PRINT_VALUE_B("VECTORLEN", "%03d", instruction->avx.vector_length);
+    if (instruction->avx.vector_length)
+    {
+        PRINT_VALUE_B("VECTORLEN", "%03d", instruction->avx.vector_length);
+    }
+    else
+    {
+        PRINT_VALUE_R("VECTORLEN", "SCALAR");
+    }
+
     PRINT_VALUE_B("BROADCAST", "%s%s%s", strings_broadcast_mode[instruction->avx.broadcast.mode],
         CVT100_OUT(COLOR_VALUE_LABEL), instruction->avx.broadcast.is_static ? " (static)" : "");
 
@@ -781,6 +810,10 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
             strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SCC)
+        {
+            PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->avx.scc]);
+        }
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);

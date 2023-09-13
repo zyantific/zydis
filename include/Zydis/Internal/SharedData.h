@@ -87,6 +87,7 @@ typedef enum ZydisSemanticOperandType_
     ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ,
     ZYDIS_SEMANTIC_OPTYPE_IMM,
     ZYDIS_SEMANTIC_OPTYPE_REL,
+    ZYDIS_SEMANTIC_OPTYPE_ABS,
     ZYDIS_SEMANTIC_OPTYPE_PTR,
     ZYDIS_SEMANTIC_OPTYPE_AGEN,
     ZYDIS_SEMANTIC_OPTYPE_MOFFS,
@@ -359,6 +360,10 @@ typedef enum ZydisEVEXFunctionality_
 typedef enum ZydisEVEXTupleType_
 {
     ZYDIS_TUPLETYPE_INVALID,
+    /**
+     * No CD8 scaling.
+     */
+    ZYDIS_TUPLETYPE_NO_SCALE,
     /**
      * Full Vector
      */

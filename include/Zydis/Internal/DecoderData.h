@@ -292,6 +292,10 @@ typedef struct ZydisInstructionEncodingInfo_
          */
         ZyanBool is_signed;
         /**
+         * Signals, if the value is an address.
+         */
+        ZyanBool is_address;
+        /**
          * Signals, if the value is a relative offset.
          */
         ZyanBool is_relative;

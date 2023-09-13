@@ -196,10 +196,11 @@ ZyanStatus ZydisFormatterBaseFormatOperandIMM(const ZydisFormatter* formatter,
     ZYAN_ASSERT(context);
 
     // The immediate operand contains an address
-    if (context->operand->imm.is_relative)
+    if (context->operand->imm.is_address)
     {
-        const ZyanBool absolute = !formatter->force_relative_branches &&
-            (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
+        const ZyanBool absolute = !context->operand->imm.is_relative || 
+            (!formatter->force_relative_branches &&
+            (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE));
         if (absolute)
         {
             return formatter->func_print_address_abs(formatter, buffer, context);

@@ -179,6 +179,10 @@ typedef struct ZydisDecodedOperandImm_
      */
     ZyanBool is_signed;
     /**
+     * Signals, if the immediate value contains an address.
+     */
+    ZyanBool is_address;
+    /**
      * Signals, if the immediate value contains a relative offset. You can use
      * `ZydisCalcAbsoluteAddress` to determine the absolute address value.
      */
@@ -439,7 +443,7 @@ typedef enum ZydisBranchType_
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_BRANCH_TYPE_MAX_VALUE = ZYDIS_BRANCH_TYPE_FAR,
+    ZYDIS_BRANCH_TYPE_MAX_VALUE = ZYDIS_BRANCH_TYPE_ABSOLUTE,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -1342,6 +1346,10 @@ typedef struct ZydisDecodedInstructionRaw_
          * Signals, if the immediate value is signed.
          */
         ZyanBool is_signed;
+        /**
+         * Signals, if the immediate value contains an address.
+         */
+        ZyanBool is_address;
         /**
          * Signals, if the immediate value contains a relative offset. You can use
          * `ZydisCalcAbsoluteAddress` to determine the absolute address value.
