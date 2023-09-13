@@ -979,7 +979,7 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                },
         { ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                  },
         { ZYDIS_ATTRIB_HAS_REX,                  "HAS_REX"                  },
-        { ZYDIS_ATTRIB_HAS_REX2,                  "HAS_REX2"                },
+        { ZYDIS_ATTRIB_HAS_REX2,                 "HAS_REX2"                 },
         { ZYDIS_ATTRIB_HAS_XOP,                  "HAS_XOP"                  },
         { ZYDIS_ATTRIB_HAS_VEX,                  "HAS_VEX"                  },
         { ZYDIS_ATTRIB_HAS_EVEX,                 "HAS_EVEX"                 },
@@ -1026,7 +1026,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_OPERANDSIZE,          "HAS_OPERANDSIZE"          },
         { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          },
         { ZYDIS_ATTRIB_ACCEPTS_NOTRACK,          "ACCEPTS_NOTRACK"          },
-        { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              }
+        { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              },
+        { ZYDIS_ATTRIB_HAS_SCC,                  "HAS_SCC"                  }
     };
 
     PrintSectionHeader("BASIC");

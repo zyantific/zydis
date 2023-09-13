@@ -719,6 +719,10 @@ typedef ZyanU64 ZydisInstructionAttributes;
  * The instruction has the `REX2` prefix.
  */
 #define ZYDIS_ATTRIB_HAS_REX2                   (1ULL << 46) // TODO: rebase
+/**
+ * The instruction uses the APX source condition code.
+ */
+#define ZYDIS_ATTRIB_HAS_SCC                    (1ULL << 47)
 
 /**
  * @}
