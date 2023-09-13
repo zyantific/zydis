@@ -331,6 +331,11 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
         formatter->hex_uppercase = (value) ? ZYAN_TRUE : ZYAN_FALSE;
         break;
     }
+    case ZYDIS_FORMATTER_PROP_HEX_FORCE_LEADING_NUMBER:
+    {
+        formatter->hex_force_leading_number = (value) ? ZYAN_TRUE : ZYAN_FALSE;
+        break;
+    }
     case ZYDIS_FORMATTER_PROP_HEX_PREFIX:
     {
         base  = ZYDIS_NUMERIC_BASE_HEX;
