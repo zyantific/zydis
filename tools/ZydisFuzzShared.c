@@ -39,6 +39,10 @@
 #   include <io.h>
 #endif
 
+#ifdef ZYAN_POSIX
+#   include <unistd.h>
+#endif
+
 /* ============================================================================================== */
 /* Stream reading abstraction                                                                     */
 /* ============================================================================================== */
@@ -46,7 +50,14 @@
 ZyanUSize ZydisStdinRead(void *ctx, ZyanU8* buf, ZyanUSize max_len)
 {
     ZYAN_UNUSED(ctx);
+#ifdef ZYAN_POSIX
+    // `fread` does internal buffering that can result in different code paths to be taken every
+    // time we call it. This is detrimental for fuzzing stability in persistent mode. Use direct
+    // syscall when possible.
+    return read(0, buf, max_len);
+#else
     return fread(buf, 1, max_len, ZYAN_STDIN);
+#endif
 }
 
 #ifdef ZYDIS_LIBFUZZER
