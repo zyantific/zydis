@@ -150,6 +150,8 @@ typedef enum ZydisDecoderMode_
      */
     ZYDIS_DECODER_MODE_IPREFETCH,
 
+    // TODO: APX mode
+
     /**
      * Maximum value of this enum.
      */

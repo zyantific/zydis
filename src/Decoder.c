@@ -1270,7 +1270,9 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
     if (register_class == ZYDIS_REGCLASS_GPR8)
     {
         const ZyanBool has_high_register = (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ||
-                                           (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
+                                           (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ||
+                                           ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
+                                            (instruction->opcode_map == ZYDIS_OPCODE_MAP_MAP4));
         if (has_high_register && (register_id >= 4))
         {
             operand->reg.value = ZYDIS_REGISTER_SPL + (register_id - 4);
@@ -3497,6 +3499,16 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
     };
 
     ZyanU8 index = (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE) ? 1 : 0;
+
+    if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) &&
+        (instruction->opcode_map == ZYDIS_OPCODE_MAP_MAP4) &&
+        (instruction->raw.evex.pp == 0x01))
+    {
+        // EVEX encoded instructions in MAP4 must use 0x66 as the mandatory prefix AND the
+        // operand-size override
+        index = 1;
+    }
+
     if ((instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_32) ||
         (instruction->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_32))
     {
@@ -3839,6 +3851,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             }
             case 0xD5:
             {
+                // TODO: Check if REX2 is already present
                 if (state->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
                 {
                     ZyanU8 rex2;
@@ -3852,6 +3865,8 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                     {
                         return ZYDIS_STATUS_ILLEGAL_REX;
                     }
+
+                    // TODO: Mark existing REX prefix as "not used"
 
                     ZydisDecodeREX2(state->context, instruction, rex2);
 
@@ -3907,6 +3922,39 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
         default:
             ZYAN_UNREACHABLE;
         }
+
+        if (instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_REX2)
+        {
+            break;
+        }
+
+        ZyanBool illegal_rex2 = (instruction->opcode == 0x0F);
+
+        if (instruction->opcode != 0xD5)
+        {
+            const ZyanU8 group = instruction->opcode & 0xF0;
+            if (instruction->opcode_map == ZYDIS_OPCODE_MAP_DEFAULT)
+            {
+                if ((group == 0x40) || (group == 0x70) || (group == 0xE0) ||
+                    ((group == 0xA0) && instruction->opcode != 0xA1))
+                {
+                    illegal_rex2 = ZYAN_TRUE;
+                }
+            }
+            else
+            {
+                if ((group == 0x30) || (group == 0x80))
+                {
+                    illegal_rex2 = ZYAN_TRUE;
+                }
+            }
+        }
+
+        if (illegal_rex2)
+        {
+            return ZYDIS_STATUS_ILLEGAL_REX2;
+        }
+
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
         // All 3DNOW (0x0F 0x0F) instructions are using the same operand encoding. We just
@@ -4245,6 +4293,9 @@ static ZyanStatus ZydisNodeHandlerEvexND(ZydisDecoderContext* context,
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+
+    // TODO: Error conditions
+
     *index = instruction->raw.evex.ND;
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4259,6 +4310,17 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+
+    // Error conditions
+
+    if (instruction->raw.evex.z || context->vector_unified.L || 
+        (context->vector_unified.mask & 0x03))
+    {
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
+
+    // TODO: NF without ND filter -> evex.b = zero upper
+
     *index = instruction->raw.evex.NF;
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4272,6 +4334,13 @@ static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+
+    // Error conditions
+
+    if (instruction->raw.evex.z || context->vector_unified.LL)
+    {
+        return ZYDIS_STATUS_DECODING_ERROR;
+    }
 
     // APX conditional CMP and TEST uses a special form of the EVEX prefix which reuses
     // the `.V4` bit and the `.aaa` bits as the `.SCC` condition code and the `.vvvv` bits
@@ -5101,6 +5170,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         }
         ZYAN_CHECK(status);
         node = ZydisDecoderTreeGetChildNode(node, index);
+
+        if ((node->type == ZYDIS_NODETYPE_INVALID) && 
+            (node_type == ZYDIS_NODETYPE_FILTER_REX2_PREFIX) && (index == 0))
+        {
+            return ZYDIS_STATUS_ILLEGAL_REX2;
+        }
+
     } while ((node_type != ZYDIS_NODETYPE_INVALID) && !(node_type & ZYDIS_NODETYPE_DEFINITION_MASK));
     return ZYAN_STATUS_SUCCESS;
 }
