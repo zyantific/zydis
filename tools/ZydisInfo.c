@@ -926,7 +926,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "XOP",
         "VEX",
         "EVEX",
-        "MVEX"
+        "MVEX",
+        "REX2"
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(instr_encodings) == ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE + 1);
 

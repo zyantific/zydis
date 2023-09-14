@@ -438,11 +438,15 @@ typedef enum ZydisInstructionEncoding_
      * The instruction uses the MVEX-encoding.
      */
     ZYDIS_INSTRUCTION_ENCODING_MVEX,
+    /**
+     * The instruction uses the REX2-encoding.
+     */
+    ZYDIS_INSTRUCTION_ENCODING_REX2,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_MVEX,
+    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_REX2,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -472,6 +476,10 @@ typedef enum ZydisOpcodeMap_
     ZYDIS_OPCODE_MAP_XOP9,
     ZYDIS_OPCODE_MAP_XOPA,
 
+    /**
+     * Minimum value of this enum.
+     */
+    ZYDIS_OPCODE_MAP_MIN_VALUE = ZYDIS_OPCODE_MAP_DEFAULT,
     /**
      * Maximum value of this enum.
      */

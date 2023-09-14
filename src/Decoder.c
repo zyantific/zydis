@@ -1033,6 +1033,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
         switch (instruction->encoding)
         {
         case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+        case ZYDIS_INSTRUCTION_ENCODING_REX2:
         case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
         case ZYDIS_INSTRUCTION_ENCODING_XOP:
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
@@ -2086,6 +2087,7 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
     {
         const ZydisInstructionDefinitionLEGACY* def =
             (const ZydisInstructionDefinitionLEGACY*)definition;
@@ -3648,6 +3650,26 @@ static ZyanStatus ZydisNodeHandlerEMVEX(const ZydisDecodedInstruction* instructi
     return ZYAN_STATUS_SUCCESS;
 }
 
+static ZyanStatus ZydisNodeHandlerREX2(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(index);
+
+    switch (instruction->encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+        *index = 0;
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
+        ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
+        *index = 1 + instruction->raw.rex2.M0;
+        break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+    return ZYAN_STATUS_SUCCESS;
+}
+
 static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
     ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
@@ -3659,6 +3681,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
         ZYAN_CHECK(ZydisInputNext(state, instruction, &instruction->opcode));
         switch (instruction->opcode_map)
         {
@@ -3736,9 +3759,8 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 #if defined(ZYDIS_DISABLE_AVX512) && defined(ZYDIS_DISABLE_KNC)
                         return ZYDIS_STATUS_DECODING_ERROR;
 #else
-                        switch ((prefix_bytes[2] >> 2) & 0x01)
+                        if (!!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_KNC)))
                         {
-                        case 0:
 #ifndef ZYDIS_DISABLE_KNC
                             instruction->raw.mvex.offset = instruction->length - 4;
                             // `KNC` instructions are only valid in 64-bit mode.
@@ -3758,7 +3780,9 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 #else
                             return ZYDIS_STATUS_DECODING_ERROR;
 #endif
-                        case 1:
+                        }
+                        else
+                        {
 #ifndef ZYDIS_DISABLE_AVX512
                             instruction->raw.evex.offset = instruction->length - 4;
                             // Decode EVEX-prefix
@@ -3770,8 +3794,6 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 #else
                             return ZYDIS_STATUS_DECODING_ERROR;
 #endif
-                        default:
-                            ZYAN_UNREACHABLE;
                         }
                         break;
 #endif
@@ -3824,14 +3846,17 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 
                     instruction->raw.rex2.offset = instruction->length - 2;
 
-                    ZydisDecodeREX2(state->context, instruction, rex2);
-
-                    if (instruction->raw.rex2.M0)
+                    // A REX prefix immediately preceeding REX2 is illegal
+                    if ((instruction->attributes & ZYDIS_ATTRIB_HAS_REX) &&
+                        (instruction->raw.rex.offset == (instruction->raw.rex2.offset - 1)))
                     {
-                        instruction->opcode_map = ZYDIS_OPCODE_MAP_0F;
+                        return ZYDIS_STATUS_ILLEGAL_REX;
                     }
 
-                    return ZydisNodeHandlerOpcode(state, instruction, index);
+                    ZydisDecodeREX2(state->context, instruction, rex2);
+
+                    instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_REX2;
+                    instruction->opcode_map = ZYDIS_OPCODE_MAP_MIN_VALUE + instruction->raw.rex2.M0;
                 }
                 break;
             }
@@ -3843,6 +3868,10 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             switch (instruction->opcode)
             {
             case 0x0F:
+                if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                {
+                    return ZYDIS_STATUS_ILLEGAL_REX2;
+                }
                 if (state->prefixes.has_lock)
                 {
                     return ZYDIS_STATUS_ILLEGAL_LOCK;
@@ -3851,9 +3880,17 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                 instruction->opcode_map = ZYDIS_OPCODE_MAP_0F0F;
                 break;
             case 0x38:
+                if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                {
+                    return ZYDIS_STATUS_ILLEGAL_REX2;
+                }
                 instruction->opcode_map = ZYDIS_OPCODE_MAP_0F38;
                 break;
             case 0x3A:
+                if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                {
+                    return ZYDIS_STATUS_ILLEGAL_REX2;
+                }
                 instruction->opcode_map = ZYDIS_OPCODE_MAP_0F3A;
                 break;
             default:
@@ -4142,6 +4179,9 @@ static ZyanStatus ZydisNodeHandlerRexW(const ZydisDecoderContext* context,
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MVEX);
         break;
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
+        ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
+        break;
     default:
         ZYAN_UNREACHABLE;
     }
@@ -4172,6 +4212,9 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MVEX);
+        break;
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
+        ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -4517,6 +4560,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
     {
         const ZydisInstructionDefinitionLEGACY* def =
             (const ZydisInstructionDefinitionLEGACY*)definition;
@@ -4874,6 +4918,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_FILTER_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
             break;
+        case ZYDIS_NODETYPE_FILTER_REX2:
+            status = ZydisNodeHandlerREX2(instruction, &index);
+            break;
         case ZYDIS_NODETYPE_FILTER_OPCODE:
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
             break;
@@ -4966,7 +5013,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
             status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);
             break;
-        case ZYDIS_NODETYPE_FILTER_REX2:
+        case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
             index = !!(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
             break;
         default:

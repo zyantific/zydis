@@ -82,7 +82,12 @@ typedef enum ZydisDecoderMode_
      * Enables `KNC` compatibility-mode.
      *
      * `KNC` and `KNL+` chips are sharing opcodes and encodings for some mask-related instructions.
-     * Enable this mode to use the old `KNC` specifications (different mnemonics, operands, ..).
+     * With the EVEX extensions introduced with APX, it's impossible to distinguish between EVEX
+     * and MVEX at runtime.
+     * 
+     * Enable this mode to enable KNC support.
+     * 
+     * WARNING: This will disable decoding of all AVX-512 (EVEX) instructions.
      *
      * This mode is NOT enabled by default.
      */

@@ -77,6 +77,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
     switch (encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
         *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
