@@ -1053,6 +1053,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
 #ifndef ZYDIS_DISABLE_AVX512
             if (definition->size[context->eosz_index])
             {
+                // TODO: fixme
                 // Operand size is hardcoded
                 operand->size = definition->size[context->eosz_index] * 8;
             } else
@@ -3606,6 +3607,7 @@ static ZyanStatus ZydisNodeHandlerXOP(const ZydisDecodedInstruction* instruction
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
@@ -3817,6 +3819,12 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             }
             case 0x8F:
             {
+                if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                {
+                    // 0x8F is just a normal opcode in this case
+                    break;
+                }
+
                 ZyanU8 next_input;
                 ZYAN_CHECK(ZydisInputPeek(state, instruction, &next_input));
                 if ((next_input & 0x1F) >= 8)
@@ -3851,7 +3859,11 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             }
             case 0xD5:
             {
-                // TODO: Check if REX2 is already present
+                if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
+                }
+
                 if (state->decoder->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
                 {
                     ZyanU8 rex2;
