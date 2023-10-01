@@ -78,7 +78,7 @@ set(ZYAN_ZYCORE_PATH
 # =============================================================================================== #
 
 if (ZYAN_SYSTEM_ZYCORE)
-    find_package(Zycore)
+    find_package(Zycore REQUIRED)
 else ()
     # Try to initialize the Zycore submodule using Git
     if (NOT EXISTS "${ZYAN_ZYCORE_PATH}/CMakeLists.txt" AND 
