@@ -171,27 +171,9 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
 
     static const ZydisRegister STATIC_MAPPING[ZYDIS_REGCLASS_MAX_VALUE + 1][3] =
     {
-                      /* 16               */ /* 32               */ /* 64               * /
-        /* INVALID */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* GPR8    */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* GPR16   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* GPR32   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* GPR64   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* X87     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* MMX     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* XMM     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* YMM     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* ZMM     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* TMM     */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* FLAGS   */ { ZYDIS_REGISTER_FLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_RFLAGS },
-        /* IP      */ { ZYDIS_REGISTER_IP   , ZYDIS_REGISTER_EIP   , ZYDIS_REGISTER_RIP    },
-        /* SEGMENT */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* TABLE   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* TEST    */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* CONTROL */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* DEBUG   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* MASK    */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   },
-        /* BOUND   */ { ZYDIS_REGISTER_NONE , ZYDIS_REGISTER_NONE  , ZYDIS_REGISTER_NONE   }
+                                 /* 16              */ /* 32               */ /* 64                  */
+        [ZYDIS_REGCLASS_FLAGS] = { ZYDIS_REGISTER_FLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_RFLAGS },
+        [ZYDIS_REGCLASS_IP   ] = { ZYDIS_REGISTER_IP   , ZYDIS_REGISTER_EIP   , ZYDIS_REGISTER_RIP    },
     };
     ZYAN_ASSERT(reg_class < ZYAN_ARRAY_LENGTH(STATIC_MAPPING));
 
@@ -200,13 +182,16 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
     {
     case ZYDIS_MACHINE_MODE_LONG_64:
         mode_bits = 2;
+        break;
     case ZYDIS_MACHINE_MODE_LONG_COMPAT_32:
     case ZYDIS_MACHINE_MODE_LEGACY_32:
         mode_bits = 1;
+        break;
     case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
     case ZYDIS_MACHINE_MODE_LEGACY_16:
     case ZYDIS_MACHINE_MODE_REAL_16:
         mode_bits = 0;
+        break;
     default:
         ZYAN_UNREACHABLE;
     }
