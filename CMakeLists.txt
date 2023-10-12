@@ -10,6 +10,12 @@ project(Zydis VERSION 4.0.0.0 LANGUAGES C)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
+# Set ZYDIS_ROOT_PROJECT to ON if this is the top-level project otherwise OFF by default.
+set(ZYDIS_ROOT_PROJECT OFF)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(ZYDIS_ROOT_PROJECT ON)
+endif()
+
 # =============================================================================================== #
 # Overridable options                                                                             #
 # =============================================================================================== #
@@ -43,19 +49,19 @@ option(ZYDIS_BUILD_SHARED_LIB
     OFF)
 option(ZYDIS_BUILD_EXAMPLES
     "Build examples"
-    ON)
+    ${ZYDIS_ROOT_PROJECT})
 option(ZYDIS_BUILD_TOOLS
     "Build tools"
-    ON)
+    ${ZYDIS_ROOT_PROJECT})
 option(ZYDIS_BUILD_MAN
     "Build manpages for the tools (requires Ronn-NG)"
     OFF)
 option(ZYDIS_BUILD_DOXYGEN
     "Build doxygen documentation (requires Doxygen)"
-    ON)
+    ${ZYDIS_ROOT_PROJECT})
 option(ZYDIS_BUILD_TESTS
     "Build tests"
-    OFF)
+    ${ZYDIS_ROOT_PROJECT})
 option(ZYDIS_FUZZ_AFL_FAST
     "Enables AFL persistent mode and reduces prints in ZydisFuzzIn"
     OFF)
