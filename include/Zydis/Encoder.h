@@ -312,7 +312,9 @@ typedef struct ZydisEncoderRequest_
      */
     ZydisOperandSizeHint operand_size_hint;
     /**
-     * The number of instruction-operands.
+     * The number of visible (explicit) instruction operands.
+     *
+     * The encoder does not care about hidden (implicit) operands.
      */
     ZyanU8 operand_count;
     /**
@@ -422,11 +424,11 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
  * Converts decoded instruction to encoder request that can be passed to
  * `ZydisEncoderEncodeInstruction`.
  *
- * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
- * @param   operands        A pointer to the decoded operands.
- * @param   operand_count   The operand count.
- * @param   request         A pointer to the `ZydisEncoderRequest` struct, that receives
- *                          information necessary for encoder to re-encode the instruction.
+ * @param   instruction             A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   operands                A pointer to the decoded operands.
+ * @param   operand_count_visible   The number of visible instruction operands.
+ * @param   request                 A pointer to the `ZydisEncoderRequest` struct, that receives
+ *                                  information necessary for encoder to re-encode the instruction.
  *
  * This function performs simple structure conversion and does minimal sanity checks on the 
  * input. There's no guarantee that produced request will be accepted by
@@ -437,7 +439,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
  */
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     const ZydisDecodedInstruction* instruction, const ZydisDecodedOperand* operands,
-    ZyanU8 operand_count, ZydisEncoderRequest* request);
+    ZyanU8 operand_count_visible, ZydisEncoderRequest* request);
 
 /**
  * Fills provided buffer with `NOP` instructions using longest possible multi-byte instructions.
