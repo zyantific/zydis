@@ -4373,7 +4373,8 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                     }
                     if ((rel_info->accepts_branch_hints) &&
                         (request->prefixes & (ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN |
-                                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)))
+                                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN |
+                                              ZYDIS_ATTRIB_HAS_BND)))
                     {
                         extra_length = 1;
                     }
