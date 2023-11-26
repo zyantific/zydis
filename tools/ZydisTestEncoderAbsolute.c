@@ -230,6 +230,7 @@ static ZyanBool RunBranchingTests(void)
     {
         "P00",
         "PBT",
+        "PBN",
     };
     static const ZydisAddressSizeHint address_hints[] =
     {
