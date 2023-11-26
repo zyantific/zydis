@@ -224,6 +224,7 @@ static ZyanBool RunBranchingTests(void)
     static const ZydisInstructionAttributes prefixes[] = {
         0,
         ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,
+        ZYDIS_ATTRIB_HAS_BND,
     };
     static const char *str_prefixes[] =
     {
