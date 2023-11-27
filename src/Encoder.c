@@ -4373,10 +4373,20 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                     }
                     if ((rel_info->accepts_branch_hints) &&
                         (request->prefixes & (ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN |
-                                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN |
-                                              ZYDIS_ATTRIB_HAS_BND)))
+                                              ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)))
                     {
-                        extra_length = 1;
+                        extra_length += 1;
+                    }
+                    if ((rel_info->accepts_bound) && (request->prefixes & ZYDIS_ATTRIB_HAS_BND))
+                    {
+                        extra_length += 1;
+                        // `BND` prefix is not accepted for short `JMP` (Intel SDM Vol. 1)
+                        if ((request->mnemonic == ZYDIS_MNEMONIC_JMP) &&
+                            (request->branch_type == ZYDIS_BRANCH_TYPE_NONE) &&
+                            (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE))
+                        {
+                            start_offset = 1;
+                        }
                     }
                     if (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE)
                     {
