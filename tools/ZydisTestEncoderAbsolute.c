@@ -225,12 +225,14 @@ static ZyanBool RunBranchingTests(void)
         0,
         ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,
         ZYDIS_ATTRIB_HAS_BND,
+        ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN | ZYDIS_ATTRIB_HAS_BND,
     };
     static const char *str_prefixes[] =
     {
         "P00",
         "PBT",
-        "PBN",
+        "PBD",
+        "PBN+PBD",
     };
     static const ZydisAddressSizeHint address_hints[] =
     {
@@ -285,7 +287,12 @@ static ZyanBool RunBranchingTests(void)
 
         const ZydisEncoderRelInfo *rel_info = ZydisGetRelInfo(mnemonic);
         ZYAN_ASSERT(rel_info);
-        if (!rel_info->accepts_branch_hints && iter_branches[5].value != 0)
+        if ((!rel_info->accepts_branch_hints) && (prefix & (ZYDIS_ATTRIB_HAS_BRANCH_TAKEN |
+                                                            ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN)))
+        {
+            continue;
+        }
+        if ((!rel_info->accepts_bound) && (prefix & ZYDIS_ATTRIB_HAS_BND))
         {
             continue;
         }
