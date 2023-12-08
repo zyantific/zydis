@@ -4527,6 +4527,10 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
         }
         ZYAN_ASSERT(instruction.disp_size != 0);
         ZyanU8 disp_offset = (instruction.disp_size >> 3) + (instruction.imm_size >> 3);
+        if (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
+        {
+            disp_offset += 1;
+        }
         ZYAN_ASSERT(instruction_size > disp_offset);
         ZYAN_MEMCPY((ZyanU8 *)buffer + instruction_size - disp_offset, &rip_rel, sizeof(ZyanI32));
         op_rip_rel->mem.displacement = rip_rel;
