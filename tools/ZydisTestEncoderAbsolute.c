@@ -443,6 +443,19 @@ static ZyanBool RunRipRelativeTests(void)
     req.operands[1].reg.value = ZYDIS_REGISTER_EBX;
     all_passed &= RunTest(&req, ZydisMnemonicGetString(req.mnemonic), 0, ZYAN_TRUE);
 
+    // AMD 3DNow!
+    ZYAN_MEMSET(&req, 0, sizeof(req));
+    req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
+    req.mnemonic = ZYDIS_MNEMONIC_PI2FD;
+    req.operand_count = 2;
+    req.operands[0].type = ZYDIS_OPERAND_TYPE_REGISTER;
+    req.operands[0].reg.value = ZYDIS_REGISTER_MM1;
+    req.operands[1].type = ZYDIS_OPERAND_TYPE_MEMORY;
+    req.operands[1].mem.base = ZYDIS_REGISTER_RIP;
+    req.operands[1].mem.displacement = 0x66666666;
+    req.operands[1].mem.size = 8;
+    all_passed &= RunTest(&req, ZydisMnemonicGetString(req.mnemonic), 1, ZYAN_TRUE);
+
     return all_passed;
 }
 
