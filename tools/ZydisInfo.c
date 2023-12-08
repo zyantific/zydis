@@ -838,7 +838,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
 
     PrintValueLabel("ABSOLUTE");
     if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(&formatter, instruction, operands,
-        instruction->operand_count_visible, buffer, sizeof(buffer), 0, &token, NULL)))
+        instruction->operand_count_visible, buffer, sizeof(buffer), 0, &token, ZYAN_NULL)))
     {
         PrintStatusError(status, "Failed to tokenize instruction");
         exit(status);
@@ -847,7 +847,7 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
     PrintValueLabel("RELATIVE");
     if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(&formatter, instruction, operands,
         instruction->operand_count_visible, buffer, sizeof(buffer), ZYDIS_RUNTIME_ADDRESS_NONE,
-        &token, NULL)))
+        &token, ZYAN_NULL)))
     {
         PrintStatusError(status, "Failed to tokenize instruction");
         exit(status);
