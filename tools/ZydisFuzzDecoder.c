@@ -133,13 +133,13 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
     ZydisFormatterFormatInstruction(&formatter, &instruction, operands,
-        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, NULL);
+        instruction.operand_count_visible, format_buffer, output_len, control_block.u64, ZYAN_NULL);
 
     // Fuzz tokenizer.
     const ZydisFormatterToken* token;
     status = ZydisFormatterTokenizeInstruction(&formatter, &instruction, operands,
         instruction.operand_count_visible, format_buffer, output_len, control_block.u64, &token,
-        NULL);
+        ZYAN_NULL);
 
     // Walk tokens.
     while (ZYAN_SUCCESS(status))
@@ -163,11 +163,11 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         const ZydisDecodedOperand* op = &operands[op_idx];
 
         ZydisFormatterFormatOperand(&formatter, &instruction, op, format_buffer, output_len,
-            control_block.u64, NULL);
+            control_block.u64, ZYAN_NULL);
 
         // Fuzz single operand tokenization.
         ZydisFormatterTokenizeOperand(&formatter, &instruction, op, format_buffer, output_len,
-            control_block.u64, &token, NULL);
+            control_block.u64, &token, ZYAN_NULL);
 
         // Address translation helper.
         ZyanU64 abs_addr;
