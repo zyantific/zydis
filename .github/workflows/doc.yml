@@ -29,7 +29,7 @@ jobs:
       - name: Clone Doxygen theme
         run: >-
           git clone 
-          --depth=1 --branch=v2.1.0 
+          --depth=1 --branch=v2.3.1
           https://github.com/jothepro/doxygen-awesome-css.git 
           /tmp/doxy-theme
       - name: Generate documentation
