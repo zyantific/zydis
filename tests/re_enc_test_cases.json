@@ -706,5 +706,29 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "CACACA",
         "description": "ret far 0xCACA"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_COMPAT_32",
+        "stack_width": "ZYDIS_STACK_WIDTH_32",
+        "payload": "003D00FFFFFF",
+        "description": "add byte ptr ds:[0xFFFFFF00], bh"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_COMPAT_32",
+        "stack_width": "ZYDIS_STACK_WIDTH_32",
+        "payload": "67003E00FF",
+        "description": "add byte ptr ds:[0xFF00], bh"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "678C0CE5E5E5E5E5E5E5E5E5E5E5E5",
+        "description": "mov word ptr ds:[0xE5E5E5E5], cs"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_COMPAT_32",
+        "stack_width": "ZYDIS_STACK_WIDTH_16",
+        "payload": "62E27D4F002D0000020000006291FF",
+        "description": "vpshufb zmm5 {k7}, zmm0, zmmword ptr ds:[0x00020000]"
     }
 ]

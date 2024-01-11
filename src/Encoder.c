@@ -1578,17 +1578,6 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
             {
                 return ZYAN_FALSE;
             }
-            if (ZydisGetMachineModeWidth(match->request->machine_mode) == 16)
-            {
-                if ((ZyanI16)displacement == 0)
-                {
-                    disp_size = 0;
-                }
-                else
-                {
-                    disp_size = ZydisGetSignedImmSize((ZyanI16)displacement);
-                }
-            }
 
             match->cd8_scale = ZydisGetCompDispScale(match);
             if (match->cd8_scale)
@@ -1596,7 +1585,8 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                 const ZyanI64 mask = (1 << match->cd8_scale) - 1;
                 if (!(displacement & mask))
                 {
-                    disp_size = ZydisGetSignedImmSize(displacement >> match->cd8_scale);
+                    if (ZydisGetSignedImmSize(displacement >> match->cd8_scale) == 8)
+                        disp_size = 8;
                 }
                 else if (disp_size == 8)
                 {
@@ -1941,7 +1931,7 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                     reg_index_class);
             }
         }
-        else
+        else if (disp_size != 8 || !match->cd8_scale)
         {
             ZyanU8 min_disp_size = match->easz ? match->easz : 16;
             if (((min_disp_size == 16) && !(match->definition->address_sizes & ZYDIS_WIDTH_16)) ||
@@ -1949,19 +1939,40 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
             {
                 min_disp_size = 32;
             }
-            if (ZydisGetUnsignedImmSize(displacement) == 16)
-            {
-                disp_size = 16;
-            }
             if (disp_size < min_disp_size)
             {
                 disp_size = min_disp_size;
             }
-            if (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
+            const ZyanU8 mode_width = ZydisGetMachineModeWidth(match->request->machine_mode);
+            switch (match->request->address_size_hint)
             {
-                candidate_easz = match->easz == 32 ? 32 : 64;
+            case ZYDIS_ADDRESS_SIZE_HINT_NONE:
+                if (mode_width >= 32)
+                {
+                    disp_size = 32;
+                }
+                if (mode_width == 64)
+                {
+                    candidate_easz = 64;
+                }
+                break;
+            case ZYDIS_ADDRESS_SIZE_HINT_16:
+                if (disp_size != 16)
+                {
+                    return ZYAN_FALSE;
+                }
+                break;
+            case ZYDIS_ADDRESS_SIZE_HINT_32:
+                disp_size = 32;
+                break;
+            case ZYDIS_ADDRESS_SIZE_HINT_64:
+                disp_size = 32;
+                candidate_easz = 64;
+                break;
+            default:
+                ZYAN_UNREACHABLE;
             }
-            else
+            if (candidate_easz == 0)
             {
                 candidate_easz = disp_size;
             }
