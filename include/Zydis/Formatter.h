@@ -176,16 +176,16 @@ typedef enum ZydisFormatterProperty_
     /**
      * Controls the padding of absolute address values.
      *
-     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to padd all
-     * addresses to the current stack width (hexadecimal only), or any other integer value for
+     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to pad all
+     * addresses to the current address width (hexadecimal only), or any other integer value for
      * custom padding.
      */
     ZYDIS_FORMATTER_PROP_ADDR_PADDING_ABSOLUTE,
     /**
      * Controls the padding of relative address values.
      *
-     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to padd all
-     * addresses to the current stack width (hexadecimal only), or any other integer value for
+     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to pad all
+     * addresses to the current address width (hexadecimal only), or any other integer value for
      * custom padding.
      */
     ZYDIS_FORMATTER_PROP_ADDR_PADDING_RELATIVE,
