@@ -426,7 +426,7 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
     if ((formatter->addr_padding_relative == ZYDIS_PADDING_AUTO) &&
         (formatter->addr_base == ZYDIS_NUMERIC_BASE_HEX))
     {
-        switch (context->instruction->stack_width)
+        switch (context->instruction->address_width)
         {
         case 16:
             padding =  4;
