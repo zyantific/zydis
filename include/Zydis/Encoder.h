@@ -302,6 +302,13 @@ typedef struct ZydisEncoderRequest_
      * encoder deduces address size from `ZydisEncoderOperand` structures that represent
      * explicit and implicit operands. This hint resolves conflicts when instruction's hidden
      * operands scale with address size attribute.
+     *
+     * This hint is also used for instructions with absolute memory addresses (memory operands
+     * with displacement and no registers). Since displacement field is a 64-bit signed integer
+     * it's not possible to determine desired address mode correctly in all situations. Use
+     * `ZYDIS_ADDRESS_SIZE_HINT_NONE` to prefer address size default for specified machine mode.
+     * All other `ZYDIS_ADDRESS_SIZE_*` values will force specific address size or cause encoding
+     * to fail when it isn't possible to encode address provided.
      */
     ZydisAddressSizeHint address_size_hint;
     /**
