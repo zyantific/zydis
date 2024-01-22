@@ -4803,6 +4803,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH:
             index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_IPREFETCH));
             break;
+        case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
+            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_UD0_COMPAT));
+            break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
             {
@@ -4899,6 +4902,8 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
 ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode,
     ZydisStackWidth stack_width)
 {
+    ZYAN_STATIC_ASSERT(ZYDIS_DECODER_MODE_MAX_VALUE <= 32);
+
     static const ZyanU32 decoder_modes =
 #ifdef ZYDIS_MINIMAL_MODE
         (1 << ZYDIS_DECODER_MODE_MINIMAL) |
