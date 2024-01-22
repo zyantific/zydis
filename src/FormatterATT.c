@@ -226,8 +226,12 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         if (neither_reg_nor_idx)
         {
             ZYAN_CHECK(formatter->func_print_address_abs(formatter, buffer, context));
-        } else if (context->operand->mem.disp.has_displacement && context->operand->mem.disp.value)
+        } else if (context->operand->mem.disp.has_displacement /* && context->operand->mem.disp.value */)
         {
+            // TODO: Add formatter option to control printing of scale1/disp0 with options
+            // - conditional (default) = print scale1 if SIB is present in physical encoding, print disp0 if DISP is present in physical encoding
+            // - always
+            // - never
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
         }
 
@@ -252,7 +256,6 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
                 (context->operand->mem.type != ZYDIS_MEMOP_TYPE_MIB) &&
                 ((context->operand->mem.scale > 1) || formatter->force_memory_scale))
             {
-                ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_DELIMITER);
                 ZYDIS_BUFFER_APPEND(buffer, DELIM_MEMORY);
                 ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
                 ZYAN_CHECK(ZydisStringAppendDecU(&buffer->string, context->operand->mem.scale, 0,

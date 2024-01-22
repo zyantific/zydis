@@ -122,10 +122,19 @@ typedef enum ZydisFormatterProperty_
     /**
      * Controls the printing of the scale-factor component for memory operands.
      *
-     * Pass `ZYAN_TRUE` as value to force the formatter to always print the scale-factor component
-     * of memory operands or `ZYAN_FALSE` to omit the scale factor for values of `1`.
+     * Pass `ZYDIS_OPTION_NEVER` to never print the scale-factor 1, `ZYDIS_OPTION_ALWAYS` to always
+     * print the scale-factor 1 or `ZYDIS_OPTION_AUTO` to print the scale-factor 1 only if it's 
+     * present in the physical instruction encoding (if the instruction has a `SIB` byte).
      */
-     ZYDIS_FORMATTER_PROP_FORCE_SCALE_ONE,
+     ZYDIS_FORMATTER_PROP_SCALE_ONE,
+    /**
+     * Controls the printing of the displacement component for memory operands.
+     *
+     * Pass `ZYDIS_OPTION_NEVER` to never print the displacement 0, `ZYDIS_OPTION_ALWAYS` to always
+     * print the displacement 0 or `ZYDIS_OPTION_AUTO` to print the displacement 0 only if it's 
+     * present in the physical instruction encoding.
+     */
+     ZYDIS_FORMATTER_PROP_DISP_ZERO,
     /**
      * Controls the printing of branch addresses.
      *
@@ -169,8 +178,7 @@ typedef enum ZydisFormatterProperty_
      */
     ZYDIS_FORMATTER_PROP_ADDR_BASE,
     /**
-     * Controls the signedness of relative addresses. Absolute addresses are
-     * always unsigned.
+     * Controls the signedness of relative addresses. Absolute addresses are always unsigned.
      */
     ZYDIS_FORMATTER_PROP_ADDR_SIGNEDNESS,
     /**
