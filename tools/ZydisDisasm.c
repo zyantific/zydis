@@ -91,7 +91,7 @@ static void PrintDisassembly(const ZydisFormatter* formatter,
     const ZydisFormatterToken* token;
 
     if (!ZYAN_SUCCESS(status = ZydisFormatterTokenizeInstruction(formatter, instruction, operands,
-        instruction->operand_count_visible, buffer, length, runtime_address, &token, NULL)))
+        instruction->operand_count_visible, buffer, length, runtime_address, &token, ZYAN_NULL)))
     {
         PrintStatusError(status, "Failed to tokenize instruction");
         exit(status);

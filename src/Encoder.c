@@ -4375,7 +4375,18 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                         (request->prefixes & (ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN |
                                               ZYDIS_ATTRIB_HAS_BRANCH_TAKEN)))
                     {
-                        extra_length = 1;
+                        extra_length += 1;
+                    }
+                    if ((rel_info->accepts_bound) && (request->prefixes & ZYDIS_ATTRIB_HAS_BND))
+                    {
+                        extra_length += 1;
+                        // `BND` prefix is not accepted for short `JMP` (Intel SDM Vol. 1)
+                        if ((request->mnemonic == ZYDIS_MNEMONIC_JMP) &&
+                            (request->branch_type == ZYDIS_BRANCH_TYPE_NONE) &&
+                            (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE))
+                        {
+                            start_offset = 1;
+                        }
                     }
                     if (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE)
                     {
@@ -4516,6 +4527,10 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
         }
         ZYAN_ASSERT(instruction.disp_size != 0);
         ZyanU8 disp_offset = (instruction.disp_size >> 3) + (instruction.imm_size >> 3);
+        if (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
+        {
+            disp_offset += 1;
+        }
         ZYAN_ASSERT(instruction_size > disp_offset);
         ZYAN_MEMCPY((ZyanU8 *)buffer + instruction_size - disp_offset, &rip_rel, sizeof(ZyanI32));
         op_rip_rel->mem.displacement = rip_rel;
@@ -4525,10 +4540,11 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
 }
 
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
-    const ZydisDecodedInstruction *instruction, const ZydisDecodedOperand* operands, 
-    ZyanU8 operand_count, ZydisEncoderRequest *request)
+        const ZydisDecodedInstruction *instruction, const ZydisDecodedOperand* operands,
+        ZyanU8 operand_count_visible, ZydisEncoderRequest *request)
 {
-    if (!instruction || !request || (operand_count && !operands))
+    if (!instruction || !request || (operand_count_visible && !operands) ||
+        operand_count_visible != instruction->operand_count_visible)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -4635,13 +4651,8 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     }
     request->allowed_encodings = 1 << instruction->encoding;
 
-    if ((operand_count > ZYDIS_ENCODER_MAX_OPERANDS) || 
-        (operand_count > instruction->operand_count_visible))
-    {
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    request->operand_count = operand_count;
-    for (ZyanU8 i = 0; i < operand_count; ++i)
+    request->operand_count = operand_count_visible;
+    for (ZyanU8 i = 0; i < operand_count_visible; ++i)
     {
         const ZydisDecodedOperand *dec_op = &operands[i];
         ZydisEncoderOperand *enc_op = &request->operands[i];

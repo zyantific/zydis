@@ -224,11 +224,15 @@ static ZyanBool RunBranchingTests(void)
     static const ZydisInstructionAttributes prefixes[] = {
         0,
         ZYDIS_ATTRIB_HAS_BRANCH_TAKEN,
+        ZYDIS_ATTRIB_HAS_BND,
+        ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN | ZYDIS_ATTRIB_HAS_BND,
     };
     static const char *str_prefixes[] =
     {
         "P00",
         "PBT",
+        "PBD",
+        "PBN+PBD",
     };
     static const ZydisAddressSizeHint address_hints[] =
     {
@@ -283,7 +287,12 @@ static ZyanBool RunBranchingTests(void)
 
         const ZydisEncoderRelInfo *rel_info = ZydisGetRelInfo(mnemonic);
         ZYAN_ASSERT(rel_info);
-        if (!rel_info->accepts_branch_hints && iter_branches[5].value != 0)
+        if ((!rel_info->accepts_branch_hints) && (prefix & (ZYDIS_ATTRIB_HAS_BRANCH_TAKEN |
+                                                            ZYDIS_ATTRIB_HAS_BRANCH_NOT_TAKEN)))
+        {
+            continue;
+        }
+        if ((!rel_info->accepts_bound) && (prefix & ZYDIS_ATTRIB_HAS_BND))
         {
             continue;
         }
@@ -433,6 +442,19 @@ static ZyanBool RunRipRelativeTests(void)
     req.operands[1].type = ZYDIS_OPERAND_TYPE_REGISTER;
     req.operands[1].reg.value = ZYDIS_REGISTER_EBX;
     all_passed &= RunTest(&req, ZydisMnemonicGetString(req.mnemonic), 0, ZYAN_TRUE);
+
+    // AMD 3DNow!
+    ZYAN_MEMSET(&req, 0, sizeof(req));
+    req.machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
+    req.mnemonic = ZYDIS_MNEMONIC_PI2FD;
+    req.operand_count = 2;
+    req.operands[0].type = ZYDIS_OPERAND_TYPE_REGISTER;
+    req.operands[0].reg.value = ZYDIS_REGISTER_MM1;
+    req.operands[1].type = ZYDIS_OPERAND_TYPE_MEMORY;
+    req.operands[1].mem.base = ZYDIS_REGISTER_RIP;
+    req.operands[1].mem.displacement = 0x66666666;
+    req.operands[1].mem.size = 8;
+    all_passed &= RunTest(&req, ZydisMnemonicGetString(req.mnemonic), 1, ZYAN_TRUE);
 
     return all_passed;
 }
