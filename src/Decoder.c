@@ -4395,7 +4395,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   def_reg     The type definition for the `.reg` encoded operand.
  * @param   def_rm      The type definition for the `.rm` encoded operand.
- * @param   def_ndsndd  The type definition for the `.vvvv` encoded operand.
+ * @param   def_vvvv  The type definition for the `.vvvv` encoded operand.
  *
  * @return  A zyan status code.
  *
@@ -4403,60 +4403,82 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
  * `base` and `index`.
  *
  * Definition encoding:
- * - `def_reg`    -> `ZydisRegisterKind`
- * - `def_ndsndd` -> `ZydisRegisterKind`
- * - `def_rm`     -> `ZydisRegisterKind` (`.mod == 3`) or ZydisMemoryOperandType (`.mod != 3`)
+ * - `def_reg`  -> `ZydisRegisterKind`
+ * - `def_rm`   -> `ZydisRegisterKind` (`.mod == 3`) or ZydisMemoryOperandType (`.mod != 3`)
+ * - `def_vvvv` -> `ZydisRegisterKind`
  */
 static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
-    const ZydisDecodedInstruction* instruction, ZyanU8 def_reg, ZyanU8 def_rm, ZyanU8 def_ndsndd)
+    const ZydisDecodedInstruction* instruction, ZyanU8 def_reg, ZyanU8 def_rm, ZyanU8 def_vvvv)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
 
-    const ZyanBool is_64_bit = (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64);
-    const ZyanBool is_reg    = context->reg_info.is_mod_reg;
-    const ZyanBool has_sib   = !is_reg && (instruction->raw.modrm.rm == 4);
-    const ZyanBool has_vsib  = has_sib && (def_rm == ZYDIS_MEMOP_TYPE_VSIB);
+    /*
+        .............................................
+        :          ::  4 :  3 :     [2:0] : TYPE    :
+        :::::::::::::::::::::::::::::::::::::::::::::
+        : REG      :: R4 : R3 : modrm.reg : GPR, VR :
+        :----------::----:----:-----------:---------:
+        : VVVV     :: V4 : [V3:V2,V1,V0]  : GPR, VR :
+        :----------::----:----:-----------:---------:
+        : RM (VR ) :: X3 : B3 : modrm.r/m : VR      :
+        :----------::----:----:-----------:---------:
+        : RM (GPR) :: B4 : B3 : modrm.r/m : GPR     :
+        :----------::----:----:-----------:---------:
+        : BASE     :: B4 : B3 : modrm.r/m : GPR     :
+        :----------::----:----:-----------:---------:
+        : INDEX    :: X4 : X3 : sib.index : GPR     :
+        :----------::----:----:-----------:---------:
+        : VIDX     :: V4 : X3 : sib.index : VR      :
+        :.................................:.........:
 
-    ZyanU8 id_reg    = instruction->raw.modrm.reg;
-    ZyanU8 id_rm     = instruction->raw.modrm.rm;
-    ZyanU8 id_ndsndd = is_64_bit ? context->vector_unified.vvvv : context->vector_unified.vvvv & 0x07;
-    ZyanU8 id_base   = has_sib ? instruction->raw.sib.base : instruction->raw.modrm.rm;
-    ZyanU8 id_index  = instruction->raw.sib.index;
+        Table 3.3: 32-Register Support in APX Using EVEX
+
+        Note that the R, X and B register identifiers can also address non-GPR register types, such
+        as vector registers, control registers and debug registers. When any of them does, the
+        highest-order bits R4, X4 or B4 are generally ignored, except when the register being
+        addressed is a control or debug register.
+    */
+
+    const ZyanBool is_64_bit  = (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64);
+    const ZyanBool is_mod_reg = context->reg_info.is_mod_reg;
+    const ZyanBool has_sib    = !is_mod_reg && (instruction->raw.modrm.rm == 4);
+    const ZyanBool has_vsib   = has_sib && (def_rm == ZYDIS_MEMOP_TYPE_VSIB);
+
+    ZyanU8 id_reg   = instruction->raw.modrm.reg;
+    ZyanU8 id_rm    = instruction->raw.modrm.rm;
+    ZyanU8 id_vvvv  = is_64_bit ? context->vector_unified.vvvv : context->vector_unified.vvvv & 0x07;
+    ZyanU8 id_base  = has_sib ? instruction->raw.sib.base : instruction->raw.modrm.rm;
+    ZyanU8 id_index = instruction->raw.sib.index;
 
     if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
     {
         const ZyanBool is_emvex = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                                   (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
 
-        // TODO: These extensions are only valid if APX is enabled
-        const ZyanU8 apx_x4 = context->vector_unified.X4;
-        const ZyanU8 apx_b4 = context->vector_unified.B4;
-
-        // The `index` extension by `.v'` is only valid for VSIB operands
-        const ZyanU8 vsib_v2 = has_vsib ? context->vector_unified.V4 : apx_x4;
-        
-        ZyanU8 evex_x  = 0;
-        if (is_emvex)
+        ZyanU8 rm4 = 0;
+        if (is_mod_reg && is_emvex)
         {
-            // The `rm` extension by `.X3` is only valid for EVEX/MVEX instructions and VR registers
+            // The `rm` extension by `X3` is only valid for VR registers (EVEX encoding)
             if (def_rm == ZYDIS_REGKIND_VR)
             {
-                evex_x = context->vector_unified.X3;
+                rm4 = context->vector_unified.X3;
             }
-
-            // The `rm` extension by `.B4` is only valid for EVEX/MVEX instructions and GPR registers
-            if (def_rm == ZYDIS_REGKIND_GPR)
+            else
             {
-                evex_x = apx_b4;
+                rm4 = context->vector_unified.B4;
             }
         }
 
-        id_reg    |= (context->vector_unified.R4 << 4) | (context->vector_unified.R3 << 3);
-        id_rm     |= (evex_x                     << 4) | (context->vector_unified.B3 << 3);
-        id_ndsndd |= (context->vector_unified.V4 << 4)                                   ;
-        id_base   |= (apx_b4                     << 4) | (context->vector_unified.B3 << 3);
-        id_index  |= (vsib_v2                    << 4) | (context->vector_unified.X3 << 3);
+        const ZyanU8 index4 = has_vsib
+            ? context->vector_unified.V4  // VIDX
+            : context->vector_unified.X4; // INDEX
+
+        id_reg   |= (context->vector_unified.R4 << 4) | (context->vector_unified.R3 << 3);
+        id_rm    |= (rm4                        << 4) | (context->vector_unified.B3 << 3);
+        id_vvvv  |= (context->vector_unified.V4 << 4)                                    ;
+        id_base  |= (context->vector_unified.B4 << 4) | (context->vector_unified.B3 << 3);
+        id_index |= (index4                     << 4) | (context->vector_unified.X3 << 3);
 
         // The masking emulates the actual CPU behavior and does not verify if the resulting ids
         // are actually valid for the given register kind.
@@ -4465,66 +4487,67 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         {
             /* INVALID */ 0,
             /* GPR     */ (1 << 5) - 1,
-            /* X87     */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
-            /* MMX     */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
+            /* X87     */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
+            /* MMX     */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
             /* VR      */ (1 << 5) - 1,
             /* TMM     */ (1 << 5) - 1,
-            /* SEGMENT */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
-            /* TEST    */ (1 << 3) - 1, // ignore `.R`, ignore `.R'`
-            /* CONTROL */ (1 << 4) - 1, //              ignore `.R'`
-            /* DEBUG   */ (1 << 4) - 1, //              ignore `.R'`
+            /* SEGMENT */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
+            /* TEST    */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
+            /* CONTROL */ (1 << 5) - 1,
+            /* DEBUG   */ (1 << 5) - 1,
             /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ (1 << 4) - 1, //              ignore `.R'`
-            /* DFV     */ 0             // never encoded in `.reg`
+            /* BOUND   */ (1 << 4) - 1, // ignore `R4`
+            /* DFV     */ 0
         };
         id_reg &= mask_reg[def_reg];
 
         static const ZyanU8 mask_rm[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
-            /* GPR     */ (1 << 4) - 1, //              ignore `.X`
-            /* X87     */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
-            /* MMX     */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
+            /* GPR     */ (1 << 4) - 1,
+            /* X87     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
+            /* MMX     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* VR      */ (1 << 5) - 1,
-            /* TMM     */ (1 << 4) - 1, //              ignore `.X`
-            /* SEGMENT */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
-            /* TEST    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
-            /* CONTROL */ (1 << 4) - 1, //              ignore `.X`
-            /* DEBUG   */ (1 << 4) - 1, //              ignore `.X`
-            /* MASK    */ (1 << 3) - 1, // ignore `.B`, ignore `.X`
-            /* BOUND   */ (1 << 4) - 1, //              ignore `.X`
-            /* DFV     */ 0             // never encoded in `.rm`
+            /* TMM     */ (1 << 4) - 1, // ignore `X3|B4`
+            /* SEGMENT */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
+            /* TEST    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
+            /* CONTROL */ (1 << 5) - 1,
+            /* DEBUG   */ (1 << 5) - 1,
+            /* MASK    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
+            /* BOUND   */ (1 << 4) - 1, // ignore `X3|B4`
+            /* DFV     */ 0
         };
-        id_rm &= (is_reg ? mask_rm[def_rm] : 0xFF);
+        id_rm &= (is_mod_reg ? mask_rm[def_rm] : 0xFF);
 
-        static const ZyanU8 mask_ndsndd[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        static const ZyanU8 mask_vvvv[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
             /* GPR     */ (1 << 5) - 1,
-            /* X87     */ 0,            // never encoded in `.vvvv`
-            /* MMX     */ 0,            // never encoded in `.vvvv`
+            /* X87     */ 0,
+            /* MMX     */ 0,
             /* VR      */ (1 << 5) - 1,
             /* TMM     */ (1 << 5) - 1,
-            /* SEGMENT */ 0,            // never encoded in `.vvvv`
-            /* TEST    */ 0,            // never encoded in `.vvvv`
-            /* CONTROL */ 0,            // never encoded in `.vvvv`
-            /* DEBUG   */ 0,            // never encoded in `.vvvv`
+            /* SEGMENT */ 0,
+            /* TEST    */ 0,
+            /* CONTROL */ 0,
+            /* DEBUG   */ 0,
             /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ 0,            // never encoded in `.vvvv`
-            /* DFV     */ (1 << 4) - 1  // ignore `.V'`
+            /* BOUND   */ 0,
+            /* DFV     */ (1 << 4) - 1  // ignore `V4`
         };
-        id_ndsndd &= mask_ndsndd[def_reg];
+        id_vvvv &= mask_vvvv[def_vvvv];
     }
 
     // Validate
 
     // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
-    if (!def_ndsndd && context->vector_unified.vvvv)
+    if (!def_vvvv && context->vector_unified.vvvv)
     {
         return ZYDIS_STATUS_BAD_REGISTER;
     }
+
     // `.V4` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
-    if (!def_ndsndd && !has_vsib && context->vector_unified.V4)
+    if (!def_vvvv && !has_vsib && context->vector_unified.V4)
     {
         return ZYDIS_STATUS_BAD_REGISTER;
     }
@@ -4545,7 +4568,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* DEBUG   */   8,
             /* MASK    */   8,
             /* BOUND   */   4,
-            /* DFV     */   0 // APX is only available in 64-bit mode
+            /* DFV     */   0
         },
         // 64 bit mode
         {
@@ -4569,8 +4592,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     };
 
     if ((id_reg >= available_regs[is_64_bit][def_reg]) ||
-        (id_ndsndd >= available_regs[is_64_bit][def_ndsndd]) ||
-        (is_reg && (id_rm >= available_regs[is_64_bit][def_rm])))
+        (id_vvvv >= available_regs[is_64_bit][def_vvvv]) ||
+        (is_mod_reg && (id_rm >= available_regs[is_64_bit][def_rm])))
     {
         return ZYDIS_STATUS_BAD_REGISTER;
     }
@@ -4580,7 +4603,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     {
         id_cr = id_reg;
     }
-    if (is_reg && (def_rm == ZYDIS_REGKIND_CONTROL))
+    if (is_mod_reg && (def_rm == ZYDIS_REGKIND_CONTROL))
     {
         id_cr = id_rm;
     }
@@ -4601,11 +4624,11 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     // Assign to context
 
-    context->reg_info.id_reg    = def_reg          ? id_reg    : -1;
-    context->reg_info.id_rm     = def_rm && is_reg ? id_rm     : -1;
-    context->reg_info.id_ndsndd = def_ndsndd       ? id_ndsndd : -1;
-    context->reg_info.id_base   = id_base;  // TODO: Set unused register to -1 as well
-    context->reg_info.id_index  = id_index; // TODO: Set unused register to -1 as well
+    context->reg_info.id_reg    = def_reg              ? id_reg    : -1;
+    context->reg_info.id_rm     = def_rm && is_mod_reg ? id_rm     : -1;
+    context->reg_info.id_ndsndd = def_vvvv             ? id_vvvv   : -1;
+    context->reg_info.id_base   = !is_mod_reg          ? id_base   : -1;
+    context->reg_info.id_index  = !is_mod_reg          ? id_index  : -1;
 
     return ZYAN_STATUS_SUCCESS;
 }

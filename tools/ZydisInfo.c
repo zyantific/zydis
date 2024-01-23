@@ -1001,7 +1001,10 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "APX_EVEX_SHA",
         "APX_EVEX_CET_WRSS",
         "APX_EVEX_CET_WRUSS",
-        "APX_LEGACY_JMPABS"
+        "APX_LEGACY_JMPABS",
+        "APX_EVEX_RAO_INT",
+        "USER_MSR_EVEX",
+        "LEGACY_RAO_INT"
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 
