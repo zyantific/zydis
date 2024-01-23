@@ -163,7 +163,8 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
         return &FILTERS_MODE_IPREFETCH[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
         ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_UD0_COMPAT[parent->value][index];    case ZYDIS_NODETYPE_FILTER_EVEX_ND:
+        return &FILTERS_MODE_UD0_COMPAT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_ND:
         ZYAN_ASSERT(index <   2);
         return &FILTERS_EVEX_ND[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_EVEX_NF:

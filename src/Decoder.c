@@ -5087,7 +5087,8 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
             index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_UD0_COMPAT));
-            break;        case ZYDIS_NODETYPE_FILTER_EVEX_ND:
+            break;
+        case ZYDIS_NODETYPE_FILTER_EVEX_ND:
             status = ZydisNodeHandlerEvexND(state->context, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_NF:
