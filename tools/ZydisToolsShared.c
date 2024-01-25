@@ -102,12 +102,13 @@ const char* FormatZyanStatus(ZyanStatus status)
         /* 04 */ "ILLEGAL_LOCK",
         /* 05 */ "ILLEGAL_LEGACY_PFX",
         /* 06 */ "ILLEGAL_REX",
-        /* 07 */ "INVALID_MAP",
-        /* 08 */ "MALFORMED_EVEX",
-        /* 09 */ "MALFORMED_MVEX",
-        /* 0A */ "INVALID_MASK",
-        /* 0B */ "SKIP_TOKEN",
-        /* 0C */ "IMPOSSIBLE_INSTRUCTION"
+        /* 07 */ "ILLEGAL_REX2",
+        /* 08 */ "INVALID_MAP",
+        /* 09 */ "MALFORMED_EVEX",
+        /* 0A */ "MALFORMED_MVEX",
+        /* 0B */ "INVALID_MASK",
+        /* 0C */ "SKIP_TOKEN",
+        /* 0D */ "IMPOSSIBLE_INSTRUCTION"
     };
 
     if (ZYAN_STATUS_MODULE(status) == ZYAN_MODULE_ZYCORE)

@@ -213,6 +213,10 @@ static void PrintSegments(const ZydisDecodedInstruction* instruction, const Zyan
             print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
             print_info[i].name  = "REX";
             break;
+        case ZYDIS_INSTR_SEGMENT_REX2:
+            print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
+            print_info[i].name = "REX2";
+            break;
         case ZYDIS_INSTR_SEGMENT_XOP:
             print_info[i].color = CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA);
             print_info[i].name  = "XOP";
@@ -762,9 +766,38 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_conversion_mode) == ZYDIS_CONVERSION_MODE_MAX_VALUE + 1);
 
+    static const char* strings_scc[] =
+    {
+        "O",
+        "NO",
+        "B",
+        "NB",
+        "Z",
+        "NZ",
+        "BE",
+        "NBE",
+        "S",
+        "NS",
+        "TRUE",
+        "FALSE",
+        "L",
+        "NL",
+        "LE",
+        "NLE"
+    };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(strings_scc) == ZYDIS_SCC_MAX_VALUE + 1);
+
     PrintSectionHeader("AVX");
 
-    PRINT_VALUE_B("VECTORLEN", "%03d", instruction->avx.vector_length);
+    if (instruction->avx.vector_length)
+    {
+        PRINT_VALUE_B("VECTORLEN", "%03d", instruction->avx.vector_length);
+    }
+    else
+    {
+        PRINT_VALUE_R("VECTORLEN", "SCALAR");
+    }
+
     PRINT_VALUE_B("BROADCAST", "%s%s%s", strings_broadcast_mode[instruction->avx.broadcast.mode],
         CVT100_OUT(COLOR_VALUE_LABEL), instruction->avx.broadcast.is_static ? " (static)" : "");
 
@@ -777,6 +810,10 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
             strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
+        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SCC)
+        {
+            PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->avx.scc]);
+        }
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
@@ -889,7 +926,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "XOP",
         "VEX",
         "EVEX",
-        "MVEX"
+        "MVEX",
+        "REX2"
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(instr_encodings) == ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE + 1);
 
@@ -912,6 +950,7 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "AVX8",
         "AVX11",
         "AVX12",
+        "AVX14",
         "E1",
         "E1NF",
         "E2",
@@ -940,7 +979,32 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "AMXE3",
         "AMXE4",
         "AMXE5",
-        "AMXE6"
+        "AMXE6",
+        "AMXE1_EVEX",
+        "AMXE2_EVEX",
+        "AMXE3_EVEX",
+        "AMXE4_EVEX",
+        "AMXE5_EVEX",
+        "AMXE6_EVEX",
+        "APX_EVEX_INT",
+        "APX_EVEX_KEYLOCKER",
+        "APX_EVEX_BMI",
+        "APX_EVEX_CCMP",
+        "APX_EVEX_CFCMOV",
+        "APX_EVEX_CMPCCXADD",
+        "APX_EVEX_ENQCMD",
+        "APX_EVEX_INVEPT",
+        "APX_EVEX_INVPCID",
+        "APX_EVEX_INVVPID",
+        "APX_EVEX_KMOV",
+        "APX_EVEX_PP2",
+        "APX_EVEX_SHA",
+        "APX_EVEX_CET_WRSS",
+        "APX_EVEX_CET_WRUSS",
+        "APX_LEGACY_JMPABS",
+        "APX_EVEX_RAO_INT",
+        "USER_MSR_EVEX",
+        "LEGACY_RAO_INT"
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 
@@ -953,6 +1017,7 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_MODRM,                "HAS_MODRM"                },
         { ZYDIS_ATTRIB_HAS_SIB,                  "HAS_SIB"                  },
         { ZYDIS_ATTRIB_HAS_REX,                  "HAS_REX"                  },
+        { ZYDIS_ATTRIB_HAS_REX2,                 "HAS_REX2"                 },
         { ZYDIS_ATTRIB_HAS_XOP,                  "HAS_XOP"                  },
         { ZYDIS_ATTRIB_HAS_VEX,                  "HAS_VEX"                  },
         { ZYDIS_ATTRIB_HAS_EVEX,                 "HAS_EVEX"                 },
@@ -999,7 +1064,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_OPERANDSIZE,          "HAS_OPERANDSIZE"          },
         { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          },
         { ZYDIS_ATTRIB_ACCEPTS_NOTRACK,          "ACCEPTS_NOTRACK"          },
-        { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              }
+        { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              },
+        { ZYDIS_ATTRIB_HAS_SCC,                  "HAS_SCC"                  }
     };
 
     PrintSectionHeader("BASIC");

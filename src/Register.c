@@ -202,7 +202,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
         return static_reg;
     }
 
-    static const ZyanU8 GPR8_MAPPING[20] =
+    static const ZyanU8 GPR8_MAPPING[36] =
     {
         /* AL   */  0,
         /* CL   */  1,
@@ -223,13 +223,31 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
         /* R12B */ 12,
         /* R13B */ 13,
         /* R14B */ 14,
-        /* R15B */ 15
+        /* R15B */ 15,
+        /* APX     */
+        /* R16B */ 16,
+        /* R17B */ 17,
+        /* R18B */ 18,
+        /* R19B */ 19,
+        /* R20B */ 20,
+        /* R21B */ 21,
+        /* R22B */ 22,
+        /* R23B */ 23,
+        /* R24B */ 24,
+        /* R25B */ 25,
+        /* R26B */ 26,
+        /* R27B */ 27,
+        /* R28B */ 28,
+        /* R29B */ 29,
+        /* R30B */ 30,
+        /* R31B */ 31
     };
 
     ZyanU8 reg_id = REG_LOOKUP[reg].id;
     switch (reg_class)
     {
     case ZYDIS_REGCLASS_GPR8:
+        ZYAN_ASSERT(reg_id < ZYAN_ARRAY_LENGTH(GPR8_MAPPING));
         reg_id = GPR8_MAPPING[reg_id];
         ZYAN_FALLTHROUGH;
     case ZYDIS_REGCLASS_GPR16:
