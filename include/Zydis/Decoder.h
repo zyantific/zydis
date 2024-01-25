@@ -158,13 +158,19 @@ typedef enum ZydisDecoderMode_
      * This mode is disabled by default.
      */
     ZYDIS_DECODER_MODE_UD0_COMPAT,
-
-    // TODO: APX mode
+    /**
+     * Enables the `APX` mode.
+     *
+     * APX introduces the `REX2` prefix, new EVEX spaces and access to additional GPRs.
+     *
+     * This mode is enabled by default.
+     */
+    ZYDIS_DECODER_MODE_APX,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_UD0_COMPAT,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_APX,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */

@@ -38,6 +38,25 @@
 #include <Zydis/Internal/SharedData.h>
 
 /* ============================================================================================== */
+/* Macros                                                                                         */
+/* ============================================================================================== */
+
+/* ---------------------------------------------------------------------------------------------- */
+/* Helper macros                                                                                  */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Checks if the given decoder `mode` is active.
+ *
+ * @param   decoder A pointer to the `ZydisDecoder` instance.
+ * @param   mode    The decoder mode to check.
+ */
+#define ZYDIS_DECODER_MODE_ACTIVE(decoder, mode) \
+    (!!(((decoder)->decoder_mode & (1 << (mode)))))
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ============================================================================================== */
 /* Internal enums and types                                                                       */
 /* ============================================================================================== */
 
@@ -390,8 +409,6 @@ static void ZydisDecodeREX(ZydisDecoderContext* context, ZydisDecodedInstruction
     context->vector_unified.B3 = instruction->raw.rex.B;
 }
 
-// TODO: REX2 is not valid for all instructions and UDs otherwise
-
 /**
  * Decodes the `REX2`-prefix.
  *
@@ -557,13 +574,14 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
 /**
  * Decodes the `EVEX`-prefix.
  *
+ * @param   decoder     A pointer to the `ZydisDecoder` instance.
  * @param   context     A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   data        The `EVEX` bytes.
  *
  * @return  A zyan status code.
  */
-static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
+static ZyanStatus ZydisDecodeEVEX(const ZydisDecoder* decoder, ZydisDecoderContext* context,
     ZydisDecodedInstruction* instruction, const ZyanU8 data[4])
 {
     ZYAN_ASSERT(instruction);
@@ -584,12 +602,12 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.B4        = (data[1] >> 3) & 0x01;
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
-    // TODO: Still invalid if APX is not enabled
-    // if (data[1] & 0x08)
-    // {
-    //     // Invalid according to the intel documentation
-    //     return ZYDIS_STATUS_MALFORMED_EVEX;
-    // }
+    const ZyanBool is_apx = ZYDIS_DECODER_MODE_ACTIVE(decoder, ZYDIS_DECODER_MODE_APX);
+    if (!is_apx && (data[1] & 0x08))
+    {
+        // Invalid according to the intel documentation
+        return ZYDIS_STATUS_MALFORMED_EVEX;
+    }
 
     if ((instruction->raw.evex.mmm == 0x00) ||
         (instruction->raw.evex.mmm == 0x07))
@@ -603,7 +621,10 @@ static ZyanStatus ZydisDecodeEVEX(ZydisDecoderContext* context,
     instruction->raw.evex.X4        = (data[2] >> 2) & 0x01;
     instruction->raw.evex.pp        = (data[2] >> 0) & 0x03;
 
-    // TODO: X4 must be 0x01 if APX is not enabled
+    if (!is_apx && (instruction->raw.evex.X4 != 0x01))
+    {
+        return ZYDIS_STATUS_MALFORMED_EVEX;
+    }
 
     instruction->raw.evex.z         = (data[3] >> 7) & 0x01;
     instruction->raw.evex.L2        = (data[3] >> 6) & 0x01;
@@ -2155,7 +2176,7 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
                     break;
                 }
             }
-            if ((state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_MPX)) &&
+            if (ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_MPX) &&
                 instruction->attributes & ZYDIS_ATTRIB_ACCEPTS_BND)
             {
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_BND;
@@ -2219,7 +2240,7 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
         if (def->accepts_NOTRACK)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_NOTRACK;
-            if ((state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_CET)) &&
+            if (ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_CET) &&
                 (state->prefixes.offset_notrack >= 0))
             {
                 instruction->attributes |= ZYDIS_ATTRIB_HAS_NOTRACK;
@@ -3773,7 +3794,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 #if defined(ZYDIS_DISABLE_AVX512) && defined(ZYDIS_DISABLE_KNC)
                         return ZYDIS_STATUS_DECODING_ERROR;
 #else
-                        if (!!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_KNC)))
+                        if (ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_KNC))
                         {
 #ifndef ZYDIS_DISABLE_KNC
                             instruction->raw.mvex.offset = instruction->length - 4;
@@ -3801,7 +3822,7 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
                             instruction->raw.evex.offset = instruction->length - 4;
                             // Decode EVEX-prefix
                             instruction->encoding = ZYDIS_INSTRUCTION_ENCODING_EVEX;
-                            ZYAN_CHECK(ZydisDecodeEVEX(state->context, instruction, prefix_bytes));
+                            ZYAN_CHECK(ZydisDecodeEVEX(state->decoder, state->context, instruction, prefix_bytes));
                             instruction->opcode_map =
                                 ZYDIS_OPCODE_MAP_DEFAULT + instruction->raw.evex.mmm;
                             break;
@@ -3859,6 +3880,11 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             }
             case 0xD5:
             {
+                if (!ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX))
+                {
+                    break;
+                }
+
                 if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX2)
                 {
                     return ZYDIS_STATUS_DECODING_ERROR;
@@ -3871,14 +3897,17 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
 
                     instruction->raw.rex2.offset = instruction->length - 2;
 
-                    // A REX prefix immediately preceeding REX2 is illegal
-                    if ((instruction->attributes & ZYDIS_ATTRIB_HAS_REX) &&
-                        (instruction->raw.rex.offset == (instruction->raw.rex2.offset - 1)))
+                    if (instruction->attributes & ZYDIS_ATTRIB_HAS_REX)
                     {
-                        return ZYDIS_STATUS_ILLEGAL_REX;
-                    }
+                        // A REX prefix immediately preceding REX2 is illegal
+                        if (instruction->raw.rex.offset == (instruction->raw.rex2.offset - 1))
+                        {
+                            return ZYDIS_STATUS_ILLEGAL_REX;
+                        }
 
-                    // TODO: Mark existing REX prefix as "not used"
+                        // Mark existing REX prefix as "not used"
+                        instruction->raw.prefixes[instruction->raw.rex.offset].type = ZYDIS_PREFIX_TYPE_IGNORED;
+                    }
 
                     ZydisDecodeREX2(state->context, instruction, rex2);
 
@@ -5082,34 +5111,34 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
 #endif
         case ZYDIS_NODETYPE_FILTER_MODE_AMD:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_AMD_BRANCHES));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_AMD_BRANCHES);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_KNC:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_KNC));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_KNC);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_MPX:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_MPX));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_MPX);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_CET:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_CET));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_CET);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_LZCNT));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_LZCNT);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_TZCNT));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_TZCNT);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_WBNOINVD));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_WBNOINVD);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_CLDEMOTE));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_CLDEMOTE);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_IPREFETCH));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_IPREFETCH);
             break;
         case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_UD0_COMPAT));
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_UD0_COMPAT);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_ND:
             status = ZydisNodeHandlerEvexND(state->context, instruction, &index);
@@ -5174,7 +5203,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                          (instruction->meta.category == ZYDIS_CATEGORY_RET)));
                 instruction->meta.exception_class = definition->exception_class;
 
-                if (!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_MINIMAL)))
+                if (!ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_MINIMAL))
                 {
                     ZydisSetAttributes(state, instruction, definition);
                     switch (instruction->encoding)
@@ -5239,7 +5268,8 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
         (1 << ZYDIS_DECODER_MODE_LZCNT) |
         (1 << ZYDIS_DECODER_MODE_TZCNT) |
         (1 << ZYDIS_DECODER_MODE_CLDEMOTE) |
-        (1 << ZYDIS_DECODER_MODE_IPREFETCH);
+        (1 << ZYDIS_DECODER_MODE_IPREFETCH) |
+        (1 << ZYDIS_DECODER_MODE_APX);
 
     if (!decoder)
     {
@@ -5312,7 +5342,7 @@ ZyanStatus ZydisDecoderDecodeFull(const ZydisDecoder* decoder,
     {
         return ZYDIS_STATUS_NO_MORE_DATA;
     }
-    if (decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_MINIMAL))
+    if (ZYDIS_DECODER_MODE_ACTIVE(decoder, ZYDIS_DECODER_MODE_MINIMAL))
     {
         return ZYAN_STATUS_MISSING_DEPENDENCY; // TODO: Introduce better status code
     }
@@ -5390,7 +5420,7 @@ ZyanStatus ZydisDecoderDecodeOperands(const ZydisDecoder* decoder,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_MINIMAL))
+    if (ZYDIS_DECODER_MODE_ACTIVE(decoder, ZYDIS_DECODER_MODE_MINIMAL))
     {
         return ZYAN_STATUS_MISSING_DEPENDENCY; // TODO: Introduce better status code
     }
