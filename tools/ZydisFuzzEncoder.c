@@ -287,6 +287,16 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         abort();
     }
 
+    if (request.mnemonic == ZYDIS_MNEMONIC_UD0 && request.operand_count == 0)
+    {
+        status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_UD0_COMPAT, ZYAN_TRUE);
+        if (!ZYAN_SUCCESS(status))
+        {
+            fputs("Failed to enable UD0_COMPAT mode\n", ZYAN_STDERR);
+            abort();
+        }
+    }
+
     ZydisDecodedInstruction insn1;
     ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
     status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
