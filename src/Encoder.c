@@ -4470,6 +4470,22 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                     }
                     op->imm.s = rel;
                     adjusted_rel = ZYAN_TRUE;
+                    if (rel_info->accepts_scaling_hints == ZYDIS_SIZE_HINT_NONE)
+                    {
+                        if (request->branch_width == ZYDIS_BRANCH_WIDTH_NONE)
+                        {
+                            request->branch_width =
+                                (ZydisBranchWidth)(ZYDIS_BRANCH_WIDTH_8 + size_index);
+                        }
+                    }
+                    else
+                    {
+                        if (request->operand_size_hint == ZYDIS_OPERAND_SIZE_HINT_NONE)
+                        {
+                            request->operand_size_hint =
+                                (ZydisOperandSizeHint)(ZYDIS_OPERAND_SIZE_HINT_8 + size_index);
+                        }
+                    }
                     break;
                 }
                 break;
