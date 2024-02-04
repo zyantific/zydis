@@ -4577,11 +4577,10 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
 }
 
 ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
-        const ZydisDecodedInstruction *instruction, const ZydisDecodedOperand* operands,
-        ZyanU8 operand_count_visible, ZydisEncoderRequest *request)
+    const ZydisDecodedInstruction *instruction, const ZydisDecodedOperand* operands, 
+    ZyanU8 operand_count, ZydisEncoderRequest *request)
 {
-    if (!instruction || !request || (operand_count_visible && !operands) ||
-        operand_count_visible != instruction->operand_count_visible)
+    if (!instruction || !request || (operand_count && !operands))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
@@ -4688,8 +4687,13 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
     }
     request->allowed_encodings = 1 << instruction->encoding;
 
-    request->operand_count = operand_count_visible;
-    for (ZyanU8 i = 0; i < operand_count_visible; ++i)
+    if ((operand_count > ZYDIS_ENCODER_MAX_OPERANDS) || 
+        (operand_count > instruction->operand_count_visible))
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+    request->operand_count = operand_count;
+    for (ZyanU8 i = 0; i < operand_count; ++i)
     {
         const ZydisDecodedOperand *dec_op = &operands[i];
         ZydisEncoderOperand *enc_op = &request->operands[i];
