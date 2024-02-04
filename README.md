@@ -164,9 +164,11 @@ Versions follow the [semantic versioning scheme](https://semver.org/). All stabi
 
 ### Branches & Tags
 
-- `master` holds the bleeding edge code of the next, unreleased Zydis version. Elevated amounts of bugs and issues must be expected, API stability is not guaranteed outside of tagged commits.
+- `master` holds the bleeding edge code of the next, unreleased Zydis version. Increased amounts of bugs and issues must be expected and API stability is not guaranteed outside of tagged commits.
 - Stable and preview versions are annotated with git tags
   - beta and other preview versions have `-beta`, `-rc`, etc. suffixes
+- `maintenance/v4` points to the code of the latest release of v4
+  - v4 is the latest stable major version and receives feature updates
 - `maintenance/v3` points to the code of the latest release of v3
   - v3 won't get any feature updates but will receive security updates until 2025
 - `maintenance/v2` points to the code of the last legacy release of v2
