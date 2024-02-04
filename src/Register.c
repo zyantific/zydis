@@ -255,7 +255,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
         return REG_CLASS_LOOKUP[ZYDIS_REGCLASS_ZMM].lo + reg_id;
 #endif
     default:
-        return reg;
+        return ZYDIS_REGISTER_NONE;
     }
 }
 
