@@ -66,11 +66,11 @@ jobs:
       - name: Build user-mode
         run: |
           cd msvc
-          msbuild.exe Zydis.sln /m /t:Rebuild '/p:Configuration="Release MD";Platform=X64'
+          msbuild.exe Zydis.sln /m /t:Rebuild /p:Configuration="Release MD" /p:Platform=X64
       - name: Build kernel-mode
         run: |
           cd msvc
-          msbuild.exe Zydis.sln /m /t:Rebuild '/p:Configuration="Release Kernel";Platform=X64'
+          msbuild.exe Zydis.sln /m /t:Rebuild /p:Configuration="Release Kernel" /p:Platform=X64
 
   amalgamated:
     name: Amalgamated build (Ubuntu 22.04)
