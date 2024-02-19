@@ -143,7 +143,7 @@ typedef struct ZydisDecodedOperandMem_
     /**
      * The scale factor.
      */
-    ZyanU8 scale;
+    ZyanU8 scale; // TODO: This is current 0 if no SIB byte is present. Should we use 1 as the default?
     /**
      * Extended info for memory-operands with displacement.
      */
