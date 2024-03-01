@@ -157,6 +157,11 @@ typedef struct ZydisDecodedOperandMem_
          * The displacement value
          */
         ZyanI64 value;
+        
+        /**
+        * size of the displacement value
+        */
+        ZyanU16 size;
     } disp;
 } ZydisDecodedOperandMem;
 
