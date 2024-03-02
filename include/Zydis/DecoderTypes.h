@@ -149,19 +149,16 @@ typedef struct ZydisDecodedOperandMem_
      */
     struct ZydisDecodedOperandMemDisp_
     {
-        /**
-         * Signals, if the displacement value is used.
-         */
-        ZyanBool has_displacement;
+
         /**
          * The displacement value
          */
         ZyanI64 value;
         
         /**
-        * size of the displacement value
+        * The size of the displacement value
         */
-        ZyanU16 size;
+        ZyanU8 size;
     } disp;
 } ZydisDecodedOperandMem;
 

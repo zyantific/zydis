@@ -4705,7 +4705,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
             enc_op->mem.base = dec_op->mem.base;
             enc_op->mem.index = dec_op->mem.index;
             enc_op->mem.scale = dec_op->mem.type != ZYDIS_MEMOP_TYPE_MIB ? dec_op->mem.scale : 0;
-            if (dec_op->mem.disp.has_displacement)
+            if (dec_op->mem.disp.size)
             {
                 enc_op->mem.displacement = dec_op->mem.disp.value;
             }
