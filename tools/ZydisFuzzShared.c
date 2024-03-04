@@ -175,7 +175,7 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
-            ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
+            ZYDIS_CHECK_ENUM(op->mem.disp.size, ZYDIS_MAX_DISP_IMM_SIZE);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);

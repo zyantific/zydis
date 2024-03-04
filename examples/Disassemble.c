@@ -76,7 +76,6 @@ int main(void)
 
         offset += instruction.length;
         runtime_address += instruction.length;
-
     }
 
     return 0;

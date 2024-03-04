@@ -149,16 +149,19 @@ typedef struct ZydisDecodedOperandMem_
      */
     struct ZydisDecodedOperandMemDisp_
     {
-
         /**
          * The displacement value
          */
         ZyanI64 value;
-        
         /**
-        * The size of the displacement value
-        */
+         * The physical displacement size, in bits.
+         */
         ZyanU8 size;
+        /**
+         * The offset of the displacement data, relative to the beginning of the
+         * instruction, in bytes.
+         */
+        ZyanU8 offset;
     } disp;
 } ZydisDecodedOperandMem;
 
@@ -193,6 +196,15 @@ typedef struct ZydisDecodedOperandImm_
         ZyanU64 u;
         ZyanI64 s;
     } value;
+    /**
+      * The offset of the immediate data, relative to the beginning of the
+      * instruction, in bytes.
+      */
+    ZyanU8 offset;
+    /**
+     * The physical immediate size, in bits.
+     */
+    ZyanU8 size;
 } ZydisDecodedOperandImm;
 
 /**
