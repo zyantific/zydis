@@ -147,6 +147,67 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             " = 0x%016" PRIX64 "\n", (ZyanU64)(value), (ZyanU64)(max));                            \
         abort();                                                                                   \
     }
+#   define ZYDIS_CHECK_MAX ZYDIS_CHECK_ENUM
+#   define ZYDIS_CHECK_VALUE_ONE_OF_1(value, a)                                                    \
+    if ((ZyanU64)(value) != (ZyanU64)(a))                                                          \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " does not match the expected value "   \
+            #a " = 0x%016" PRIX64 "\n", (ZyanU64)(value), (ZyanU64)(a));                           \
+        abort();                                                                                   \
+    }
+
+#   define ZYDIS_CHECK_VALUE_ONE_OF_2(value, a, b)                                                 \
+    if ((ZyanU64)(value) != (ZyanU64)(a) && (ZyanU64)(value) != (ZyanU64)(b))                      \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " does not match any of the expected "  \
+            "values " #a " = 0x%016" PRIX64 ", " #b " = 0x%016" PRIX64 "\n",                       \
+            (ZyanU64)(value), (ZyanU64)(a), (ZyanU64)(b));                                         \
+        abort();                                                                                   \
+    }
+
+#   define ZYDIS_CHECK_VALUE_ONE_OF_3(value, a, b, c)                                              \
+    if ((ZyanU64)(value) != (ZyanU64)(a) && (ZyanU64)(value) != (ZyanU64)(b) &&                    \
+        (ZyanU64)(value) != (ZyanU64)(c))                                                          \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " does not match any of the expected"   \
+            " values: " #a " = 0x%016" PRIX64 ", " #b " = 0x%016" PRIX64 ", "                      \
+            #c " = 0x%016" PRIX64 "\n",                                                            \
+            (ZyanU64)(value), (ZyanU64)(a), (ZyanU64)(b), (ZyanU64)(c));                           \
+        abort();                                                                                   \
+    }
+
+
+#   define ZYDIS_CHECK_VALUE_ONE_OF_4(value, a, b, c, d)                                           \
+    if ((ZyanU64)(value) != (ZyanU64)(a) && (ZyanU64)(value) != (ZyanU64)(b) &&                    \
+        (ZyanU64)(value) != (ZyanU64)(c) && (ZyanU64)(value) != (ZyanU64)(d))                      \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " does not match any of the expected "  \
+            "values. " #a " = 0x%016" PRIX64 ", " #b " = 0x%016" PRIX64 ", " #c                    \
+            " = 0x%016" PRIX64 ", " #d " = 0x%016" PRIX64 "\n",                                    \
+            (ZyanU64)(value), (ZyanU64)(a), (ZyanU64)(b), (ZyanU64)(c), (ZyanU64)(d));             \
+        abort();                                                                                   \
+    }
+
+#   define ZYDIS_CHECK_VALUE_ONE_OF_5(value, a, b, c, d, e)                                        \
+    if ((ZyanU64)(value) != (ZyanU64)(a) && (ZyanU64)(value) != (ZyanU64)(b) &&                    \
+        (ZyanU64)(value) != (ZyanU64)(c) && (ZyanU64)(value) != (ZyanU64)(d) &&                    \
+        (ZyanU64)(value) != (ZyanU64)(e))                                                          \
+    {                                                                                              \
+        fprintf(stderr, "Value " #value " = 0x%016" PRIX64 " does not match any of the expected "  \
+            "values. " #a " = 0x%016" PRIX64 ", " #b " = 0x%016" PRIX64 ", " #c                    \
+            " = 0x%016" PRIX64 ", " #d " = 0x%016" PRIX64 ", " #e " = 0x%016" PRIX64 "\n",         \
+            (ZyanU64)(value), (ZyanU64)(a), (ZyanU64)(b), (ZyanU64)(c), (ZyanU64)(d),              \
+            (ZyanU64)(e));                                                                         \
+        abort();                                                                                   \
+    }
+
+
+
+#define ZYDIS_CHECK_VALUE_ONE_OF_N(value, ...) \
+        GET_MACRO(__VA_ARGS__, ZYDIS_CHECK_VALUE_ONE_OF_5, ZYDIS_CHECK_VALUE_ONE_OF_4, ZYDIS_CHECK_VALUE_ONE_OF_3, ZYDIS_CHECK_VALUE_ONE_OF_2, ZYDIS_CHECK_VALUE_ONE_OF_1)(value, __VA_ARGS__)
+
+#define GET_MACRO(_1, _2, _3, _4, _5, NAME, ...) NAME
+
 
     ZYDIS_CHECK_ENUM(insn->length, ZYDIS_MAX_INSTRUCTION_LENGTH);
 
@@ -175,11 +236,14 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
-            ZYDIS_CHECK_ENUM(op->mem.disp.size, ZYDIS_MAX_DISP_IMM_SIZE);
+            ZYDIS_CHECK_VALUE_ONE_OF_N(op->mem.disp.size, ZYDIS_POSSIBLE_DISP_IMM_SIZES);
+            ZYDIS_CHECK_MAX(op->mem.disp.offset + (op->mem.disp.size / 8), insn->length);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
             ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+            ZYDIS_CHECK_VALUE_ONE_OF_N(op->imm.size, ZYDIS_POSSIBLE_IMM_SIZES);
+            ZYDIS_CHECK_MAX(op->imm.offset + (op->imm.size / 8), insn->length);
             break;
         default:
             break;
@@ -216,6 +280,14 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
     }
 
 #   undef ZYDIS_CHECK_ENUM
+#   undef ZYDIS_CHECK_MAX
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_1
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_2
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_3
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_4
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_5
+#   undef ZYDIS_CHECK_VALUE_ONE_OF_N
+#   undef GET_MACRO
 }
 
 void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,

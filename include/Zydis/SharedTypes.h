@@ -47,9 +47,10 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 #define ZYDIS_MAX_INSTRUCTION_LENGTH    15
-#define ZYDIS_MAX_DISP_IMM_SIZE         64
 #define ZYDIS_MAX_OPERAND_COUNT         10 // TODO: Auto generate
 #define ZYDIS_MAX_OPERAND_COUNT_VISIBLE  5 // TODO: Auto generate
+#define ZYDIS_POSSIBLE_DISP_IMM_SIZES    0,8,32
+#define ZYDIS_POSSIBLE_IMM_SIZES         0,8,16,32,64
 
 /* ---------------------------------------------------------------------------------------------- */
 
