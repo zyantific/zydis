@@ -136,9 +136,15 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
 
 #endif
 
-void ZydisValidateImmediateSize(ZyanU64 value) {
-    if (value != 0 && value != 8 && value != 16 && value != 32 && value != 64) {
-        fprintf(stderr, "Value = 0x%016" PRIX64 " does not match any of the expected "
+void ZydisValidateImmediateSize(ZyanU64 value) 
+{
+    if ((value != 0) &&
+        (value != 8) &&
+        (value != 16) &&
+        (value != 32) &&
+        (value != 64)) 
+    {
+        fprintf(stderr, "Value " #value " = 0x % 016" PRIX64 " does not match any of the expected "
             "values (0, 8, 16, 32, 64).\n", value);
         abort();
     }
