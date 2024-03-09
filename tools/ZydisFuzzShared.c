@@ -144,8 +144,8 @@ void ZydisValidateImmediateSize(ZyanU64 value)
         (value != 32) &&
         (value != 64)) 
     {
-        fprintf(stderr, "Value %llx = 0x%016" PRIX64 " does not match any of the expected "
-            "values (0, 8, 16, 32, 64).\n", value, value);
+        fprintf(stderr, "Value 0x%016" PRIX64 " does not match any of the expected "
+            "values (0, 8, 16, 32, 64).\n", value);
         abort();
     }
 }
