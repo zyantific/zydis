@@ -1433,8 +1433,9 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
     if (displacement_size)
     {
         ZYAN_ASSERT(instruction->raw.disp.size == displacement_size);
-        operand->mem.disp.has_displacement = ZYAN_TRUE;
         operand->mem.disp.value = instruction->raw.disp.value;
+        operand->mem.disp.size = displacement_size;
+        operand->mem.disp.offset = instruction->raw.disp.offset;
     }
     return ZYAN_STATUS_SUCCESS;
 }
@@ -1829,7 +1830,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             ZYAN_ASSERT(instruction->raw.disp.size);
             operands[i].type = ZYDIS_OPERAND_TYPE_MEMORY;
             operands[i].mem.type = ZYDIS_MEMOP_TYPE_MEM;
-            operands[i].mem.disp.has_displacement = ZYAN_TRUE;
+            operands[i].mem.disp.size = instruction->raw.disp.size;
+            operands[i].mem.disp.offset = instruction->raw.disp.offset;
             operands[i].mem.disp.value = instruction->raw.disp.value;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MIB:
@@ -1877,6 +1879,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             {
                 operands[i].imm.value.u = instruction->raw.imm[imm_id].value.u;
             }
+            operands[i].imm.offset = instruction->raw.imm->offset;
+            operands[i].imm.size = instruction->raw.imm->size;
             operands[i].imm.is_signed = instruction->raw.imm[imm_id].is_signed;
             operands[i].imm.is_relative = instruction->raw.imm[imm_id].is_relative;
             ++imm_id;

@@ -49,7 +49,7 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_MEMORY:
-        if (!operand->mem.disp.has_displacement)
+        if (!operand->mem.disp.size)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }

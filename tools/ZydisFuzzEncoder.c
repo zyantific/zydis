@@ -132,7 +132,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
                 ZyanBool acceptable_mismatch = ZYAN_FALSE;
                 if (op1->mem.displacement != op2->mem.disp.value)
                 {
-                    if ((op2->mem.disp.has_displacement) &&
+                    if ((op2->mem.disp.size) &&
                         (op1->mem.index == ZYDIS_REGISTER_NONE) &&
                         ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
                          (op1->mem.base == ZYDIS_REGISTER_EIP) ||

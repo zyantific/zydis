@@ -136,6 +136,20 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
 
 #endif
 
+void ZydisValidateImmediateSize(ZyanU64 value) 
+{
+    if ((value != 0) &&
+        (value != 8) &&
+        (value != 16) &&
+        (value != 32) &&
+        (value != 64)) 
+    {
+        fprintf(stderr, "Value 0x%016" PRIX64 " does not match any of the expected "
+            "values (0, 8, 16, 32, 64).\n", value);
+        abort();
+    }
+}
+
 // NOTE: This function doesn't validate flag values, yet.
 void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
     const ZydisDecodedOperand* operands, ZyanU8 operand_count)
@@ -147,6 +161,7 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             " = 0x%016" PRIX64 "\n", (ZyanU64)(value), (ZyanU64)(max));                            \
         abort();                                                                                   \
     }
+#   define ZYDIS_CHECK_MAX ZYDIS_CHECK_ENUM
 
     ZYDIS_CHECK_ENUM(insn->length, ZYDIS_MAX_INSTRUCTION_LENGTH);
 
@@ -175,11 +190,14 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
-            ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
+            ZydisValidateImmediateSize(op->mem.disp.size);
+            ZYDIS_CHECK_MAX(op->mem.disp.offset + (op->mem.disp.size / 8), insn->length);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
             ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+            ZydisValidateImmediateSize(op->imm.size);
+            ZYDIS_CHECK_MAX(op->imm.offset + (op->imm.size / 8), insn->length);
             break;
         default:
             break;
@@ -216,6 +234,7 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
     }
 
 #   undef ZYDIS_CHECK_ENUM
+#   undef ZYDIS_CHECK_MAX
 }
 
 void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
