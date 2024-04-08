@@ -865,7 +865,7 @@ typedef struct ZydisDecodedInstructionRawVex_
 /**
  * Detailed info about the `EVEX` prefix.
  */
-typedef struct ZydisDecodedInstructionRawEvex
+typedef struct ZydisDecodedInstructionRawEvex_
 {
     /**
      * Extension of the `ModRM.reg` field (inverted).
