@@ -265,5 +265,6 @@ static const ZydisRegisterLookupItem REG_LOOKUP[] =
     /* MXCSR      */ { ZYDIS_REGCLASS_INVALID, -1, 32, 32 },
     /* PKRU       */ { ZYDIS_REGCLASS_INVALID, -1, 32, 32 },
     /* XCR0       */ { ZYDIS_REGCLASS_INVALID, -1, 64, 64 },
-    /* UIF        */ { ZYDIS_REGCLASS_INVALID, -1, 1, 1 }
+    /* UIF        */ { ZYDIS_REGCLASS_INVALID, -1, 1, 1 },
+    /* IA32_KERNEL_GS_BASE */ { ZYDIS_REGCLASS_INVALID, -1, 0, 0 }
 };
