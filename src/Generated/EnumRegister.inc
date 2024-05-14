@@ -285,5 +285,6 @@ static const ZydisShortString STR_REGISTERS[] =
     ZYDIS_MAKE_SHORTSTRING("mxcsr"),
     ZYDIS_MAKE_SHORTSTRING("pkru"),
     ZYDIS_MAKE_SHORTSTRING("xcr0"),
-    ZYDIS_MAKE_SHORTSTRING("uif")
+    ZYDIS_MAKE_SHORTSTRING("uif"),
+    ZYDIS_MAKE_SHORTSTRING("ia32_kernel_gs_base")
 };
