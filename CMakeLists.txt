@@ -150,8 +150,9 @@ else ()
     add_library("Zydis" STATIC)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_STATIC_BUILD")
 endif ()
+add_library("Zydis::Zydis" ALIAS "Zydis")
 
-target_link_libraries("Zydis" PUBLIC "Zycore")
+target_link_libraries("Zydis" PUBLIC "Zycore::Zycore")
 target_include_directories("Zydis"
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
