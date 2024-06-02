@@ -175,7 +175,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
         [ZYDIS_REGCLASS_FLAGS] = { ZYDIS_REGISTER_FLAGS, ZYDIS_REGISTER_EFLAGS, ZYDIS_REGISTER_RFLAGS },
         [ZYDIS_REGCLASS_IP   ] = { ZYDIS_REGISTER_IP   , ZYDIS_REGISTER_EIP   , ZYDIS_REGISTER_RIP    },
     };
-    ZYAN_ASSERT((ZyanU64)reg_class < ZYAN_ARRAY_LENGTH(STATIC_MAPPING));
+    ZYAN_ASSERT((ZyanUSize)reg_class < ZYAN_ARRAY_LENGTH(STATIC_MAPPING));
 
     ZyanU8 mode_bits;
     switch (mode)
