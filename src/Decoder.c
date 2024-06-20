@@ -1586,6 +1586,10 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
             ZydisRegisterEncode(ZYDIS_REGCLASS_SEGMENT, definition->op.mem.seg - 1);
         ZYAN_ASSERT(operand->mem.segment);
     }
+    if (definition->op.mem.implicitdisp)
+    {
+        operand->mem.disp.value = -(definition->size[context->eosz_index]);
+    }
 }
 #endif
 
