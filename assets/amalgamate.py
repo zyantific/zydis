@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-from typing import List, Set
+from typing import List, Set, Tuple, Optional
 from shutil import rmtree
 
 import os
@@ -64,8 +64,8 @@ def merge_headers(
     include_stack = []
     if stack:
         include_stack = [
-            '//', 
-            '// Include stack:', 
+            '//',
+            '// Include stack:',
             *(f'//   - {x}' for x in stack)
         ]
 
@@ -84,12 +84,12 @@ def merge_headers(
         if not match:
             filtered.append(line)
             continue
-        
+
         # Recurse into includes.
         filtered += merge_headers(
-            header=match.group(1), 
+            header=match.group(1),
             search_paths=search_paths,
-            covered_headers=covered_headers, 
+            covered_headers=covered_headers,
             stack=stack + [header],
         )
 
@@ -148,6 +148,121 @@ def merge_sources(*, source_dir: Path, covered_headers: Set[Path]):
     return output
 
 
+def extract_constants(header_contents: List[str]):
+    from clang.cindex import Index, CursorKind, TranslationUnit, TokenKind
+
+    tu = Index.create().parse(
+        'input.c',
+        args=['-x', 'c'],
+        unsaved_files=[('input.c', '\n'.join(header_contents))],
+        options=TranslationUnit.PARSE_DETAILED_PROCESSING_RECORD,
+    )
+
+    defines = {}
+    for cursor in tu.cursor.walk_preorder():
+        if cursor.kind != CursorKind.MACRO_DEFINITION:
+            continue
+
+        name, *tokens = (x.spelling for x in cursor.get_tokens())
+        if name.startswith('ZYDIS_') or name.startswith('ZYAN_'):
+            parsed = eval_constexpr(' '.join(tokens))
+            if parsed is not None:
+                defines[name] = parsed
+
+    enums = {}
+
+    def visit_node(node):
+        if node.kind == CursorKind.ENUM_DECL:
+            enums[node.spelling] = {
+                child.spelling: child.enum_value
+                for child in node.get_children()
+                if child.kind == CursorKind.ENUM_CONSTANT_DECL
+            }
+
+        for child in node.get_children():
+            visit_node(child)
+
+    visit_node(tu.cursor)
+
+    return enums, defines
+
+
+def eval_constexpr(expression):
+    import clang.cindex
+
+    source = f"enum blah : unsigned long long {{ x = ({expression}) }};"
+
+    tu = clang.cindex.Index.create().parse(
+        'temp.cc',
+        unsaved_files=[('temp.cc', source)],
+    )
+
+    for diag in tu.diagnostics:
+        if diag.severity >= clang.cindex.Diagnostic.Error:
+            # print(f'unhappy clang: {diag}')
+            return None  # Return None if there are any errors
+
+    enum_cursor = next(
+        c for c in tu.cursor.walk_preorder()
+        if c.kind == clang.cindex.CursorKind.ENUM_CONSTANT_DECL
+    )
+
+    return enum_cursor.enum_value
+
+
+def format_constant(x: int) -> str:
+    return f'0x{x:x}' if x > 9999 else f'{x}'
+
+
+def minify_sources(header_lines: List[str], source_lines: List[str]) -> List[str]:
+    enum_values, defines = extract_constants(header_lines + source_lines)
+
+    constants = [
+        (k, format_constant(v))
+        for k, v in defines.items()
+    ] + [
+        (k, format_constant(v))
+        for enum_name, enum_values in enum_values.items()
+        for k, v in enum_values.items()
+    ]
+
+    from pprint import pprint
+    pprint(constants)
+
+    enum_replacers = [
+        re.compile(f'([^A-Za-z0-9_]){k}([^A-Za-z0-9_])')
+        for k, v in constants
+    ]
+
+    not_min_re = re.compile(r'ZYDIS_NOTMIN\((.*?)\)')
+    define_re = re.compile(r'#\s*define')
+    enum_re = re.compile(r'enum\s+Zydis')
+
+    out = []
+    in_enum = False
+    for line in source_lines:
+        if define_re.match(line):
+            out.append(line)
+            continue
+
+        stripped_line = line.strip()
+        if stripped_line.startswith('enum') or stripped_line.startswith('typedef enum'):
+            in_enum = True
+        if stripped_line.startswith('}'):
+            in_enum = False
+
+        line = not_min_re.sub(',\\1', line)
+
+        if not in_enum:
+            for regex, (const_name, const_val) in zip(enum_replacers, constants):
+                if const_name in line:
+                    line = regex.sub(f'\\g<1>{const_val}\\g<2>', line)
+
+        out.append(line)
+
+    return out
+
+
 def main():
     if OUTPUT_DIR.exists():
         print('Output directory exists. Deleting.')
@@ -156,21 +271,26 @@ def main():
     OUTPUT_DIR.mkdir()
 
     covered_headers = set()
+    header_lines = FILE_HEADER + merge_headers(
+        header='Zydis/Zydis.h',
+        search_paths=PUBLIC_INCLUDE_PATHS,
+        covered_headers=covered_headers,
+        stack=[],
+    )
+
     with open(OUTPUT_DIR / 'Zydis.h', 'w') as f:
-        f.write('\n'.join(FILE_HEADER + merge_headers(
-            header='Zydis/Zydis.h', 
-            search_paths=PUBLIC_INCLUDE_PATHS,
-            covered_headers=covered_headers, 
-            stack=[],
-        )))
+        f.write('\n'.join(header_lines))
+
+    source_lines = FILE_HEADER + merge_sources(
+        source_dir=ZYDIS_ROOT / 'src',
+        covered_headers=covered_headers,
+    )
+
+    minified_source_lines = minify_sources(header_lines, source_lines)
 
     with open(OUTPUT_DIR / 'Zydis.c', 'w') as f:
-        f.write('\n'.join(FILE_HEADER + merge_sources(
-            source_dir=ZYDIS_ROOT / 'src',
-            covered_headers=covered_headers,
-        )))
+        f.write('\n'.join(minified_source_lines))
 
 
 if __name__ == '__main__':
     main()
-
