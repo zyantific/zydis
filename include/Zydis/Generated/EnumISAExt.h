@@ -1,3 +1,4 @@
+#include "Zycore/Defines.h"
 /**
  * Defines the `ZydisISAExt` enum.
  */
