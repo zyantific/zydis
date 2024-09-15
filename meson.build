@@ -307,7 +307,7 @@ if doc_req
     input: doxyfile,
     output: 'doc',
     command: [doxygen_exe, doxyfile],
-    depend_files: [hdrs],
+    depend_files: [hdrs, files('Doxyfile')],
     install: true,
     install_dir: datadir / 'doc' / 'Zydis',
   )

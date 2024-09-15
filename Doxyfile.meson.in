@@ -1,26 +1,14 @@
-PROJECT_NAME           = Zydis
+@INCLUDE               = "@TOP_SRCDIR@/Doxyfile"
 PROJECT_NUMBER         = @VERSION@
 PROJECT_BRIEF          = "Zyan Disassembler Library"
 OUTPUT_DIRECTORY       = "@TOP_BUILDDIR@/doc"
 STRIP_FROM_PATH        = "@TOP_SRCDIR@"
 STRIP_FROM_INC_PATH    = "@ZYCORE_INCLUDE_PATH@"
-JAVADOC_AUTOBRIEF      = YES
-QT_AUTOBRIEF           = YES
-OPTIMIZE_OUTPUT_FOR_C  = YES
-TOC_INCLUDE_HEADINGS   = 0
-EXTRACT_ALL            = YES
-EXTRACT_LOCAL_CLASSES  = NO
-HIDE_SCOPE_NAMES       = YES
 INPUT                  = "@TOP_SRCDIR@/include" \
                          "@TOP_SRCDIR@/README.md" \
                          "@TOP_SRCDIR@/files.dox"
-RECURSIVE              = YES
 EXAMPLE_PATH           = "@TOP_SRCDIR@/examples"
 USE_MDFILE_AS_MAINPAGE = "@TOP_SRCDIR@/README.md"
-GENERATE_TREEVIEW      = YES
-USE_MATHJAX            = YES
-MATHJAX_VERSION        = MathJax_3
-GENERATE_LATEX         = NO
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 INCLUDE_PATH           = "@ZYCORE_INCLUDE_PATH@"
