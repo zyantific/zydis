@@ -1,0 +1,10 @@
+[wrap-git]
+# This is a fallback for plain clone (no submodules available).
+url = https://github.com/zyantific/zycore-c.git
+# Sync revision to `git submodule status zycore`.
+# If doing a release for Zydis, sync both to a tagged commit.
+revision = 6dd8c1c955b9b62d63aa31a30faa013613d04291
+depth = 1
+
+[provide]
+dependency_names = zycore
