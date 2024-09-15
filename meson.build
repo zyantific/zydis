@@ -296,7 +296,7 @@ if doc_req
   )
 
   doxyfile = configure_file(
-    input: 'Doxyfile.in',
+    input: 'Doxyfile.meson.in',
     output: 'Doxyfile',
     configuration: cdata,
     install: false,
