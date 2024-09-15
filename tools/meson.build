@@ -1,5 +1,11 @@
 tools_req = tools.enabled()
 
+llvm_fuzz = get_option('llvm-fuzz')
+
+zydisinfo_exe = disabler()
+zydisfuzzdecoder_exe = disabler()
+zydisfuzzencoder_exe = disabler()
+zydisfuzzreencoding_exe = disabler()
 if tools_req
   if decoder.enabled() and formatter.enabled() and minimal.disabled()
     executable(
@@ -13,8 +19,7 @@ if tools_req
       install: true,
     )
 
-    llvm_fuzz = get_option('llvm-fuzz')
-    executable(
+    zydisfuzzdecoder_exe = executable(
       'ZydisFuzzDecoder',
       files(
         'ZydisFuzzDecoder.c',
@@ -26,7 +31,7 @@ if tools_req
     )
 
     if encoder.enabled()
-      executable(
+      zydisfuzzencoder_exe = executable(
         'ZydisFuzzEncoder',
         files(
           'ZydisFuzzEncoder.c',
@@ -36,7 +41,7 @@ if tools_req
         dependencies: [zydis_dep],
         c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
       )
-      executable(
+      zydisfuzzreencoding_exe = executable(
         'ZydisFuzzReEncoding',
         files(
           'ZydisFuzzReEncoding.c',
@@ -46,9 +51,21 @@ if tools_req
         dependencies: [zydis_dep],
         c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
       )
+      zydistestencoderabsolute_exe = executable(
+        'ZydisTestEncoderAbsolute',
+        files(
+          'ZydisTestEncoderAbsolute.c',
+        ),
+        src + hdrs,
+        c_args: ['-DZYDIS_STATIC_BUILD'],
+        include_directories: [inc, inc_private],
+        implicit_include_directories: false,
+        dependencies: [zycore_dep],
+        build_by_default: false,
+      )
     endif
 
-    executable(
+    zydisinfo_exe = executable(
       'ZydisInfo',
       files(
         'ZydisInfo.c',
@@ -62,6 +79,6 @@ if tools_req
 endif
 
 summary(
-  {'tools': tools_req},
+  {'tools': tools_req, 'llvm-fuzz': llvm_fuzz},
   section: 'Features',
 )
