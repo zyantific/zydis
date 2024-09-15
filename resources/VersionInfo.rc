@@ -47,7 +47,7 @@ BEGIN
             VALUE "FileDescription", "Zyan Disassembler Library"
             VALUE "FileVersion", "4.0.0.0"
             VALUE "InternalName", "Zydis"
-            VALUE "LegalCopyright", "Copyright (C) 2014-2024 by zyantific.com"
+            VALUE "LegalCopyright", "Copyright \xA9 2014-2024 by zyantific.com"
             VALUE "OriginalFilename", "Zydis.dll"
             VALUE "ProductName", "Zyan Disassembler Library"
             VALUE "ProductVersion", "4.0.0.0"
