@@ -9,7 +9,6 @@ project(
     'c_std=c11',
     'warning_level=3',
   ],
-  subproject_dir: 'dependencies',
 )
 
 datadir = get_option('datadir')
@@ -293,7 +292,7 @@ if doc_req
   cdata.set(
     'ZYCORE_INCLUDE_PATH',
     # We don't care if the directory exists or not
-    meson.project_source_root() / 'dependencies/zycore/include',
+    meson.project_source_root() / 'subprojects/zycore/include',
   )
 
   doxyfile = configure_file(
