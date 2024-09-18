@@ -944,6 +944,15 @@ static void PrintInstruction(const ZydisDecoder* decoder,
     };
     ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 
+    static const char* branch_types[] =
+    {
+        "NONE",
+        "SHORT",
+        "NEAR",
+        "FAR"
+    };
+    ZYAN_ASSERT(ZYAN_ARRAY_LENGTH(branch_types) == ZYDIS_BRANCH_TYPE_MAX_VALUE + 1);
+
     static const struct
     {
         ZydisInstructionAttributes attribute_mask;
@@ -1013,14 +1022,15 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         CVT100_OUT(COLOR_VALUE_LABEL),
         CVT100_OUT(COLOR_VALUE_G), instruction->opcode,
         CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_DEFAULT));
-    PRINT_VALUE_G("LENGTH"    , "%2d", instruction->length);
-    PRINT_VALUE_G("SSZ"       , "%2d", instruction->stack_width);
-    PRINT_VALUE_G("EOSZ"      , "%2d", instruction->operand_width);
-    PRINT_VALUE_G("EASZ"      , "%2d", instruction->address_width);
-    PRINT_VALUE_B("CATEGORY"  , "%s" , ZydisCategoryGetString(instruction->meta.category));
-    PRINT_VALUE_B("ISA-SET"   , "%s" , ZydisISASetGetString(instruction->meta.isa_set));
-    PRINT_VALUE_B("ISA-EXT"   , "%s" , ZydisISAExtGetString(instruction->meta.isa_ext));
-    PRINT_VALUE_B("EXCEPTIONS", "%s" , exception_classes[instruction->meta.exception_class]);
+    PRINT_VALUE_G("LENGTH"     , "%2d", instruction->length);
+    PRINT_VALUE_G("SSZ"        , "%2d", instruction->stack_width);
+    PRINT_VALUE_G("EOSZ"       , "%2d", instruction->operand_width);
+    PRINT_VALUE_G("EASZ"       , "%2d", instruction->address_width);
+    PRINT_VALUE_B("CATEGORY"   , "%s" , ZydisCategoryGetString(instruction->meta.category));
+    PRINT_VALUE_B("ISA-SET"    , "%s" , ZydisISASetGetString(instruction->meta.isa_set));
+    PRINT_VALUE_B("ISA-EXT"    , "%s" , ZydisISAExtGetString(instruction->meta.isa_ext));
+    PRINT_VALUE_B("EXCEPTIONS" , "%s" , exception_classes[instruction->meta.exception_class]);
+    PRINT_VALUE_B("BRANCH-TYPE", "%s" , branch_types[instruction->meta.branch_type]);
 
     if (instruction->attributes)
     {
