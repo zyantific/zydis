@@ -4424,12 +4424,11 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
  * @param   def_reg     The type definition for the `.reg` encoded operand.
  * @param   def_rm      The type definition for the `.rm` encoded operand.
- * @param   def_vvvv  The type definition for the `.vvvv` encoded operand.
+ * @param   def_vvvv    The type definition for the `.vvvv` encoded operand.
  *
  * @return  A zyan status code.
  *
- * This function sets all unused register ids to `-1`. This rule does currently not apply to
- * `base` and `index`.
+ * This function sets all unused register ids to `-1`.
  *
  * Definition encoding:
  * - `def_reg`  -> `ZydisRegisterKind`
@@ -4461,7 +4460,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         : VIDX     :: V4 : X3 : sib.index : VR      :
         :.................................:.........:
 
-        Table 3.3: 32-Register Support in APX Using EVEX
+        Table 3.3: 32-Register Support in APX Using EVEX  with Embedded REX Bits
 
         Note that the R, X and B register identifiers can also address non-GPR register types, such
         as vector registers, control registers and debug registers. When any of them does, the
@@ -4482,11 +4481,12 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
     {
-        const ZyanBool is_emvex = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
-                                  (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
+        const ZyanBool supports_rm4 = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) || 
+                                      (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
+                                      (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
 
         ZyanU8 rm4 = 0;
-        if (is_mod_reg && is_emvex)
+        if (is_mod_reg && supports_rm4)
         {
             // The `rm` extension by `X3` is only valid for VR registers (EVEX encoding)
             if (def_rm == ZYDIS_REGKIND_VR)
@@ -4533,7 +4533,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         static const ZyanU8 mask_rm[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
-            /* GPR     */ (1 << 4) - 1,
+            /* GPR     */ (1 << 5) - 1, // TODO: 4 if APX is not enabled
             /* X87     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* MMX     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* VR      */ (1 << 5) - 1,
@@ -4551,7 +4551,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         static const ZyanU8 mask_vvvv[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
-            /* GPR     */ (1 << 5) - 1,
+            /* GPR     */ (1 << 5) - 1, // TODO: 4 if APX is not enabled
             /* X87     */ 0,
             /* MMX     */ 0,
             /* VR      */ (1 << 5) - 1,

@@ -1502,7 +1502,7 @@ typedef struct ZydisDecoderContext_
      */
     ZyanU8 easz_index;
     /**
-     * Contains some cached REX/XOP/VEX/EVEX/MVEX values to provide uniform access.
+     * Contains some cached REX/REX2/XOP/VEX/EVEX/MVEX values to provide uniform access.
      */
     struct
     {
