@@ -6,6 +6,7 @@ zydisinfo_exe = disabler()
 zydisfuzzdecoder_exe = disabler()
 zydisfuzzencoder_exe = disabler()
 zydisfuzzreencoding_exe = disabler()
+zydistestencoderabsolute_exe = disabler()
 if tools_req
   if decoder.enabled() and formatter.enabled() and minimal.disabled()
     executable(
