@@ -3,7 +3,7 @@
 url = https://github.com/zyantific/zycore-c.git
 # Sync revision to `git submodule status zycore`.
 # If doing a release for Zydis, sync both to a tagged commit.
-revision = b09b376c6c4ac816c8fae4f1b6ffa5bb01a2f1a8
+revision = 38d4f0285e6157ee840ea82a9b90aba71c8a705d
 depth = 1
 
 [provide]
