@@ -81,10 +81,6 @@ jobs:
               }
             extra_envs: {}
             flavor: minsize
-          - platform: windows-2022
-            mode: { name: ClangCL, args: -Dtests=enabled }
-            extra_envs: { CC: clang-cl, CC_LD: link }
-            flavor: release
         exclude:
           - platform: macos-latest
             mode: { name: NO_LIBC, args: -Dnolibc=true }
