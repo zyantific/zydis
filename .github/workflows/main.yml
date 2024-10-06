@@ -75,10 +75,8 @@ jobs:
           # Do a few more specialized configurations.
           - platform: ubuntu-22.04
             mode:
-              {
-                name: minimal,
-                args: -Dminimal=enabled -Ddecoder=enabled -Davx512=enabled -Dknc=enabled -Dsegment=enabled -Dtests=enabled,
-              }
+              - name: minimal
+                args: -Dminimal=enabled -Ddecoder=enabled -Davx512=enabled -Dknc=enabled -Dsegment=enabled -Dtests=enabled
             extra_envs: {}
             flavor: minsize
         exclude:
