@@ -718,27 +718,24 @@ typedef enum ZydisConversionMode_
  */
 typedef enum ZydisSourceConditionCode_
 {
-    ZYDIS_SCC_O     =  0,
-    ZYDIS_SCC_NO    =  1,
-    ZYDIS_SCC_B     =  2,
-    ZYDIS_SCC_NB    =  3,
-    ZYDIS_SCC_Z     =  4,
-    ZYDIS_SCC_NZ    =  5,
-    ZYDIS_SCC_BE    =  6,
-    ZYDIS_SCC_NBE   =  7,
-    ZYDIS_SCC_S     =  8,
-    ZYDIS_SCC_NS    =  9,
-    ZYDIS_SCC_TRUE  = 10,
-    ZYDIS_SCC_FALSE = 11,
-    ZYDIS_SCC_L     = 12,
-    ZYDIS_SCC_NL    = 13,
-    ZYDIS_SCC_LE    = 14,
-    ZYDIS_SCC_NLE   = 15,
+    ZYDIS_SCC_INVALID,
+    ZYDIS_SCC_O,
+    ZYDIS_SCC_NO,
+    ZYDIS_SCC_B,
+    ZYDIS_SCC_NB,
+    ZYDIS_SCC_Z,
+    ZYDIS_SCC_NZ,
+    ZYDIS_SCC_BE,
+    ZYDIS_SCC_NBE,
+    ZYDIS_SCC_S,
+    ZYDIS_SCC_NS,
+    ZYDIS_SCC_TRUE,
+    ZYDIS_SCC_FALSE,
+    ZYDIS_SCC_L,
+    ZYDIS_SCC_NL,
+    ZYDIS_SCC_LE,
+    ZYDIS_SCC_NLE,
 
-    /**
-     * Minimum value of this enum.
-     */
-    ZYDIS_SCC_MIN_VALUE = ZYDIS_SCC_O,
     /**
      * Maximum value of this enum.
      */
@@ -1194,10 +1191,6 @@ typedef struct ZydisDecodedInstructionAvx_
     ZyanBool has_eviction_hint;
     /**
      * The AVX-512 APX source condition code.
-     * 
-     * The `scc` field contains the actual value of the `EVEX.scc` field and therefore defaults
-     * to `ZYDIS_SCC_O`. Please check for the `ZYDIS_ATTRIB_HAS_SCC` attribute to determine if
-     * the instruction actually uses the source condition code.
      */
     ZydisSourceConditionCode scc;
     // TODO: publish EVEX tuple-type and MVEX functionality

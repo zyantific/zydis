@@ -4394,7 +4394,7 @@ static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
     context->vector_unified.V4   = 0;
 
     instruction->attributes |= ZYDIS_ATTRIB_HAS_SCC;
-    instruction->avx.scc = ZYDIS_SCC_MIN_VALUE + context->vector_unified.vvvv;
+    instruction->avx.scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
 
     *index = instruction->raw.evex.SCC;
     return ZYAN_STATUS_SUCCESS;
