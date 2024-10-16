@@ -147,6 +147,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 }, // TODO: Should indicate 2 INT16 elements
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 },
         { ZYDIS_ELEMENT_TYPE_INT      ,  64 },
+        { ZYDIS_ELEMENT_TYPE_INT      , 128 },
         { ZYDIS_ELEMENT_TYPE_UINT     ,   8 },
         { ZYDIS_ELEMENT_TYPE_UINT     ,  32 }, // TODO: Should indicate 4 UINT8 elements
         { ZYDIS_ELEMENT_TYPE_UINT     ,  16 },
