@@ -128,7 +128,8 @@ def convert_enc_crash_to_json(crash, return_dict=False):
     evex_rounding = get_sanitized_enum(reader, ZydisRoundingMode)
     evex_sae = bool(reader.read_uint8())
     evex_zeroing_mask = bool(reader.read_uint8())
-    reader.read_bytes(2)
+    evex_no_flags = bool(reader.read_uint8())
+    evex_zero_upper = bool(reader.read_uint8())
     mvex_broadcast = get_sanitized_enum(reader, ZydisBroadcastMode)
     mvex_conversion = get_sanitized_enum(reader, ZydisConversionMode)
     mvex_rounding = get_sanitized_enum(reader, ZydisRoundingMode)
@@ -151,6 +152,8 @@ def convert_enc_crash_to_json(crash, return_dict=False):
             'rounding': evex_rounding.name,
             'sae': evex_sae,
             'zeroing_mask': evex_zeroing_mask,
+            'no_flags': evex_no_flags,
+            'zero_upper': evex_zero_upper,
         },
         'mvex': {
             'broadcast': mvex_broadcast.name,
@@ -170,6 +173,7 @@ def convert_re_enc_crash_to_json(crash, zydis_info, return_dict=False):
     reader = BinaryReader(crash)
     machine_mode = ZydisMachineMode(reader.read_uint32())
     stack_width = ZydisStackWidth(reader.read_uint32())
+    decoder_mode = reader.read_uint32()
     payload = reader.read_bytes().hex().upper()
     test_case = {
         'machine_mode': machine_mode.name,
@@ -177,6 +181,8 @@ def convert_re_enc_crash_to_json(crash, zydis_info, return_dict=False):
         'payload': payload,
         'description': get_disasm(zydis_info, machine_mode, stack_width, payload),
     }
+    if decoder_mode & ZYDIS_DECODER_MODE_KNC:
+        test_case['knc'] = True
     if return_dict:
         return test_case
     return to_json(test_case)
@@ -238,7 +244,8 @@ def convert_enc_json_to_crash(test_case_json, from_dict=False):
     writer.write_uint32(ZydisRoundingMode[test_case['evex']['rounding']])
     writer.write_uint8(int(test_case['evex']['sae']))
     writer.write_uint8(int(test_case['evex']['zeroing_mask']))
-    writer.write_padding(2)
+    writer.write_uint8(int(test_case['evex']['no_flags']))
+    writer.write_uint8(int(test_case['evex']['zero_upper']))
     writer.write_uint32(ZydisBroadcastMode[test_case['mvex']['broadcast']])
     writer.write_uint32(ZydisConversionMode[test_case['mvex']['conversion']])
     writer.write_uint32(ZydisRoundingMode[test_case['mvex']['rounding']])
@@ -257,6 +264,7 @@ def convert_re_enc_json_to_crash(test_case_json, from_dict=False):
     writer = BinaryWriter()
     writer.write_uint32(ZydisMachineMode[test_case['machine_mode']])
     writer.write_uint32(ZydisStackWidth[test_case['stack_width']])
+    writer.write_uint32(ZYDIS_DECODER_MODE_KNC if test_case.get('knc', False) else 0)
     writer.write_bytes(bytes.fromhex(test_case['payload']))
     return writer.get_data()
 

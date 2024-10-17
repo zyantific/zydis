@@ -1157,7 +1157,7 @@ static void PrintInstruction(const ZydisDecoder* decoder,
 
 void PrintUsage(int argc, char* argv[])
 {
-    ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s <machine_mode> [stack_width] <hexbytes>\n\n"
+    ZYAN_FPRINTF(ZYAN_STDERR, "%sUsage: %s <machine_mode> [stack_width] [-knc] <hexbytes>\n\n"
         "Machine mode:      -real|-16|-32|-64\n"
         "Stack width:       -16|-32|-64%s\n",
         CVT100_ERR(COLOR_ERROR), (argc > 0 ? argv[0] : "ZydisInfo"),
@@ -1181,66 +1181,82 @@ int main(int argc, char** argv)
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
+    static const struct
+    {
+        const char *option;
+        ZydisMachineMode machine_mode;
+        ZydisStackWidth stack_width;
+    } configurations[] =
+    {
+        { "-real", ZYDIS_MACHINE_MODE_REAL_16, ZYDIS_STACK_WIDTH_16 },
+        { "-16", ZYDIS_MACHINE_MODE_LONG_COMPAT_16, ZYDIS_STACK_WIDTH_16 },
+        { "-32", ZYDIS_MACHINE_MODE_LONG_COMPAT_32, ZYDIS_STACK_WIDTH_32 },
+        { "-64", ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64 },
+    };
     ZydisDecoder decoder;
-    ZydisMachineMode machine_mode;
-    ZydisStackWidth stack_width;
-    ZyanU8 hexbytes_index = 2;
-    if (!ZYAN_STRCMP(argv[1], "-real"))
+    ZyanBool use_knc = ZYAN_FALSE;
+    int options[] = { -1, -1 };
+    int arg_index, options_count = 0;
+    for (arg_index = 1; arg_index < argc; ++arg_index)
     {
-        machine_mode = ZYDIS_MACHINE_MODE_REAL_16;
-        stack_width = ZYDIS_STACK_WIDTH_16;
-    }
-    else if (!ZYAN_STRCMP(argv[1], "-16"))
-    {
-        machine_mode = ZYDIS_MACHINE_MODE_LONG_COMPAT_16;
-        stack_width = ZYDIS_STACK_WIDTH_16;
-    }
-    else if (!ZYAN_STRCMP(argv[1], "-32"))
-    {
-        machine_mode = ZYDIS_MACHINE_MODE_LONG_COMPAT_32;
-        stack_width = ZYDIS_STACK_WIDTH_32;
-    }
-    else if (!ZYAN_STRCMP(argv[1], "-64"))
-    {
-        machine_mode = ZYDIS_MACHINE_MODE_LONG_64;
-        stack_width = ZYDIS_STACK_WIDTH_64;
-    }
-    else
-    {
-        PrintUsage(argc, argv);
-        return ZYAN_STATUS_INVALID_ARGUMENT;
-    }
-    if ((argc > 3) && (argv[2][0] == '-'))
-    {
-        ++hexbytes_index;
-        if (!ZYAN_STRCMP(argv[2], "-16"))
+        if (*argv[arg_index] != '-')
         {
-            stack_width = ZYDIS_STACK_WIDTH_16;
+            break;
         }
-        else if (!ZYAN_STRCMP(argv[2], "-32"))
+        if (!ZYAN_STRCMP(argv[arg_index], "-knc"))
         {
-            stack_width = ZYDIS_STACK_WIDTH_32;
+            use_knc = ZYAN_TRUE;
+            continue;
         }
-        else if (!ZYAN_STRCMP(argv[2], "-64"))
+        if (ZYAN_ARRAY_LENGTH(options) == options_count)
         {
-            stack_width = ZYDIS_STACK_WIDTH_64;
+            PrintUsage(argc, argv);
+            return ZYAN_STATUS_INVALID_ARGUMENT;
         }
-        else
+        ZyanBool parsing_failed = ZYAN_TRUE;
+        for (int i = 0; i < ZYAN_ARRAY_LENGTH(configurations); ++i)
+        {
+            if (!ZYAN_STRCMP(argv[arg_index], configurations[i].option))
+            {
+                options[options_count++] = i;
+                parsing_failed = ZYAN_FALSE;
+                break;
+            }
+        }
+        if (parsing_failed)
         {
             PrintUsage(argc, argv);
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
     }
+    if (options[0] == -1 || options[1] == 0)
+    {
+        PrintUsage(argc, argv);
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    int width_config_index = options[1] == -1 ? 0 : 1;
+    ZydisMachineMode machine_mode = configurations[options[0]].machine_mode;
+    ZydisStackWidth stack_width = configurations[options[width_config_index]].stack_width;
     ZyanStatus status = ZydisDecoderInit(&decoder, machine_mode, stack_width);
     if (!ZYAN_SUCCESS(status))
     {
         PrintStatusError(status, "Failed to initialize decoder");
         return status;
     }
+    if (use_knc)
+    {
+        status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE);
+        if (!ZYAN_SUCCESS(status))
+        {
+            PrintStatusError(status, "Failed to enable KNC mode");
+            return status;
+        }
+    }
 
     ZyanU8 data[ZYDIS_MAX_INSTRUCTION_LENGTH];
     ZyanU8 byte_length = 0;
-    for (ZyanU8 i = hexbytes_index; i < argc; ++i)
+    for (int i = arg_index; i < argc; ++i)
     {
         char* cur_arg = argv[i];
 

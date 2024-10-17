@@ -195,7 +195,8 @@
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "6242795A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A5A",
-        "description": "vbroadcasti32x4 zmm27 {k2}, dword ptr ds:[r10+0x168] {sint8}"
+        "description": "vbroadcasti32x4 zmm27 {k2}, dword ptr ds:[r10+0x168] {sint8}",
+        "knc": true
     },
     {
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
@@ -369,7 +370,8 @@
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "6262F900922C0000",
-        "description": "vgatherdpd zmm29, qword ptr ds:[rax+zmm16*1]"
+        "description": "vgatherdpd zmm29, qword ptr ds:[rax+zmm16*1]",
+        "knc": true
     },
     {
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
@@ -459,7 +461,8 @@
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62F20198B5FFFFFFFFFFFFFFFF5CFF5C4CFFFFFFFFFFFF05000000000000B75C",
-        "description": "vpmadd231d zmm7, zmm15, zmm7"
+        "description": "vpmadd231d zmm7, zmm15, zmm7",
+        "knc": true
     },
     {
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
@@ -507,7 +510,8 @@
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "6291780E1811",
-        "description": "vprefetch1 byte ptr ds:[r9]"
+        "description": "vprefetch1 byte ptr ds:[r9]",
+        "knc": true
     },
     {
         "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",

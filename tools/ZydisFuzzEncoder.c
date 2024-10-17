@@ -38,7 +38,8 @@
 
 // TODO: This could check `EVEX`/`MVEX` stuff as well
 void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
-    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand* operands, const ZyanU8 *insn_bytes)
+    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand* operands,
+    const ZyanU8 *insn_bytes)
 {
     // Special case, `xchg rAX, rAX` is an alias for `NOP`
     if ((request->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
@@ -57,33 +58,6 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
         default:
             break;
         }
-    }
-
-    // Handle possible KNC overlap
-    ZydisDecodedInstruction knc_insn;
-    ZydisDecodedOperand knc_operands[ZYDIS_MAX_OPERAND_COUNT];
-    if (request->mnemonic != insn->mnemonic)
-    {
-        ZydisDecoder decoder;
-        ZydisStackWidth stack_width = (ZydisStackWidth)(insn->stack_width >> 5);
-        if (!ZYAN_SUCCESS(ZydisDecoderInit(&decoder, insn->machine_mode, stack_width)))
-        {
-            fputs("Failed to initialize decoder\n", ZYAN_STDERR);
-            abort();
-        }
-        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
-        {
-            fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
-            abort();
-        }
-        if (!ZYAN_SUCCESS(ZydisDecoderDecodeFull(&decoder, insn_bytes, insn->length, &knc_insn,
-            knc_operands)))
-        {
-            fputs("Failed to decode instruction\n", ZYAN_STDERR);
-            abort();
-        }
-        insn = &knc_insn;
-        operands = knc_operands;
     }
 
     ZyanBool prefixes_match = ((insn->attributes & request->prefixes) == request->prefixes);
@@ -291,6 +265,17 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
     status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
         operands1);
+    // Handle possible KNC instruction
+    if (!ZYAN_SUCCESS(status) || request.mnemonic != insn1.mnemonic)
+    {
+        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
+        {
+            fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
+            abort();
+        }
+        status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
+            operands1);
+    }
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode instruction\n", ZYAN_STDERR);

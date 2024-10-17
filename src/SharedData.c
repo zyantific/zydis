@@ -133,7 +133,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     {
         ZydisElementType type;
         ZydisElementSize size;
-    } lookup[ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1] =
+    } lookup[] =
     {
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
@@ -166,7 +166,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   5 }
     };
-
+    ZYAN_STATIC_ASSERT(ZYAN_ARRAY_LENGTH(lookup) == ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1);
     ZYAN_ASSERT((ZyanUSize)element < ZYAN_ARRAY_LENGTH(lookup));
 
     *type = lookup[element].type;
