@@ -34,7 +34,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -84,7 +86,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_2",
@@ -109,7 +113,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -152,7 +158,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_4",
@@ -195,7 +203,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_32",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_2",
@@ -238,7 +248,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -274,7 +286,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -299,7 +313,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_32",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -356,7 +372,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -381,7 +399,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -417,7 +437,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -460,7 +482,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_8_TO_16",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_2_TO_8",
@@ -502,7 +526,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_RZ",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_2_TO_16",
@@ -545,7 +571,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_16",
@@ -585,7 +613,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_RD",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -642,7 +672,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -684,7 +716,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -724,7 +758,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_RD",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_4",
@@ -749,7 +785,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_4",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -806,7 +844,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -859,7 +899,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_2",
             "rounding": "ZYDIS_ROUNDING_MODE_RN",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -902,7 +944,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -945,7 +989,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -981,7 +1027,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1014,7 +1062,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1057,7 +1107,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1090,7 +1142,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1133,7 +1187,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1165,7 +1221,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1205,7 +1263,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1247,7 +1307,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1279,7 +1341,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1318,7 +1382,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1350,7 +1416,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_4_TO_8",
@@ -1393,7 +1461,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_64",
@@ -1429,7 +1499,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_16",
@@ -1469,7 +1541,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1512,7 +1586,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1552,7 +1628,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": true,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_2_TO_8",
@@ -1602,7 +1680,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_64",
@@ -1652,7 +1732,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1699,7 +1781,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_64",
             "rounding": "ZYDIS_ROUNDING_MODE_RU",
             "sae": true,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_64",
@@ -1746,7 +1830,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1793,7 +1879,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1832,7 +1920,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1882,7 +1972,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1907,7 +1999,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1939,7 +2033,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -1982,7 +2078,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -2025,7 +2123,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": true
+            "zeroing_mask": true,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_1_TO_2",
@@ -2061,7 +2161,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
@@ -2093,7 +2195,9 @@
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",
             "rounding": "ZYDIS_ROUNDING_MODE_INVALID",
             "sae": false,
-            "zeroing_mask": false
+            "zeroing_mask": false,
+            "no_flags": false,
+            "zero_upper": false
         },
         "mvex": {
             "broadcast": "ZYDIS_BROADCAST_MODE_INVALID",

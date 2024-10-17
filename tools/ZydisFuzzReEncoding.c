@@ -45,6 +45,7 @@ typedef struct ZydisFuzzControlBlock_
 {
     ZydisMachineMode machine_mode;
     ZydisStackWidth stack_width;
+    ZydisDecoderMode decoder_mode;
 } ZydisFuzzControlBlock;
 
 /* ============================================================================================== */
@@ -68,6 +69,14 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     {
         ZYDIS_MAYBE_FPUTS("Failed to initialize decoder\n", ZYAN_STDERR);
         return EXIT_FAILURE;
+    }
+    if (control_block.decoder_mode & ZYDIS_DECODER_MODE_KNC)
+    {
+        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
+        {
+            ZYDIS_MAYBE_FPUTS("Failed to enable KNC mode\n", ZYAN_STDERR);
+            return EXIT_FAILURE;
+        }
     }
 
     ZyanU8 buffer[32];
