@@ -208,7 +208,7 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
 
     const ZyanBool absolute = !formatter->force_relative_riprel &&
         (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
-    if (absolute && context->operand->mem.disp.has_displacement &&
+    if (absolute && context->operand->mem.disp.size &&
         (context->operand->mem.index == ZYDIS_REGISTER_NONE) &&
        ((context->operand->mem.base  == ZYDIS_REGISTER_NONE) ||
         (context->operand->mem.base  == ZYDIS_REGISTER_EIP ) ||
@@ -226,7 +226,7 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
         if (neither_reg_nor_idx)
         {
             ZYAN_CHECK(formatter->func_print_address_abs(formatter, buffer, context));
-        } else if (context->operand->mem.disp.has_displacement && context->operand->mem.disp.value)
+        } else if (context->operand->mem.disp.size && context->operand->mem.disp.value)
         {
             ZYAN_CHECK(formatter->func_print_disp(formatter, buffer, context));
         }

@@ -136,6 +136,20 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
 
 #endif
 
+void ZydisValidateImmediateSize(ZyanU64 value) 
+{
+    if ((value != 0) &&
+        (value != 8) &&
+        (value != 16) &&
+        (value != 32) &&
+        (value != 64)) 
+    {
+        fprintf(stderr, "Value 0x%016" PRIX64 " does not match any of the expected "
+            "values (0, 8, 16, 32, 64).\n", value);
+        abort();
+    }
+}
+
 // NOTE: This function doesn't validate flag values, yet.
 void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
     const ZydisDecodedOperand* operands, ZyanU8 operand_count)
@@ -147,6 +161,7 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             " = 0x%016" PRIX64 "\n", (ZyanU64)(value), (ZyanU64)(max));                            \
         abort();                                                                                   \
     }
+#   define ZYDIS_CHECK_MAX ZYDIS_CHECK_ENUM
 
     ZYDIS_CHECK_ENUM(insn->length, ZYDIS_MAX_INSTRUCTION_LENGTH);
 
@@ -175,11 +190,14 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
             ZYDIS_CHECK_ENUM(op->mem.segment, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.base, ZYDIS_REGISTER_MAX_VALUE);
             ZYDIS_CHECK_ENUM(op->mem.index, ZYDIS_REGISTER_MAX_VALUE);
-            ZYDIS_CHECK_ENUM(op->mem.disp.has_displacement, ZYAN_TRUE);
+            ZydisValidateImmediateSize(op->mem.disp.size);
+            ZYDIS_CHECK_MAX(op->mem.disp.offset + (op->mem.disp.size / 8), insn->length);
             break;
         case ZYDIS_OPERAND_TYPE_IMMEDIATE:
             ZYDIS_CHECK_ENUM(op->imm.is_signed, ZYAN_TRUE);
             ZYDIS_CHECK_ENUM(op->imm.is_relative, ZYAN_TRUE);
+            ZydisValidateImmediateSize(op->imm.size);
+            ZYDIS_CHECK_MAX(op->imm.offset + (op->imm.size / 8), insn->length);
             break;
         default:
             break;
@@ -216,6 +234,7 @@ void ZydisValidateEnumRanges(const ZydisDecodedInstruction* insn,
     }
 
 #   undef ZYDIS_CHECK_ENUM
+#   undef ZYDIS_CHECK_MAX
 }
 
 void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
@@ -285,46 +304,40 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
             }
             break;
         case ZYDIS_OPERAND_TYPE_MEMORY:
+        {
+            // Usually this check is done after verifying instruction identity but in this case
+            // we have to fail early
+            if (insn1->length < insn2->length)
+            {
+                fputs("Suboptimal output size detected\n", ZYAN_STDERR);
+                abort();
+            }
+            ZyanU64 addr1, addr2;
+            ZyanStatus status1 = ZydisCalcAbsoluteAddress(insn1, op1, 0, &addr1);
+            ZyanStatus status2 = ZydisCalcAbsoluteAddress(insn2, op2,
+                insn1->length - insn2->length, &addr2);
+            ZyanBool addresses_match = ZYAN_FALSE;
+            if (ZYAN_SUCCESS(status1) && ZYAN_SUCCESS(status2))
+            {
+                if (addr1 != addr2)
+                {
+                    fprintf(ZYAN_STDERR, "Mismatch for memory operand %u (absolute address)\n", i);
+                    abort();
+                }
+                addresses_match = ZYAN_TRUE;
+            }
             if ((op1->mem.type != op2->mem.type) ||
                 (op1->mem.segment != op2->mem.segment) ||
                 (op1->mem.base != op2->mem.base) ||
                 (op1->mem.index != op2->mem.index) ||
-                (op1->mem.scale != op2->mem.scale && op1->mem.type != ZYDIS_MEMOP_TYPE_MIB) ||
-                (op1->mem.disp.value != op2->mem.disp.value))
+                ((op1->mem.scale != op2->mem.scale) && (op1->mem.type != ZYDIS_MEMOP_TYPE_MIB)) ||
+                ((op1->mem.disp.value != op2->mem.disp.value) && !addresses_match))
             {
-                ZyanBool acceptable_mismatch = ZYAN_FALSE;
-                if (op1->mem.disp.value != op2->mem.disp.value)
-                {
-                    if ((op1->mem.disp.has_displacement) &&
-                        (op2->mem.disp.has_displacement) &&
-                        (op1->mem.index == ZYDIS_REGISTER_NONE) &&
-                        ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
-                         (op1->mem.base == ZYDIS_REGISTER_EIP) ||
-                         (op1->mem.base == ZYDIS_REGISTER_RIP)))
-                    {
-                        ZyanU64 addr1, addr2;
-                        ZydisCalcAbsoluteAddress(insn1, op1, 0, &addr1);
-                        ZydisCalcAbsoluteAddress(insn2, op2, 0, &addr2);
-                        acceptable_mismatch = (addr1 == addr2);
-                    }
-                    if ((insn1->machine_mode == ZYDIS_MACHINE_MODE_REAL_16) ||
-                        (insn1->machine_mode == ZYDIS_MACHINE_MODE_LEGACY_16) ||
-                        (insn1->machine_mode == ZYDIS_MACHINE_MODE_LONG_COMPAT_16) ||
-                        (insn1->stack_width == 16) ||
-                        (insn1->address_width == 16) ||
-                        (insn2->address_width == 16))
-                    {
-                        acceptable_mismatch = ((op1->mem.disp.value & 0xFFFF) ==
-                                               (op2->mem.disp.value & 0xFFFF));
-                    }
-                }
-                if (!acceptable_mismatch)
-                {
-                    fprintf(ZYAN_STDERR, "Mismatch for memory operand %u\n", i);
-                    abort();
-                }
+                fprintf(ZYAN_STDERR, "Mismatch for memory operand %u\n", i);
+                abort();
             }
             break;
+        }
         case ZYDIS_OPERAND_TYPE_POINTER:
             if ((op1->ptr.segment != op2->ptr.segment) ||
                 (op1->ptr.offset != op2->ptr.offset))

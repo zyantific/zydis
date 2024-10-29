@@ -11,3 +11,6 @@ __pycache__
 /doc
 /cmake-build-debug
 /amalgamated-dist
+
+.cache
+compile_commands.json

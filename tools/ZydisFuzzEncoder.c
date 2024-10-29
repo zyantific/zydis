@@ -132,7 +132,7 @@ void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
                 ZyanBool acceptable_mismatch = ZYAN_FALSE;
                 if (op1->mem.displacement != op2->mem.disp.value)
                 {
-                    if ((op2->mem.disp.has_displacement) &&
+                    if ((op2->mem.disp.size) &&
                         (op1->mem.index == ZYDIS_REGISTER_NONE) &&
                         ((op1->mem.base == ZYDIS_REGISTER_NONE) ||
                          (op1->mem.base == ZYDIS_REGISTER_EIP) ||
@@ -285,6 +285,16 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     {
         fputs("Failed to initialize decoder\n", ZYAN_STDERR);
         abort();
+    }
+
+    if (request.mnemonic == ZYDIS_MNEMONIC_UD0 && request.operand_count == 0)
+    {
+        status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_UD0_COMPAT, ZYAN_TRUE);
+        if (!ZYAN_SUCCESS(status))
+        {
+            fputs("Failed to enable UD0_COMPAT mode\n", ZYAN_STDERR);
+            abort();
+        }
     }
 
     ZydisDecodedInstruction insn1;

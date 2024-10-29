@@ -1,4 +1,4 @@
-.PHONY: build configure install amalgamate clean test doc doc-plain doc-themed
+.PHONY: build configure install amalgamate clean test doc doc-plain doc-themed clangd
 
 BUILD_DIR ?= build
 CSS_DIR   ?= ../doxygen-awesome-css
@@ -28,6 +28,11 @@ test: build
 
 doc: configure
 	cmake --build $(BUILD_DIR) --target ZydisDoc
+
+clangd:
+	CC=clang cmake -B $(BUILD_DIR)-clangd -DCMAKE_EXPORT_COMPILE_COMMANDS=1; \
+	cmake --build $(BUILD_DIR)-clangd -j && \
+	mv $(BUILD_DIR)-clangd/compile_commands.json .
 
 dependencies/zycore/CMakeLists.txt:
 	@if ! command -v git > /dev/null; then \

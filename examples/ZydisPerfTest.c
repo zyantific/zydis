@@ -37,7 +37,7 @@
 #   include <windows.h>
 #elif defined(ZYAN_APPLE)
 #   include <mach/mach_time.h>
-#elif defined(ZYAN_LINUX) || defined(ZYAN_SOLARIS)
+#elif defined(ZYAN_LINUX) || defined(ZYAN_SOLARIS) || defined(ZYAN_HAIKU)
 #   include <sys/time.h>
 #   include <pthread.h>
 #elif defined(ZYAN_FREEBSD)
@@ -147,7 +147,7 @@ static double GetCounter(void)
     return (double)elapsed * timebase_info.numer / timebase_info.denom / 1000000;
 }
 
-#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD) || defined(ZYAN_SOLARIS)
+#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD) || defined(ZYAN_SOLARIS) || defined(ZYAN_HAIKU)
 
 struct timeval t1;
 

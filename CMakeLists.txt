@@ -150,8 +150,9 @@ else ()
     add_library("Zydis" STATIC)
     target_compile_definitions("Zydis" PUBLIC "ZYDIS_STATIC_BUILD")
 endif ()
+add_library("Zydis::Zydis" ALIAS "Zydis")
 
-target_link_libraries("Zydis" PUBLIC "Zycore")
+target_link_libraries("Zydis" PUBLIC "Zycore::Zycore")
 target_include_directories("Zydis"
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -212,7 +213,6 @@ target_sources("Zydis"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/MetaInfo.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Mnemonic.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Register.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Segment.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/SharedTypes.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/ShortString.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/Zydis/Status.h"
@@ -223,7 +223,6 @@ target_sources("Zydis"
         "src/MetaInfo.c"
         "src/Mnemonic.c"
         "src/Register.c"
-        "src/Segment.c"
         "src/SharedData.c"
         "src/String.c"
         "src/Utils.c"

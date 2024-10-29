@@ -391,11 +391,12 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_PKRU,
     ZYDIS_REGISTER_XCR0,
     ZYDIS_REGISTER_UIF,
+    ZYDIS_REGISTER_IA32_KERNEL_GS_BASE,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_UIF,
+    ZYDIS_REGISTER_MAX_VALUE = ZYDIS_REGISTER_IA32_KERNEL_GS_BASE,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
