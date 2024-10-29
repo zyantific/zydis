@@ -1117,8 +1117,9 @@ static void PrintInstruction(const ZydisDecoder* decoder,
 
 #if !defined(ZYDIS_DISABLE_ENCODER)
 
-    PrintValueLabel("OPTIMIZED");
-    PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);
+    /*PrintValueLabel("OPTIMIZED");
+    PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);*/
+    ZYAN_UNUSED(decoder);
 
 #else
     ZYAN_UNUSED(decoder);

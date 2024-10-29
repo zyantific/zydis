@@ -732,6 +732,8 @@ typedef ZyanU64 ZydisInstructionAttributes;
  */
 #define ZYDIS_ATTRIB_HAS_SCC                    (1ULL << 47)
 
+// TODO: PPX Hint
+
 /**
  * @}
  */
