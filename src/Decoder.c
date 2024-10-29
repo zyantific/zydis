@@ -5156,9 +5156,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
             index = !!(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
             break;
-        case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
-            index = !!(state->decoder->decoder_mode & (1 << ZYDIS_DECODER_MODE_UD0_COMPAT));
-            break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
             {
