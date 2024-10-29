@@ -731,6 +731,10 @@ typedef ZyanU64 ZydisInstructionAttributes;
  * The instruction uses the APX source condition code.
  */
 #define ZYDIS_ATTRIB_HAS_SCC                    (1ULL << 47)
+/**
+* The instruction has the `EEVEX` (extended `EVEX`) prefix.
+*/
+#define ZYDIS_ATTRIB_HAS_EEVEX                  (1ULL << 48) // TODO: rebase
 
 // TODO: PPX Hint
 

@@ -5188,6 +5188,17 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     ZydisGetInstructionDefinition(instruction->encoding, node->value, &definition);
                 }
 
+                if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
+                {
+                    const ZydisInstructionDefinitionEVEX* evex_definition = 
+                        (const ZydisInstructionDefinitionEVEX*)definition;
+
+                    if (evex_definition->is_eevex)
+                    {
+                        instruction->attributes |= ZYDIS_ATTRIB_HAS_EEVEX;
+                    }
+                }
+
                 instruction->mnemonic = definition->mnemonic;
 
 #ifndef ZYDIS_MINIMAL_MODE

@@ -1071,7 +1071,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          },
         { ZYDIS_ATTRIB_ACCEPTS_NOTRACK,          "ACCEPTS_NOTRACK"          },
         { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              },
-        { ZYDIS_ATTRIB_HAS_SCC,                  "HAS_SCC"                  }
+        { ZYDIS_ATTRIB_HAS_SCC,                  "HAS_SCC"                  },
+        { ZYDIS_ATTRIB_HAS_EEVEX,                "HAS_EEVEX"                }
     };
 
     PrintSectionHeader("BASIC");
