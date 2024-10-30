@@ -714,7 +714,10 @@ static ZyanStatus ZydisDecodeMVEX(ZydisDecoderContext* context,
     instruction->raw.mvex.W    = (data[2] >> 7) & 0x01;
     instruction->raw.mvex.vvvv = (data[2] >> 3) & 0x0F;
 
-    ZYAN_ASSERT(((data[2] >> 2) & 0x01) == 0x00);
+    if (((data[2] >> 2) & 0x01) != 0x00)
+    {
+        return ZYDIS_STATUS_MALFORMED_MVEX;
+    }
 
     instruction->raw.mvex.pp   = (data[2] >> 0) & 0x03;
     instruction->raw.mvex.E    = (data[3] >> 7) & 0x01;
