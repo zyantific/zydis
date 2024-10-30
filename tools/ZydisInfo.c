@@ -815,9 +815,6 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
             strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
-        PRINT_VALUE_B("APX_NF", "%s", instruction->avx.has_apx_nf ? "Y" : "N");
-        PRINT_VALUE_B("APX_ZU", "%s", instruction->avx.has_apx_zu ? "Y" : "N");
-        PRINT_VALUE_B("APX_SCC", "%s", strings_scc[instruction->avx.apx_scc]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
@@ -833,6 +830,42 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     default:
         break;
     }
+}
+
+/**
+ * Prints instruction APX info.
+ *
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ */
+static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
+{
+    static const char* strings_scc[] =
+    {
+        "NONE",
+        "O",
+        "NO",
+        "B",
+        "NB",
+        "Z",
+        "NZ",
+        "BE",
+        "NBE",
+        "S",
+        "NS",
+        "TRUE",
+        "FALSE",
+        "L",
+        "NL",
+        "LE",
+        "NLE"
+    };
+    ZYAN_STATIC_ASSERT(ZYAN_ARRAY_LENGTH(strings_scc) == ZYDIS_SCC_MAX_VALUE + 1);
+
+    PrintSectionHeader("APX");
+
+    PRINT_VALUE_B("NF", "%s", instruction->apx.has_nf ? "Y" : "N");
+    PRINT_VALUE_B("ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
+    PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->apx.scc]);
 }
 
 /**
@@ -1143,6 +1176,13 @@ static void PrintInstruction(const ZydisDecoder* decoder,
     {
         ZYAN_PUTS("");
         PrintAVXInfo(instruction);
+    }
+
+    if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ||
+        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX))
+    {
+        ZYAN_PUTS("");
+        PrintAPXInfo(instruction);
     }
 
     ZYAN_PUTS("");

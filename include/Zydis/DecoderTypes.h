@@ -1207,26 +1207,33 @@ typedef struct ZydisDecodedInstructionAvx_
      * Signals, if the instruction has a memory-eviction-hint (`KNC` only).
      */
     ZyanBool has_eviction_hint;
-    /**
-     * The AVX-512 APX source condition code.
-     */
-    ZydisSourceConditionCode apx_scc;
+    // TODO: publish EVEX tuple-type and MVEX functionality
+} ZydisDecodedInstructionAvx;
+
+/**
+ * Extended info for `APX` instructions.
+ */
+typedef struct ZydisDecodedInstructionApx_
+{
     /**
      * Signals, if the APX `no flags` functionality enabled for the instruction.
      */
-    ZyanBool has_apx_nf;
+    ZyanBool has_nf;
     /**
      * Signals, if the APX `zero upper` functionality enabled for the instruction.
      */
-    ZyanBool has_apx_zu;
+    ZyanBool has_zu;
     /**
      * Signals, if the APX push/pop performance-hint (`PPX`) is enabled for the instruction.
      *
-     * This flag is only valid for `push2` and `pop2`.
+     * This flag is only valid for `push2p` and `pop2p`.
      */
-    ZyanBool has_apx_ppx;
-    // TODO: publish EVEX tuple-type and MVEX functionality
-} ZydisDecodedInstructionAvx;
+    ZyanBool has_ppx;
+    /**
+     * The AVX-512 APX source condition code.
+     */
+    ZydisSourceConditionCode scc;
+} ZydisDecodedInstructionApx;
 
 /**
  * Instruction meta info.
@@ -1481,6 +1488,10 @@ typedef struct ZydisDecodedInstruction_
      * Extended info for `AVX` instructions.
      */
     ZydisDecodedInstructionAvx avx;
+    /**
+     * Extended info for `APX` instructions.
+     */
+    ZydisDecodedInstructionApx apx;
     /**
      * Meta info.
      */
