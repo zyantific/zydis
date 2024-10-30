@@ -603,14 +603,13 @@ static ZyanStatus ZydisDecodeEVEX(const ZydisDecoder* decoder, ZydisDecoderConte
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
     const ZyanBool is_apx = ZYDIS_DECODER_MODE_ACTIVE(decoder, ZYDIS_DECODER_MODE_APX);
-    if (!is_apx && (data[1] & 0x08))
+    if (!is_apx && (data[1] & 0x08)) // TODO: This condition might have to as well consider AVX 10.2 besides APX
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_MALFORMED_EVEX;
     }
 
-    if ((instruction->raw.evex.mmm == 0x00) ||
-        (instruction->raw.evex.mmm == 0x07))
+    if (instruction->raw.evex.mmm == 0x00)
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
