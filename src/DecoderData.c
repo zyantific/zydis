@@ -176,6 +176,9 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
         ZYAN_ASSERT(index <   2);
         return &FILTERS_REX2_PREFIX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_U:
+        ZYAN_ASSERT(index < 2);
+        return &FILTERS_EVEX_U[parent->value][index];
     default:
         ZYAN_UNREACHABLE;
     }

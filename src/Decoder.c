@@ -618,13 +618,10 @@ static ZyanStatus ZydisDecodeEVEX(const ZydisDecoder* decoder, ZydisDecoderConte
 
     instruction->raw.evex.W         = (data[2] >> 7) & 0x01;
     instruction->raw.evex.vvvv      = (data[2] >> 3) & 0x0F;
-    instruction->raw.evex.X4        = (data[2] >> 2) & 0x01;
+    // instruction->raw.evex.DFV      = (data[2] >> 3) & 0x0F; // uses same bits as 'vvvv'
+    instruction->raw.evex.U         = (data[2] >> 2) & 0x01;
+    instruction->raw.evex.X4        = (data[2] >> 2) & 0x01; // uses same bit as 'U'
     instruction->raw.evex.pp        = (data[2] >> 0) & 0x03;
-
-    if (!is_apx && (instruction->raw.evex.X4 != 0x01))
-    {
-        return ZYDIS_STATUS_MALFORMED_EVEX;
-    }
 
     instruction->raw.evex.z         = (data[3] >> 7) & 0x01;
     instruction->raw.evex.L2        = (data[3] >> 6) & 0x01;
@@ -1138,7 +1135,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
 
                 switch (instruction->avx.conversion.mode)
                 {
-                case ZYDIS_CONVERSION_MODE_INVALID:
+                case ZYDIS_CONVERSION_MODE_NONE:
                     operand->size = 512;
                     switch (context->mvex.functionality)
                     {
@@ -1213,7 +1210,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
 
                 switch (instruction->avx.broadcast.mode)
                 {
-                case ZYDIS_BROADCAST_MODE_INVALID:
+                case ZYDIS_BROADCAST_MODE_NONE:
                     // Nothing to do here
                     break;
                 case ZYDIS_BROADCAST_MODE_1_TO_8:
@@ -2413,7 +2410,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             instruction->avx.broadcast.is_static = ZYAN_TRUE;
             static ZydisBroadcastMode broadcasts[ZYDIS_VEX_STATIC_BROADCAST_MAX_VALUE + 1] =
             {
-                ZYDIS_BROADCAST_MODE_INVALID,
+                ZYDIS_BROADCAST_MODE_NONE,
                 ZYDIS_BROADCAST_MODE_1_TO_2,
                 ZYDIS_BROADCAST_MODE_1_TO_4,
                 ZYDIS_BROADCAST_MODE_1_TO_8,
@@ -2485,21 +2482,21 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     {
                         /*16*/
                         {
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE
                         },
                         /*32*/
                         {
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE
                         },
                         /*64*/
                         {
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE
                         }
                     },
                     /*B1*/
@@ -2552,15 +2549,15 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                     {
                         /*16*/
                         {
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE
                         },
                         /*32*/
                         {
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID,
-                            ZYDIS_BROADCAST_MODE_INVALID
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE,
+                            ZYDIS_BROADCAST_MODE_NONE
                         }
                     },
                     /*B1*/
@@ -2741,9 +2738,9 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 {
                     /*B0*/
                     {
-                        ZYDIS_BROADCAST_MODE_INVALID,
-                        ZYDIS_BROADCAST_MODE_INVALID,
-                        ZYDIS_BROADCAST_MODE_INVALID
+                        ZYDIS_BROADCAST_MODE_NONE,
+                        ZYDIS_BROADCAST_MODE_NONE,
+                        ZYDIS_BROADCAST_MODE_NONE
                     },
                     /*B1*/
                     {
@@ -2772,7 +2769,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             instruction->avx.broadcast.is_static = ZYAN_TRUE;
             static const ZydisBroadcastMode broadcasts[ZYDIS_EVEX_STATIC_BROADCAST_MAX_VALUE + 1] =
             {
-                ZYDIS_BROADCAST_MODE_INVALID,
+                ZYDIS_BROADCAST_MODE_NONE,
                 ZYDIS_BROADCAST_MODE_1_TO_2,
                 ZYDIS_BROADCAST_MODE_1_TO_4,
                 ZYDIS_BROADCAST_MODE_1_TO_8,
@@ -4320,6 +4317,18 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
 }
 
 #ifndef ZYDIS_DISABLE_AVX512
+
+static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+{
+    ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(index);
+
+    ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+    *index = instruction->raw.evex.U;
+    return ZYAN_STATUS_SUCCESS;
+}
+
 static ZyanStatus ZydisNodeHandlerEvexB(const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
@@ -4400,8 +4409,7 @@ static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
     context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
     context->vector_unified.V4   = 0;
 
-    instruction->attributes |= ZYDIS_ATTRIB_HAS_SCC;
-    instruction->avx.scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
+    instruction->avx.apx_scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
 
     *index = instruction->raw.evex.SCC;
     return ZYAN_STATUS_SUCCESS;
@@ -5108,6 +5116,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerRexB(state->context, instruction, &index);
             break;
 #ifndef ZYDIS_DISABLE_AVX512
+        case ZYDIS_NODETYPE_FILTER_EVEX_U:
+            status = ZydisNodeHandlerEvexU(instruction, &index);
+            break;
         case ZYDIS_NODETYPE_FILTER_EVEX_B:
             status = ZydisNodeHandlerEvexB(instruction, &index);
             break;
@@ -5200,6 +5211,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     {
                         instruction->attributes |= ZYDIS_ATTRIB_HAS_EEVEX;
                     }
+
+                    instruction->avx.has_apx_nf = evex_definition->has_apx_nf;
+                    instruction->avx.has_apx_zu = evex_definition->has_apx_zu;
                 }
 
                 instruction->mnemonic = definition->mnemonic;

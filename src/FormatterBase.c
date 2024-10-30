@@ -633,7 +633,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.broadcast.mode)
             {
-            case ZYDIS_BROADCAST_MODE_INVALID:
+            case ZYDIS_BROADCAST_MODE_NONE:
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_2:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO2, formatter->case_decorators);
@@ -674,7 +674,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.rounding.mode)
             {
-            case ZYDIS_ROUNDING_MODE_INVALID:
+            case ZYDIS_ROUNDING_MODE_NONE:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN_SAE, formatter->case_decorators);
@@ -695,7 +695,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.rounding.mode)
             {
-            case ZYDIS_ROUNDING_MODE_INVALID:
+            case ZYDIS_ROUNDING_MODE_NONE:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN, formatter->case_decorators);
@@ -727,7 +727,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         switch (context->instruction->avx.swizzle.mode)
         {
-        case ZYDIS_SWIZZLE_MODE_INVALID:
+        case ZYDIS_SWIZZLE_MODE_NONE:
         case ZYDIS_SWIZZLE_MODE_DCBA:
             // Nothing to do here
             break;
@@ -761,7 +761,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         switch (context->instruction->avx.conversion.mode)
         {
-        case ZYDIS_CONVERSION_MODE_INVALID:
+        case ZYDIS_CONVERSION_MODE_NONE:
             break;
         case ZYDIS_CONVERSION_MODE_FLOAT16:
             ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_FLOAT16, formatter->case_decorators);

@@ -860,8 +860,8 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
     ZyanU8 is_eevex                        ZYAN_BITFIELD( 1);
-    /*ZyanU8 accepts_zu                      ZYAN_BITFIELD( 1);
-    ZyanU8 accepts_nf                      ZYAN_BITFIELD( 1);*/
+    ZyanU8 has_apx_nf                      ZYAN_BITFIELD(1);
+    ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif
 

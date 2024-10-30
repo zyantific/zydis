@@ -917,7 +917,7 @@ static ZyanU8 ZydisEncodeMvexBroadcastMode(ZydisBroadcastMode broadcast)
 {
     switch (broadcast)
     {
-    case ZYDIS_BROADCAST_MODE_INVALID:
+    case ZYDIS_BROADCAST_MODE_NONE:
         return 0;
     case ZYDIS_BROADCAST_MODE_1_TO_16:
     case ZYDIS_BROADCAST_MODE_1_TO_8:
@@ -941,7 +941,7 @@ static ZyanU8 ZydisEncodeMvexConversionMode(ZydisConversionMode conversion)
 {
     switch (conversion)
     {
-    case ZYDIS_CONVERSION_MODE_INVALID:
+    case ZYDIS_CONVERSION_MODE_NONE:
         return 0;
     case ZYDIS_CONVERSION_MODE_FLOAT16:
         return 3;
@@ -1695,7 +1695,7 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                         ZyanU16 element_size;
                         switch (match->request->mvex.conversion)
                         {
-                        case ZYDIS_CONVERSION_MODE_INVALID:
+                        case ZYDIS_CONVERSION_MODE_NONE:
 
                             switch (mvex_def->functionality)
                             {
@@ -1760,7 +1760,7 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                         }
                         switch (match->request->mvex.broadcast)
                         {
-                        case ZYDIS_BROADCAST_MODE_INVALID:
+                        case ZYDIS_BROADCAST_MODE_NONE:
                             break;
                         case ZYDIS_BROADCAST_MODE_1_TO_8:
                         case ZYDIS_BROADCAST_MODE_1_TO_16:
@@ -2182,7 +2182,7 @@ static ZyanBool ZydisIsImmediateOperandCompabile(ZydisEncoderInstructionMatch *m
 static ZyanBool ZydisIsBroadcastModeCompatible(const ZydisInstructionDefinitionEVEX *evex_def,
     ZydisVectorLength vector_length, ZydisBroadcastMode broadcast)
 {
-    if (broadcast == ZYDIS_BROADCAST_MODE_INVALID)
+    if (broadcast == ZYDIS_BROADCAST_MODE_NONE)
     {
         return ZYAN_TRUE;
     }
@@ -2293,15 +2293,15 @@ static ZyanBool ZydisAreEvexFeaturesCompatible(const ZydisEncoderInstructionMatc
     {
     case ZYDIS_EVEX_FUNC_INVALID:
         if ((request->evex.sae) ||
-            (request->evex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->evex.rounding != ZYDIS_ROUNDING_MODE_INVALID))
+            (request->evex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->evex.rounding != ZYDIS_ROUNDING_MODE_NONE))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_EVEX_FUNC_BC:
         if ((request->evex.sae) ||
-            (request->evex.rounding != ZYDIS_ROUNDING_MODE_INVALID))
+            (request->evex.rounding != ZYDIS_ROUNDING_MODE_NONE))
         {
             return ZYAN_FALSE;
         }
@@ -2312,11 +2312,11 @@ static ZyanBool ZydisAreEvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         }
         break;
     case ZYDIS_EVEX_FUNC_RC:
-        if (request->evex.broadcast != ZYDIS_BROADCAST_MODE_INVALID)
+        if (request->evex.broadcast != ZYDIS_BROADCAST_MODE_NONE)
         {
             return ZYAN_FALSE;
         }
-        if (request->evex.rounding == ZYDIS_ROUNDING_MODE_INVALID)
+        if (request->evex.rounding == ZYDIS_ROUNDING_MODE_NONE)
         {
             if (request->evex.sae)
             {
@@ -2332,8 +2332,8 @@ static ZyanBool ZydisAreEvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         }
         break;
     case ZYDIS_EVEX_FUNC_SAE:
-        if ((request->evex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->evex.rounding != ZYDIS_ROUNDING_MODE_INVALID))
+        if ((request->evex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->evex.rounding != ZYDIS_ROUNDING_MODE_NONE))
         {
             return ZYAN_FALSE;
         }
@@ -2380,29 +2380,29 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
     case ZYDIS_MVEX_FUNC_UI_64:
     case ZYDIS_MVEX_FUNC_DF_64:
     case ZYDIS_MVEX_FUNC_DI_64:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_MVEX_FUNC_RC:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.eviction_hint))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_MVEX_FUNC_SAE:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.eviction_hint))
         {
             return ZYAN_FALSE;
@@ -2410,28 +2410,28 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         break;
     case ZYDIS_MVEX_FUNC_SWIZZLE_32:
     case ZYDIS_MVEX_FUNC_SWIZZLE_64:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_MVEX_FUNC_SF_32:
-        if ((request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_1_TO_16) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_4_TO_16))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) &&
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_FLOAT16) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT8) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT16) &&
@@ -2439,26 +2439,26 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID))
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_MVEX_FUNC_SI_32:
-        if ((request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_1_TO_16) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_4_TO_16))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) &&
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT8) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_SINT8) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT16) &&
@@ -2466,22 +2466,22 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
-            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID))
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
+            (request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE))
         {
             return ZYAN_FALSE;
         }
         break;
     case ZYDIS_MVEX_FUNC_SF_32_BCST:
     case ZYDIS_MVEX_FUNC_SI_32_BCST:
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_1_TO_16) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_4_TO_16))
         {
@@ -2490,14 +2490,14 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         break;
     case ZYDIS_MVEX_FUNC_SF_32_BCST_4TO16:
     case ZYDIS_MVEX_FUNC_SI_32_BCST_4TO16:
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_4_TO_16))
         {
             return ZYAN_FALSE;
@@ -2505,14 +2505,14 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         break;
     case ZYDIS_MVEX_FUNC_SF_64:
     case ZYDIS_MVEX_FUNC_SI_64:
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) &&
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_1_TO_8) &&
             (request->mvex.broadcast != ZYDIS_BROADCAST_MODE_4_TO_8))
         {
@@ -2521,9 +2521,9 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         break;
     case ZYDIS_MVEX_FUNC_UF_32:
     case ZYDIS_MVEX_FUNC_DF_32:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
@@ -2531,14 +2531,14 @@ static ZyanBool ZydisAreMvexFeaturesCompatible(const ZydisEncoderInstructionMatc
         break;
     case ZYDIS_MVEX_FUNC_UI_32:
     case ZYDIS_MVEX_FUNC_DI_32:
-        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_INVALID) ||
-            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID) ||
-            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_INVALID) ||
+        if ((request->mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+            (request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+            (request->mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
             (request->mvex.sae))
         {
             return ZYAN_FALSE;
         }
-        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_INVALID) &&
+        if ((request->mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT8) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_SINT8) &&
             (request->mvex.conversion != ZYDIS_CONVERSION_MODE_UINT16) &&
@@ -3927,11 +3927,11 @@ static ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
             instruction->zeroing = match->request->evex.zeroing_mask;
         }
         if ((match->request->evex.sae) ||
-            (match->request->evex.broadcast != ZYDIS_BROADCAST_MODE_INVALID))
+            (match->request->evex.broadcast != ZYDIS_BROADCAST_MODE_NONE))
         {
             instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX_B;
         }
-        if (match->request->evex.rounding != ZYDIS_ROUNDING_MODE_INVALID)
+        if (match->request->evex.rounding != ZYDIS_ROUNDING_MODE_NONE)
         {
             instruction->attributes |= ZYDIS_ATTRIB_HAS_EVEX_B;
             switch (match->request->evex.rounding)
@@ -3960,7 +3960,7 @@ static ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
 
         switch (match->request->mvex.rounding)
         {
-        case ZYDIS_ROUNDING_MODE_INVALID:
+        case ZYDIS_ROUNDING_MODE_NONE:
             break;
         case ZYDIS_ROUNDING_MODE_RN:
         case ZYDIS_ROUNDING_MODE_RD:
@@ -3974,7 +3974,7 @@ static ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
 
         switch (match->request->mvex.swizzle)
         {
-        case ZYDIS_SWIZZLE_MODE_INVALID:
+        case ZYDIS_SWIZZLE_MODE_NONE:
             break;
         case ZYDIS_SWIZZLE_MODE_DCBA:
         case ZYDIS_SWIZZLE_MODE_CDAB:
@@ -3992,7 +3992,7 @@ static ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
 
         if ((match->request->mvex.sae) ||
             (match->request->mvex.eviction_hint) ||
-            (match->request->mvex.rounding != ZYDIS_ROUNDING_MODE_INVALID))
+            (match->request->mvex.rounding != ZYDIS_ROUNDING_MODE_NONE))
         {
             instruction->eviction_hint = ZYAN_TRUE;
         }
@@ -4667,7 +4667,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
         break;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
         request->evex.broadcast = !instruction->avx.broadcast.is_static ?
-            instruction->avx.broadcast.mode : ZYDIS_BROADCAST_MODE_INVALID;
+            instruction->avx.broadcast.mode : ZYDIS_BROADCAST_MODE_NONE;
         request->evex.rounding = instruction->avx.rounding.mode;
         request->evex.sae = instruction->avx.has_sae;
         request->evex.zeroing_mask = (instruction->avx.mask.mode == ZYDIS_MASK_MODE_ZEROING ||
@@ -4676,7 +4676,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         request->mvex.broadcast = !instruction->avx.broadcast.is_static ?
-            instruction->avx.broadcast.mode : ZYDIS_BROADCAST_MODE_INVALID;
+            instruction->avx.broadcast.mode : ZYDIS_BROADCAST_MODE_NONE;
         request->mvex.conversion = instruction->avx.conversion.mode;
         request->mvex.rounding = instruction->avx.rounding.mode;
         request->mvex.swizzle = instruction->avx.swizzle.mode;

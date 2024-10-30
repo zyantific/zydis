@@ -201,7 +201,11 @@ enum ZydisDecoderTreeNodeTypes
     /**
      * Reference to a REX2-prefix filter.
      */
-    ZYDIS_NODETYPE_FILTER_REX2_PREFIX       = 0x22
+    ZYDIS_NODETYPE_FILTER_REX2_PREFIX       = 0x22,
+    /**
+     * Reference to a EVEX.U filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_U            = 0x23
 };
 
 /* ---------------------------------------------------------------------------------------------- */

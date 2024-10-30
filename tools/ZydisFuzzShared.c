@@ -264,9 +264,9 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
     }
 
     ZydisSwizzleMode swizzle1 = insn1->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ?
-        ZYDIS_SWIZZLE_MODE_INVALID : insn1->avx.swizzle.mode;
+        ZYDIS_SWIZZLE_MODE_NONE : insn1->avx.swizzle.mode;
     ZydisSwizzleMode swizzle2 = insn2->avx.swizzle.mode == ZYDIS_SWIZZLE_MODE_DCBA ?
-        ZYDIS_SWIZZLE_MODE_INVALID : insn2->avx.swizzle.mode;
+        ZYDIS_SWIZZLE_MODE_NONE : insn2->avx.swizzle.mode;
     if ((insn1->machine_mode != insn2->machine_mode) ||
         (insn1->mnemonic != insn2->mnemonic) ||
         (insn1->stack_width != insn2->stack_width) ||

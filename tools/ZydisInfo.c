@@ -726,7 +726,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
 
     static const char* strings_mask_mode[] =
     {
-        "INVALID",
+        "NONE",
         "DISABLED",
         "MERGING",
         "ZEROING",
@@ -737,7 +737,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
 
     static const char* strings_rounding_mode[] =
     {
-        "DEFAULT",
+        "NONE",
         "RN",
         "RD",
         "RU",
@@ -772,7 +772,7 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
 
     static const char* strings_scc[] =
     {
-        "INVALID",
+        "NONE",
         "O",
         "NO",
         "B",
@@ -815,10 +815,9 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
             strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_SCC)
-        {
-            PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->avx.scc]);
-        }
+        PRINT_VALUE_B("APX_NF", "%s", instruction->avx.has_apx_nf ? "Y" : "N");
+        PRINT_VALUE_B("APX_ZU", "%s", instruction->avx.has_apx_zu ? "Y" : "N");
+        PRINT_VALUE_B("APX_SCC", "%s", strings_scc[instruction->avx.apx_scc]);
         break;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
@@ -1071,7 +1070,6 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         { ZYDIS_ATTRIB_HAS_ADDRESSSIZE,          "HAS_ADDRESSSIZE"          },
         { ZYDIS_ATTRIB_ACCEPTS_NOTRACK,          "ACCEPTS_NOTRACK"          },
         { ZYDIS_ATTRIB_HAS_NOTRACK,              "HAS_NOTRACK"              },
-        { ZYDIS_ATTRIB_HAS_SCC,                  "HAS_SCC"                  },
         { ZYDIS_ATTRIB_HAS_EEVEX,                "HAS_EEVEX"                }
     };
 

@@ -566,7 +566,7 @@ typedef enum ZydisExceptionClass_
  */
 typedef enum ZydisMaskMode_
 {
-    ZYDIS_MASK_MODE_INVALID,
+    ZYDIS_MASK_MODE_NONE,
     /**
      * Masking is disabled for the current instruction (`K0` register is used).
      */
@@ -607,7 +607,7 @@ typedef enum ZydisMaskMode_
  */
 typedef enum ZydisBroadcastMode_
 {
-    ZYDIS_BROADCAST_MODE_INVALID,
+    ZYDIS_BROADCAST_MODE_NONE,
     ZYDIS_BROADCAST_MODE_1_TO_2,
     ZYDIS_BROADCAST_MODE_1_TO_4,
     ZYDIS_BROADCAST_MODE_1_TO_8,
@@ -640,7 +640,7 @@ typedef enum ZydisBroadcastMode_
  */
 typedef enum ZydisRoundingMode_
 {
-    ZYDIS_ROUNDING_MODE_INVALID,
+    ZYDIS_ROUNDING_MODE_NONE,
     /**
      * Round to nearest.
      */
@@ -677,7 +677,7 @@ typedef enum ZydisRoundingMode_
  */
 typedef enum ZydisSwizzleMode_
 {
-    ZYDIS_SWIZZLE_MODE_INVALID,
+    ZYDIS_SWIZZLE_MODE_NONE,
     ZYDIS_SWIZZLE_MODE_DCBA,
     ZYDIS_SWIZZLE_MODE_CDAB,
     ZYDIS_SWIZZLE_MODE_BADC,
@@ -706,7 +706,7 @@ typedef enum ZydisSwizzleMode_
  */
 typedef enum ZydisConversionMode_
 {
-    ZYDIS_CONVERSION_MODE_INVALID,
+    ZYDIS_CONVERSION_MODE_NONE,
     ZYDIS_CONVERSION_MODE_FLOAT16,
     ZYDIS_CONVERSION_MODE_SINT8,
     ZYDIS_CONVERSION_MODE_UINT8,
@@ -732,7 +732,7 @@ typedef enum ZydisConversionMode_
  */
 typedef enum ZydisSourceConditionCode_
 {
-    ZYDIS_SCC_INVALID,
+    ZYDIS_SCC_NONE,
     ZYDIS_SCC_O,
     ZYDIS_SCC_NO,
     ZYDIS_SCC_B,
@@ -1020,6 +1020,10 @@ typedef struct ZydisDecodedInstructionRawEvex_
      */
     ZyanU8 vvvv;
     /**
+     * The `U`-bit.
+     */
+    ZyanU8 U;
+    /**
      * High-16 register specifier modifier for the `SIB.index/vidx` field (inverted).
      */
     ZyanU8 X4;
@@ -1040,7 +1044,7 @@ typedef struct ZydisDecodedInstructionRawEvex_
      */
     ZyanU8 L;
     /**
-     * Broadcast/RC/SAE context.
+     * Broadcast/RC/SAE control.
      */
     ZyanU8 b;
     /**
@@ -1206,7 +1210,21 @@ typedef struct ZydisDecodedInstructionAvx_
     /**
      * The AVX-512 APX source condition code.
      */
-    ZydisSourceConditionCode scc;
+    ZydisSourceConditionCode apx_scc;
+    /**
+     * Signals, if the APX `no flags` functionality enabled for the instruction.
+     */
+    ZyanBool has_apx_nf;
+    /**
+     * Signals, if the APX `zero upper` functionality enabled for the instruction.
+     */
+    ZyanBool has_apx_zu;
+    /**
+     * Signals, if the APX push/pop performance-hint (`PPX`) is enabled for the instruction.
+     *
+     * This flag is only valid for `push2` and `pop2`.
+     */
+    ZyanBool has_apx_ppx;
     // TODO: publish EVEX tuple-type and MVEX functionality
 } ZydisDecodedInstructionAvx;
 
