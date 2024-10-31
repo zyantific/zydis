@@ -1214,7 +1214,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
     }
 
     if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ||
-        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX))
+        ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
+            (instruction->attributes & ZYDIS_ATTRIB_HAS_EEVEX)))
     {
         ZYAN_PUTS("");
         PrintAPXInfo(instruction);

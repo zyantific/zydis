@@ -4317,14 +4317,26 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
 
 #ifndef ZYDIS_DISABLE_AVX512
 
-static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state, 
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+
+    if (ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX) &&
+        (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) &&
+        (instruction->raw.modrm.mod != 3))
+    {
+        // APX reinterprets EVEX.U as EVEX.X4
+        *index = 1;
+        return ZYAN_STATUS_SUCCESS;
+    }
+
     *index = instruction->raw.evex.U;
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -5129,7 +5141,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
 #ifndef ZYDIS_DISABLE_AVX512
         case ZYDIS_NODETYPE_FILTER_EVEX_U:
-            status = ZydisNodeHandlerEvexU(instruction, &index);
+            status = ZydisNodeHandlerEvexU(state, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_EVEX_B:
             status = ZydisNodeHandlerEvexB(instruction, &index);

@@ -628,11 +628,19 @@ typedef enum ZydisDecorator_
      * The eviction-hint decorator.
      */
     ZYDIS_DECORATOR_EH,
+    /**
+     * The APX no-flags decorator.
+     */
+    ZYDIS_DECORATOR_NF,
+    /**
+     * The APX default flags value decorator.
+     */
+    ZYDIS_DECORATOR_DFV,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECORATOR_MAX_VALUE = ZYDIS_DECORATOR_EH,
+    ZYDIS_DECORATOR_MAX_VALUE = ZYDIS_DECORATOR_DFV,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */

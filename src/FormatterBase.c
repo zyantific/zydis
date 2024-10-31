@@ -791,6 +791,22 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         }
 #endif
         break;
+    /*case ZYDIS_DECORATOR_NF:
+#if !defined(ZYDIS_DISABLE_AVX512)
+        if (context->instruction->apx.has_nf)
+        {
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_NF, formatter->case_decorators);
+        }
+#endif
+        break;
+    case ZYDIS_DECORATOR_DFV:
+#if !defined(ZYDIS_DISABLE_AVX512)
+        if (context->instruction->apx.has_dfv)
+        {
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_NF, formatter->case_decorators);
+        }
+#endif
+        break;*/
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
