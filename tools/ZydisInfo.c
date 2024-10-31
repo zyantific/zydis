@@ -839,6 +839,18 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
  */
 static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
 {
+    static const struct
+    {
+        ZydisDefaultFlagsValue default_flags_mask;
+        const char* str;
+    } default_flags_map[] =
+    {
+        { ZYDIS_DFV_CF, "CF"   },
+        { ZYDIS_DFV_ZF, "ZF"   },
+        { ZYDIS_DFV_SF, "SF"   },
+        { ZYDIS_DFV_OF, "OF"   }
+    };
+
     static const char* strings_scc[] =
     {
         "NONE",
@@ -864,6 +876,28 @@ static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
     PrintSectionHeader("APX");
 
     PRINT_VALUE_B("USES_EGPR", "%s", instruction->apx.uses_egpr ? "Y" : "N");
+
+    if (instruction->apx.has_dfv)
+    {
+        PrintValueLabel("DFV");
+        ZYAN_FPUTS(CVT100_OUT(COLOR_VALUE_B), ZYAN_STDOUT);
+
+        if (!instruction->apx.default_flags)
+        {
+            ZYAN_PRINTF("NONE");
+        }
+
+        for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(default_flags_map); ++i)
+        {
+            if (instruction->apx.default_flags & default_flags_map[i].default_flags_mask)
+            {
+                ZYAN_PRINTF("%s ", default_flags_map[i].str);
+            }
+        }
+
+        ZYAN_PUTS(CVT100_OUT(COLOR_DEFAULT));
+    }
+
     PRINT_VALUE_B("HAS_NF", "%s", instruction->apx.has_nf ? "Y" : "N");
     PRINT_VALUE_B("HAS_ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
     PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->apx.scc]);

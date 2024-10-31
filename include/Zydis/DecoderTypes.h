@@ -724,6 +724,46 @@ typedef enum ZydisConversionMode_
 } ZydisConversionMode;
 
 /* ---------------------------------------------------------------------------------------------- */
+/* APX default flags value                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Defines the `ZydisDefaultFlagsValue` data-type.
+ */
+typedef ZyanU8 ZydisDefaultFlagsValue;
+
+/**
+ * @defgroup decoder_apx_default_flags APX default flags
+ * @ingroup decoder
+ *
+ * Constants used to determine which status flags are set by certain APX
+ * instructions when the source condition code `SCC` evaluates to `false`.
+ *
+ * @{
+ */
+
+/**
+ * Carry flag.
+ */
+#define ZYDIS_DFV_CF    (1u << 0)
+/**
+ * Zero flag.
+ */
+#define ZYDIS_DFV_ZF    (1u << 1)
+/**
+ * Sign flag.
+ */
+#define ZYDIS_DFV_SF    (1u << 2)
+/**
+ * Overflow flag.
+ */
+#define ZYDIS_DFV_OF    (1u << 3)
+
+/**
+ * @}
+ */
+
+/* ---------------------------------------------------------------------------------------------- */
 /* APX source condition code                                                                      */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -1220,19 +1260,29 @@ typedef struct ZydisDecodedInstructionApx_
      */
     ZyanBool uses_egpr;
     /**
-     * Signals, if the APX `no flags` functionality enabled for the instruction.
+     * Signals, if the APX `no flags` functionality is enabled for the instruction.
      */
     ZyanBool has_nf;
     /**
-     * Signals, if the APX `zero upper` functionality enabled for the instruction.
+     * Signals, if the APX `zero upper` functionality is enabled for the instruction.
      */
     ZyanBool has_zu;
+    /**
+     * Signals, if the APX `default flags value` functionality is enabled for the instruction.
+     */
+    ZyanBool has_dfv;
     /**
      * Signals, if the APX push/pop performance-hint (`PPX`) is enabled for the instruction.
      *
      * This flag is only valid for `push2p` and `pop2p`.
      */
     ZyanBool has_ppx;
+    /**
+     * The APX default flags value (DFV).
+     *
+     * This value is only used, if `has_dfv` is set as well.
+     */
+    ZydisDefaultFlagsValue default_flags;
     /**
      * The AVX-512 APX source condition code.
      */

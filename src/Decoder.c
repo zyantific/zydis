@@ -5226,6 +5226,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
 
                     instruction->apx.has_nf = evex_definition->has_apx_nf;
                     instruction->apx.has_zu = evex_definition->has_apx_zu;
+
+                    if (evex_definition->has_apx_dfv)
+                    {
+                        instruction->apx.has_dfv = ZYAN_TRUE;
+                        instruction->apx.default_flags = state->context->vector_unified.vvvv;
+                    }
                 }
 
                 instruction->mnemonic = definition->mnemonic;
@@ -5261,8 +5267,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     default:
                         break;
                     }
-
-                    // TODO: Include DFV
 
                     const ZydisDefinitionAccessedFlags* flags;
                     if (ZydisGetAccessedFlags(definition, &flags))

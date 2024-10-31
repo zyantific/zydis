@@ -862,6 +862,8 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 is_eevex                        ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_nf                      ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_dfv                     ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_ppx                     ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif
 
