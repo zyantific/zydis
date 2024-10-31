@@ -4450,7 +4450,7 @@ static ZyanStatus ZydisNodeHandlerMvexE(const ZydisDecodedInstruction* instructi
  * - `def_vvvv` -> `ZydisRegisterKind`
  */
 static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
-    const ZydisDecodedInstruction* instruction, ZyanU8 def_reg, ZyanU8 def_rm, ZyanU8 def_vvvv)
+    ZydisDecodedInstruction* instruction, ZyanU8 def_reg, ZyanU8 def_rm, ZyanU8 def_vvvv)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -4673,6 +4673,19 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     context->reg_info.id_base   = !is_mod_reg          ? id_base   : -1;
     context->reg_info.id_index  = !is_mod_reg          ? id_index  : -1;
 
+    // Update APX info
+
+    const ZyanBool has_egpr_reg   = (def_reg == ZYDIS_REGKIND_GPR) && (id_reg >= 16);
+    const ZyanBool has_egpr_rm    = is_mod_reg && (def_rm == ZYDIS_REGKIND_GPR) && (id_rm >= 16);
+    const ZyanBool has_egpr_vvvv  = (def_vvvv == ZYDIS_REGKIND_GPR) && (id_vvvv >= 16);
+    const ZyanBool has_egpr_base  = !is_mod_reg && (id_base >= 16);
+    const ZyanBool has_egpr_index = !is_mod_reg && !has_vsib && (id_index >= 16);
+
+    if (has_egpr_reg || has_egpr_rm || has_egpr_vvvv || has_egpr_base || has_egpr_index)
+    {
+        instruction->apx.uses_egpr = ZYAN_TRUE;
+    }
+
     return ZYAN_STATUS_SUCCESS;
 }
 
@@ -4688,7 +4701,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
  * This function is called immediately after a valid instruction-definition was found.
  */
 static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
-    const ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
+    ZydisDecodedInstruction* instruction, const ZydisInstructionDefinition* definition)
 {
     ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);

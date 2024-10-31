@@ -863,8 +863,9 @@ static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
 
     PrintSectionHeader("APX");
 
-    PRINT_VALUE_B("NF", "%s", instruction->apx.has_nf ? "Y" : "N");
-    PRINT_VALUE_B("ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
+    PRINT_VALUE_B("USES_EGPR", "%s", instruction->apx.uses_egpr ? "Y" : "N");
+    PRINT_VALUE_B("HAS_NF", "%s", instruction->apx.has_nf ? "Y" : "N");
+    PRINT_VALUE_B("HAS_ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
     PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->apx.scc]);
 }
 

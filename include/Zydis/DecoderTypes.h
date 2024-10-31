@@ -1216,6 +1216,10 @@ typedef struct ZydisDecodedInstructionAvx_
 typedef struct ZydisDecodedInstructionApx_
 {
     /**
+     * Signals, if the instruction uses the extended GRP registers (R16..R31).
+     */
+    ZyanBool uses_egpr;
+    /**
      * Signals, if the APX `no flags` functionality enabled for the instruction.
      */
     ZyanBool has_nf;
