@@ -1042,6 +1042,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
             operand->size = definition->size[context->eosz_index] * 8;
         } else
         {
+            // TODO: TMM register size should probably be 0
             operand->size = ZydisRegisterGetWidth(instruction->machine_mode,
                 operand->reg.value);
         }
@@ -1073,9 +1074,13 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
 #ifndef ZYDIS_DISABLE_AVX512
             if (definition->size[context->eosz_index])
             {
-                // TODO: fixme
                 // Operand size is hardcoded
                 operand->size = definition->size[context->eosz_index] * 8;
+                ZYAN_ASSERT(operand->size);
+            } else if (!context->evex.element_size)
+            {
+                // AMX tile memory operands
+                operand->size = 0;
             } else
             {
                 // Operand size depends on the tuple-type, the element-size and the number of
@@ -1115,8 +1120,9 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
                 default:
                     ZYAN_UNREACHABLE;
                 }
+
+                ZYAN_ASSERT(operand->size);
             }
-            ZYAN_ASSERT(operand->size);
 #else
             ZYAN_UNREACHABLE;
 #endif
@@ -1264,7 +1270,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
         operand->element_count = operand->size / operand->element_size;
     } else
     {
-        operand->element_count = 1;
+        operand->element_count = 1; // TODO: Should probably be 0
     }
 }
 #endif
@@ -1293,7 +1299,7 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
         const ZyanBool has_high_register = (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ||
                                            (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ||
                                            ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && 
-                                            (instruction->opcode_map == ZYDIS_OPCODE_MAP_MAP4));
+                                            (instruction->attributes & ZYDIS_ATTRIB_HAS_EEVEX));
         if (has_high_register && (register_id >= 4))
         {
             operand->reg.value = ZYDIS_REGISTER_SPL + (register_id - 4);
@@ -4386,8 +4392,6 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
     {
         return ZYDIS_STATUS_DECODING_ERROR;
     }
-
-    // TODO: NF without ND filter -> evex.b = zero upper
 
     *index = instruction->raw.evex.NF;
     return ZYAN_STATUS_SUCCESS;
