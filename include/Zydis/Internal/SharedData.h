@@ -92,12 +92,11 @@ typedef enum ZydisSemanticOperandType_
     ZYDIS_SEMANTIC_OPTYPE_AGEN,
     ZYDIS_SEMANTIC_OPTYPE_MOFFS,
     ZYDIS_SEMANTIC_OPTYPE_MIB,
-    ZYDIS_SEMANTIC_OPTYPE_DFV,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE = ZYDIS_SEMANTIC_OPTYPE_DFV,
+    ZYDIS_SEMANTIC_OPTYPE_MAX_VALUE = ZYDIS_SEMANTIC_OPTYPE_MIB,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -862,7 +861,6 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 is_eevex                        ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_nf                      ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
-    ZyanU8 has_apx_dfv                     ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_ppx                     ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif

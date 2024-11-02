@@ -1256,7 +1256,7 @@ typedef struct ZydisDecodedInstructionAvx_
 typedef struct ZydisDecodedInstructionApx_
 {
     /**
-     * Signals, if the instruction uses the extended GRP registers (R16..R31).
+     * Signals, if the instruction uses the extended GP registers (R16..R31).
      */
     ZyanBool uses_egpr;
     /**
@@ -1268,25 +1268,22 @@ typedef struct ZydisDecodedInstructionApx_
      */
     ZyanBool has_zu;
     /**
-     * Signals, if the APX `default flags value` functionality is enabled for the instruction.
-     */
-    ZyanBool has_dfv;
-    /**
      * Signals, if the APX push/pop performance-hint (`PPX`) is enabled for the instruction.
      *
      * This flag is only valid for `push2p` and `pop2p`.
      */
     ZyanBool has_ppx;
     /**
-     * The APX default flags value (DFV).
-     *
-     * This value is only used, if `has_dfv` is set as well.
-     */
-    ZydisDefaultFlagsValue default_flags;
-    /**
-     * The AVX-512 APX source condition code.
+     * The APX source condition code.
      */
     ZydisSourceConditionCode scc;
+    /**
+     * The APX default flags value (DFV) that is assigned to the status flags when the source
+     * condition code `scc` evaluates to `false`.
+     *
+     * This value is only used, if `scc` is not `ZYDIS_SCC_NONE`.
+     */
+    ZydisDefaultFlagsValue default_flags;
 } ZydisDecodedInstructionApx;
 
 /**

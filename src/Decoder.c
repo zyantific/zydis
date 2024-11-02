@@ -1800,9 +1800,6 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_MASK:
             register_class = ZYDIS_REGCLASS_MASK;
             break;
-        case ZYDIS_SEMANTIC_OPTYPE_DFV:
-            register_class = ZYDIS_REGCLASS_DFV;
-            break;
         default:
             break;
         }
@@ -4503,6 +4500,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     const ZyanBool is_mod_reg = context->reg_info.is_mod_reg;
     const ZyanBool has_sib    = !is_mod_reg && (instruction->raw.modrm.rm == 4);
     const ZyanBool has_vsib   = has_sib && (def_rm == ZYDIS_MEMOP_TYPE_VSIB);
+    const ZyanBool is_rex2    = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2);
 
     ZyanU8 id_reg   = instruction->raw.modrm.reg;
     ZyanU8 id_rm    = instruction->raw.modrm.rm;
@@ -4512,7 +4510,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     if (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64)
     {
-        const ZyanBool supports_rm4 = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) || 
+        const ZyanBool supports_rm4 = is_rex2 || 
                                       (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                                       (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
 
@@ -4543,39 +4541,39 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         // The masking emulates the actual CPU behavior and does not verify if the resulting ids
         // are actually valid for the given register kind.
 
-        static const ZyanU8 mask_reg[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        const ZyanU8 non_gpr_mask = (ZyanU8)(1 << (is_rex2 ? 4 : 5)) - 1;
+
+        const ZyanU8 mask_reg[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
             /* GPR     */ (1 << 5) - 1,
             /* X87     */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
             /* MMX     */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
-            /* VR      */ (1 << 5) - 1,
-            /* TMM     */ (1 << 5) - 1,
+            /* VR      */ non_gpr_mask, // ignore `REX2.R4`
+            /* TMM     */ non_gpr_mask, // ignore `REX2.R4`
             /* SEGMENT */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
             /* TEST    */ (1 << 3) - 1, // ignore `R4`, ignore `R3`
             /* CONTROL */ (1 << 5) - 1,
             /* DEBUG   */ (1 << 5) - 1,
-            /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ (1 << 4) - 1, // ignore `R4`
-            /* DFV     */ 0
+            /* MASK    */ non_gpr_mask, // ignore `REX2.R4`
+            /* BOUND   */ (1 << 4) - 1  // ignore `R4`
         };
         id_reg &= mask_reg[def_reg];
 
-        static const ZyanU8 mask_rm[ZYDIS_REGKIND_MAX_VALUE + 1] =
+        const ZyanU8 mask_rm[ZYDIS_REGKIND_MAX_VALUE + 1] =
         {
             /* INVALID */ 0,
             /* GPR     */ (1 << 5) - 1, // TODO: 4 if APX is not enabled
             /* X87     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* MMX     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
-            /* VR      */ (1 << 5) - 1,
+            /* VR      */ non_gpr_mask, // ignore `REX2.B4`
             /* TMM     */ (1 << 4) - 1, // ignore `X3|B4`
             /* SEGMENT */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* TEST    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* CONTROL */ (1 << 5) - 1,
             /* DEBUG   */ (1 << 5) - 1,
             /* MASK    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
-            /* BOUND   */ (1 << 4) - 1, // ignore `X3|B4`
-            /* DFV     */ 0
+            /* BOUND   */ (1 << 4) - 1  // ignore `X3|B4`
         };
         id_rm &= (is_mod_reg ? mask_rm[def_rm] : 0xFF);
 
@@ -4592,24 +4590,29 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ 0,
             /* DEBUG   */ 0,
             /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ 0,
-            /* DFV     */ (1 << 4) - 1  // ignore `V4`
+            /* BOUND   */ 0
         };
         id_vvvv &= mask_vvvv[def_vvvv];
     }
 
     // Validate
 
-    // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand
-    if (!def_vvvv && context->vector_unified.vvvv)
+    if (instruction->apx.scc != ZYDIS_SCC_NONE)
     {
-        return ZYDIS_STATUS_BAD_REGISTER;
-    }
+        // EEVEX SCC instructions re-use `vvvv` as the DFV value and `V4` as the MSB of the SCC
+        // code.
 
-    // `.V4` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
-    if (!def_vvvv && !has_vsib && context->vector_unified.V4)
-    {
-        return ZYDIS_STATUS_BAD_REGISTER;
+        // `.vvvv` is not allowed, if the instruction does not encode a NDS/NDD operand.
+        if (!def_vvvv && context->vector_unified.vvvv)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
+
+        // `.V4` is not allowed, if the instruction does not encode a NDS/NDD or VSIB operand
+        if (!def_vvvv && !has_vsib && context->vector_unified.V4)
+        {
+            return ZYDIS_STATUS_BAD_REGISTER;
+        }
     }
 
     static const ZyanU8 available_regs[2][ZYDIS_REGKIND_MAX_VALUE + 1] =
@@ -4627,8 +4630,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */   8,
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4,
-            /* DFV     */   0
+            /* BOUND   */   4
         },
         // 64 bit mode
         {
@@ -4646,8 +4648,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             // check this at runtime we just allow them.
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4,
-            /* DFV     */  16
+            /* BOUND   */   4
         }
     };
 
@@ -5244,9 +5245,8 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     instruction->apx.has_nf = evex_definition->has_apx_nf;
                     instruction->apx.has_zu = evex_definition->has_apx_zu;
 
-                    if (evex_definition->has_apx_dfv)
+                    if (instruction->apx.scc != ZYDIS_SCC_NONE)
                     {
-                        instruction->apx.has_dfv = ZYAN_TRUE;
                         instruction->apx.default_flags = state->context->vector_unified.vvvv;
                     }
                 }

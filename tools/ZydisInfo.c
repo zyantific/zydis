@@ -876,8 +876,11 @@ static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
     PrintSectionHeader("APX");
 
     PRINT_VALUE_B("USES_EGPR", "%s", instruction->apx.uses_egpr ? "Y" : "N");
+    PRINT_VALUE_B("HAS_NF", "%s", instruction->apx.has_nf ? "Y" : "N");
+    PRINT_VALUE_B("HAS_ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
+    PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->apx.scc]);
 
-    if (instruction->apx.has_dfv)
+    if (instruction->apx.scc != ZYDIS_SCC_NONE)
     {
         PrintValueLabel("DFV");
         ZYAN_FPUTS(CVT100_OUT(COLOR_VALUE_B), ZYAN_STDOUT);
@@ -897,10 +900,6 @@ static void PrintAPXInfo(const ZydisDecodedInstruction* instruction)
 
         ZYAN_PUTS(CVT100_OUT(COLOR_DEFAULT));
     }
-
-    PRINT_VALUE_B("HAS_NF", "%s", instruction->apx.has_nf ? "Y" : "N");
-    PRINT_VALUE_B("HAS_ZU", "%s", instruction->apx.has_zu ? "Y" : "N");
-    PRINT_VALUE_B("SCC", "%s", strings_scc[instruction->apx.scc]);
 }
 
 /**
