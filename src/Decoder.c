@@ -5242,8 +5242,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                         instruction->attributes |= ZYDIS_ATTRIB_HAS_EEVEX;
                     }
 
-                    instruction->apx.has_nf = evex_definition->has_apx_nf;
-                    instruction->apx.has_zu = evex_definition->has_apx_zu;
+                    instruction->apx.has_nf  = evex_definition->has_apx_nf;
+                    instruction->apx.has_zu  = evex_definition->has_apx_zu;
+                    instruction->apx.has_ppx = evex_definition->has_apx_ppx;
 
                     if (instruction->apx.scc != ZYDIS_SCC_NONE)
                     {
