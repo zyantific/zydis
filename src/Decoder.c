@@ -1487,7 +1487,8 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
                 operand->mem.scale = 0;
             }
             if ((operand->mem.base == ZYDIS_REGISTER_RBP) ||
-                (operand->mem.base == ZYDIS_REGISTER_R13))
+                (operand->mem.base == ZYDIS_REGISTER_R13) ||
+                (operand->mem.base == ZYDIS_REGISTER_R29))
             {
                 if (instruction->raw.modrm.mod == 0)
                 {
