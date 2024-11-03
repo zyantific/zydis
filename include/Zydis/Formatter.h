@@ -340,6 +340,10 @@ typedef enum ZydisFormatterProperty_
      * instead of prepending it as a pseudo prefix.
      *
      * The default value is implementation specific: `ZYAN_FALSE` for Intel and `ZYAN_TRUE` for ATT.
+     *
+     * WARNING: Suffix mode currently does not correctly follow the standard. The `nf` suffix should
+     *          appear before any additional `zu` and/or `cc` suffix. This is not the case.
+     *          The current implementation would e.g. emit `imulzunf` instead of `imulnfzu`.
      */
     ZYDIS_FORMATTER_PROP_DECO_APX_NF_USE_SUFFIX,
 
