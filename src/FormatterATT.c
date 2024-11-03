@@ -49,11 +49,31 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
     ZYAN_ASSERT(context->instruction);
     ZYAN_ASSERT(context->operands);
 
+    if (!formatter->deco_apx_nf_use_suffix)
+    {
+        ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context, ZYDIS_DECORATOR_APX_NF));
+    }
+
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, buffer, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, buffer, context));
+    
+    if (!formatter->deco_apx_dfv_use_immediate)
+    {
+        ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context, ZYDIS_DECORATOR_APX_DFV));
+    }
 
     ZyanUPointer state_mnemonic;
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
+
+    if (formatter->deco_apx_dfv_use_immediate)
+    {
+        ZYDIS_BUFFER_APPEND(buffer, DELIM_MNEMONIC);
+        ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
+        ZYAN_CHECK(ZydisStringAppendDecU(&buffer->string,
+            context->instruction->apx.default_flags, 0,
+            formatter->number_format[ZYDIS_NUMERIC_BASE_DEC][0].string,
+            formatter->number_format[ZYDIS_NUMERIC_BASE_DEC][1].string));
+    }
 
     const ZyanI8 c = (ZyanI8)context->instruction->operand_count_visible - 1;
     for (ZyanI8 i = c; i >= 0; --i)
@@ -294,7 +314,13 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
         ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_FAR_ATT,
             formatter->case_mnemonic));
     }
+
     ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, mnemonic, formatter->case_mnemonic));
+
+    if (formatter->deco_apx_nf_use_suffix && context->instruction->apx.has_nf)
+    {
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_NF, formatter->case_mnemonic));
+    }
 
     // Append operand-size suffix
     ZyanU32 size = 0;
