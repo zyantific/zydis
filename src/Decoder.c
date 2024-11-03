@@ -4597,7 +4597,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     // Validate
 
-    if (instruction->apx.scc != ZYDIS_SCC_NONE)
+    if (instruction->apx.scc == ZYDIS_SCC_NONE)
     {
         // EEVEX SCC instructions re-use `vvvv` as the DFV value and `V4` as the MSB of the SCC
         // code.
