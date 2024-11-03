@@ -980,7 +980,7 @@ static ZyanU8 ZydisCalcRegisterId(const ZydisDecoderContext* context,
         {
             return value;
         }
-        return value | (context->vector_unified.B3 << 3);
+        return value | (context->vector_unified.B4 << 4) | (context->vector_unified.B3 << 3);
     }
     case ZYDIS_REG_ENCODING_IS4:
     {
