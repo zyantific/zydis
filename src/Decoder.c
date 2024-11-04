@@ -3976,30 +3976,9 @@ static ZyanStatus ZydisNodeHandlerOpcode(ZydisDecoderState* state,
             break;
         }
 
-        ZyanBool illegal_rex2 = (instruction->opcode == 0x0F);
-
-        if (instruction->opcode != 0xD5)
+        if (instruction->opcode == 0x0F)
         {
-            const ZyanU8 group = instruction->opcode & 0xF0;
-            if (instruction->opcode_map == ZYDIS_OPCODE_MAP_DEFAULT)
-            {
-                if ((group == 0x40) || (group == 0x70) || (group == 0xE0) ||
-                    ((group == 0xA0) && instruction->opcode != 0xA1))
-                {
-                    illegal_rex2 = ZYAN_TRUE;
-                }
-            }
-            else
-            {
-                if ((group == 0x30) || (group == 0x80))
-                {
-                    illegal_rex2 = ZYAN_TRUE;
-                }
-            }
-        }
-
-        if (illegal_rex2)
-        {
+            // 2-byte/3-byte opcodes are not allowed with REX2 (`REX2.m0` is used instead).
             return ZYDIS_STATUS_ILLEGAL_REX2;
         }
 
