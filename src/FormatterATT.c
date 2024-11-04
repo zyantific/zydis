@@ -65,9 +65,10 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
     ZyanUPointer state_mnemonic;
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
 
-    if (formatter->deco_apx_dfv_use_immediate)
+    if (formatter->deco_apx_dfv_use_immediate && (context->instruction->apx.scc != ZYDIS_SCC_NONE))
     {
         ZYDIS_BUFFER_APPEND(buffer, DELIM_MNEMONIC);
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
         ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
         ZYAN_CHECK(ZydisStringAppendDecU(&buffer->string,
             context->instruction->apx.default_flags, 0,

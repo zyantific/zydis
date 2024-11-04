@@ -4315,7 +4315,9 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
     default:
         ZYAN_UNREACHABLE;
     }
-    *index = context->vector_unified.B3;
+
+    *index = context->vector_unified.B3 + context->vector_unified.B4 ? 1 : 0;
+
     return ZYAN_STATUS_SUCCESS;
 }
 
