@@ -3533,6 +3533,8 @@ static void ZydisSetEffectiveOperandWidth(ZydisDecoderContext* context,
         (instruction->opcode_map == ZYDIS_OPCODE_MAP_MAP4) &&
         (instruction->raw.evex.pp == 0x01))
     {
+        // TODO: Add generator flag
+
         // EVEX encoded instructions in MAP4 must use 0x66 as the mandatory prefix AND the
         // operand-size override
         index = 1;
@@ -4398,7 +4400,7 @@ static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
     // as the DFV specifier. Other than the regular `.vvvv` NDS/NDD specifier, the DFV
     // specifier bits are not inverted.
 
-    // All APX conditional CMP and TEST instructions must have a SCC filter!
+    // All APX conditional CMP and TEST instructions must have an SCC filter!
 
     context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
     context->vector_unified.V4   = 0;
