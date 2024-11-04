@@ -5181,7 +5181,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);
             break;
         case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
-            index = !!(instruction->attributes & ZYDIS_ATTRIB_HAS_REX2);
+            index = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ? 1 : 0;
             break;
         default:
             if (node_type & ZYDIS_NODETYPE_DEFINITION_MASK)
