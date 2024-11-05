@@ -43,6 +43,8 @@ typedef ZyanUSize(*ZydisStreamRead)(void *ctx, ZyanU8 *buf, ZyanUSize max_len);
 /* Macros                                                                                         */
 /* ============================================================================================== */
 
+#define EXIT_ENCODING_FAILURE 2
+
 #if defined(ZYDIS_FUZZ_AFL_FAST) || defined(ZYDIS_LIBFUZZER)
 #   define ZYDIS_MAYBE_FPUTS(x, y)
 #else
