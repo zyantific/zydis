@@ -4676,10 +4676,16 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     // Update APX info
 
+    if (!is_64_bit)
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+
     const ZyanBool has_egpr_reg   = (def_reg == ZYDIS_REGKIND_GPR) && (id_reg >= 16);
     const ZyanBool has_egpr_rm    = is_mod_reg && (def_rm == ZYDIS_REGKIND_GPR) && (id_rm >= 16);
     const ZyanBool has_egpr_vvvv  = (def_vvvv == ZYDIS_REGKIND_GPR) && (id_vvvv >= 16);
-    const ZyanBool has_egpr_base  = !is_mod_reg && (id_base >= 16);
+    const ZyanBool has_egpr_base  = !is_mod_reg && (id_base >= 16) && 
+                                    ((instruction->raw.modrm.mod != 0) || (instruction->raw.modrm.rm != 5));
     const ZyanBool has_egpr_index = !is_mod_reg && !has_vsib && (id_index >= 16);
 
     if (has_egpr_reg || has_egpr_rm || has_egpr_vvvv || has_egpr_base || has_egpr_index)
