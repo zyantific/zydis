@@ -63,7 +63,7 @@ def get_disasm(zydis_info, machine_mode, stack_width, payload):
     return match.group(1)
 
 
-def convert_enc_crash_to_json(crash, return_dict=False):
+def convert_enc_crash_to_json(crash, expected_result=0, return_dict=False):
     reader = BinaryReader(crash)
     machine_mode = get_sanitized_enum(reader, ZydisMachineMode)
     allowed_encoding = get_sanitized_enum(reader, ZydisEncodableEncoding)
@@ -129,7 +129,7 @@ def convert_enc_crash_to_json(crash, return_dict=False):
     evex_sae = bool(reader.read_uint8())
     evex_zeroing_mask = bool(reader.read_uint8())
     evex_no_flags = bool(reader.read_uint8())
-    evex_zero_upper = bool(reader.read_uint8())
+    evex_default_flags = ZydisDefaultFlagsValue(reader.read_uint8() & ZydisDefaultFlagsValue.ZYDIS_DFV_ALL.value)
     mvex_broadcast = get_sanitized_enum(reader, ZydisBroadcastMode)
     mvex_conversion = get_sanitized_enum(reader, ZydisConversionMode)
     mvex_rounding = get_sanitized_enum(reader, ZydisRoundingMode)
@@ -138,6 +138,7 @@ def convert_enc_crash_to_json(crash, return_dict=False):
     mvex_eviction_hint = bool(reader.read_uint8())
     reader.read_bytes(2)
     test_case = {
+        'expected_result': expected_result,
         'machine_mode': machine_mode.name,
         'allowed_encodings': get_decomposed_flags(allowed_encoding),
         'mnemonic': mnemonic.name,
@@ -153,7 +154,7 @@ def convert_enc_crash_to_json(crash, return_dict=False):
             'sae': evex_sae,
             'zeroing_mask': evex_zeroing_mask,
             'no_flags': evex_no_flags,
-            'zero_upper': evex_zero_upper,
+            'default_flags': get_decomposed_flags(evex_default_flags),
         },
         'mvex': {
             'broadcast': mvex_broadcast.name,
@@ -245,7 +246,7 @@ def convert_enc_json_to_crash(test_case_json, from_dict=False):
     writer.write_uint8(int(test_case['evex']['sae']))
     writer.write_uint8(int(test_case['evex']['zeroing_mask']))
     writer.write_uint8(int(test_case['evex']['no_flags']))
-    writer.write_uint8(int(test_case['evex']['zero_upper']))
+    writer.write_uint8(get_combined_flags(test_case['evex']['default_flags'], ZydisDefaultFlagsValue))
     writer.write_uint32(ZydisBroadcastMode[test_case['mvex']['broadcast']])
     writer.write_uint32(ZydisConversionMode[test_case['mvex']['conversion']])
     writer.write_uint32(ZydisRoundingMode[test_case['mvex']['rounding']])
@@ -278,20 +279,23 @@ if __name__ == "__main__":
     parser.add_argument('--zydis-info')
     parser.add_argument('--extract-single', type=int, default=-1)
     parser.add_argument('--append', action='store_true')
+    parser.add_argument('--expected-result', type=int, default=0)
     args = parser.parse_args()
 
     if args.input_format == 'crash':
         read_mode = 'rb'
         write_mode = 'w'
+        newline_mode = ''
     else:
         read_mode = 'r'
         write_mode = 'wb'
+        newline_mode = None
     with open(args.input_file, read_mode) as f:
         content = f.read()
 
     if args.input_format == 'crash':
         if args.input_type == 'enc':
-            result = convert_enc_crash_to_json(content)
+            result = convert_enc_crash_to_json(content, args.expected_result)
         else:
             result = convert_re_enc_crash_to_json(content, args.zydis_info)
     else:
@@ -313,5 +317,5 @@ if __name__ == "__main__":
                 existing_db = json.loads(f.read())
             existing_db.append(json.loads(result))
             result = to_json(existing_db)
-        with open(args.output_file, write_mode) as f:
+        with open(args.output_file, write_mode, newline=newline_mode) as f:
             f.write(result)

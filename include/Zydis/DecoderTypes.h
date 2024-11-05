@@ -760,6 +760,15 @@ typedef ZyanU8 ZydisDefaultFlagsValue;
 #define ZYDIS_DFV_OF    (1u << 3)
 
 /**
+ * All default flags clear.
+ */
+#define ZYDIS_DFV_NONE  0
+/**
+ * All default flags set.
+ */
+#define ZYDIS_DFV_ALL   (ZYDIS_DFV_CF | ZYDIS_DFV_ZF | ZYDIS_DFV_SF | ZYDIS_DFV_OF)
+
+/**
  * @}
  */
 

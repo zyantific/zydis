@@ -38,8 +38,7 @@
 
 // TODO: This could check `EVEX`/`MVEX` stuff as well
 void ZydisCompareRequestToInstruction(const ZydisEncoderRequest *request,
-    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand* operands,
-    const ZyanU8 *insn_bytes)
+    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand* operands)
 {
     // Special case, `xchg rAX, rAX` is an alias for `NOP`
     if ((request->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
@@ -226,13 +225,53 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         }
     }
 
+    // APX has conflicts with KNC, so we override `ZYDIS_ENCODABLE_ENCODING_DEFAULT` to disallow
+    // `MVEX` unless `MVEX`-only features are required.
+    const ZyanBool requested_knc =
+        (request.mvex.broadcast != ZYDIS_BROADCAST_MODE_NONE) ||
+        (request.mvex.conversion != ZYDIS_CONVERSION_MODE_NONE) ||
+        (request.mvex.rounding != ZYDIS_ROUNDING_MODE_NONE) ||
+        (request.mvex.swizzle != ZYDIS_SWIZZLE_MODE_NONE) ||
+        (request.mvex.sae) ||
+        (request.mvex.eviction_hint) ||
+        (request.mnemonic == ZYDIS_MNEMONIC_KMOV) ||
+        (request.mnemonic == ZYDIS_MNEMONIC_KNOT) ||
+        (request.mnemonic == ZYDIS_MNEMONIC_KORTEST);
+    static const ZydisEncodableEncoding conflicting_encodings =
+        ZYDIS_ENCODABLE_ENCODING_EVEX | ZYDIS_ENCODABLE_ENCODING_MVEX;
+    static const ZydisEncodableEncoding no_mvex = (ZydisEncodableEncoding)
+        (ZYDIS_ENCODABLE_ENCODING_MAX_VALUE & (~ZYDIS_ENCODABLE_ENCODING_MVEX));
+    if ((request.allowed_encodings == ZYDIS_ENCODABLE_ENCODING_DEFAULT) && (!requested_knc))
+    {
+        request.allowed_encodings = no_mvex;
+    }
+    else if ((request.allowed_encodings & conflicting_encodings) == conflicting_encodings)
+    {
+        // In case of potential conflict favor `EVEX` space
+        request.allowed_encodings =
+            (ZydisEncodableEncoding)(request.allowed_encodings & (~ZYDIS_ENCODABLE_ENCODING_MVEX));
+    }
+    if ((request.allowed_encodings & ZYDIS_ENCODABLE_ENCODING_MVEX) != 0)
+    {
+        if ((request.mnemonic == ZYDIS_MNEMONIC_KMOVW) ||
+            (request.mnemonic == ZYDIS_MNEMONIC_KNOTW) ||
+            (request.mnemonic == ZYDIS_MNEMONIC_KORTESTW))
+        {
+            request.allowed_encodings = no_mvex;
+        }
+    }
+
     ZyanU8 encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH];
     ZyanUSize encoded_length = sizeof(encoded_instruction);
     ZyanStatus status = ZydisEncoderEncodeInstruction(&request, encoded_instruction,
         &encoded_length);
     if (!ZYAN_SUCCESS(status))
     {
+#ifdef ZYDIS_LIBFUZZER
         return EXIT_SUCCESS;
+#else
+        return EXIT_ENCODING_FAILURE;
+#endif // ZYDIS_LIBFUZZER
     }
 
     ZydisStackWidth stack_width;
@@ -260,7 +299,15 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         fputs("Failed to initialize decoder\n", ZYAN_STDERR);
         abort();
     }
-
+    if (requested_knc || ((request.allowed_encodings & ZYDIS_ENCODABLE_ENCODING_MVEX) != 0))
+    {
+        status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE);
+        if (!ZYAN_SUCCESS(status))
+        {
+            fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
+            abort();
+        }
+    }
     if (request.mnemonic == ZYDIS_MNEMONIC_UD0 && request.operand_count == 0)
     {
         status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_UD0_COMPAT, ZYAN_TRUE);
@@ -275,24 +322,13 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
     status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
         operands1);
-    // Handle possible KNC instruction
-    if (!ZYAN_SUCCESS(status) || request.mnemonic != insn1.mnemonic)
-    {
-        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
-        {
-            fputs("Failed to enable KNC mode\n", ZYAN_STDERR);
-            abort();
-        }
-        status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
-            operands1);
-    }
     if (!ZYAN_SUCCESS(status))
     {
         fputs("Failed to decode instruction\n", ZYAN_STDERR);
         abort();
     }
 
-    ZydisCompareRequestToInstruction(&request, &insn1, operands1, encoded_instruction);
+    ZydisCompareRequestToInstruction(&request, &insn1, operands1);
     ZydisReEncodeInstruction(&decoder, &insn1, operands1, insn1.operand_count, 
         encoded_instruction);
 

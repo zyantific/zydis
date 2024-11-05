@@ -60,7 +60,17 @@ ZydisInstructionAttributes = IntFlag('ZydisInstructionAttributes', [
     ('ZYDIS_ATTRIB_HAS_ADDRESSSIZE', (1 << 44)),
     ('ZYDIS_ATTRIB_HAS_EVEX_B', (1 << 45)),
     ('ZYDIS_ATTRIB_HAS_REX2', (1 << 46)),
-    ('ZYDIS_ATTRIB_HAS_SCC', (1 << 47)),
+    ('ZYDIS_ATTRIB_HAS_EEVEX', (1 << 47)),
+])
+
+
+ZydisDefaultFlagsValue = IntFlag('ZydisDefaultFlagsValue', [
+    ('ZYDIS_DFV_NONE', 0),
+    ('ZYDIS_DFV_CF', (1 << 0)),
+    ('ZYDIS_DFV_ZF', (1 << 1)),
+    ('ZYDIS_DFV_SF', (1 << 2)),
+    ('ZYDIS_DFV_OF', (1 << 3)),
+    ('ZYDIS_DFV_ALL', ((1 << 0) | (1 << 1) | (1 << 2) | (1 << 3))),
 ])
 
 
@@ -146,7 +156,7 @@ ZydisOperandSizeHint = IntEnum('ZydisOperandSizeHint', [
 
 
 ZydisBroadcastMode = IntEnum('ZydisBroadcastMode', [
-    'ZYDIS_BROADCAST_MODE_INVALID',
+    'ZYDIS_BROADCAST_MODE_NONE',
     'ZYDIS_BROADCAST_MODE_1_TO_2',
     'ZYDIS_BROADCAST_MODE_1_TO_4',
     'ZYDIS_BROADCAST_MODE_1_TO_8',
@@ -163,7 +173,7 @@ ZydisBroadcastMode = IntEnum('ZydisBroadcastMode', [
 
 
 ZydisRoundingMode = IntEnum('ZydisRoundingMode', [
-    'ZYDIS_ROUNDING_MODE_INVALID',
+    'ZYDIS_ROUNDING_MODE_NONE',
     'ZYDIS_ROUNDING_MODE_RN',
     'ZYDIS_ROUNDING_MODE_RD',
     'ZYDIS_ROUNDING_MODE_RU',
@@ -172,7 +182,7 @@ ZydisRoundingMode = IntEnum('ZydisRoundingMode', [
 
 
 ZydisConversionMode = IntEnum('ZydisConversionMode', [
-    'ZYDIS_CONVERSION_MODE_INVALID',
+    'ZYDIS_CONVERSION_MODE_NONE',
     'ZYDIS_CONVERSION_MODE_FLOAT16',
     'ZYDIS_CONVERSION_MODE_SINT8',
     'ZYDIS_CONVERSION_MODE_UINT8',
@@ -182,7 +192,7 @@ ZydisConversionMode = IntEnum('ZydisConversionMode', [
 
 
 ZydisSwizzleMode = IntEnum('ZydisSwizzleMode', [
-    'ZYDIS_SWIZZLE_MODE_INVALID',
+    'ZYDIS_SWIZZLE_MODE_NONE',
     'ZYDIS_SWIZZLE_MODE_DCBA',
     'ZYDIS_SWIZZLE_MODE_CDAB',
     'ZYDIS_SWIZZLE_MODE_BADC',
@@ -437,6 +447,8 @@ ZydisMnemonic = IntEnum('ZydisMnemonic', [
     'ZYDIS_MNEMONIC_ENQCMD',
     'ZYDIS_MNEMONIC_ENQCMDS',
     'ZYDIS_MNEMONIC_ENTER',
+    'ZYDIS_MNEMONIC_ERETS',
+    'ZYDIS_MNEMONIC_ERETU',
     'ZYDIS_MNEMONIC_EXTRACTPS',
     'ZYDIS_MNEMONIC_EXTRQ',
     'ZYDIS_MNEMONIC_F2XM1',
@@ -548,6 +560,7 @@ ZydisMnemonic = IntEnum('ZydisMnemonic', [
     'ZYDIS_MNEMONIC_HSUBPS',
     'ZYDIS_MNEMONIC_IDIV',
     'ZYDIS_MNEMONIC_IMUL',
+    'ZYDIS_MNEMONIC_IMULZU',
     'ZYDIS_MNEMONIC_IN',
     'ZYDIS_MNEMONIC_INC',
     'ZYDIS_MNEMONIC_INCSSPD',
@@ -673,6 +686,7 @@ ZydisMnemonic = IntEnum('ZydisMnemonic', [
     'ZYDIS_MNEMONIC_LGDT',
     'ZYDIS_MNEMONIC_LGS',
     'ZYDIS_MNEMONIC_LIDT',
+    'ZYDIS_MNEMONIC_LKGS',
     'ZYDIS_MNEMONIC_LLDT',
     'ZYDIS_MNEMONIC_LLWPCB',
     'ZYDIS_MNEMONIC_LMSW',
@@ -1012,6 +1026,22 @@ ZydisMnemonic = IntEnum('ZydisMnemonic', [
     'ZYDIS_MNEMONIC_SETS',
     'ZYDIS_MNEMONIC_SETSSBSY',
     'ZYDIS_MNEMONIC_SETZ',
+    'ZYDIS_MNEMONIC_SETZUB',
+    'ZYDIS_MNEMONIC_SETZUBE',
+    'ZYDIS_MNEMONIC_SETZUL',
+    'ZYDIS_MNEMONIC_SETZULE',
+    'ZYDIS_MNEMONIC_SETZUNB',
+    'ZYDIS_MNEMONIC_SETZUNBE',
+    'ZYDIS_MNEMONIC_SETZUNL',
+    'ZYDIS_MNEMONIC_SETZUNLE',
+    'ZYDIS_MNEMONIC_SETZUNO',
+    'ZYDIS_MNEMONIC_SETZUNP',
+    'ZYDIS_MNEMONIC_SETZUNS',
+    'ZYDIS_MNEMONIC_SETZUNZ',
+    'ZYDIS_MNEMONIC_SETZUO',
+    'ZYDIS_MNEMONIC_SETZUP',
+    'ZYDIS_MNEMONIC_SETZUS',
+    'ZYDIS_MNEMONIC_SETZUZ',
     'ZYDIS_MNEMONIC_SFENCE',
     'ZYDIS_MNEMONIC_SGDT',
     'ZYDIS_MNEMONIC_SHA1MSG1',
@@ -1063,8 +1093,6 @@ ZydisMnemonic = IntEnum('ZydisMnemonic', [
     'ZYDIS_MNEMONIC_SYSEXIT',
     'ZYDIS_MNEMONIC_SYSRET',
     'ZYDIS_MNEMONIC_T1MSKC',
-    'ZYDIS_MNEMONIC_TCMMIMFP16PS',
-    'ZYDIS_MNEMONIC_TCMMRLFP16PS',
     'ZYDIS_MNEMONIC_TDCALL',
     'ZYDIS_MNEMONIC_TDPBF16PS',
     'ZYDIS_MNEMONIC_TDPBSSD',
@@ -2422,6 +2450,7 @@ ZydisRegister = IntEnum('ZydisRegister', [
     'ZYDIS_REGISTER_PKRU',
     'ZYDIS_REGISTER_XCR0',
     'ZYDIS_REGISTER_UIF',
+    'ZYDIS_REGISTER_IA32_KERNEL_GS_BASE',
 ], start=0)
 
 

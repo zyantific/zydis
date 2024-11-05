@@ -30,6 +30,7 @@
 #include <Zycore/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/SharedTypes.h>
+#include <Zydis/DecoderTypes.h>
 
 /**
  * Used in encoder's table to represent standard ISA sizes in form of bit flags.
@@ -180,6 +181,22 @@ typedef struct ZydisEncodableInstruction_
      */
     ZyanU8 rex_w                    ZYAN_BITFIELD(1);
     /**
+     * True if `REX2` prefix is required for this definition.
+     */
+    ZyanU8 rex2                     ZYAN_BITFIELD(1);
+    /**
+     * True if `EEVEX.ND` is required for this definition.
+     */
+    ZyanU8 evex_nd                  ZYAN_BITFIELD(1);
+    /**
+     * True if `EEVEX.NF` is required for this definition.
+     */
+    ZyanU8 evex_nf                  ZYAN_BITFIELD(1);
+    /**
+     * True if `APX` definition scales memory operand with operand size attribute.
+     */
+    ZyanU8 apx_osz                  ZYAN_BITFIELD(1);
+    /**
      * The vector length.
      */
     ZyanU8 vector_length            ZYAN_BITFIELD(ZYDIS_MANDATORY_PREFIX_REQUIRED_BITS);
@@ -249,5 +266,15 @@ ZyanU8 ZydisGetEncodableInstructions(ZydisMnemonic mnemonic,
  *          relative operands.
  */
 const ZydisEncoderRelInfo *ZydisGetRelInfo(ZydisMnemonic mnemonic);
+
+/**
+ * Fetches information about APX conditional instructions.
+ *
+ * @param  mnemonic    Instruction mnemonic.
+ * @param  scc         Receives `scc` if applicable.
+ *
+ * @return True if mnemonic represents an APX conditional instruction, false otherwise.
+ */
+ZyanBool ZydisGetCcInfo(ZydisMnemonic mnemonic, ZydisSourceConditionCode *scc);
 
 #endif /* ZYDIS_INTERNAL_ENCODERDATA_H */

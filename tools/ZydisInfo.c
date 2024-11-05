@@ -1182,11 +1182,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
     }
 
 #if !defined(ZYDIS_DISABLE_ENCODER)
-
-    /*PrintValueLabel("OPTIMIZED");
-    PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);*/
-    ZYAN_UNUSED(decoder);
-
+    PrintValueLabel("OPTIMIZED");
+    PrintSizeOptimizedForm(decoder, instruction, operands, instruction->operand_count_visible);
 #else
     ZYAN_UNUSED(decoder);
 #endif
@@ -1289,7 +1286,7 @@ int main(int argc, char** argv)
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
         ZyanBool parsing_failed = ZYAN_TRUE;
-        for (int i = 0; i < ZYAN_ARRAY_LENGTH(configurations); ++i)
+        for (int i = 0; i < (int)ZYAN_ARRAY_LENGTH(configurations); ++i)
         {
             if (!ZYAN_STRCMP(argv[arg_index], configurations[i].option))
             {
