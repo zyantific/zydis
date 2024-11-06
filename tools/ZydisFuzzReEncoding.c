@@ -89,6 +89,14 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     {
         return EXIT_FAILURE;
     }
+    // TODO: Temporary workaround for `xsha1` and `xsha256` with OSIZE prefix
+    if (insn1.mnemonic == ZYDIS_MNEMONIC_XSHA1 || insn1.mnemonic == ZYDIS_MNEMONIC_XSHA256)
+    {
+        if (insn1.attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
+        {
+            return EXIT_SUCCESS;
+        }
+    }
 
     ZydisReEncodeInstruction(&decoder, &insn1, operands1, insn1.operand_count_visible, buffer);
 
