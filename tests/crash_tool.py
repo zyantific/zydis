@@ -50,12 +50,16 @@ def get_combined_flags(flag_str, enum_class):
     return functools.reduce(lambda x, y: x | y, [enum_class[v] for v in flag_str.split('|')])
 
 
-def get_disasm(zydis_info, machine_mode, stack_width, payload):
+def get_disasm(zydis_info, machine_mode, stack_width, payload, knc=False):
     if not zydis_info:
         return ''
     arg_machine_mode = '-' + get_width_from_enum(machine_mode)
     arg_stack_width = '-' + get_width_from_enum(stack_width)
-    proc = Popen([zydis_info, arg_machine_mode, arg_stack_width, payload[:30]], stdout=PIPE, stderr=PIPE)
+    args = [zydis_info, arg_machine_mode, arg_stack_width]
+    if knc:
+        args.append('-knc')
+    args.append(payload[:30])
+    proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out = proc.communicate()[0].decode('utf-8')
     if proc.returncode != 0:
         return ''
@@ -176,13 +180,14 @@ def convert_re_enc_crash_to_json(crash, zydis_info, return_dict=False):
     stack_width = ZydisStackWidth(reader.read_uint32())
     decoder_mode = reader.read_uint32()
     payload = reader.read_bytes().hex().upper()
+    is_knc = (decoder_mode & ZYDIS_DECODER_MODE_KNC) != 0
     test_case = {
         'machine_mode': machine_mode.name,
         'stack_width': stack_width.name,
         'payload': payload,
-        'description': get_disasm(zydis_info, machine_mode, stack_width, payload),
+        'description': get_disasm(zydis_info, machine_mode, stack_width, payload, is_knc),
     }
-    if decoder_mode & ZYDIS_DECODER_MODE_KNC:
+    if is_knc:
         test_case['knc'] = True
     if return_dict:
         return test_case

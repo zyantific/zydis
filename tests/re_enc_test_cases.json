@@ -913,5 +913,30 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "D51087C02300",
         "description": "xchg r16d, eax"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "676262794BBE0C6500FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00006F",
+        "description": "vfnmsub231ps zmm25 {k3}, zmm0, xmmword ptr ds:[0xFFFFFF00] {uint8}",
+        "knc": true
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62DC7C08F90500000002",
+        "description": "movdiri dword ptr ds:[0x000000000200000A], eax"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_COMPAT_16",
+        "stack_width": "ZYDIS_STACK_WIDTH_16",
+        "payload": "C4C3F961E1C4",
+        "description": "vpcmpestri xmm4, xmm1, 0xC4"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "F3660FA7C86239F6",
+        "description": "rep xcrypt_ecb <- TODO: Remove 0x66 byte after fixing OSIZE handling for XCRYPT"
     }
 ]
