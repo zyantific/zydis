@@ -2177,9 +2177,13 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                 return ZYAN_FALSE;
             }
         }
-        else
+        else if (candidate_easz == 16)
         {
-            if (candidate_easz == 16 && !disp_only)
+            if (is_vsib)
+            {
+                candidate_easz = 32;
+            }
+            else if (!disp_only)
             {
                 if (disp_size > 16)
                 {

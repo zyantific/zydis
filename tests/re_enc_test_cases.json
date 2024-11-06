@@ -938,5 +938,11 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "F3660FA7C86239F6",
         "description": "rep xcrypt_ecb <- TODO: Remove 0x66 byte after fixing OSIZE handling for XCRYPT"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_COMPAT_16",
+        "stack_width": "ZYDIS_STACK_WIDTH_16",
+        "payload": "6762C27D2DA00C150000000000000000",
+        "description": "vpscatterdd dword ptr ds:[ymm2*1] {k5}, ymm1"
     }
 ]

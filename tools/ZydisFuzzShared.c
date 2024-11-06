@@ -111,6 +111,10 @@ void ZydisPrintInstruction(const ZydisDecodedInstruction* instruction,
         ZYAN_UNREACHABLE;
     }
     printf("-%u ", instruction->stack_width);
+    if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
+    {
+        printf("-knc ");
+    }
 
     for (ZyanU8 i = 0; i < instruction->length; ++i)
     {
