@@ -1729,7 +1729,16 @@ static ZyanBool ZydisCheckVectorMemorySize(ZydisEncoderInstructionMatch *match,
     ZyanU16 allowed_mem_size = def_op->size[eosz_index];
     if (allowed_mem_size || (match->definition->encoding == ZYDIS_INSTRUCTION_ENCODING_VEX))
     {
-        return user_op->mem.size == allowed_mem_size;
+        if (user_op->mem.size == allowed_mem_size)
+        {
+            return ZYAN_TRUE;
+        }
+        if (!match->eosz64_forbidden && (eosz_index == 2))
+        {
+            ZYAN_ASSERT(def_op->size[0] == def_op->size[1]);
+            return user_op->mem.size == def_op->size[1];
+        }
+        return ZYAN_FALSE;
     }
     ZYAN_ASSERT((match->definition->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ||
                 (match->definition->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX));
@@ -2123,7 +2132,7 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                     reg_index_class);
             }
         }
-        else if (disp_size != 8 || !match->cd8_scale)
+        else
         {
             const ZyanU8 addr_size = ZydisGetMaxAddressSize(match->request);
             if (disp_size > addr_size)
@@ -2168,9 +2177,13 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
                 return ZYAN_FALSE;
             }
         }
-        else
+        else if (candidate_easz == 16)
         {
-            if (candidate_easz == 16 && !disp_only)
+            if (is_vsib)
+            {
+                candidate_easz = 32;
+            }
+            else if (!disp_only)
             {
                 if (disp_size > 16)
                 {
