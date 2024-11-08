@@ -722,59 +722,6 @@ static ZyanBool ZydisCheckAsz(ZydisEncoderInstructionMatch *match, ZydisRegister
 }
 
 /**
- * Checks if opcode is allowed to use `REX2` prefix.
- *
- * @param   match   A pointer to `ZydisEncoderInstructionMatch` struct.
- *
- * @return  True if `REX2` prefix can be used, false otherwise.
- */
-static ZyanBool ZydisIsRex2Allowed(ZydisEncoderInstructionMatch *match)
-{
-    // TODO: Remove this function, use `no_rex2` filter
-    const ZydisOpcodeMap opcode_map = match->definition->opcode_map;
-    if ((opcode_map != ZYDIS_OPCODE_MAP_DEFAULT) &&
-        (opcode_map != ZYDIS_OPCODE_MAP_0F))
-    {
-        return ZYAN_FALSE;
-    }
-    switch (match->request->mnemonic)
-    {
-    case ZYDIS_MNEMONIC_XRSTOR:
-    case ZYDIS_MNEMONIC_XRSTOR64:
-    case ZYDIS_MNEMONIC_XRSTORS:
-    case ZYDIS_MNEMONIC_XRSTORS64:
-    case ZYDIS_MNEMONIC_XSAVE:
-    case ZYDIS_MNEMONIC_XSAVE64:
-    case ZYDIS_MNEMONIC_XSAVEC:
-    case ZYDIS_MNEMONIC_XSAVEC64:
-    case ZYDIS_MNEMONIC_XSAVEOPT:
-    case ZYDIS_MNEMONIC_XSAVEOPT64:
-    case ZYDIS_MNEMONIC_XSAVES:
-    case ZYDIS_MNEMONIC_XSAVES64:
-        return ZYAN_FALSE;
-    default:
-        break;
-    }
-    static const ZyanBool is_rex2_allowed[2][16] =
-    {
-        {
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE,
-            ZYAN_FALSE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_FALSE,
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_FALSE, ZYAN_TRUE,
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_FALSE, ZYAN_TRUE,
-        },
-        {
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_FALSE,
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE,
-            ZYAN_FALSE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE,
-            ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE, ZYAN_TRUE,
-        },
-    };
-    const ZyanU8 row = (match->definition->opcode & 0xF0) >> 4;
-    return is_rex2_allowed[opcode_map][row];
-}
-
-/**
  * Returns the id of the specified register as used in physical encoding.
  *
  * @param   reg         `ZydisRegister` value.
@@ -833,7 +780,7 @@ static ZyanBool ZydisIsRegisterAllowed(ZydisEncoderInstructionMatch *match, Zydi
         case ZYDIS_REGCLASS_GPR16:
         case ZYDIS_REGCLASS_GPR32:
         case ZYDIS_REGCLASS_GPR64:
-            return ZydisIsRex2Allowed(match) ||
+            return (match->definition->rex2 != ZYDIS_REX2_TYPE_FORBIDDEN) ||
                    (ZydisGetPhysicalId(reg, reg_class) < 16);
         default:
             return reg_id < 16;
@@ -989,8 +936,7 @@ static ZyanBool ZydisIsValidAddressingClass(ZydisEncoderInstructionMatch *match,
             switch (match->definition->encoding)
             {
             case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
-                result &=
-                    ZydisIsRex2Allowed(match);
+                result &= (match->definition->rex2 != ZYDIS_REX2_TYPE_FORBIDDEN);
                 break;
             case ZYDIS_INSTRUCTION_ENCODING_EVEX:
                 break;
@@ -4157,7 +4103,7 @@ static ZyanStatus ZydisBuildInstruction(ZydisEncoderInstructionMatch *match,
     {
         instruction->attributes |= ZYDIS_ATTRIB_HAS_MODRM;
     }
-    if (match->definition->rex2)
+    if (match->definition->rex2 == ZYDIS_REX2_TYPE_MANDATORY)
     {
         instruction->attributes |= ZYDIS_ATTRIB_HAS_REX2;
     }

@@ -113,6 +113,25 @@ typedef enum ZydisSizeHint_
 } ZydisSizeHint;
 
 /**
+ * Used in encoder's table to indicate `REX2` prefix support type.
+ */
+typedef enum ZydisRex2Type_
+{
+    ZYDIS_REX2_TYPE_FORBIDDEN,
+    ZYDIS_REX2_TYPE_ALLOWED,
+    ZYDIS_REX2_TYPE_MANDATORY,
+
+    /**
+     * Maximum value of this enum.
+     */
+    ZYDIS_REX2_TYPE_MAX_VALUE = ZYDIS_REX2_TYPE_MANDATORY,
+    /**
+     * The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_REX2_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REX2_TYPE_MAX_VALUE)
+} ZydisRex2Type;
+
+/**
  * Used in encoder's primary lookup table which allows to access a set of instruction definitions
  * for specified mnemonic in constant time.
  */
@@ -183,7 +202,7 @@ typedef struct ZydisEncodableInstruction_
     /**
      * True if `REX2` prefix is required for this definition.
      */
-    ZyanU8 rex2                     ZYAN_BITFIELD(1);
+    ZyanU8 rex2                     ZYAN_BITFIELD(ZYDIS_REX2_TYPE_REQUIRED_BITS);
     /**
      * True if `EEVEX.ND` is required for this definition.
      */
