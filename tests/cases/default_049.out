@@ -1,0 +1,42 @@
+== [      BASIC ] ==========================================================================================
+   MNEMONIC: fucomp [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xDD]
+     LENGTH:  2
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: X87_ALU
+    ISA-SET: X87
+    ISA-EXT: X87
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM CPUFLAG_ACCESS 
+  OPTIMIZED: DD E9 
+
+== [   OPERANDS ] ==========================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    IMPLICIT       R          NONE     80      1      80   FLOAT80                          st0
+ 1   REGISTER    EXPLICIT       R      MODRM_RM     80      1      80   FLOAT80                          st1
+ 2   REGISTER      HIDDEN       W          NONE     16      1      16    STRUCT                    x87status
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      FLAGS ] ==========================================================================================
+    ACTIONS: [C0  : M  ] [C1  : M  ] [C2  : M  ] [C3  : M  ] 
+       READ: 0x00000000
+    WRITTEN: 0x00000000
+
+== [        ATT ] ==========================================================================================
+   ABSOLUTE: fucomp %st1, %st0
+   RELATIVE: fucomp %st1, %st0
+
+== [      INTEL ] ==========================================================================================
+   ABSOLUTE: fucomp st0, st1
+   RELATIVE: fucomp st0, st1
+
+== [ INTEL_MASM ] ==========================================================================================
+   ABSOLUTE: fucomp st(1)
+   RELATIVE: fucomp st(1)
+
+== [   SEGMENTS ] ==========================================================================================
+DD E9 
+:  :..MODRM
+:..OPCODE
