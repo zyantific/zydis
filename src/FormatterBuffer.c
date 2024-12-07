@@ -144,25 +144,22 @@ ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer, ZydisTokenTy
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer* buffer, ZyanUPointer* state)
+ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer* buffer,
+    ZydisFormatterBufferState* state)
 {
     if (!buffer || !state)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
-    if (buffer->is_token_list)
-    {
-        *state = (ZyanUPointer)buffer->string.vector.data;
-    } else
-    {
-        *state = (ZyanUPointer)buffer->string.vector.size;
-    }
+    state->data = (ZyanUPointer)buffer->string.vector.data;
+    state->size = buffer->string.vector.size;
 
     return ZYAN_STATUS_SUCCESS;
 }
 
-ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointer state)
+ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer,
+    ZydisFormatterBufferState* state)
 {
     if (!buffer)
     {
@@ -171,17 +168,14 @@ ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointe
 
     if (buffer->is_token_list)
     {
-        const ZyanUSize delta = (ZyanUPointer)buffer->string.vector.data - state;
+        const ZyanUSize delta = (ZyanUPointer)buffer->string.vector.data - state->data;
         buffer->capacity += delta;
-        buffer->string.vector.data = (void*)state;
-        buffer->string.vector.size = 1; // TODO: Restore size?
+        buffer->string.vector.data = (void*)state->data;
         buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
-        *(char*)buffer->string.vector.data = '\0';
-    } else
-    {
-        buffer->string.vector.size = (ZyanUSize)state;
-        ZYDIS_STRING_NULLTERMINATE(&buffer->string);
     }
+
+    buffer->string.vector.size = state->size;
+    ZYDIS_STRING_NULLTERMINATE(&buffer->string);
 
     return ZYAN_STATUS_SUCCESS;
 }
