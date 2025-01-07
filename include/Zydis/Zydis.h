@@ -86,7 +86,7 @@ extern "C" {
 /**
  * A macro that defines the zydis version.
  */
-#define ZYDIS_VERSION (ZyanU64)0x0004000000000000
+#define ZYDIS_VERSION (ZyanU64)0x0005000000000000
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
