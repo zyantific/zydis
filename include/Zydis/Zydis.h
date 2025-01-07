@@ -86,7 +86,7 @@ extern "C" {
 /**
  * A macro that defines the zydis version.
  */
-#define ZYDIS_VERSION (ZyanU64)0x0004000100000000
+#define ZYDIS_VERSION 0x0004000100000000ULL
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Helper macros                                                                                  */
@@ -97,28 +97,28 @@ extern "C" {
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_MAJOR(version) (ZyanU16)(((version) & 0xFFFF000000000000) >> 48)
+#define ZYDIS_VERSION_MAJOR(version) (((version) & 0xFFFF000000000000) >> 48)
 
 /**
  * Extracts the minor-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_MINOR(version) (ZyanU16)(((version) & 0x0000FFFF00000000) >> 32)
+#define ZYDIS_VERSION_MINOR(version) (((version) & 0x0000FFFF00000000) >> 32)
 
 /**
  * Extracts the patch-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_PATCH(version) (ZyanU16)(((version) & 0x00000000FFFF0000) >> 16)
+#define ZYDIS_VERSION_PATCH(version) (((version) & 0x00000000FFFF0000) >> 16)
 
 /**
  * Extracts the build-part of the zydis version.
  *
  * @param   version The zydis version value
  */
-#define ZYDIS_VERSION_BUILD(version) (ZyanU16)((version) & 0x000000000000FFFF)
+#define ZYDIS_VERSION_BUILD(version) ((version) & 0x000000000000FFFF)
 
 /* ---------------------------------------------------------------------------------------------- */
 
