@@ -1,7 +1,7 @@
 project(
   'Zydis',
   'c',
-  version: '4.0.0',
+  version: '4.1.1',
   license: 'MIT',
   license_files: 'LICENSE',
   meson_version: '>=1.3',
