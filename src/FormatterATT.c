@@ -52,7 +52,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, buffer, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, buffer, context));
 
-    ZyanUPointer state_mnemonic;
+    ZydisFormatterBufferState state_mnemonic;
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
 
     const ZyanI8 c = (ZyanI8)context->instruction->operand_count_visible - 1;
@@ -67,10 +67,11 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
             continue;
         }
 
-        ZyanUPointer buffer_state;
+        ZydisFormatterBufferState buffer_state;
         ZYDIS_BUFFER_REMEMBER(buffer, buffer_state);
 
-        if (buffer_state != state_mnemonic)
+        if ((buffer_state.data != state_mnemonic.data) ||
+            (buffer_state.size != state_mnemonic.size))
         {
             ZYDIS_BUFFER_APPEND(buffer, DELIM_OPERAND);
         } else
@@ -87,7 +88,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
             status = formatter->func_pre_operand(formatter, buffer, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
                 continue;
             }
             if (!ZYAN_SUCCESS(status))
@@ -115,7 +116,7 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
         }
         if (status == ZYDIS_STATUS_SKIP_TOKEN)
         {
-            ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+            ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
             continue;
         }
         if (!ZYAN_SUCCESS(status))
@@ -128,10 +129,10 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
             status = formatter->func_post_operand(formatter, buffer, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
                 continue;
             }
-            if (ZYAN_SUCCESS(status))
+            if (!ZYAN_SUCCESS(status))
             {
                 return status;
             }

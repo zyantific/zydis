@@ -138,13 +138,11 @@ extern "C" {
  * performance for non-tokenizing passes.
  */
 #define ZYDIS_BUFFER_REMEMBER(buffer, state) \
-    if ((buffer)->is_token_list) \
+    do \
     { \
-        (state) = (ZyanUPointer)(buffer)->string.vector.data; \
-    } else \
-    { \
-        (state) = (ZyanUPointer)(buffer)->string.vector.size; \
-    }
+        (state).data = (ZyanUPointer)(buffer)->string.vector.data; \
+        (state).size = (buffer)->string.vector.size; \
+    } while (0)
 
 /**
  * Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
