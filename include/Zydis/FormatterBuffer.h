@@ -182,6 +182,18 @@ typedef struct ZydisFormatterBuffer_
     ZyanString string;
 } ZydisFormatterBuffer;
 
+/**
+ * Defines the `ZydisFormatterBufferState` struct.
+ *
+ * All fields in this struct should be considered as "private". Any changes may
+ * lead to unexpected behavior.
+ */
+typedef struct ZydisFormatterBufferState_
+{
+    ZyanUPointer data;
+    ZyanUSize size;
+} ZydisFormatterBufferState;
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -276,7 +288,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer,
  * as the buffer gets overwritten or destroyed.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer* buffer,
-    ZyanUPointer* state);
+    ZydisFormatterBufferState* state);
 
 /**
  * Restores a previously saved buffer-state.
@@ -293,7 +305,7 @@ ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferRemember(const ZydisFormatterBuffer*
  * automatically be updated by calling this function.
  */
 ZYDIS_EXPORT ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer,
-    ZyanUPointer state);
+    ZydisFormatterBufferState* state);
 
 /* ---------------------------------------------------------------------------------------------- */
 
