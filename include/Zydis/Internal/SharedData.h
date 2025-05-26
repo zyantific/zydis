@@ -240,6 +240,7 @@ typedef struct ZydisOperandDefinition_
         } reg;
         struct
         {
+            ZyanU8 implicitdisp            ZYAN_BITFIELD(1);
             ZyanU8 seg                     ZYAN_BITFIELD(3);
             ZyanU8 base                    ZYAN_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
         } mem;
