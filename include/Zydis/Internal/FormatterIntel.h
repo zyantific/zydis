@@ -76,6 +76,15 @@ ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* format
 ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
+ZyanStatus ZydisFormatterIntelFormatOperandREGMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
+
+ZyanStatus ZydisFormatterIntelPrintMnemonicMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
+
+ZyanStatus ZydisFormatterIntelPrintRegisterMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisRegister reg);
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -244,12 +253,12 @@ static const ZydisFormatter FORMATTER_INTEL_MASM =
     /* func_format_instruction  */ &ZydisFormatterIntelFormatInstructionMASM,
     /* func_pre_operand         */ ZYAN_NULL,
     /* func_post_operand        */ ZYAN_NULL,
-    /* func_format_operand_reg  */ &ZydisFormatterBaseFormatOperandREG,
+    /* func_format_operand_reg  */ &ZydisFormatterIntelFormatOperandREGMASM,
     /* func_format_operand_mem  */ &ZydisFormatterIntelFormatOperandMEM,
     /* func_format_operand_ptr  */ &ZydisFormatterBaseFormatOperandPTR,
     /* func_format_operand_imm  */ &ZydisFormatterBaseFormatOperandIMM,
-    /* func_print_mnemonic      */ &ZydisFormatterIntelPrintMnemonic,
-    /* func_print_register      */ &ZydisFormatterIntelPrintRegister,
+    /* func_print_mnemonic      */ &ZydisFormatterIntelPrintMnemonicMASM,
+    /* func_print_register      */ &ZydisFormatterIntelPrintRegisterMASM,
     /* func_print_address_abs   */ &ZydisFormatterIntelPrintAddressMASM,
     /* func_print_address_rel   */ &ZydisFormatterIntelPrintAddressMASM,
     /* func_print_disp          */ &ZydisFormatterIntelPrintDISP,
