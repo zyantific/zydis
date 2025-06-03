@@ -136,6 +136,11 @@ inc_private = include_directories('src')
 
 hdrs_common = files(
   'include/Zydis/Defines.h',
+  'include/Zydis/Generated/EnumISAExt.h',
+  'include/Zydis/Generated/EnumISASet.h',
+  'include/Zydis/Generated/EnumInstructionCategory.h',
+  'include/Zydis/Generated/EnumMnemonic.h',
+  'include/Zydis/Generated/EnumRegister.h',
   'include/Zydis/MetaInfo.h',
   'include/Zydis/Mnemonic.h',
   'include/Zydis/Register.h',
