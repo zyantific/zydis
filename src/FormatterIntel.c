@@ -54,7 +54,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, buffer, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, buffer, context));
 
-    ZyanUPointer state_mnemonic;
+    ZydisFormatterBufferState state_mnemonic;
     ZYDIS_BUFFER_REMEMBER(buffer, state_mnemonic);
     for (ZyanU8 i = 0; i < context->instruction->operand_count_visible; ++i)
     {
@@ -67,10 +67,11 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
             continue;
         }
 
-        ZyanUPointer buffer_state;
+        ZydisFormatterBufferState buffer_state;
         ZYDIS_BUFFER_REMEMBER(buffer, buffer_state);
 
-        if (buffer_state != state_mnemonic)
+        if ((buffer_state.data != state_mnemonic.data) ||
+            (buffer_state.size != state_mnemonic.size))
         {
             ZYDIS_BUFFER_APPEND(buffer, DELIM_OPERAND);
         } else
@@ -87,7 +88,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
             status = formatter->func_pre_operand(formatter, buffer, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
                 continue;
             }
             if (!ZYAN_SUCCESS(status))
@@ -115,7 +116,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
         }
         if (status == ZYDIS_STATUS_SKIP_TOKEN)
         {
-            ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+            ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
             continue;
         }
         if (!ZYAN_SUCCESS(status))
@@ -128,10 +129,10 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
             status = formatter->func_post_operand(formatter, buffer, context);
             if (status == ZYDIS_STATUS_SKIP_TOKEN)
             {
-                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
+                ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, &buffer_state));
                 continue;
             }
-            if (ZYAN_SUCCESS(status))
+            if (!ZYAN_SUCCESS(status))
             {
                 return status;
             }
@@ -408,6 +409,26 @@ ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* format
     // memory operands
     context->runtime_address = 0;
 
+    if (context->instruction->mnemonic == ZYDIS_MNEMONIC_INT3)
+    {
+        ZydisFormatterContext context_copy = *context;
+        ZydisDecodedInstruction instruction;
+        ZydisDecodedOperand operands[1];
+        instruction = *context->instruction;
+        instruction.mnemonic = ZYDIS_MNEMONIC_INT;
+        instruction.operand_count = 1;
+        instruction.operand_count_visible = 1;
+        context_copy.instruction = &instruction;
+        operands[0].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
+        operands[0].visibility = ZYDIS_OPERAND_VISIBILITY_IMPLICIT;
+        operands[0].imm.is_relative = ZYAN_FALSE;
+        operands[0].imm.is_signed = ZYAN_FALSE;
+        operands[0].imm.value.u = 3;
+        operands[0].imm.size = 8;
+        context_copy.operands = operands;
+        return ZydisFormatterIntelFormatInstruction(formatter, buffer, &context_copy);
+    }
+
     return ZydisFormatterIntelFormatInstruction(formatter, buffer, context);
 }
 
@@ -449,6 +470,58 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
         formatter->hex_force_leading_number, ZYAN_TRUE);
 
     return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisFormatterIntelFormatOperandREGMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    if ((context->instruction->mnemonic == ZYDIS_MNEMONIC_FUCOMP) && (context->operand->id == 0))
+    {
+        return ZYDIS_STATUS_SKIP_TOKEN;
+    }
+
+    return ZydisFormatterBaseFormatOperandREG(formatter, buffer, context);
+}
+
+ZyanStatus ZydisFormatterIntelPrintMnemonicMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    if (context->instruction->mnemonic == ZYDIS_MNEMONIC_INT1)
+    {
+        ZYDIS_BUFFER_APPEND_CASE(buffer, INVALID_MNEMONIC, formatter->case_mnemonic);
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    return ZydisFormatterIntelPrintMnemonic(formatter, buffer, context);
+}
+
+ZyanStatus ZydisFormatterIntelPrintRegisterMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisRegister reg)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    if ((reg >= ZYDIS_REGISTER_ST0) && (reg <= ZYDIS_REGISTER_ST7))
+    {
+        static const ZydisShortString STR_ST_PREFIX = ZYDIS_MAKE_SHORTSTRING("st(");
+        static const ZyanStringView STR_ST_SUFFIX = ZYAN_DEFINE_STRING_VIEW(")");
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_REGISTER);
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_ST_PREFIX,
+            formatter->case_registers));
+        return ZydisStringAppendDecU(&buffer->string, reg - ZYDIS_REGISTER_ST0, 0, ZYAN_NULL,
+            &STR_ST_SUFFIX);
+    }
+
+    return ZydisFormatterIntelPrintRegister(formatter, buffer, context, reg);
 }
 
 /* ---------------------------------------------------------------------------------------------- */

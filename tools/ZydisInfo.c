@@ -115,8 +115,8 @@ static const char* GetAccessedFlagActionString(const ZydisAccessedFlags* accesse
  */
 static void PrintSectionHeader(const char* name)
 {
-    ZYAN_ASSERT(ZYAN_STRLEN(name) <= 8);
-    ZYAN_PRINTF("%s== [ %s%8s%s ] ==============================================================" \
+    ZYAN_ASSERT(ZYAN_STRLEN(name) <= 10);
+    ZYAN_PRINTF("%s== [ %s%10s%s ] ============================================================" \
         "==============================%s\n",
         CVT100_OUT(COLOR_HEADER), CVT100_OUT(COLOR_HEADER_TITLE), name, CVT100_OUT(COLOR_HEADER),
         CVT100_OUT(COLOR_DEFAULT));
@@ -829,6 +829,18 @@ static void PrintDisassembly(const ZydisDecodedInstruction* instruction,
         }
         PrintSectionHeader("INTEL");
         break;
+    case ZYDIS_FORMATTER_STYLE_INTEL_MASM:
+        if (!ZYAN_SUCCESS(status = ZydisFormatterInit(&formatter, ZYDIS_FORMATTER_STYLE_INTEL_MASM)) ||
+            !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_SEGMENT, ZYAN_TRUE)) ||
+            !ZYAN_SUCCESS(status = ZydisFormatterSetProperty(&formatter,
+                ZYDIS_FORMATTER_PROP_FORCE_SIZE, ZYAN_TRUE)))
+        {
+            PrintStatusError(status, "Failed to initialize instruction-formatter");
+            exit(status);
+        }
+        PrintSectionHeader("INTEL_MASM");
+        break;
     default:
         ZYAN_UNREACHABLE;
     }
@@ -1077,6 +1089,8 @@ static void PrintInstruction(const ZydisDecoder* decoder,
     PrintDisassembly(instruction, operands, ZYDIS_FORMATTER_STYLE_ATT);
     ZYAN_PUTS("");
     PrintDisassembly(instruction, operands, ZYDIS_FORMATTER_STYLE_INTEL);
+    ZYAN_PUTS("");
+    PrintDisassembly(instruction, operands, ZYDIS_FORMATTER_STYLE_INTEL_MASM);
 }
 
 /* ============================================================================================== */
