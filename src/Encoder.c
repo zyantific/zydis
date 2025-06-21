@@ -345,6 +345,21 @@ static ZyanU8 ZydisGetMaxAddressSize(const ZydisEncoderRequest *request)
 }
 
 /**
+ * Load an entry from the size table slot, the size table might be unaligned
+ * and thats handled here.
+ */
+static ZyanU16 _LoadSizeTableEntry(const ZyanU16 *size_table, ZyanUSize idx) {
+    ZyanU16 slot;
+    ZyanU8 *src = (void*)&size_table[idx];
+    ZyanU8 *dst = (void*)&slot;
+
+    dst[0] = src[0];
+    dst[1] = src[1];
+
+    return slot;
+}
+
+/**
  * Calculates effective operand size.
  *
  * @param   match            A pointer to `ZydisEncoderInstructionMatch` struct.
@@ -358,15 +373,16 @@ static ZyanU8 ZydisGetMaxAddressSize(const ZydisEncoderRequest *request)
 static ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *match,
     const ZyanU16 *size_table, ZyanU16 desired_size, ZyanBool exact_match_mode)
 {
+
     if ((match->base_definition->operand_size_map == ZYDIS_OPSIZE_MAP_DEFAULT64) &&
         (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
     {
-        if ((exact_match_mode && (size_table[2] == desired_size)) ||
-            (!exact_match_mode && (size_table[2] >= desired_size)))
+        if ((exact_match_mode && (_LoadSizeTableEntry(size_table, 2) == desired_size)) ||
+            (!exact_match_mode && (_LoadSizeTableEntry(size_table, 2) >= desired_size)))
         {
             return 64;
         }
-        else if (size_table[0] == desired_size)
+        else if (_LoadSizeTableEntry(size_table, 0) == desired_size)
         {
             return 16;
         }
@@ -374,7 +390,7 @@ static ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *m
     else if ((match->base_definition->operand_size_map == ZYDIS_OPSIZE_MAP_FORCE64) &&
              (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
     {
-        if (size_table[2] == desired_size)
+        if (_LoadSizeTableEntry(size_table, 2) == desired_size)
         {
             return 64;
         }
@@ -396,8 +412,8 @@ static ZyanU8 ZydisGetOperandSizeFromElementSize(ZydisEncoderInstructionMatch *m
             {
                 continue;
             }
-            if ((exact_match_mode && (size_table[eosz_candidate] == desired_size)) ||
-                (!exact_match_mode && (size_table[eosz_candidate] >= desired_size)))
+            if ((exact_match_mode && (_LoadSizeTableEntry(size_table, eosz_candidate) == desired_size)) ||
+                (!exact_match_mode && (_LoadSizeTableEntry(size_table, eosz_candidate) >= desired_size)))
             {
                 return 16 << eosz_candidate;
             }
