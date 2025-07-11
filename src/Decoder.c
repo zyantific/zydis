@@ -808,6 +808,7 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderState* state,
     {
         ZyanU16 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 2));
+        ZYAN_LE16_TO_NATIVE(value);
         instruction->raw.disp.value = *(ZyanI16*)&value;
         break;
     }
@@ -815,6 +816,7 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderState* state,
     {
         ZyanU32 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 4));
+        ZYAN_LE32_TO_NATIVE(value);
         instruction->raw.disp.value = *(ZyanI32*)&value;
         break;
     }
@@ -822,14 +824,13 @@ static ZyanStatus ZydisReadDisplacement(ZydisDecoderState* state,
     {
         ZyanU64 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 8));
+        ZYAN_LE64_TO_NATIVE(value);
         instruction->raw.disp.value = *(ZyanI64*)&value;
         break;
     }
     default:
         ZYAN_UNREACHABLE;
     }
-
-    // TODO: Fix endianess on big-endian systems
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -880,6 +881,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     {
         ZyanU16 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 2));
+        ZYAN_LE16_TO_NATIVE(value);
         if (is_signed)
         {
             instruction->raw.imm[id].value.s = (ZyanI16)value;
@@ -893,6 +895,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     {
         ZyanU32 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 4));
+        ZYAN_LE32_TO_NATIVE(value);
         if (is_signed)
         {
             instruction->raw.imm[id].value.s = (ZyanI32)value;
@@ -906,6 +909,7 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     {
         ZyanU64 value;
         ZYAN_CHECK(ZydisInputNextBytes(state, instruction, (ZyanU8*)&value, 8));
+        ZYAN_LE64_TO_NATIVE(value);
         if (is_signed)
         {
             instruction->raw.imm[id].value.s = (ZyanI64)value;
@@ -918,8 +922,6 @@ static ZyanStatus ZydisReadImmediate(ZydisDecoderState* state,
     default:
         ZYAN_UNREACHABLE;
     }
-
-    // TODO: Fix endianess on big-endian systems
 
     return ZYAN_STATUS_SUCCESS;
 }

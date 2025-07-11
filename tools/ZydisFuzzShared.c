@@ -248,7 +248,7 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
     // TODO: Probably a good idea to input validate operand_counts to this function
     // TODO: I don't like accessing buffers without having their actual sizes available...
 
-    // Special case, `xchg rAX, rAX` is an alias for `NOP`
+    // Special case, `xchg rAX, rAX` is an alias for `NOP` except `xchg eax, eax` in 64-bit mode
     if ((insn1->mnemonic == ZYDIS_MNEMONIC_XCHG) &&
         (insn1->operand_count == 2) &&
         (operands1[0].type == ZYDIS_OPERAND_TYPE_REGISTER) &&
@@ -259,9 +259,12 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
         switch (operands1[0].reg.value)
         {
         case ZYDIS_REGISTER_AX:
-        case ZYDIS_REGISTER_EAX:
         case ZYDIS_REGISTER_RAX:
             return;
+        case ZYDIS_REGISTER_EAX:
+            if (insn1->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+                return;
+            break;
         default:
             break;
         }

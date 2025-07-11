@@ -224,7 +224,7 @@ typedef enum ZydisFormatterProperty_
     /**
      * Controls the padding of immediate values.
      *
-     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to padd all
+     * Pass `ZYDIS_PADDING_DISABLED` to disable padding, `ZYDIS_PADDING_AUTO` to pad all
      * immediates to the operand-width (hexadecimal only), or any other integer value for custom
      * padding.
      */

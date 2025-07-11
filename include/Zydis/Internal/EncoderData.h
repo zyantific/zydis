@@ -230,8 +230,8 @@ typedef struct ZydisEncodableInstruction_
      * (high bit in `REX.R`). Encoder uses swappable definitions to take advantage of this
      * optimization opportunity.
      *
-     * Second use of this field is to handle special case for `mov` instruction. This particular
-     * conflict is described in detail inside `ZydisHandleSwappableDefinition`.
+     * This field is also used to handle special cases for optimizations. Those opportunities are
+     * described inside `ZydisHandleSwappableDefinition`.
      */
     ZyanU8 swappable                ZYAN_BITFIELD(1);
 } ZydisEncodableInstruction;

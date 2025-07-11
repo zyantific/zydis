@@ -3039,14 +3039,34 @@ static ZyanBool ZydisHandleSwappableDefinition(ZydisEncoderInstructionMatch *mat
     if (match->request->mnemonic == ZYDIS_MNEMONIC_MOV)
     {
         const ZyanU8 imm_size = ZydisGetSignedImmSize(match->request->operands[1].imm.s);
-        if ((match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
-            (match->eosz == 64) &&
-            (imm_size < 64))
+        return (match->request->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+               (match->eosz == 64) &&
+               (imm_size < 64);
+    }
+
+    // `xchg ax, ax`, `xchg eax, eax`, `xchg rax, rax` can be encoded as single-byte `nop` (opcode
+    // 0x90, see `xchg` documentation in Intel SDM Vol. 2C). However in 64-bit mode operations
+    // on 32-bit operands zero-extend results to full 64 bits (Intel SDM Vol. 1, 3.4.1), so
+    // `xchg eax, eax` should not be aliased in this mode.
+    if (match->request->mnemonic == ZYDIS_MNEMONIC_XCHG)
+    {
+        ZYAN_ASSERT((match->request->operand_count == 2) &&
+                    (match->request->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER));
+        switch (match->request->operands[0].reg.value)
         {
-            return ZYAN_TRUE;
+        case ZYDIS_REGISTER_AX:
+        case ZYDIS_REGISTER_RAX:
+            match->eosz = 0;
+            return ZYAN_FALSE;
+        case ZYDIS_REGISTER_EAX:
+            match->eosz = 0;
+            return ZydisGetMachineModeWidth(match->request->machine_mode) == 64;
+        default:
+            return ZYAN_FALSE;
         }
     }
 
+    // Check for possible `VEX` optimization
     ZYAN_ASSERT((match->request->operand_count == 2) || (match->request->operand_count == 3));
     const ZyanU8 src_index = (match->request->operand_count == 3) ? 2 : 1;
     const ZyanI8 dest_id = ZydisRegisterGetId(match->request->operands[0].reg.value);
@@ -3353,13 +3373,13 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    // TODO: fix for big-endian systems
     // The size variable is not passed on purpose to allow the compiler
     // to generate better code with a known size at compile time.
     if (size == 1)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 1);
     }
+#if ZYAN_ENDIAN == ZYAN_LITTLE_ENDIAN
     else if (size == 2)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 2);
@@ -3372,6 +3392,23 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 8);
     }
+#else
+    else if (size == 2)
+    {
+        ZyanU16 value = ZYAN_BYTESWAP16((ZyanU16)data);
+        ZYAN_MEMCPY(buffer->buffer + buffer->offset, &value, 2);
+    }
+    else if (size == 4)
+    {
+        ZyanU32 value = ZYAN_BYTESWAP32((ZyanU32)data);
+        ZYAN_MEMCPY(buffer->buffer + buffer->offset, &value, 4);
+    }
+    else if (size == 8)
+    {
+        ZyanU64 value = ZYAN_BYTESWAP64((ZyanU64)data);
+        ZYAN_MEMCPY(buffer->buffer + buffer->offset, &value, 8);
+    }
+#endif
     else
     {
         ZYAN_UNREACHABLE;
