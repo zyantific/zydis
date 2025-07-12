@@ -77,6 +77,10 @@ typedef enum ZydisInstructionSegment_
      */
     ZYDIS_INSTR_SEGMENT_REX,
     /**
+     * The `REX2` prefix bytes.
+     */
+    ZYDIS_INSTR_SEGMENT_REX2,
+    /**
      * The `XOP` prefix bytes.
      */
     ZYDIS_INSTR_SEGMENT_XOP,

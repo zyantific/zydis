@@ -87,6 +87,7 @@ typedef enum ZydisSemanticOperandType_
     ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ,
     ZYDIS_SEMANTIC_OPTYPE_IMM,
     ZYDIS_SEMANTIC_OPTYPE_REL,
+    ZYDIS_SEMANTIC_OPTYPE_ABS,
     ZYDIS_SEMANTIC_OPTYPE_PTR,
     ZYDIS_SEMANTIC_OPTYPE_AGEN,
     ZYDIS_SEMANTIC_OPTYPE_MOFFS,
@@ -121,6 +122,7 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_INT16X2,
     ZYDIS_IELEMENT_TYPE_INT32,
     ZYDIS_IELEMENT_TYPE_INT64,
+    ZYDIS_IELEMENT_TYPE_INT128,
     ZYDIS_IELEMENT_TYPE_UINT8,
     ZYDIS_IELEMENT_TYPE_UINT8X4,
     ZYDIS_IELEMENT_TYPE_UINT16,
@@ -357,6 +359,10 @@ typedef enum ZydisEVEXFunctionality_
 typedef enum ZydisEVEXTupleType_
 {
     ZYDIS_TUPLETYPE_INVALID,
+    /**
+     * No CD8 scaling.
+     */
+    ZYDIS_TUPLETYPE_NO_SCALE,
     /**
      * Full Vector
      */
@@ -852,6 +858,10 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 mask_override                   ZYAN_BITFIELD(ZYDIS_MASK_OVERRIDE_REQUIRED_BITS);
     ZyanU8 broadcast                       ZYAN_BITFIELD(ZYDIS_EVEX_STATIC_BROADCAST_REQUIRED_BITS);
 #endif
+    ZyanU8 is_eevex                        ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_nf                      ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_ppx                     ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif
 

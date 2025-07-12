@@ -29,7 +29,7 @@
 == [      AVX ] ============================================================================================
   VECTORLEN: 512
   BROADCAST: 1_TO_8
-   ROUNDING: DEFAULT
+   ROUNDING: NONE
         SAE: N
        MASK: k3 [ZEROING]
 

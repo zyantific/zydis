@@ -77,6 +77,7 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
     switch (encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
         *definition = (ZydisInstructionDefinition*)&ISTR_DEFINITIONS_LEGACY[id];
         break;
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
@@ -132,7 +133,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
     {
         ZydisElementType type;
         ZydisElementSize size;
-    } lookup[ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1] =
+    } lookup[] =
     {
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
         { ZYDIS_ELEMENT_TYPE_INVALID  ,   0 },
@@ -146,6 +147,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 }, // TODO: Should indicate 2 INT16 elements
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 },
         { ZYDIS_ELEMENT_TYPE_INT      ,  64 },
+        { ZYDIS_ELEMENT_TYPE_INT      , 128 },
         { ZYDIS_ELEMENT_TYPE_UINT     ,   8 },
         { ZYDIS_ELEMENT_TYPE_UINT     ,  32 }, // TODO: Should indicate 4 UINT8 elements
         { ZYDIS_ELEMENT_TYPE_UINT     ,  16 },
@@ -164,7 +166,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   5 }
     };
-
+    ZYAN_STATIC_ASSERT(ZYAN_ARRAY_LENGTH(lookup) == ZYDIS_IELEMENT_TYPE_MAX_VALUE + 1);
     ZYAN_ASSERT((ZyanUSize)element < ZYAN_ARRAY_LENGTH(lookup));
 
     *type = lookup[element].type;

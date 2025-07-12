@@ -120,6 +120,12 @@ ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer, ZydisTokenTy
         return ZYAN_STATUS_SUCCESS;
     }
 
+    ZydisFormatterToken* const last = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+    if (last->type == type)
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+
     const ZyanUSize len = buffer->string.vector.size;
     ZYAN_ASSERT((len > 0) && (len < 256));
     if (buffer->capacity <= len + sizeof(ZydisFormatterToken))
@@ -127,7 +133,6 @@ ZyanStatus ZydisFormatterBufferAppend(ZydisFormatterBuffer* buffer, ZydisTokenTy
         return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
 
-    ZydisFormatterToken* const last  = (ZydisFormatterToken*)buffer->string.vector.data - 1;
     last->next = (ZyanU8)len;
 
     const ZyanUSize delta = len + sizeof(ZydisFormatterToken);

@@ -79,6 +79,9 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_EMVEX:
         ZYAN_ASSERT(index <  49);
         return &FILTERS_EMVEX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_REX2:
+        ZYAN_ASSERT(index < 3);
+        return &FILTERS_REX2[parent->value][index];
     case ZYDIS_NODETYPE_FILTER_OPCODE:
         ZYAN_ASSERT(index < 256);
         return &FILTERS_OPCODE[parent->value][index];
@@ -161,6 +164,21 @@ const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeN
     case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
         ZYAN_ASSERT(index <   2);
         return &FILTERS_MODE_UD0_COMPAT[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_ND:
+        ZYAN_ASSERT(index <   2);
+        return &FILTERS_EVEX_ND[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_NF:
+        ZYAN_ASSERT(index <   2);
+        return &FILTERS_EVEX_NF[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
+        ZYAN_ASSERT(index <  16);
+        return &FILTERS_EVEX_SCC[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
+        ZYAN_ASSERT(index <   2);
+        return &FILTERS_REX2_PREFIX[parent->value][index];
+    case ZYDIS_NODETYPE_FILTER_EVEX_U:
+        ZYAN_ASSERT(index < 2);
+        return &FILTERS_EVEX_U[parent->value][index];
     default:
         ZYAN_UNREACHABLE;
     }

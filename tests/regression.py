@@ -9,6 +9,7 @@ from subprocess import Popen, PIPE
 
 TEST_CASE_DIRECTORY = os.path.join('.', 'cases')
 
+
 def get_exitcode_stdout_stderr(path, cmd):
     """
     Executes an external command and returns the exitcode, stdout and stderr.
@@ -18,8 +19,8 @@ def get_exitcode_stdout_stderr(path, cmd):
     proc = Popen(args, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate()
     exitcode = proc.returncode
-
     return exitcode, out, err
+
 
 parser = argparse.ArgumentParser(description="Regression testing.")
 parser.add_argument(dest="operation", choices=["test", "rebase"])

@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE
 def run_test(binary, payload=None):
     proc = Popen(binary, stdin=PIPE, stdout=PIPE, stderr=PIPE)
     proc.communicate(input=payload)
-    return proc.returncode == 0
+    return proc.returncode
 
 
 def run_test_collection(test_db_file, binary, converter):
@@ -14,14 +14,19 @@ def run_test_collection(test_db_file, binary, converter):
         cases = json.loads(f.read())
     tests_passed = True
     for i, case in enumerate(cases):
-        test_result = run_test(binary, converter(case, True))
+        rc = run_test(binary, converter(case, True))
+        expected_rc = case.get('expected_result', 0)
+        test_result = rc == expected_rc
         tests_passed &= test_result
         description = 'Case #%d: ' % i
         if 'description' in case:
             description += case['description']
         else:
             description += case['mnemonic'][case['mnemonic'].rfind('_') + 1:].lower()
-        print('[%s] %s' % ('PASSED' if test_result else 'FAILED', description))
+        details = ''
+        if not test_result:
+            details = ' (Expected: %d, Got: %d)' % (expected_rc, rc)
+        print('[%s] %s%s' % ('PASSED' if test_result else 'FAILED', description, details))
     return tests_passed
 
 
@@ -39,7 +44,7 @@ if __name__ == "__main__":
     all_passed &= run_test_collection('enc_test_cases.json', args.zydis_fuzz_enc_path, convert_enc_json_to_crash)
     print()
     print('Running encoding tests (absolute address mode):')
-    result = run_test(args.zydis_test_tool_path)
+    result = run_test(args.zydis_test_tool_path) == 0
     all_passed &= result
     print('Success' if result else 'FAILED')
     print()

@@ -55,4 +55,3 @@ const ZydisEncoderRelInfo *ZydisGetRelInfo(ZydisMnemonic mnemonic)
         return ZYAN_NULL;
     }
 }
-

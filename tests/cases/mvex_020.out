@@ -28,7 +28,7 @@
 == [      AVX ] ============================================================================================
   VECTORLEN: 512
   BROADCAST: 4_TO_8
-   ROUNDING: DEFAULT
+   ROUNDING: NONE
         SAE: N
        MASK: k1 [MERGING]
          EH: Y

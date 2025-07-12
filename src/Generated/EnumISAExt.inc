@@ -10,6 +10,8 @@ static const char* STR_ISAEXT[] =
     "AMX_FP16",
     "AMX_INT8",
     "AMX_TILE",
+    "APXEVEX",
+    "APXLEGACY",
     "AVX",
     "AVX2",
     "AVX2GATHER",

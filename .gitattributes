@@ -3,4 +3,4 @@
 *.c    eof=lf encoding=utf-8
 *.py   eof=lf encoding=utf-8
 *.md   eof=lf encoding=utf-8
-
+*.json eof=lf encoding=utf-8
