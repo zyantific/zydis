@@ -85,6 +85,11 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
         }
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
+        if (!operand->imm.is_address)
+        {
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+
         if (operand->imm.is_signed && operand->imm.is_relative)
         {
             *result_address = (ZyanU64)((ZyanI64)runtime_address + instruction->length +
@@ -111,6 +116,12 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
             default:
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
+            return ZYAN_STATUS_SUCCESS;
+        }
+        else if (!operand->imm.is_signed && !operand->imm.is_relative && 
+            (instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64))
+        {
+            *result_address = operand->imm.value.u;
             return ZYAN_STATUS_SUCCESS;
         }
         break;

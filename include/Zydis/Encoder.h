@@ -356,6 +356,14 @@ typedef struct ZydisEncoderRequest_
          * Specify `ZYAN_TRUE` for instructions with forced zeroing mask.
          */
         ZyanBool zeroing_mask;
+        /**
+         * Supress status flags update for certain `APX` instructions.
+         */
+        ZyanBool no_flags;
+        /**
+         * The APX default flags value (DFV).
+         */
+        ZydisDefaultFlagsValue default_flags;
     } evex;
     /**
      * Extended info for `MVEX` instructions.

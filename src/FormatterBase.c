@@ -201,10 +201,11 @@ ZyanStatus ZydisFormatterBaseFormatOperandIMM(const ZydisFormatter* formatter,
     ZYAN_ASSERT(context);
 
     // The immediate operand contains an address
-    if (context->operand->imm.is_relative)
+    if (context->operand->imm.is_address)
     {
-        const ZyanBool absolute = !formatter->force_relative_branches &&
-            (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE);
+        const ZyanBool absolute = !context->operand->imm.is_relative || 
+            (!formatter->force_relative_branches &&
+            (context->runtime_address != ZYDIS_RUNTIME_ADDRESS_NONE));
         if (absolute)
         {
             return formatter->func_print_address_abs(formatter, buffer, context);
@@ -632,7 +633,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.broadcast.mode)
             {
-            case ZYDIS_BROADCAST_MODE_INVALID:
+            case ZYDIS_BROADCAST_MODE_NONE:
                 break;
             case ZYDIS_BROADCAST_MODE_1_TO_2:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_1TO2, formatter->case_decorators);
@@ -673,7 +674,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.rounding.mode)
             {
-            case ZYDIS_ROUNDING_MODE_INVALID:
+            case ZYDIS_ROUNDING_MODE_NONE:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN_SAE, formatter->case_decorators);
@@ -694,7 +695,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         {
             switch (context->instruction->avx.rounding.mode)
             {
-            case ZYDIS_ROUNDING_MODE_INVALID:
+            case ZYDIS_ROUNDING_MODE_NONE:
                 break;
             case ZYDIS_ROUNDING_MODE_RN:
                 ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_RN, formatter->case_decorators);
@@ -726,7 +727,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         switch (context->instruction->avx.swizzle.mode)
         {
-        case ZYDIS_SWIZZLE_MODE_INVALID:
+        case ZYDIS_SWIZZLE_MODE_NONE:
         case ZYDIS_SWIZZLE_MODE_DCBA:
             // Nothing to do here
             break;
@@ -760,7 +761,7 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_KNC)
         switch (context->instruction->avx.conversion.mode)
         {
-        case ZYDIS_CONVERSION_MODE_INVALID:
+        case ZYDIS_CONVERSION_MODE_NONE:
             break;
         case ZYDIS_CONVERSION_MODE_FLOAT16:
             ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_FLOAT16, formatter->case_decorators);
@@ -787,6 +788,42 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
         if (context->instruction->avx.has_eviction_hint)
         {
             ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_EH, formatter->case_decorators);
+        }
+#endif
+        break;
+    case ZYDIS_DECORATOR_APX_NF:
+#if !defined(ZYDIS_DISABLE_AVX512)
+        if (context->instruction->apx.has_nf)
+        {
+            ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_NF, formatter->case_decorators);
+        }
+#endif
+        break;
+    case ZYDIS_DECORATOR_APX_DFV:
+#if !defined(ZYDIS_DISABLE_AVX512)
+        if (context->instruction->apx.scc != ZYDIS_SCC_NONE)
+        {
+            switch (context->instruction->apx.default_flags)
+            {
+            case 0x0: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_0, formatter->case_decorators); break;
+            case 0x1: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_1, formatter->case_decorators); break;
+            case 0x2: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_2, formatter->case_decorators); break;
+            case 0x3: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_3, formatter->case_decorators); break;
+            case 0x4: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_4, formatter->case_decorators); break;
+            case 0x5: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_5, formatter->case_decorators); break;
+            case 0x6: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_6, formatter->case_decorators); break;
+            case 0x7: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_7, formatter->case_decorators); break;
+            case 0x8: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_8, formatter->case_decorators); break;
+            case 0x9: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_9, formatter->case_decorators); break;
+            case 0xA: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_A, formatter->case_decorators); break;
+            case 0xB: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_B, formatter->case_decorators); break;
+            case 0xC: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_C, formatter->case_decorators); break;
+            case 0xD: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_D, formatter->case_decorators); break;
+            case 0xE: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_E, formatter->case_decorators); break;
+            case 0xF: ZYDIS_BUFFER_APPEND_CASE(buffer, DECO_DFV_F, formatter->case_decorators); break;
+            default:
+                return ZYAN_STATUS_INVALID_ARGUMENT;
+            }
         }
 #endif
         break;

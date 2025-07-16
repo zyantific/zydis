@@ -171,6 +171,150 @@ static const struct ZydisPredefinedTokenDECO_DDDD_
 } TOK_DATA_DECO_DDDD = { 19, 17, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 5, 'd', 'd', 'd', 'd', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
 static const ZydisPredefinedToken* const TOK_DECO_DDDD = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DDDD;
 
+static const ZydisShortString STR_DECO_DFV_0 = ZYDIS_MAKE_SHORTSTRING(" {dfv=}");
+static const struct ZydisPredefinedTokenDECO_DFV_0_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[19];
+} TOK_DATA_DECO_DFV_0 = { 19, 17, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 5, 'd', 'f', 'v', '=', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_0 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_0;
+
+static const ZydisShortString STR_DECO_DFV_1 = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf}");
+static const struct ZydisPredefinedTokenDECO_DFV_1_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[21];
+} TOK_DATA_DECO_DFV_1 = { 21, 19, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 7, 'd', 'f', 'v', '=', 'c', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_1 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_1;
+
+static const ZydisShortString STR_DECO_DFV_2 = ZYDIS_MAKE_SHORTSTRING(" {dfv=zf}");
+static const struct ZydisPredefinedTokenDECO_DFV_2_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[21];
+} TOK_DATA_DECO_DFV_2 = { 21, 19, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 7, 'd', 'f', 'v', '=', 'z', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_2 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_2;
+
+static const ZydisShortString STR_DECO_DFV_3 = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, zf}");
+static const struct ZydisPredefinedTokenDECO_DFV_3_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_3 = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 'z', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_3 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_3;
+
+static const ZydisShortString STR_DECO_DFV_4 = ZYDIS_MAKE_SHORTSTRING(" {dfv=sf}");
+static const struct ZydisPredefinedTokenDECO_DFV_4_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[21];
+} TOK_DATA_DECO_DFV_4 = { 21, 19, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 7, 'd', 'f', 'v', '=', 's', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_4 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_4;
+
+static const ZydisShortString STR_DECO_DFV_5 = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, sf}");
+static const struct ZydisPredefinedTokenDECO_DFV_5_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_5 = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 's', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_5 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_5;
+
+static const ZydisShortString STR_DECO_DFV_6 = ZYDIS_MAKE_SHORTSTRING(" {dfv=zf, sf}");
+static const struct ZydisPredefinedTokenDECO_DFV_6_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_6 = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 'z', 'f', ',', ' ', 's', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_6 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_6;
+
+static const ZydisShortString STR_DECO_DFV_7 = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, zf, sf}");
+static const struct ZydisPredefinedTokenDECO_DFV_7_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[29];
+} TOK_DATA_DECO_DFV_7 = { 29, 27, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 15, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 'z', 'f', ',', ' ', 's', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_7 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_7;
+
+static const ZydisShortString STR_DECO_DFV_8 = ZYDIS_MAKE_SHORTSTRING(" {dfv=of}");
+static const struct ZydisPredefinedTokenDECO_DFV_8_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[21];
+} TOK_DATA_DECO_DFV_8 = { 21, 19, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 7, 'd', 'f', 'v', '=', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_8 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_8;
+
+static const ZydisShortString STR_DECO_DFV_9 = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_9_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_9 = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_9 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_9;
+
+static const ZydisShortString STR_DECO_DFV_A = ZYDIS_MAKE_SHORTSTRING(" {dfv=zf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_A_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_A = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 'z', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_A = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_A;
+
+static const ZydisShortString STR_DECO_DFV_B = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, zf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_B_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[29];
+} TOK_DATA_DECO_DFV_B = { 29, 27, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 15, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 'z', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_B = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_B;
+
+static const ZydisShortString STR_DECO_DFV_C = ZYDIS_MAKE_SHORTSTRING(" {dfv=sf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_C_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[25];
+} TOK_DATA_DECO_DFV_C = { 25, 23, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 11, 'd', 'f', 'v', '=', 's', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_C = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_C;
+
+static const ZydisShortString STR_DECO_DFV_D = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, sf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_D_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[29];
+} TOK_DATA_DECO_DFV_D = { 29, 27, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 15, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 's', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_D = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_D;
+
+static const ZydisShortString STR_DECO_DFV_E = ZYDIS_MAKE_SHORTSTRING(" {dfv=zf, sf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_E_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[29];
+} TOK_DATA_DECO_DFV_E = { 29, 27, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 15, 'd', 'f', 'v', '=', 'z', 'f', ',', ' ', 's', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_E = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_E;
+
+static const ZydisShortString STR_DECO_DFV_F = ZYDIS_MAKE_SHORTSTRING(" {dfv=cf, zf, sf, of}");
+static const struct ZydisPredefinedTokenDECO_DFV_F_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[33];
+} TOK_DATA_DECO_DFV_F = { 33, 31, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 19, 'd', 'f', 'v', '=', 'c', 'f', ',', ' ', 'z', 'f', ',', ' ', 's', 'f', ',', ' ', 'o', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_DFV_F = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_DFV_F;
+
 static const ZydisShortString STR_DECO_EH = ZYDIS_MAKE_SHORTSTRING(" {eh}");
 static const struct ZydisPredefinedTokenDECO_EH_
 {
@@ -197,6 +341,15 @@ static const struct ZydisPredefinedTokenDECO_FLOAT16_
   ZyanU8 data[22];
 } TOK_DATA_DECO_FLOAT16 = { 22, 20, { ZYDIS_TOKEN_WHITESPACE, 2, ' ', '\0', ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 8, 'f', 'l', 'o', 'a', 't', '1', '6', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 0, '}', '\0' } };
 static const ZydisPredefinedToken* const TOK_DECO_FLOAT16 = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_FLOAT16;
+
+static const ZydisShortString STR_DECO_NF = ZYDIS_MAKE_SHORTSTRING("{nf} ");
+static const struct ZydisPredefinedTokenDECO_NF_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[17];
+} TOK_DATA_DECO_NF = { 17, 15, { ZYDIS_TOKEN_PARENTHESIS_OPEN, 2, '{', '\0', ZYDIS_TOKEN_DECORATOR, 3, 'n', 'f', '\0', ZYDIS_TOKEN_PARENTHESIS_CLOSE, 2, '}', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
+static const ZydisPredefinedToken* const TOK_DECO_NF = (const ZydisPredefinedToken* const)&TOK_DATA_DECO_NF;
 
 static const ZydisShortString STR_DECO_RD = ZYDIS_MAKE_SHORTSTRING(" {rd}");
 static const struct ZydisPredefinedTokenDECO_RD_
@@ -435,6 +588,7 @@ static const struct ZydisPredefinedTokenMUL_
 static const ZydisPredefinedToken* const TOK_MUL = (const ZydisPredefinedToken* const)&TOK_DATA_MUL;
 
 static const ZydisShortString STR_NEAR = ZYDIS_MAKE_SHORTSTRING(" near");
+static const ZydisShortString STR_NF = ZYDIS_MAKE_SHORTSTRING("nf");
 static const ZydisShortString STR_PREF_BND = ZYDIS_MAKE_SHORTSTRING("bnd ");
 static const struct ZydisPredefinedTokenPREF_BND_
 {

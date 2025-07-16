@@ -330,11 +330,38 @@ typedef enum ZydisFormatterProperty_
     ZYDIS_FORMATTER_PROP_HEX_SUFFIX,
 
     /* ---------------------------------------------------------------------------------------- */
+    /* Decorator formatting                                                                     */
+    /* ---------------------------------------------------------------------------------------- */
+
+    /**
+     * Controls the printing of the APX `nf` decorator.
+     *
+     * Pass `ZYAN_TRUE` to append the `nf` decorator as a suffix to the instruction mnemonic
+     * instead of prepending it as a pseudo prefix.
+     *
+     * The default value is implementation specific: `ZYAN_FALSE` for Intel and `ZYAN_TRUE` for ATT.
+     *
+     * WARNING: Suffix mode currently does not correctly follow the standard. The `nf` suffix should
+     *          appear before any additional `zu` and/or `cc` suffix. This is not the case.
+     *          The current implementation would e.g. emit `imulzunf` instead of `imulnfzu`.
+     */
+    ZYDIS_FORMATTER_PROP_DECO_APX_NF_USE_SUFFIX,
+
+    /**
+     * Controls the printing of the APX `dfv` decorator.
+     *
+     * Pass `ZYAN_TRUE` to use the immediate notation instead of the finite set notation.
+     *
+     * The default value is implementation specific: `ZYAN_FALSE` for Intel and `ZYAN_TRUE` for ATT.
+     */
+    ZYDIS_FORMATTER_PROP_DECO_APX_DFV_USE_IMMEDIATE,
+
+    /* ---------------------------------------------------------------------------------------- */
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_HEX_SUFFIX,
+    ZYDIS_FORMATTER_PROP_MAX_VALUE = ZYDIS_FORMATTER_PROP_DECO_APX_DFV_USE_IMMEDIATE,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -628,11 +655,19 @@ typedef enum ZydisDecorator_
      * The eviction-hint decorator.
      */
     ZYDIS_DECORATOR_EH,
+    /**
+     * The APX no-flags decorator.
+     */
+    ZYDIS_DECORATOR_APX_NF,
+    /**
+     * The APX default flags value decorator.
+     */
+    ZYDIS_DECORATOR_APX_DFV,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECORATOR_MAX_VALUE = ZYDIS_DECORATOR_EH,
+    ZYDIS_DECORATOR_MAX_VALUE = ZYDIS_DECORATOR_APX_DFV,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -892,6 +927,14 @@ struct ZydisFormatter_
          */
         char buffer[11];
     } number_format[ZYDIS_NUMERIC_BASE_MAX_VALUE + 1][2];
+    /**
+     * The `ZYDIS_FORMATTER_PROP_DECO_APX_NF_USE_SUFFIX` property.
+     */
+    ZyanBool deco_apx_nf_use_suffix;
+    /**
+     * The `ZYDIS_FORMATTER_PROP_DECO_APX_DFV_USE_IMMEDIATE` property.
+     */
+    ZyanBool deco_apx_dfv_use_immediate;
     /**
      * The `ZYDIS_FORMATTER_FUNC_PRE_INSTRUCTION` function.
      */

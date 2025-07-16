@@ -30,6 +30,7 @@
 #include <Zycore/Defines.h>
 #include <Zydis/Mnemonic.h>
 #include <Zydis/SharedTypes.h>
+#include <Zydis/DecoderTypes.h>
 
 /**
  * Used in encoder's table to represent standard ISA sizes in form of bit flags.
@@ -112,6 +113,25 @@ typedef enum ZydisSizeHint_
 } ZydisSizeHint;
 
 /**
+ * Used in encoder's table to indicate `REX2` prefix support type.
+ */
+typedef enum ZydisRex2Type_
+{
+    ZYDIS_REX2_TYPE_FORBIDDEN,
+    ZYDIS_REX2_TYPE_ALLOWED,
+    ZYDIS_REX2_TYPE_MANDATORY,
+
+    /**
+     * Maximum value of this enum.
+     */
+    ZYDIS_REX2_TYPE_MAX_VALUE = ZYDIS_REX2_TYPE_MANDATORY,
+    /**
+     * The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_REX2_TYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REX2_TYPE_MAX_VALUE)
+} ZydisRex2Type;
+
+/**
  * Used in encoder's primary lookup table which allows to access a set of instruction definitions
  * for specified mnemonic in constant time.
  */
@@ -179,6 +199,22 @@ typedef struct ZydisEncodableInstruction_
      * True if `REX.W` is required for this definition.
      */
     ZyanU8 rex_w                    ZYAN_BITFIELD(1);
+    /**
+     * True if `REX2` prefix is required for this definition.
+     */
+    ZyanU8 rex2                     ZYAN_BITFIELD(ZYDIS_REX2_TYPE_REQUIRED_BITS);
+    /**
+     * True if `EEVEX.ND` is required for this definition.
+     */
+    ZyanU8 evex_nd                  ZYAN_BITFIELD(1);
+    /**
+     * True if `EEVEX.NF` is required for this definition.
+     */
+    ZyanU8 evex_nf                  ZYAN_BITFIELD(1);
+    /**
+     * True if `APX` definition scales memory operand with operand size attribute.
+     */
+    ZyanU8 apx_osz                  ZYAN_BITFIELD(1);
     /**
      * The vector length.
      */
@@ -249,5 +285,15 @@ ZyanU8 ZydisGetEncodableInstructions(ZydisMnemonic mnemonic,
  *          relative operands.
  */
 const ZydisEncoderRelInfo *ZydisGetRelInfo(ZydisMnemonic mnemonic);
+
+/**
+ * Fetches information about APX conditional instructions.
+ *
+ * @param  mnemonic    Instruction mnemonic.
+ * @param  scc         Receives `scc` if applicable.
+ *
+ * @return True if mnemonic represents an APX conditional instruction, false otherwise.
+ */
+ZyanBool ZydisGetCcInfo(ZydisMnemonic mnemonic, ZydisSourceConditionCode *scc);
 
 #endif /* ZYDIS_INTERNAL_ENCODERDATA_H */

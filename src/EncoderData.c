@@ -28,6 +28,7 @@
 
 #include <Generated/EncoderTables.inc>
 #include <Generated/GetRelInfo.inc>
+#include <Generated/GetCcInfo.inc>
 
 ZyanU8 ZydisGetEncodableInstructions(ZydisMnemonic mnemonic, 
     const ZydisEncodableInstruction **instruction)

@@ -417,7 +417,8 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
             switch (encoding)
             {
             case 0:
-                b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY);
+                b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
+                    (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_REX2);
                 break;
             case 1:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW);

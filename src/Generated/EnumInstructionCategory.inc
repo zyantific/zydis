@@ -5,6 +5,7 @@ static const char* STR_INSTRUCTIONCATEGORY[] =
     "AES",
     "AMD3DNOW",
     "AMX_TILE",
+    "APX",
     "AVX",
     "AVX2",
     "AVX2GATHER",

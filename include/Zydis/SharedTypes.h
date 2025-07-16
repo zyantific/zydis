@@ -438,11 +438,15 @@ typedef enum ZydisInstructionEncoding_
      * The instruction uses the MVEX-encoding.
      */
     ZYDIS_INSTRUCTION_ENCODING_MVEX,
+    /**
+     * The instruction uses the REX2-encoding.
+     */
+    ZYDIS_INSTRUCTION_ENCODING_REX2,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_MVEX,
+    ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE = ZYDIS_INSTRUCTION_ENCODING_REX2,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -463,15 +467,19 @@ typedef enum ZydisOpcodeMap_
     ZYDIS_OPCODE_MAP_0F,
     ZYDIS_OPCODE_MAP_0F38,
     ZYDIS_OPCODE_MAP_0F3A,
-    ZYDIS_OPCODE_MAP_MAP4, // not used
+    ZYDIS_OPCODE_MAP_MAP4,
     ZYDIS_OPCODE_MAP_MAP5,
     ZYDIS_OPCODE_MAP_MAP6,
-    ZYDIS_OPCODE_MAP_MAP7, // not used
+    ZYDIS_OPCODE_MAP_MAP7,
     ZYDIS_OPCODE_MAP_0F0F,
     ZYDIS_OPCODE_MAP_XOP8,
     ZYDIS_OPCODE_MAP_XOP9,
     ZYDIS_OPCODE_MAP_XOPA,
 
+    /**
+     * Minimum value of this enum.
+     */
+    ZYDIS_OPCODE_MAP_MIN_VALUE = ZYDIS_OPCODE_MAP_DEFAULT,
     /**
      * Maximum value of this enum.
      */
@@ -715,6 +723,14 @@ typedef ZyanU64 ZydisInstructionAttributes;
  * This attribute is mainly used by the encoder.
  */
 #define ZYDIS_ATTRIB_HAS_EVEX_B                 (1ULL << 45) // TODO: rename
+/**
+ * The instruction has the `REX2` prefix.
+ */
+#define ZYDIS_ATTRIB_HAS_REX2                   (1ULL << 46) // TODO: rebase
+/**
+* The instruction has the `EEVEX` (extended `EVEX`) prefix.
+*/
+#define ZYDIS_ATTRIB_HAS_EEVEX                  (1ULL << 47) // TODO: rebase
 
 /**
  * @}

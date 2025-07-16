@@ -79,109 +79,133 @@ enum ZydisDecoderTreeNodeTypes
      */
     ZYDIS_NODETYPE_FILTER_EMVEX             = 0x03,
     /**
+     * Reference to a REX2-map filter.
+     */
+    ZYDIS_NODETYPE_FILTER_REX2              = 0x04,
+    /**
      * Reference to an opcode filter.
      */
-    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x04,
+    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x05,
     /**
      * Reference to an instruction-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE              = 0x05,
+    ZYDIS_NODETYPE_FILTER_MODE              = 0x06,
     /**
      * Reference to an compacted instruction-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_COMPACT      = 0x06,
+    ZYDIS_NODETYPE_FILTER_MODE_COMPACT      = 0x07,
     /**
      * Reference to a ModRM.mod filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD         = 0x07,
+    ZYDIS_NODETYPE_FILTER_MODRM_MOD         = 0x08,
     /**
      * Reference to a compacted ModRM.mod filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT = 0x08,
+    ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT = 0x09,
     /**
      * Reference to a ModRM.reg filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_REG         = 0x09,
+    ZYDIS_NODETYPE_FILTER_MODRM_REG         = 0x0A,
     /**
      * Reference to a ModRM.rm filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_RM          = 0x0A,
+    ZYDIS_NODETYPE_FILTER_MODRM_RM          = 0x0B,
     /**
      * Reference to a PrefixGroup1 filter.
      */
-    ZYDIS_NODETYPE_FILTER_PREFIX_GROUP1     = 0x0B,
+    ZYDIS_NODETYPE_FILTER_PREFIX_GROUP1     = 0x0C,
     /**
      * Reference to a mandatory-prefix filter.
      */
-    ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX  = 0x0C,
+    ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX  = 0x0D,
     /**
      * Reference to an operand-size filter.
      */
-    ZYDIS_NODETYPE_FILTER_OPERAND_SIZE      = 0x0D,
+    ZYDIS_NODETYPE_FILTER_OPERAND_SIZE      = 0x0E,
     /**
      * Reference to an address-size filter.
      */
-    ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE      = 0x0E,
+    ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE      = 0x0F,
     /**
      * Reference to a vector-length filter.
      */
-    ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH     = 0x0F,
+    ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH     = 0x10,
     /**
      * Reference to an REX/VEX/EVEX.W filter.
      */
-    ZYDIS_NODETYPE_FILTER_REX_W             = 0x10,
+    ZYDIS_NODETYPE_FILTER_REX_W             = 0x11,
     /**
      * Reference to an REX/VEX/EVEX.B filter.
      */
-    ZYDIS_NODETYPE_FILTER_REX_B             = 0x11,
+    ZYDIS_NODETYPE_FILTER_REX_B             = 0x12,
     /**
      * Reference to an EVEX.b filter.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x12,
+    ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x13,
     /**
      * Reference to an MVEX.E filter.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x13,
+    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x14,
     /**
      * Reference to a AMD-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_AMD          = 0x14,
+    ZYDIS_NODETYPE_FILTER_MODE_AMD          = 0x15,
     /**
      * Reference to a KNC-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_KNC          = 0x15,
+    ZYDIS_NODETYPE_FILTER_MODE_KNC          = 0x16,
     /**
      * Reference to a MPX-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_MPX          = 0x16,
+    ZYDIS_NODETYPE_FILTER_MODE_MPX          = 0x17,
     /**
      * Reference to a CET-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_CET          = 0x17,
+    ZYDIS_NODETYPE_FILTER_MODE_CET          = 0x18,
     /**
      * Reference to a LZCNT-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_LZCNT        = 0x18,
+    ZYDIS_NODETYPE_FILTER_MODE_LZCNT        = 0x19,
     /**
      * Reference to a TZCNT-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x19,
+    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x1A,
     /**
      * Reference to a WBNOINVD-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD     = 0x1A,
+    ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD     = 0x1B,
     /**
      * Reference to a CLDEMOTE-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1B,
+    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1C,
     /**
      * Reference to a IPREFETCH-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1C,
+    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1D,
     /**
      * Reference to a UD0_COMPAT-mode filter.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT   = 0x1D
+    ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT   = 0x1E,
+    /**
+     * Reference to an EVEX.nd filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_ND           = 0x1F,
+    /**
+     * Reference to an EVEX.nf filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_NF           = 0x20,
+    /**
+     * Reference to an EVEX.scc filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_SCC          = 0x21,
+    /**
+     * Reference to a REX2-prefix filter.
+     */
+    ZYDIS_NODETYPE_FILTER_REX2_PREFIX       = 0x22,
+    /**
+     * Reference to a EVEX.U filter.
+     */
+    ZYDIS_NODETYPE_FILTER_EVEX_U            = 0x23
 };
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -279,6 +303,10 @@ typedef struct ZydisInstructionEncodingInfo_
          * Signals, if the value is signed.
          */
         ZyanBool is_signed;
+        /**
+         * Signals, if the value is an address.
+         */
+        ZyanBool is_address;
         /**
          * Signals, if the value is a relative offset.
          */

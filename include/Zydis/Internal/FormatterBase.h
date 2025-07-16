@@ -227,6 +227,8 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(data);
 
+    // TODO: Merge with last token, if `last->type == predefined->first_token.type`
+
     const ZyanUSize len = buffer->string.vector.size;
     ZYAN_ASSERT((len > 0) && (len < 256));
     if (buffer->capacity <= len + data->size)
