@@ -37,10 +37,14 @@
 #ifdef ZYDIS_MINIMAL_MODE
 #   define ZYDIS_NOTMIN(x)
 #else
-#   define ZYDIS_NOTMIN(x) , x
+#   define ZYDIS_NOTMIN(x) x
 #endif
 
+#define COMMA ,
+
 #include <Generated/InstructionDefinitions.inc>
+
+#undef COMMA
 
 #undef ZYDIS_NOTMIN
 
