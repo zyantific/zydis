@@ -5054,7 +5054,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         ZyanStatus status = 0;
         switch (node_type)
         {
-        /*case ZYDIS_NODETYPE_XOP:
+        case ZYDIS_NODETYPE_XOP:
             status = ZydisNodeHandlerXOP(instruction, &index);
             break;
         case ZYDIS_NODETYPE_VEX:
@@ -5062,7 +5062,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
-            break;*/
+            break;
         case ZYDIS_NODETYPE_REX_2:
             status = ZydisNodeHandlerREX2(instruction, &index);
             break;
