@@ -18020,7 +18020,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -18296,7 +18296,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -18365,7 +18365,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -20135,7 +20135,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -20204,7 +20204,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -47772,7 +47772,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -48586,7 +48586,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -53405,7 +53405,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -96048,7 +96048,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -96241,7 +96241,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
@@ -96274,7 +96274,7 @@ const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
             .reg =  {
                 .type =  ZYDIS_IMPLREG_TYPE_IP_SSZ,
                 .reg =  {
-                    .id =  0xFFFFFFFF
+                    .id =  0x003F
                 }
             }
         }
