@@ -1999,7 +1999,7 @@ static ZyanBool ZydisIsMemoryOperandCompatible(ZydisEncoderInstructionMatch *mat
             {
                 return ZYAN_FALSE;
             }
-            if ((match->definition->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX) &&
+            if ((match->definition->encoding != ZYDIS_INSTRUCTION_ENCODING_EVEX) &&
                 (ZydisRegisterGetId(user_op->mem.base) > 15))
             {
                 return ZYAN_FALSE;
