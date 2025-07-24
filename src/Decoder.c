@@ -5058,7 +5058,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         {
         case ZYDIS_NODETYPE_XOP:
             status = ZydisNodeHandlerXOP(instruction, &index);
-            if (index != 0)
+            if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
                 node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
                 continue;
@@ -5066,7 +5066,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_VEX:
             status = ZydisNodeHandlerVEX(instruction, &index);
-            if (index != 0)
+            if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
                 node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
                 continue;
@@ -5074,14 +5074,20 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
-            if (index != 0)
+            if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
                 node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
                 continue;
             }
             break;
-        case ZYDIS_NODETYPE_REX_2:
+        case ZYDIS_NODETYPE_REX2_MAP:
+            // TODO: This is unused?
             status = ZydisNodeHandlerREX2(instruction, &index);
+            if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
+            {
+                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                continue;
+            }
             break;
         case ZYDIS_NODETYPE_OPCODE:
             const ZydisOpcodeMap map = instruction->opcode_map;
@@ -5133,7 +5139,11 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(state, instruction, &index);
-            temp = node + ZYDIS_DT_GET_VALUE(node, 0);
+            if (ZYDIS_DT_GET_VALUE(node, 0) != 0)
+            {
+                // TODO: Handle this case in the generator.
+                temp = node + ZYDIS_DT_GET_VALUE(node, 0);
+            }
             // TODO: Return to this point, if index == 0 contains a value and the previous path
             // TODO: was not successful
             // TODO: Restore consumed prefix
@@ -5205,7 +5215,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_EVEX_SCC:
             status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);
             break;
-        case ZYDIS_NODETYPE_REX2_PREFIX:
+        case ZYDIS_NODETYPE_REX_2:
             index = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_DEFINITION:
@@ -5317,7 +5327,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         {
             // Offset = 0 => invalid | empty | unused table entry.
 
-            if ((node_type == ZYDIS_NODETYPE_REX2_PREFIX) && (index == 0))
+            if ((node_type == ZYDIS_NODETYPE_REX_2) && (index == 0))
             {
                 return ZYDIS_STATUS_ILLEGAL_REX2;
             }

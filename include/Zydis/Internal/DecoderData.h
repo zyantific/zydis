@@ -83,7 +83,7 @@ typedef enum ZydisDecoderTreeNodeType_
     /**
      * Reference to a REX2-map selector.
      */
-    ZYDIS_NODETYPE_REX_2,
+    ZYDIS_NODETYPE_REX2_MAP,
     /**
      * Reference to an opcode selector.
      */
@@ -203,7 +203,7 @@ typedef enum ZydisDecoderTreeNodeType_
     /**
      * Reference to a REX2-prefix selector.
      */
-    ZYDIS_NODETYPE_REX2_PREFIX,
+    ZYDIS_NODETYPE_REX_2,
     /**
      * Reference to a EVEX.U selector.
      */
