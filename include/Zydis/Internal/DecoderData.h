@@ -52,179 +52,193 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Defines the `ZydisDecoderTreeNodeType` data-type.
+ * Defines the `ZydisDecoderTreeNode` data-type.
  */
-typedef ZyanU8 ZydisDecoderTreeNodeType;
+typedef ZyanU16 ZydisDecoderTreeNode;
+
+/* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Values that represent zydis decoder tree node types.
+ * Values that represent Zydis decoder tree node types.
  */
-enum ZydisDecoderTreeNodeTypes
+typedef enum ZydisDecoderTreeNodeType_
 {
-    ZYDIS_NODETYPE_INVALID                  = 0x00,
+    ZYDIS_NODETYPE_INVALID = 0,
     /**
      * Reference to an instruction-definition.
      */
-    ZYDIS_NODETYPE_DEFINITION_MASK          = 0x80,
+    ZYDIS_NODETYPE_DEFINITION,
     /**
-     * Reference to an XOP-map filter.
+     * A decoder tree node that instructs the decoder to switch to a different opcode table.
+     * The `arg0` value of the node header is the id of the opcode table to switch to.
      */
-    ZYDIS_NODETYPE_FILTER_XOP               = 0x01,
+    ZYDIS_NODETYPE_SWITCH_TABLE,
     /**
-     * Reference to an VEX-map filter.
+     * Reference to an XOP-map selector.
      */
-    ZYDIS_NODETYPE_FILTER_VEX               = 0x02,
+    ZYDIS_NODETYPE_XOP,
     /**
-     * Reference to an EVEX/MVEX-map filter.
+     * Reference to an VEX-map selector.
      */
-    ZYDIS_NODETYPE_FILTER_EMVEX             = 0x03,
+    ZYDIS_NODETYPE_VEX,
     /**
-     * Reference to a REX2-map filter.
+     * Reference to an EVEX/MVEX-map selector.
      */
-    ZYDIS_NODETYPE_FILTER_REX2              = 0x04,
+    ZYDIS_NODETYPE_EMVEX,
     /**
-     * Reference to an opcode filter.
+     * Reference to a REX2-map selector.
      */
-    ZYDIS_NODETYPE_FILTER_OPCODE            = 0x05,
+    ZYDIS_NODETYPE_REX2_MAP,
     /**
-     * Reference to an instruction-mode filter.
+     * Reference to an opcode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE              = 0x06,
+    ZYDIS_NODETYPE_OPCODE,
     /**
-     * Reference to an compacted instruction-mode filter.
+     * Reference to an instruction-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_COMPACT      = 0x07,
+    ZYDIS_NODETYPE_MODE,
     /**
-     * Reference to a ModRM.mod filter.
+     * Reference to an compacted instruction-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD         = 0x08,
+    ZYDIS_NODETYPE_MODE_COMPACT,
     /**
-     * Reference to a compacted ModRM.mod filter.
+     * Reference to a ModRM.mod selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT = 0x09,
+    ZYDIS_NODETYPE_MODRM_MOD,
     /**
-     * Reference to a ModRM.reg filter.
+     * Reference to a compacted ModRM.mod selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_REG         = 0x0A,
+    ZYDIS_NODETYPE_MODRM_MOD_COMPACT,
     /**
-     * Reference to a ModRM.rm filter.
+     * Reference to a ModRM.reg selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODRM_RM          = 0x0B,
+    ZYDIS_NODETYPE_MODRM_REG,
     /**
-     * Reference to a PrefixGroup1 filter.
+     * Reference to a ModRM.rm selector.
      */
-    ZYDIS_NODETYPE_FILTER_PREFIX_GROUP1     = 0x0C,
+    ZYDIS_NODETYPE_MODRM_RM,
     /**
-     * Reference to a mandatory-prefix filter.
+     * Reference to a PrefixGroup1 selector.
      */
-    ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX  = 0x0D,
+    ZYDIS_NODETYPE_PREFIX_GROUP1,
     /**
-     * Reference to an operand-size filter.
+     * Reference to a mandatory-prefix selector.
      */
-    ZYDIS_NODETYPE_FILTER_OPERAND_SIZE      = 0x0E,
+    ZYDIS_NODETYPE_MANDATORY_PREFIX,
     /**
-     * Reference to an address-size filter.
+     * Reference to an operand-size selector.
      */
-    ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE      = 0x0F,
+    ZYDIS_NODETYPE_OPERAND_SIZE,
     /**
-     * Reference to a vector-length filter.
+     * Reference to an address-size selector.
      */
-    ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH     = 0x10,
+    ZYDIS_NODETYPE_ADDRESS_SIZE,
     /**
-     * Reference to an REX/VEX/EVEX.W filter.
+     * Reference to a vector-length selector.
      */
-    ZYDIS_NODETYPE_FILTER_REX_W             = 0x11,
+    ZYDIS_NODETYPE_VECTOR_LENGTH,
     /**
-     * Reference to an REX/VEX/EVEX.B filter.
+     * Reference to an REX/VEX/EVEX.W selector.
      */
-    ZYDIS_NODETYPE_FILTER_REX_B             = 0x12,
+    ZYDIS_NODETYPE_REX_W,
     /**
-     * Reference to an EVEX.b filter.
+     * Reference to an REX/VEX/EVEX.B selector.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_B            = 0x13,
+    ZYDIS_NODETYPE_REX_B,
     /**
-     * Reference to an MVEX.E filter.
+     * Reference to an EVEX.b selector.
      */
-    ZYDIS_NODETYPE_FILTER_MVEX_E            = 0x14,
+    ZYDIS_NODETYPE_EVEX_B,
     /**
-     * Reference to a AMD-mode filter.
+     * Reference to an MVEX.E selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_AMD          = 0x15,
+    ZYDIS_NODETYPE_MVEX_E,
     /**
-     * Reference to a KNC-mode filter.
+     * Reference to a AMD-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_KNC          = 0x16,
+    ZYDIS_NODETYPE_MODE_AMD,
     /**
-     * Reference to a MPX-mode filter.
+     * Reference to a KNC-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_MPX          = 0x17,
+    ZYDIS_NODETYPE_MODE_KNC,
     /**
-     * Reference to a CET-mode filter.
+     * Reference to a MPX-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_CET          = 0x18,
+    ZYDIS_NODETYPE_MODE_MPX,
     /**
-     * Reference to a LZCNT-mode filter.
+     * Reference to a CET-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_LZCNT        = 0x19,
+    ZYDIS_NODETYPE_MODE_CET,
     /**
-     * Reference to a TZCNT-mode filter.
+     * Reference to a LZCNT-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_TZCNT        = 0x1A,
+    ZYDIS_NODETYPE_MODE_LZCNT,
     /**
-     * Reference to a WBNOINVD-mode filter.
+     * Reference to a TZCNT-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD     = 0x1B,
+    ZYDIS_NODETYPE_MODE_TZCNT,
     /**
-     * Reference to a CLDEMOTE-mode filter.
+     * Reference to a WBNOINVD-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE     = 0x1C,
+    ZYDIS_NODETYPE_MODE_WBNOINVD,
     /**
-     * Reference to a IPREFETCH-mode filter.
+     * Reference to a CLDEMOTE-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH    = 0x1D,
+    ZYDIS_NODETYPE_MODE_CLDEMOTE,
     /**
-     * Reference to a UD0_COMPAT-mode filter.
+     * Reference to a IPREFETCH-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT   = 0x1E,
+    ZYDIS_NODETYPE_MODE_IPREFETCH,
     /**
-     * Reference to an EVEX.nd filter.
+     * Reference to a UD0_COMPAT-mode selector.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_ND           = 0x1F,
+    ZYDIS_NODETYPE_MODE_UD0_COMPAT,
     /**
-     * Reference to an EVEX.nf filter.
+     * Reference to an EVEX.nd selector.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_NF           = 0x20,
+    ZYDIS_NODETYPE_EVEX_ND,
     /**
-     * Reference to an EVEX.scc filter.
+     * Reference to an EVEX.nf selector.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_SCC          = 0x21,
+    ZYDIS_NODETYPE_EVEX_NF,
     /**
-     * Reference to a REX2-prefix filter.
+     * Reference to an EVEX.scc selector.
      */
-    ZYDIS_NODETYPE_FILTER_REX2_PREFIX       = 0x22,
+    ZYDIS_NODETYPE_EVEX_SCC,
     /**
-     * Reference to a EVEX.U filter.
+     * Reference to a REX2-prefix selector.
      */
-    ZYDIS_NODETYPE_FILTER_EVEX_U            = 0x23
-};
+    ZYDIS_NODETYPE_REX_2,
+    /**
+     * Reference to a EVEX.U selector.
+     */
+    ZYDIS_NODETYPE_EVEX_U,
+
+    /**
+     * Maximum value of this enum.
+     */
+    ZYDIS_NODETYPE_MAX_VALUE = ZYDIS_NODETYPE_EVEX_U,
+    /**
+     * The minimum number of bits required to represent all values of this enum.
+     */
+    ZYDIS_NODETYPE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_NODETYPE_MAX_VALUE)
+} ZydisDecoderTreeNodeType;
 
 /* ---------------------------------------------------------------------------------------------- */
-
-/**
- * Defines the `ZydisDecoderTreeNodeValue` data-type.
- */
-typedef ZyanU16 ZydisDecoderTreeNodeValue;
-
+/* Opcode tables                                                                                  */
 /* ---------------------------------------------------------------------------------------------- */
 
-/**
- * Defines the `ZydisDecoderTreeNode` struct.
- */
-typedef struct ZydisDecoderTreeNode_
-{
-    ZydisDecoderTreeNodeType type;
-    ZydisDecoderTreeNodeValue value;
-} ZydisDecoderTreeNode;
+// TODO: Auto generate this.
+
+#define ZYDIS_OPCODE_TABLE_PRIMARY 0x00
+#define ZYDIS_OPCODE_TABLE_0F      0x01
+#define ZYDIS_OPCODE_TABLE_0F38    0x02
+#define ZYDIS_OPCODE_TABLE_0F3A    0x03
+#define ZYDIS_OPCODE_TABLE_VEX     0x04
+#define ZYDIS_OPCODE_TABLE_EVEX    0x14
+#define ZYDIS_OPCODE_TABLE_MVEX    0x34
+#define ZYDIS_OPCODE_TABLE_XOP     0x44
+#define ZYDIS_OPCODE_TABLE_3DNOW   0x47
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -324,28 +338,42 @@ typedef struct ZydisInstructionEncodingInfo_
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-extern const ZydisDecoderTreeNode zydis_decoder_tree_root;
+/**
+ * Gets the type of the given decoder tree node.
+ *
+ * @param node  The decoder tree node.
+ *
+ * Encoding: [15..8] = ARG0, [7..0] = TYPE.
+ */
+#define ZYDIS_DT_GET_TYPE(node) \
+    ((ZydisDecoderTreeNodeType)((*(node)) & 0xFF))
 
 /**
- * Returns the root node of the instruction tree.
+ * Gets the first argument of the given decoder tree node.
  *
- * @return  The root node of the instruction tree.
+ * @param node  The decoder tree node.
+ *
+ * Encoding: [15..8] = ARG0, [7..0] = TYPE.
  */
-ZYAN_INLINE const ZydisDecoderTreeNode* ZydisDecoderTreeGetRootNode(void)
-{
-    return &zydis_decoder_tree_root;
-}
+#define ZYDIS_DT_GET_ARG0(node) \
+    ((ZyanU8)(((*(node)) >> 8) & 0xFF))
 
 /**
- * Returns the child node of `parent` specified by `index`.
+ * Gets the value at index `index` of the given decoder tree node.
  *
- * @param   parent  The parent node.
- * @param   index   The index of the child node to retrieve.
- *
- * @return  The specified child node.
+ * @param node  The decoder tree node.
+ * @param index The index of the value to retrieve.
  */
-ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(
-    const ZydisDecoderTreeNode* parent, ZyanU16 index);
+#define ZYDIS_DT_GET_VALUE(node, index) \
+    ((ZyanU16)(*((node) + 1 + (index))))
+
+/**
+ * Returns the root node of the opcode table with the given `opcode_table_id`.
+ *
+ * @param opcode_table_id   The id of the opcode table to retrieve.
+ * @return The root node of the opcode table with the given `opcode_table_id`.
+ */
+ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 opcode_table_id);
 
 /**
  * Returns information about optional instruction parts (like modrm, displacement or

@@ -223,6 +223,17 @@ static void AdjustProcessAndThreadPriority(void)
 /* Internal functions                                                                             */
 /* ============================================================================================== */
 
+typedef enum TestEncoding_
+{
+    TEST_ENCODING_DEFAULT,
+    TEST_ENCODING_3DNOW,
+    TEST_ENCODING_XOP,
+    TEST_ENCODING_VEX_C4,
+    TEST_ENCODING_VEX_C5,
+    TEST_ENCODING_EVEX,
+    TEST_ENCODING_MVEX
+} TestEncoding;
+
 typedef struct TestContext_
 {
     ZydisDecoderContext context;
@@ -364,7 +375,7 @@ static void TestPerformance(const ZyanU8* buffer, ZyanUSize length, ZyanBool min
         CVT100_OUT(COLOR_VALUE_G), GetCounter(), CVT100_OUT(COLOR_DEFAULT));
 }
 
-static void GenerateTestData(FILE* file, ZyanU8 encoding)
+static void GenerateTestData(FILE* file, TestEncoding encoding)
 {
     ZydisDecoder decoder;
     if (!ZYAN_SUCCESS(
@@ -373,6 +384,16 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
         ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to initialize decoder%s\n", CVT100_ERR(COLOR_ERROR),
             CVT100_ERR(ZYAN_VT100SGR_RESET));
         exit(EXIT_FAILURE);
+    }
+
+    if (encoding == TEST_ENCODING_MVEX)
+    {
+        if (!ZYAN_SUCCESS(ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_KNC, ZYAN_TRUE)))
+        {
+            ZYAN_FPRINTF(ZYAN_STDERR, "%sFailed to enable KNC mode%s\n", CVT100_ERR(COLOR_ERROR),
+                CVT100_ERR(ZYAN_VT100SGR_RESET));
+            exit(EXIT_FAILURE);
+        }
     }
 
     ZyanU8 last = 0;
@@ -388,23 +409,23 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
         const ZyanU8 offset = rand() % (ZYDIS_MAX_INSTRUCTION_LENGTH - 2);
         switch (encoding)
         {
-        case 0:
+        case TEST_ENCODING_DEFAULT:
             break;
-        case 1:
+        case TEST_ENCODING_3DNOW:
             data[offset    ] = 0x0F;
             data[offset + 1] = 0x0F;
             break;
-        case 2:
+        case TEST_ENCODING_XOP:
             data[offset    ] = 0x8F;
             break;
-        case 3:
+        case TEST_ENCODING_VEX_C4:
             data[offset    ] = 0xC4;
             break;
-        case 4:
+        case TEST_ENCODING_VEX_C5:
             data[offset    ] = 0xC5;
             break;
-        case 5:
-        case 6:
+        case TEST_ENCODING_EVEX:
+        case TEST_ENCODING_MVEX:
             data[offset    ] = 0x62;
             break;
         default:
@@ -416,24 +437,24 @@ static void GenerateTestData(FILE* file, ZyanU8 encoding)
             ZyanBool b = ZYAN_FALSE;
             switch (encoding)
             {
-            case 0:
+            case TEST_ENCODING_DEFAULT:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
                     (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_REX2);
                 break;
-            case 1:
+            case TEST_ENCODING_3DNOW:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW);
                 break;
-            case 2:
+            case TEST_ENCODING_XOP:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_XOP);
                 break;
-            case 3:
-            case 4:
+            case TEST_ENCODING_VEX_C4:
+            case TEST_ENCODING_VEX_C5:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_VEX);
                 break;
-            case 5:
+            case TEST_ENCODING_EVEX:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
                 break;
-            case 6:
+            case TEST_ENCODING_MVEX:
                 b = (instruction.encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX);
                 break;
             default:
@@ -491,17 +512,18 @@ int main(int argc, char** argv)
 
     static const struct
     {
-        const char* encoding;
+        TestEncoding encoding;
+        const char* encoding_name;
         const char* filename;
-    } tests[7] =
+    } tests[] =
     {
-        { "DEFAULT", "enc_default.dat" },
-        { "3DNOW"  , "enc_3dnow.dat"   },
-        { "XOP"    , "enc_xop.dat"     },
-        { "VEX_C4" , "enc_vex_c4.dat"  },
-        { "VEX_C5" , "enc_vex_c5.dat"  },
-        { "EVEX"   , "enc_evex.dat"    },
-        { "MVEX"   , "enc_mvex.dat"    }
+        { TEST_ENCODING_DEFAULT, "DEFAULT", "enc_default.dat" },
+        { TEST_ENCODING_3DNOW  , "3DNOW"  , "enc_3dnow.dat"   },
+        { TEST_ENCODING_XOP    , "XOP"    , "enc_xop.dat"     },
+        { TEST_ENCODING_VEX_C4 , "VEX_C4" , "enc_vex_c4.dat"  },
+        { TEST_ENCODING_VEX_C5 , "VEX_C5" , "enc_vex_c5.dat"  },
+        { TEST_ENCODING_EVEX   , "EVEX"   , "enc_evex.dat"    },
+        { TEST_ENCODING_MVEX   , "MVEX"   , "enc_mvex.dat"    }
     };
 
     if (generate)
@@ -537,9 +559,9 @@ int main(int argc, char** argv)
 
         if (generate)
         {
-            ZYAN_PRINTF("Generating %s%s%s ...\n", CVT100_OUT(COLOR_VALUE_B), tests[i].encoding,
-                CVT100_OUT(ZYAN_VT100SGR_RESET));
-            GenerateTestData(file, i);
+            ZYAN_PRINTF("Generating %s%s%s ...\n", CVT100_OUT(COLOR_VALUE_B), 
+                tests[i].encoding_name, CVT100_OUT(ZYAN_VT100SGR_RESET));
+            GenerateTestData(file, tests[i].encoding);
         } else
         {
             fseek(file, 0L, SEEK_END);
@@ -564,7 +586,7 @@ int main(int argc, char** argv)
             }
 
             ZYAN_PRINTF("%sTesting %s%s%s ...\n", CVT100_OUT(ZYAN_VT100SGR_FG_MAGENTA),
-                CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA), tests[i].encoding,
+                CVT100_OUT(ZYAN_VT100SGR_FG_BRIGHT_MAGENTA), tests[i].encoding_name,
                 CVT100_OUT(COLOR_DEFAULT));
             TestPerformance(buffer, length, ZYAN_TRUE , ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
             TestPerformance(buffer, length, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE);
