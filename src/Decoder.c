@@ -5043,7 +5043,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
     ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);
 
-    // Iterate through the decoder tree
+    // TODO: Handlers should return the next node instead of the index.
+
+    // Iterate through the decoder tree.
     const ZydisDecoderTreeNode* node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_PRIMARY);
     const ZydisDecoderTreeNode* temp = ZYAN_NULL;
 
@@ -5056,18 +5058,57 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         {
         case ZYDIS_NODETYPE_XOP:
             status = ZydisNodeHandlerXOP(instruction, &index);
+            if (index != 0)
+            {
+                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                continue;
+            }
             break;
         case ZYDIS_NODETYPE_VEX:
             status = ZydisNodeHandlerVEX(instruction, &index);
+            if (index != 0)
+            {
+                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                continue;
+            }
             break;
         case ZYDIS_NODETYPE_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
+            if (index != 0)
+            {
+                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                continue;
+            }
             break;
         case ZYDIS_NODETYPE_REX_2:
             status = ZydisNodeHandlerREX2(instruction, &index);
             break;
         case ZYDIS_NODETYPE_OPCODE:
+            const ZydisOpcodeMap map = instruction->opcode_map;
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
+
+            if (map != instruction->opcode_map)
+            {
+                // TODO: Remove hack and use table-switch tree nodes instead.
+                switch (instruction->opcode_map)
+                {
+                case ZYDIS_OPCODE_MAP_0F:
+                    node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_0F);
+                    continue;
+                case ZYDIS_OPCODE_MAP_0F38:
+                    node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_0F38);
+                    continue;
+                case ZYDIS_OPCODE_MAP_0F3A:
+                    node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_0F3A);
+                    continue;
+                case ZYDIS_OPCODE_MAP_0F0F:
+                    node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_3DNOW);
+                    continue;
+                default:
+                    break;
+                }
+            }
+
             break;
         case ZYDIS_NODETYPE_MODE:
             status = ZydisNodeHandlerMode(instruction, &index);
