@@ -120,7 +120,7 @@ const ZydisOperandDefinition* ZydisGetOperandDefinitions(
     {
         return ZYAN_NULL;
     }
-    ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
+    ZYAN_ASSERT(definition->operand_reference != 0x7FFF);
     return &OPERAND_DEFINITIONS[definition->operand_reference];
 }
 #endif
