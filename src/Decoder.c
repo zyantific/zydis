@@ -5100,7 +5100,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_REX2_MAP:
             status = ZydisNodeHandlerREX2(instruction, &index);
-            if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
+            if (index != 0)
             {
                 const ZydisDecoderTreeNode* next = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
                 if (!next)
