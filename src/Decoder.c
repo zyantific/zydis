@@ -5108,12 +5108,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             }
             break;
         case ZYDIS_NODETYPE_OPCODE:
+        {
             const ZydisOpcodeMap map = instruction->opcode_map;
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
 
             if ((map != instruction->opcode_map) &&
-                ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) || 
-                  instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
+                ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
+                    instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
             {
                 // TODO: Remove hack and use table-switch tree nodes instead.
                 switch (instruction->opcode_map)
@@ -5134,8 +5135,8 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     break;
                 }
             }
-
             break;
+        }
         case ZYDIS_NODETYPE_MODE:
             status = ZydisNodeHandlerMode(instruction, &index);
             break;
