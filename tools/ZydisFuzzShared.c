@@ -555,7 +555,9 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     ZYAN_UNUSED(argc);
     ZYAN_UNUSED(argv);
 
-    return ZydisFuzzerInit();
+    if (ZydisFuzzerInit() != EXIT_SUCCESS)
+        abort(); // abort manually because LibFuzzer ignores return value
+    return EXIT_SUCCESS;
 }
 
 int LLVMFuzzerTestOneInput(ZyanU8 *buf, ZyanUSize len)
