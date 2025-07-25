@@ -54,9 +54,9 @@
             },
             [1] =  {
                 .size =  {
-                    8,
-                    8,
-                    8
+                    0,
+                    0,
+                    0
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
@@ -86,11 +86,11 @@
             },
             [1] =  {
                 .size =  {
-                    8,
-                    8,
-                    8
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
+                .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
@@ -118,13 +118,13 @@
             },
             [1] =  {
                 .size =  {
-                    8,
-                    8,
-                    8
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
-                .is_address =  ZYAN_TRUE,
-                .is_relative =  ZYAN_TRUE
+                .is_signed =  ZYAN_FALSE,
+                .is_address =  ZYAN_FALSE,
+                .is_relative =  ZYAN_FALSE
             }
         }
     },
@@ -150,9 +150,9 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    16,
-                    16
+                    0,
+                    0,
+                    0
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
@@ -182,9 +182,9 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    16,
-                    16
+                    8,
+                    8,
+                    8
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
@@ -215,8 +215,8 @@
             [1] =  {
                 .size =  {
                     16,
-                    32,
-                    32
+                    16,
+                    16
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_TRUE,
@@ -246,11 +246,11 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
+                .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
@@ -278,13 +278,13 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
-                .is_address =  ZYAN_TRUE,
-                .is_relative =  ZYAN_TRUE
+                .is_signed =  ZYAN_FALSE,
+                .is_address =  ZYAN_FALSE,
+                .is_relative =  ZYAN_FALSE
             }
         }
     },
@@ -310,11 +310,11 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    32,
-                    64
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
+                .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
@@ -342,13 +342,13 @@
             },
             [1] =  {
                 .size =  {
-                    32,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
-                .is_address =  ZYAN_TRUE,
-                .is_relative =  ZYAN_TRUE
+                .is_signed =  ZYAN_FALSE,
+                .is_address =  ZYAN_FALSE,
+                .is_relative =  ZYAN_FALSE
             }
         }
     },
@@ -374,12 +374,12 @@
             },
             [1] =  {
                 .size =  {
-                    64,
-                    64,
-                    64
+                    0,
+                    0,
+                    0
                 },
                 .is_signed =  ZYAN_FALSE,
-                .is_address =  ZYAN_TRUE,
+                .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
         }
@@ -502,9 +502,9 @@
             },
             [1] =  {
                 .size =  {
-                    8,
-                    8,
-                    8
+                    0,
+                    0,
+                    0
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
@@ -566,11 +566,11 @@
             },
             [1] =  {
                 .size =  {
-                    8,
-                    8,
-                    8
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
+                .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
@@ -598,11 +598,11 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
+                .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
                 .is_relative =  ZYAN_FALSE
             }
@@ -630,13 +630,13 @@
             },
             [1] =  {
                 .size =  {
-                    16,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
-                .is_signed =  ZYAN_TRUE,
-                .is_address =  ZYAN_TRUE,
-                .is_relative =  ZYAN_TRUE
+                .is_signed =  ZYAN_FALSE,
+                .is_address =  ZYAN_FALSE,
+                .is_relative =  ZYAN_FALSE
             }
         }
     },
@@ -662,9 +662,9 @@
             },
             [1] =  {
                 .size =  {
-                    32,
-                    32,
-                    32
+                    0,
+                    0,
+                    0
                 },
                 .is_signed =  ZYAN_FALSE,
                 .is_address =  ZYAN_FALSE,
