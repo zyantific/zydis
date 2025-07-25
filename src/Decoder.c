@@ -5060,7 +5060,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerXOP(instruction, &index);
             if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
-                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                const ZydisDecoderTreeNode* next = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                if (!next)
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
+                }
+
+                node = next;
                 continue;
             }
             break;
@@ -5068,7 +5074,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerVEX(instruction, &index);
             if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
-                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                const ZydisDecoderTreeNode* next = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                if (!next)
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
+                }
+
+                node = next;
                 continue;
             }
             break;
@@ -5076,7 +5088,13 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             status = ZydisNodeHandlerEMVEX(instruction, &index);
             if (index != 0 && ZYDIS_DT_GET_VALUE(node, index) != 0)
             {
-                node = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                const ZydisDecoderTreeNode* next = ZydisGetOpcodeTableRootNode((ZyanU8)ZYDIS_DT_GET_VALUE(node, index));
+                if (!next)
+                {
+                    return ZYDIS_STATUS_DECODING_ERROR;
+                }
+
+                node = next;
                 continue;
             }
             break;
@@ -5093,7 +5111,9 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             const ZydisOpcodeMap map = instruction->opcode_map;
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
 
-            if (map != instruction->opcode_map)
+            if ((map != instruction->opcode_map) &&
+                ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) || 
+                  instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
             {
                 // TODO: Remove hack and use table-switch tree nodes instead.
                 switch (instruction->opcode_map)
@@ -5235,13 +5255,12 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                 // Get actual 3DNOW opcode and definition
                 ZYAN_CHECK(ZydisInputNext(state, instruction, &instruction->opcode));
                 node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_3DNOW);
-                node += ZYDIS_DT_GET_VALUE(node, 0x0F);
-                node += ZYDIS_DT_GET_VALUE(node, 0x0F);
-                node += ZYDIS_DT_GET_VALUE(node, instruction->opcode);
-                if (ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_INVALID)
+                const ZyanU16 offset = ZYDIS_DT_GET_VALUE(node, instruction->opcode);
+                if (!offset)
                 {
                     return ZYDIS_STATUS_DECODING_ERROR;
                 }
+                node += offset;
                 ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_MODRM_MOD_COMPACT);
                 node += ZYDIS_DT_GET_VALUE(node, (instruction->raw.modrm.mod == 0x3) ? 0 : 1);
                 ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_DEFINITION);
