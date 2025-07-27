@@ -1,4 +1,4 @@
-﻿const ZydisInstructionEncodingInfo INSTR_ENCODINGS[] = 
+﻿static const ZydisInstructionEncodingInfo INSTR_ENCODINGS[] = 
 {
     {
         .flags =  0,

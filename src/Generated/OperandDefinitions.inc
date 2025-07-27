@@ -1,5 +1,5 @@
 ﻿#ifndef ZYDIS_MINIMAL_MODE
-const ZydisOperandDefinition OPERAND_DEFINITIONS[] = 
+static const ZydisOperandDefinition OPERAND_DEFINITIONS[] = 
 {
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
