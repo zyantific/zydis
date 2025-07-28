@@ -603,7 +603,7 @@ static ZyanStatus ZydisDecodeEVEX(const ZydisDecoder* decoder, ZydisDecoderConte
     instruction->raw.evex.mmm       = (data[1] >> 0) & 0x07;
 
     const ZyanBool is_apx = ZYDIS_DECODER_MODE_ACTIVE(decoder, ZYDIS_DECODER_MODE_APX);
-    if (!is_apx && (data[1] & 0x08)) // TODO: This condition might have to as well consider AVX 10.2 besides APX
+    if (!is_apx && (instruction->raw.evex.B4 != 0)) // TODO: This condition might have to as well consider AVX 10.2 besides APX
     {
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_MALFORMED_EVEX;
@@ -4315,14 +4315,23 @@ static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state,
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
 
-    // TODO: Reevaluate this condition when adding AVX10.2 support.
-    ZYAN_ASSERT(ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX));
-
-    // The `evex.u` filter requires a preceding `modrm.mod == 3` filter.
-    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-    ZYAN_ASSERT(instruction->raw.modrm.mod == 3);
-
     *index = instruction->raw.evex.U;
+
+    if (!ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX)) // TODO: AVX10.2
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+
+    if ((instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) && (instruction->raw.modrm.mod != 3))
+    {
+        // APX reinterprets `EVEX.U` as `EVEX.X4` for instructions with memory operands
+        // (`modrm.mod != 3`).
+
+        // We don't care about the actual value of `EVEX.U` in this case and force it to `1` to
+        // emulate legacy `EVEX` instruction behavior.
+
+        *index = 1;
+    }
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4668,11 +4677,14 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
 
     // Assign to context
 
+    const ZyanBool has_base  = !is_mod_reg && !(instruction->raw.modrm.mod == 0 && id_base == 5);
+    const ZyanBool has_index = has_sib && (instruction->raw.sib.index != 4);
+
     context->reg_info.id_reg    = def_reg              ? id_reg    : -1;
     context->reg_info.id_rm     = def_rm && is_mod_reg ? id_rm     : -1;
     context->reg_info.id_ndsndd = def_vvvv             ? id_vvvv   : -1;
-    context->reg_info.id_base   = !is_mod_reg          ? id_base   : -1;
-    context->reg_info.id_index  = !is_mod_reg          ? id_index  : -1;
+    context->reg_info.id_base   = has_base             ? id_base   : -1;
+    context->reg_info.id_index  = has_index            ? id_index  : -1;
 
     // Update APX info
 
@@ -4684,9 +4696,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     const ZyanBool has_egpr_reg   = (def_reg == ZYDIS_REGKIND_GPR) && (id_reg >= 16);
     const ZyanBool has_egpr_rm    = is_mod_reg && (def_rm == ZYDIS_REGKIND_GPR) && (id_rm >= 16);
     const ZyanBool has_egpr_vvvv  = (def_vvvv == ZYDIS_REGKIND_GPR) && (id_vvvv >= 16);
-    const ZyanBool has_egpr_base  = !is_mod_reg && (id_base >= 16) && 
-                                    ((instruction->raw.modrm.mod != 0) || (instruction->raw.modrm.rm != 5));
-    const ZyanBool has_egpr_index = !is_mod_reg && !has_vsib && (id_index >= 16);
+    const ZyanBool has_egpr_base  = has_base && (id_base >= 16);
+    const ZyanBool has_egpr_index = has_index && !has_vsib && (id_index >= 16);
 
     if (has_egpr_reg || has_egpr_rm || has_egpr_vvvv || has_egpr_base || has_egpr_index)
     {
