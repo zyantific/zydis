@@ -4319,7 +4319,9 @@ static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state,
         (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) &&
         (instruction->raw.modrm.mod != 3))
     {
-        // APX reinterprets EVEX.U as EVEX.X4
+        // APX reinterprets EVEX.X4 as EVEX.U.
+        state->context->vector_unified.X4 = 0;
+
         *index = 1;
         return ZYAN_STATUS_SUCCESS;
     }
