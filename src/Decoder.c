@@ -4683,8 +4683,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     context->reg_info.id_reg    = def_reg              ? id_reg    : -1;
     context->reg_info.id_rm     = def_rm && is_mod_reg ? id_rm     : -1;
     context->reg_info.id_ndsndd = def_vvvv             ? id_vvvv   : -1;
-    context->reg_info.id_base   = has_base             ? id_base   : -1;
-    context->reg_info.id_index  = has_index            ? id_index  : -1;
+    context->reg_info.id_base   = !is_mod_reg          ? id_base   : -1; // TODO: Use has_base; requires changes to memory operand decoding.
+    context->reg_info.id_index  = !is_mod_reg          ? id_index  : -1; // TODO: Use has_index; requires changes to memory operand decoding.
 
     // Update APX info
 
