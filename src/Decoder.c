@@ -4318,9 +4318,9 @@ static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state,
     // TODO: Reevaluate this condition when adding AVX10.2 support.
     ZYAN_ASSERT(ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX));
 
-    // The `evex.u` filter requires a preceding `modrm.mod != 3` filter.
+    // The `evex.u` filter requires a preceding `modrm.mod == 3` filter.
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
-    ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
+    ZYAN_ASSERT(instruction->raw.modrm.mod == 3);
 
     *index = instruction->raw.evex.U;
 
