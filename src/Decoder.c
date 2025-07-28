@@ -4315,16 +4315,12 @@ static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state,
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
 
-    if (ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX) &&
-        (instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM) &&
-        (instruction->raw.modrm.mod != 3))
-    {
-        // APX reinterprets EVEX.X4 as EVEX.U.
-        state->context->vector_unified.X4 = 0;
+    // TODO: Reevaluate this condition when adding AVX10.2 support.
+    ZYAN_ASSERT(ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX));
 
-        *index = 1;
-        return ZYAN_STATUS_SUCCESS;
-    }
+    // The `evex.u` filter requires a preceding `modrm.mod != 3` filter.
+    ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_MODRM);
+    ZYAN_ASSERT(instruction->raw.modrm.mod != 3);
 
     *index = instruction->raw.evex.U;
 
