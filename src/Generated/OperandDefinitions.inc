@@ -8702,96 +8702,6 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
-                .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
@@ -8803,96 +8713,6 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
         .op =  {
             .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
-                .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
-                }
-            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -8986,6 +8806,186 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -24242,7 +24242,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -24322,7 +24322,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -24402,7 +24402,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -24482,7 +24482,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -28121,7 +28121,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -28203,7 +28203,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -28285,7 +28285,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -28367,81 +28367,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
-                .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
             0,
@@ -28561,6 +28487,75 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
@@ -28584,7 +28579,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -28635,17 +28630,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -28653,7 +28653,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -38919,80 +38919,6 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
-                .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
@@ -39004,80 +38930,6 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
         .op =  {
             .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
-                .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
-                }
-            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -39205,6 +39057,144 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
@@ -39228,7 +39218,81 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -39279,17 +39343,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -39297,7 +39366,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -39371,7 +39440,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -39392,7 +39461,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             2,
             4,
@@ -39400,13 +39469,13 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         },
         .element_type =  ZYDIS_IELEMENT_TYPE_INT,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NDSNDD
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
@@ -39416,7 +39485,76 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         },
         .element_type =  ZYDIS_IELEMENT_TYPE_INT,
         .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
             .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -39514,76 +39652,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -39657,76 +39726,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_REG
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -72685,22 +72685,176 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
             0,
             0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
         .op =  {
             .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
                 .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
+                    .id =  0x003F
                 }
             }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -72743,17 +72897,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -72761,7 +72920,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -72819,60 +72978,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -72930,60 +73036,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -73041,60 +73094,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_READ_CONDWRITE,
         .size =  {
             0,
             0,
@@ -73550,22 +73550,176 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
             0,
             0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
         .op =  {
             .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
                 .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
+                    .id =  0x003F
                 }
             }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -73608,17 +73762,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -73626,7 +73785,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -73684,60 +73843,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -73795,60 +73901,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -73906,60 +73959,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -74940,9 +74940,99 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
+                .reg =  {
+                    .id =  0x003F
+                }
+            }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
             0,
@@ -74950,12 +75040,76 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         },
         .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
         .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .size =  {
+            0,
+            0,
+            0
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
+        .op =  {
             .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
                 .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
+                    .id =  0x003F
                 }
             }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -74998,17 +75152,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -75016,7 +75175,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -75074,60 +75233,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -75185,60 +75291,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR8,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -75296,60 +75349,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_MEM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_NONE
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -89505,22 +89505,70 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
+        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
             0,
             0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
         .op =  {
             .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
                 .reg =  {
-                    .reg =  ZYDIS_REGISTER_CL
+                    .id =  0x003F
                 }
             }
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
+        .size =  {
+            2,
+            4,
+            8
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
+        },
+        .is_multisource4 =  ZYAN_FALSE,
+        .ignore_seg_override =  ZYAN_FALSE
+    },
+    {
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .actions =  ZYDIS_OPERAND_ACTION_READ,
+        .size =  {
+            1,
+            1,
+            1
+        },
+        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .op =  {
+            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -89563,17 +89611,22 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
         .ignore_seg_override =  ZYAN_FALSE
     },
     {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
+        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
-            1,
-            1,
-            1
+            0,
+            0,
+            0
         },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
+        .element_type =  ZYDIS_IELEMENT_TYPE_INVALID,
         .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
+            .reg =  {
+                .type =  ZYDIS_IMPLREG_TYPE_STATIC,
+                .reg =  {
+                    .reg =  ZYDIS_REGISTER_CL
+                }
+            }
         },
         .is_multisource4 =  ZYAN_FALSE,
         .ignore_seg_override =  ZYAN_FALSE
@@ -89581,7 +89634,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -89639,60 +89692,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
-        .size =  {
-            0,
-            0,
-            0
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT1,
-        .op =  {
-            .reg =  {
-                .type =  ZYDIS_IMPLREG_TYPE_FLAGS_SSZ,
-                .reg =  {
-                    .id =  0x003F
-                }
-            }
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_GPR16_32_64,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
-        .size =  {
-            2,
-            4,
-            8
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_INT,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_MODRM_RM
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMM,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_EXPLICIT,
-        .actions =  ZYDIS_OPERAND_ACTION_READ,
-        .size =  {
-            1,
-            1,
-            1
-        },
-        .element_type =  ZYDIS_IELEMENT_TYPE_UINT8,
-        .op =  {
-            .encoding =  ZYDIS_OPERAND_ENCODING_UIMM8
-        },
-        .is_multisource4 =  ZYAN_FALSE,
-        .ignore_seg_override =  ZYAN_FALSE
-    },
-    {
-        .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -89750,7 +89750,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
@@ -89808,7 +89808,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
         .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
-        .actions =  ZYDIS_OPERAND_ACTION_WRITE,
+        .actions =  ZYDIS_OPERAND_ACTION_CONDWRITE,
         .size =  {
             0,
             0,
