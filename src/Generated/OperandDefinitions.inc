@@ -187,7 +187,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -392,7 +392,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -592,7 +592,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -1187,7 +1187,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -1906,7 +1906,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2196,7 +2196,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2328,7 +2328,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2460,7 +2460,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2592,7 +2592,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2724,7 +2724,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2856,7 +2856,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -2988,7 +2988,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3120,7 +3120,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3391,7 +3391,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3523,7 +3523,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3644,7 +3644,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3765,7 +3765,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -3887,7 +3887,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -4009,7 +4009,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -4131,7 +4131,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -4253,7 +4253,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -4379,7 +4379,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -4505,7 +4505,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -4631,7 +4631,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -4757,7 +4757,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -5075,7 +5075,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -5170,7 +5170,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -5273,7 +5273,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5376,7 +5376,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5479,7 +5479,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5582,7 +5582,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5786,7 +5786,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5887,7 +5887,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -5988,7 +5988,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -6089,7 +6089,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -6179,7 +6179,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6269,7 +6269,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6359,7 +6359,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6449,7 +6449,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6554,7 +6554,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6659,7 +6659,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -6762,7 +6762,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -6865,7 +6865,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -6968,7 +6968,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -7071,7 +7071,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -7264,7 +7264,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -7354,7 +7354,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -8724,7 +8724,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -8809,7 +8809,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -8899,7 +8899,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -8984,7 +8984,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -23543,7 +23543,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -23622,7 +23622,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -24241,7 +24241,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -24321,7 +24321,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -24401,7 +24401,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -24481,7 +24481,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -24555,7 +24555,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -24629,7 +24629,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -24703,7 +24703,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -24777,7 +24777,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -24940,7 +24940,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25019,7 +25019,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25434,7 +25434,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25513,7 +25513,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25582,7 +25582,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25651,7 +25651,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25720,7 +25720,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25789,7 +25789,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25868,7 +25868,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -25947,7 +25947,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -26026,7 +26026,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -26105,7 +26105,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -26187,7 +26187,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26269,7 +26269,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26415,7 +26415,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26497,7 +26497,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -26579,7 +26579,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -26661,7 +26661,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26743,7 +26743,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26825,7 +26825,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26907,7 +26907,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -26986,7 +26986,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -27065,7 +27065,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -27144,7 +27144,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -27223,7 +27223,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -27302,7 +27302,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -27384,7 +27384,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -27466,7 +27466,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -27548,7 +27548,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -27632,7 +27632,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -27716,7 +27716,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28038,7 +28038,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28120,7 +28120,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -28202,7 +28202,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -28284,7 +28284,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -28366,7 +28366,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -28440,7 +28440,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28509,7 +28509,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28583,7 +28583,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28652,7 +28652,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -28734,7 +28734,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -28816,7 +28816,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -28898,7 +28898,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -28980,7 +28980,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -29227,7 +29227,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -29867,7 +29867,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -29936,7 +29936,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30005,7 +30005,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30074,7 +30074,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30143,7 +30143,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30212,7 +30212,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30281,7 +30281,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30350,7 +30350,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30419,7 +30419,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -30488,7 +30488,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36209,7 +36209,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36278,7 +36278,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36347,7 +36347,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36416,7 +36416,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36485,7 +36485,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36554,7 +36554,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36623,7 +36623,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36692,7 +36692,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36761,7 +36761,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36830,7 +36830,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36899,7 +36899,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -36968,7 +36968,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37037,7 +37037,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37106,7 +37106,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37175,7 +37175,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37244,7 +37244,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37313,7 +37313,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37382,7 +37382,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37451,7 +37451,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -37520,7 +37520,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -37589,7 +37589,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37658,7 +37658,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37737,7 +37737,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37816,7 +37816,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37895,7 +37895,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -37964,7 +37964,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38033,7 +38033,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38102,7 +38102,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38171,7 +38171,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38660,7 +38660,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38729,7 +38729,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38798,7 +38798,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38867,7 +38867,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -38941,7 +38941,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39010,7 +39010,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39084,7 +39084,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39153,7 +39153,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39227,7 +39227,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39296,7 +39296,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39370,7 +39370,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39439,7 +39439,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39513,7 +39513,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39582,7 +39582,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39656,7 +39656,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -39725,7 +39725,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -59186,7 +59186,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -59255,7 +59255,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -59324,7 +59324,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -59393,7 +59393,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -61248,7 +61248,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61306,7 +61306,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61359,7 +61359,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61412,7 +61412,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61465,7 +61465,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61518,7 +61518,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61571,7 +61571,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61624,7 +61624,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61677,7 +61677,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61730,7 +61730,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61788,7 +61788,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61841,7 +61841,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61894,7 +61894,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -61947,7 +61947,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -62000,7 +62000,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -62053,7 +62053,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -62106,7 +62106,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -62159,7 +62159,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -62212,7 +62212,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -62265,7 +62265,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -62318,7 +62318,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -62376,7 +62376,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62429,7 +62429,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62482,7 +62482,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62535,7 +62535,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62588,7 +62588,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62641,7 +62641,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62694,7 +62694,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62747,7 +62747,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62800,7 +62800,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62858,7 +62858,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62911,7 +62911,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -62964,7 +62964,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63017,7 +63017,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63070,7 +63070,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63123,7 +63123,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63176,7 +63176,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63229,7 +63229,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63282,7 +63282,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63431,7 +63431,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63484,7 +63484,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63941,7 +63941,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -63994,7 +63994,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64047,7 +64047,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64100,7 +64100,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64153,7 +64153,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64206,7 +64206,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64259,7 +64259,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64312,7 +64312,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -64365,7 +64365,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -64423,7 +64423,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64476,7 +64476,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64529,7 +64529,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64587,7 +64587,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64640,7 +64640,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64693,7 +64693,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64746,7 +64746,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64799,7 +64799,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -64852,7 +64852,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65103,7 +65103,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -65258,7 +65258,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -65317,7 +65317,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -65472,7 +65472,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -65525,7 +65525,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65578,7 +65578,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65631,7 +65631,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65684,7 +65684,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65742,7 +65742,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65800,7 +65800,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -65853,7 +65853,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -66055,7 +66055,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66113,7 +66113,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -66267,7 +66267,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -66325,7 +66325,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -66388,7 +66388,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66446,7 +66446,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66509,7 +66509,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66567,7 +66567,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66630,7 +66630,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66688,7 +66688,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66749,7 +66749,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66810,7 +66810,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66919,7 +66919,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -66977,7 +66977,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -67030,7 +67030,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -67083,7 +67083,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -67204,7 +67204,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -67262,7 +67262,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -67320,7 +67320,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -67378,7 +67378,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -67436,7 +67436,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -67721,7 +67721,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -67774,7 +67774,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -68100,7 +68100,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -68153,7 +68153,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -68259,7 +68259,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -68312,7 +68312,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -68801,7 +68801,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -68859,7 +68859,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -68922,7 +68922,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -68985,7 +68985,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -69043,7 +69043,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -69101,7 +69101,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -69162,7 +69162,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -69223,7 +69223,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -69284,7 +69284,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -70980,7 +70980,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -71041,7 +71041,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -71102,7 +71102,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -71499,7 +71499,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -71552,7 +71552,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -72259,7 +72259,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -72320,7 +72320,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -72381,7 +72381,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -72490,7 +72490,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72543,7 +72543,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72596,7 +72596,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72649,7 +72649,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72707,7 +72707,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72760,7 +72760,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72818,7 +72818,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72871,7 +72871,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72929,7 +72929,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -72982,7 +72982,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -73040,7 +73040,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -73093,7 +73093,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -73408,7 +73408,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73461,7 +73461,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73514,7 +73514,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73572,7 +73572,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73625,7 +73625,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73683,7 +73683,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73736,7 +73736,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73794,7 +73794,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73847,7 +73847,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73905,7 +73905,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -73958,7 +73958,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -74403,7 +74403,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -74464,7 +74464,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -74525,7 +74525,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -74586,7 +74586,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -74745,7 +74745,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -74798,7 +74798,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -74851,7 +74851,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -74904,7 +74904,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -74962,7 +74962,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75015,7 +75015,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75073,7 +75073,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75126,7 +75126,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75184,7 +75184,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75237,7 +75237,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75295,7 +75295,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75348,7 +75348,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75411,7 +75411,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75474,7 +75474,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75527,7 +75527,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75580,7 +75580,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75633,7 +75633,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75686,7 +75686,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75739,7 +75739,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75792,7 +75792,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75845,7 +75845,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -75898,7 +75898,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76077,7 +76077,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76130,7 +76130,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76183,7 +76183,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76236,7 +76236,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76347,7 +76347,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76400,7 +76400,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76597,7 +76597,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76650,7 +76650,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76751,7 +76751,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -76804,7 +76804,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -77241,7 +77241,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -77294,7 +77294,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87139,7 +87139,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87192,7 +87192,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87293,7 +87293,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87346,7 +87346,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87399,7 +87399,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87452,7 +87452,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87505,7 +87505,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87558,7 +87558,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87611,7 +87611,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87664,7 +87664,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87717,7 +87717,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87770,7 +87770,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87823,7 +87823,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87876,7 +87876,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87929,7 +87929,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -87982,7 +87982,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88035,7 +88035,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88088,7 +88088,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88141,7 +88141,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88194,7 +88194,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88247,7 +88247,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88300,7 +88300,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88353,7 +88353,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88406,7 +88406,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88459,7 +88459,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88512,7 +88512,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88565,7 +88565,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88618,7 +88618,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88671,7 +88671,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88724,7 +88724,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88777,7 +88777,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -88830,7 +88830,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -88883,7 +88883,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -88936,7 +88936,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -88989,7 +88989,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -89042,7 +89042,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89095,7 +89095,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89148,7 +89148,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89201,7 +89201,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89259,7 +89259,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89312,7 +89312,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89416,7 +89416,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89469,7 +89469,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89527,7 +89527,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89580,7 +89580,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89638,7 +89638,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89691,7 +89691,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89749,7 +89749,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -89807,7 +89807,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -91492,7 +91492,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -91545,7 +91545,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -122031,7 +122031,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -122068,7 +122068,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -122105,7 +122105,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -122142,7 +122142,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -122179,7 +122179,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -122216,7 +122216,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -123573,7 +123573,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READWRITE,
         .size =  {
             0,
@@ -123768,7 +123768,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -129121,7 +129121,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -129798,7 +129798,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -129840,7 +129840,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -129882,7 +129882,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -129924,7 +129924,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -129966,7 +129966,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -130003,7 +130003,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -130040,7 +130040,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -130489,7 +130489,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -130531,7 +130531,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -130728,7 +130728,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -130765,7 +130765,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -135076,7 +135076,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -135113,7 +135113,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_WRITE,
         .size =  {
             0,
@@ -135214,7 +135214,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
@@ -135251,7 +135251,7 @@ static const ZydisOperandDefinition OPERAND_DEFINITIONS[] =
     },
     {
         .type =  ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG,
-        .visibility =  ZYDIS_OPERAND_VISIBILITY_IMPLICIT,
+        .visibility =  ZYDIS_OPERAND_VISIBILITY_HIDDEN,
         .actions =  ZYDIS_OPERAND_ACTION_READ,
         .size =  {
             0,
