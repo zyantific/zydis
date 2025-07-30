@@ -92,7 +92,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         ZYDIS_MAYBE_FPUTS("Failed to initialize formatter\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
-    for (int prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
+    /*for (int prop = 0; prop <= ZYDIS_FORMATTER_PROP_MAX_VALUE; ++prop)
     {
         switch (prop)
         {
@@ -112,12 +112,12 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
             ZYDIS_MAYBE_FPUTS("Failed to set formatter-attribute\n", ZYAN_STDERR);
             return EXIT_FAILURE;
         }
-    }
+    }*/
 
     ZyanU8 buffer[32];
     ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
-    ZydisDecodedInstruction instruction;
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
+    ZydisDecodedInstruction instruction = {};
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT] = {};
 
     // Fuzz decoder.
     ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, operands);
@@ -127,6 +127,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     }
 
     ZydisValidateEnumRanges(&instruction, operands, instruction.operand_count);
+    ZydisValidateDecoded(&decoder, buffer, input_len, &instruction, operands);
 
     // Fuzz formatter.
     char format_buffer[256];

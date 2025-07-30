@@ -11,6 +11,7 @@ __pycache__
 /doc
 /cmake-build-debug
 /amalgamated-dist
+/fuzzing/
 
 .cache
 compile_commands.json

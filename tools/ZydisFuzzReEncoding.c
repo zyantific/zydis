@@ -82,14 +82,15 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
     ZyanU8 buffer[32];
     ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
 
-    ZydisDecodedInstruction insn1;
-    ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
+    ZydisDecodedInstruction insn1 = {};
+    ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT] = {};
     ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &insn1, operands1);
     if (!ZYAN_SUCCESS(status))
     {
         return EXIT_FAILURE;
     }
 
+    ZydisValidateDecoded(&decoder, buffer, input_len, &insn1, operands1);
     ZydisReEncodeInstruction(&decoder, &insn1, operands1, insn1.operand_count_visible, buffer);
 
     return EXIT_SUCCESS;

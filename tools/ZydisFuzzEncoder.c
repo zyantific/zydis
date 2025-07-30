@@ -318,8 +318,8 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         }
     }
 
-    ZydisDecodedInstruction insn1;
-    ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];
+    ZydisDecodedInstruction insn1 = {};
+    ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT] = {};
     status = ZydisDecoderDecodeFull(&decoder, encoded_instruction, encoded_length, &insn1,
         operands1);
     if (!ZYAN_SUCCESS(status))
@@ -328,6 +328,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         abort();
     }
 
+    ZydisValidateDecoded(&decoder, encoded_instruction, encoded_length, &insn1, operands1);
     ZydisCompareRequestToInstruction(&request, &insn1, operands1);
     ZydisReEncodeInstruction(&decoder, &insn1, operands1, insn1.operand_count, 
         encoded_instruction);

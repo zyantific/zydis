@@ -33,6 +33,7 @@
  */
 
 #include "ZydisFuzzShared.h"
+#include <windows.h>
 
 #ifdef ZYAN_WINDOWS
 #   include <fcntl.h>
@@ -42,6 +43,12 @@
 #ifdef ZYAN_POSIX
 #   include <unistd.h>
 #endif
+
+typedef ZyanStatus (*ZydisDecoderDecodeFull_t)(const ZydisDecoder *decoder,
+    const void *buffer, ZyanUSize length, ZydisDecodedInstruction *instruction,
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT]);
+
+ZydisDecoderDecodeFull_t external_ZydisDecoderDecodeFull;
 
 /* ============================================================================================== */
 /* Stream reading abstraction                                                                     */
@@ -498,8 +505,8 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
         abort();
     }
 
-    ZydisDecodedInstruction insn2;
-    ZydisDecodedOperand operands2[ZYDIS_MAX_OPERAND_COUNT];
+    ZydisDecodedInstruction insn2 = {};
+    ZydisDecodedOperand operands2[ZYDIS_MAX_OPERAND_COUNT] = {};
     status = ZydisDecoderDecodeFull(decoder, encoded_instruction, encoded_length, &insn2,
         operands2);
     if (!ZYAN_SUCCESS(status))
@@ -510,6 +517,7 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
 
     ZydisPrintInstruction(&insn2, operands2, insn2.operand_count_visible, encoded_instruction);
     ZydisValidateEnumRanges(&insn2, operands2, insn2.operand_count_visible);
+    ZydisValidateDecoded(decoder, encoded_instruction, encoded_length, &insn2, operands2);
     ZydisValidateInstructionIdentity(insn1, operands1, &insn2, operands2);
 
     if (insn2.length > insn1->length)
@@ -522,6 +530,64 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
 }
 
 #endif
+
+void ZydisValidateDecoded(const ZydisDecoder *decoder, const void *buffer, ZyanUSize length,
+    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand *operands)
+{
+    ZydisDecodedInstruction external_instruction = {};
+    ZydisDecodedOperand external_operands[ZYDIS_MAX_OPERAND_COUNT] = {};
+    ZyanStatus status = external_ZydisDecoderDecodeFull(decoder, buffer, length, &external_instruction, external_operands);
+    if (!ZYAN_SUCCESS(status))
+    {
+        fputs("Failed to decode (external)\n", ZYAN_STDERR);
+        abort();
+    }
+
+    ZydisDecodedInstruction sanitized_instruction;
+    ZydisDecodedOperand sanitized_operands[ZYDIS_MAX_OPERAND_COUNT];
+    memcpy(&sanitized_instruction, insn, sizeof(sanitized_instruction));
+    memcpy(sanitized_operands, operands, sizeof(sanitized_operands));
+
+    // Handle flags
+    const ZydisAccessedFlags *s_cpu_flags = sanitized_instruction.cpu_flags;
+    const ZydisAccessedFlags *s_fpu_flags = sanitized_instruction.fpu_flags;
+    const ZydisAccessedFlags *e_cpu_flags = external_instruction.cpu_flags;
+    const ZydisAccessedFlags *e_fpu_flags = external_instruction.fpu_flags;
+    sanitized_instruction.cpu_flags = sanitized_instruction.fpu_flags = external_instruction.cpu_flags = external_instruction.fpu_flags = ZYAN_NULL;
+
+    // Ignore uses_egpr
+    sanitized_instruction.apx.uses_egpr = external_instruction.apx.uses_egpr;
+
+    // Ignore branch type for jmpabs
+    if (sanitized_instruction.mnemonic == ZYDIS_MNEMONIC_JMPABS)
+    {
+        sanitized_instruction.meta.branch_type = external_instruction.meta.branch_type;
+    }
+
+    if (memcmp(&sanitized_instruction, &external_instruction, sizeof(external_instruction)))
+    {
+        fputs("Instruction mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+    for (int i = 0; i < ZYAN_ARRAY_LENGTH(external_operands); ++i)
+    {
+        if (memcmp(&sanitized_operands[i], &external_operands[i], sizeof(ZydisDecodedOperand)))
+        {
+            fprintf(ZYAN_STDERR, "Operand #%d mismatch\n", i);
+            abort();
+        }
+    }
+    if (memcmp(s_cpu_flags, e_cpu_flags, sizeof(ZydisAccessedFlags)))
+    {
+        fputs("CPU flags mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+    if (memcmp(s_fpu_flags, e_fpu_flags, sizeof(ZydisAccessedFlags)))
+    {
+        fputs("FPU flags mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+}
 
 /* ============================================================================================== */
 /* Entry point                                                                                    */
@@ -541,6 +607,19 @@ int ZydisFuzzerInit(void)
     (void)_setmode(_fileno(ZYAN_STDIN), _O_BINARY);
 #endif
 
+    HMODULE zydis_dll = LoadLibraryA("Zydis.dll");
+    if (!zydis_dll)
+    {
+        fputs("Failed to load Zydis.dll\n", ZYAN_STDERR);
+        return EXIT_FAILURE;
+    }
+    external_ZydisDecoderDecodeFull = (ZydisDecoderDecodeFull_t)GetProcAddress(zydis_dll, "ZydisDecoderDecodeFull");
+    if (!external_ZydisDecoderDecodeFull)
+    {
+        fputs("Failed GPA ZydisDecoderDecodeFull\n", ZYAN_STDERR);
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
 
@@ -555,6 +634,7 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     ZYAN_UNUSED(argc);
     ZYAN_UNUSED(argv);
 
+    //_set_abort_behavior(0, _WRITE_ABORT_MSG);
     if (ZydisFuzzerInit() != EXIT_SUCCESS)
         abort(); // abort manually because LibFuzzer ignores return value
     return EXIT_SUCCESS;

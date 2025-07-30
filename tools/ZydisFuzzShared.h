@@ -84,6 +84,8 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
     const ZydisDecodedOperand* operands2);
 void ZydisReEncodeInstruction(const ZydisDecoder* decoder, const ZydisDecodedInstruction* insn1,
     const ZydisDecodedOperand* operands1, ZyanU8 operand_count, const ZyanU8 *insn1_bytes);
+void ZydisValidateDecoded(const ZydisDecoder *decoder, const void *buffer, ZyanUSize length,
+    const ZydisDecodedInstruction *insn, const ZydisDecodedOperand *operands);
 
 // One `ZydisFuzzTarget` must be defined for every fuzz target project
 extern int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx);
