@@ -37,10 +37,14 @@
 #ifdef ZYDIS_MINIMAL_MODE
 #   define ZYDIS_NOTMIN(x)
 #else
-#   define ZYDIS_NOTMIN(x) , x
+#   define ZYDIS_NOTMIN(x) x
 #endif
 
+#define COMMA ,
+
 #include <Generated/InstructionDefinitions.inc>
+
+#undef COMMA
 
 #undef ZYDIS_NOTMIN
 
@@ -116,7 +120,7 @@ const ZydisOperandDefinition* ZydisGetOperandDefinitions(
     {
         return ZYAN_NULL;
     }
-    ZYAN_ASSERT(definition->operand_reference != 0xFFFF);
+    ZYAN_ASSERT(definition->operand_reference != 0x7FFF);
     return &OPERAND_DEFINITIONS[definition->operand_reference];
 }
 #endif
@@ -160,8 +164,8 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_FLOAT16  ,  32 }, // TODO: Should indicate 2 FLOAT16 elements
         { ZYDIS_ELEMENT_TYPE_FLOAT32  ,  32 },
         { ZYDIS_ELEMENT_TYPE_FLOAT64  ,  64 },
-        { ZYDIS_ELEMENT_TYPE_BFLOAT16 ,  32 }, // TODO: Should indicate 2 BFLOAT16 elements
         { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
+        { ZYDIS_ELEMENT_TYPE_BFLOAT16 ,  32 }, // TODO: Should indicate 2 BFLOAT16 elements
         { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   5 }

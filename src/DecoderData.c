@@ -24,6 +24,7 @@
 
 ***************************************************************************************************/
 
+#include <Zydis/SharedTypes.h>
 #include <Zydis/Internal/DecoderData.h>
 
 /* ============================================================================================== */
@@ -40,157 +41,104 @@
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-#define ZYDIS_INVALID \
-    { ZYDIS_NODETYPE_INVALID, 0x00000000 }
-#define ZYDIS_FILTER(type, id) \
-    { type, id }
-#define ZYDIS_DEFINITION(encoding_id, id) \
-    { ZYDIS_NODETYPE_DEFINITION_MASK | encoding_id, id }
+ZYAN_STATIC_ASSERT(ZYDIS_NODETYPE_REQUIRED_BITS <= 8);
+
+/**
+ * Defines a decoder tree node header.
+ *
+ * @param type  The node type, see `ZydisDecoderTreeNodeTypes`.
+ * @param arg0  The first argument (if applicable).
+ *
+ * Encoding: [15..8] = ARG0, [7..0] = TYPE.
+ */
+#define ZYDIS_DT_HEADER(type, arg0) \
+    (0x0000 | (((ZyanU8)(arg0)) << 8) | ((ZyanU8)(type)))
+
+/**
+ * Defines an arbitrary value decoder tree node entry.
+ *
+ * @param value The value.
+ */
+#define ZYDIS_DT_VALUE(value) \
+    ((ZyanU16)(value))
+
+/**
+ * Defines an invalid (unused) decoder tree node entry.
+ */
+#define ZYDIS_DT_INVALID \
+    0x0000
+
+/**
+ * Defines the offset to the next node in the decoder tree, relative to the start of the current
+ * node.
+ *
+ * @param offset    The offset to the next node.
+ */
+#define ZYDIS_DT_OFFSET(offset) \
+    ((ZyanU16)(offset))
+
+/**
+ * Defines an opcode table switch decoder tree node header that instructs the decoder to switch
+ * to the opcode table with the given `opcode_table_id`.
+ *
+ * @param opcode_table_id   The id of the opcode table to switch to.
+ */
+#define ZYDIS_DT_SWITCH_TABLE_HEADER(opcode_table_id) \
+    ZYDIS_DT_HEADER(ZYDIS_NODETYPE_SWITCH_TABLE, (opcode_table_id))
+
+/**
+ * Defines a definition node decoder tree node header.
+ *
+ * @param encoding_id   The id of the physical instruction encoding entry for the definition.
+ *                      See `INSTR_ENCODINGS`.
+ */
+#define ZYDIS_DT_DEFINITION_HEADER(encoding_id) \
+    ZYDIS_DT_HEADER(ZYDIS_NODETYPE_DEFINITION, (encoding_id))
+
+/**
+ * Represents an instruction definition reference. Only valid in combination with the corresponding
+ * instruction encoding.
+ *
+ * @param id    The instruction definition.
+ */
+#define ZYDIS_DT_DEFINITION(id) \
+    ((ZyanU16)(id))
 
 #include <Generated/DecoderTables.inc>
 
-#undef ZYDIS_INVALID
-#undef ZYDIS_FILTER
-#undef ZYDIS_DEFINITION
+#undef ZYDIS_DT_HEADER
+#undef ZYDIS_DT_VALUE
+#undef ZYDIS_DT_INVALID
+#undef ZYDIS_DT_OFFSET
+#undef ZYDIS_DT_SWITCH_TABLE_HEADER
+#undef ZYDIS_DT_DEFINITION_HEADER
+#undef ZYDIS_DT_DEFINITION
 
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* Functions                                                                                      */
+/* API                                                                                            */
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
 /* Decoder tree                                                                                   */
 /* ---------------------------------------------------------------------------------------------- */
 
-const ZydisDecoderTreeNode zydis_decoder_tree_root = { ZYDIS_NODETYPE_FILTER_OPCODE, 0x0000 };
-
-const ZydisDecoderTreeNode* ZydisDecoderTreeGetChildNode(const ZydisDecoderTreeNode* parent,
-    ZyanU16 index)
+const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 opcode_table_id)
 {
-    switch (parent->type)
-    {
-    case ZYDIS_NODETYPE_FILTER_XOP:
-        ZYAN_ASSERT(index <  13);
-        return &FILTERS_XOP[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_VEX:
-        ZYAN_ASSERT(index <  17);
-        return &FILTERS_VEX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EMVEX:
-        ZYAN_ASSERT(index <  49);
-        return &FILTERS_EMVEX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_REX2:
-        ZYAN_ASSERT(index < 3);
-        return &FILTERS_REX2[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_OPCODE:
-        ZYAN_ASSERT(index < 256);
-        return &FILTERS_OPCODE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE:
-        ZYAN_ASSERT(index <   4);
-        return &FILTERS_MODE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_COMPACT:
-        ZYAN_ASSERT(index <   3);
-        return &FILTERS_MODE_COMPACT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRM_MOD:
-        ZYAN_ASSERT(index <   4);
-        return &FILTERS_MODRM_MOD[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRM_MOD_COMPACT:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODRM_MOD_COMPACT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRM_REG:
-        ZYAN_ASSERT(index <   8);
-        return &FILTERS_MODRM_REG[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODRM_RM:
-        ZYAN_ASSERT(index <   8);
-        return &FILTERS_MODRM_RM[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_PREFIX_GROUP1:
-        ZYAN_ASSERT(index < 2);
-        return &FILTERS_PREFIX_GROUP1[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MANDATORY_PREFIX:
-        ZYAN_ASSERT(index <   5);
-        return &FILTERS_MANDATORY_PREFIX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_OPERAND_SIZE:
-        ZYAN_ASSERT(index <   3);
-        return &FILTERS_OPERAND_SIZE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_ADDRESS_SIZE:
-        ZYAN_ASSERT(index <   3);
-        return &FILTERS_ADDRESS_SIZE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_VECTOR_LENGTH:
-        ZYAN_ASSERT(index <   3);
-        return &FILTERS_VECTOR_LENGTH[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_REX_W:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_REX_W[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_REX_B:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_REX_B[parent->value][index];
-#ifndef ZYDIS_DISABLE_AVX512
-    case ZYDIS_NODETYPE_FILTER_EVEX_B:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_EVEX_B[parent->value][index];
-#endif
-#ifndef ZYDIS_DISABLE_KNC
-    case ZYDIS_NODETYPE_FILTER_MVEX_E:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MVEX_E[parent->value][index];
-#endif
-    case ZYDIS_NODETYPE_FILTER_MODE_AMD:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_AMD[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_KNC:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_KNC[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_MPX:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_MPX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_CET:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_CET[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_LZCNT:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_LZCNT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_TZCNT:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_TZCNT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_WBNOINVD:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_WBNOINVD[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_CLDEMOTE:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_CLDEMOTE[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_IPREFETCH:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_IPREFETCH[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_MODE_UD0_COMPAT:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_MODE_UD0_COMPAT[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEX_ND:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_EVEX_ND[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEX_NF:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_EVEX_NF[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEX_SCC:
-        ZYAN_ASSERT(index <  16);
-        return &FILTERS_EVEX_SCC[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_REX2_PREFIX:
-        ZYAN_ASSERT(index <   2);
-        return &FILTERS_REX2_PREFIX[parent->value][index];
-    case ZYDIS_NODETYPE_FILTER_EVEX_U:
-        ZYAN_ASSERT(index < 2);
-        return &FILTERS_EVEX_U[parent->value][index];
-    default:
-        ZYAN_UNREACHABLE;
-    }
+    ZYAN_ASSERT((ZyanUSize)opcode_table_id < ZYAN_ARRAY_LENGTH(OPCODE_TABLE_TREES));
+
+    return OPCODE_TABLE_TREES[opcode_table_id];
 }
 
 void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
     const ZydisInstructionEncodingInfo** info)
 {
-    ZYAN_ASSERT(node->type & ZYDIS_NODETYPE_DEFINITION_MASK);
-    const ZyanU8 class = (node->type) & 0x7F;
-    ZYAN_ASSERT(class < ZYAN_ARRAY_LENGTH(INSTR_ENCODINGS));
-    *info = &INSTR_ENCODINGS[class];
+    ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_DEFINITION);
+    const ZyanU8 encoding_id = ZYDIS_DT_GET_ARG0(node);
+
+    ZYAN_ASSERT((ZyanUSize)encoding_id < ZYAN_ARRAY_LENGTH(INSTR_ENCODINGS));
+    *info = &INSTR_ENCODINGS[encoding_id];
 }
 
 /* ---------------------------------------------------------------------------------------------- */
