@@ -69,6 +69,11 @@ typedef enum ZydisDecoderTreeNodeType_
      */
     ZYDIS_NODETYPE_DEFINITION,
     /**
+     * A decoder tree node that instructs the decoder to switch to a different opcode table.
+     * The `arg0` value of the node header is the id of the opcode table to switch to.
+     */
+    ZYDIS_NODETYPE_SWITCH_TABLE,
+    /**
      * Reference to an XOP-map selector.
      */
     ZYDIS_NODETYPE_XOP,
@@ -351,7 +356,7 @@ typedef struct ZydisInstructionEncodingInfo_
  * Encoding: [15..8] = ARG0, [7..0] = TYPE.
  */
 #define ZYDIS_DT_GET_ARG0(node) \
-    ((((*(node)) >> 8) & 0xFF))
+    ((ZyanU8)(((*(node)) >> 8) & 0xFF))
 
 /**
  * Gets the value at index `index` of the given decoder tree node.

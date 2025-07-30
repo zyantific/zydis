@@ -78,13 +78,13 @@ ZYAN_STATIC_ASSERT(ZYDIS_NODETYPE_REQUIRED_BITS <= 8);
     ((ZyanU16)(offset))
 
 /**
- * Defines an opcode table switch decoder tree node entry that instructs the decoder to switch
+ * Defines an opcode table switch decoder tree node header that instructs the decoder to switch
  * to the opcode table with the given `opcode_table_id`.
  *
  * @param opcode_table_id   The id of the opcode table to switch to.
  */
-#define ZYDIS_DT_SWITCH_TABLE(opcode_table_id) \
-    (0xFF00 | ((ZyanU8)(opcode_table_id)))
+#define ZYDIS_DT_SWITCH_TABLE_HEADER(opcode_table_id) \
+    ZYDIS_DT_HEADER(ZYDIS_NODETYPE_SWITCH_TABLE, (opcode_table_id))
 
 /**
  * Defines a definition node decoder tree node header.
@@ -110,6 +110,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_NODETYPE_REQUIRED_BITS <= 8);
 #undef ZYDIS_DT_VALUE
 #undef ZYDIS_DT_INVALID
 #undef ZYDIS_DT_OFFSET
+#undef ZYDIS_DT_SWITCH_TABLE_HEADER
 #undef ZYDIS_DT_DEFINITION_HEADER
 #undef ZYDIS_DT_DEFINITION
 
