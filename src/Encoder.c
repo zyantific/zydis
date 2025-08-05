@@ -3221,8 +3221,9 @@ static ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request
         {
             continue;
         }
-        if ((base_definition->branch_type == ZYDIS_BRANCH_TYPE_NONE) &&
-            (request->branch_width != ZYDIS_BRANCH_WIDTH_NONE))
+        if (((base_definition->branch_type == ZYDIS_BRANCH_TYPE_NONE) ||
+             (base_definition->branch_type == ZYDIS_BRANCH_TYPE_ABSOLUTE)) &&
+             (request->branch_width != ZYDIS_BRANCH_WIDTH_NONE))
         {
             continue;
         }
