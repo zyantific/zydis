@@ -2856,7 +2856,8 @@ static ZyanBool ZydisIsDefinitionCompatible(ZydisEncoderInstructionMatch *match,
     }
 
     ZyanU8 eosz = 0;
-    if (match->base_definition->branch_type != ZYDIS_BRANCH_TYPE_NONE)
+    if ((match->base_definition->branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
+        (match->base_definition->branch_type != ZYDIS_BRANCH_TYPE_ABSOLUTE))
     {
         switch (request->branch_width)
         {
@@ -3220,8 +3221,9 @@ static ZyanStatus ZydisFindMatchingDefinition(const ZydisEncoderRequest *request
         {
             continue;
         }
-        if ((base_definition->branch_type == ZYDIS_BRANCH_TYPE_NONE) &&
-            (request->branch_width != ZYDIS_BRANCH_WIDTH_NONE))
+        if (((base_definition->branch_type == ZYDIS_BRANCH_TYPE_NONE) ||
+             (base_definition->branch_type == ZYDIS_BRANCH_TYPE_ABSOLUTE)) &&
+             (request->branch_width != ZYDIS_BRANCH_WIDTH_NONE))
         {
             continue;
         }
@@ -4507,11 +4509,11 @@ static ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *requ
     static const ZyanBool branch_lookup
         [ZYDIS_BRANCH_WIDTH_MAX_VALUE + 1][ZYDIS_BRANCH_TYPE_MAX_VALUE + 1] =
     {
-        /* NONE */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE  },
-        /* 8    */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE, ZYAN_FALSE },
-        /* 16   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
-        /* 32   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
-        /* 64   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE  },
+        /* NONE */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE },
+        /* 8    */ { ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE, ZYAN_FALSE, ZYAN_FALSE },
+        /* 16   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE },
+        /* 32   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE },
+        /* 64   */ { ZYAN_TRUE,  ZYAN_FALSE, ZYAN_TRUE,  ZYAN_TRUE,  ZYAN_FALSE },
     };
     if (!branch_lookup[request->branch_width][request->branch_type])
     {

@@ -218,7 +218,7 @@ typedef struct ZydisEncodableInstruction_
     /**
      * The vector length.
      */
-    ZyanU8 vector_length            ZYAN_BITFIELD(ZYDIS_MANDATORY_PREFIX_REQUIRED_BITS);
+    ZyanU8 vector_length            ZYAN_BITFIELD(ZYDIS_VECTOR_LENGTH_REQUIRED_BITS);
     /**
      * The accepted sizing hint.
      */
