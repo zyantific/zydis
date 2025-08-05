@@ -84,8 +84,15 @@ void ZydisValidateInstructionIdentity(const ZydisDecodedInstruction* insn1,
     const ZydisDecodedOperand* operands2);
 void ZydisReEncodeInstruction(const ZydisDecoder* decoder, const ZydisDecodedInstruction* insn1,
     const ZydisDecodedOperand* operands1, ZyanU8 operand_count, const ZyanU8 *insn1_bytes);
+
+// Regression fuzzing
 void ZydisValidateDecoded(const ZydisDecoder *decoder, const void *buffer, ZyanUSize length,
     const ZydisDecodedInstruction *insn, const ZydisDecodedOperand *operands);
+void ZydisValidateDecodingFailure(const ZydisDecoder *decoder, const void *buffer, ZyanUSize length,
+    ZyanStatus status);
+void ZydisValidateEncoded(const ZydisEncoderRequest *request, const ZyanU8 *encoded_instruction,
+    ZyanUSize encoded_length);
+void ZydisValidateEncodingFailure(const ZydisEncoderRequest *request, ZyanStatus status);
 
 // One `ZydisFuzzTarget` must be defined for every fuzz target project
 extern int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx);

@@ -123,6 +123,7 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
     ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, operands);
     if (!ZYAN_SUCCESS(status))
     {
+        ZydisValidateDecodingFailure(&decoder, buffer, input_len, status);
         return EXIT_FAILURE;
     }
 

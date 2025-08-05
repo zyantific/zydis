@@ -267,12 +267,14 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
         &encoded_length);
     if (!ZYAN_SUCCESS(status))
     {
+        ZydisValidateEncodingFailure(&request, status);
 #ifdef ZYDIS_LIBFUZZER
         return EXIT_SUCCESS;
 #else
         return EXIT_ENCODING_FAILURE;
 #endif // ZYDIS_LIBFUZZER
     }
+    ZydisValidateEncoded(&request, encoded_instruction, encoded_length);
 
     ZydisStackWidth stack_width;
     switch (request.machine_mode)

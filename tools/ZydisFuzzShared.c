@@ -47,8 +47,11 @@
 typedef ZyanStatus (*ZydisDecoderDecodeFull_t)(const ZydisDecoder *decoder,
     const void *buffer, ZyanUSize length, ZydisDecodedInstruction *instruction,
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT]);
+typedef ZyanStatus(*ZydisEncoderEncodeInstruction_t)(const ZydisEncoderRequest *request,
+    void *buffer, ZyanUSize *length);
 
 ZydisDecoderDecodeFull_t external_ZydisDecoderDecodeFull;
+ZydisEncoderEncodeInstruction_t external_ZydisEncoderEncodeInstruction;
 
 /* ============================================================================================== */
 /* Stream reading abstraction                                                                     */
@@ -504,6 +507,7 @@ void ZydisReEncodeInstruction(const ZydisDecoder *decoder, const ZydisDecodedIns
         fputs("Failed to re-encode instruction\n", ZYAN_STDERR);
         abort();
     }
+    ZydisValidateEncoded(&request, encoded_instruction, encoded_length);
 
     ZydisDecodedInstruction insn2 = {};
     ZydisDecodedOperand operands2[ZYDIS_MAX_OPERAND_COUNT] = {};
@@ -589,6 +593,49 @@ void ZydisValidateDecoded(const ZydisDecoder *decoder, const void *buffer, ZyanU
     }
 }
 
+void ZydisValidateDecodingFailure(const ZydisDecoder *decoder, const void *buffer, ZyanUSize length,
+    ZyanStatus status)
+{
+    ZydisDecodedInstruction external_instruction;
+    ZydisDecodedOperand external_operands[ZYDIS_MAX_OPERAND_COUNT];
+    ZyanStatus external_status = external_ZydisDecoderDecodeFull(decoder, buffer, length, &external_instruction, external_operands);
+    if (status != external_status)
+    {
+        fprintf(ZYAN_STDERR, "Wrong status (expected: %08X, got: %08X)\n", status, external_status);
+        abort();
+    }
+}
+
+void ZydisValidateEncoded(const ZydisEncoderRequest *request, const ZyanU8 *encoded_instruction,
+    ZyanUSize encoded_length)
+{
+    ZyanU8 external_encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH] = {};
+    ZyanUSize external_encoded_length = sizeof(external_encoded_instruction);
+    ZyanStatus external_status = external_ZydisEncoderEncodeInstruction(request, external_encoded_instruction, &external_encoded_length);
+    if (!ZYAN_SUCCESS(external_status))
+    {
+        fputs("Failed to encode (external)\n", ZYAN_STDERR);
+        abort();
+    }
+    if (encoded_length != external_encoded_length || memcmp(encoded_instruction, external_encoded_instruction, external_encoded_length))
+    {
+        fputs("Encoded instruction mismatch\n", ZYAN_STDERR);
+        abort();
+    }
+}
+
+void ZydisValidateEncodingFailure(const ZydisEncoderRequest *request, ZyanStatus status)
+{
+    ZyanU8 external_encoded_instruction[ZYDIS_MAX_INSTRUCTION_LENGTH] = {};
+    ZyanUSize external_encoded_length = sizeof(external_encoded_instruction);
+    ZyanStatus external_status = external_ZydisEncoderEncodeInstruction(request, external_encoded_instruction, &external_encoded_length);
+    if (status != external_status)
+    {
+        fprintf(ZYAN_STDERR, "Wrong status (expected: %08X, got: %08X)\n", status, external_status);
+        abort();
+    }
+}
+
 /* ============================================================================================== */
 /* Entry point                                                                                    */
 /* ============================================================================================== */
@@ -617,6 +664,12 @@ int ZydisFuzzerInit(void)
     if (!external_ZydisDecoderDecodeFull)
     {
         fputs("Failed GPA ZydisDecoderDecodeFull\n", ZYAN_STDERR);
+        return EXIT_FAILURE;
+    }
+    external_ZydisEncoderEncodeInstruction = (ZydisEncoderEncodeInstruction_t)GetProcAddress(zydis_dll, "ZydisEncoderEncodeInstruction");
+    if (!external_ZydisEncoderEncodeInstruction)
+    {
+        fputs("Failed GPA ZydisEncoderEncodeInstruction\n", ZYAN_STDERR);
         return EXIT_FAILURE;
     }
 
