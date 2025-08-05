@@ -1,4 +1,4 @@
-﻿#ifndef ZYDIS_MINIMAL_MODE
+#ifndef ZYDIS_MINIMAL_MODE
 static const ZydisOperandDefinition OPERAND_DEFINITIONS[] = 
 {
     {
