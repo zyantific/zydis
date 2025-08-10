@@ -219,6 +219,28 @@ ZYAN_STATIC_ASSERT(ZYDIS_REGISTER_REQUIRED_BITS            <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS        <=  8);
 
 /**
+ * Defines the `ZydisOperandDetails` struct.
+ */
+typedef union ZydisOperandDetails_
+{
+    ZyanU8 encoding                        ZYAN_BITFIELD(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS);
+    struct
+    {
+        ZyanU8 type                        ZYAN_BITFIELD(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS);
+        union
+        {
+            ZyanU16 reg                    ZYAN_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
+            ZyanU8 id                      ZYAN_BITFIELD(6);
+        } reg;
+    } reg;
+    struct
+    {
+        ZyanU8 seg                         ZYAN_BITFIELD(3);
+        ZyanU8 base                        ZYAN_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
+    } mem;
+} ZydisOperandDetails;
+
+/**
  * Defines the `ZydisOperandDefinition` struct.
  */
 typedef struct ZydisOperandDefinition_
@@ -226,28 +248,11 @@ typedef struct ZydisOperandDefinition_
     ZyanU8 type                            ZYAN_BITFIELD(ZYDIS_SEMANTIC_OPTYPE_REQUIRED_BITS);
     ZyanU8 visibility                      ZYAN_BITFIELD(ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS);
     ZyanU8 actions                         ZYAN_BITFIELD(ZYDIS_OPERAND_ACTION_REQUIRED_BITS);
-    ZyanU16 size[3];
     ZyanU8 element_type                    ZYAN_BITFIELD(ZYDIS_IELEMENT_TYPE_REQUIRED_BITS);
-    union
-    {
-        ZyanU8 encoding                    ZYAN_BITFIELD(ZYDIS_OPERAND_ENCODING_REQUIRED_BITS);
-        struct
-        {
-            ZyanU8 type                    ZYAN_BITFIELD(ZYDIS_IMPLREG_TYPE_REQUIRED_BITS);
-            union
-            {
-                ZyanU16 reg                ZYAN_BITFIELD(ZYDIS_REGISTER_REQUIRED_BITS);
-                ZyanU8 id                  ZYAN_BITFIELD(6);
-            } reg;
-        } reg;
-        struct
-        {
-            ZyanU8 seg                     ZYAN_BITFIELD(3);
-            ZyanU8 base                    ZYAN_BITFIELD(ZYDIS_IMPLMEM_BASE_REQUIRED_BITS);
-        } mem;
-    } op;
     ZyanBool is_multisource4               ZYAN_BITFIELD(1);
     ZyanBool ignore_seg_override           ZYAN_BITFIELD(1);
+    ZyanU8 size_reference;
+    ZyanU8 details_reference;
 } ZydisOperandDefinition;
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -947,6 +952,25 @@ ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding enco
  */
 ZYDIS_NO_EXPORT const ZydisOperandDefinition* ZydisGetOperandDefinitions(
     const ZydisInstructionDefinition* definition);
+
+/**
+ * Returns size table associated with given operand definition.
+ *
+ * @param   definition  A pointer to the operand definition.
+ *
+ * @return  A pointer to the beginning of size table.
+ */
+ZYDIS_NO_EXPORT const ZyanU16* ZydisGetOperandSizes(const ZydisOperandDefinition *definition);
+
+/**
+ * Returns pointer to `ZydisOperandDetails` structure associated with given operand definition.
+ *
+ * @param   definition  A pointer to the operand definition.
+ *
+ * @return  A pointer to `ZydisOperandDetails` structure.
+ */
+ZYDIS_NO_EXPORT const ZydisOperandDetails* ZydisGetOperandDetails(
+    const ZydisOperandDefinition *definition);
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */

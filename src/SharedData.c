@@ -37,14 +37,10 @@
 #ifdef ZYDIS_MINIMAL_MODE
 #   define ZYDIS_NOTMIN(x)
 #else
-#   define ZYDIS_NOTMIN(x) x
+#   define ZYDIS_NOTMIN(x) , x
 #endif
 
-#define COMMA ,
-
 #include <Generated/InstructionDefinitions.inc>
-
-#undef COMMA
 
 #undef ZYDIS_NOTMIN
 
@@ -122,6 +118,16 @@ const ZydisOperandDefinition* ZydisGetOperandDefinitions(
     }
     ZYAN_ASSERT(definition->operand_reference != 0x7FFF);
     return &OPERAND_DEFINITIONS[definition->operand_reference];
+}
+
+const ZyanU16 *ZydisGetOperandSizes(const ZydisOperandDefinition *definition)
+{
+    return OPERAND_SIZES[definition->size_reference];
+}
+
+const ZydisOperandDetails *ZydisGetOperandDetails(const ZydisOperandDefinition *definition)
+{
+    return &OPERAND_DETAILS[definition->details_reference];
 }
 #endif
 

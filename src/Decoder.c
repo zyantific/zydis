@@ -1035,13 +1035,14 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
     ZYAN_ASSERT(definition);
 
     // Operand size
+    const ZyanU16* size = ZydisGetOperandSizes(definition);
     switch (operand->type)
     {
     case ZYDIS_OPERAND_TYPE_REGISTER:
     {
-        if (definition->size[context->eosz_index])
+        if (size[context->eosz_index])
         {
-            operand->size = definition->size[context->eosz_index] * 8;
+            operand->size = size[context->eosz_index] * 8;
         } else
         {
             // TODO: TMM register size should probably be 0
@@ -1062,22 +1063,22 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
         case ZYDIS_INSTRUCTION_ENCODING_VEX:
             if (operand->mem.type == ZYDIS_MEMOP_TYPE_AGEN)
             {
-                ZYAN_ASSERT(definition->size[context->eosz_index] == 0);
+                ZYAN_ASSERT(size[context->eosz_index] == 0);
                 operand->size = instruction->address_width;
                 operand->element_type = ZYDIS_ELEMENT_TYPE_INT;
             } else
             {
-                ZYAN_ASSERT(definition->size[context->eosz_index] ||
+                ZYAN_ASSERT(size[context->eosz_index] ||
                     (instruction->meta.category == ZYDIS_CATEGORY_AMX_TILE));
-                operand->size = definition->size[context->eosz_index] * 8;
+                operand->size = size[context->eosz_index] * 8;
             }
             break;
         case ZYDIS_INSTRUCTION_ENCODING_EVEX:
 #ifndef ZYDIS_DISABLE_AVX512
-            if (definition->size[context->eosz_index])
+            if (size[context->eosz_index])
             {
                 // Operand size is hardcoded
-                operand->size = definition->size[context->eosz_index] * 8;
+                operand->size = size[context->eosz_index] * 8;
                 ZYAN_ASSERT(operand->size);
             } else if (!context->evex.element_size)
             {
@@ -1131,10 +1132,10 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
             break;
         case ZYDIS_INSTRUCTION_ENCODING_MVEX:
 #ifndef ZYDIS_DISABLE_KNC
-            if (definition->size[context->eosz_index])
+            if (size[context->eosz_index])
             {
                 // Operand size is hardcoded
-                operand->size = definition->size[context->eosz_index] * 8;
+                operand->size = size[context->eosz_index] * 8;
             } else
             {
                 ZYAN_ASSERT(definition->element_type == ZYDIS_IELEMENT_TYPE_VARIABLE);
@@ -1247,7 +1248,7 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
         operand->size = instruction->raw.imm[0].size + instruction->raw.imm[1].size;
         break;
     case ZYDIS_OPERAND_TYPE_IMMEDIATE:
-        operand->size = definition->size[context->eosz_index] * 8;
+        operand->size = size[context->eosz_index] * 8;
         break;
     default:
         ZYAN_UNREACHABLE;
@@ -1527,11 +1528,11 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
  * @param   context         A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
- * @param   definition      A pointer to the `ZydisOperandDefinition` struct.
+ * @param   definition      A pointer to the `ZydisOperandDetails` struct.
  */
 static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
     const ZydisDecoderContext* context, const ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operand, const ZydisOperandDefinition* definition)
+    ZydisDecodedOperand* operand, const ZydisOperandDetails* definition)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -1540,10 +1541,10 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
 
     operand->type = ZYDIS_OPERAND_TYPE_REGISTER;
 
-    switch (definition->op.reg.type)
+    switch (definition->reg.type)
     {
     case ZYDIS_IMPLREG_TYPE_STATIC:
-        operand->reg.value = definition->op.reg.reg.reg;
+        operand->reg.value = definition->reg.reg.reg;
         break;
     case ZYDIS_IMPLREG_TYPE_GPR_OSZ:
     {
@@ -1554,14 +1555,14 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
             ZYDIS_REGCLASS_GPR64
         };
         operand->reg.value =
-            ZydisRegisterEncode(lookup[context->eosz_index], definition->op.reg.reg.id);
+            ZydisRegisterEncode(lookup[context->eosz_index], definition->reg.reg.id);
         break;
     }
     case ZYDIS_IMPLREG_TYPE_GPR_ASZ:
         operand->reg.value = ZydisRegisterEncode(
             (instruction->address_width    == 16) ? ZYDIS_REGCLASS_GPR16  :
             (instruction->address_width    == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
-            definition->op.reg.reg.id);
+            definition->reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_ASZ:
         operand->reg.value =
@@ -1573,7 +1574,7 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
             (decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGCLASS_GPR16 :
             (decoder->stack_width == ZYDIS_STACK_WIDTH_32) ? ZYDIS_REGCLASS_GPR32 :
                                                              ZYDIS_REGCLASS_GPR64,
-            definition->op.reg.reg.id);
+            definition->reg.reg.id);
         break;
     case ZYDIS_IMPLREG_TYPE_IP_SSZ:
         operand->reg.value =
@@ -1601,11 +1602,11 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
  * @param   context         A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction     A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand         A pointer to the `ZydisDecodedOperand` struct.
- * @param   definition      A pointer to the `ZydisOperandDefinition` struct.
+ * @param   definition      A pointer to the `ZydisOperandDetails` struct.
  */
 static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
     const ZydisDecoderContext* context, const ZydisDecodedInstruction* instruction,
-    ZydisDecodedOperand* operand, const ZydisOperandDefinition* definition)
+    ZydisDecodedOperand* operand, const ZydisOperandDetails* definition)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(operand);
@@ -1621,7 +1622,7 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
     operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
 
-    switch (definition->op.mem.base)
+    switch (definition->mem.base)
     {
     case ZYDIS_IMPLMEM_BASE_AGPR_REG:
         operand->mem.base = ZydisRegisterEncode(lookup[context->easz_index],
@@ -1658,10 +1659,10 @@ static void ZydisDecodeOperandImplicitMemory(const ZydisDecoder* decoder,
         ZYAN_UNREACHABLE;
     }
 
-    if (definition->op.mem.seg)
+    if (definition->mem.seg)
     {
         operand->mem.segment =
-            ZydisRegisterEncode(ZYDIS_REGCLASS_SEGMENT, definition->op.mem.seg - 1);
+            ZydisRegisterEncode(ZYDIS_REGCLASS_SEGMENT, definition->mem.seg - 1);
         ZYAN_ASSERT(operand->mem.segment);
     }
 }
@@ -1687,6 +1688,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
     ZyanU8 imm_id = 0;
     for (ZyanU8 i = 0; i < operand_count; ++i)
     {
+        const ZydisOperandDetails *details = ZydisGetOperandDetails(operand);
         ZydisRegisterClass register_class = ZYDIS_REGCLASS_INVALID;
 
         operands[i].id = i;
@@ -1705,10 +1707,10 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         switch (operand->type)
         {
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_REG:
-            ZydisDecodeOperandImplicitRegister(decoder, context, instruction, &operands[i], operand);
+            ZydisDecodeOperandImplicitRegister(decoder, context, instruction, &operands[i], details);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_MEM:
-            ZydisDecodeOperandImplicitMemory(decoder, context, instruction, &operands[i], operand);
+            ZydisDecodeOperandImplicitMemory(decoder, context, instruction, &operands[i], details);
             break;
         case ZYDIS_SEMANTIC_OPTYPE_IMPLICIT_IMM1:
             operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
@@ -1725,7 +1727,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             goto FinalizeOperand;
         }
 
-        operands[i].encoding = operand->op.encoding;
+        operands[i].encoding = details->encoding;
 
         // Register operands
         switch (operand->type)
@@ -1807,7 +1809,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         }
         if (register_class)
         {
-            switch (operand->op.encoding)
+            switch (details->encoding)
             {
             case ZYDIS_OPERAND_ENCODING_MODRM_REG:
                 ZYAN_CHECK(
@@ -1949,8 +1951,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_IMM:
             ZYAN_ASSERT((imm_id == 0) || (imm_id == 1));
             operands[i].type = ZYDIS_OPERAND_TYPE_IMMEDIATE;
-            operands[i].size = operand->size[context->eosz_index] * 8;
-            if (operand->op.encoding == ZYDIS_OPERAND_ENCODING_IS4)
+            operands[i].size = ZydisGetOperandSizes(operand)[context->eosz_index] * 8;
+            if (details->encoding == ZYDIS_OPERAND_ENCODING_IS4)
             {
                 // The upper half of the 8-bit immediate is used to encode a register specifier
                 ZYAN_ASSERT(instruction->raw.imm[imm_id].size == 8);
@@ -5070,19 +5072,19 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             // The generator omits switch table nodes for empty opcode tables.
             ZYAN_ASSERT(node);
             continue;
-        case ZYDIS_NODETYPE_XOP:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_XOP:
             status = ZydisNodeHandlerXOP(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_VEX:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_VEX:
             status = ZydisNodeHandlerVEX(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_EMVEX:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_REX2_MAP:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_REX2:
             status = ZydisNodeHandlerREX2(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_OPCODE:
+        case ZYDIS_NODETYPE_OPCODE_TABLE:
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
             break;
         case ZYDIS_NODETYPE_MODE:
