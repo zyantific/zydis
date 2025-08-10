@@ -5070,19 +5070,19 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             // The generator omits switch table nodes for empty opcode tables.
             ZYAN_ASSERT(node);
             continue;
-        case ZYDIS_NODETYPE_XOP:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_XOP:
             status = ZydisNodeHandlerXOP(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_VEX:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_VEX:
             status = ZydisNodeHandlerVEX(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_EMVEX:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_EMVEX:
             status = ZydisNodeHandlerEMVEX(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_REX2_MAP:
+        case ZYDIS_NODETYPE_SWITCH_TABLE_REX2:
             status = ZydisNodeHandlerREX2(instruction, &index);
             break;
-        case ZYDIS_NODETYPE_OPCODE:
+        case ZYDIS_NODETYPE_OPCODE_TABLE:
             status = ZydisNodeHandlerOpcode(state, instruction, &index);
             break;
         case ZYDIS_NODETYPE_MODE:

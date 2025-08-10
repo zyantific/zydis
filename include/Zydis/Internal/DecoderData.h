@@ -76,23 +76,23 @@ typedef enum ZydisDecoderTreeNodeType_
     /**
      * Reference to an XOP-map selector.
      */
-    ZYDIS_NODETYPE_XOP,
+    ZYDIS_NODETYPE_SWITCH_TABLE_XOP,
     /**
      * Reference to an VEX-map selector.
      */
-    ZYDIS_NODETYPE_VEX,
+    ZYDIS_NODETYPE_SWITCH_TABLE_VEX,
     /**
      * Reference to an EVEX/MVEX-map selector.
      */
-    ZYDIS_NODETYPE_EMVEX,
+    ZYDIS_NODETYPE_SWITCH_TABLE_EMVEX,
     /**
      * Reference to a REX2-map selector.
      */
-    ZYDIS_NODETYPE_REX2_MAP,
+    ZYDIS_NODETYPE_SWITCH_TABLE_REX2,
     /**
      * Reference to an opcode selector.
      */
-    ZYDIS_NODETYPE_OPCODE,
+    ZYDIS_NODETYPE_OPCODE_TABLE,
     /**
      * Reference to an instruction-mode selector.
      */
