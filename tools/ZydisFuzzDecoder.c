@@ -86,6 +86,21 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         }
     }
 
+    ZyanU8 buffer[32];
+    ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
+    ZydisDecodedInstruction instruction;
+    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
+
+    // Fuzz decoder.
+    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, operands);
+    if (!ZYAN_SUCCESS(status))
+    {
+        return EXIT_FAILURE;
+    }
+
+    ZydisValidateEnumRanges(&instruction, operands, instruction.operand_count);
+
+    // Fuzz formatter.
     ZydisFormatter formatter;
     if (!ZYAN_SUCCESS(ZydisFormatterInit(&formatter, control_block.formatter_style)))
     {
@@ -103,6 +118,10 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
             control_block.formatter_properties[prop] =
                 control_block.formatter_properties[prop] ? (ZyanUPointer)&control_block.string : 0;
             break;
+        // TODO: Remove cases below after implementing APX properties
+        case ZYDIS_FORMATTER_PROP_DECO_APX_NF_USE_SUFFIX:
+        case ZYDIS_FORMATTER_PROP_DECO_APX_DFV_USE_IMMEDIATE:
+            continue;
         default:
             break;
         }
@@ -114,21 +133,6 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         }
     }
 
-    ZyanU8 buffer[32];
-    ZyanUSize input_len = read_fn(stream_ctx, buffer, sizeof(buffer));
-    ZydisDecodedInstruction instruction;
-    ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
-
-    // Fuzz decoder.
-    ZyanStatus status = ZydisDecoderDecodeFull(&decoder, buffer, input_len, &instruction, operands);
-    if (!ZYAN_SUCCESS(status))
-    {
-        return EXIT_FAILURE;
-    }
-
-    ZydisValidateEnumRanges(&instruction, operands, instruction.operand_count);
-
-    // Fuzz formatter.
     char format_buffer[256];
     // Allow the control block to artificially restrict the buffer size.
     ZyanUSize output_len = ZYAN_MIN(sizeof(format_buffer), control_block.formatter_max_len);
