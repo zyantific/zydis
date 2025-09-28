@@ -136,11 +136,6 @@ inc_private = include_directories('src')
 
 hdrs_common = files(
   'include/Zydis/Defines.h',
-  'include/Zydis/Generated/EnumISAExt.h',
-  'include/Zydis/Generated/EnumISASet.h',
-  'include/Zydis/Generated/EnumInstructionCategory.h',
-  'include/Zydis/Generated/EnumMnemonic.h',
-  'include/Zydis/Generated/EnumRegister.h',
   'include/Zydis/MetaInfo.h',
   'include/Zydis/Mnemonic.h',
   'include/Zydis/Register.h',
@@ -154,6 +149,14 @@ hdrs_common = files(
 hdrs_internal = files(
   'include/Zydis/Internal/SharedData.h',
   'include/Zydis/Internal/String.h',
+)
+
+hdrs_generated = files(
+  'include/Zydis/Generated/EnumISAExt.h',
+  'include/Zydis/Generated/EnumISASet.h',
+  'include/Zydis/Generated/EnumInstructionCategory.h',
+  'include/Zydis/Generated/EnumMnemonic.h',
+  'include/Zydis/Generated/EnumRegister.h',
 )
 
 src = files(
@@ -223,7 +226,7 @@ if segment.enabled()
   )
 endif
 
-hdrs = hdrs_common + hdrs_internal
+hdrs = hdrs_common + hdrs_internal + hdrs_generated
 
 if host_machine.system() == 'windows'
   windows = import('windows')
@@ -244,6 +247,7 @@ zydis_lib = library(
 
 install_headers(hdrs_common, subdir: 'Zydis')
 install_headers(hdrs_internal, subdir: 'Zydis/Internal')
+install_headers(hdrs_generated, subdir: 'Zydis/Generated')
 
 # Note: on MSVC, define ZYDIS_STATIC_BUILD and ZYCORE_STATIC_BUILD accordingly
 # in the user project.
