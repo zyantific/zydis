@@ -134,7 +134,7 @@ function (locate_zycore)
         "    git submodule update --init\n"
         "or by cloning using\n"
         "    git clone --recursive <url>\n"
-        "Alternatively, you can manually clone zycore to some path and set ZYDIS_ZYCORE_PATH."
+        "Alternatively, you can manually clone zycore to some path and set ZYAN_ZYCORE_PATH."
     )
 endfunction ()
 
