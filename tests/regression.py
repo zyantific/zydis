@@ -43,17 +43,17 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     pre, ext = os.path.splitext(case)
     path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
+    out = out.decode().replace('\r\n', '\n')
 
     if args.operation == "rebase":
         with open(path, mode="wb") as f:
-            f.write(out)
+            f.write(out.encode())
         continue
 
     try:
         with open(path, mode="rb") as f:
             expected = f.read().decode().replace('\r\n', '\n')
 
-        out = out.decode().replace('\r\n', '\n')
         if expected != out:
             print(f"FAILED: '{case}' [{payload}]")
             print('\n'.join(difflib.unified_diff(

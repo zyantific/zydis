@@ -1,0 +1,49 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: shrd [ENC: DEFAULT, MAP: 0F, OPC: 0xAC]
+     LENGTH: 11
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 32
+   CATEGORY: SHIFT
+    ISA-SET: I386
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_REX CPUFLAG_ACCESS ACCEPTS_SEGMENT HAS_ADDRESSSIZE 
+  OPTIMIZED: 67 44 0F AC 3C C5 00 00 E9 41 10 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT     RCW      MODRM_RM     32      1      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                none
+                                                                                 INDEX =                 eax
+                                                                                 SCALE =                   8
+                                                                                 DISP  =  0x0000000041E90000
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     32      1      32      UINT                         r15d
+ 2  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x0000000000000010
+ 3   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : M  ] [AF  : U  ] [ZF  : M  ] [SF  : M  ] [OF  : U  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: shrd $0x10, %r15d, 0x41E90000(,%eax,8)
+   RELATIVE: shrd $0x10, %r15d, 0x41E90000(,%eax,8)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: shrd dword ptr ds:[eax*8+0x41E90000], r15d, 0x10
+   RELATIVE: shrd dword ptr ds:[eax*8+0x41E90000], r15d, 0x10
+
+== [ SEGMENTS ] ============================================================================================
+67 45 0F AC 3C C5 00 00 E9 41 10 
+:  :  :     :  :  :           :..IMM
+:  :  :     :  :  :..DISP
+:  :  :     :  :..SIB
+:  :  :     :..MODRM
+:  :  :..OPCODE
+:  :..REX
+:..PREFIXES
