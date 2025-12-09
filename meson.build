@@ -67,18 +67,7 @@ doc = doc.disable_auto_if(not root)
 
 cc = meson.get_compiler('c')
 
-if cc.get_argument_syntax() == 'msvc'
-  if get_option('b_lto')
-    add_project_arguments(
-      '/GL', # -flto
-      language: 'c',
-    )
-    add_project_link_arguments(
-      '/LTCG',
-      language: 'c',
-    )
-  endif
-elif nolibc
+if cc.get_argument_syntax() != 'msvc' and nolibc
   add_project_arguments(
     '-fno-stack-protector',
     language: 'c',
