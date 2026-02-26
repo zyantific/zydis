@@ -44,6 +44,8 @@
 #   include <sys/time.h>
 #   include <pthread.h>
 #   include <pthread_np.h>
+#elif defined(ZYAN_NETBSD)
+#   include <sys/time.h>
 #else
 #   error "Unsupported platform detected"
 #endif
@@ -147,7 +149,7 @@ static double GetCounter(void)
     return (double)elapsed * timebase_info.numer / timebase_info.denom / 1000000;
 }
 
-#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD) || defined(ZYAN_SOLARIS) || defined(ZYAN_HAIKU)
+#elif defined(ZYAN_LINUX) || defined(ZYAN_FREEBSD) || defined(ZYAN_NETBSD) || defined(ZYAN_SOLARIS) || defined(ZYAN_HAIKU)
 
 struct timeval t1;
 
