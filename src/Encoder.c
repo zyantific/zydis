@@ -3382,11 +3382,11 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
 
     // The size variable is not passed on purpose to allow the compiler
     // to generate better code with a known size at compile time.
+#if ZYAN_ENDIAN == ZYAN_LITTLE_ENDIAN
     if (size == 1)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 1);
     }
-#if ZYAN_ENDIAN == ZYAN_LITTLE_ENDIAN
     else if (size == 2)
     {
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 2);
@@ -3400,6 +3400,11 @@ static ZyanStatus ZydisEmitUInt(ZyanU64 data, ZyanU8 size, ZydisEncoderBuffer *b
         ZYAN_MEMCPY(buffer->buffer + buffer->offset, &data, 8);
     }
 #else
+    if (size == 1)
+    {
+        ZyanU8 value = (ZyanU8)data;
+        ZYAN_MEMCPY(buffer->buffer + buffer->offset, &value, 1);
+    }
     else if (size == 2)
     {
         ZyanU16 value = ZYAN_BYTESWAP16((ZyanU16)data);
