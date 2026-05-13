@@ -44,10 +44,6 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-#if !defined(ZYAN_APPLE)
-#   pragma pack(push, 1)
-#endif
-
 /**
  * Defines the `ZydisShortString` struct.
  *
@@ -59,18 +55,15 @@ extern "C" {
 typedef struct ZydisShortString_
 {
     /**
-     * The buffer that contains the actual (null-terminated) string.
-    */
-    const char* data;
-    /**
      * The length (number of characters) of the string (without 0-termination).
     */
     ZyanU8 size;
-} ZydisShortString;
 
-#if !defined(ZYAN_APPLE)
-#   pragma pack(pop)
-#endif
+    /**
+     * The buffer that contains the actual (null-terminated) string.
+    */
+    const char data[];
+} ZydisShortString;
 
 /* ============================================================================================== */
 /* Macros                                                                                         */
@@ -82,7 +75,7 @@ typedef struct ZydisShortString_
  * @param   string  The C-string constant.
  */
 #define ZYDIS_MAKE_SHORTSTRING(string) \
-    { string, sizeof(string) - 1 }
+    { sizeof(string) - 1, string }
 
 /* ============================================================================================== */
 
