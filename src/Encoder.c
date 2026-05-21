@@ -4760,7 +4760,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                         continue;
                     }
                     ZyanU8 predicted_size = base_size + extra_length;
-                    if (runtime_address > ZYAN_UINT64_MAX - predicted_size + 1)
+                    if (runtime_address > ZYAN_UINT64_MAX - predicted_size)
                     {
                         continue;
                     }
@@ -4813,7 +4813,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
                             (rel_info->size[asz_index][2] == 0) &&
                             !rel_info->accepts_branch_hints);
                 ZyanU8 predicted_size = rel_info->size[asz_index][0] + extra_length;
-                if (runtime_address > ZYAN_UINT64_MAX - predicted_size + 1)
+                if (runtime_address > ZYAN_UINT64_MAX - predicted_size)
                 {
                     return ZYAN_STATUS_INVALID_ARGUMENT;
                 }
@@ -4855,7 +4855,7 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
     if (op_rip_rel)
     {
         ZyanUSize instruction_size = *length;
-        if (runtime_address > ZYAN_UINT64_MAX - instruction_size + 1)
+        if (runtime_address > ZYAN_UINT64_MAX - instruction_size)
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
