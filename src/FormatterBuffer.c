@@ -78,6 +78,11 @@ ZyanStatus ZydisFormatterBufferGetToken(const ZydisFormatterBuffer* buffer,
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
 
+    if (!buffer->is_token_list)
+    {
+        return ZYAN_STATUS_INVALID_OPERATION;
+    }
+
     *token = ((ZydisFormatterTokenConst*)buffer->string.vector.data - 1);
     if ((*token)->type == ZYDIS_TOKEN_INVALID)
     {
