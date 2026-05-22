@@ -329,7 +329,10 @@ ZyanStatus ZydisStringAppendDecU(ZyanString* string, ZyanU64 value, ZyanU8 paddi
     {
         ZYAN_CHECK(ZydisStringAppendDecU64(string, value, padding_length));
     }
-    ZYAN_CHECK(ZydisStringAppendDecU32(string, (ZyanU32)value, padding_length));
+    else
+    {
+        ZYAN_CHECK(ZydisStringAppendDecU32(string, (ZyanU32)value, padding_length));
+    }
 #endif
 
     if (suffix)
