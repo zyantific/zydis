@@ -154,7 +154,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
                 ZYAN_CHECK(ZydisFormatterBufferRestore(buffer, buffer_state));
                 continue;
             }
-            if (ZYAN_SUCCESS(status))
+            if (!ZYAN_SUCCESS(status))
             {
                 return status;
             }
