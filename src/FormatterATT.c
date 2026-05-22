@@ -338,13 +338,13 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
 
     switch (size)
     {
-    case   8: ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  ); break;
-    case  16: ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT ); break;
-    case  32: ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT ); break;
-    case  64: ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT ); break;
-    case 128: ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT); break;
-    case 256: ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT); break;
-    case 512: ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT); break;
+    case   8: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_8_ATT  )); break;
+    case  16: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_16_ATT )); break;
+    case  32: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_32_ATT )); break;
+    case  64: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_64_ATT )); break;
+    case 128: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_128_ATT)); break;
+    case 256: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_256_ATT)); break;
+    case 512: ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_SIZE_512_ATT)); break;
     default:
         break;
     }
