@@ -1964,8 +1964,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             {
                 operands[i].imm.value.u = instruction->raw.imm[imm_id].value.u;
             }
-            operands[i].imm.offset = instruction->raw.imm->offset;
-            operands[i].imm.size = instruction->raw.imm->size;
+            operands[i].imm.offset = instruction->raw.imm[imm_id].offset;
+            operands[i].imm.size = instruction->raw.imm[imm_id].size;
             operands[i].imm.is_signed = instruction->raw.imm[imm_id].is_signed;
             operands[i].imm.is_address = instruction->raw.imm[imm_id].is_address;
             operands[i].imm.is_relative = instruction->raw.imm[imm_id].is_relative;
