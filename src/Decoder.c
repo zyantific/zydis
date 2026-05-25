@@ -1434,6 +1434,7 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
             }
             if ((operand->mem.base == ZYDIS_REGISTER_EBP) ||
                 (operand->mem.base == ZYDIS_REGISTER_R13D) ||
+                (operand->mem.base == ZYDIS_REGISTER_R21D) ||
                 (operand->mem.base == ZYDIS_REGISTER_R29D))
             {
                 if (instruction->raw.modrm.mod == 0)
@@ -1493,6 +1494,7 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
             }
             if ((operand->mem.base == ZYDIS_REGISTER_RBP) ||
                 (operand->mem.base == ZYDIS_REGISTER_R13) ||
+                (operand->mem.base == ZYDIS_REGISTER_R21) ||
                 (operand->mem.base == ZYDIS_REGISTER_R29))
             {
                 if (instruction->raw.modrm.mod == 0)
