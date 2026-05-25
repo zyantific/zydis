@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: mov [ENC: REX2, MAP: DEFAULT, OPC: 0x8A]
+     LENGTH:  9
+        SSZ: 64
+       EOSZ:  8
+       EASZ: 64
+   CATEGORY: DATAXFER
+    ISA-SET: I86
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_REX2 ACCEPTS_SEGMENT 
+  OPTIMIZED: 8A 0C 25 78 56 34 12 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG      8      1       8       INT                           cl
+ 1     MEMORY    EXPLICIT       R      MODRM_RM      8      1       8       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                none
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000012345678
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: mov 0x0000000012345678, %cl
+   RELATIVE: mov 0x0000000012345678, %cl
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: mov cl, byte ptr ds:[0x0000000012345678]
+   RELATIVE: mov cl, byte ptr ds:[0x0000000012345678]
+
+== [ SEGMENTS ] ============================================================================================
+D5 10 8A 0C 25 78 56 34 12 
+:     :  :  :  :..DISP
+:     :  :  :..SIB
+:     :  :..MODRM
+:     :..OPCODE
+:..REX2
