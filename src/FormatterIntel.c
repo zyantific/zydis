@@ -319,6 +319,7 @@ ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
         switch (context->instruction->meta.branch_type)
         {
         case ZYDIS_BRANCH_TYPE_NONE:
+        case ZYDIS_BRANCH_TYPE_ABSOLUTE:
             break;
         case ZYDIS_BRANCH_TYPE_SHORT:
             return ZydisStringAppendShortCase(&buffer->string, &STR_SHORT,
