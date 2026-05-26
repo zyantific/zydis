@@ -1568,11 +1568,6 @@ static void ZydisDecodeOperandImplicitRegister(const ZydisDecoder* decoder,
             (instruction->address_width    == 32) ? ZYDIS_REGCLASS_GPR32  : ZYDIS_REGCLASS_GPR64,
             definition->reg.reg.id);
         break;
-    case ZYDIS_IMPLREG_TYPE_IP_ASZ:
-        operand->reg.value =
-            (instruction->address_width    == 16) ? ZYDIS_REGISTER_IP     :
-            (instruction->address_width    == 32) ? ZYDIS_REGISTER_EIP    : ZYDIS_REGISTER_RIP;
-        break;
     case ZYDIS_IMPLREG_TYPE_GPR_SSZ:
         operand->reg.value = ZydisRegisterEncode(
             (decoder->stack_width == ZYDIS_STACK_WIDTH_16) ? ZYDIS_REGCLASS_GPR16 :
