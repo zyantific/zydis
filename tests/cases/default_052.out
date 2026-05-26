@@ -1,0 +1,51 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: add [ENC: REX2, MAP: DEFAULT, OPC: 0x03]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: BINARY
+    ISA-SET: I86
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_REX2 CPUFLAG_ACCESS ACCEPTS_SEGMENT 
+  OPTIMIZED: D5 28 03 04 20 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG     64      1      64       INT                          rax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 r20
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : M  ] [AF  : M  ] [ZF  : M  ] [SF  : M  ] [OF  : M  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: add (%rax,%r20,1), %rax
+   RELATIVE: add (%rax,%r20,1), %rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: add rax, qword ptr ds:[rax+r20*1]
+   RELATIVE: add rax, qword ptr ds:[rax+r20*1]
+
+== [ SEGMENTS ] ============================================================================================
+D5 28 03 04 20 
+:     :  :  :..SIB
+:     :  :..MODRM
+:     :..OPCODE
+:..REX2
