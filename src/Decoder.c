@@ -4684,7 +4684,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
     // Assign to context
 
     const ZyanBool has_base  = !is_mod_reg && !(instruction->raw.modrm.mod == 0 && id_base == 5);
-    const ZyanBool has_index = has_sib && (instruction->raw.sib.index != 4);
+    const ZyanBool has_index = has_sib && (id_index != 4);
 
     context->reg_info.id_reg    = def_reg              ? id_reg    : -1;
     context->reg_info.id_rm     = def_rm && is_mod_reg ? id_rm     : -1;
