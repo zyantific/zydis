@@ -4883,7 +4883,8 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderDecodedInstructionToEncoderRequest(
         ZyanU8 operand_count_visible, ZydisEncoderRequest *request)
 {
     if (!instruction || !request || (operand_count_visible && !operands) ||
-        operand_count_visible != instruction->operand_count_visible)
+        operand_count_visible != instruction->operand_count_visible ||
+        operand_count_visible > ZYDIS_ENCODER_MAX_OPERANDS)
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
