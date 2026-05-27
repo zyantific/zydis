@@ -110,6 +110,10 @@ ZyanStatus ZydisCalcAbsoluteAddress(const ZydisDecodedInstruction* instruction,
                 {
                     *result_address &= 0xFFFF;
                 }
+                else if (instruction->operand_width == 32)
+                {
+                    *result_address &= 0xFFFFFFFF;
+                }
                 break;
             case ZYDIS_MACHINE_MODE_LONG_64:
                 break;
