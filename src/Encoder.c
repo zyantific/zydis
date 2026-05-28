@@ -4871,7 +4871,13 @@ ZYDIS_EXPORT ZyanStatus ZydisEncoderEncodeInstructionAbsolute(ZydisEncoderReques
             disp_offset += 1;
         }
         ZYAN_ASSERT(instruction_size > disp_offset);
+#if ZYAN_ENDIAN == ZYAN_LITTLE_ENDIAN
         ZYAN_MEMCPY((ZyanU8 *)buffer + instruction_size - disp_offset, &rip_rel, sizeof(ZyanI32));
+#else
+        const ZyanU32 rip_rel_le = ZYAN_BYTESWAP32((ZyanU32)rip_rel);
+        ZYAN_MEMCPY((ZyanU8 *)buffer + instruction_size - disp_offset, &rip_rel_le,
+            sizeof(rip_rel_le));
+#endif
         op_rip_rel->mem.displacement = rip_rel;
     }
 
