@@ -656,11 +656,6 @@ static ZyanStatus ZydisDecodeEVEX(const ZydisDecoder* decoder, ZydisDecoderConte
     context->vector_unified.vvvv = 0x0F & ~instruction->raw.evex.vvvv;
     context->vector_unified.mask = instruction->raw.evex.aaa;
 
-    if (!instruction->raw.evex.V4 && (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64))
-    {
-        return ZYDIS_STATUS_MALFORMED_EVEX;
-    }
-
     if (!instruction->raw.evex.b && (context->vector_unified.LL == 3))
     {
         // LL = 3 is only valid for instructions with embedded rounding control
