@@ -1,6 +1,6 @@
 == [    BASIC ] ============================================================================================
    MNEMONIC: call [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xFF]
-     LENGTH:  4
+     LENGTH:  6
         SSZ: 64
        EOSZ: 64
        EASZ: 64
@@ -8,18 +8,18 @@
     ISA-SET: I86
     ISA-EXT: BASE
  EXCEPTIONS: NONE
- ATTRIBUTES: HAS_MODRM ACCEPTS_BND ACCEPTS_SEGMENT ACCEPTS_NOTRACK HAS_NOTRACK 
-  OPTIMIZED: 3E FF 10 
+ ATTRIBUTES: HAS_MODRM IS_RELATIVE ACCEPTS_BND ACCEPTS_SEGMENT ACCEPTS_NOTRACK 
+  OPTIMIZED: FF 15 EF BE AD DE 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
  0     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
                                                                                  SEG   =                  ds
-                                                                                 BASE  =                 rax
+                                                                                 BASE  =                 rip
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
-                                                                                 DISP  =  0x0000000000000000
+                                                                                 DISP  =  0xFFFFFFFFDEADBEEF
  1   REGISTER      HIDDEN      RW          NONE     64      1      64       INT                          rip
  2   REGISTER      HIDDEN      RW          NONE     64      1      64       INT                          rsp
  3     MEMORY      HIDDEN       W          NONE     64      1      64       INT  TYPE  =                 MEM
@@ -31,15 +31,15 @@
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: notrack call *(%rax)
-   RELATIVE: notrack call *(%rax)
+   ABSOLUTE: call *0xFFFFFFFFDEADBEF5
+   RELATIVE: call *-0x21524111(%rip)
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: notrack call qword ptr ds:[rax]
-   RELATIVE: notrack call qword ptr ds:[rax]
+   ABSOLUTE: call qword ptr ds:[0xFFFFFFFFDEADBEF5]
+   RELATIVE: call qword ptr ds:[rip-0x21524111]
 
 == [ SEGMENTS ] ============================================================================================
-3E 2E FF 10 
-:     :  :..MODRM
-:     :..OPCODE
-:..PREFIXES
+FF 15 EF BE AD DE 
+:  :  :..DISP
+:  :..MODRM
+:..OPCODE

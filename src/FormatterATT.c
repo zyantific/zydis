@@ -225,6 +225,13 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
 
+    // AT&T marks indirect near/far branches with a leading `*`, regardless of whether the
+    // target operand is rendered as an absolute address or as a base/index expression.
+    if (context->instruction->meta.branch_type != ZYDIS_BRANCH_TYPE_NONE)
+    {
+        ZYDIS_BUFFER_APPEND(buffer, MUL);
+    }
+
     ZYAN_CHECK(formatter->func_print_segment(formatter, buffer, context));
 
     const ZyanBool absolute = !formatter->force_relative_riprel &&
@@ -396,12 +403,6 @@ ZyanStatus ZydisFormatterATTPrintAddressABS(const ZydisFormatter* formatter,
     ZYAN_ASSERT(formatter);
     ZYAN_ASSERT(buffer);
     ZYAN_ASSERT(context);
-
-    if ((context->instruction->meta.branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
-        (context->operand->type == ZYDIS_OPERAND_TYPE_MEMORY))
-    {
-        ZYDIS_BUFFER_APPEND(buffer, MUL);
-    }
 
     return ZydisFormatterBasePrintAddressABS(formatter, buffer, context);
 }
