@@ -199,20 +199,20 @@ static ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, Zya
             {
                 continue;
             }
-            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i) ? 1 : 0;
+            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i + 1) ? 1 : 0;
             if (remaining <= (ZyanUSize)i + zero)
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
             buffer = (char*)string->vector.data + len - 1;
-            if (zero)
-            {
-                buffer[n++] = '0';
-            }
             if (padding_length > i)
             {
                 n = padding_length - i - 1;
                 ZYAN_MEMSET(buffer, '0', n);
+            }
+            if (zero)
+            {
+                buffer[n++] = '0';
             }
         }
         ZYAN_ASSERT(buffer);
@@ -273,20 +273,20 @@ static ZyanStatus ZydisStringAppendHexU64(ZyanString* string, ZyanU64 value, Zya
             {
                 continue;
             }
-            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i) ? 1 : 0;
+            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i + 1) ? 1 : 0;
             if (remaining <= (ZyanUSize)i + zero)
             {
                 return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
             }
             buffer = (char*)string->vector.data + len - 1;
-            if (zero)
-            {
-                buffer[n++] = '0';
-            }
             if (padding_length > i)
             {
                 n = padding_length - i - 1;
                 ZYAN_MEMSET(buffer, '0', n);
+            }
+            if (zero)
+            {
+                buffer[n++] = '0';
             }
         }
         ZYAN_ASSERT(buffer);
