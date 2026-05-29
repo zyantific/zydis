@@ -2809,7 +2809,12 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        // For APX `NF` instructions, bit 2 of the `aaa` field carries the no-flags flag and is
+        // not part of the opmask-register selector.
+        const ZyanU8 mask_index = instruction->apx.has_nf
+            ? (instruction->raw.evex.aaa & 0x03)
+            : instruction->raw.evex.aaa;
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + mask_index;
         switch (def->mask_override)
         {
         case ZYDIS_MASK_OVERRIDE_DEFAULT:
@@ -2824,7 +2829,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         default:
             ZYAN_UNREACHABLE;
         }
-        if (!instruction->raw.evex.aaa)
+        if (!mask_index)
         {
             instruction->avx.mask.mode = ZYDIS_MASK_MODE_DISABLED;
         }
