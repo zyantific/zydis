@@ -1,0 +1,53 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: ccmpz [ENC: EVEX, MAP: MAP4, OPC: 0x39]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: APX
+    ISA-SET: APX_F
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_CCMP
+ ATTRIBUTES: HAS_MODRM HAS_EVEX CPUFLAG_ACCESS HAS_EEVEX 
+  OPTIMIZED: 62 EC AC 04 39 C8 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64       INT                          r16
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r17
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : M  ] [AF  : M  ] [ZF  : M  ] [SF  : M  ] [OF  : M  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: Z
+        DFV: CF SF 
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: ccmpz $5, %r17, %r16
+   RELATIVE: ccmpz $5, %r17, %r16
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: ccmpz {dfv=cf, sf} r16, r17
+   RELATIVE: ccmpz {dfv=cf, sf} r16, r17
+
+== [ SEGMENTS ] ============================================================================================
+62 EC AC 04 39 C8 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

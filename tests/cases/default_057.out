@@ -1,0 +1,47 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: andn [ENC: EVEX, MAP: 0F38, OPC: 0xF2]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: BMI1
+    ISA-SET: APX_F_BMI1
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_BMI
+ ATTRIBUTES: HAS_MODRM HAS_EVEX HAS_EEVEX 
+  OPTIMIZED: 62 72 FC 0C F2 C3 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     64      1      64       INT                           r8
+ 1   REGISTER    EXPLICIT       R        NDSNDD     64      1      64       INT                          rax
+ 2   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64       INT                          rbx
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: N
+     HAS_NF: Y
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: andnnf %rbx, %rax, %r8
+   RELATIVE: andnnf %rbx, %rax, %r8
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: {nf} andn r8, rax, rbx
+   RELATIVE: {nf} andn r8, rax, rbx
+
+== [ SEGMENTS ] ============================================================================================
+62 72 FC 0C F2 C3 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
