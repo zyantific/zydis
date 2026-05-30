@@ -1,0 +1,53 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: cfcmovz [ENC: EVEX, MAP: MAP4, OPC: 0x44]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: APX
+    ISA-SET: APX_F
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_CFCMOV
+ ATTRIBUTES: HAS_MODRM HAS_EVEX CPUFLAG_ACCESS HAS_EEVEX 
+  OPTIMIZED: 62 EC FC 14 44 CA 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W        NDSNDD     64      1      64       INT                          r16
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r17
+ 2   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64       INT                          r18
+ 3   REGISTER      HIDDEN       R          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [ZF  : T  ] 
+       READ: 0x00000040
+    WRITTEN: 0x00000000
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: cfcmovz %r18, %r17, %r16
+   RELATIVE: cfcmovz %r18, %r17, %r16
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: cfcmovz r16, r17, r18
+   RELATIVE: cfcmovz r16, r17, r18
+
+== [ SEGMENTS ] ============================================================================================
+62 EC FC 14 44 CA 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

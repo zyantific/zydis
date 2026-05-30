@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: add [ENC: EVEX, MAP: MAP4, OPC: 0x01]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: BINARY
+    ISA-SET: APX_F
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_INT
+ ATTRIBUTES: HAS_MODRM HAS_EVEX HAS_EEVEX 
+  OPTIMIZED: 62 74 FC 0C 01 D0 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW      MODRM_RM     64      1      64       INT                          rax
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r10
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: N
+     HAS_NF: Y
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: addnf %r10, %rax
+   RELATIVE: addnf %r10, %rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: {nf} add rax, r10
+   RELATIVE: {nf} add rax, r10
+
+== [ SEGMENTS ] ============================================================================================
+62 74 FC 0C 01 D0 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

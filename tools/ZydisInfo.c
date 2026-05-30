@@ -809,23 +809,20 @@ static void PrintAVXInfo(const ZydisDecodedInstruction* instruction)
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
         PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
         PRINT_VALUE_B("SAE", "%s", instruction->avx.has_sae ? "Y" : "N");
         PRINT_VALUE_R("MASK", "%s %s[%s%s%s]",
             ZydisRegisterGetString(instruction->avx.mask.reg),
             CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
             strings_mask_mode[instruction->avx.mask.mode], CVT100_OUT(COLOR_VALUE_LABEL));
-        break;
-    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        PRINT_VALUE_B("ROUNDING", "%s", strings_rounding_mode[instruction->avx.rounding.mode]);
-        PRINT_VALUE_B("SAE", "%s", instruction->avx.has_sae ? "Y" : "N");
-        PRINT_VALUE_R("MASK", "%s %s[%sMERGING%s]",
-            ZydisRegisterGetString(instruction->avx.mask.reg),
-            CVT100_OUT(COLOR_VALUE_LABEL), CVT100_OUT(COLOR_VALUE_B),
-            CVT100_OUT(COLOR_VALUE_LABEL));
-        PRINT_VALUE_B("EH", "%s", instruction->avx.has_eviction_hint ? "Y" : "N");
-        PRINT_VALUE_B("SWIZZLE", "%s", strings_swizzle_mode[instruction->avx.swizzle.mode]);
-        PRINT_VALUE_B("CONVERT", "%s", strings_conversion_mode[instruction->avx.conversion.mode]);
+        if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX)
+        {
+            PRINT_VALUE_B("EH", "%s", instruction->avx.has_eviction_hint ? "Y" : "N");
+            PRINT_VALUE_B("SWIZZLE", "%s", strings_swizzle_mode[instruction->avx.swizzle.mode]);
+            PRINT_VALUE_B("CONVERT", "%s",
+                strings_conversion_mode[instruction->avx.conversion.mode]);
+        }
         break;
     default:
         break;

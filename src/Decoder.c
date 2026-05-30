@@ -2809,7 +2809,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.evex.aaa;
+        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + context->vector_unified.mask;
         switch (def->mask_override)
         {
         case ZYDIS_MASK_OVERRIDE_DEFAULT:
@@ -2824,7 +2824,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         default:
             ZYAN_UNREACHABLE;
         }
-        if (!instruction->raw.evex.aaa)
+        if (!context->vector_unified.mask)
         {
             instruction->avx.mask.mode = ZYDIS_MASK_MODE_DISABLED;
         }
@@ -3129,8 +3129,17 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
         }
 
         // Mask
-        instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGING;
-        instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + instruction->raw.mvex.kkk;
+        if (def->mask_policy == ZYDIS_MASK_POLICY_ALLOWED)
+        {
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_MERGING;
+            instruction->avx.mask.reg = ZYDIS_REGISTER_K0 + context->vector_unified.mask;
+        }
+        else
+        {
+            ZYAN_ASSERT(def->mask_policy == ZYDIS_MASK_POLICY_INVALID);
+            instruction->avx.mask.mode = ZYDIS_MASK_MODE_NONE;
+            instruction->avx.mask.reg = ZYDIS_REGISTER_K0;
+        }
 #else
         ZYAN_UNREACHABLE;
 #endif
@@ -4379,6 +4388,8 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
         return ZYDIS_STATUS_DECODING_ERROR;
     }
 
+    context->vector_unified.mask = 0;
+
     *index = instruction->raw.evex.NF;
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4409,6 +4420,7 @@ static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
 
     context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
     context->vector_unified.V4   = 0;
+    context->vector_unified.mask = 0;
 
     instruction->apx.scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
 
