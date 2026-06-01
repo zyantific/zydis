@@ -323,16 +323,6 @@ ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
 
-    const ZyanBool is_signed =
-        (formatter->imm_signedness == ZYDIS_SIGNEDNESS_SIGNED) ||
-        (formatter->imm_signedness == ZYDIS_SIGNEDNESS_AUTO && (context->operand->imm.is_signed));
-    if (is_signed && (context->operand->imm.value.s < 0))
-    {
-        ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->imm_base, &buffer->string,
-            context->operand->imm.value.s, formatter->imm_padding,
-            formatter->hex_force_leading_number, ZYAN_FALSE);
-        return ZYAN_STATUS_SUCCESS;
-    }
     ZyanU64 value;
     ZyanU8 padding = (formatter->imm_padding ==
         ZYDIS_PADDING_AUTO) ? 0 : (ZyanU8)formatter->imm_padding;
@@ -368,6 +358,17 @@ ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
         break;
     default:
         return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    const ZyanBool is_signed =
+        (formatter->imm_signedness == ZYDIS_SIGNEDNESS_SIGNED) ||
+        (formatter->imm_signedness == ZYDIS_SIGNEDNESS_AUTO && (context->operand->imm.is_signed));
+    if (is_signed && (context->operand->imm.value.s < 0))
+    {
+        ZYDIS_STRING_APPEND_NUM_S(formatter, formatter->imm_base, &buffer->string,
+            context->operand->imm.value.s, padding,
+            formatter->hex_force_leading_number, ZYAN_FALSE);
+        return ZYAN_STATUS_SUCCESS;
     }
     ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->imm_base, &buffer->string, value, padding,
         formatter->hex_force_leading_number);
