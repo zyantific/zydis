@@ -136,10 +136,17 @@ ZyanStatus ZydisCalcAbsoluteAddressEx(const ZydisDecodedInstruction* instruction
     const ZydisDecodedOperand* operand, ZyanU64 runtime_address,
     const ZydisRegisterContext* register_context, ZyanU64* result_address)
 {
-    // TODO: Test this with AGEN/MIB operands
     // TODO: Add support for Gather/Scatter instructions
 
     if (!instruction || !operand || !register_context || !result_address)
+    {
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    // `MIB` operands (`BNDLDX`/`BNDSTX`) have `MPX`-specific addressing semantics that
+    // don't map to a single effective address, so they are not supported here
+    if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
+        (operand->mem.type == ZYDIS_MEMOP_TYPE_MIB))
     {
         return ZYAN_STATUS_INVALID_ARGUMENT;
     }
