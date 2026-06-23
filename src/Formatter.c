@@ -239,7 +239,8 @@ ZyanStatus ZydisFormatterSetProperty(ZydisFormatter* formatter, ZydisFormatterPr
     }
     case ZYDIS_FORMATTER_PROP_DISP_PADDING:
     {
-        if (value > 0xFF)
+        // Unlike imm/addr padding, displacement padding does not support `ZYDIS_PADDING_AUTO`
+        if (((ZydisPadding)value == ZYDIS_PADDING_AUTO) || (value > 0xFF))
         {
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
