@@ -55,6 +55,9 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
+ZyanStatus ZydisFormatterATTFormatOperandREG(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
+
 ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
@@ -155,7 +158,7 @@ static const ZydisFormatter FORMATTER_ATT =
     /* func_format_instruction    */ &ZydisFormatterATTFormatInstruction,
     /* func_pre_operand           */ ZYAN_NULL,
     /* func_post_operand          */ ZYAN_NULL,
-    /* func_format_operand_reg    */ &ZydisFormatterBaseFormatOperandREG,
+    /* func_format_operand_reg    */ &ZydisFormatterATTFormatOperandREG,
     /* func_format_operand_mem    */ &ZydisFormatterATTFormatOperandMEM,
     /* func_format_operand_ptr    */ &ZydisFormatterBaseFormatOperandPTR,
     /* func_format_operand_imm    */ &ZydisFormatterBaseFormatOperandIMM,

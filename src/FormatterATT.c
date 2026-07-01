@@ -218,6 +218,27 @@ ZyanStatus ZydisFormatterATTFormatInstruction(const ZydisFormatter* formatter,
 /* Operands                                                                                       */
 /* ---------------------------------------------------------------------------------------------- */
 
+ZyanStatus ZydisFormatterATTFormatOperandREG(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    // A `ModRM.rm` register operand of a near branch is an indirect target (e.g. `call *%rax`)
+    // and, like the memory-operand form, has to carry the leading `*` in AT&T syntax. Other
+    // register operands of a branch (such as the mask register of `jkzd`) are not the target and
+    // keep no marker.
+    if ((context->instruction->meta.branch_type != ZYDIS_BRANCH_TYPE_NONE) &&
+        (context->operand->encoding == ZYDIS_OPERAND_ENCODING_MODRM_RM))
+    {
+        ZYDIS_BUFFER_APPEND(buffer, MUL);
+    }
+
+    return formatter->func_print_register(formatter, buffer, context,
+        context->operand->reg.value);
+}
+
 ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {

@@ -1,0 +1,39 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: call [ENC: DEFAULT, MAP: DEFAULT, OPC: 0xFF]
+     LENGTH:  2
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: CALL
+    ISA-SET: I86
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM ACCEPTS_BND ACCEPTS_NOTRACK 
+  OPTIMIZED: FF D0 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64       INT                          rax
+ 1   REGISTER      HIDDEN      RW          NONE     64      1      64       INT                          rip
+ 2   REGISTER      HIDDEN      RW          NONE     64      1      64       INT                          rsp
+ 3     MEMORY      HIDDEN       W          NONE     64      1      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ss
+                                                                                 BASE  =                 rsp
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: call *%rax
+   RELATIVE: call *%rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: call rax
+   RELATIVE: call rax
+
+== [ SEGMENTS ] ============================================================================================
+FF D0 
+:  :..MODRM
+:..OPCODE
