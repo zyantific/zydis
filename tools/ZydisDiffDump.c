@@ -88,9 +88,6 @@ static int CmdDump(const char* path, ZyanI64 detail_start, ZyanI64 detail_end)
         return 1;
     }
 
-    ZydisDecoderContext shared_context;
-    memset(&shared_context, 0, sizeof(shared_context));
-
     for (ZyanUSize c = 0; c < ZYAN_ARRAY_LENGTH(CONFIGS); ++c)
     {
         ZydisDecoder decoder;
@@ -101,21 +98,35 @@ static int CmdDump(const char* path, ZyanI64 detail_start, ZyanI64 detail_end)
         }
 
         ZyanU64 block_hash = 0xCBF29CE484222325;
-        memset(&shared_context, 0, sizeof(shared_context));
         for (ZyanUSize offset = 0; offset < size; ++offset)
         {
             ZydisDecodedInstruction instruction;
-            memset(&instruction, 0, sizeof(instruction));
             ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
-            memset(operands, 0, sizeof(operands));
-            const ZyanStatus status = ZydisDecoderDecodeInstruction(&decoder, &shared_context,
+            ZydisDecoderContext context;
+            const ZyanStatus status = ZydisDecoderDecodeInstruction(&decoder, &context,
                 buffer + offset, size - offset, &instruction);
             ZyanU64 entry_hash = 0xCBF29CE484222325;
             entry_hash = FnvUpdate(entry_hash, &status, sizeof(status));
             if (ZYAN_SUCCESS(status))
             {
-                entry_hash = FnvUpdate(entry_hash, &instruction, sizeof(instruction));
-                const ZyanStatus op_status = ZydisDecoderDecodeOperands(&decoder, &shared_context,
+                // The struct embeds pointers into static tables (cpu_flags/fpu_flags);
+                // hash the pointed-to content and null the pointers so the dump is
+                // comparable across different binaries.
+                ZydisDecodedInstruction insn_copy = instruction;
+                if (insn_copy.cpu_flags)
+                {
+                    entry_hash = FnvUpdate(entry_hash, insn_copy.cpu_flags,
+                        sizeof(*insn_copy.cpu_flags));
+                }
+                if (insn_copy.fpu_flags)
+                {
+                    entry_hash = FnvUpdate(entry_hash, insn_copy.fpu_flags,
+                        sizeof(*insn_copy.fpu_flags));
+                }
+                insn_copy.cpu_flags = ZYAN_NULL;
+                insn_copy.fpu_flags = ZYAN_NULL;
+                entry_hash = FnvUpdate(entry_hash, &insn_copy, sizeof(insn_copy));
+                const ZyanStatus op_status = ZydisDecoderDecodeOperands(&decoder, &context,
                     &instruction, operands, instruction.operand_count);
                 entry_hash = FnvUpdate(entry_hash, &op_status, sizeof(op_status));
                 if (ZYAN_SUCCESS(op_status))
@@ -167,9 +178,7 @@ static int CmdBench(const char* path)
             while (offset < size)
             {
                 ZydisDecodedInstruction instruction;
-                memset(&instruction, 0, sizeof(instruction));
                 ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
-                memset(operands, 0, sizeof(operands));
                 ZydisDecoderContext context;
                 if (ZYAN_SUCCESS(ZydisDecoderDecodeInstruction(&decoder, &context,
                     buffer + offset, size - offset, &instruction)))
