@@ -539,6 +539,15 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
         return ZYAN_STATUS_SUCCESS;
     }
 
+    const ZydisInstructionAttributes relevant_prefixes =
+        ZYDIS_ATTRIB_HAS_XACQUIRE | ZYDIS_ATTRIB_HAS_XRELEASE | ZYDIS_ATTRIB_HAS_LOCK |
+        ZYDIS_ATTRIB_HAS_BND | ZYDIS_ATTRIB_HAS_NOTRACK | ZYDIS_ATTRIB_HAS_REP |
+        ZYDIS_ATTRIB_HAS_REPE | ZYDIS_ATTRIB_HAS_REPNE;
+    if (!(context->instruction->attributes & relevant_prefixes))
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+
     if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_XACQUIRE)
     {
         ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_XACQUIRE, formatter->case_prefixes);
