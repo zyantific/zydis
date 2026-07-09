@@ -157,6 +157,28 @@ static ZyanStatus ZydisStringAppendDecU64(ZyanString* string, ZyanU64 value, Zya
 /* Hexadecimal                                                                                    */
 /* ---------------------------------------------------------------------------------------------- */
 
+/**
+ * Returns the number of hexadecimal digits required to represent `value`.
+ *
+ * @param   value   The value. Must not be `0`.
+ *
+ * @return  The number of hexadecimal digits (1..16).
+ */
+ZYAN_INLINE ZyanU8 ZydisHexDigitCount(ZyanU64 value)
+{
+    ZYAN_ASSERT(value);
+#if defined(ZYAN_GCC) || defined(ZYAN_CLANG) || defined(ZYAN_ICC)
+    return (ZyanU8)(((63 - __builtin_clzll(value)) >> 2) + 1);
+#else
+    ZyanU8 count = 1;
+    while (value >>= 4)
+    {
+        ++count;
+    }
+    return count;
+#endif
+}
+
 #if ZYAN_ARCHITECTURE_WIDTH != 64
 static ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, ZyanU8 padding_length,
     ZyanBool force_leading_number, ZyanBool uppercase)
@@ -165,12 +187,7 @@ static ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, Zya
     ZYAN_ASSERT(!string->vector.allocator);
 
     const ZyanUSize len = string->vector.size;
-    const ZyanUSize remaining = string->vector.capacity - string->vector.size;
-
-    if (remaining < (ZyanUSize)padding_length)
-    {
-        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
+    const ZyanUSize remaining = string->vector.capacity - len;
 
     if (!value)
     {
@@ -188,43 +205,32 @@ static ZyanStatus ZydisStringAppendHexU32(ZyanString* string, ZyanU32 value, Zya
         return ZYAN_STATUS_SUCCESS;
     }
 
-    ZyanU8 n = 0;
-    char* buffer = ZYAN_NULL;
-    for (ZyanI8 i = ZYDIS_MAXCHARS_HEX_32 - 1; i >= 0; --i)
+    const ZyanU8 digits = ZydisHexDigitCount(value);
+    // Padding already yields a leading numeric character; the extra `0` is only needed when the
+    // number itself starts with a letter digit
+    const ZyanU8 lead_zero = (force_leading_number && (padding_length <= digits) &&
+        ((ZyanU8)(value >> ((digits - 1) * 4)) > 9)) ? 1 : 0;
+    const ZyanUSize total = (ZyanUSize)ZYAN_MAX(digits, padding_length) + lead_zero;
+
+    if (remaining < total)
     {
-        const ZyanU8 v = (value >> i * 4) & 0x0F;
-        if (!n)
-        {
-            if (!v)
-            {
-                continue;
-            }
-            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i + 1) ? 1 : 0;
-            if (remaining <= (ZyanUSize)i + zero)
-            {
-                return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
-            }
-            buffer = (char*)string->vector.data + len - 1;
-            if (padding_length > i)
-            {
-                n = padding_length - i - 1;
-                ZYAN_MEMSET(buffer, '0', n);
-            }
-            if (zero)
-            {
-                buffer[n++] = '0';
-            }
-        }
-        ZYAN_ASSERT(buffer);
-        if (uppercase)
-        {
-            buffer[n++] = "0123456789ABCDEF"[v];
-        } else
-        {
-            buffer[n++] = "0123456789abcdef"[v];
-        }
+        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
-    string->vector.size = len + n;
+
+    char* buffer = (char*)string->vector.data + len - 1;
+    if (total > (ZyanUSize)digits)
+    {
+        ZYAN_MEMSET(buffer, '0', total - digits);
+        buffer += total - digits;
+    }
+
+    const char* const digit_chars = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
+    for (ZyanU8 i = digits; i-- > 0;)
+    {
+        *buffer++ = digit_chars[(value >> (i * 4)) & 0x0F];
+    }
+
+    string->vector.size = len + total;
     ZYDIS_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
@@ -238,12 +244,7 @@ static ZyanStatus ZydisStringAppendHexU64(ZyanString* string, ZyanU64 value, Zya
     ZYAN_ASSERT(!string->vector.allocator);
 
     const ZyanUSize len = string->vector.size;
-    const ZyanUSize remaining = string->vector.capacity - string->vector.size;
-
-    if (remaining < (ZyanUSize)padding_length)
-    {
-        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
-    }
+    const ZyanUSize remaining = string->vector.capacity - len;
 
     if (!value)
     {
@@ -261,44 +262,32 @@ static ZyanStatus ZydisStringAppendHexU64(ZyanString* string, ZyanU64 value, Zya
         return ZYAN_STATUS_SUCCESS;
     }
 
-    ZyanU8 n = 0;
-    char* buffer = ZYAN_NULL;
-    for (ZyanI8 i = ((value & 0xFFFFFFFF00000000) ?
-        ZYDIS_MAXCHARS_HEX_64 : ZYDIS_MAXCHARS_HEX_32) - 1; i >= 0; --i)
+    const ZyanU8 digits = ZydisHexDigitCount(value);
+    // Padding already yields a leading numeric character; the extra `0` is only needed when the
+    // number itself starts with a letter digit
+    const ZyanU8 lead_zero = (force_leading_number && (padding_length <= digits) &&
+        ((ZyanU8)(value >> ((digits - 1) * 4)) > 9)) ? 1 : 0;
+    const ZyanUSize total = (ZyanUSize)ZYAN_MAX(digits, padding_length) + lead_zero;
+
+    if (remaining < total)
     {
-        const ZyanU8 v = (value >> i * 4) & 0x0F;
-        if (!n)
-        {
-            if (!v)
-            {
-                continue;
-            }
-            const ZyanU8 zero = force_leading_number && (v > 9) && (padding_length <= i + 1) ? 1 : 0;
-            if (remaining <= (ZyanUSize)i + zero)
-            {
-                return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
-            }
-            buffer = (char*)string->vector.data + len - 1;
-            if (padding_length > i)
-            {
-                n = padding_length - i - 1;
-                ZYAN_MEMSET(buffer, '0', n);
-            }
-            if (zero)
-            {
-                buffer[n++] = '0';
-            }
-        }
-        ZYAN_ASSERT(buffer);
-        if (uppercase)
-        {
-            buffer[n++] = "0123456789ABCDEF"[v];
-        } else
-        {
-            buffer[n++] = "0123456789abcdef"[v];
-        }
+        return ZYAN_STATUS_INSUFFICIENT_BUFFER_SIZE;
     }
-    string->vector.size = len + n;
+
+    char* buffer = (char*)string->vector.data + len - 1;
+    if (total > (ZyanUSize)digits)
+    {
+        ZYAN_MEMSET(buffer, '0', total - digits);
+        buffer += total - digits;
+    }
+
+    const char* const digit_chars = uppercase ? "0123456789ABCDEF" : "0123456789abcdef";
+    for (ZyanU8 i = digits; i-- > 0;)
+    {
+        *buffer++ = digit_chars[(value >> (i * 4)) & 0x0F];
+    }
+
+    string->vector.size = len + total;
     ZYDIS_STRING_NULLTERMINATE(string);
 
     return ZYAN_STATUS_SUCCESS;
