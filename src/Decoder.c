@@ -4382,7 +4382,7 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
 
     // Error conditions
 
-    if (instruction->raw.evex.z || context->vector_unified.L || 
+    if (instruction->raw.evex.z || context->vector_unified.LL ||
         (context->vector_unified.mask & 0x03))
     {
         return ZYDIS_STATUS_DECODING_ERROR;
