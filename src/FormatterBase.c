@@ -329,28 +329,32 @@ ZyanStatus ZydisFormatterBasePrintIMM(const ZydisFormatter* formatter,
     switch (context->instruction->operand_width)
     {
     case 8:
-        if (formatter->imm_padding == ZYDIS_PADDING_AUTO)
+        if ((formatter->imm_padding == ZYDIS_PADDING_AUTO) &&
+            (formatter->imm_base == ZYDIS_NUMERIC_BASE_HEX))
         {
             padding =  2;
         }
         value = (ZyanU8 )context->operand->imm.value.u;
         break;
     case 16:
-        if (formatter->imm_padding == ZYDIS_PADDING_AUTO)
+        if ((formatter->imm_padding == ZYDIS_PADDING_AUTO) &&
+            (formatter->imm_base == ZYDIS_NUMERIC_BASE_HEX))
         {
             padding =  4;
         }
         value = (ZyanU16)context->operand->imm.value.u;
         break;
     case 32:
-        if (formatter->imm_padding == ZYDIS_PADDING_AUTO)
+        if ((formatter->imm_padding == ZYDIS_PADDING_AUTO) &&
+            (formatter->imm_base == ZYDIS_NUMERIC_BASE_HEX))
         {
             padding =  8;
         }
         value = (ZyanU32)context->operand->imm.value.u;
         break;
     case 64:
-        if (formatter->imm_padding == ZYDIS_PADDING_AUTO)
+        if ((formatter->imm_padding == ZYDIS_PADDING_AUTO) &&
+            (formatter->imm_base == ZYDIS_NUMERIC_BASE_HEX))
         {
             padding = 16;
         }
