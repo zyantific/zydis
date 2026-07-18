@@ -170,8 +170,7 @@ static int CmdBench(const char* path)
     for (int full = 0; full < 2; ++full)
     {
         ZyanU64 total = 0;
-        struct timespec ts0, ts1;
-        clock_gettime(CLOCK_MONOTONIC, &ts0);
+        const clock_t start = clock();
         for (int round = 0; round < 100; ++round)
         {
             ZyanUSize offset = 0;
@@ -197,9 +196,9 @@ static int CmdBench(const char* path)
                 }
             }
         }
-        clock_gettime(CLOCK_MONOTONIC, &ts1);
-        const double seconds = (double)(ts1.tv_sec - ts0.tv_sec) +
-            (double)(ts1.tv_nsec - ts0.tv_nsec) * 1e-9;
+        // CPU time keeps this portable (no POSIX clock_gettime on MSVC) and, for this
+        // single-threaded decode loop, tracks wall time closely.
+        const double seconds = (double)(clock() - start) / CLOCKS_PER_SEC;
         printf("%-6s %6.2f ns/instr (%.2f Mi instr/s)\n", full ? "full" : "instr",
             seconds / (double)total * 1e9, (double)total / seconds / 1048576.0);
     }
