@@ -799,6 +799,9 @@ typedef struct ZydisInstructionDefinitionLEGACY_
     ZyanBool accepts_hle_without_lock      ZYAN_BITFIELD( 1);
     ZyanBool accepts_branch_hints          ZYAN_BITFIELD( 1);
 #endif
+    // Legacy prefix byte consumed as part of opcode selection: 0 = none, 1 = 0x66, 2 = 0xF3,
+    // 3 = 0xF2.
+    ZyanU8 mandatory_prefix                ZYAN_BITFIELD( 2);
 } ZydisInstructionDefinitionLEGACY;
 
 /**
@@ -866,6 +869,8 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 has_apx_nf                      ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_ppx                     ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_scc                     ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_nf_check                ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif
 
