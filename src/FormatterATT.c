@@ -32,6 +32,10 @@
 
 #include <Generated/FormatterStrings.inc>
 
+static const ZydisShortString STR_SIZE_SHORT_ATT = ZYDIS_MAKE_SHORTSTRING("s");
+static const ZydisShortString STR_SIZE_EXTENDED_ATT = ZYDIS_MAKE_SHORTSTRING("t");
+static const ZydisShortString STR_SIZE_LONG_LONG_ATT = ZYDIS_MAKE_SHORTSTRING("ll");
+
 /* ============================================================================================== */
 /* Formatter functions                                                                            */
 /* ============================================================================================== */
@@ -320,6 +324,234 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
 
+static const ZydisShortString* ZydisFormatterATTGetSizeSuffix(ZyanU32 size)
+{
+    switch (size)
+    {
+    case   8: return &STR_SIZE_8_ATT;
+    case  16: return &STR_SIZE_16_ATT;
+    case  32: return &STR_SIZE_32_ATT;
+    case  64: return &STR_SIZE_64_ATT;
+    case 128: return &STR_SIZE_128_ATT;
+    case 256: return &STR_SIZE_256_ATT;
+    case 512: return &STR_SIZE_512_ATT;
+    default: return ZYAN_NULL;
+    }
+}
+
+static const ZydisShortString* ZydisFormatterATTGetMnemonicSuffix(
+    const ZydisFormatter* formatter, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(context->instruction);
+    ZYAN_ASSERT(context->operands);
+
+    const ZydisDecodedInstruction* const instruction = context->instruction;
+    const ZydisDecodedOperand* memory_operand = ZYAN_NULL;
+    for (ZyanU8 i = 0; i < instruction->operand_count_visible; ++i)
+    {
+        const ZydisDecodedOperand* const operand = &context->operands[i];
+        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
+            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
+        {
+            memory_operand = operand;
+            break;
+        }
+    }
+
+    if (memory_operand)
+    {
+        switch (instruction->mnemonic)
+        {
+        case ZYDIS_MNEMONIC_FADD:
+        case ZYDIS_MNEMONIC_FCOM:
+        case ZYDIS_MNEMONIC_FCOMP:
+        case ZYDIS_MNEMONIC_FDIV:
+        case ZYDIS_MNEMONIC_FDIVR:
+        case ZYDIS_MNEMONIC_FLD:
+        case ZYDIS_MNEMONIC_FMUL:
+        case ZYDIS_MNEMONIC_FST:
+        case ZYDIS_MNEMONIC_FSTP:
+        case ZYDIS_MNEMONIC_FSUB:
+        case ZYDIS_MNEMONIC_FSUBR:
+            switch (memory_operand->size)
+            {
+            case 32: return &STR_SIZE_SHORT_ATT;
+            case 64: return &STR_SIZE_32_ATT;
+            case 80: return &STR_SIZE_EXTENDED_ATT;
+            default: return ZYAN_NULL;
+            }
+        case ZYDIS_MNEMONIC_FIADD:
+        case ZYDIS_MNEMONIC_FICOM:
+        case ZYDIS_MNEMONIC_FICOMP:
+        case ZYDIS_MNEMONIC_FIDIV:
+        case ZYDIS_MNEMONIC_FIDIVR:
+        case ZYDIS_MNEMONIC_FILD:
+        case ZYDIS_MNEMONIC_FIMUL:
+        case ZYDIS_MNEMONIC_FIST:
+        case ZYDIS_MNEMONIC_FISTP:
+        case ZYDIS_MNEMONIC_FISTTP:
+        case ZYDIS_MNEMONIC_FISUB:
+        case ZYDIS_MNEMONIC_FISUBR:
+            switch (memory_operand->size)
+            {
+            case 16: return &STR_SIZE_SHORT_ATT;
+            case 32: return &STR_SIZE_32_ATT;
+            case 64: return &STR_SIZE_LONG_LONG_ATT;
+            default: return ZYAN_NULL;
+            }
+        case ZYDIS_MNEMONIC_FLDENV:
+        case ZYDIS_MNEMONIC_FNSAVE:
+        case ZYDIS_MNEMONIC_FNSTENV:
+        case ZYDIS_MNEMONIC_FRSTOR:
+            switch (memory_operand->size)
+            {
+            case 112:
+            case 752:
+                return &STR_SIZE_SHORT_ATT;
+            case 224:
+            case 864:
+                return &STR_SIZE_32_ATT;
+            default: return ZYAN_NULL;
+            }
+        default:
+            break;
+        }
+
+        // The remaining x87 memory instructions have a fixed operand size encoded by their
+        // mnemonic. Applying the generic suffix mapping to them would produce invalid names such
+        // as `fldcww`.
+        if (instruction->meta.category == ZYDIS_CATEGORY_X87_ALU)
+        {
+            return ZYAN_NULL;
+        }
+
+        if (instruction->operand_count_visible == 1)
+        {
+            switch (instruction->mnemonic)
+            {
+            case ZYDIS_MNEMONIC_CALL:
+            case ZYDIS_MNEMONIC_JMP:
+            case ZYDIS_MNEMONIC_POP:
+            case ZYDIS_MNEMONIC_PUSH:
+                return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+            case ZYDIS_MNEMONIC_DEC:
+            case ZYDIS_MNEMONIC_DIV:
+            case ZYDIS_MNEMONIC_IDIV:
+            case ZYDIS_MNEMONIC_IMUL:
+            case ZYDIS_MNEMONIC_INC:
+            case ZYDIS_MNEMONIC_MUL:
+            case ZYDIS_MNEMONIC_NEG:
+            case ZYDIS_MNEMONIC_NOP:
+            case ZYDIS_MNEMONIC_NOT:
+            case ZYDIS_MNEMONIC_PTWRITE:
+                return ZydisFormatterATTGetSizeSuffix(memory_operand->size);
+            default:
+                break;
+            }
+        }
+
+        switch (instruction->mnemonic)
+        {
+        case ZYDIS_MNEMONIC_LGDT:
+        case ZYDIS_MNEMONIC_LIDT:
+        case ZYDIS_MNEMONIC_SGDT:
+        case ZYDIS_MNEMONIC_SIDT:
+            if (instruction->machine_mode != ZYDIS_MACHINE_MODE_LONG_64)
+            {
+                return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+            }
+            return ZYAN_NULL;
+        default:
+            break;
+        }
+
+        if (formatter->force_memory_size)
+        {
+            switch (instruction->mnemonic)
+            {
+            case ZYDIS_MNEMONIC_LKGS:
+            case ZYDIS_MNEMONIC_LLDT:
+            case ZYDIS_MNEMONIC_LMSW:
+            case ZYDIS_MNEMONIC_LTR:
+            case ZYDIS_MNEMONIC_SLDT:
+            case ZYDIS_MNEMONIC_SMSW:
+            case ZYDIS_MNEMONIC_STR:
+            case ZYDIS_MNEMONIC_VERR:
+            case ZYDIS_MNEMONIC_VERW:
+                return &STR_SIZE_16_ATT;
+            default:
+                break;
+            }
+        }
+
+        // All single-memory mnemonics that accept a size suffix are handled above. The remaining
+        // instructions have a fixed size encoded by their mnemonic or instruction semantics. This
+        // also prevents FORCE_SIZE from creating unsupported or non-canonical names such as
+        // `clflushz` or `setbb`.
+        if (instruction->operand_count_visible == 1)
+        {
+            return ZYAN_NULL;
+        }
+
+        const ZyanU32 size = ZydisFormatterHelperGetExplicitSize(formatter, context,
+            memory_operand);
+        if (size)
+        {
+            return ZydisFormatterATTGetSizeSuffix(size);
+        }
+    }
+
+    switch (instruction->mnemonic)
+    {
+    case ZYDIS_MNEMONIC_CALL:
+        if ((instruction->operand_count_visible == 1) &&
+            (context->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER))
+        {
+            return ZYAN_NULL;
+        }
+        return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+    case ZYDIS_MNEMONIC_JMP:
+        if ((instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_SHORT) ||
+            ((instruction->operand_count_visible == 1) &&
+             (context->operands[0].type == ZYDIS_OPERAND_TYPE_REGISTER)))
+        {
+            return ZYAN_NULL;
+        }
+        return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+    case ZYDIS_MNEMONIC_PUSH:
+        if ((instruction->operand_count_visible == 1) &&
+            (context->operands[0].type == ZYDIS_OPERAND_TYPE_IMMEDIATE))
+        {
+            return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+        }
+        return ZYAN_NULL;
+    case ZYDIS_MNEMONIC_ENTER:
+    case ZYDIS_MNEMONIC_LEAVE:
+    case ZYDIS_MNEMONIC_RET:
+        return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+    case ZYDIS_MNEMONIC_SYSEXIT:
+    case ZYDIS_MNEMONIC_SYSRET:
+        // These instructions only have 32-bit and 64-bit forms. An operand-size override does not
+        // turn the 32-bit form into a 16-bit instruction.
+        return (instruction->operand_width == 64) ? &STR_SIZE_64_ATT : &STR_SIZE_32_ATT;
+    case ZYDIS_MNEMONIC_LOOP:
+    case ZYDIS_MNEMONIC_LOOPE:
+    case ZYDIS_MNEMONIC_LOOPNE:
+        return ZydisFormatterATTGetSizeSuffix(instruction->address_width);
+    case ZYDIS_MNEMONIC_XBEGIN:
+        if ((instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+            (instruction->operand_width == 32))
+        {
+            return &STR_SIZE_64_ATT;
+        }
+        return ZydisFormatterATTGetSizeSuffix(instruction->operand_width);
+    default:
+        return ZYAN_NULL;
+    }
+}
+
 ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
@@ -352,29 +584,10 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     }
 
     // Append operand-size suffix
-    ZyanU32 size = 0;
-    for (ZyanU8 i = 0; i < context->instruction->operand_count_visible; ++i)
+    const ZydisShortString* const suffix = ZydisFormatterATTGetMnemonicSuffix(formatter, context);
+    if (suffix)
     {
-        const ZydisDecodedOperand* const operand = &context->operands[i];
-        if ((operand->type == ZYDIS_OPERAND_TYPE_MEMORY) &&
-            (operand->mem.type == ZYDIS_MEMOP_TYPE_MEM))
-        {
-            size = ZydisFormatterHelperGetExplicitSize(formatter, context, operand);
-            break;
-        }
-    }
-
-    switch (size)
-    {
-    case   8: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_8_ATT  , formatter->case_mnemonic)); break;
-    case  16: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_16_ATT , formatter->case_mnemonic)); break;
-    case  32: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_32_ATT , formatter->case_mnemonic)); break;
-    case  64: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_64_ATT , formatter->case_mnemonic)); break;
-    case 128: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_128_ATT, formatter->case_mnemonic)); break;
-    case 256: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_256_ATT, formatter->case_mnemonic)); break;
-    case 512: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_512_ATT, formatter->case_mnemonic)); break;
-    default:
-        break;
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, suffix, formatter->case_mnemonic));
     }
 
     if (formatter->print_branch_size)
