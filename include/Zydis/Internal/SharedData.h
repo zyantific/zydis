@@ -870,6 +870,7 @@ typedef struct ZydisInstructionDefinitionEVEX_
     ZyanU8 has_apx_zu                      ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_ppx                     ZYAN_BITFIELD( 1);
     ZyanU8 has_apx_scc                     ZYAN_BITFIELD( 1);
+    ZyanU8 has_apx_nf_check                ZYAN_BITFIELD( 1);
 } ZydisInstructionDefinitionEVEX;
 #endif
 

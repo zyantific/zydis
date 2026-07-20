@@ -4292,14 +4292,25 @@ static ZyanStatus ZydisNodeHandlerRexB(const ZydisDecoderContext* context,
 
 #ifndef ZYDIS_DISABLE_AVX512
 
-static ZyanStatus ZydisNodeHandlerEvexU(const ZydisDecoderState* state, 
-    const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexU(ZydisDecoderState* state,
+    ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
+    ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
+
+    // The APX `EVEX.U`/`EVEX.X4` reinterpretation depends on `modrm.mod`, so the filter must
+    // fetch the `ModRM` byte itself rather than assume an earlier node already did.
+    if (!instruction->raw.modrm.offset)
+    {
+        instruction->raw.modrm.offset = instruction->length;
+        ZyanU8 modrm_byte;
+        ZYAN_CHECK(ZydisInputNext(state, instruction, &modrm_byte));
+        ZydisDecodeModRM(instruction, modrm_byte);
+    }
 
     *index = instruction->raw.evex.U;
 
@@ -4361,49 +4372,26 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
 
-    // Error conditions
-
-    if (instruction->raw.evex.z || context->vector_unified.L || 
-        (context->vector_unified.mask & 0x03))
-    {
-        return ZYDIS_STATUS_DECODING_ERROR;
-    }
-
-    context->vector_unified.mask = 0;
+    // Error conditions and mask normalization live in `ZydisCheckErrorConditions`, keyed on the
+    // `has_apx_nf_check` definition flag.
 
     *index = instruction->raw.evex.NF;
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context, 
-    ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
+    const ZydisDecodedInstruction* instruction, ZyanU16* index)
 {
-    ZYAN_ASSERT(context);
+    ZYAN_ASSERT(context); // TODO: remove
+    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
     ZYAN_ASSERT(instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
     ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_EVEX);
 
-    // Error conditions
-
-    if (instruction->raw.evex.z || context->vector_unified.LL)
-    {
-        return ZYDIS_STATUS_DECODING_ERROR;
-    }
-
-    // APX conditional CMP and TEST uses a special form of the EVEX prefix which reuses
-    // the `.V4` bit and the `.aaa` bits as the `.SCC` condition code and the `.vvvv` bits
-    // as the DFV specifier. Other than the regular `.vvvv` NDS/NDD specifier, the DFV
-    // specifier bits are not inverted.
-
-    // All APX conditional CMP and TEST instructions must have an SCC filter!
-
-    context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
-    context->vector_unified.V4   = 0;
-    context->vector_unified.mask = 0;
-
-    instruction->apx.scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
+    // Error conditions and the `vvvv`/`V4`/`mask` DFV normalization live in
+    // `ZydisCheckErrorConditions`, keyed on the `has_apx_scc` definition flag.
 
     *index = instruction->raw.evex.SCC;
     return ZYAN_STATUS_SUCCESS;
@@ -4723,6 +4711,7 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
 #if !defined(ZYDIS_DISABLE_AVX512) || !defined(ZYDIS_DISABLE_KNC)
     ZydisMaskPolicy mask_policy     = ZYDIS_MASK_POLICY_INVALID;
 #endif
+    ZydisDecoderContext* context    = state->context;
 
     switch (instruction->encoding)
     {
@@ -4780,6 +4769,36 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
         is_gather            = def->is_gather;
         no_source_dest_match = def->no_source_dest_match;
         mask_policy          = def->mask_policy;
+
+        // The APX `EVEX.NF` and `EVEX.SCC` forms repurpose the mask and `vvvv`/`V4` fields. They
+        // are validated and normalized first: the legacy node-order walk rejected these encodings
+        // at the `EVEX.NF`/`EVEX.SCC` node before any definition-time check ran, so running them
+        // ahead of the zero-mask, register-id and mask-policy logic preserves both the status code
+        // and the corrected `vector_unified` those consumers observe.
+        if (def->has_apx_nf_check)
+        {
+            if (instruction->raw.evex.z || context->vector_unified.L ||
+                (context->vector_unified.mask & 0x03))
+            {
+                return ZYDIS_STATUS_DECODING_ERROR;
+            }
+
+            context->vector_unified.mask = 0;
+        }
+        if (def->has_apx_scc)
+        {
+            if (instruction->raw.evex.z || context->vector_unified.LL)
+            {
+                return ZYDIS_STATUS_DECODING_ERROR;
+            }
+
+            // Unlike the regular NDS/NDD specifier, the DFV bits reused by `vvvv` are not inverted.
+            context->vector_unified.vvvv = (~context->vector_unified.vvvv) & 0x0F;
+            context->vector_unified.V4   = 0;
+            context->vector_unified.mask = 0;
+
+            instruction->apx.scc = ZYDIS_SCC_O + instruction->raw.evex.SCC;
+        }
 
         // Check for invalid zero-mask
         if ((instruction->raw.evex.z) && (!def->accepts_zero_mask))
@@ -4871,7 +4890,6 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
         ZYAN_UNREACHABLE;
     }
 
-    ZydisDecoderContext* context = state->context;
     const ZyanBool is_reg = context->reg_info.is_mod_reg;
 
     ZyanU8 no_rip_rel     = ZYAN_FALSE;
