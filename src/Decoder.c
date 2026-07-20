@@ -5245,25 +5245,23 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             // override. `HAS_OPERANDSIZE` must be settled before `ZydisSetEffectiveOperandWidth`
             // consumes it below.
             if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
+                (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ||
                 (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
             {
-                // Only the `LEGACY` definition record carries `mandatory_prefix`; no `3DNOW`
-                // definition consumes a candidate, so a `3DNOW` candidate is never mandatory.
-                if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) &&
+                // `LEGACY` and `REX2` share the definition record that carries `mandatory_prefix`;
+                // no `3DNOW` definition consumes a candidate, so a `3DNOW` candidate is never
+                // mandatory.
+                if ((instruction->encoding != ZYDIS_INSTRUCTION_ENCODING_3DNOW) &&
                     (state->prefixes.mandatory_candidate != 0x00))
                 {
                     const ZydisInstructionDefinitionLEGACY* legacy_def =
                         (const ZydisInstructionDefinitionLEGACY*)definition;
                     if (legacy_def->mandatory_prefix != 0)
                     {
-                        // The tree guarantees the routed candidate matches the field value.
-                        ZYAN_ASSERT(
-                            ((state->prefixes.mandatory_candidate == 0x66) &&
-                                (legacy_def->mandatory_prefix == 1)) ||
-                            ((state->prefixes.mandatory_candidate == 0xF3) &&
-                                (legacy_def->mandatory_prefix == 2)) ||
-                            ((state->prefixes.mandatory_candidate == 0xF2) &&
-                                (legacy_def->mandatory_prefix == 3)));
+                        // A non-zero field means the candidate is consumed as a mandatory prefix.
+                        // The field does not correspond to the candidate one-to-one: string ops
+                        // fold the F2 and F3 variants onto a single record (`mandatory_prefix == 2`
+                        // reached with an F2 candidate), so only the non-zero test is authoritative.
                         instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
                             ZYDIS_PREFIX_TYPE_MANDATORY;
                         if (state->prefixes.mandatory_candidate == 0x66)
