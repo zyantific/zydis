@@ -4110,29 +4110,15 @@ static ZyanStatus ZydisNodeHandlerMandatoryPrefix(const ZydisDecoderState* state
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
+    // Pure routing: whether the candidate is actually consumed (and how the prefix is
+    // classified) is decided at definition time, once the acting definition is known.
     switch (state->prefixes.mandatory_candidate)
     {
-    case 0x66:
-        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
-            ZYDIS_PREFIX_TYPE_MANDATORY;
-        instruction->attributes &= ~ZYDIS_ATTRIB_HAS_OPERANDSIZE;
-        *index = 2;
-        break;
-    case 0xF3:
-        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
-            ZYDIS_PREFIX_TYPE_MANDATORY;
-        *index = 3;
-        break;
-    case 0xF2:
-        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
-            ZYDIS_PREFIX_TYPE_MANDATORY;
-        *index = 4;
-        break;
-    default:
-        *index = 1;
-        break;
+    case 0x66: *index = 2; break;
+    case 0xF3: *index = 3; break;
+    case 0xF2: *index = 4; break;
+    default:   *index = 1; break;
     }
-    // TODO: Consume prefix and make sure it's available again, if we need to fallback
 
     return ZYAN_STATUS_SUCCESS;
 }
@@ -4150,11 +4136,6 @@ static ZyanStatus ZydisNodeHandlerOperandSize(const ZydisDecoderState* state,
         *index = 2;
     } else
     {
-        if (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE)
-        {
-            instruction->raw.prefixes[state->prefixes.offset_osz_override].type =
-                ZYDIS_PREFIX_TYPE_EFFECTIVE;
-        }
         switch (instruction->machine_mode)
         {
         case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
@@ -5064,7 +5045,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
 
     // Iterate through the decoder tree.
     const ZydisDecoderTreeNode* node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_PRIMARY);
-    const ZydisDecoderTreeNode* temp = ZYAN_NULL;
 
     do
     {
@@ -5116,14 +5096,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(state, instruction, &index);
-            if (ZYDIS_DT_GET_VALUE(node, 0) != 0)
-            {
-                // TODO: Handle this case in the generator.
-                temp = node + ZYDIS_DT_GET_VALUE(node, 0);
-            }
-            // TODO: Return to this point, if index == 0 contains a value and the previous path
-            // TODO: was not successful
-            // TODO: Restore consumed prefix
             break;
         case ZYDIS_NODETYPE_OPERAND_SIZE:
             status = ZydisNodeHandlerOperandSize(state, instruction, &index);
@@ -5199,6 +5171,62 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         {
             const ZydisInstructionDefinition* definition;
             ZydisGetInstructionDefinition(instruction->encoding, ZYDIS_DT_GET_VALUE(node, 0), &definition);
+
+            // Now that the acting definition is known, resolve how a mandatory-candidate prefix
+            // is classified. The tree routed us here purely by candidate; only the definition
+            // knows whether that prefix selects the opcode or acts as an operand-size/REP
+            // override. `HAS_OPERANDSIZE` must be settled before `ZydisSetEffectiveOperandWidth`
+            // consumes it below.
+            if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) ||
+                (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW))
+            {
+                // Only the `LEGACY` definition record carries `mandatory_prefix`; no `3DNOW`
+                // definition consumes a candidate, so a `3DNOW` candidate is never mandatory.
+                if ((instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_LEGACY) &&
+                    (state->prefixes.mandatory_candidate != 0x00))
+                {
+                    const ZydisInstructionDefinitionLEGACY* legacy_def =
+                        (const ZydisInstructionDefinitionLEGACY*)definition;
+                    if (legacy_def->mandatory_prefix != 0)
+                    {
+                        // The tree guarantees the routed candidate matches the field value.
+                        ZYAN_ASSERT(
+                            ((state->prefixes.mandatory_candidate == 0x66) &&
+                                (legacy_def->mandatory_prefix == 1)) ||
+                            ((state->prefixes.mandatory_candidate == 0xF3) &&
+                                (legacy_def->mandatory_prefix == 2)) ||
+                            ((state->prefixes.mandatory_candidate == 0xF2) &&
+                                (legacy_def->mandatory_prefix == 3)));
+                        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
+                            ZYDIS_PREFIX_TYPE_MANDATORY;
+                        if (state->prefixes.mandatory_candidate == 0x66)
+                        {
+                            instruction->attributes &= ~ZYDIS_ATTRIB_HAS_OPERANDSIZE;
+                        }
+                    }
+                    else
+                    {
+                        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
+                            ZYDIS_PREFIX_TYPE_IGNORED;
+                        if ((state->prefixes.mandatory_candidate == 0x66) &&
+                            (state->prefixes.offset_osz_override ==
+                                state->prefixes.offset_mandatory))
+                        {
+                            instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
+                                ZYDIS_PREFIX_TYPE_EFFECTIVE;
+                        }
+                    }
+                }
+
+                if (!((instruction->machine_mode == ZYDIS_MACHINE_MODE_LONG_64) &&
+                        (state->context->vector_unified.W)) &&
+                    (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE))
+                {
+                    instruction->raw.prefixes[state->prefixes.offset_osz_override].type =
+                        ZYDIS_PREFIX_TYPE_EFFECTIVE;
+                }
+            }
+
             ZydisSetEffectiveOperandWidth(state->context, instruction, definition);
             ZydisSetEffectiveAddressWidth(state->context, instruction, definition);
 
@@ -5306,31 +5334,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             if ((node_type == ZYDIS_NODETYPE_REX_2) && (index == 0))
             {
                 return ZYDIS_STATUS_ILLEGAL_REX2;
-            }
-
-            if (temp)
-            {
-                node = temp;
-                temp = ZYAN_NULL;
-
-                if (state->prefixes.mandatory_candidate != 0x00)
-                {
-                    instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
-                        ZYDIS_PREFIX_TYPE_IGNORED;
-                }
-
-                if (state->prefixes.mandatory_candidate == 0x66)
-                {
-                    if (state->prefixes.offset_osz_override ==
-                        state->prefixes.offset_mandatory)
-                    {
-                        instruction->raw.prefixes[state->prefixes.offset_mandatory].type =
-                            ZYDIS_PREFIX_TYPE_EFFECTIVE;
-                    }
-                    instruction->attributes |= ZYDIS_ATTRIB_HAS_OPERANDSIZE;
-                }
-
-                continue;
             }
 
             return ZYDIS_STATUS_DECODING_ERROR;
