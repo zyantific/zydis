@@ -4103,11 +4103,9 @@ static ZyanStatus ZydisNodeHandlerModrmRm(ZydisDecoderState* state,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerMandatoryPrefix(const ZydisDecoderState* state,
-    ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerMandatoryPrefix(const ZydisDecoderState* state, ZyanU16* index)
 {
     ZYAN_ASSERT(state);
-    ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
     // Pure routing: whether the candidate is actually consumed (and how the prefix is
@@ -4344,11 +4342,9 @@ static ZyanStatus ZydisNodeHandlerEvexB(const ZydisDecodedInstruction* instructi
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexND(ZydisDecoderContext* context, 
-    const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexND(const ZydisDecodedInstruction* instruction,
+    ZyanU16* index)
 {
-    ZYAN_ASSERT(context); // TODO: remove
-    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
@@ -4361,11 +4357,9 @@ static ZyanStatus ZydisNodeHandlerEvexND(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context, 
-    const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexNF(const ZydisDecodedInstruction* instruction,
+    ZyanU16* index)
 {
-    ZYAN_ASSERT(context); // TODO: remove
-    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
@@ -4379,11 +4373,9 @@ static ZyanStatus ZydisNodeHandlerEvexNF(ZydisDecoderContext* context,
     return ZYAN_STATUS_SUCCESS;
 }
 
-static ZyanStatus ZydisNodeHandlerEvexSCC(ZydisDecoderContext* context,
-    const ZydisDecodedInstruction* instruction, ZyanU16* index)
+static ZyanStatus ZydisNodeHandlerEvexSCC(const ZydisDecodedInstruction* instruction,
+    ZyanU16* index)
 {
-    ZYAN_ASSERT(context); // TODO: remove
-    ZYAN_UNUSED(context);
     ZYAN_ASSERT(instruction);
     ZYAN_ASSERT(index);
 
@@ -5100,7 +5092,7 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
             index = state->prefixes.group1 ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_MANDATORY_PREFIX:
-            status = ZydisNodeHandlerMandatoryPrefix(state, instruction, &index);
+            status = ZydisNodeHandlerMandatoryPrefix(state, &index);
             break;
         case ZYDIS_NODETYPE_OPERAND_SIZE:
             status = ZydisNodeHandlerOperandSize(state, instruction, &index);
@@ -5161,13 +5153,13 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
             index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_UD0_COMPAT);
             break;
         case ZYDIS_NODETYPE_EVEX_ND:
-            status = ZydisNodeHandlerEvexND(state->context, instruction, &index);
+            status = ZydisNodeHandlerEvexND(instruction, &index);
             break;
         case ZYDIS_NODETYPE_EVEX_NF:
-            status = ZydisNodeHandlerEvexNF(state->context, instruction, &index);
+            status = ZydisNodeHandlerEvexNF(instruction, &index);
             break;
         case ZYDIS_NODETYPE_EVEX_SCC:
-            status = ZydisNodeHandlerEvexSCC(state->context, instruction, &index);
+            status = ZydisNodeHandlerEvexSCC(instruction, &index);
             break;
         case ZYDIS_NODETYPE_REX_2:
             index = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ? 1 : 0;
