@@ -873,6 +873,15 @@ static const struct ZydisPredefinedTokenSIZE_16_INTEL_
 } TOK_DATA_SIZE_16_INTEL = { 15, 13, { ZYDIS_TOKEN_TYPECAST, 9, 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
 static const ZydisPredefinedToken* const TOK_SIZE_16_INTEL = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_16_INTEL;
 
+static const ZydisShortString STR_SIZE_16_MASM_BCST = ZYDIS_MAKE_SHORTSTRING("word bcst ");
+static const struct ZydisPredefinedTokenSIZE_16_MASM_BCST_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[16];
+} TOK_DATA_SIZE_16_MASM_BCST = { 16, 14, { ZYDIS_TOKEN_TYPECAST, 10, 'w', 'o', 'r', 'd', ' ', 'b', 'c', 's', 't', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
+static const ZydisPredefinedToken* const TOK_SIZE_16_MASM_BCST = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_16_MASM_BCST;
+
 static const ZydisShortString STR_SIZE_32_ATT = ZYDIS_MAKE_SHORTSTRING("l");
 static const ZydisShortString STR_SIZE_32_INTEL = ZYDIS_MAKE_SHORTSTRING("dword ptr ");
 static const struct ZydisPredefinedTokenSIZE_32_INTEL_
@@ -882,6 +891,15 @@ static const struct ZydisPredefinedTokenSIZE_32_INTEL_
   ZyanU8 data[16];
 } TOK_DATA_SIZE_32_INTEL = { 16, 14, { ZYDIS_TOKEN_TYPECAST, 10, 'd', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
 static const ZydisPredefinedToken* const TOK_SIZE_32_INTEL = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_32_INTEL;
+
+static const ZydisShortString STR_SIZE_32_MASM_BCST = ZYDIS_MAKE_SHORTSTRING("dword bcst ");
+static const struct ZydisPredefinedTokenSIZE_32_MASM_BCST_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[17];
+} TOK_DATA_SIZE_32_MASM_BCST = { 17, 15, { ZYDIS_TOKEN_TYPECAST, 11, 'd', 'w', 'o', 'r', 'd', ' ', 'b', 'c', 's', 't', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
+static const ZydisPredefinedToken* const TOK_SIZE_32_MASM_BCST = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_32_MASM_BCST;
 
 static const ZydisShortString STR_SIZE_48 = ZYDIS_MAKE_SHORTSTRING("fword ptr ");
 static const struct ZydisPredefinedTokenSIZE_48_
@@ -901,6 +919,15 @@ static const struct ZydisPredefinedTokenSIZE_64_INTEL_
   ZyanU8 data[16];
 } TOK_DATA_SIZE_64_INTEL = { 16, 14, { ZYDIS_TOKEN_TYPECAST, 10, 'q', 'w', 'o', 'r', 'd', ' ', 'p', 't', 'r', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
 static const ZydisPredefinedToken* const TOK_SIZE_64_INTEL = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_64_INTEL;
+
+static const ZydisShortString STR_SIZE_64_MASM_BCST = ZYDIS_MAKE_SHORTSTRING("qword bcst ");
+static const struct ZydisPredefinedTokenSIZE_64_MASM_BCST_
+{
+  ZyanU8 size;
+  ZyanU8 next;
+  ZyanU8 data[17];
+} TOK_DATA_SIZE_64_MASM_BCST = { 17, 15, { ZYDIS_TOKEN_TYPECAST, 11, 'q', 'w', 'o', 'r', 'd', ' ', 'b', 'c', 's', 't', '\0', ZYDIS_TOKEN_WHITESPACE, 0, ' ', '\0' } };
+static const ZydisPredefinedToken* const TOK_SIZE_64_MASM_BCST = (const ZydisPredefinedToken* const)&TOK_DATA_SIZE_64_MASM_BCST;
 
 static const ZydisShortString STR_SIZE_80 = ZYDIS_MAKE_SHORTSTRING("tbyte ptr ");
 static const struct ZydisPredefinedTokenSIZE_80_

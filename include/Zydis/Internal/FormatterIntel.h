@@ -76,6 +76,12 @@ ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* format
 ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
+ZyanStatus ZydisFormatterIntelPrintTypecastMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
+
+ZyanStatus ZydisFormatterIntelPrintDecoratorMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator);
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -258,10 +264,10 @@ static const ZydisFormatter FORMATTER_INTEL_MASM =
     /* func_print_address_rel     */ &ZydisFormatterIntelPrintAddressMASM,
     /* func_print_disp            */ &ZydisFormatterIntelPrintDISP,
     /* func_print_imm             */ &ZydisFormatterBasePrintIMM,
-    /* func_print_typecast        */ &ZydisFormatterIntelPrintTypecast,
+    /* func_print_typecast        */ &ZydisFormatterIntelPrintTypecastMASM,
     /* func_print_segment         */ &ZydisFormatterBasePrintSegment,
     /* func_print_prefixes        */ &ZydisFormatterBasePrintPrefixes,
-    /* func_print_decorator       */ &ZydisFormatterBasePrintDecorator
+    /* func_print_decorator       */ &ZydisFormatterIntelPrintDecoratorMASM
 };
 
 /* ---------------------------------------------------------------------------------------------- */
