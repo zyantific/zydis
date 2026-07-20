@@ -427,6 +427,16 @@ ZyanStatus ZydisFormatterIntelPrintTypecast(const ZydisFormatter* formatter,
 /* MASM                                                                                           */
 /* ---------------------------------------------------------------------------------------------- */
 
+#if !defined(ZYDIS_DISABLE_AVX512)
+static ZyanBool ZydisFormatterIntelIsDynamicEVEXBroadcast(
+    const ZydisFormatterContext* context)
+{
+    return (context->instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) &&
+        !context->instruction->avx.broadcast.is_static &&
+        (context->instruction->avx.broadcast.mode != ZYDIS_BROADCAST_MODE_NONE);
+}
+#endif
+
 ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
@@ -480,6 +490,50 @@ ZyanStatus ZydisFormatterIntelPrintAddressMASM(const ZydisFormatter* formatter,
         formatter->hex_force_leading_number, ZYAN_TRUE);
 
     return ZYAN_STATUS_SUCCESS;
+}
+
+ZyanStatus ZydisFormatterIntelPrintTypecastMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+#if !defined(ZYDIS_DISABLE_AVX512)
+    if (ZydisFormatterIntelIsDynamicEVEXBroadcast(context))
+    {
+        switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand))
+        {
+        case 16: ZYDIS_BUFFER_APPEND(buffer, SIZE_16_MASM_BCST); break;
+        case 32: ZYDIS_BUFFER_APPEND(buffer, SIZE_32_MASM_BCST); break;
+        case 64: ZYDIS_BUFFER_APPEND(buffer, SIZE_64_MASM_BCST); break;
+        default:
+            return ZYAN_STATUS_INVALID_ARGUMENT;
+        }
+
+        return ZYAN_STATUS_SUCCESS;
+    }
+#endif
+
+    return ZydisFormatterIntelPrintTypecast(formatter, buffer, context);
+}
+
+ZyanStatus ZydisFormatterIntelPrintDecoratorMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+#if !defined(ZYDIS_DISABLE_AVX512)
+    if ((decorator == ZYDIS_DECORATOR_BC) &&
+        ZydisFormatterIntelIsDynamicEVEXBroadcast(context))
+    {
+        return ZYAN_STATUS_SUCCESS;
+    }
+#endif
+
+    return ZydisFormatterBasePrintDecorator(formatter, buffer, context, decorator);
 }
 
 /* ---------------------------------------------------------------------------------------------- */
