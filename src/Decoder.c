@@ -5046,51 +5046,38 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
 /* ---------------------------------------------------------------------------------------------- */
 
 /**
- * Uses the decoder-tree to decode the current instruction.
+ * Advances the decoder-tree walk through filter nodes until it reaches a definition.
  *
  * @param   state       A pointer to the `ZydisDecoderState` struct.
  * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ * @param   node        On entry points at the first filter node; on success receives the
+ *                      `DEFINITION` node the walk resolved to.
  *
  * @return  A zyan status code.
+ *
+ * Filter nodes are the only node types that follow the opcode- and switch-table phases, so the
+ * caller drives those phases and delegates here once the walk reaches the first filter. The 3DNOW
+ * suffix walk reuses this after indexing the 3DNOW table with its suffix opcode.
  */
-static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
-    ZydisDecodedInstruction* instruction)
+static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
+    ZydisDecodedInstruction* instruction, const ZydisDecoderTreeNode** node)
 {
     ZYAN_ASSERT(state);
     ZYAN_ASSERT(instruction);
+    ZYAN_ASSERT(node);
 
-    // TODO: Handlers should return the next node instead of the index.
-
-    // Iterate through the decoder tree.
-    const ZydisDecoderTreeNode* node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_PRIMARY);
-
-    do
+    for (;;)
     {
-        const ZydisDecoderTreeNodeType node_type = ZYDIS_DT_GET_TYPE(node);
+        const ZydisDecoderTreeNodeType node_type = ZYDIS_DT_GET_TYPE(*node);
+        if (node_type == ZYDIS_NODETYPE_DEFINITION)
+        {
+            return ZYAN_STATUS_SUCCESS;
+        }
+
         ZyanU16 index = 0;
         ZyanStatus status = 0;
         switch (node_type)
         {
-        case ZYDIS_NODETYPE_SWITCH_TABLE:
-            node = ZydisGetOpcodeTableRootNode(ZYDIS_DT_GET_ARG0(node));
-            // The generator omits switch table nodes for empty opcode tables.
-            ZYAN_ASSERT(node);
-            continue;
-        case ZYDIS_NODETYPE_SWITCH_TABLE_XOP:
-            status = ZydisNodeHandlerXOP(instruction, &index);
-            break;
-        case ZYDIS_NODETYPE_SWITCH_TABLE_VEX:
-            status = ZydisNodeHandlerVEX(instruction, &index);
-            break;
-        case ZYDIS_NODETYPE_SWITCH_TABLE_EMVEX:
-            status = ZydisNodeHandlerEMVEX(instruction, &index);
-            break;
-        case ZYDIS_NODETYPE_SWITCH_TABLE_REX2:
-            status = ZydisNodeHandlerREX2(instruction, &index);
-            break;
-        case ZYDIS_NODETYPE_OPCODE_TABLE:
-            status = ZydisNodeHandlerOpcode(state, instruction, &index);
-            break;
         case ZYDIS_NODETYPE_MODE:
             status = ZydisNodeHandlerMode(instruction, &index);
             break;
@@ -5185,6 +5172,76 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_REX_2:
             index = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ? 1 : 0;
             break;
+        default:
+            ZYAN_UNREACHABLE;
+        }
+        ZYAN_CHECK(status);
+
+        const ZyanU16 offset = ZYDIS_DT_GET_VALUE(*node, index);
+        *node += offset;
+
+        if (offset == 0)
+        {
+            // Offset = 0 => invalid | empty | unused table entry.
+
+            if ((node_type == ZYDIS_NODETYPE_REX_2) && (index == 0))
+            {
+                return ZYDIS_STATUS_ILLEGAL_REX2;
+            }
+
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
+    }
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * Uses the decoder-tree to decode the current instruction.
+ *
+ * @param   state       A pointer to the `ZydisDecoderState` struct.
+ * @param   instruction A pointer to the `ZydisDecodedInstruction` struct.
+ *
+ * @return  A zyan status code.
+ */
+static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
+    ZydisDecodedInstruction* instruction)
+{
+    ZYAN_ASSERT(state);
+    ZYAN_ASSERT(instruction);
+
+    // TODO: Handlers should return the next node instead of the index.
+
+    // Iterate through the decoder tree.
+    const ZydisDecoderTreeNode* node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_PRIMARY);
+
+    do
+    {
+        const ZydisDecoderTreeNodeType node_type = ZYDIS_DT_GET_TYPE(node);
+        ZyanU16 index = 0;
+        ZyanStatus status = 0;
+        switch (node_type)
+        {
+        case ZYDIS_NODETYPE_SWITCH_TABLE:
+            node = ZydisGetOpcodeTableRootNode(ZYDIS_DT_GET_ARG0(node));
+            // The generator omits switch table nodes for empty opcode tables.
+            ZYAN_ASSERT(node);
+            continue;
+        case ZYDIS_NODETYPE_SWITCH_TABLE_XOP:
+            status = ZydisNodeHandlerXOP(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_SWITCH_TABLE_VEX:
+            status = ZydisNodeHandlerVEX(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_SWITCH_TABLE_EMVEX:
+            status = ZydisNodeHandlerEMVEX(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_SWITCH_TABLE_REX2:
+            status = ZydisNodeHandlerREX2(instruction, &index);
+            break;
+        case ZYDIS_NODETYPE_OPCODE_TABLE:
+            status = ZydisNodeHandlerOpcode(state, instruction, &index);
+            break;
         case ZYDIS_NODETYPE_DEFINITION:
         {
             const ZydisInstructionDefinition* definition;
@@ -5255,7 +5312,10 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
 
             if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_3DNOW)
             {
-                // Get actual 3DNOW opcode and definition
+                // The suffix opcode that trails the `ModRM` byte selects the actual 3DNOW
+                // instruction. Index the 3DNOW table with it, then resolve the sub-tree's filters
+                // to the acting definition. No 3DNOW definition consumes a mandatory candidate, so
+                // the filter walk stays side-effect-free with respect to prefix classification.
                 ZYAN_CHECK(ZydisInputNext(state, instruction, &instruction->opcode));
                 node = ZydisGetOpcodeTableRootNode(ZYDIS_OPCODE_TABLE_3DNOW);
                 const ZyanU16 offset = ZYDIS_DT_GET_VALUE(node, instruction->opcode);
@@ -5264,9 +5324,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     return ZYDIS_STATUS_DECODING_ERROR;
                 }
                 node += offset;
-                ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_MODRM_MOD_COMPACT);
-                node += ZYDIS_DT_GET_VALUE(node, (instruction->raw.modrm.mod == 0x3) ? 0 : 1);
-                ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_DEFINITION);
+                ZYAN_CHECK(ZydisTreeWalkFilters(state, instruction, &node));
                 ZydisGetInstructionDefinition(instruction->encoding, ZYDIS_DT_GET_VALUE(node, 0), &definition);
             }
 
@@ -5338,7 +5396,10 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
             return ZYAN_STATUS_SUCCESS;
         }
         default:
-            ZYAN_UNREACHABLE;
+            // Past the opcode- and switch-table phases the walk is pure filter dispatch; resolve
+            // it to the acting definition, then re-enter the loop to handle that node.
+            ZYAN_CHECK(ZydisTreeWalkFilters(state, instruction, &node));
+            continue;
         }
         ZYAN_CHECK(status);
 
@@ -5348,12 +5409,6 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
         if (offset == 0)
         {
             // Offset = 0 => invalid | empty | unused table entry.
-
-            if ((node_type == ZYDIS_NODETYPE_REX_2) && (index == 0))
-            {
-                return ZYDIS_STATUS_ILLEGAL_REX2;
-            }
-
             return ZYDIS_STATUS_DECODING_ERROR;
         }
 
