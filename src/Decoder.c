@@ -488,7 +488,6 @@ static ZyanStatus ZydisDecodeXOP(ZydisDecoderContext* context,
     context->vector_unified.R3   = 0x01 & ~instruction->raw.xop.R;
     context->vector_unified.X3   = 0x01 & ~instruction->raw.xop.X;
     context->vector_unified.B3   = 0x01 & ~instruction->raw.xop.B;
-    context->vector_unified.L    = instruction->raw.xop.L;
     context->vector_unified.LL   = instruction->raw.xop.L;
     context->vector_unified.vvvv = (0x0F & ~instruction->raw.xop.vvvv);
 
@@ -563,7 +562,6 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
     context->vector_unified.R3   = 0x01 & ~instruction->raw.vex.R;
     context->vector_unified.X3   = 0x01 & ~instruction->raw.vex.X;
     context->vector_unified.B3   = 0x01 & ~instruction->raw.vex.B;
-    context->vector_unified.L    = instruction->raw.vex.L;
     context->vector_unified.LL   = instruction->raw.vex.L;
     context->vector_unified.vvvv = (0x0F & ~instruction->raw.vex.vvvv);
 
