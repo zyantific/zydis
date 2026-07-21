@@ -1609,7 +1609,6 @@ typedef struct ZydisDecoderContext_
         ZyanU8 X4;
         ZyanU8 B3;
         ZyanU8 B4;
-        ZyanU8 L;
         ZyanU8 LL;
         ZyanU8 V4;
         ZyanU8 vvvv;
