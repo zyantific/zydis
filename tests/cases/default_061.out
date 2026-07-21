@@ -1,0 +1,33 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: cvtsd2ss [ENC: DEFAULT, MAP: 0F, OPC: 0x5A]
+     LENGTH:  4
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CONVERT
+    ISA-SET: SSE2
+    ISA-EXT: SSE2
+ EXCEPTIONS: SSE3
+ ATTRIBUTES: HAS_MODRM 
+  OPTIMIZED: F2 0F 5A C1 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG     32      1      32   FLOAT32                         xmm0
+ 1   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64   FLOAT64                         xmm1
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: cvtsd2ss %xmm1, %xmm0
+   RELATIVE: cvtsd2ss %xmm1, %xmm0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: cvtsd2ss xmm0, xmm1
+   RELATIVE: cvtsd2ss xmm0, xmm1
+
+== [ SEGMENTS ] ============================================================================================
+F2 0F 5A C1 
+:  :     :..MODRM
+:  :..OPCODE
+:..PREFIXES

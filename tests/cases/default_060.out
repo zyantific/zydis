@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: bsf [ENC: DEFAULT, MAP: 0F, OPC: 0xBC]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: BITBYTE
+    ISA-SET: I386
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM CPUFLAG_ACCESS 
+  OPTIMIZED: 0F BC C1 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      CW     MODRM_REG     32      1      32       INT                          eax
+ 1   REGISTER    EXPLICIT       R      MODRM_RM     32      1      32       INT                          ecx
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : U  ] [PF  : U  ] [AF  : U  ] [ZF  : M  ] [SF  : U  ] [OF  : U  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: bsf %ecx, %eax
+   RELATIVE: bsf %ecx, %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: bsf eax, ecx
+   RELATIVE: bsf eax, ecx
+
+== [ SEGMENTS ] ============================================================================================
+0F BC C1 
+:     :..MODRM
+:..OPCODE
