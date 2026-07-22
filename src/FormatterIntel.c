@@ -407,15 +407,15 @@ ZyanStatus ZydisFormatterIntelPrintTypecast(const ZydisFormatter* formatter,
 
     switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand))
     {
-    case   8: ZYDIS_BUFFER_APPEND(buffer, SIZE_8_INTEL  ); break;
-    case  16: ZYDIS_BUFFER_APPEND(buffer, SIZE_16_INTEL ); break;
-    case  32: ZYDIS_BUFFER_APPEND(buffer, SIZE_32_INTEL ); break;
-    case  48: ZYDIS_BUFFER_APPEND(buffer, SIZE_48       ); break;
-    case  64: ZYDIS_BUFFER_APPEND(buffer, SIZE_64_INTEL ); break;
-    case  80: ZYDIS_BUFFER_APPEND(buffer, SIZE_80       ); break;
-    case 128: ZYDIS_BUFFER_APPEND(buffer, SIZE_128_INTEL); break;
-    case 256: ZYDIS_BUFFER_APPEND(buffer, SIZE_256_INTEL); break;
-    case 512: ZYDIS_BUFFER_APPEND(buffer, SIZE_512_INTEL); break;
+    case   8: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_8_INTEL  , formatter->case_typecasts); break;
+    case  16: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_16_INTEL , formatter->case_typecasts); break;
+    case  32: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_32_INTEL , formatter->case_typecasts); break;
+    case  48: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_48       , formatter->case_typecasts); break;
+    case  64: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_64_INTEL , formatter->case_typecasts); break;
+    case  80: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_80       , formatter->case_typecasts); break;
+    case 128: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_128_INTEL, formatter->case_typecasts); break;
+    case 256: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_256_INTEL, formatter->case_typecasts); break;
+    case 512: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_512_INTEL, formatter->case_typecasts); break;
     default:
         break;
     }
@@ -504,9 +504,12 @@ ZyanStatus ZydisFormatterIntelPrintTypecastMASM(const ZydisFormatter* formatter,
     {
         switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand))
         {
-        case 16: ZYDIS_BUFFER_APPEND(buffer, SIZE_16_MASM_BCST); break;
-        case 32: ZYDIS_BUFFER_APPEND(buffer, SIZE_32_MASM_BCST); break;
-        case 64: ZYDIS_BUFFER_APPEND(buffer, SIZE_64_MASM_BCST); break;
+        case 16: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_16_MASM_BCST,
+            formatter->case_typecasts); break;
+        case 32: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_32_MASM_BCST,
+            formatter->case_typecasts); break;
+        case 64: ZYDIS_BUFFER_APPEND_CASE(buffer, SIZE_64_MASM_BCST,
+            formatter->case_typecasts); break;
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
         }
