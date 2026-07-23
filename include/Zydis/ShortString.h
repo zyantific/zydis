@@ -84,15 +84,14 @@ typedef struct ZydisShortString_
  *
  * @param   name    Name for the symbols, prefixed by STR_DATA_, will also be used as a suffix for
  *                  the inline struct name.
- * @param   len     Length of string in bytes, excluding the trailing 0 terminator.
  * @param   string  The C-string constant.
  */
-#define ZYDIS_DEFINE_SHORTSTRING_DATA(name, len, string) \
+#define ZYDIS_MAKE_SHORTSTRING(name, string) \
     static const struct ZydisShortString_ ## name ## _ \
     { \
         ZyanU8 size; \
-        const char data[len + 1]; \
-    } STR_DATA_ ## name = { len, string } \
+        const char data[sizeof(string)]; \
+    } STR_DATA_ ## name = { sizeof(string) - 1, string } \
 
 /**
  * Access a previously defined shortstring as (const ZydisShortString*)
