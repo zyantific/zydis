@@ -306,12 +306,12 @@ ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
 
     if (formatter->deco_apx_nf_use_suffix && context->instruction->apx.has_nf)
     {
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_NF, formatter->case_mnemonic));
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(NF), formatter->case_mnemonic));
     }
 
     if (context->instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_FAR)
     {
-        return ZydisStringAppendShortCase(&buffer->string, &STR_FAR, formatter->case_mnemonic);
+        return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(FAR), formatter->case_mnemonic);
     }
 
     if (formatter->print_branch_size)
@@ -322,10 +322,10 @@ ZyanStatus ZydisFormatterIntelPrintMnemonic(const ZydisFormatter* formatter,
         case ZYDIS_BRANCH_TYPE_ABSOLUTE:
             break;
         case ZYDIS_BRANCH_TYPE_SHORT:
-            return ZydisStringAppendShortCase(&buffer->string, &STR_SHORT,
+            return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SHORT),
                 formatter->case_mnemonic);
         case ZYDIS_BRANCH_TYPE_NEAR:
-            return ZydisStringAppendShortCase(&buffer->string, &STR_NEAR,
+            return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(NEAR),
                 formatter->case_mnemonic);
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;

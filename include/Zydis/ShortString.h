@@ -44,8 +44,10 @@ extern "C" {
 /* Enums and types                                                                                */
 /* ============================================================================================== */
 
-#if !defined(ZYAN_APPLE)
-#   pragma pack(push, 1)
+// MSVC does not like the C99 flexible-array extension
+#ifdef ZYAN_MSVC
+#   pragma warning(push)
+#   pragma warning(disable:4200)
 #endif
 
 /**
@@ -59,17 +61,18 @@ extern "C" {
 typedef struct ZydisShortString_
 {
     /**
-     * The buffer that contains the actual (null-terminated) string.
-    */
-    const char* data;
-    /**
      * The length (number of characters) of the string (without 0-termination).
     */
     ZyanU8 size;
+
+    /**
+     * The buffer that contains the actual (null-terminated) string.
+    */
+    const char data[];
 } ZydisShortString;
 
-#if !defined(ZYAN_APPLE)
-#   pragma pack(pop)
+#ifdef ZYAN_MSVC
+#   pragma warning(pop)
 #endif
 
 /* ============================================================================================== */
@@ -77,12 +80,26 @@ typedef struct ZydisShortString_
 /* ============================================================================================== */
 
 /**
- * Declares a `ZydisShortString` from a static C-style string.
+ * Defines a constant variable of an inline struct that is compatible to `ZydisShortString`.
  *
+ * @param   name    Name for the symbols, prefixed by STR_DATA_, will also be used as a suffix for
+ *                  the inline struct name.
+ * @param   len     Length of string in bytes, excluding the trailing 0 terminator.
  * @param   string  The C-string constant.
  */
-#define ZYDIS_MAKE_SHORTSTRING(string) \
-    { string, sizeof(string) - 1 }
+#define ZYDIS_DEFINE_SHORTSTRING_DATA(name, len, string) \
+    static const struct ZydisShortString_ ## name ## _ \
+    { \
+        ZyanU8 size; \
+        const char data[len + 1]; \
+    } STR_DATA_ ## name = { len, string } \
+
+/**
+ * Access a previously defined shortstring as (const ZydisShortString*)
+ *
+ * @param   name    The name that was passed to ZYDIS_DEFINE_SHORTSTRING_DATA()
+ */
+#define ZYDIS_SHORTSTRING(name) ((const ZydisShortString*)&STR_DATA_ ## name)
 
 /* ============================================================================================== */
 

@@ -158,7 +158,7 @@ extern "C" {
         ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, TOK_ ## name)); \
     } else \
     { \
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ ## name)); \
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, (const ZydisShortString*)&STR_DATA_ ## name)); \
     }
 
 // TODO: Implement `letter_case` for predefined tokens
@@ -176,7 +176,7 @@ extern "C" {
         ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, TOK_ ## name)); \
     } else \
     { \
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_ ## name, letter_case)); \
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, (const ZydisShortString*)&STR_DATA_ ## name, letter_case)); \
     }
 
 /* ---------------------------------------------------------------------------------------------- */
