@@ -21,7 +21,8 @@
                                                                                  INDEX =                none
                                                                                  SCALE =                   0
                                                                                  DISP  =  0x0000000000000000
- 2   REGISTER      HIDDEN      RW          NONE     64     64       1       INT                       rflags
+ 2   REGISTER      HIDDEN      RW          NONE     64      1      64       INT                          rdi
+ 3   REGISTER      HIDDEN      RW          NONE     64     64       1       INT                       rflags
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [    FLAGS ] ============================================================================================
