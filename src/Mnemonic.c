@@ -37,7 +37,7 @@ const char* ZydisMnemonicGetString(ZydisMnemonic mnemonic)
     {
         return ZYAN_NULL;
     }
-    return (const char*)STR_MNEMONIC[mnemonic].data;
+    return (const char*)STR_MNEMONIC[mnemonic]->data;
 }
 
 const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic)
@@ -46,7 +46,7 @@ const ZydisShortString* ZydisMnemonicGetStringWrapped(ZydisMnemonic mnemonic)
     {
         return ZYAN_NULL;
     }
-    return &STR_MNEMONIC[mnemonic];
+    return STR_MNEMONIC[mnemonic];
 }
 
 /* ============================================================================================== */

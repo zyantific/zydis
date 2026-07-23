@@ -35,22 +35,22 @@
 
 static const ZydisShortString* const STR_PREF_REX[16] =
 {
-    &STR_PREF_REX_40,
-    &STR_PREF_REX_41,
-    &STR_PREF_REX_42,
-    &STR_PREF_REX_43,
-    &STR_PREF_REX_44,
-    &STR_PREF_REX_45,
-    &STR_PREF_REX_46,
-    &STR_PREF_REX_47,
-    &STR_PREF_REX_48,
-    &STR_PREF_REX_49,
-    &STR_PREF_REX_4A,
-    &STR_PREF_REX_4B,
-    &STR_PREF_REX_4C,
-    &STR_PREF_REX_4D,
-    &STR_PREF_REX_4E,
-    &STR_PREF_REX_4F
+    ZYDIS_SHORTSTRING(PREF_REX_40),
+    ZYDIS_SHORTSTRING(PREF_REX_41),
+    ZYDIS_SHORTSTRING(PREF_REX_42),
+    ZYDIS_SHORTSTRING(PREF_REX_43),
+    ZYDIS_SHORTSTRING(PREF_REX_44),
+    ZYDIS_SHORTSTRING(PREF_REX_45),
+    ZYDIS_SHORTSTRING(PREF_REX_46),
+    ZYDIS_SHORTSTRING(PREF_REX_47),
+    ZYDIS_SHORTSTRING(PREF_REX_48),
+    ZYDIS_SHORTSTRING(PREF_REX_49),
+    ZYDIS_SHORTSTRING(PREF_REX_4A),
+    ZYDIS_SHORTSTRING(PREF_REX_4B),
+    ZYDIS_SHORTSTRING(PREF_REX_4C),
+    ZYDIS_SHORTSTRING(PREF_REX_4D),
+    ZYDIS_SHORTSTRING(PREF_REX_4E),
+    ZYDIS_SHORTSTRING(PREF_REX_4F)
 };
 
 static const ZydisPredefinedToken* const TOK_PREF_REX[16] =
@@ -303,7 +303,7 @@ ZyanStatus ZydisFormatterBasePrintAddressREL(const ZydisFormatter* formatter,
             padding, formatter->hex_force_leading_number, ZYAN_TRUE);
         break;
     case ZYDIS_SIGNEDNESS_UNSIGNED:
-        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_ADD));
+        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, ZYDIS_SHORTSTRING(ADD)));
         ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string, address,
             padding, formatter->hex_force_leading_number);
         break;
@@ -491,7 +491,7 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
                             formatter->hex_force_leading_number, formatter->hex_uppercase,
                             ZYAN_NULL, ZYAN_NULL));
                         ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_WHITESPACE);
-                        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_WHITESPACE));
+                        ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, ZYDIS_SHORTSTRING(WHITESPACE)));
                         break;
                     }
                 }
@@ -623,10 +623,10 @@ ZyanStatus ZydisFormatterBasePrintDecorator(const ZydisFormatter* formatter,
                 ZYDIS_BUFFER_APPEND(buffer, DECO_END);
             } else
             {
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_BEGIN));
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, ZYDIS_SHORTSTRING(DECO_BEGIN)));
                 ZYAN_CHECK(formatter->func_print_register(formatter, buffer, context,
                     context->instruction->avx.mask.reg));
-                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, &STR_DECO_END));
+                ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, ZYDIS_SHORTSTRING(DECO_END)));
             }
 
             // Only print the zeroing decorator, if the instruction is not a "zeroing masking only"

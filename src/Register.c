@@ -284,7 +284,7 @@ const char* ZydisRegisterGetString(ZydisRegister reg)
         return ZYAN_NULL;
     }
 
-    return STR_REGISTERS[reg].data;
+    return STR_REGISTERS[reg]->data;
 }
 
 const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
@@ -294,7 +294,7 @@ const ZydisShortString* ZydisRegisterGetStringWrapped(ZydisRegister reg)
         return ZYAN_NULL;
     }
 
-    return &STR_REGISTERS[reg];
+    return STR_REGISTERS[reg];
 }
 
 /* ---------------------------------------------------------------------------------------------- */

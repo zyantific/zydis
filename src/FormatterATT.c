@@ -340,7 +340,7 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
     if (context->instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_FAR)
     {
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_FAR_ATT,
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(FAR_ATT),
             formatter->case_mnemonic));
     }
 
@@ -348,7 +348,7 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
 
     if (formatter->deco_apx_nf_use_suffix && context->instruction->apx.has_nf)
     {
-        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_NF, formatter->case_mnemonic));
+        ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(NF), formatter->case_mnemonic));
     }
 
     // Append operand-size suffix
@@ -366,13 +366,13 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
 
     switch (size)
     {
-    case   8: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_8_ATT  , formatter->case_mnemonic)); break;
-    case  16: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_16_ATT , formatter->case_mnemonic)); break;
-    case  32: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_32_ATT , formatter->case_mnemonic)); break;
-    case  64: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_64_ATT , formatter->case_mnemonic)); break;
-    case 128: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_128_ATT, formatter->case_mnemonic)); break;
-    case 256: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_256_ATT, formatter->case_mnemonic)); break;
-    case 512: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, &STR_SIZE_512_ATT, formatter->case_mnemonic)); break;
+    case   8: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_8_ATT)  , formatter->case_mnemonic)); break;
+    case  16: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_16_ATT) , formatter->case_mnemonic)); break;
+    case  32: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_32_ATT) , formatter->case_mnemonic)); break;
+    case  64: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_64_ATT) , formatter->case_mnemonic)); break;
+    case 128: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_128_ATT), formatter->case_mnemonic)); break;
+    case 256: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_256_ATT), formatter->case_mnemonic)); break;
+    case 512: ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SIZE_512_ATT), formatter->case_mnemonic)); break;
     default:
         break;
     }
@@ -386,10 +386,10 @@ ZyanStatus ZydisFormatterATTPrintMnemonic(const ZydisFormatter* formatter,
         case ZYDIS_BRANCH_TYPE_ABSOLUTE:
             break;
         case ZYDIS_BRANCH_TYPE_SHORT:
-            return ZydisStringAppendShortCase(&buffer->string, &STR_SHORT,
+            return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(SHORT),
                 formatter->case_mnemonic);
         case ZYDIS_BRANCH_TYPE_NEAR:
-            return ZydisStringAppendShortCase(&buffer->string, &STR_NEAR,
+            return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(NEAR),
                 formatter->case_mnemonic);
         default:
             return ZYAN_STATUS_INVALID_ARGUMENT;
@@ -412,7 +412,7 @@ ZyanStatus ZydisFormatterATTPrintRegister(const ZydisFormatter* formatter,
     const ZydisShortString* str = ZydisRegisterGetStringWrapped(reg);
     if (!str)
     {
-        return ZydisStringAppendShortCase(&buffer->string, &STR_INVALID_REG,
+        return ZydisStringAppendShortCase(&buffer->string, ZYDIS_SHORTSTRING(INVALID_REG),
             formatter->case_registers);
     }
     return ZydisStringAppendShortCase(&buffer->string, str, formatter->case_registers);
