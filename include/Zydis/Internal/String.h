@@ -364,8 +364,8 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendDecS(ZyanString* string, ZyanI64 value,
     ZyanU8 padding_length, ZyanBool force_sign, const ZyanStringView* prefix,
     const ZyanStringView* suffix)
 {
-    ZYDIS_DEFINE_SHORTSTRING_DATA(ADD, 1, "+");
-    ZYDIS_DEFINE_SHORTSTRING_DATA(SUB, 1, "-");
+    ZYDIS_MAKE_SHORTSTRING(ADD, "+");
+    ZYDIS_MAKE_SHORTSTRING(SUB, "-");
 
     if (value < 0)
     {
@@ -436,8 +436,8 @@ ZYAN_INLINE ZyanStatus ZydisStringAppendHexS(ZyanString* string, ZyanI64 value,
     ZyanU8 padding_length, ZyanBool force_leading_number, ZyanBool uppercase, ZyanBool force_sign,
     const ZyanStringView* prefix, const ZyanStringView* suffix)
 {
-    ZYDIS_DEFINE_SHORTSTRING_DATA(ADD, 1, "+");
-    ZYDIS_DEFINE_SHORTSTRING_DATA(SUB, 1, "-");
+    ZYDIS_MAKE_SHORTSTRING(ADD, "+");
+    ZYDIS_MAKE_SHORTSTRING(SUB, "-");
 
     if (value < 0)
     {
