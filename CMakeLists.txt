@@ -447,6 +447,18 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         _maybe_set_emscripten_cfg("ZydisInfo")
         install(TARGETS "ZydisInfo" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     endif ()
+
+    if (ZYDIS_FEATURE_DECODER)
+        add_executable("ZydisDiffDump"
+            "tools/ZydisDiffDump.c")
+        target_link_libraries("ZydisDiffDump" PUBLIC "Zydis")
+        set_target_properties("ZydisDiffDump" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisDiffDump" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zyan_set_common_flags("ZydisDiffDump")
+        zyan_maybe_enable_wpo("ZydisDiffDump")
+        _maybe_set_emscripten_cfg("ZydisDiffDump")
+        install(TARGETS "ZydisDiffDump" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif ()
 endif ()
 
 # =============================================================================================== #
