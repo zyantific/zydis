@@ -316,6 +316,43 @@ ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
     return ZYAN_STATUS_SUCCESS;
 }
 
+ZyanStatus ZydisFormatterATTFormatOperandPTR(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    // AT&T writes a far pointer as `$segment, $offset` (both halves carry the `$` immediate
+    // marker and are separated by a comma), unlike the Intel `segment:offset` form. Reusing the
+    // shared Intel-style printer here emitted syntax that gas/objdump reject and won't reassemble.
+    ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
+    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
+    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
+        context->operand->ptr.segment, 4, formatter->hex_force_leading_number);
+    ZYDIS_BUFFER_APPEND(buffer, DELIM_MEMORY);
+
+    ZyanU8 padding;
+    switch (context->instruction->operand_width)
+    {
+    case 16:
+        padding = 4;
+        break;
+    case 32:
+        padding = 8;
+        break;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
+
+    ZYDIS_BUFFER_APPEND(buffer, IMMEDIATE);
+    ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_IMMEDIATE);
+    ZYDIS_STRING_APPEND_NUM_U(formatter, formatter->addr_base, &buffer->string,
+        context->operand->ptr.offset, padding, formatter->hex_force_leading_number);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
