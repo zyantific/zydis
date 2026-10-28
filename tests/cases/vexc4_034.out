@@ -1,0 +1,44 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: pext [ENC: VEX, MAP: 0F38, OPC: 0xF5]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: BMI2
+    ISA-SET: BMI2
+    ISA-EXT: BMI2
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E2 72 F5 04 08 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1   REGISTER    EXPLICIT       R        NDSNDD     32      1      32       INT                          ecx
+ 2     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: pext (%rax,%rcx,1), %ecx, %eax
+   RELATIVE: pext (%rax,%rcx,1), %ecx, %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: pext eax, ecx, dword ptr ds:[rax+rcx*1]
+   RELATIVE: pext eax, ecx, dword ptr ds:[rax+rcx*1]
+
+== [ SEGMENTS ] ============================================================================================
+C4 E2 72 F5 04 08 
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX
