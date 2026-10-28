@@ -152,6 +152,7 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_UINT     ,   0 },
         { ZYDIS_ELEMENT_TYPE_INT      ,   1 },
         { ZYDIS_ELEMENT_TYPE_INT      ,   8 },
+        { ZYDIS_ELEMENT_TYPE_INT      ,  16 }, // TODO: Should indicate 2 INT8 elements
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 }, // TODO: Should indicate 4 INT8 elements
         { ZYDIS_ELEMENT_TYPE_INT      ,  16 },
         { ZYDIS_ELEMENT_TYPE_INT      ,  32 }, // TODO: Should indicate 2 INT16 elements
@@ -173,6 +174,13 @@ void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* typ
         { ZYDIS_ELEMENT_TYPE_FLOAT80  ,  80 },
         { ZYDIS_ELEMENT_TYPE_BFLOAT16 ,  16 },
         { ZYDIS_ELEMENT_TYPE_BFLOAT16 ,  32 }, // TODO: Should indicate 2 BFLOAT16 elements
+        { ZYDIS_ELEMENT_TYPE_BFLOAT8  ,   8 },
+        { ZYDIS_ELEMENT_TYPE_HFLOAT8  ,   8 },
+        { ZYDIS_ELEMENT_TYPE_BFLOAT8  ,  32 }, // TODO: Should indicate 4 BFLOAT8 elements
+        { ZYDIS_ELEMENT_TYPE_HFLOAT8  ,  32 }, // TODO: Should indicate 4 HFLOAT8 elements
+        { ZYDIS_ELEMENT_TYPE_BFLOAT4  ,   4 },
+        { ZYDIS_ELEMENT_TYPE_BFLOAT6  ,   8 },
+        { ZYDIS_ELEMENT_TYPE_HFLOAT6  ,   8 },
         { ZYDIS_ELEMENT_TYPE_LONGBCD  ,  80 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   3 },
         { ZYDIS_ELEMENT_TYPE_CC       ,   5 }

@@ -2454,7 +2454,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
             // Element size
             static const ZyanU8 element_sizes[ZYDIS_IELEMENT_SIZE_MAX_VALUE + 1] =
             {
-                  0,   8,  16,  32,  64, 128
+                  0,   4,   8,  16,  32,  64, 128
             };
             ZYAN_ASSERT(def->element_size < ZYAN_ARRAY_LENGTH(element_sizes));
             context->evex.element_size = element_sizes[def->element_size];
@@ -2608,9 +2608,10 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 ZYAN_FALLTHROUGH;
             case ZYDIS_TUPLETYPE_T1S:
             {
-                static const ZyanU8 scales[6] =
+                static const ZyanU8 scales[7] =
                 {
                     /*   */  0,
+                    /*  4*/  0,
                     /*  8*/  1,
                     /* 16*/  2,
                     /* 32*/  4,
@@ -2619,6 +2620,7 @@ static void ZydisSetAVXInformation(ZydisDecoderContext* context,
                 };
                 ZYAN_ASSERT(def->element_size < ZYAN_ARRAY_LENGTH(scales));
                 context->cd8_scale = scales[def->element_size];
+                ZYAN_ASSERT(context->cd8_scale);
                 break;
             };
             case ZYDIS_TUPLETYPE_T1F:
