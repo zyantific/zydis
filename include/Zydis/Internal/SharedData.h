@@ -730,7 +730,7 @@ typedef enum ZydisMaskOverride_
 // enum types
 ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_CATEGORY_REQUIRED_BITS        <=  8);
-ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_BRANCH_TYPE_REQUIRED_BITS     <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
@@ -749,7 +749,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
         ZyanBool no_compat_mode                ZYAN_BITFIELD( 1); \
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
-        ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
+        ZyanU16 isa_set                        ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
         ZyanU8 branch_type                     ZYAN_BITFIELD(ZYDIS_BRANCH_TYPE_REQUIRED_BITS); \
         ZyanU8 exception_class                 ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
