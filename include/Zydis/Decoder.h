@@ -166,11 +166,19 @@ typedef enum ZydisDecoderMode_
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_APX,
+    /**
+     * Enables the `IBHF` mode.
+     *
+     * The `IBHF` isa-extension reuses the `F3 REX.W 0F 1E F8` widenop encoding.
+     *
+     * This mode is enabled by default.
+     */
+    ZYDIS_DECODER_MODE_IBHF,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_APX,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_IBHF,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
