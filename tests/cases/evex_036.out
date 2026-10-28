@@ -1,0 +1,48 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vaddsh [ENC: EVEX, MAP: MAP5, OPC: 0x58]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: FP16
+    ISA-SET: AVX512_FP16_SCALAR
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E3
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F5 6E 08 58 48 10 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    128      8      16   FLOAT16                         xmm1
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k0
+ 2   REGISTER    EXPLICIT       R        NDSNDD    128      8      16   FLOAT16                         xmm2
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     16      1      16   FLOAT16  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000020
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vaddsh 0x20(%rax), %xmm2, %xmm1
+   RELATIVE: vaddsh 0x20(%rax), %xmm2, %xmm1
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vaddsh xmm1, xmm2, word ptr ds:[rax+0x20]
+   RELATIVE: vaddsh xmm1, xmm2, word ptr ds:[rax+0x20]
+
+== [ SEGMENTS ] ============================================================================================
+62 F5 6E 08 58 48 10 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
