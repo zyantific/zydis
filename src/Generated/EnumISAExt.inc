@@ -39,6 +39,7 @@ static const char* STR_ISAEXT[] =
     "FRED",
     "GFNI",
     "HRESET",
+    "IBHF",
     "ICACHE_PREFETCH",
     "INVPCID",
     "KEYLOCKER",

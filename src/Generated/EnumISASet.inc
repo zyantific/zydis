@@ -134,6 +134,7 @@ static const char* STR_ISASET[] =
     "I486",
     "I486REAL",
     "I86",
+    "IBHF",
     "ICACHE_PREFETCH",
     "INVPCID",
     "KEYLOCKER",
