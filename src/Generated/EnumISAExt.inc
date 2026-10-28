@@ -100,6 +100,7 @@ static const char* STR_ISAEXT[] =
     "VPCLMULQDQ",
     "VTX",
     "WAITPKG",
+    "WBNOINVD",
     "WRMSRNS",
     "X87",
     "XOP",
