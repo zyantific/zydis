@@ -1010,5 +1010,11 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62F26D48DC4810",
         "description": "vaesenc zmm1, zmm2, zmmword ptr ds:[rax+0x400]"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "F3480F1EF8",
+        "description": "ibhf"
     }
 ]
