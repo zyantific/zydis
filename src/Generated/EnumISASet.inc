@@ -1,6 +1,7 @@
 static const char* STR_ISASET[] =
 {
     "INVALID",
+    "ACE_1",
     "ADOX_ADCX",
     "AES",
     "AMD",

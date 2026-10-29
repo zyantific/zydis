@@ -4,6 +4,7 @@
 typedef enum ZydisISASet_
 {
     ZYDIS_ISA_SET_INVALID,
+    ZYDIS_ISA_SET_ACE_1,
     ZYDIS_ISA_SET_ADOX_ADCX,
     ZYDIS_ISA_SET_AES,
     ZYDIS_ISA_SET_AMD,
