@@ -1208,5 +1208,17 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "C4E551FDD7",
         "description": "tdphf8ps tmm2, tmm7, tmm5"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "626205486DEE",
+        "description": "tcvtrowps2phl zmm29, tmm6, r15d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62637D4807F70F",
+        "description": "tilemovrow zmm30, tmm7, 0x0F"
     }
 ]
