@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tcmmrlfp16ps [ENC: VEX, MAP: 0F38, OPC: 0x6C]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: AMX_COMPLEX
+    ISA-EXT: AMX_TILE
+ EXCEPTIONS: AMXE4
+ ATTRIBUTES: HAS_MODRM HAS_VEX 
+  OPTIMIZED: C4 E2 48 6C E5 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG   8192    256      32   FLOAT32                         tmm4
+ 1   REGISTER    EXPLICIT       R      MODRM_RM   8192    256      32   FLOAT16                         tmm5
+ 2   REGISTER    EXPLICIT       R        NDSNDD   8192    256      32   FLOAT16                         tmm6
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tcmmrlfp16ps %tmm6, %tmm5, %tmm4
+   RELATIVE: tcmmrlfp16ps %tmm6, %tmm5, %tmm4
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tcmmrlfp16ps tmm4, tmm5, tmm6
+   RELATIVE: tcmmrlfp16ps tmm4, tmm5, tmm6
+
+== [ SEGMENTS ] ============================================================================================
+C4 E2 48 6C E5 
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX
