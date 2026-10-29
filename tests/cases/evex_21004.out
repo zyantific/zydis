@@ -1,0 +1,52 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: wrussd [ENC: EVEX, MAP: MAP4, OPC: 0x65]
+     LENGTH: 10
+        SSZ: 64
+       EOSZ: 16
+       EASZ: 64
+   CATEGORY: CET
+    ISA-SET: APX_F_CET
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_CET_WRUSS
+ ATTRIBUTES: HAS_MODRM HAS_EVEX IS_PRIVILEGED ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 EC 7D 08 65 91 78 56 34 12 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       W      MODRM_RM     32      1      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r17
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000012345678
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     32      1      32      UINT                         r18d
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: wrussd %r18d, 0x12345678(%r17)
+   RELATIVE: wrussd %r18d, 0x12345678(%r17)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: wrussd dword ptr ds:[r17+0x12345678], r18d
+   RELATIVE: wrussd dword ptr ds:[r17+0x12345678], r18d
+
+== [ SEGMENTS ] ============================================================================================
+62 EC 7D 08 65 91 78 56 34 12 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

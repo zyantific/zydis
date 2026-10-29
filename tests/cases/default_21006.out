@@ -1,0 +1,24 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: clts [ENC: DEFAULT, MAP: 0F, OPC: 0x06]
+     LENGTH:  2
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: SYSTEM
+    ISA-SET: I286REAL
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: IS_PRIVILEGED 
+  OPTIMIZED: 0F 06 
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: clts
+   RELATIVE: clts
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: clts
+   RELATIVE: clts
+
+== [ SEGMENTS ] ============================================================================================
+0F 06 
+:..OPCODE

@@ -1,0 +1,52 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: invpcid [ENC: EVEX, MAP: MAP4, OPC: 0xF2]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: MISC
+    ISA-SET: APX_F_INVPCID
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_INVPCID
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_EVEX IS_PRIVILEGED ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 E4 7A 08 F2 04 B0 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r16
+ 1     MEMORY    EXPLICIT       R      MODRM_RM    128      1     128       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 r22
+                                                                                 SCALE =                   4
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: invpcidx (%rax,%r22,4), %r16
+   RELATIVE: invpcidx (%rax,%r22,4), %r16
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: invpcid r16, xmmword ptr ds:[rax+r22*4]
+   RELATIVE: invpcid r16, xmmword ptr ds:[rax+r22*4]
+
+== [ SEGMENTS ] ============================================================================================
+62 E4 7A 08 F2 04 B0 
+:           :  :  :..SIB
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
