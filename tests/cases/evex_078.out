@@ -1,0 +1,52 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tileloaddrs [ENC: EVEX, MAP: 0F38, OPC: 0x4A]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: APX_F_AMX_MOVRS
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: AMXE3_EVEX
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_EVEX ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 F2 7F 08 4A 04 17 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG   8192    256      32      UINT                         tmm0
+ 1     MEMORY    EXPLICIT       R      MODRM_RM      0      1      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                 rdx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: N
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tileloaddrs (%rdi,%rdx,1), %tmm0
+   RELATIVE: tileloaddrs (%rdi,%rdx,1), %tmm0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tileloaddrs tmm0, ds:[rdi+rdx*1]
+   RELATIVE: tileloaddrs tmm0, ds:[rdi+rdx*1]
+
+== [ SEGMENTS ] ============================================================================================
+62 F2 7F 08 4A 04 17 
+:           :  :  :..SIB
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

@@ -1028,5 +1028,29 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62032EC242CB5A",
         "description": "vmpsadbw zmm25 {k2} {z}, zmm26, zmm27, 0x5A"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "480F388B07",
+        "description": "movrs rax, qword ptr ds:[rdi]"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F57E486F4701",
+        "description": "vmovrsd zmm0, zmmword ptr ds:[rdi+0x40]"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "0F182F",
+        "description": "nop dword ptr ds:[rdi]"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "0F1827",
+        "description": "prefetchrst2 byte ptr ds:[rdi]"
     }
 ]
