@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tdphf8ps [ENC: VEX, MAP: MAP5, OPC: 0xFD]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: AMX_FP8
+    ISA-EXT: AMX_TILE
+ EXCEPTIONS: AMXE4
+ ATTRIBUTES: HAS_MODRM HAS_VEX 
+  OPTIMIZED: C4 E5 51 FD D7 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG   8192    256      32   FLOAT32                         tmm2
+ 1   REGISTER    EXPLICIT       R      MODRM_RM   8192    256      32   HFLOAT8                         tmm7
+ 2   REGISTER    EXPLICIT       R        NDSNDD   8192    256      32   HFLOAT8                         tmm5
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tdphf8ps %tmm5, %tmm7, %tmm2
+   RELATIVE: tdphf8ps %tmm5, %tmm7, %tmm2
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tdphf8ps tmm2, tmm7, tmm5
+   RELATIVE: tdphf8ps tmm2, tmm7, tmm5
+
+== [ SEGMENTS ] ============================================================================================
+C4 E5 51 FD D7 
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

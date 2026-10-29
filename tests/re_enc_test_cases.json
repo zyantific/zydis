@@ -1184,5 +1184,29 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62637D4807E50E",
         "description": "tilemovrow zmm28, tmm5, 0x0E"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E560FDCA",
+        "description": "tdpbf8ps tmm1, tmm2, tmm3"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E54BFDE5",
+        "description": "tdpbhf8ps tmm4, tmm5, tmm6"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E572FDF8",
+        "description": "tdphbf8ps tmm7, tmm0, tmm1"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E551FDD7",
+        "description": "tdphf8ps tmm2, tmm7, tmm5"
     }
 ]
