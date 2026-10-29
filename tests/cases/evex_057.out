@@ -1,0 +1,49 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vdpphps [ENC: EVEX, MAP: 0F38, OPC: 0x52]
+     LENGTH:  8
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AVX512
+    ISA-SET: AVX512_VNNI_FP16_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 72 6C 50 52 4C 88 40 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG    512     16      32   FLOAT32                         zmm9
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k0
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     16      32   FLOAT16                        zmm18
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32   FLOAT16  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   4
+                                                                                 DISP  =  0x0000000000000100
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: 1_TO_16
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vdpphps 0x100(%rax,%rcx,4) {1to16}, %zmm18, %zmm9
+   RELATIVE: vdpphps 0x100(%rax,%rcx,4) {1to16}, %zmm18, %zmm9
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vdpphps zmm9, zmm18, dword ptr ds:[rax+rcx*4+0x100] {1to16}
+   RELATIVE: vdpphps zmm9, zmm18, dword ptr ds:[rax+rcx*4+0x100] {1to16}
+
+== [ SEGMENTS ] ============================================================================================
+62 72 6C 50 52 4C 88 40 
+:           :  :  :  :..DISP
+:           :  :  :..SIB
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

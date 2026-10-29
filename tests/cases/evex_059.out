@@ -1,0 +1,40 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vmovd [ENC: EVEX, MAP: 0F, OPC: 0xD6]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: DATAXFER
+    ISA-SET: AVX512_MOVZXC_128
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E9NF
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 A1 7E 08 7E E9 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W      MODRM_RM    128      4      32       INT                        xmm21
+ 1   REGISTER    EXPLICIT       R     MODRM_REG    128      4      32       INT                        xmm17
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vmovd %xmm17, %xmm21
+   RELATIVE: vmovd %xmm17, %xmm21
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vmovd xmm21, xmm17
+   RELATIVE: vmovd xmm21, xmm17
+
+== [ SEGMENTS ] ============================================================================================
+62 A1 7D 08 D6 CD 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
