@@ -217,11 +217,15 @@ typedef enum ZydisDecoderTreeNodeType_
      * Reference to a IBHF-mode selector.
      */
     ZYDIS_NODETYPE_MODE_IBHF,
+    /**
+     * Reference to a PREFETCHRST-mode selector.
+     */
+    ZYDIS_NODETYPE_MODE_PREFETCHRST,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_NODETYPE_MAX_VALUE = ZYDIS_NODETYPE_MODE_IBHF,
+    ZYDIS_NODETYPE_MAX_VALUE = ZYDIS_NODETYPE_MODE_PREFETCHRST,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */

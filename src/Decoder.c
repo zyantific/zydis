@@ -5190,6 +5190,9 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_MODE_IBHF:
             index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_IBHF);
             break;
+        case ZYDIS_NODETYPE_MODE_PREFETCHRST:
+            index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_PREFETCHRST);
+            break;
         default:
             ZYAN_UNREACHABLE;
         }
@@ -5454,7 +5457,8 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
         (1 << ZYDIS_DECODER_MODE_CLDEMOTE) |
         (1 << ZYDIS_DECODER_MODE_IPREFETCH) |
         (1 << ZYDIS_DECODER_MODE_APX) |
-        (1 << ZYDIS_DECODER_MODE_IBHF);
+        (1 << ZYDIS_DECODER_MODE_IBHF) |
+        (1 << ZYDIS_DECODER_MODE_PREFETCHRST);
 
     if (!decoder)
     {

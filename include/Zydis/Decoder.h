@@ -174,11 +174,19 @@ typedef enum ZydisDecoderMode_
      * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_IBHF,
+    /**
+     * Enables the `PREFETCHRST` mode.
+     *
+     * The `MOVRS` isa-extension reuses the `0F 18 /4` widenop encoding for `PREFETCHRST2`.
+     *
+     * This mode is enabled by default.
+     */
+    ZYDIS_DECODER_MODE_PREFETCHRST,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_IBHF,
+    ZYDIS_DECODER_MODE_MAX_VALUE = ZYDIS_DECODER_MODE_PREFETCHRST,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
