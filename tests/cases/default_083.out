@@ -1,0 +1,33 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: uwrmsr [ENC: DEFAULT, MAP: 0F38, OPC: 0xF8]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: USER_MSR
+    ISA-SET: USER_MSR
+    ISA-EXT: USER_MSR
+ EXCEPTIONS: USER_MSR_LEGACY
+ ATTRIBUTES: HAS_MODRM 
+  OPTIMIZED: F3 0F 38 F8 D3 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64      UINT                          rdx
+ 1   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64      UINT                          rbx
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: uwrmsr %rbx, %rdx
+   RELATIVE: uwrmsr %rbx, %rdx
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: uwrmsr rdx, rbx
+   RELATIVE: uwrmsr rdx, rbx
+
+== [ SEGMENTS ] ============================================================================================
+F3 0F 38 F8 D3 
+:  :        :..MODRM
+:  :..OPCODE
+:..PREFIXES
