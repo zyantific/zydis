@@ -1792,6 +1792,9 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_TMM:
             register_class = ZYDIS_REGCLASS_TMM;
             break;
+        case ZYDIS_SEMANTIC_OPTYPE_BSR:
+            register_class = ZYDIS_REGCLASS_BSR;
+            break;
         case ZYDIS_SEMANTIC_OPTYPE_BND:
             register_class = ZYDIS_REGCLASS_BOUND;
             break;
@@ -4540,7 +4543,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ (1 << 5) - 1,
             /* DEBUG   */ (1 << 5) - 1,
             /* MASK    */ non_gpr_mask, // ignore `REX2.R4`
-            /* BOUND   */ (1 << 4) - 1  // ignore `R4`
+            /* BOUND   */ (1 << 4) - 1, // ignore `R4`
+            /* BSR     */ non_gpr_mask  // ignore `REX2.R4`
         };
         id_reg &= mask_reg[def_reg];
 
@@ -4557,7 +4561,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ (1 << 5) - 1,
             /* DEBUG   */ (1 << 5) - 1,
             /* MASK    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
-            /* BOUND   */ (1 << 4) - 1  // ignore `X3|B4`
+            /* BOUND   */ (1 << 4) - 1, // ignore `X3|B4`
+            /* BSR     */ 0
         };
         id_rm &= (is_mod_reg ? mask_rm[def_rm] : 0xFF);
 
@@ -4574,7 +4579,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */ 0,
             /* DEBUG   */ 0,
             /* MASK    */ (1 << 5) - 1,
-            /* BOUND   */ 0
+            /* BOUND   */ 0,
+            /* BSR     */ 0
         };
         id_vvvv &= mask_vvvv[def_vvvv];
     }
@@ -4614,7 +4620,8 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* CONTROL */   8,
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4
+            /* BOUND   */   4,
+            /* BSR     */   1
         },
         // 64 bit mode
         {
@@ -4632,7 +4639,10 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             // check this at runtime we just allow them.
             /* DEBUG   */   8,
             /* MASK    */   8,
-            /* BOUND   */   4
+            /* BOUND   */   4,
+            // Only BSR0 is defined. Other BSR ids, including those formed by a set `R3` or `R4`,
+            // result in undefined opcode (#UD) exceptions.
+            /* BSR     */   1
         }
     };
 
