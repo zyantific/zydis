@@ -148,6 +148,10 @@ typedef enum ZydisRegisterClass_
      * Matrix registers.
      */
     ZYDIS_REGCLASS_TMM,
+    /**
+     * ACE block scale register.
+     */
+    ZYDIS_REGCLASS_BSR,
     /*
      * Flags registers.
      */
