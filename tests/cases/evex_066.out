@@ -1,0 +1,47 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vpmovssdb [ENC: EVEX, MAP: 0F38, OPC: 0x41]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: DATAXFER
+    ISA-SET: AVX10_V2_AUX_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E6
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 72 7E 4B 41 4E 01 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT      CW      MODRM_RM    128     16       8       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rsi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000010
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k3
+ 2   REGISTER    EXPLICIT       R     MODRM_REG    512     16      32       INT                         zmm9
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k3 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vpmovssdbx %zmm9, 0x10(%rsi) {%k3}
+   RELATIVE: vpmovssdbx %zmm9, 0x10(%rsi) {%k3}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vpmovssdb xmmword ptr ds:[rsi+0x10] {k3}, zmm9
+   RELATIVE: vpmovssdb xmmword ptr ds:[rsi+0x10] {k3}, zmm9
+
+== [ SEGMENTS ] ============================================================================================
+62 72 7E 4B 41 4E 01 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

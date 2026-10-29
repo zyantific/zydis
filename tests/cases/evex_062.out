@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vcvthf62hf8 [ENC: EVEX, MAP: MAP5, OPC: 0x37]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CONVERT
+    ISA-SET: AVX10_V2_AUX_256
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E7NM
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 F5 7D AA 37 DC 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    256     32       8   HFLOAT8                         ymm3
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k2
+ 2   REGISTER    EXPLICIT       R      MODRM_RM    256     32       6   HFLOAT6                         ymm4
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 256
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k2 [ZEROING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vcvthf62hf8 %ymm4, %ymm3 {%k2} {z}
+   RELATIVE: vcvthf62hf8 %ymm4, %ymm3 {%k2} {z}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vcvthf62hf8 ymm3 {k2} {z}, ymm4
+   RELATIVE: vcvthf62hf8 ymm3 {k2} {z}, ymm4
+
+== [ SEGMENTS ] ============================================================================================
+62 F5 7D AA 37 DC 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
