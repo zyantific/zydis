@@ -991,14 +991,16 @@ ZYDIS_NO_EXPORT const ZydisOperandDetails* ZydisGetOperandDetails(
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * Returns the actual type and size of an internal element-type.
+ * Returns the actual type, size and slot of an internal element-type.
  *
  * @param   element The internal element type.
  * @param   type    The actual element type.
  * @param   size    The element size.
+ * @param   slot    The number of operand bits one element accounts for, or `0` if that is the
+ *                  element size.
  */
 ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
-    ZydisElementSize* size);
+    ZydisElementSize* size, ZydisElementSize* slot);
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */

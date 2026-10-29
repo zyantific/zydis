@@ -178,11 +178,13 @@ typedef enum ZydisElementType_
      */
     ZYDIS_ELEMENT_TYPE_BFLOAT4,
     /**
-     * 6-bit floating point value (`BF6`). Each value occupies one byte, so the element size is 8.
+     * 6-bit floating point value (`BF6`). The values are packed densely: an operand of width `W`
+     * holds `W / 8` values in its low `6 * W / 8` bits.
      */
     ZYDIS_ELEMENT_TYPE_BFLOAT6,
     /**
-     * 6-bit floating point value (`HF6`). Each value occupies one byte, so the element size is 8.
+     * 6-bit floating point value (`HF6`). The values are packed densely: an operand of width `W`
+     * holds `W / 8` values in its low `6 * W / 8` bits.
      */
     ZYDIS_ELEMENT_TYPE_HFLOAT6,
     /**

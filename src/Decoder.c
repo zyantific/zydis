@@ -1248,10 +1248,11 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
     }
 
     // Element-type and -size
+    ZydisElementSize element_slot = 0;
     if (definition->element_type && (definition->element_type != ZYDIS_IELEMENT_TYPE_VARIABLE))
     {
         ZydisGetElementInfo(definition->element_type, &operand->element_type,
-            &operand->element_size);
+            &operand->element_size, &element_slot);
         if (!operand->element_size)
         {
             // The element size is the same as the operand size. This is used for single element
@@ -1263,7 +1264,11 @@ static void ZydisSetOperandSizeAndElementInfo(const ZydisDecoderContext* context
     // Element count
     if (operand->element_size && operand->size && (operand->element_type != ZYDIS_ELEMENT_TYPE_CC))
     {
-        operand->element_count = operand->size / operand->element_size;
+        if (!element_slot)
+        {
+            element_slot = operand->element_size;
+        }
+        operand->element_count = operand->size / element_slot;
     } else
     {
         operand->element_count = 1; // TODO: Should probably be 0
