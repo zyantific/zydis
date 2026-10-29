@@ -2111,6 +2111,11 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
         instruction->attributes |= mapping[definition->xmm_state];
     }
 
+    if (definition->is_privileged)
+    {
+        instruction->attributes |= ZYDIS_ATTRIB_IS_PRIVILEGED;
+    }
+
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
@@ -2119,10 +2124,6 @@ static void ZydisSetAttributes(ZydisDecoderState* state, ZydisDecodedInstruction
         const ZydisInstructionDefinitionLEGACY* def =
             (const ZydisInstructionDefinitionLEGACY*)definition;
 
-        if (def->is_privileged)
-        {
-            instruction->attributes |= ZYDIS_ATTRIB_IS_PRIVILEGED;
-        }
         if (def->accepts_LOCK)
         {
             instruction->attributes |= ZYDIS_ATTRIB_ACCEPTS_LOCK;

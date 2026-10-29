@@ -749,7 +749,8 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanU8 cpu_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
         ZyanU8 fpu_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
         ZyanU8 xmm_state                       ZYAN_BITFIELD(ZYDIS_RW_ACTION_REQUIRED_BITS); \
-        ZyanBool accepts_segment               ZYAN_BITFIELD( 1)
+        ZyanBool accepts_segment               ZYAN_BITFIELD( 1); \
+        ZyanBool is_privileged                 ZYAN_BITFIELD( 1)
 #else
 #   define ZYDIS_INSTRUCTION_DEFINITION_BASE \
         ZyanU16 mnemonic                       ZYAN_BITFIELD(ZYDIS_MNEMONIC_REQUIRED_BITS); \
@@ -785,9 +786,6 @@ typedef struct ZydisInstructionDefinition_
 typedef struct ZydisInstructionDefinitionLEGACY_
 {
     ZYDIS_INSTRUCTION_DEFINITION_BASE;
-#ifndef ZYDIS_MINIMAL_MODE
-    ZyanBool is_privileged                 ZYAN_BITFIELD( 1);
-#endif
     ZyanBool accepts_LOCK                  ZYAN_BITFIELD( 1);
 #ifndef ZYDIS_MINIMAL_MODE
     ZyanBool accepts_REP                   ZYAN_BITFIELD( 1);
