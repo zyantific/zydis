@@ -1,0 +1,47 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tilemovcol [ENC: EVEX, MAP: 0F38, OPC: 0x4B]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: ACE_1
+    ISA-EXT: ACE
+ EXCEPTIONS: ACE_E6
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 B2 B5 40 4B DD 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG   8192    256      32      UINT                         tmm3
+ 1   REGISTER    EXPLICIT       R      MODRM_RM    512     16      32      UINT                        zmm21
+ 2   REGISTER    EXPLICIT       R        NDSNDD     32      1      32      UINT                         r25d
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tilemovcol %r25d, %zmm21, %tmm3
+   RELATIVE: tilemovcol %r25d, %zmm21, %tmm3
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tilemovcol tmm3, zmm21, r25d
+   RELATIVE: tilemovcol tmm3, zmm21, r25d
+
+== [ SEGMENTS ] ============================================================================================
+62 B2 B5 40 4B DD 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

@@ -1058,5 +1058,47 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "C4E279E60401",
         "description": "cmpbexadd dword ptr ds:[rcx+rax*1], eax, eax"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E2FB49C0",
+        "description": "bsrinit bsr0"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F6FF4895C3",
+        "description": "bsrmovh bsr0, zmm3"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F67F4895C4",
+        "description": "bsrmovh zmm4, bsr0"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F67E48954380",
+        "description": "bsrmovl zmmword ptr ds:[rbx-0x80], bsr0"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62B6DC4095C1",
+        "description": "bsrmovf bsr0, zmm20, zmm17"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F364488DCA01",
+        "description": "top4mxbf8ps tmm1, zmm2, zmm3, 0x01"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62B2B5404BDD",
+        "description": "tilemovcol tmm3, zmm21, r25d"
     }
 ]
