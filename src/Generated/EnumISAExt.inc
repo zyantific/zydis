@@ -61,6 +61,7 @@ static const char* STR_ISAEXT[] =
     "MOVRS",
     "MPX",
     "MSRLIST",
+    "MSR_IMM",
     "PADLOCK",
     "PAUSE",
     "PBNDKB",

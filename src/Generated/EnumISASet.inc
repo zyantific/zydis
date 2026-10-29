@@ -208,6 +208,7 @@ static const char* STR_ISASET[] =
     "MOVRS",
     "MPX",
     "MSRLIST",
+    "MSR_IMM",
     "PADLOCK_ACE",
     "PADLOCK_PHE",
     "PADLOCK_PMM",
