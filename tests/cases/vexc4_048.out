@@ -1,0 +1,51 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: cmpsxadd [ENC: VEX, MAP: 0F38, OPC: 0xE8]
+     LENGTH: 10
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: VEX
+    ISA-SET: CMPCCXADD
+    ISA-EXT: CMPCCXADD
+ EXCEPTIONS: AVX14
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX CPUFLAG_ACCESS ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E2 01 E8 04 25 00 10 00 00 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT      RW      MODRM_RM     32      1      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                none
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000001000
+ 1   REGISTER    EXPLICIT      RW     MODRM_REG     32      1      32      UINT                          eax
+ 2   REGISTER    EXPLICIT       R        NDSNDD     32      1      32      UINT                         r15d
+ 3   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : M  ] [AF  : M  ] [ZF  : M  ] [SF  : M  ] [OF  : M  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: cmpsxadd %r15d, %eax, 0x0000000000001000
+   RELATIVE: cmpsxadd %r15d, %eax, 0x0000000000001000
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: cmpsxadd dword ptr ds:[0x0000000000001000], eax, r15d
+   RELATIVE: cmpsxadd dword ptr ds:[0x0000000000001000], eax, r15d
+
+== [ SEGMENTS ] ============================================================================================
+C4 E2 01 E8 04 25 00 10 00 00 
+:        :  :  :  :..DISP
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

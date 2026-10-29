@@ -1052,5 +1052,11 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "0F1827",
         "description": "prefetchrst2 byte ptr ds:[rdi]"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E279E60401",
+        "description": "cmpbexadd dword ptr ds:[rcx+rax*1], eax, eax"
     }
 ]
