@@ -1268,5 +1268,53 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62DF7E08F6C378563412",
         "description": "wrmsrns 0x12345678, r27"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E77BF6C378563412",
+        "description": "rdmsr rbx, 0x12345678"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4C77BF6C378563412",
+        "description": "rdmsr r11, 0x12345678"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E77AF6C678563412",
+        "description": "wrmsrns 0x12345678, rsi"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4C77AF6C678563412",
+        "description": "wrmsrns 0x12345678, r14"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E77BF8C278563412",
+        "description": "urdmsr rdx, 0x12345678"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4C77BF8C278563412",
+        "description": "urdmsr r10, 0x12345678"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E77AF8C778563412",
+        "description": "uwrmsr 0x12345678, rdi"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4C77AF8C778563412",
+        "description": "uwrmsr 0x12345678, r15"
     }
 ]
