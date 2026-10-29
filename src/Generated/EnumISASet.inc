@@ -11,6 +11,7 @@ static const char* STR_ISASET[] =
     "AMX_BF16",
     "AMX_COMPLEX",
     "AMX_FP16",
+    "AMX_FP8",
     "AMX_INT8",
     "AMX_MOVRS",
     "AMX_TILE",
