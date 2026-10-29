@@ -99,6 +99,7 @@ static const char* STR_ISAEXT[] =
     "TDX",
     "TSX_LDTRK",
     "UINTR",
+    "USER_MSR",
     "VAES",
     "VMFUNC",
     "VPCLMULQDQ",

@@ -105,6 +105,7 @@ static const char* STR_INSTRUCTIONCATEGORY[] =
     "UFMA",
     "UINTR",
     "UNCOND_BR",
+    "USER_MSR",
     "VAES",
     "VBMI2",
     "VEX",
