@@ -1,0 +1,48 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vfmadd132bf16 [ENC: EVEX, MAP: MAP6, OPC: 0x98]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: VFMA
+    ISA-SET: AVX10_2_BF16_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 C6 54 56 98 7B 40 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512     32      16  BFLOAT16                        zmm23
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k6
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     32      16  BFLOAT16                        zmm21
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     16      1      16  BFLOAT16  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r11
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000080
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: 1_TO_32
+   ROUNDING: NONE
+        SAE: N
+       MASK: k6 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vfmadd132bf16 0x80(%r11) {1to32}, %zmm21, %zmm23 {%k6}
+   RELATIVE: vfmadd132bf16 0x80(%r11) {1to32}, %zmm21, %zmm23 {%k6}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vfmadd132bf16 zmm23 {k6}, zmm21, word ptr ds:[r11+0x80] {1to32}
+   RELATIVE: vfmadd132bf16 zmm23 {k6}, zmm21, word ptr ds:[r11+0x80] {1to32}
+
+== [ SEGMENTS ] ============================================================================================
+62 C6 54 56 98 7B 40 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
