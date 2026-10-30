@@ -5430,6 +5430,7 @@ ZyanStatus ZydisDecoderInit(ZydisDecoder* decoder, ZydisMachineMode machine_mode
         (1 << ZYDIS_DECODER_MODE_CET) |
         (1 << ZYDIS_DECODER_MODE_LZCNT) |
         (1 << ZYDIS_DECODER_MODE_TZCNT) |
+        (1 << ZYDIS_DECODER_MODE_WBNOINVD) |
         (1 << ZYDIS_DECODER_MODE_CLDEMOTE) |
         (1 << ZYDIS_DECODER_MODE_IPREFETCH) |
         (1 << ZYDIS_DECODER_MODE_APX);

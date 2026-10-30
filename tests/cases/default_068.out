@@ -1,0 +1,25 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: wbnoinvd [ENC: DEFAULT, MAP: 0F, OPC: 0x09]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: SYSTEM
+    ISA-SET: WBNOINVD
+    ISA-EXT: WBNOINVD
+ EXCEPTIONS: NONE
+ ATTRIBUTES: IS_PRIVILEGED 
+  OPTIMIZED: F3 0F 09 
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: wbnoinvd
+   RELATIVE: wbnoinvd
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: wbnoinvd
+   RELATIVE: wbnoinvd
+
+== [ SEGMENTS ] ============================================================================================
+F3 0F 09 
+:  :..OPCODE
+:..PREFIXES

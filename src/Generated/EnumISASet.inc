@@ -214,6 +214,7 @@ static const char* STR_ISASET[] =
     "VPCLMULQDQ",
     "VTX",
     "WAITPKG",
+    "WBNOINVD",
     "WRMSRNS",
     "X87",
     "XOP",
