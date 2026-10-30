@@ -166,6 +166,28 @@ typedef enum ZydisElementType_
      */
     ZYDIS_ELEMENT_TYPE_BFLOAT16,
     /**
+     * 8-bit floating point value in E5M2 format (`BF8`).
+     */
+    ZYDIS_ELEMENT_TYPE_BFLOAT8,
+    /**
+     * 8-bit floating point value in E4M3 format (`HF8`).
+     */
+    ZYDIS_ELEMENT_TYPE_HFLOAT8,
+    /**
+     * 4-bit floating point value (`BF4`). Two values are packed into each byte.
+     */
+    ZYDIS_ELEMENT_TYPE_BFLOAT4,
+    /**
+     * 6-bit floating point value (`BF6`). The values are packed densely: an operand of width `W`
+     * holds `W / 8` values in its low `6 * W / 8` bits.
+     */
+    ZYDIS_ELEMENT_TYPE_BFLOAT6,
+    /**
+     * 6-bit floating point value (`HF6`). The values are packed densely: an operand of width `W`
+     * holds `W / 8` values in its low `6 * W / 8` bits.
+     */
+    ZYDIS_ELEMENT_TYPE_HFLOAT6,
+    /**
      * Binary coded decimal value.
      */
     ZYDIS_ELEMENT_TYPE_LONGBCD,

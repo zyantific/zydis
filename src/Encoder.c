@@ -1066,7 +1066,7 @@ static ZyanU8 ZydisGetCompDispScaleEvex(const ZydisEncoderInstructionMatch *matc
     const ZyanU8 vector_length = match->definition->vector_length - ZYDIS_VECTOR_LENGTH_128;
     static const ZyanU8 size_indexes[ZYDIS_IELEMENT_SIZE_MAX_VALUE + 1] =
     {
-        0, 0, 0, 1, 2, 4
+        0, 0, 0, 0, 1, 2, 4
     };
     ZYAN_ASSERT(evex_def->element_size < ZYAN_ARRAY_LENGTH(size_indexes));
     const ZyanU8 size_index = size_indexes[evex_def->element_size];
@@ -1105,9 +1105,10 @@ static ZyanU8 ZydisGetCompDispScaleEvex(const ZydisEncoderInstructionMatch *matc
     case ZYDIS_TUPLETYPE_GSCAT:
     case ZYDIS_TUPLETYPE_T1S:
     {
-        static const ZyanU8 scales[6] =
+        static const ZyanU8 scales[7] =
         {
             /*   */ 0,
+            /*  4*/ 0,
             /*  8*/ 0,
             /* 16*/ 1,
             /* 32*/ 2,
@@ -1713,7 +1714,7 @@ static ZyanBool ZydisCheckVectorMemorySize(ZydisEncoderInstructionMatch *match,
             (const ZydisInstructionDefinitionEVEX *)match->base_definition;
         static const ZyanU8 element_sizes[ZYDIS_IELEMENT_SIZE_MAX_VALUE + 1] =
         {
-                0, 1, 2, 4, 8, 16
+                0, 0, 1, 2, 4, 8, 16
         };
         ZYAN_ASSERT(evex_def->element_size < ZYAN_ARRAY_LENGTH(element_sizes));
         const ZyanU8 element_size = element_sizes[evex_def->element_size];

@@ -446,6 +446,11 @@ static void PrintOperands(const ZydisDecodedInstruction* instruction,
             "FLOAT64",
             "FLOAT80",
             "BFLOAT16",
+            "BFLOAT8",
+            "HFLOAT8",
+            "BFLOAT4",
+            "BFLOAT6",
+            "HFLOAT6",
             "LONGBCD",
             "CC"
         };
@@ -1073,7 +1078,22 @@ static void PrintInstruction(const ZydisDecoder* decoder,
         "APX_LEGACY_JMPABS",
         "APX_EVEX_RAO_INT",
         "USER_MSR_EVEX",
-        "LEGACY_RAO_INT"
+        "LEGACY_RAO_INT",
+        "ACE_E1",
+        "ACE_E2",
+        "ACE_E3",
+        "ACE_E4",
+        "ACE_E5",
+        "ACE_E6",
+        "AMXE7_EVEX",
+        "AMXE8_EVEX",
+        "APX_EVEX_MOVRS",
+        "LEGACY_MOVRS",
+        "LEGACY_PREFETCH",
+        "MSR_IMM_EVEX",
+        "MSR_IMM_VEX",
+        "USER_MSR_LEGACY",
+        "USER_MSR_VEX"
     };
     ZYAN_STATIC_ASSERT(ZYAN_ARRAY_LENGTH(exception_classes) == ZYDIS_EXCEPTION_CLASS_MAX_VALUE + 1);
 

@@ -117,6 +117,7 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_UINT,
     ZYDIS_IELEMENT_TYPE_INT1,
     ZYDIS_IELEMENT_TYPE_INT8,
+    ZYDIS_IELEMENT_TYPE_INT8X2,
     ZYDIS_IELEMENT_TYPE_INT8X4,
     ZYDIS_IELEMENT_TYPE_INT16,
     ZYDIS_IELEMENT_TYPE_INT16X2,
@@ -138,6 +139,13 @@ typedef enum ZydisInternalElementType_
     ZYDIS_IELEMENT_TYPE_FLOAT80,
     ZYDIS_IELEMENT_TYPE_BFLOAT16,
     ZYDIS_IELEMENT_TYPE_BFLOAT16X2,
+    ZYDIS_IELEMENT_TYPE_BFLOAT8,
+    ZYDIS_IELEMENT_TYPE_HFLOAT8,
+    ZYDIS_IELEMENT_TYPE_BFLOAT8X4,
+    ZYDIS_IELEMENT_TYPE_HFLOAT8X4,
+    ZYDIS_IELEMENT_TYPE_BFLOAT4,
+    ZYDIS_IELEMENT_TYPE_BFLOAT6,
+    ZYDIS_IELEMENT_TYPE_HFLOAT6,
     ZYDIS_IELEMENT_TYPE_BCD80,
     ZYDIS_IELEMENT_TYPE_CC3,
     ZYDIS_IELEMENT_TYPE_CC5,
@@ -309,6 +317,7 @@ typedef enum ZydisInternalVectorLength_
 typedef enum ZydisInternalElementSize_
 {
     ZYDIS_IELEMENT_SIZE_INVALID,
+    ZYDIS_IELEMENT_SIZE_4,
     ZYDIS_IELEMENT_SIZE_8,
     ZYDIS_IELEMENT_SIZE_16,
     ZYDIS_IELEMENT_SIZE_32,
@@ -721,7 +730,7 @@ typedef enum ZydisMaskOverride_
 // enum types
 ZYAN_STATIC_ASSERT(ZYDIS_MNEMONIC_REQUIRED_BITS        <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_CATEGORY_REQUIRED_BITS        <=  8);
-ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <=  8);
+ZYAN_STATIC_ASSERT(ZYDIS_ISA_SET_REQUIRED_BITS         <= 16);
 ZYAN_STATIC_ASSERT(ZYDIS_ISA_EXT_REQUIRED_BITS         <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_BRANCH_TYPE_REQUIRED_BITS     <=  8);
 ZYAN_STATIC_ASSERT(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS <=  8);
@@ -740,7 +749,7 @@ ZYAN_STATIC_ASSERT(ZYDIS_RW_ACTION_REQUIRED_BITS       <=  8);
         ZyanBool requires_protected_mode       ZYAN_BITFIELD( 1); \
         ZyanBool no_compat_mode                ZYAN_BITFIELD( 1); \
         ZyanU8 category                        ZYAN_BITFIELD(ZYDIS_CATEGORY_REQUIRED_BITS); \
-        ZyanU8 isa_set                         ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
+        ZyanU16 isa_set                        ZYAN_BITFIELD(ZYDIS_ISA_SET_REQUIRED_BITS); \
         ZyanU8 isa_ext                         ZYAN_BITFIELD(ZYDIS_ISA_EXT_REQUIRED_BITS); \
         ZyanU8 branch_type                     ZYAN_BITFIELD(ZYDIS_BRANCH_TYPE_REQUIRED_BITS); \
         ZyanU8 exception_class                 ZYAN_BITFIELD(ZYDIS_EXCEPTION_CLASS_REQUIRED_BITS); \
@@ -982,14 +991,16 @@ ZYDIS_NO_EXPORT const ZydisOperandDetails* ZydisGetOperandDetails(
 
 #ifndef ZYDIS_MINIMAL_MODE
 /**
- * Returns the actual type and size of an internal element-type.
+ * Returns the actual type, size and slot of an internal element-type.
  *
  * @param   element The internal element type.
  * @param   type    The actual element type.
  * @param   size    The element size.
+ * @param   slot    The number of operand bits one element accounts for, or `0` if that is the
+ *                  element size.
  */
 ZYDIS_NO_EXPORT void ZydisGetElementInfo(ZydisInternalElementType element, ZydisElementType* type,
-    ZydisElementSize* size);
+    ZydisElementSize* size, ZydisElementSize* slot);
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */
