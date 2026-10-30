@@ -1,0 +1,37 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: lgdt [ENC: DEFAULT, MAP: 0F, OPC: 0x01]
+     LENGTH:  3
+        SSZ: 32
+       EOSZ: 32
+       EASZ: 32
+   CATEGORY: SYSTEM
+    ISA-SET: I286REAL
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM IS_PRIVILEGED ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 01 10 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       R      MODRM_RM     48      1      48    STRUCT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 eax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+ 1   REGISTER      HIDDEN       W          NONE      0      1       0       INT                         gdtr
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: lgdt (%eax)
+   RELATIVE: lgdt (%eax)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: lgdt fword ptr ds:[eax]
+   RELATIVE: lgdt fword ptr ds:[eax]
+
+== [ SEGMENTS ] ============================================================================================
+0F 01 10 
+:     :..MODRM
+:..OPCODE

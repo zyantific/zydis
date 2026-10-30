@@ -1,0 +1,57 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: enqcmd [ENC: EVEX, MAP: MAP4, OPC: 0xF8]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: APX
+    ISA-SET: APX_F_ENQCMD
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_ENQCMD
+ ATTRIBUTES: HAS_MODRM HAS_EVEX CPUFLAG_ACCESS ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 EC 7F 08 F8 13 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r18
+ 1     MEMORY    EXPLICIT       R      MODRM_RM    512     16      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r19
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : 0  ] [PF  : 0  ] [AF  : 0  ] [ZF  : M  ] [SF  : 0  ] [OF  : 0  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: enqcmdz (%r19), %r18
+   RELATIVE: enqcmdz (%r19), %r18
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: enqcmd r18, zmmword ptr ds:[r19]
+   RELATIVE: enqcmd r18, zmmword ptr ds:[r19]
+
+== [ SEGMENTS ] ============================================================================================
+62 EC 7F 08 F8 13 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

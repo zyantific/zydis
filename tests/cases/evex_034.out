@@ -1,0 +1,52 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: wrussq [ENC: EVEX, MAP: MAP4, OPC: 0x65]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: CET
+    ISA-SET: APX_F_CET
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_CET_WRUSS
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_EVEX IS_PRIVILEGED ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 6C F9 08 65 04 F8 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       W      MODRM_RM     64      1      64      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r16
+                                                                                 INDEX =                 r23
+                                                                                 SCALE =                   8
+                                                                                 DISP  =  0x0000000000000000
+ 1   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64      UINT                          r24
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: wrussq %r24, (%r16,%r23,8)
+   RELATIVE: wrussq %r24, (%r16,%r23,8)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: wrussq qword ptr ds:[r16+r23*8], r24
+   RELATIVE: wrussq qword ptr ds:[r16+r23*8], r24
+
+== [ SEGMENTS ] ============================================================================================
+62 6C F9 08 65 04 F8 
+:           :  :  :..SIB
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

@@ -1,0 +1,58 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: invept [ENC: EVEX, MAP: MAP4, OPC: 0xF0]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: VTX
+    ISA-SET: APX_F_VMX
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_INVEPT
+ ATTRIBUTES: HAS_MODRM HAS_EVEX IS_PRIVILEGED CPUFLAG_ACCESS ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 EC 7E 08 F0 65 10 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          r20
+ 1     MEMORY    EXPLICIT       R      MODRM_RM    128      1     128       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 r21
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000010
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : 0  ] [AF  : 0  ] [ZF  : M  ] [SF  : 0  ] [OF  : 0  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: Y
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: inveptx 0x10(%r21), %r20
+   RELATIVE: inveptx 0x10(%r21), %r20
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: invept r20, xmmword ptr ds:[r21+0x10]
+   RELATIVE: invept r20, xmmword ptr ds:[r21+0x10]
+
+== [ SEGMENTS ] ============================================================================================
+62 EC 7E 08 F0 65 10 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

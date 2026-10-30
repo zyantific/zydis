@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vmcall [ENC: DEFAULT, MAP: 0F, OPC: 0x01]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: VTX
+    ISA-SET: VTX
+    ISA-EXT: VTX
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM IS_PRIVILEGED CPUFLAG_ACCESS 
+  OPTIMIZED: 0F 01 C1 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER      HIDDEN     RCW          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : M  ] [PF  : M  ] [AF  : M  ] [ZF  : M  ] [SF  : M  ] [TF  : M  ] [IF  : M  ] [DF  : M  ] 
+             [OF  : M  ] [IOPL: T_M] [NT  : M  ] [RF  : M  ] [VM  : T  ] [AC  : M  ] [VIF : M  ] [VIP : M  ] 
+             [ID  : M  ] 
+       READ: 0x00021000
+    WRITTEN: 0x003D5FD5
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vmcall
+   RELATIVE: vmcall
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vmcall
+   RELATIVE: vmcall
+
+== [ SEGMENTS ] ============================================================================================
+0F 01 C1 
+:     :..MODRM
+:..OPCODE

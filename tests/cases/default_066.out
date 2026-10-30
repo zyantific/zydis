@@ -1,0 +1,44 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: enqcmds [ENC: DEFAULT, MAP: 0F38, OPC: 0xF8]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: ENQCMD
+    ISA-SET: ENQCMD
+    ISA-EXT: ENQCMD
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM IS_PRIVILEGED CPUFLAG_ACCESS ACCEPTS_SEGMENT 
+  OPTIMIZED: F3 0F 38 F8 13 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       R     MODRM_REG     64      1      64       INT                          rdx
+ 1     MEMORY    EXPLICIT       R      MODRM_RM    512     16      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rbx
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+ 2   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : 0  ] [PF  : 0  ] [AF  : 0  ] [ZF  : M  ] [SF  : 0  ] [OF  : 0  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: enqcmdsz (%rbx), %rdx
+   RELATIVE: enqcmdsz (%rbx), %rdx
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: enqcmds rdx, zmmword ptr ds:[rbx]
+   RELATIVE: enqcmds rdx, zmmword ptr ds:[rbx]
+
+== [ SEGMENTS ] ============================================================================================
+F3 0F 38 F8 13 
+:  :        :..MODRM
+:  :..OPCODE
+:..PREFIXES
