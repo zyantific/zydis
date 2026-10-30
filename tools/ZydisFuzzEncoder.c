@@ -317,15 +317,6 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void *stream_ctx)
             abort();
         }
     }
-    if (request.mnemonic == ZYDIS_MNEMONIC_WBNOINVD)
-    {
-        status = ZydisDecoderEnableMode(&decoder, ZYDIS_DECODER_MODE_WBNOINVD, ZYAN_TRUE);
-        if (!ZYAN_SUCCESS(status))
-        {
-            fputs("Failed to enable WBNOINVD mode\n", ZYAN_STDERR);
-            abort();
-        }
-    }
 
     ZydisDecodedInstruction insn1;
     ZydisDecodedOperand operands1[ZYDIS_MAX_OPERAND_COUNT];

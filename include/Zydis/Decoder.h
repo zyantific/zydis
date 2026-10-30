@@ -130,7 +130,7 @@ typedef enum ZydisDecoderMode_
      * The `WBINVD` instruction is interpreted as `WBNOINVD` on ICL chips, if a `F3` prefix is
      * used.
      *
-     * This mode is disabled by default.
+     * This mode is enabled by default.
      */
     ZYDIS_DECODER_MODE_WBNOINVD,
      /**

@@ -1,23 +1,23 @@
 == [    BASIC ] ============================================================================================
-   MNEMONIC: wbinvd [ENC: DEFAULT, MAP: 0F, OPC: 0x09]
+   MNEMONIC: wbnoinvd [ENC: DEFAULT, MAP: 0F, OPC: 0x09]
      LENGTH:  3
         SSZ: 64
        EOSZ: 32
        EASZ: 64
    CATEGORY: SYSTEM
-    ISA-SET: I486REAL
-    ISA-EXT: BASE
+    ISA-SET: WBNOINVD
+    ISA-EXT: WBNOINVD
  EXCEPTIONS: NONE
  ATTRIBUTES: IS_PRIVILEGED 
-  OPTIMIZED: 0F 09 
+  OPTIMIZED: F3 0F 09 
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: wbinvd
-   RELATIVE: wbinvd
+   ABSOLUTE: wbnoinvd
+   RELATIVE: wbnoinvd
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: wbinvd
-   RELATIVE: wbinvd
+   ABSOLUTE: wbnoinvd
+   RELATIVE: wbnoinvd
 
 == [ SEGMENTS ] ============================================================================================
 F3 0F 09 
