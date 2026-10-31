@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vpalignr [ENC: VEX, MAP: 0F3A, OPC: 0x0F]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AVX
+    ISA-SET: AVX
+    ISA-EXT: AVX
+ EXCEPTIONS: AVX4
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E3 71 0F 04 08 03 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    128     16       8      UINT                         xmm0
+ 1   REGISTER    EXPLICIT       R        NDSNDD    128     16       8      UINT                         xmm1
+ 2     MEMORY    EXPLICIT       R      MODRM_RM    128     16       8      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+ 3  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x0000000000000003
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vpalignr $0x03, (%rax,%rcx,1), %xmm1, %xmm0
+   RELATIVE: vpalignr $0x03, (%rax,%rcx,1), %xmm1, %xmm0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vpalignr xmm0, xmm1, xmmword ptr ds:[rax+rcx*1], 0x03
+   RELATIVE: vpalignr xmm0, xmm1, xmmword ptr ds:[rax+rcx*1], 0x03
+
+== [ SEGMENTS ] ============================================================================================
+C4 E3 71 0F 04 08 03 
+:        :  :  :  :..IMM
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

@@ -1,0 +1,50 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: andn [ENC: VEX, MAP: 0F38, OPC: 0xF2]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: BMI1
+    ISA-SET: BMI1
+    ISA-EXT: BMI1
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX CPUFLAG_ACCESS ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E2 70 F2 04 08 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1   REGISTER    EXPLICIT       R        NDSNDD     32      1      32       INT                          ecx
+ 2     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+ 3   REGISTER      HIDDEN       W          NONE     64     64       1       INT                       rflags
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [    FLAGS ] ============================================================================================
+    ACTIONS: [CF  : 0  ] [PF  : U  ] [AF  : U  ] [ZF  : M  ] [SF  : M  ] [OF  : 0  ] 
+       READ: 0x00000000
+    WRITTEN: 0x000008D5
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: andn (%rax,%rcx,1), %ecx, %eax
+   RELATIVE: andn (%rax,%rcx,1), %ecx, %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: andn eax, ecx, dword ptr ds:[rax+rcx*1]
+   RELATIVE: andn eax, ecx, dword ptr ds:[rax+rcx*1]
+
+== [ SEGMENTS ] ============================================================================================
+C4 E2 70 F2 04 08 
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

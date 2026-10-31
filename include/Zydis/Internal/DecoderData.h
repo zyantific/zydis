@@ -239,10 +239,10 @@ typedef enum ZydisDecoderTreeNodeType_
 #define ZYDIS_OPCODE_TABLE_0F38    0x02
 #define ZYDIS_OPCODE_TABLE_0F3A    0x03
 #define ZYDIS_OPCODE_TABLE_VEX     0x04
-#define ZYDIS_OPCODE_TABLE_EVEX    0x14
-#define ZYDIS_OPCODE_TABLE_MVEX    0x34
-#define ZYDIS_OPCODE_TABLE_XOP     0x44
-#define ZYDIS_OPCODE_TABLE_3DNOW   0x47
+#define ZYDIS_OPCODE_TABLE_EVEX    0x1C
+#define ZYDIS_OPCODE_TABLE_MVEX    0x3C
+#define ZYDIS_OPCODE_TABLE_XOP     0x4C
+#define ZYDIS_OPCODE_TABLE_3DNOW   0x4F
 
 /* ---------------------------------------------------------------------------------------------- */
 
