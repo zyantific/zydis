@@ -1,0 +1,27 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: ibhf [ENC: DEFAULT, MAP: 0F, OPC: 0x1E]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: LEGACY
+    ISA-SET: IBHF
+    ISA-EXT: IBHF
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_REX 
+  OPTIMIZED: F3 48 0F 1E F8 
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: ibhf
+   RELATIVE: ibhf
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: ibhf
+   RELATIVE: ibhf
+
+== [ SEGMENTS ] ============================================================================================
+F3 48 0F 1E F8 
+:  :  :     :..MODRM
+:  :  :..OPCODE
+:  :..REX
+:..PREFIXES

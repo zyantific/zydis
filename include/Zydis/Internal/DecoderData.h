@@ -213,11 +213,15 @@ typedef enum ZydisDecoderTreeNodeType_
      * Reference to a EVEX.U selector.
      */
     ZYDIS_NODETYPE_EVEX_U,
+    /**
+     * Reference to a IBHF-mode selector.
+     */
+    ZYDIS_NODETYPE_MODE_IBHF,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_NODETYPE_MAX_VALUE = ZYDIS_NODETYPE_EVEX_U,
+    ZYDIS_NODETYPE_MAX_VALUE = ZYDIS_NODETYPE_MODE_IBHF,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
