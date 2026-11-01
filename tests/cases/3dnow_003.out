@@ -14,8 +14,8 @@
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0   REGISTER    EXPLICIT      RW     MODRM_REG     64      1      64       INT                          mm4
- 1   REGISTER    EXPLICIT       R      MODRM_RM     64      1      64       INT                          mm2
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG     64      2      32   FLOAT32                          mm4
+ 1   REGISTER    EXPLICIT       R      MODRM_RM     64      2      32   FLOAT32                          mm2
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
