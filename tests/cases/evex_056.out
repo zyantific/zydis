@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vcvttsd2sis [ENC: EVEX, MAP: MAP5, OPC: 0x6D]
+     LENGTH:  7
+        SSZ: 32
+       EOSZ: 32
+       EASZ: 32
+   CATEGORY: CONVERT
+    ISA-SET: AVX512_SAT_CVT_DS_SCALAR
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E3NF
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F5 7F 08 6D 47 40 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64   FLOAT64  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 edi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000200
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vcvttsd2sisq 0x200(%edi), %eax
+   RELATIVE: vcvttsd2sisq 0x200(%edi), %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vcvttsd2sis eax, qword ptr ds:[edi+0x200]
+   RELATIVE: vcvttsd2sis eax, qword ptr ds:[edi+0x200]
+
+== [ SEGMENTS ] ============================================================================================
+62 F5 FF 08 6D 47 40 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

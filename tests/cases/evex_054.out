@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vcvtph2ibs [ENC: EVEX, MAP: MAP5, OPC: 0x69]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CONVERT
+    ISA-SET: AVX512_SAT_CVT_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E2
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 A5 7C 7A 69 CD 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    512     64       8       INT                        zmm17
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k2
+ 2   REGISTER    EXPLICIT       R      MODRM_RM    512     32      16   FLOAT16                        zmm21
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: RZ
+        SAE: Y
+       MASK: k2 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vcvtph2ibs %zmm21 {rz-sae}, %zmm17 {%k2}
+   RELATIVE: vcvtph2ibs %zmm21 {rz-sae}, %zmm17 {%k2}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vcvtph2ibs zmm17 {k2}, zmm21 {rz-sae}
+   RELATIVE: vcvtph2ibs zmm17 {k2}, zmm21 {rz-sae}
+
+== [ SEGMENTS ] ============================================================================================
+62 A5 7C 7A 69 CD 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

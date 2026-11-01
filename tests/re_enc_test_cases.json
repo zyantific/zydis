@@ -1016,5 +1016,17 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "F3480F1EF8",
         "description": "ibhf"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62020FC750FD",
+        "description": "vpdpbssd zmm31 {k7} {z}, zmm30, zmm29"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62032EC242CB5A",
+        "description": "vmpsadbw zmm25 {k2} {z}, zmm26, zmm27, 0x5A"
     }
 ]

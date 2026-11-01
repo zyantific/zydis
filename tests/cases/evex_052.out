@@ -1,0 +1,48 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vcvtbiasph2bf8 [ENC: EVEX, MAP: 0F38, OPC: 0x74]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CONVERT
+    ISA-SET: AVX512_FP8_CONVERT_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4NF
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 52 54 50 74 61 10 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    256     32       8   BFLOAT8                        ymm12
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k0
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     32      16       INT                        zmm21
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     16      1      16   FLOAT16  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                  r9
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000020
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: 1_TO_32
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vcvtbiasph2bf8 0x20(%r9) {1to32}, %zmm21, %ymm12
+   RELATIVE: vcvtbiasph2bf8 0x20(%r9) {1to32}, %zmm21, %ymm12
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vcvtbiasph2bf8 ymm12, zmm21, word ptr ds:[r9+0x20] {1to32}
+   RELATIVE: vcvtbiasph2bf8 ymm12, zmm21, word ptr ds:[r9+0x20] {1to32}
+
+== [ SEGMENTS ] ============================================================================================
+62 52 54 50 74 61 10 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

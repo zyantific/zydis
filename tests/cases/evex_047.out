@@ -1,0 +1,44 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vmpsadbw [ENC: EVEX, MAP: 0F3A, OPC: 0x42]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AVX512
+    ISA-SET: AVX512_MEDIAX_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4NF
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 03 2E C2 42 CB 5A 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    512     32      16      UINT                        zmm25
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k2
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     64       8      UINT                        zmm26
+ 3   REGISTER    EXPLICIT       R      MODRM_RM    512     64       8      UINT                        zmm27
+ 4  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x000000000000005A
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k2 [ZEROING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vmpsadbw $0x5A, %zmm27, %zmm26, %zmm25 {%k2} {z}
+   RELATIVE: vmpsadbw $0x5A, %zmm27, %zmm26, %zmm25 {%k2} {z}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vmpsadbw zmm25 {k2} {z}, zmm26, zmm27, 0x5A
+   RELATIVE: vmpsadbw zmm25 {k2} {z}, zmm26, zmm27, 0x5A
+
+== [ SEGMENTS ] ============================================================================================
+62 03 2E C2 42 CB 5A 
+:           :  :  :..IMM
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
