@@ -1,0 +1,43 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vmovss [ENC: VEX, MAP: 0F, OPC: 0x10]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: DATAXFER
+    ISA-SET: AVX
+    ISA-EXT: AVX
+ EXCEPTIONS: AVX5
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C5 FA 10 04 08 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    128      4      32   FLOAT32                         xmm0
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32   FLOAT32  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vmovssl (%rax,%rcx,1), %xmm0
+   RELATIVE: vmovssl (%rax,%rcx,1), %xmm0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vmovss xmm0, dword ptr ds:[rax+rcx*1]
+   RELATIVE: vmovss xmm0, dword ptr ds:[rax+rcx*1]
+
+== [ SEGMENTS ] ============================================================================================
+C4 E1 7A 10 04 08 
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

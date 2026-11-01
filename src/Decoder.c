@@ -546,13 +546,19 @@ static ZyanStatus ZydisDecodeVEX(ZydisDecoderContext* context,
         ZYAN_UNREACHABLE;
     }
 
-    // Map 0 is only valid for some KNC instructions
-#ifdef ZYDIS_DISABLE_KNC
-    if ((instruction->raw.vex.m_mmmm == 0) || (instruction->raw.vex.m_mmmm > 0x03))
-#else
-    if (instruction->raw.vex.m_mmmm > 0x03)
-#endif
+    switch (instruction->raw.vex.m_mmmm)
     {
+#ifndef ZYDIS_DISABLE_KNC
+    // Map 0 is only valid for some KNC instructions
+    case 0x00:
+#endif
+    case 0x01:
+    case 0x02:
+    case 0x03:
+    case 0x05:
+    case 0x07:
+        break;
+    default:
         // Invalid according to the intel documentation
         return ZYDIS_STATUS_INVALID_MAP;
     }
@@ -3674,9 +3680,20 @@ static ZyanStatus ZydisNodeHandlerVEX(const ZydisDecodedInstruction* instruction
         *index = 0;
         break;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
+    {
+        // The slot order comes from the generator's VEX switch node (`switch_table_vex` in
+        // zydis-db's `datafiles/decoder_tree_nodes.json`): after the default slot, each `pp` value
+        // has six slots for maps 0, 0F, 0F38, 0F3A, 5 and 7. `ZydisDecodeVEX` rejects every other
+        // map, so the entries for maps 4 and 6 are unused.
+        static const ZyanU8 map_slot[8] =
+        {
+            0, 1, 2, 3, 0, 4, 0, 5
+        };
         ZYAN_ASSERT(instruction->attributes & ZYDIS_ATTRIB_HAS_VEX);
-        *index = instruction->raw.vex.m_mmmm + (instruction->raw.vex.pp << 2) + 1;
+        ZYAN_ASSERT(instruction->raw.vex.m_mmmm < ZYAN_ARRAY_LENGTH(map_slot));
+        *index = 1 + instruction->raw.vex.pp * 6 + map_slot[instruction->raw.vex.m_mmmm];
         break;
+    }
     default:
         ZYAN_UNREACHABLE;
     }

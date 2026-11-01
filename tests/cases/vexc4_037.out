@@ -1,0 +1,45 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: rorx [ENC: VEX, MAP: 0F3A, OPC: 0xF0]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: BMI2
+    ISA-SET: BMI2
+    ISA-EXT: BMI2
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E3 7B F0 04 08 03 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                 rcx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+ 2  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x0000000000000003
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: rorx $0x03, (%rax,%rcx,1), %eax
+   RELATIVE: rorx $0x03, (%rax,%rcx,1), %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: rorx eax, dword ptr ds:[rax+rcx*1], 0x03
+   RELATIVE: rorx eax, dword ptr ds:[rax+rcx*1], 0x03
+
+== [ SEGMENTS ] ============================================================================================
+C4 E3 7B F0 04 08 03 
+:        :  :  :  :..IMM
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX
