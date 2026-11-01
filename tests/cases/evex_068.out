@@ -1,0 +1,48 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vcvtbiasps2hf8 [ENC: EVEX, MAP: MAP5, OPC: 0x38]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CONVERT
+    ISA-SET: AVX10_V2_AUX_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F5 6C 5B 38 48 01 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT     RCW     MODRM_REG    128     16       8   HFLOAT8                         xmm1
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k3
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     16      32   FLOAT32                         zmm2
+ 3     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32   FLOAT32  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000004
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: 1_TO_16
+   ROUNDING: NONE
+        SAE: N
+       MASK: k3 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vcvtbiasps2hf8 0x04(%rax) {1to16}, %zmm2, %xmm1 {%k3}
+   RELATIVE: vcvtbiasps2hf8 0x04(%rax) {1to16}, %zmm2, %xmm1 {%k3}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vcvtbiasps2hf8 xmm1 {k3}, zmm2, dword ptr ds:[rax+0x04] {1to16}
+   RELATIVE: vcvtbiasps2hf8 xmm1 {k3}, zmm2, dword ptr ds:[rax+0x04] {1to16}
+
+== [ SEGMENTS ] ============================================================================================
+62 F5 6C 5B 38 48 01 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
