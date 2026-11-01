@@ -1,5 +1,5 @@
 == [    BASIC ] ============================================================================================
-   MNEMONIC: pfsqrt [ENC: 3DNOW, MAP: 0F0F, OPC: 0x97]
+   MNEMONIC: pfrsqrt [ENC: 3DNOW, MAP: 0F0F, OPC: 0x97]
      LENGTH:  4
         SSZ: 64
        EOSZ: 32
@@ -14,8 +14,8 @@
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0   REGISTER    EXPLICIT      RW     MODRM_REG     64      1      64       INT                          mm6
- 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG     64      2      32   FLOAT32                          mm6
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      2      32   FLOAT32  TYPE  =                 MEM
                                                                                  SEG   =                  ds
                                                                                  BASE  =                 rdi
                                                                                  INDEX =                none
@@ -24,12 +24,12 @@
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: pfsqrt (%rdi), %mm6
-   RELATIVE: pfsqrt (%rdi), %mm6
+   ABSOLUTE: pfrsqrt (%rdi), %mm6
+   RELATIVE: pfrsqrt (%rdi), %mm6
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: pfsqrt mm6, qword ptr ds:[rdi]
-   RELATIVE: pfsqrt mm6, qword ptr ds:[rdi]
+   ABSOLUTE: pfrsqrt mm6, qword ptr ds:[rdi]
+   RELATIVE: pfrsqrt mm6, qword ptr ds:[rdi]
 
 == [ SEGMENTS ] ============================================================================================
 0F 0F 37 97 
