@@ -4555,7 +4555,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
             /* X87     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* MMX     */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* VR      */ non_gpr_mask, // ignore `REX2.B4`
-            /* TMM     */ (1 << 4) - 1, // ignore `X3|B4`
+            /* TMM     */ (1 << 4) - 1, // ignore `B4`, ignore VEX `X3`, reject EVEX `X3` below
             /* SEGMENT */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* TEST    */ (1 << 3) - 1, // ignore `X3|B4`, ignore `B3`
             /* CONTROL */ (1 << 5) - 1,
@@ -4603,6 +4603,15 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         {
             return ZYDIS_STATUS_BAD_REGISTER;
         }
+    }
+
+    // `EVEX.X3` does not extend a TMM register in `rm`. No palette has more than eight tiles, and the
+    // AMX-E7-EVEX and AMX-E8-EVEX exception classes (Intel ISE 319433-062) list #UD for a tile name
+    // outside the configured palette.
+    if (is_mod_reg && (def_rm == ZYDIS_REGKIND_TMM) &&
+        (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) && context->vector_unified.X3)
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
     }
 
     static const ZyanU8 available_regs[2][ZYDIS_REGKIND_MAX_VALUE + 1] =

@@ -1,0 +1,42 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tilemovrow [ENC: EVEX, MAP: 0F3A, OPC: 0x07]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: AMX_AVX512
+    ISA-EXT: AMX_TILE
+ EXCEPTIONS: AMXE7_EVEX
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 63 7D 48 07 E5 0E 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    512     64       8      UINT                        zmm28
+ 1   REGISTER    EXPLICIT       R      MODRM_RM   8192   1024       8      UINT                         tmm5
+ 2  IMMEDIATE    EXPLICIT       R         UIMM8      8      1       8      UINT  [U A  8] 0x000000000000000E
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tilemovrow $0x0E, %tmm5, %zmm28
+   RELATIVE: tilemovrow $0x0E, %tmm5, %zmm28
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tilemovrow zmm28, tmm5, 0x0E
+   RELATIVE: tilemovrow zmm28, tmm5, 0x0E
+
+== [ SEGMENTS ] ============================================================================================
+62 63 7D 48 07 E5 0E 
+:           :  :  :..IMM
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

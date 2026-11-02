@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tcvtrowps2phl [ENC: EVEX, MAP: 0F38, OPC: 0x6D]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: AMX_AVX512
+    ISA-EXT: AMX_TILE
+ EXCEPTIONS: AMXE8_EVEX
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 62 15 48 6D CA 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    512     32      16   FLOAT16                        zmm25
+ 1   REGISTER    EXPLICIT       R      MODRM_RM   8192    256      32   FLOAT32                         tmm2
+ 2   REGISTER    EXPLICIT       R        NDSNDD     32      1      32      UINT                         r13d
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tcvtrowps2phl %r13d, %tmm2, %zmm25
+   RELATIVE: tcvtrowps2phl %r13d, %tmm2, %zmm25
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tcvtrowps2phl zmm25, tmm2, r13d
+   RELATIVE: tcvtrowps2phl zmm25, tmm2, r13d
+
+== [ SEGMENTS ] ============================================================================================
+62 62 15 48 6D CA 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

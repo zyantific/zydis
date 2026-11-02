@@ -1100,5 +1100,125 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62B2B5404BDD",
         "description": "tilemovcol tmm3, zmm21, r25d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E2616CCA",
+        "description": "tcmmimfp16ps tmm1, tmm2, tmm3"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E2486CE5",
+        "description": "tcmmrlfp16ps tmm4, tmm5, tmm6"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E236484ACB",
+        "description": "tcvtrowd2ps zmm17, tmm3, r9d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E37E4807D205",
+        "description": "tcvtrowd2ps zmm18, tmm2, 0x05"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E22F486DDC",
+        "description": "tcvtrowps2bf16h zmm19, tmm4, r10d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E37F4807E50A",
+        "description": "tcvtrowps2bf16h zmm20, tmm5, 0x0A"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E226486DEE",
+        "description": "tcvtrowps2bf16l zmm21, tmm6, r11d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E37E4877F70B",
+        "description": "tcvtrowps2bf16l zmm22, tmm7, 0x0B"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62E21C486DF9",
+        "description": "tcvtrowps2phh zmm23, tmm1, r12d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62637C4807C00C",
+        "description": "tcvtrowps2phh zmm24, tmm0, 0x0C"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "626215486DCA",
+        "description": "tcvtrowps2phl zmm25, tmm2, r13d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62637F4877D30D",
+        "description": "tcvtrowps2phl zmm26, tmm3, 0x0D"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62620D484ADC",
+        "description": "tilemovrow zmm27, tmm4, r14d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62637D4807E50E",
+        "description": "tilemovrow zmm28, tmm5, 0x0E"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E560FDCA",
+        "description": "tdpbf8ps tmm1, tmm2, tmm3"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E54BFDE5",
+        "description": "tdpbhf8ps tmm4, tmm5, tmm6"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E572FDF8",
+        "description": "tdphbf8ps tmm7, tmm0, tmm1"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "C4E551FDD7",
+        "description": "tdphf8ps tmm2, tmm7, tmm5"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "626205486DEE",
+        "description": "tcvtrowps2phl zmm29, tmm6, r15d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62637D4807F70F",
+        "description": "tilemovrow zmm30, tmm7, 0x0F"
     }
 ]
