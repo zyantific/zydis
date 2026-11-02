@@ -32,6 +32,7 @@ static const char* STR_ISAEXT[] =
     "CLFSH",
     "CLWB",
     "CLZERO",
+    "CMPCCXADD",
     "ENQCMD",
     "F16C",
     "FMA",

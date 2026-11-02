@@ -158,6 +158,7 @@ static const char* STR_ISASET[] =
     "CLWB",
     "CLZERO",
     "CMOV",
+    "CMPCCXADD",
     "CMPXCHG16B",
     "ENQCMD",
     "F16C",
