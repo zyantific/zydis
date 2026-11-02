@@ -1570,6 +1570,12 @@ static ZyanBool ZydisIsRegisterOperandCompatible(ZydisEncoderInstructionMatch *m
             return ZYAN_FALSE;
         }
         break;
+    case ZYDIS_SEMANTIC_OPTYPE_BSR:
+        if (reg_class != ZYDIS_REGCLASS_BSR)
+        {
+            return ZYAN_FALSE;
+        }
+        break;
     case ZYDIS_SEMANTIC_OPTYPE_BND:
         if (reg_class != ZYDIS_REGCLASS_BOUND)
         {

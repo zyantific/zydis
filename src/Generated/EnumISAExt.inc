@@ -1,6 +1,7 @@
 static const char* STR_ISAEXT[] =
 {
     "INVALID",
+    "ACE",
     "ADOX_ADCX",
     "AES",
     "AMD3DNOW",

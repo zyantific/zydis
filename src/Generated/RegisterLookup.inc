@@ -256,6 +256,7 @@ static const ZydisRegisterLookupItem REG_LOOKUP[] =
     /* TMM5       */ { ZYDIS_REGCLASS_TMM, 5, 8192, 8192 },
     /* TMM6       */ { ZYDIS_REGCLASS_TMM, 6, 8192, 8192 },
     /* TMM7       */ { ZYDIS_REGCLASS_TMM, 7, 8192, 8192 },
+    /* BSR0       */ { ZYDIS_REGCLASS_BSR, 0, 1024, 1024 },
     /* FLAGS      */ { ZYDIS_REGCLASS_FLAGS, -1, 16, 16 },
     /* EFLAGS     */ { ZYDIS_REGCLASS_FLAGS, -1, 32, 32 },
     /* RFLAGS     */ { ZYDIS_REGCLASS_FLAGS, -1, 0, 64 },

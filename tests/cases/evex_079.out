@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: bsrmovf [ENC: EVEX, MAP: MAP6, OPC: 0x95]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: ACE_1
+    ISA-EXT: ACE
+ EXCEPTIONS: ACE_E2
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 B6 DC 40 95 C1 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG   1024     16      64      UINT                         bsr0
+ 1   REGISTER    EXPLICIT       R        NDSNDD    512      8      64      UINT                        zmm20
+ 2   REGISTER    EXPLICIT       R      MODRM_RM    512      8      64      UINT                        zmm17
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: bsrmovf %zmm17, %zmm20, %bsr0
+   RELATIVE: bsrmovf %zmm17, %zmm20, %bsr0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: bsrmovf bsr0, zmm20, zmm17
+   RELATIVE: bsrmovf bsr0, zmm20, zmm17
+
+== [ SEGMENTS ] ============================================================================================
+62 B6 DC 40 95 C1 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

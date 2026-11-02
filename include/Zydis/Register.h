@@ -80,11 +80,12 @@ typedef enum ZydisRegisterKind_
     ZYDIS_REGKIND_DEBUG,
     ZYDIS_REGKIND_MASK,
     ZYDIS_REGKIND_BOUND,
+    ZYDIS_REGKIND_BSR,
 
     /**
      * Maximum value of this enum.
      */
-    ZYDIS_REGKIND_MAX_VALUE = ZYDIS_REGKIND_BOUND,
+    ZYDIS_REGKIND_MAX_VALUE = ZYDIS_REGKIND_BSR,
     /**
      * The minimum number of bits required to represent all values of this enum.
      */
@@ -148,6 +149,10 @@ typedef enum ZydisRegisterClass_
      * Matrix registers.
      */
     ZYDIS_REGCLASS_TMM,
+    /**
+     * ACE block scale register.
+     */
+    ZYDIS_REGCLASS_BSR,
     /*
      * Flags registers.
      */

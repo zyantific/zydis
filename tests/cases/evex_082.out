@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: bsrmovl [ENC: EVEX, MAP: MAP6, OPC: 0x95]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: ACE_1
+    ISA-EXT: ACE
+ EXCEPTIONS: ACE_E3
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F6 7E 48 95 43 80 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       W      MODRM_RM    512      8      64      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rbx
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0xFFFFFFFFFFFFFF80
+ 1   REGISTER    EXPLICIT       R     MODRM_REG   1024     16      64      UINT                         bsr0
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: bsrmovlz %bsr0, -0x80(%rbx)
+   RELATIVE: bsrmovlz %bsr0, -0x80(%rbx)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: bsrmovl zmmword ptr ds:[rbx-0x80], bsr0
+   RELATIVE: bsrmovl zmmword ptr ds:[rbx-0x80], bsr0
+
+== [ SEGMENTS ] ============================================================================================
+62 F6 7E 48 95 43 80 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

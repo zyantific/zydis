@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: top4buud [ENC: EVEX, MAP: 0F38, OPC: 0x5E]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: ACE_1
+    ISA-EXT: ACE
+ EXCEPTIONS: ACE_E4
+ ATTRIBUTES: HAS_MODRM HAS_EVEX 
+  OPTIMIZED: 62 92 7C 40 5E F7 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT      RW     MODRM_REG   8192    256      32      UINT                         tmm6
+ 1   REGISTER    EXPLICIT       R      MODRM_RM    512     64       8      UINT                        zmm31
+ 2   REGISTER    EXPLICIT       R        NDSNDD    512     64       8      UINT                        zmm16
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: top4buud %zmm16, %zmm31, %tmm6
+   RELATIVE: top4buud %zmm16, %zmm31, %tmm6
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: top4buud tmm6, zmm31, zmm16
+   RELATIVE: top4buud tmm6, zmm31, zmm16
+
+== [ SEGMENTS ] ============================================================================================
+62 92 7C 40 5E F7 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

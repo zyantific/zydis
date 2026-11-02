@@ -280,6 +280,9 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_TMM6,
     ZYDIS_REGISTER_TMM7,
 
+    // ACE block scale register
+    ZYDIS_REGISTER_BSR0,
+
     // Flags registers
     ZYDIS_REGISTER_FLAGS,
     ZYDIS_REGISTER_EFLAGS,
