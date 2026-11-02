@@ -1,0 +1,43 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: tileloaddrst1 [ENC: VEX, MAP: 0F38, OPC: 0x4A]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: AMX_TILE
+    ISA-SET: AMX_MOVRS
+    ISA-EXT: AMX_TILE
+ EXCEPTIONS: AMXE3
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C4 E2 79 4A 04 17 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG   8192    256      32      UINT                         tmm0
+ 1     MEMORY    EXPLICIT       R      MODRM_RM      0      1      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                 rdx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: tileloaddrst1 (%rdi,%rdx,1), %tmm0
+   RELATIVE: tileloaddrst1 (%rdi,%rdx,1), %tmm0
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: tileloaddrst1 tmm0, ds:[rdi+rdx*1]
+   RELATIVE: tileloaddrst1 tmm0, ds:[rdi+rdx*1]
+
+== [ SEGMENTS ] ============================================================================================
+C4 E2 79 4A 04 17 
+:        :  :  :..SIB
+:        :  :..MODRM
+:        :..OPCODE
+:..VEX

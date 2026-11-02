@@ -1,0 +1,47 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vmovrsd [ENC: EVEX, MAP: MAP5, OPC: 0x6F]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: DATAXFER
+    ISA-SET: AVX10_MOVRS_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E4
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F5 7E C9 6F 47 01 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG    512     16      32      UINT                         zmm0
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k1
+ 2     MEMORY    EXPLICIT       R      MODRM_RM    512     16      32      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000040
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k1 [ZEROING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vmovrsdz 0x40(%rdi), %zmm0 {%k1} {z}
+   RELATIVE: vmovrsdz 0x40(%rdi), %zmm0 {%k1} {z}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vmovrsd zmm0 {k1} {z}, zmmword ptr ds:[rdi+0x40]
+   RELATIVE: vmovrsd zmm0 {k1} {z}, zmmword ptr ds:[rdi+0x40]
+
+== [ SEGMENTS ] ============================================================================================
+62 F5 7E C9 6F 47 01 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

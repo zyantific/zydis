@@ -1,0 +1,36 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: prefetchrst2 [ENC: DEFAULT, MAP: 0F, OPC: 0x18]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: PREFETCH
+    ISA-SET: MOVRS
+    ISA-EXT: MOVRS
+ EXCEPTIONS: LEGACY_PREFETCH
+ ATTRIBUTES: HAS_MODRM ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 18 27 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       R      MODRM_RM      8      1       8      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: prefetchrst2 (%rdi)
+   RELATIVE: prefetchrst2 (%rdi)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: prefetchrst2 byte ptr ds:[rdi]
+   RELATIVE: prefetchrst2 byte ptr ds:[rdi]
+
+== [ SEGMENTS ] ============================================================================================
+0F 18 27 
+:     :..MODRM
+:..OPCODE

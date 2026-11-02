@@ -1,0 +1,51 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: movrs [ENC: EVEX, MAP: MAP4, OPC: 0x8B]
+     LENGTH:  6
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: APX
+    ISA-SET: APX_F_MOVRS
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_MOVRS
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 F4 FC 08 8B 07 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     64      1      64       INT                          rax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: N
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: movrs (%rdi), %rax
+   RELATIVE: movrs (%rdi), %rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: movrs rax, qword ptr ds:[rdi]
+   RELATIVE: movrs rax, qword ptr ds:[rdi]
+
+== [ SEGMENTS ] ============================================================================================
+62 F4 FC 08 8B 07 
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

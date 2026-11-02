@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: movrs [ENC: DEFAULT, MAP: 0F38, OPC: 0x8B]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: LEGACY
+    ISA-SET: MOVRS
+    ISA-EXT: MOVRS
+ EXCEPTIONS: LEGACY_MOVRS
+ ATTRIBUTES: HAS_MODRM HAS_SIB ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 38 8B 04 17 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                 rdx
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: movrs (%rdi,%rdx,1), %eax
+   RELATIVE: movrs (%rdi,%rdx,1), %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: movrs eax, dword ptr ds:[rdi+rdx*1]
+   RELATIVE: movrs eax, dword ptr ds:[rdi+rdx*1]
+
+== [ SEGMENTS ] ============================================================================================
+0F 38 8B 04 17 
+:        :  :..SIB
+:        :..MODRM
+:..OPCODE

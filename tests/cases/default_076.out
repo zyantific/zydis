@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: movrs [ENC: DEFAULT, MAP: 0F38, OPC: 0x8B]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: LEGACY
+    ISA-SET: MOVRS
+    ISA-EXT: MOVRS
+ EXCEPTIONS: LEGACY_MOVRS
+ ATTRIBUTES: HAS_MODRM HAS_REX ACCEPTS_SEGMENT 
+  OPTIMIZED: 48 0F 38 8B 07 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     64      1      64       INT                          rax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: movrs (%rdi), %rax
+   RELATIVE: movrs (%rdi), %rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: movrs rax, qword ptr ds:[rdi]
+   RELATIVE: movrs rax, qword ptr ds:[rdi]
+
+== [ SEGMENTS ] ============================================================================================
+48 0F 38 8B 07 
+:  :        :..MODRM
+:  :..OPCODE
+:..REX

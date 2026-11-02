@@ -1,0 +1,52 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: movrs [ENC: EVEX, MAP: MAP4, OPC: 0x8B]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: APX
+    ISA-SET: APX_F_MOVRS
+    ISA-EXT: APXEVEX
+ EXCEPTIONS: APX_EVEX_MOVRS
+ ATTRIBUTES: HAS_MODRM HAS_EVEX ACCEPTS_SEGMENT HAS_EEVEX 
+  OPTIMIZED: 62 F4 7C 08 8B 47 FF 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     32      1      32       INT                          eax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0xFFFFFFFFFFFFFFFF
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k0 [DISABLED]
+
+== [      APX ] ============================================================================================
+  USES_EGPR: N
+     HAS_NF: N
+     HAS_ZU: N
+        SCC: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: movrs -0x01(%rdi), %eax
+   RELATIVE: movrs -0x01(%rdi), %eax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: movrs eax, dword ptr ds:[rdi-0x01]
+   RELATIVE: movrs eax, dword ptr ds:[rdi-0x01]
+
+== [ SEGMENTS ] ============================================================================================
+62 F4 7C 08 8B 47 FF 
+:           :  :  :..DISP
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX

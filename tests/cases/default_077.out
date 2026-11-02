@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: movrs [ENC: DEFAULT, MAP: 0F38, OPC: 0x8B]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 16
+       EASZ: 64
+   CATEGORY: LEGACY
+    ISA-SET: MOVRS
+    ISA-EXT: MOVRS
+ EXCEPTIONS: LEGACY_MOVRS
+ ATTRIBUTES: HAS_MODRM ACCEPTS_SEGMENT HAS_OPERANDSIZE 
+  OPTIMIZED: 66 0F 38 8B 07 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     16      1      16       INT                           ax
+ 1     MEMORY    EXPLICIT       R      MODRM_RM     16      1      16       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rdi
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: movrs (%rdi), %ax
+   RELATIVE: movrs (%rdi), %ax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: movrs ax, word ptr ds:[rdi]
+   RELATIVE: movrs ax, word ptr ds:[rdi]
+
+== [ SEGMENTS ] ============================================================================================
+66 0F 38 8B 07 
+:  :        :..MODRM
+:  :..OPCODE
+:..PREFIXES
