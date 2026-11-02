@@ -1346,5 +1346,17 @@
         "stack_width": "ZYDIS_STACK_WIDTH_64",
         "payload": "62E236404ACB",
         "description": "tcvtrowd2ps zmm17, tmm3, r25d"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62537C0B3D680107",
+        "description": "vunpackb xmm13 {k3}, xmmword ptr ds:[r8+0x10], 0x07"
+    },
+    {
+        "machine_mode": "ZYDIS_MACHINE_MODE_LONG_64",
+        "stack_width": "ZYDIS_STACK_WIDTH_64",
+        "payload": "62F56C3B384801",
+        "description": "vcvtbiasps2hf8 xmm1 {k3}, ymm2, dword ptr ds:[rax+0x04] {1to8}"
     }
 ]
