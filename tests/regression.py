@@ -16,7 +16,10 @@ def get_exitcode_stdout_stderr(path, cmd):
     """
     args = [path]
     args.extend(shlex.split(cmd))
-    proc = Popen(args, stdout=PIPE, stderr=PIPE)
+    env = os.environ.copy()
+    env.pop('FORCE_COLOR', None)
+    env['NO_COLOR'] = '1'
+    proc = Popen(args, stdout=PIPE, stderr=PIPE, env=env)
     out, err = proc.communicate()
     exitcode = proc.returncode
     return exitcode, out, err
@@ -43,11 +46,23 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     pre, ext = os.path.splitext(case)
     path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
-    out = out.decode().replace('\r\n', '\n')
+    # A rejected input prints only its status line, on stderr. Comparing stdout alone would pass
+    # such a case for any failure, so the expected text holds both streams.
+    out = out.decode().replace('\r\n', '\n') + err.decode().replace('\r\n', '\n')
 
     if args.operation == "rebase":
         with open(path, mode="wb") as f:
             f.write(out.encode())
+        continue
+
+    if exitcode < 0:
+        print(f"FAILED: '{case}' [Terminated by signal {-exitcode}]")
+        has_failed = True
+        continue
+
+    if not out:
+        print(f"FAILED: '{case}' [No output]")
+        has_failed = True
         continue
 
     try:
