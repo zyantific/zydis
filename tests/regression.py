@@ -57,11 +57,6 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
     # such a case for any failure, so the expected text holds both streams.
     out = to_text(out) + to_text(err)
 
-    if args.operation == "rebase":
-        with open(path, mode="wb") as f:
-            f.write(out.encode())
-        continue
-
     if exitcode < 0:
         print(f"FAILED: '{case}' [Terminated by signal {-exitcode}]")
         has_failed = True
@@ -70,6 +65,11 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
     if not out:
         print(f"FAILED: '{case}' [No output]")
         has_failed = True
+        continue
+
+    if args.operation == "rebase":
+        with open(path, mode="wb") as f:
+            f.write(out.encode())
         continue
 
     try:
