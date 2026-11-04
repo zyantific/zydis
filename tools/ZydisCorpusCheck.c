@@ -188,6 +188,13 @@ typedef enum LineResult_
     LINE_RESULT_SKIPPED
 } LineResult;
 
+typedef enum LineProblem_
+{
+    LINE_PROBLEM_NONE,
+    LINE_PROBLEM_NUL_BYTE,
+    LINE_PROBLEM_TOO_LONG
+} LineProblem;
+
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
@@ -246,14 +253,17 @@ static const char* LookupValue(const NamedValue* table, ZyanUSize count, ZyanU32
     return "?";
 }
 
+// REX2 instructions share the legacy definition table, so their samples carry its tag.
+static ZydisInstructionEncoding GetTableEncoding(ZydisInstructionEncoding encoding)
+{
+    return (encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ?
+        ZYDIS_INSTRUCTION_ENCODING_LEGACY : encoding;
+}
+
 static const char* GetEncodingTag(ZydisInstructionEncoding encoding)
 {
-    // REX2 instructions share the legacy definition table, so their samples carry its tag.
-    if (encoding == ZYDIS_INSTRUCTION_ENCODING_REX2)
-    {
-        encoding = ZYDIS_INSTRUCTION_ENCODING_LEGACY;
-    }
-    return LookupValue(ENCODING_TAGS, ZYAN_ARRAY_LENGTH(ENCODING_TAGS), encoding);
+    return LookupValue(ENCODING_TAGS, ZYAN_ARRAY_LENGTH(ENCODING_TAGS),
+        GetTableEncoding(encoding));
 }
 
 static const char* GetEncodingName(ZydisInstructionEncoding encoding)
@@ -273,8 +283,8 @@ static const char* GetEncodingName(ZydisInstructionEncoding encoding)
 static ZyanBool FindDefinitionId(ZydisInstructionEncoding encoding, const void* definition,
     ZyanU16* id)
 {
-    // The decoder tree stores ids as 16-bit values, so this bound covers every id it can reach.
-    for (ZyanU32 i = 0; i <= 0xFFFF; ++i)
+    const ZyanUSize count = ZydisGetInstructionDefinitionCount(encoding);
+    for (ZyanUSize i = 0; i < count; ++i)
     {
         const ZydisInstructionDefinition* candidate;
         ZydisGetInstructionDefinition(encoding, (ZyanU16)i, &candidate);
@@ -1104,6 +1114,19 @@ static ZyanBool CheckSample(const CorpusSample* sample, const char* path, char* 
         return Fail(reason, "%s", FormatZyanStatus(status));
     }
 
+    // An id past the table would form a pointer into the next table, where it can alias the
+    // decoded definition of another encoding.
+    const ZyanUSize definition_count = ZydisGetInstructionDefinitionCount(sample->encoding);
+    if (sample->id >= definition_count)
+    {
+        return Fail(reason, "id %u outside the %s table of %u definitions", (unsigned)sample->id,
+            GetEncodingTag(sample->encoding), (unsigned)definition_count);
+    }
+    if (GetTableEncoding(instruction.encoding) != sample->encoding)
+    {
+        return Fail(reason, "encoding %s", GetEncodingName(instruction.encoding));
+    }
+
     // The registry folds definitions with identical content into one id, so the id alone cannot
     // separate a twin leaf. The map, opcode, widths and path checks below do.
     const ZydisInstructionDefinition* expected;
@@ -1179,7 +1202,7 @@ static void PrintFailure(const char* file_name, ZyanUSize line_number,
 }
 
 static LineResult CheckLine(const char* file_name, ZyanUSize line_number, char* line,
-    ZyanBool is_too_long)
+    LineProblem problem)
 {
     const char* columns[CORPUS_COLUMN_COUNT];
     const ZyanUSize column_count = SplitColumns(line, columns);
@@ -1187,9 +1210,13 @@ static LineResult CheckLine(const char* file_name, ZyanUSize line_number, char* 
     char reason[CORPUS_LINE_SIZE];
     CorpusSample sample;
     ZyanBool is_valid;
-    if (is_too_long)
+    if (problem == LINE_PROBLEM_TOO_LONG)
     {
         is_valid = Fail(reason, "malformed line, longer than %d bytes", CORPUS_LINE_SIZE - 1);
+    }
+    else if (problem == LINE_PROBLEM_NUL_BYTE)
+    {
+        is_valid = Fail(reason, "malformed line, NUL byte");
     }
     else if (column_count != CORPUS_COLUMN_COUNT)
     {
@@ -1219,41 +1246,46 @@ static LineResult CheckLine(const char* file_name, ZyanUSize line_number, char* 
 /**
  * Reads one line without its line break.
  *
- * @param   file        The file.
- * @param   line        A buffer of `CORPUS_LINE_SIZE` bytes that receives the line.
- * @param   is_too_long Receives `ZYAN_TRUE` if the line does not fit the buffer. The rest of
- *                      such a line is consumed.
+ * @param   file    The file.
+ * @param   line    A buffer of `CORPUS_LINE_SIZE` bytes that receives the line.
+ * @param   problem Receives `LINE_PROBLEM_NUL_BYTE` if the line holds a NUL byte and
+ *                  `LINE_PROBLEM_TOO_LONG` if it does not fit the buffer. The whole line is
+ *                  consumed either way.
  *
  * @return  `ZYAN_FALSE` at the end of the file.
  */
-static ZyanBool ReadLine(FILE* file, char* line, ZyanBool* is_too_long)
+static ZyanBool ReadLine(FILE* file, char* line, LineProblem* problem)
 {
-    *is_too_long = ZYAN_FALSE;
-    if (!fgets(line, CORPUS_LINE_SIZE, file))
+    // Reading byte by byte keeps a NUL inside the line visible. A string reader would end the
+    // line there and hide every column after it.
+    *problem = LINE_PROBLEM_NONE;
+    int c = fgetc(file);
+    if (c == EOF)
     {
         return ZYAN_FALSE;
     }
-    ZyanUSize length = ZYAN_STRLEN(line);
-    if ((length > 0) && (line[length - 1] == '\n'))
+    ZyanUSize length = 0;
+    while ((c != EOF) && (c != '\n'))
     {
-        line[--length] = '\0';
-    }
-    else if (length == CORPUS_LINE_SIZE - 1)
-    {
-        int c = fgetc(file);
-        if ((c != EOF) && (c != '\n'))
+        if (c == '\0')
         {
-            *is_too_long = ZYAN_TRUE;
-            while ((c != EOF) && (c != '\n'))
-            {
-                c = fgetc(file);
-            }
+            *problem = LINE_PROBLEM_NUL_BYTE;
         }
+        else if (length < CORPUS_LINE_SIZE - 1)
+        {
+            line[length++] = (char)c;
+        }
+        else if (*problem == LINE_PROBLEM_NONE)
+        {
+            *problem = LINE_PROBLEM_TOO_LONG;
+        }
+        c = fgetc(file);
     }
     if ((length > 0) && (line[length - 1] == '\r'))
     {
-        line[--length] = '\0';
+        --length;
     }
+    line[length] = '\0';
     return ZYAN_TRUE;
 }
 
@@ -1277,25 +1309,25 @@ static ZyanBool CheckFile(const char* file_name)
     ZyanUSize failed = 0;
     ZyanUSize skipped = 0;
     char line[CORPUS_LINE_SIZE];
-    ZyanBool is_too_long;
-    const ZyanBool has_header_line = ReadLine(file, line, &is_too_long);
+    LineProblem problem;
+    const ZyanBool has_header_line = ReadLine(file, line, &problem);
     ZyanUSize line_number = has_header_line ? 1 : 0;
     // A missing header would drop the first sample unchecked, and an empty file would pass with
     // zero samples.
-    if (!has_header_line || is_too_long || ZYAN_STRCMP(line, CORPUS_HEADER))
+    if (!has_header_line || (problem != LINE_PROBLEM_NONE) || ZYAN_STRCMP(line, CORPUS_HEADER))
     {
         static const char* const no_columns[CORPUS_COLUMN_COUNT] = { ZYAN_NULL };
         PrintFailure(file_name, 1, no_columns, "malformed header");
         ++failed;
     }
-    while (has_header_line && ReadLine(file, line, &is_too_long))
+    while (has_header_line && ReadLine(file, line, &problem))
     {
         ++line_number;
-        if ((line[0] == '\0') && !is_too_long)
+        if ((line[0] == '\0') && (problem == LINE_PROBLEM_NONE))
         {
             continue;
         }
-        switch (CheckLine(file_name, line_number, line, is_too_long))
+        switch (CheckLine(file_name, line_number, line, problem))
         {
         case LINE_RESULT_PASSED:
             ++passed;

@@ -104,6 +104,32 @@ void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding, ZyanU16 id
     }
 }
 
+ZyanUSize ZydisGetInstructionDefinitionCount(ZydisInstructionEncoding encoding)
+{
+    switch (encoding)
+    {
+    case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
+    case ZYDIS_INSTRUCTION_ENCODING_REX2:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_LEGACY);
+    case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_3DNOW);
+    case ZYDIS_INSTRUCTION_ENCODING_XOP:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_XOP);
+    case ZYDIS_INSTRUCTION_ENCODING_VEX:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_VEX);
+#ifndef ZYDIS_DISABLE_AVX512
+    case ZYDIS_INSTRUCTION_ENCODING_EVEX:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_EVEX);
+#endif
+#ifndef ZYDIS_DISABLE_KNC
+    case ZYDIS_INSTRUCTION_ENCODING_MVEX:
+        return ZYAN_ARRAY_LENGTH(ISTR_DEFINITIONS_MVEX);
+#endif
+    default:
+        ZYAN_UNREACHABLE;
+    }
+}
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */

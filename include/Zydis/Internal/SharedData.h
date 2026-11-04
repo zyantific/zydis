@@ -951,6 +951,15 @@ typedef struct ZydisDefinitionAccessedFlags_
 ZYDIS_NO_EXPORT void ZydisGetInstructionDefinition(ZydisInstructionEncoding encoding,
     ZyanU16 id, const ZydisInstructionDefinition** definition);
 
+/**
+ * Returns the number of instruction-definitions with the given `encoding`.
+ *
+ * @param   encoding    The instruction-encoding.
+ *
+ * @return  The number of definitions, which bounds the `id` of `ZydisGetInstructionDefinition`.
+ */
+ZYDIS_NO_EXPORT ZyanUSize ZydisGetInstructionDefinitionCount(ZydisInstructionEncoding encoding);
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Operand definition                                                                             */
 /* ---------------------------------------------------------------------------------------------- */
