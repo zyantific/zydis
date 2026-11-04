@@ -34,6 +34,10 @@
  * `path`. Every sample that does not decode to the tagged definition, map, opcode and widths,
  * consumes other than exactly its bytes, fails to decode its operands or contradicts a step of
  * its path prints one `FAIL` line.
+ *
+ * The `id` column holds the definition ids of the generator run that wrote the corpus, so the
+ * library's tables must come from the same run, or every sample whose id shifted between the two
+ * runs fails.
  */
 
 #include "ZydisToolsShared.h"
