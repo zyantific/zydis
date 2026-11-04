@@ -446,6 +446,22 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         zyan_maybe_enable_wpo("ZydisInfo")
         _maybe_set_emscripten_cfg("ZydisInfo")
         install(TARGETS "ZydisInfo" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+        # Calls the internal `ZydisGetInstructionDefinition`, which only the static library
+        # exposes on every platform.
+        if (NOT ZYDIS_BUILD_SHARED_LIB)
+            add_executable("ZydisCorpusCheck"
+                "tools/ZydisCorpusCheck.c"
+                "tools/ZydisToolsShared.c"
+                "tools/ZydisToolsShared.h")
+            target_link_libraries("ZydisCorpusCheck" PUBLIC "Zydis")
+            set_target_properties ("ZydisCorpusCheck" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisCorpusCheck" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            zyan_set_common_flags("ZydisCorpusCheck")
+            zyan_maybe_enable_wpo("ZydisCorpusCheck")
+            _maybe_set_emscripten_cfg("ZydisCorpusCheck")
+            install(TARGETS "ZydisCorpusCheck" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+        endif ()
     endif ()
 endif ()
 
