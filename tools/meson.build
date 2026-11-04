@@ -76,6 +76,20 @@ if tools_req
       dependencies: [zydis_dep],
       install: true,
     )
+
+    executable(
+      'ZydisCorpusCheck',
+      files(
+        'ZydisCorpusCheck.c',
+        'ZydisToolsShared.c',
+        'ZydisToolsShared.h',
+      ),
+      src + hdrs,
+      c_args: ['-DZYDIS_STATIC_BUILD'],
+      include_directories: [inc, inc_private],
+      implicit_include_directories: false,
+      dependencies: [zycore_dep],
+    )
   endif
 endif
 
