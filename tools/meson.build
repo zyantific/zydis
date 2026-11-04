@@ -89,6 +89,7 @@ if tools_req
       include_directories: [inc, inc_private],
       implicit_include_directories: false,
       dependencies: [zycore_dep],
+      build_by_default: false,
     )
   endif
 endif

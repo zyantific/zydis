@@ -1194,13 +1194,11 @@ static ZyanBool CheckSample(const CorpusSample* sample, const char* path, char* 
         return Fail(reason, "operands %s", FormatZyanStatus(status));
     }
 
-    const CheckContext check_context =
-    {
-        &decoder,
-        &instruction,
-        sample->enabled_modes,
-        sample->disabled_modes
-    };
+    CheckContext check_context;
+    check_context.decoder = &decoder;
+    check_context.instruction = &instruction;
+    check_context.enabled_modes = sample->enabled_modes;
+    check_context.disabled_modes = sample->disabled_modes;
     return CheckPath(&check_context, path, reason);
 }
 
@@ -1222,6 +1220,12 @@ static void PrintFailure(const char* file_name, ZyanUSize line_number,
         (unsigned)line_number, GetColumn(columns, CORPUS_COLUMN_BYTES),
         GetColumn(columns, CORPUS_COLUMN_MODE), GetColumn(columns, CORPUS_COLUMN_ENCODING),
         GetColumn(columns, CORPUS_COLUMN_ID), GetColumn(columns, CORPUS_COLUMN_MNEMONIC), reason);
+}
+
+static void PrintHeaderFailure(const char* file_name)
+{
+    static const char* const no_columns[CORPUS_COLUMN_COUNT] = { ZYAN_NULL };
+    PrintFailure(file_name, 1, no_columns, "malformed header");
 }
 
 static LineResult CheckLine(const char* file_name, ZyanUSize line_number, char* line,
@@ -1333,8 +1337,7 @@ static ZyanBool CheckFile(const char* file_name)
             // A missing header would otherwise drop the first sample unchecked.
             if (is_too_long || ZYAN_STRCMP(line, CORPUS_HEADER))
             {
-                static const char* const no_columns[CORPUS_COLUMN_COUNT] = { ZYAN_NULL };
-                PrintFailure(file_name, line_number, no_columns, "malformed header");
+                PrintHeaderFailure(file_name);
                 ++failed;
             }
             continue;
@@ -1355,6 +1358,13 @@ static ZyanBool CheckFile(const char* file_name)
             ++skipped;
             break;
         }
+    }
+
+    // An empty file has no header and must not pass with zero samples.
+    if (line_number == 0)
+    {
+        PrintHeaderFailure(file_name);
+        ++failed;
     }
 
     const ZyanBool has_read_error = ferror(file) != 0;
