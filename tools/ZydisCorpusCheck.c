@@ -514,8 +514,7 @@ typedef struct CheckContext_
 {
     const ZydisDecoder* decoder;
     const ZydisDecodedInstruction* instruction;
-    ZyanU32 enabled_modes;
-    ZyanU32 disabled_modes;
+    const CorpusSample* sample;
 } CheckContext;
 
 static const char* const SLOTS_BIT[] = { "0", "1" };
@@ -545,31 +544,25 @@ static ZyanBool HasLegacyPrefix(const ZydisDecodedInstruction* instruction, Zyan
     return ZYAN_FALSE;
 }
 
-static ZyanBool GetPrefixW(const ZydisDecodedInstruction* instruction, ZyanU8* w)
+static ZyanU8 GetPrefixW(const ZydisDecodedInstruction* instruction)
 {
     switch (instruction->encoding)
     {
     case ZYDIS_INSTRUCTION_ENCODING_LEGACY:
     case ZYDIS_INSTRUCTION_ENCODING_3DNOW:
-        *w = (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ? instruction->raw.rex.W : 0;
-        return ZYAN_TRUE;
+        return (instruction->attributes & ZYDIS_ATTRIB_HAS_REX) ? instruction->raw.rex.W : 0;
     case ZYDIS_INSTRUCTION_ENCODING_REX2:
-        *w = instruction->raw.rex2.W;
-        return ZYAN_TRUE;
+        return instruction->raw.rex2.W;
     case ZYDIS_INSTRUCTION_ENCODING_XOP:
-        *w = instruction->raw.xop.W;
-        return ZYAN_TRUE;
+        return instruction->raw.xop.W;
     case ZYDIS_INSTRUCTION_ENCODING_VEX:
-        *w = instruction->raw.vex.W;
-        return ZYAN_TRUE;
+        return instruction->raw.vex.W;
     case ZYDIS_INSTRUCTION_ENCODING_EVEX:
-        *w = instruction->raw.evex.W;
-        return ZYAN_TRUE;
+        return instruction->raw.evex.W;
     case ZYDIS_INSTRUCTION_ENCODING_MVEX:
-        *w = instruction->raw.mvex.W;
-        return ZYAN_TRUE;
+        return instruction->raw.mvex.W;
     default:
-        return ZYAN_FALSE;
+        return 0;
     }
 }
 
@@ -591,33 +584,18 @@ static const char* DecodeAddressSize(const CheckContext* context)
     }
 }
 
-static const char* DecodeEvexB(const CheckContext* context)
-{
-    const ZydisDecodedInstruction* instruction = context->instruction;
-    return (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ?
-        SLOTS_BIT[instruction->raw.evex.b] : ZYAN_NULL;
-}
+#define DEFINE_RAW_FIELD_DECODER(function_name, encoding_value, slots, field) \
+    static const char* function_name(const CheckContext* context) \
+    { \
+        const ZydisDecodedInstruction* instruction = context->instruction; \
+        return (instruction->encoding == (encoding_value)) ? \
+            (slots)[instruction->raw.field] : ZYAN_NULL; \
+    }
 
-static const char* DecodeEvexNd(const CheckContext* context)
-{
-    const ZydisDecodedInstruction* instruction = context->instruction;
-    return (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ?
-        SLOTS_BIT[instruction->raw.evex.ND] : ZYAN_NULL;
-}
-
-static const char* DecodeEvexNf(const CheckContext* context)
-{
-    const ZydisDecodedInstruction* instruction = context->instruction;
-    return (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ?
-        SLOTS_BIT[instruction->raw.evex.NF] : ZYAN_NULL;
-}
-
-static const char* DecodeEvexScc(const CheckContext* context)
-{
-    const ZydisDecodedInstruction* instruction = context->instruction;
-    return (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX) ?
-        SLOTS_EVEX_SCC[instruction->raw.evex.SCC] : ZYAN_NULL;
-}
+DEFINE_RAW_FIELD_DECODER(DecodeEvexB, ZYDIS_INSTRUCTION_ENCODING_EVEX, SLOTS_BIT, evex.b)
+DEFINE_RAW_FIELD_DECODER(DecodeEvexNd, ZYDIS_INSTRUCTION_ENCODING_EVEX, SLOTS_BIT, evex.ND)
+DEFINE_RAW_FIELD_DECODER(DecodeEvexNf, ZYDIS_INSTRUCTION_ENCODING_EVEX, SLOTS_BIT, evex.NF)
+DEFINE_RAW_FIELD_DECODER(DecodeEvexScc, ZYDIS_INSTRUCTION_ENCODING_EVEX, SLOTS_EVEX_SCC, evex.SCC)
 
 static const char* DecodeEvexU(const CheckContext* context)
 {
@@ -643,9 +621,9 @@ static const char* DecodeFeature(const CheckContext* context, ZydisDecoderMode m
     const ZyanBool is_active = (context->decoder->decoder_mode & bit) != 0;
     if (is_active)
     {
-        return (context->enabled_modes & bit) ? SLOTS_BIT[1] : "1, not tagged";
+        return (context->sample->enabled_modes & bit) ? SLOTS_BIT[1] : "1, not tagged";
     }
-    return (context->disabled_modes & bit) ? SLOTS_BIT[0] : "0, not tagged";
+    return (context->sample->disabled_modes & bit) ? SLOTS_BIT[0] : "0, not tagged";
 }
 
 #define DEFINE_FEATURE_DECODER(function_name, mode) \
@@ -684,8 +662,6 @@ static const char* DecodeMandatoryPrefix(const CheckContext* context)
     }
     switch (candidate)
     {
-    case 0x00:
-        return SLOTS_MANDATORY_PREFIX[1];
     case 0x66:
         return SLOTS_MANDATORY_PREFIX[2];
     case 0xF3:
@@ -693,7 +669,7 @@ static const char* DecodeMandatoryPrefix(const CheckContext* context)
     case 0xF2:
         return SLOTS_MANDATORY_PREFIX[4];
     default:
-        return ZYAN_NULL;
+        return SLOTS_MANDATORY_PREFIX[1];
     }
 }
 
@@ -750,12 +726,7 @@ static const char* DecodeModrmRm(const CheckContext* context)
         SLOTS_MODRM_FIELD[instruction->raw.modrm.rm] : ZYAN_NULL;
 }
 
-static const char* DecodeMvexE(const CheckContext* context)
-{
-    const ZydisDecodedInstruction* instruction = context->instruction;
-    return (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_MVEX) ?
-        SLOTS_BIT[instruction->raw.mvex.E] : ZYAN_NULL;
-}
+DEFINE_RAW_FIELD_DECODER(DecodeMvexE, ZYDIS_INSTRUCTION_ENCODING_MVEX, SLOTS_BIT, mvex.E)
 
 static const char* DecodeOperandSize(const CheckContext* context)
 {
@@ -765,11 +736,7 @@ static const char* DecodeOperandSize(const CheckContext* context)
     // as its mandatory prefix.
     const ZydisDecodedInstruction* instruction = context->instruction;
     const ZyanBool has_override = HasLegacyPrefix(instruction, 0x66);
-    ZyanU8 w;
-    if (!GetPrefixW(instruction, &w))
-    {
-        return ZYAN_NULL;
-    }
+    const ZyanU8 w = GetPrefixW(instruction);
     switch (instruction->machine_mode)
     {
     case ZYDIS_MACHINE_MODE_LONG_COMPAT_16:
@@ -832,8 +799,7 @@ static const char* DecodeRexB(const CheckContext* context)
 
 static const char* DecodeRexW(const CheckContext* context)
 {
-    ZyanU8 w;
-    return GetPrefixW(context->instruction, &w) ? SLOTS_BIT[w] : ZYAN_NULL;
+    return SLOTS_BIT[GetPrefixW(context->instruction)];
 }
 
 static const char* DecodeSwitchTable(const CheckContext* context)
@@ -1101,29 +1067,17 @@ static ZyanBool InitDecoder(const CorpusSample* sample, ZydisDecoder* decoder, c
     for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(DECODER_MODE_TAGS); ++i)
     {
         const ZyanU32 bit = 1u << DECODER_MODE_TAGS[i].value;
-        if (sample->enabled_modes & bit)
+        if (!((sample->enabled_modes | sample->disabled_modes) & bit))
         {
-            status = ZydisDecoderEnableMode(decoder,
-                (ZydisDecoderMode)DECODER_MODE_TAGS[i].value, ZYAN_TRUE);
-            if (!ZYAN_SUCCESS(status))
-            {
-                return Fail(reason, "enable %s %s", DECODER_MODE_TAGS[i].name,
-                    FormatZyanStatus(status));
-            }
+            continue;
         }
-    }
-    for (ZyanUSize i = 0; i < ZYAN_ARRAY_LENGTH(DECODER_MODE_TAGS); ++i)
-    {
-        const ZyanU32 bit = 1u << DECODER_MODE_TAGS[i].value;
-        if (sample->disabled_modes & bit)
+        const ZyanBool is_enabled = !(sample->disabled_modes & bit);
+        status = ZydisDecoderEnableMode(decoder, (ZydisDecoderMode)DECODER_MODE_TAGS[i].value,
+            is_enabled);
+        if (!ZYAN_SUCCESS(status))
         {
-            status = ZydisDecoderEnableMode(decoder,
-                (ZydisDecoderMode)DECODER_MODE_TAGS[i].value, ZYAN_FALSE);
-            if (!ZYAN_SUCCESS(status))
-            {
-                return Fail(reason, "disable %s %s", DECODER_MODE_TAGS[i].name,
-                    FormatZyanStatus(status));
-            }
+            return Fail(reason, "%s %s %s", is_enabled ? "enable" : "disable",
+                DECODER_MODE_TAGS[i].name, FormatZyanStatus(status));
         }
     }
     return ZYAN_TRUE;
@@ -1138,7 +1092,6 @@ static ZyanBool CheckSample(const CorpusSample* sample, const char* path, char* 
     }
 
     ZydisDecoderContext context;
-    ZYAN_MEMSET(&context, 0, sizeof(context));
     ZydisDecodedInstruction instruction;
     ZyanStatus status = ZydisDecoderDecodeInstruction(&decoder, &context, sample->bytes,
         sample->length, &instruction);
@@ -1197,8 +1150,7 @@ static ZyanBool CheckSample(const CorpusSample* sample, const char* path, char* 
     CheckContext check_context;
     check_context.decoder = &decoder;
     check_context.instruction = &instruction;
-    check_context.enabled_modes = sample->enabled_modes;
-    check_context.disabled_modes = sample->disabled_modes;
+    check_context.sample = sample;
     return CheckPath(&check_context, path, reason);
 }
 
@@ -1220,12 +1172,6 @@ static void PrintFailure(const char* file_name, ZyanUSize line_number,
         (unsigned)line_number, GetColumn(columns, CORPUS_COLUMN_BYTES),
         GetColumn(columns, CORPUS_COLUMN_MODE), GetColumn(columns, CORPUS_COLUMN_ENCODING),
         GetColumn(columns, CORPUS_COLUMN_ID), GetColumn(columns, CORPUS_COLUMN_MNEMONIC), reason);
-}
-
-static void PrintHeaderFailure(const char* file_name)
-{
-    static const char* const no_columns[CORPUS_COLUMN_COUNT] = { ZYAN_NULL };
-    PrintFailure(file_name, 1, no_columns, "malformed header");
 }
 
 static LineResult CheckLine(const char* file_name, ZyanUSize line_number, char* line,
@@ -1326,22 +1272,21 @@ static ZyanBool CheckFile(const char* file_name)
     ZyanUSize passed = 0;
     ZyanUSize failed = 0;
     ZyanUSize skipped = 0;
-    ZyanUSize line_number = 0;
     char line[CORPUS_LINE_SIZE];
     ZyanBool is_too_long;
-    while (ReadLine(file, line, &is_too_long))
+    const ZyanBool has_header_line = ReadLine(file, line, &is_too_long);
+    ZyanUSize line_number = has_header_line ? 1 : 0;
+    // A missing header would drop the first sample unchecked, and an empty file would pass with
+    // zero samples.
+    if (!has_header_line || is_too_long || ZYAN_STRCMP(line, CORPUS_HEADER))
+    {
+        static const char* const no_columns[CORPUS_COLUMN_COUNT] = { ZYAN_NULL };
+        PrintFailure(file_name, 1, no_columns, "malformed header");
+        ++failed;
+    }
+    while (has_header_line && ReadLine(file, line, &is_too_long))
     {
         ++line_number;
-        if (line_number == 1)
-        {
-            // A missing header would otherwise drop the first sample unchecked.
-            if (is_too_long || ZYAN_STRCMP(line, CORPUS_HEADER))
-            {
-                PrintHeaderFailure(file_name);
-                ++failed;
-            }
-            continue;
-        }
         if ((line[0] == '\0') && !is_too_long)
         {
             continue;
@@ -1358,13 +1303,6 @@ static ZyanBool CheckFile(const char* file_name)
             ++skipped;
             break;
         }
-    }
-
-    // An empty file has no header and must not pass with zero samples.
-    if (line_number == 0)
-    {
-        PrintHeaderFailure(file_name);
-        ++failed;
     }
 
     const ZyanBool has_read_error = ferror(file) != 0;
