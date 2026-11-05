@@ -109,7 +109,7 @@ def merge_sources(*, source_dir: Path, covered_headers: Set[Path]):
         output += [
             f'',
             f'//',
-            f'// Source file: {source_file}',
+            f'// Source file: {source_file.relative_to(ZYDIS_ROOT).as_posix()}',
             f'//',
             f'',
         ]
