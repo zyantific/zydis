@@ -33,10 +33,7 @@ nolibc = get_option('nolibc')
 
 # Auto feature set
 encoder = encoder.enable_auto_if(
-  minimal.disabled()
-  and decoder.allowed()
-  and avx512.allowed()
-  and knc.allowed(),
+  minimal.disabled() and decoder.allowed() and avx512.allowed() and knc.allowed(),
 )
 decoder = decoder.enable_auto_if(encoder.enabled())
 
@@ -67,18 +64,7 @@ doc = doc.disable_auto_if(not root)
 
 cc = meson.get_compiler('c')
 
-if cc.get_argument_syntax() == 'msvc'
-  if get_option('b_lto')
-    add_project_arguments(
-      '/GL', # -flto
-      language: 'c',
-    )
-    add_project_link_arguments(
-      '/LTCG',
-      language: 'c',
-    )
-  endif
-elif nolibc
+if cc.get_argument_syntax() != 'msvc' and nolibc
   add_project_arguments(
     '-fno-stack-protector',
     language: 'c',
@@ -127,9 +113,13 @@ if segment.disabled()
   predef += 'ZYDIS_DISABLE_SEGMENT'
 endif
 
+predef_cflags = []
+
 foreach def : predef
-  add_project_arguments(f'-D@def@', language: 'c')
+  predef_cflags += f'-D@def@'
 endforeach
+
+add_project_arguments(predef_cflags, language: 'c')
 
 inc = include_directories('include')
 inc_private = include_directories('src')
@@ -249,23 +239,38 @@ install_headers(hdrs_common, subdir: 'Zydis')
 install_headers(hdrs_internal, subdir: 'Zydis/Internal')
 install_headers(hdrs_generated, subdir: 'Zydis/Generated')
 
-# Note: on MSVC, define ZYDIS_STATIC_BUILD and ZYCORE_STATIC_BUILD accordingly
-# in the user project.
-zydis_dep = declare_dependency(
-  include_directories: inc,
-  link_with: zydis_lib,
-  dependencies: [zycore_dep],
+meson.override_dependency(
+  'zydis',
+  declare_dependency(
+    include_directories: inc,
+    compile_args: predef_cflags,
+    link_with: zydis_lib,
+    dependencies: [zycore_dep],
+  ),
+  static: false,
 )
-
-pkg = import('pkgconfig')
-pkg.generate(
-  zydis_lib,
-  name: 'zydis',
-  description: 'Zyan Disassembler Library',
-  url: 'https://github.com/zyantific/zydis',
+meson.override_dependency(
+  'zydis',
+  declare_dependency(
+    include_directories: inc,
+    compile_args: predef_cflags + '-DZYDIS_STATIC_BUILD',
+    link_with: zydis_lib,
+    dependencies: [zycore_dep],
+  ),
+  static: true,
 )
+zydis_dep = dependency('zydis')
 
-meson.override_dependency('zydis', zydis_dep)
+pkg = import('pkgconfig', required: false)
+if pkg.found()
+  pkg.generate(
+    zydis_lib,
+    extra_cflags: predef_cflags,
+    name: 'zydis',
+    description: 'Zyan Disassembler Library',
+    url: 'https://github.com/zyantific/zydis',
+  )
+endif
 
 subdir('examples')
 subdir('tools')
