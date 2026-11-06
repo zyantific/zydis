@@ -1335,6 +1335,7 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
  * @param   context             A pointer to the `ZydisDecoderContext` struct.
  * @param   instruction         A pointer to the `ZydisDecodedInstruction` struct.
  * @param   operand             A pointer to the `ZydisDecodedOperand` struct.
+ * @param   type                The memory operand type.
  * @param   vidx_register_class The register-class to use as the index register-class for
  *                              instructions with `VSIB` addressing.
  *
@@ -1342,7 +1343,7 @@ static ZyanStatus ZydisDecodeOperandRegister(const ZydisDecodedInstruction* inst
  */
 static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
     const ZydisDecodedInstruction* instruction, ZydisDecodedOperand* operand,
-    ZydisRegisterClass vidx_register_class)
+    ZydisMemoryOperandType type, ZydisRegisterClass vidx_register_class)
 {
     ZYAN_ASSERT(context);
     ZYAN_ASSERT(instruction);
@@ -1353,7 +1354,7 @@ static ZyanStatus ZydisDecodeOperandMemory(const ZydisDecoderContext* context,
         ((instruction->address_width == 32) || (instruction->address_width == 64))));
 
     operand->type = ZYDIS_OPERAND_TYPE_MEMORY;
-    operand->mem.type = ZYDIS_MEMOP_TYPE_MEM;
+    operand->mem.type = type;
 
     const ZyanU8 modrm_rm = instruction->raw.modrm.rm;
     ZyanU8 displacement_size = 0;
@@ -1877,25 +1878,26 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_MEM:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_INVALID));
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_MEM,
+                    ZYDIS_REGCLASS_INVALID));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBX:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_XMM));
-            operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_VSIB,
+                    ZYDIS_REGCLASS_XMM));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBY:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_YMM));
-            operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_VSIB,
+                    ZYDIS_REGCLASS_YMM));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MEM_VSIBZ:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_ZMM));
-            operands[i].mem.type = ZYDIS_MEMOP_TYPE_VSIB;
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_VSIB,
+                    ZYDIS_REGCLASS_ZMM));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_PTR:
             ZYAN_ASSERT((instruction->raw.imm[0].size == 16) ||
@@ -1908,8 +1910,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_INVALID));
-            operands[i].mem.type = ZYDIS_MEMOP_TYPE_AGEN;
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_AGEN,
+                    ZYDIS_REGCLASS_INVALID));
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MOFFS:
             ZYAN_ASSERT(instruction->raw.disp.size);
@@ -1922,8 +1924,8 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         case ZYDIS_SEMANTIC_OPTYPE_MIB:
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
-                    context, instruction, &operands[i], ZYDIS_REGCLASS_INVALID));
-            operands[i].mem.type = ZYDIS_MEMOP_TYPE_MIB;
+                    context, instruction, &operands[i], ZYDIS_MEMOP_TYPE_MIB,
+                    ZYDIS_REGCLASS_INVALID));
             break;
         default:
             break;
