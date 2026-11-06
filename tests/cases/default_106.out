@@ -1,0 +1,36 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: invlpg [ENC: DEFAULT, MAP: 0F, OPC: 0x01]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ:  8
+       EASZ: 64
+   CATEGORY: SYSTEM
+    ISA-SET: I486REAL
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM IS_PRIVILEGED ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 01 38 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT    NONE      MODRM_RM      8      1       8      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: invlpg (%rax)
+   RELATIVE: invlpg (%rax)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: invlpg byte ptr ds:[rax]
+   RELATIVE: invlpg byte ptr ds:[rax]
+
+== [ SEGMENTS ] ============================================================================================
+0F 01 38 
+:     :..MODRM
+:..OPCODE
