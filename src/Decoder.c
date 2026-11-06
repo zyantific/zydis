@@ -1906,7 +1906,6 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             operands[i].ptr.segment = (ZyanU16)instruction->raw.imm[1].value.u;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_AGEN:
-            operands[i].actions = 0; // TODO: Remove after generator update
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &operands[i], ZYDIS_REGCLASS_INVALID));
@@ -1921,7 +1920,6 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
             operands[i].mem.disp.value = instruction->raw.disp.value;
             break;
         case ZYDIS_SEMANTIC_OPTYPE_MIB:
-            operands[i].actions = 0; // TODO: Remove after generator update
             ZYAN_CHECK(
                 ZydisDecodeOperandMemory(
                     context, instruction, &operands[i], ZYDIS_REGCLASS_INVALID));
