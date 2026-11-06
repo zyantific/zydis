@@ -1,0 +1,36 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: cldemote [ENC: DEFAULT, MAP: 0F, OPC: 0x1C]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: CLDEMOTE
+    ISA-SET: CLDEMOTE
+    ISA-EXT: CLDEMOTE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM ACCEPTS_SEGMENT 
+  OPTIMIZED: 0F 1C 00 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT    NONE      MODRM_RM      8      1       8      UINT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: cldemote (%rax)
+   RELATIVE: cldemote (%rax)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: cldemote byte ptr ds:[rax]
+   RELATIVE: cldemote byte ptr ds:[rax]
+
+== [ SEGMENTS ] ============================================================================================
+0F 1C 00 
+:     :..MODRM
+:..OPCODE

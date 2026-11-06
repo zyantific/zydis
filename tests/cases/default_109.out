@@ -1,0 +1,46 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vgatherpf0dps [ENC: EVEX, MAP: 0F38, OPC: 0xC6]
+     LENGTH:  7
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: GATHER
+    ISA-SET: AVX512PF_512
+    ISA-EXT: AVX512EVEX
+ EXCEPTIONS: E12NP
+ ATTRIBUTES: HAS_MODRM HAS_SIB HAS_EVEX ACCEPTS_SEGMENT 
+  OPTIMIZED: 62 F2 7D 49 C6 0C 00 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       R      MODRM_RM     32      1      32   FLOAT32  TYPE  =                VSIB
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                zmm0
+                                                                                 SCALE =                   1
+                                                                                 DISP  =  0x0000000000000000
+ 1   REGISTER    EXPLICIT       R          MASK     64     64       1       INT                           k1
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 512
+  BROADCAST: NONE
+   ROUNDING: NONE
+        SAE: N
+       MASK: k1 [MERGING]
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vgatherpf0dps (%rax,%zmm0,1) {%k1}
+   RELATIVE: vgatherpf0dps (%rax,%zmm0,1) {%k1}
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vgatherpf0dps dword ptr ds:[rax+zmm0*1] {k1}
+   RELATIVE: vgatherpf0dps dword ptr ds:[rax+zmm0*1] {k1}
+
+== [ SEGMENTS ] ============================================================================================
+62 F2 7D 49 C6 0C 00 
+:           :  :  :..SIB
+:           :  :..MODRM
+:           :..OPCODE
+:..EVEX
