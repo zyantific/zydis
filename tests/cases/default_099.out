@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: lea [ENC: DEFAULT, MAP: DEFAULT, OPC: 0x8D]
+     LENGTH:  3
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: MISC
+    ISA-SET: I86
+    ISA-EXT: BASE
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_REX 
+  OPTIMIZED: 48 8D 00 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0   REGISTER    EXPLICIT       W     MODRM_REG     64      1      64       INT                          rax
+ 1     MEMORY    EXPLICIT    NONE      MODRM_RM     64      1       0       INT  TYPE  =                AGEN
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: lea (%rax), %rax
+   RELATIVE: lea (%rax), %rax
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: lea rax, qword ptr ds:[rax]
+   RELATIVE: lea rax, qword ptr ds:[rax]
+
+== [ SEGMENTS ] ============================================================================================
+48 8D 00 
+:  :  :..MODRM
+:  :..OPCODE
+:..REX
