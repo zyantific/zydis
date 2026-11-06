@@ -362,6 +362,10 @@ typedef enum ZydisOperandAction_
     /* ------------------------------------------------------------------------------------------ */
 
     /**
+     * The operand is neither read nor written by the instruction.
+     */
+    ZYDIS_OPERAND_ACTION_NONE       = 0x00,
+    /**
      * The operand is read by the instruction.
      */
     ZYDIS_OPERAND_ACTION_READ       = 0x01,
