@@ -74455,7 +74455,7 @@ static const ZydisDecoderTreeNode DECODER_TREE_3DNW_NP_0F0F[] =
     /* ID           */ ZYDIS_DT_DEFINITION(0x0001) /* pavgusb */
 };
 
-static const ZydisDecoderTreeNode* const OPCODE_TABLE_TREES[] =
+const ZydisDecoderTreeNode* const OPCODE_TABLE_TREES[] =
 {
     /* PRIMARY      */ &DECODER_TREE_PRIMARY[0],
     /* 0F           */ &DECODER_TREE_0F[0],
