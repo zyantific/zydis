@@ -102,14 +102,14 @@ def merge_sources(*, source_dir: Path, covered_headers: Set[Path]):
         '',
     ]
 
-    for source_file in find_files(re.compile('[\w-]+\.c'), source_dir):
+    for source_file in find_files(re.compile(r'[\w-]+\.c'), source_dir):
         print(f'Processing source file "{source_file}"')
 
         # Print some comments to show where the code is from.
         output += [
             f'',
             f'//',
-            f'// Source file: {source_file}',
+            f'// Source file: {source_file.relative_to(ZYDIS_ROOT).as_posix()}',
             f'//',
             f'',
         ]
