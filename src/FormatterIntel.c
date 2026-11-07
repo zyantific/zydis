@@ -51,7 +51,11 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
     ZYAN_ASSERT(context->instruction);
     ZYAN_ASSERT(context->operands);
 
-    if (!formatter->deco_apx_nf_use_suffix)
+    // The APX decorators exist on EVEX-encoded instructions only, like the mask and broadcast
+    // decorators below. Every other encoding would pay two indirect calls that print nothing.
+    const ZyanBool is_evex = (context->instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX);
+
+    if (is_evex && !formatter->deco_apx_nf_use_suffix)
     {
         ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context, 
             ZYDIS_DECORATOR_APX_NF));
@@ -60,7 +64,7 @@ ZyanStatus ZydisFormatterIntelFormatInstruction(const ZydisFormatter* formatter,
     ZYAN_CHECK(formatter->func_print_prefixes(formatter, buffer, context));
     ZYAN_CHECK(formatter->func_print_mnemonic(formatter, buffer, context));
     
-    if (!formatter->deco_apx_dfv_use_immediate)
+    if (is_evex && !formatter->deco_apx_dfv_use_immediate)
     {
         ZYAN_CHECK(formatter->func_print_decorator(formatter, buffer, context, 
             ZYDIS_DECORATOR_APX_DFV));
