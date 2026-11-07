@@ -61,6 +61,9 @@ ZyanStatus ZydisFormatterATTFormatOperandREG(const ZydisFormatter* formatter,
 ZyanStatus ZydisFormatterATTFormatOperandMEM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
 
+ZyanStatus ZydisFormatterATTFormatOperandPTR(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context);
+
 /* ---------------------------------------------------------------------------------------------- */
 /* Elemental tokens                                                                               */
 /* ---------------------------------------------------------------------------------------------- */
@@ -160,7 +163,7 @@ static const ZydisFormatter FORMATTER_ATT =
     /* func_post_operand          */ ZYAN_NULL,
     /* func_format_operand_reg    */ &ZydisFormatterATTFormatOperandREG,
     /* func_format_operand_mem    */ &ZydisFormatterATTFormatOperandMEM,
-    /* func_format_operand_ptr    */ &ZydisFormatterBaseFormatOperandPTR,
+    /* func_format_operand_ptr    */ &ZydisFormatterATTFormatOperandPTR,
     /* func_format_operand_imm    */ &ZydisFormatterBaseFormatOperandIMM,
     /* func_print_mnemonic        */ &ZydisFormatterATTPrintMnemonic,
     /* func_print_register        */ &ZydisFormatterATTPrintRegister,
