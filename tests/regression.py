@@ -9,6 +9,12 @@ from subprocess import Popen, PIPE
 
 TEST_CASE_DIRECTORY = os.path.join('.', 'cases')
 
+# InitVT100 in tools/ZydisToolsShared.c turns color on for a non-empty FORCE_COLOR whatever
+# NO_COLOR says, so NO_COLOR alone would not keep escape sequences out of the captured output.
+CHILD_ENV = os.environ.copy()
+CHILD_ENV.pop('FORCE_COLOR', None)
+CHILD_ENV['NO_COLOR'] = '1'
+
 
 def get_exitcode_stdout_stderr(path, cmd):
     """
@@ -16,10 +22,14 @@ def get_exitcode_stdout_stderr(path, cmd):
     """
     args = [path]
     args.extend(shlex.split(cmd))
-    proc = Popen(args, stdout=PIPE, stderr=PIPE)
+    proc = Popen(args, stdout=PIPE, stderr=PIPE, env=CHILD_ENV)
     out, err = proc.communicate()
     exitcode = proc.returncode
     return exitcode, out, err
+
+
+def to_text(data):
+    return data.decode().replace('\r\n', '\n')
 
 
 parser = argparse.ArgumentParser(description="Regression testing.")
@@ -43,7 +53,19 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     pre, ext = os.path.splitext(case)
     path = os.path.join(TEST_CASE_DIRECTORY, pre + ".out")
-    out = out.decode().replace('\r\n', '\n')
+    # A rejected input prints only its status line, on stderr. Comparing stdout alone would pass
+    # such a case for any failure, so the expected text holds both streams.
+    out = to_text(out) + to_text(err)
+
+    if exitcode < 0:
+        print(f"FAILED: '{case}' [Terminated by signal {-exitcode}]")
+        has_failed = True
+        continue
+
+    if not out:
+        print(f"FAILED: '{case}' [No output]")
+        has_failed = True
+        continue
 
     if args.operation == "rebase":
         with open(path, mode="wb") as f:
@@ -52,7 +74,7 @@ for case in os.listdir(TEST_CASE_DIRECTORY):
 
     try:
         with open(path, mode="rb") as f:
-            expected = f.read().decode().replace('\r\n', '\n')
+            expected = to_text(f.read())
 
         if expected != out:
             print(f"FAILED: '{case}' [{payload}]")
