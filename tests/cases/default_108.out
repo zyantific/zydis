@@ -1,0 +1,41 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: vprefetch0 [ENC: VEX, MAP: 0F, OPC: 0x18]
+     LENGTH:  4
+        SSZ: 64
+       EOSZ: 32
+       EASZ: 64
+   CATEGORY: PREFETCH
+    ISA-SET: KNCV
+    ISA-EXT: KNC
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_VEX ACCEPTS_SEGMENT 
+  OPTIMIZED: C5 F8 18 08 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT    NONE      MODRM_RM      8      0      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      AVX ] ============================================================================================
+  VECTORLEN: 128
+  BROADCAST: NONE
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: vprefetch0 (%rax)
+   RELATIVE: vprefetch0 (%rax)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: vprefetch0 byte ptr ds:[rax]
+   RELATIVE: vprefetch0 byte ptr ds:[rax]
+
+== [ SEGMENTS ] ============================================================================================
+C5 F8 18 08 
+:     :  :..MODRM
+:     :..OPCODE
+:..VEX
