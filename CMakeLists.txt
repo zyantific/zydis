@@ -446,6 +446,15 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         zyan_maybe_enable_wpo("ZydisInfo")
         _maybe_set_emscripten_cfg("ZydisInfo")
         install(TARGETS "ZydisInfo" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+        add_executable("ZydisTestFormatterCase"
+            "tools/ZydisTestFormatterCase.c")
+        target_link_libraries("ZydisTestFormatterCase" PUBLIC "Zydis")
+        set_target_properties("ZydisTestFormatterCase" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisTestFormatterCase" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        zyan_set_common_flags("ZydisTestFormatterCase")
+        zyan_maybe_enable_wpo("ZydisTestFormatterCase")
+        _maybe_set_emscripten_cfg("ZydisTestFormatterCase")
     endif ()
 endif ()
 
@@ -556,6 +565,13 @@ if (ZYDIS_BUILD_TESTS)
                 $<TARGET_FILE:ZydisFuzzEncoder>
                 $<TARGET_FILE:ZydisTestEncoderAbsolute>
             WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/tests"
+        )
+    endif ()
+
+    if (TARGET ZydisTestFormatterCase)
+        add_test(
+            NAME "ZydisFormatterCase"
+            COMMAND $<TARGET_FILE:ZydisTestFormatterCase>
         )
     endif ()
 endif ()

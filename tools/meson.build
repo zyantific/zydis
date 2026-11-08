@@ -7,6 +7,7 @@ zydisfuzzdecoder_exe = disabler()
 zydisfuzzencoder_exe = disabler()
 zydisfuzzreencoding_exe = disabler()
 zydistestencoderabsolute_exe = disabler()
+zydistestformattercase_exe = disabler()
 if tools_req
   if decoder.enabled() and formatter.enabled() and minimal.disabled()
     executable(
@@ -75,6 +76,15 @@ if tools_req
       ),
       dependencies: [zydis_dep],
       install: true,
+    )
+
+    zydistestformattercase_exe = executable(
+      'ZydisTestFormatterCase',
+      files(
+        'ZydisTestFormatterCase.c',
+      ),
+      dependencies: [zydis_dep],
+      build_by_default: false,
     )
   endif
 endif
