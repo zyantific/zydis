@@ -5194,6 +5194,7 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_MODE_UD0_COMPAT:
             index = ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_UD0_COMPAT);
             break;
+#ifndef ZYDIS_DISABLE_AVX512
         case ZYDIS_NODETYPE_EVEX_ND:
             status = ZydisNodeHandlerEvexND(instruction, &index);
             break;
@@ -5203,6 +5204,7 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
         case ZYDIS_NODETYPE_EVEX_SCC:
             status = ZydisNodeHandlerEvexSCC(instruction, &index);
             break;
+#endif
         case ZYDIS_NODETYPE_REX_2:
             index = (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_REX2) ? 1 : 0;
             break;
@@ -5366,6 +5368,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                 ZydisGetInstructionDefinition(instruction->encoding, ZYDIS_DT_GET_VALUE(node, 0), &definition);
             }
 
+#ifndef ZYDIS_DISABLE_AVX512
             if (instruction->encoding == ZYDIS_INSTRUCTION_ENCODING_EVEX)
             {
                 const ZydisInstructionDefinitionEVEX* evex_definition =
@@ -5385,6 +5388,7 @@ static ZyanStatus ZydisDecodeInstruction(ZydisDecoderState* state,
                     instruction->apx.default_flags = state->context->vector_unified.vvvv;
                 }
             }
+#endif
 
             instruction->mnemonic = definition->mnemonic;
 
