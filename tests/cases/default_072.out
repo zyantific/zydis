@@ -9,22 +9,21 @@
     ISA-EXT: BASE
  EXCEPTIONS: NONE
  ATTRIBUTES: HAS_MODRM 
-  OPTIMIZED: 0F 0D F8 
+  OPTIMIZED: 0F 1F C0 
 
 == [ OPERANDS ] ============================================================================================
 ##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
- 0   REGISTER    EXPLICIT       R      MODRM_RM     32      1      32       INT                          eax
- 1   REGISTER    EXPLICIT       R     MODRM_REG     32      1      32       INT                          edi
+ 0   REGISTER    EXPLICIT    NONE      MODRM_RM     32      1      32       INT                          eax
 --  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
 
 == [      ATT ] ============================================================================================
-   ABSOLUTE: nop %edi, %eax
-   RELATIVE: nop %edi, %eax
+   ABSOLUTE: nop %eax
+   RELATIVE: nop %eax
 
 == [    INTEL ] ============================================================================================
-   ABSOLUTE: nop eax, edi
-   RELATIVE: nop eax, edi
+   ABSOLUTE: nop eax
+   RELATIVE: nop eax
 
 == [ SEGMENTS ] ============================================================================================
 F3 0F 1E F8 
