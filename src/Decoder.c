@@ -4768,6 +4768,12 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
             return ZYDIS_STATUS_DECODING_ERROR;
         }
 
+        if ((definition->mnemonic == ZYDIS_MNEMONIC_PTWRITE) &&
+            (instruction->attributes & ZYDIS_ATTRIB_HAS_OPERANDSIZE))
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
+
         if (state->prefixes.has_lock && !def->accepts_LOCK)
         {
             return ZYDIS_STATUS_ILLEGAL_LOCK;
