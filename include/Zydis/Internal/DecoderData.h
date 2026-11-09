@@ -122,6 +122,10 @@ typedef enum ZydisDecoderTreeNodeType_
      */
     ZYDIS_NODETYPE_PREFIX_GROUP1,
     /**
+     * Reference to a PrefixGroup3 selector.
+     */
+    ZYDIS_NODETYPE_PREFIX_GROUP3,
+    /**
      * Reference to a mandatory-prefix selector.
      */
     ZYDIS_NODETYPE_MANDATORY_PREFIX,
