@@ -1,0 +1,38 @@
+== [    BASIC ] ============================================================================================
+   MNEMONIC: ptwrite [ENC: DEFAULT, MAP: 0F, OPC: 0xAE]
+     LENGTH:  5
+        SSZ: 64
+       EOSZ: 64
+       EASZ: 64
+   CATEGORY: PT
+    ISA-SET: PT
+    ISA-EXT: PT
+ EXCEPTIONS: NONE
+ ATTRIBUTES: HAS_MODRM HAS_REX ACCEPTS_SEGMENT 
+  OPTIMIZED: F3 48 0F AE 20 
+
+== [ OPERANDS ] ============================================================================================
+##       TYPE  VISIBILITY  ACTION      ENCODING   SIZE  NELEM  ELEMSZ  ELEMTYPE                        VALUE
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+ 0     MEMORY    EXPLICIT       R      MODRM_RM     64      1      64       INT  TYPE  =                 MEM
+                                                                                 SEG   =                  ds
+                                                                                 BASE  =                 rax
+                                                                                 INDEX =                none
+                                                                                 SCALE =                   0
+                                                                                 DISP  =  0x0000000000000000
+--  ---------  ----------  ------  ------------   ----  -----  ------  --------  ---------------------------
+
+== [      ATT ] ============================================================================================
+   ABSOLUTE: ptwrite (%rax)
+   RELATIVE: ptwrite (%rax)
+
+== [    INTEL ] ============================================================================================
+   ABSOLUTE: ptwrite qword ptr ds:[rax]
+   RELATIVE: ptwrite qword ptr ds:[rax]
+
+== [ SEGMENTS ] ============================================================================================
+F3 48 0F AE 20 
+:  :  :     :..MODRM
+:  :  :..OPCODE
+:  :..REX
+:..PREFIXES

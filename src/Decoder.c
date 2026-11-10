@@ -98,6 +98,10 @@ typedef struct ZydisDecoderState_
          */
         ZyanBool has_lock;
         /**
+         * Signals, if the instruction has an operand-size override prefix (`66`).
+         */
+        ZyanBool has_osz_override;
+        /**
          * The effective prefix of group 1 (either `F2` or `F3`).
          */
         ZyanU8 group1;
@@ -3240,7 +3244,7 @@ static ZyanStatus ZydisCollectOptionalPrefixes(ZydisDecoderState* state,
             state->prefixes.offset_notrack = -1;
             break;
         case 0x66:
-            // context->prefixes.has_osz_override = ZYAN_TRUE;
+            state->prefixes.has_osz_override = ZYAN_TRUE;
             state->prefixes.offset_osz_override = offset;
             if (!state->prefixes.mandatory_candidate)
             {
@@ -5132,6 +5136,9 @@ static ZyanStatus ZydisTreeWalkFilters(ZydisDecoderState* state,
             break;
         case ZYDIS_NODETYPE_PREFIX_GROUP1:
             index = state->prefixes.group1 ? 1 : 0;
+            break;
+        case ZYDIS_NODETYPE_PREFIX_GROUP3:
+            index = state->prefixes.has_osz_override ? 1 : 0;
             break;
         case ZYDIS_NODETYPE_MANDATORY_PREFIX:
             status = ZydisNodeHandlerMandatoryPrefix(state, &index);
