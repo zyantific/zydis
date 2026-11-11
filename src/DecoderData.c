@@ -117,30 +117,3 @@ ZYAN_STATIC_ASSERT(ZYDIS_NODETYPE_REQUIRED_BITS <= 8);
 /* ---------------------------------------------------------------------------------------------- */
 
 /* ============================================================================================== */
-/* API                                                                                            */
-/* ============================================================================================== */
-
-/* ---------------------------------------------------------------------------------------------- */
-/* Decoder tree                                                                                   */
-/* ---------------------------------------------------------------------------------------------- */
-
-const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 opcode_table_id)
-{
-    ZYAN_ASSERT((ZyanUSize)opcode_table_id < ZYAN_ARRAY_LENGTH(OPCODE_TABLE_TREES));
-
-    return OPCODE_TABLE_TREES[opcode_table_id];
-}
-
-void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
-    const ZydisInstructionEncodingInfo** info)
-{
-    ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_DEFINITION);
-    const ZyanU8 encoding_id = ZYDIS_DT_GET_ARG0(node);
-
-    ZYAN_ASSERT((ZyanUSize)encoding_id < ZYAN_ARRAY_LENGTH(INSTR_ENCODINGS));
-    *info = &INSTR_ENCODINGS[encoding_id];
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-
-/* ============================================================================================== */

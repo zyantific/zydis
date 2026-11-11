@@ -379,13 +379,19 @@ typedef struct ZydisInstructionEncodingInfo_
 #define ZYDIS_DT_GET_VALUE(node, index) \
     ((ZyanU16)(*((node) + 1 + (index))))
 
+extern const ZydisInstructionEncodingInfo INSTR_ENCODINGS[];
+extern const ZydisDecoderTreeNode* const OPCODE_TABLE_TREES[];
+
 /**
  * Returns the root node of the opcode table with the given `opcode_table_id`.
  *
  * @param opcode_table_id   The id of the opcode table to retrieve.
  * @return The root node of the opcode table with the given `opcode_table_id`.
  */
-ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 opcode_table_id);
+ZYAN_INLINE const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 opcode_table_id)
+{
+    return OPCODE_TABLE_TREES[opcode_table_id];
+}
 
 /**
  * Returns information about optional instruction parts (like modrm, displacement or
@@ -394,8 +400,12 @@ ZYDIS_NO_EXPORT const ZydisDecoderTreeNode* ZydisGetOpcodeTableRootNode(ZyanU8 o
  * @param   node    The instruction definition node.
  * @param   info    A pointer to the `ZydisInstructionParts` struct.
  */
-ZYDIS_NO_EXPORT void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
-    const ZydisInstructionEncodingInfo** info);
+ZYAN_INLINE void ZydisGetInstructionEncodingInfo(const ZydisDecoderTreeNode* node,
+    const ZydisInstructionEncodingInfo** info)
+{
+    ZYAN_ASSERT(ZYDIS_DT_GET_TYPE(node) == ZYDIS_NODETYPE_DEFINITION);
+    *info = &INSTR_ENCODINGS[ZYDIS_DT_GET_ARG0(node)];
+}
 
 /* ---------------------------------------------------------------------------------------------- */
 
