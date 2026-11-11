@@ -1,3 +1,8 @@
+if not tests.disabled() and decoder.enabled() and formatter.enabled() and minimal.disabled()
+  formatter_test = executable('ZydisTestFormatter', 'formatter.c', dependencies: [zydis_dep])
+  test('ZydisTestFormatter', formatter_test)
+endif
+
 pymod = import('python')
 py_exe = pymod.find_installation('python3', required: tests)
 
