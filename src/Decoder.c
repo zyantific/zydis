@@ -1765,6 +1765,9 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         const ZydisOperandDetails *details = ZydisGetOperandDetails(operand);
         ZydisRegisterClass register_class = ZYDIS_REGCLASS_INVALID;
 
+        // Zeroed per operand because this size is a compile-time constant. From `-O1` up, GCC and
+        // Clang inline `ZydisZeroStruct` and fold its switch into straight-line stores. A single
+        // call before the loop has a run-time size and keeps the switch as a jump table.
         ZydisZeroStruct(&operands[i], sizeof(operands[i]));
         operands[i].id = i;
         operands[i].visibility = operand->visibility;
