@@ -251,6 +251,77 @@ typedef enum ZydisRegisterEncoding_
 /* ============================================================================================== */
 
 /* ---------------------------------------------------------------------------------------------- */
+/* Memory helper functions                                                                        */
+/* ---------------------------------------------------------------------------------------------- */
+
+/**
+ * The largest struct size `ZydisZeroStruct` accepts.
+ */
+#define ZYDIS_ZERO_STRUCT_MAX_SIZE (22 * 16 + 12)
+
+/**
+ * Zeroes a struct with a fixed sequence of 16-byte stores.
+ *
+ * @param   buffer  A pointer to the struct.
+ * @param   size    The size of the struct in bytes. Must be a multiple of 4 and at most
+ *                  `ZYDIS_ZERO_STRUCT_MAX_SIZE`.
+ *
+ * Compilers lower a `memset` of a few hundred bytes to `rep stos`, whose startup latency alone
+ * costs about a tenth of a full decode. With a constant `size` the switch collapses into
+ * straight-line stores that retire in a few cycles.
+ */
+ZYAN_INLINE void ZydisZeroStruct(void* buffer, ZyanUSize size)
+{
+    static const ZyanU8 zero[16] = { 0 };
+    ZyanU8* bytes = (ZyanU8*)buffer;
+
+    ZYAN_ASSERT((size % 4) == 0);
+    ZYAN_ASSERT(size <= ZYDIS_ZERO_STRUCT_MAX_SIZE);
+
+    switch (size / 16)
+    {
+    case 22: ZYAN_MEMCPY(bytes + 21 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 21: ZYAN_MEMCPY(bytes + 20 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 20: ZYAN_MEMCPY(bytes + 19 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 19: ZYAN_MEMCPY(bytes + 18 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 18: ZYAN_MEMCPY(bytes + 17 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 17: ZYAN_MEMCPY(bytes + 16 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 16: ZYAN_MEMCPY(bytes + 15 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 15: ZYAN_MEMCPY(bytes + 14 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 14: ZYAN_MEMCPY(bytes + 13 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 13: ZYAN_MEMCPY(bytes + 12 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 12: ZYAN_MEMCPY(bytes + 11 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 11: ZYAN_MEMCPY(bytes + 10 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case 10: ZYAN_MEMCPY(bytes +  9 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  9: ZYAN_MEMCPY(bytes +  8 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  8: ZYAN_MEMCPY(bytes +  7 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  7: ZYAN_MEMCPY(bytes +  6 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  6: ZYAN_MEMCPY(bytes +  5 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  5: ZYAN_MEMCPY(bytes +  4 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  4: ZYAN_MEMCPY(bytes +  3 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  3: ZYAN_MEMCPY(bytes +  2 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  2: ZYAN_MEMCPY(bytes +  1 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  1: ZYAN_MEMCPY(bytes +  0 * 16, zero, 16); ZYAN_FALLTHROUGH;
+    case  0: break;
+    default:
+        ZYAN_UNREACHABLE;
+    }
+
+    bytes += size & ~(ZyanUSize)15;
+    if (size & 8)
+    {
+        ZYAN_MEMCPY(bytes, zero, 8);
+        bytes += 8;
+    }
+    if (size & 4)
+    {
+        ZYAN_MEMCPY(bytes, zero, 4);
+    }
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------------------------- */
 /* Input helper functions                                                                         */
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -1691,7 +1762,7 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
     const ZydisInstructionDefinition* definition = context->definition;
     const ZydisOperandDefinition* operand = ZydisGetOperandDefinitions(definition);
 
-    ZYAN_MEMSET(operands, 0, sizeof(ZydisDecodedOperand) * operand_count);
+    ZYAN_STATIC_ASSERT(sizeof(*operands) <= ZYDIS_ZERO_STRUCT_MAX_SIZE);
 
     ZyanU8 imm_id = 0;
     for (ZyanU8 i = 0; i < operand_count; ++i)
@@ -1699,6 +1770,10 @@ static ZyanStatus ZydisDecodeOperands(const ZydisDecoder* decoder, const ZydisDe
         const ZydisOperandDetails *details = ZydisGetOperandDetails(operand);
         ZydisRegisterClass register_class = ZYDIS_REGCLASS_INVALID;
 
+        // Zeroed per operand because this size is a compile-time constant. From `-O1` up, GCC and
+        // Clang inline `ZydisZeroStruct` and fold its switch into straight-line stores. A single
+        // call before the loop has a run-time size and keeps the switch as a jump table.
+        ZydisZeroStruct(&operands[i], sizeof(operands[i]));
         operands[i].id = i;
         operands[i].visibility = operand->visibility;
         operands[i].actions = operand->actions;
@@ -5605,7 +5680,8 @@ ZyanStatus ZydisDecoderDecodeInstruction(const ZydisDecoder* decoder, ZydisDecod
     ZYAN_MEMSET(context, 0, sizeof(*context));
     state.context = context;
 
-    ZYAN_MEMSET(instruction, 0, sizeof(*instruction));
+    ZYAN_STATIC_ASSERT(sizeof(*instruction) <= ZYDIS_ZERO_STRUCT_MAX_SIZE);
+    ZydisZeroStruct(instruction, sizeof(*instruction));
     instruction->machine_mode = decoder->machine_mode;
     instruction->stack_width = 16 << decoder->stack_width;
 
