@@ -441,6 +441,29 @@ static ZyanBool ZydisFormatterIntelIsDynamicEVEXBroadcast(
 }
 #endif
 
+ZyanStatus ZydisFormatterIntelPrintMnemonicMASM(const ZydisFormatter* formatter,
+    ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
+{
+    ZYAN_ASSERT(formatter);
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(context);
+
+    // MASM spells a far return `retf`/`retfq` instead of appending the ` far` suffix to `ret`
+    if ((context->instruction->mnemonic == ZYDIS_MNEMONIC_RET) &&
+        (context->instruction->meta.branch_type == ZYDIS_BRANCH_TYPE_FAR))
+    {
+        ZYDIS_MAKE_SHORTSTRING(RETF, "retf");
+        ZYDIS_MAKE_SHORTSTRING(RETFQ, "retfq");
+
+        ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_MNEMONIC);
+        return ZydisStringAppendShortCase(&buffer->string,
+            (context->instruction->operand_width == 64) ? ZYDIS_SHORTSTRING(RETFQ) :
+                ZYDIS_SHORTSTRING(RETF), formatter->case_mnemonic);
+    }
+
+    return ZydisFormatterIntelPrintMnemonic(formatter, buffer, context);
+}
+
 ZyanStatus ZydisFormatterIntelFormatInstructionMASM(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context)
 {
