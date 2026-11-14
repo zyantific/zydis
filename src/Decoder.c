@@ -4639,7 +4639,7 @@ static ZyanStatus ZydisPopulateRegisterIds(ZydisDecoderContext* context,
         // 64 bit mode
         {
             /* INVALID */ 255,
-            /* GPR     */  32, // TODO: 16 if APX is not enabled
+            /* GPR     */  32, // 16 if APX is not enabled (checked by `ZydisCheckErrorConditions`)
             /* X87     */   8,
             /* MMX     */   8,
             /* VR      */  32,
@@ -4808,6 +4808,13 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
         no_source_dest_match = def->no_source_dest_match;
         mask_policy          = def->mask_policy;
 
+        // The extended EVEX forms (map 4 and the EVEX-promoted legacy and VEX instructions) only
+        // exist with APX and result in undefined opcode (#UD) exceptions without it.
+        if (def->is_eevex && !ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX))
+        {
+            return ZYDIS_STATUS_DECODING_ERROR;
+        }
+
         // The APX `EVEX.NF` and `EVEX.SCC` forms repurpose the mask and `vvvv`/`V4` fields. They
         // are validated and normalized first: the legacy node-order walk rejected these encodings
         // at the `EVEX.NF`/`EVEX.SCC` node before any definition-time check ran, so running them
@@ -4966,6 +4973,14 @@ static ZyanStatus ZydisCheckErrorConditions(ZydisDecoderState* state,
 
     // Populate- and validate register constraints
     ZYAN_CHECK(ZydisPopulateRegisterIds(context, instruction, def_reg, def_rm, def_ndsndd));
+
+    // Without APX only 16 GPRs are available in 64-bit mode. `R4` and `V4` selecting one of the
+    // extended GPRs result in undefined opcode (#UD) exceptions.
+    if (instruction->apx.uses_egpr &&
+        !ZYDIS_DECODER_MODE_ACTIVE(state->decoder, ZYDIS_DECODER_MODE_APX))
+    {
+        return ZYDIS_STATUS_BAD_REGISTER;
+    }
 
     // `ZYDIS_REGISTER_CS` is not allowed as `MOV` target
     if (is_sr_dest_reg && (context->reg_info.id_reg == 1))
