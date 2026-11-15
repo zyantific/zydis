@@ -28,6 +28,8 @@ if tests_req
   )
 endif
 
+test('ZydisFormatterCase', zydistestformattercase_exe)
+
 summary(
   {'tests': tests_req},
   section: 'Features',

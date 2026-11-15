@@ -452,9 +452,8 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
                 {
                     if (buffer->is_token_list)
                     {
-                        // TODO: Case
-                        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer,
-                            TOK_PREF_REX[value & 0x0F]));
+                        ZYAN_CHECK(ZydisFormatterBufferAppendPredefinedCase(buffer,
+                            TOK_PREF_REX[value & 0x0F], formatter->case_prefixes));
                     } else
                     {
                         ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string,

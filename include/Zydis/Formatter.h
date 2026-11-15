@@ -262,8 +262,6 @@ typedef enum ZydisFormatterProperty_
      * Controls the letter-case for decorators.
      *
      * Pass `ZYAN_TRUE` as value to format in uppercase or `ZYAN_FALSE` to format in lowercase.
-     *
-     * WARNING: this is currently not implemented (ignored).
      */
     ZYDIS_FORMATTER_PROP_UPPERCASE_DECORATORS,
 

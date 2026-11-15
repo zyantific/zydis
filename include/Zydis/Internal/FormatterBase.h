@@ -161,8 +161,6 @@ extern "C" {
         ZYAN_CHECK(ZydisStringAppendShort(&buffer->string, (const ZydisShortString*)&STR_DATA_ ## name)); \
     }
 
-// TODO: Implement `letter_case` for predefined tokens
-
 /**
  * Appends a string (`STR_`-prefix) or a predefined token-list (`TOK_`-prefix).
  *
@@ -173,7 +171,7 @@ extern "C" {
 #define ZYDIS_BUFFER_APPEND_CASE(buffer, name, letter_case) \
     if ((buffer)->is_token_list) \
     { \
-        ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, TOK_ ## name)); \
+        ZYAN_CHECK(ZydisFormatterBufferAppendPredefinedCase(buffer, TOK_ ## name, letter_case)); \
     } else \
     { \
         ZYAN_CHECK(ZydisStringAppendShortCase(&buffer->string, (const ZydisShortString*)&STR_DATA_ ## name, letter_case)); \
@@ -246,6 +244,57 @@ ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefined(ZydisFormatterBuffer
     buffer->string.vector.data = (ZyanU8*)buffer->string.vector.data + delta;
     buffer->string.vector.size = data->size - data->next;
     buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
+
+    return ZYAN_STATUS_SUCCESS;
+}
+
+/**
+ * Appends a predefined token-list to the `buffer`, converting the string-values of the appended
+ * tokens to the specified letter-case.
+ *
+ * @param   buffer      A pointer to the `ZydisFormatterBuffer` struct.
+ * @param   data        A pointer to the `ZydisPredefinedToken` struct.
+ * @param   letter_case The desired letter-case.
+ *
+ * @return  A zyan status code.
+ *
+ * Only the string-values are converted. The token headers (type and offset to the next token) are
+ * left untouched.
+ */
+ZYAN_INLINE ZyanStatus ZydisFormatterBufferAppendPredefinedCase(ZydisFormatterBuffer* buffer,
+    const ZydisPredefinedToken* data, ZydisLetterCase letter_case)
+{
+    ZYAN_ASSERT(buffer);
+    ZYAN_ASSERT(data);
+
+    if (letter_case == ZYDIS_LETTER_CASE_DEFAULT)
+    {
+        return ZydisFormatterBufferAppendPredefined(buffer, data);
+    }
+    ZYAN_ASSERT((letter_case == ZYDIS_LETTER_CASE_LOWER) ||
+        (letter_case == ZYDIS_LETTER_CASE_UPPER));
+
+    ZyanU8* const base = (ZyanU8*)buffer->string.vector.data + buffer->string.vector.size;
+    ZYAN_CHECK(ZydisFormatterBufferAppendPredefined(buffer, data));
+
+    const ZyanBool to_lower = (letter_case == ZYDIS_LETTER_CASE_LOWER);
+    const char first = to_lower ? 'A' : 'a';
+    const char last  = to_lower ? 'Z' : 'z';
+
+    for (ZyanU8* token = base;; token += token[1] + 2)
+    {
+        for (char* c = (char*)(token + 2); *c; ++c)
+        {
+            if ((*c >= first) && (*c <= last))
+            {
+                *c ^= 0x20;
+            }
+        }
+        if (!token[1])
+        {
+            break;
+        }
+    }
 
     return ZYAN_STATUS_SUCCESS;
 }
