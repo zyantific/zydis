@@ -182,11 +182,17 @@ ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointe
     if (buffer->is_token_list)
     {
         const ZyanUSize delta = (ZyanUPointer)buffer->string.vector.data - state;
-        buffer->capacity += delta;
-        buffer->string.vector.data = (void*)state;
-        buffer->string.vector.size = 1; // TODO: Restore size?
-        buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
-        *(char*)buffer->string.vector.data = '\0';
+        if (delta)
+        {
+            // The `next` field of the snapshot token holds its length at the time the following
+            // token was appended. Keep that content and unlink all tokens that came after it.
+            ZydisFormatterToken* const token = (ZydisFormatterToken*)state - 1;
+            buffer->capacity += delta;
+            buffer->string.vector.data = (void*)state;
+            buffer->string.vector.size = token->next;
+            buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
+            token->next = 0;
+        }
     } else
     {
         buffer->string.vector.size = (ZyanUSize)state;
