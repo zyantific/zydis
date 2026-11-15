@@ -534,6 +534,14 @@ if (ZYDIS_BUILD_TESTS)
     enable_testing()
     find_package(Python 3 REQUIRED)
 
+    if (ZYDIS_FEATURE_DECODER AND ZYDIS_FEATURE_FORMATTER AND
+        NOT ZYDIS_MINIMAL_MODE AND NOT ZYAN_NO_LIBC)
+        add_executable("ZydisTestFormatter" "tests/formatter.c")
+        target_link_libraries("ZydisTestFormatter" PRIVATE "Zydis")
+        zyan_set_common_flags("ZydisTestFormatter")
+        add_test(NAME "ZydisTestFormatter" COMMAND ZydisTestFormatter)
+    endif ()
+
     if (TARGET ZydisInfo)
         add_test(
             NAME "ZydisRegression"

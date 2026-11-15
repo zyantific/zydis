@@ -182,11 +182,16 @@ ZyanStatus ZydisFormatterBufferRestore(ZydisFormatterBuffer* buffer, ZyanUPointe
     if (buffer->is_token_list)
     {
         const ZyanUSize delta = (ZyanUPointer)buffer->string.vector.data - state;
+        if (!delta)
+        {
+            return ZYAN_STATUS_SUCCESS;
+        }
         buffer->capacity += delta;
         buffer->string.vector.data = (void*)state;
-        buffer->string.vector.size = 1; // TODO: Restore size?
+        ZydisFormatterToken* const token = (ZydisFormatterToken*)buffer->string.vector.data - 1;
+        buffer->string.vector.size = token->next;
         buffer->string.vector.capacity = ZYAN_MIN(buffer->capacity, 255);
-        *(char*)buffer->string.vector.data = '\0';
+        token->next = 0;
     } else
     {
         buffer->string.vector.size = (ZyanUSize)state;
