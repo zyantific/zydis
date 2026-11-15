@@ -233,25 +233,27 @@ ZyanStatus ZydisFormatterBasePrintAddressABS(const ZydisFormatter* formatter,
         context->runtime_address, &address));
     ZyanU8 padding = (formatter->addr_padding_absolute ==
         ZYDIS_PADDING_AUTO) ? 0 : (ZyanU8)formatter->addr_padding_absolute;
+    ZyanU8 auto_padding;
+    switch (context->instruction->address_width)
+    {
+    case 16:
+        auto_padding =  4;
+        address = (ZyanU16)address;
+        break;
+    case 32:
+        auto_padding =  8;
+        address = (ZyanU32)address;
+        break;
+    case 64:
+        auto_padding = 16;
+        break;
+    default:
+        return ZYAN_STATUS_INVALID_ARGUMENT;
+    }
     if ((formatter->addr_padding_absolute == ZYDIS_PADDING_AUTO) &&
         (formatter->addr_base == ZYDIS_NUMERIC_BASE_HEX))
     {
-        switch (context->instruction->address_width)
-        {
-        case 16:
-            padding =  4;
-            address = (ZyanU16)address;
-            break;
-        case 32:
-            padding =  8;
-            address = (ZyanU32)address;
-            break;
-        case 64:
-            padding = 16;
-            break;
-        default:
-            return ZYAN_STATUS_INVALID_ARGUMENT;
-        }
+        padding = auto_padding;
     }
 
     ZYDIS_BUFFER_APPEND_TOKEN(buffer, ZYDIS_TOKEN_ADDRESS_ABS);
