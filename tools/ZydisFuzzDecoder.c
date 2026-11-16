@@ -176,6 +176,33 @@ int ZydisFuzzTarget(ZydisStreamRead read_fn, void* stream_ctx)
         // Address translation helper.
         ZyanU64 abs_addr;
         ZydisCalcAbsoluteAddress(&instruction, op, control_block.u64, &abs_addr);
+
+        // Address translation helper with a register context. The register values are
+        // deterministically derived from the control block so every base/index-register
+        // arithmetic path of `ZydisCalcAbsoluteAddressEx` is exercised (this exported
+        // function is otherwise unreached by any harness).
+        ZydisRegisterContext register_context;
+        for (ZyanUSize reg = 0; reg < ZYAN_ARRAY_LENGTH(register_context.values); ++reg)
+        {
+            register_context.values[reg] = control_block.u64 * (ZyanU64)(reg + 1) + (ZyanU64)reg;
+        }
+        // Best-effort override of the low registers from trailing input bytes. This is read
+        // after the instruction bytes, so the legacy input layout stays byte-compatible.
+        ZyanU8 register_bytes[16];
+        if (read_fn(stream_ctx, register_bytes, sizeof(register_bytes)) == sizeof(register_bytes))
+        {
+            ZyanU64 lo, hi;
+            memcpy(&lo, register_bytes, sizeof(lo));
+            memcpy(&hi, register_bytes + 8, sizeof(hi));
+            for (ZyanUSize reg = 0;
+                reg < 8 && reg < ZYAN_ARRAY_LENGTH(register_context.values); ++reg)
+            {
+                register_context.values[reg] = lo ^ ((ZyanU64)reg * 0x0101010101010101ULL);
+                register_context.values[reg + 8] = hi ^ ((ZyanU64)reg * 0x0202020202020202ULL);
+            }
+        }
+        ZydisCalcAbsoluteAddressEx(&instruction, op, control_block.u64, &register_context,
+            &abs_addr);
     }
 
     // Mnemonic helpers.
