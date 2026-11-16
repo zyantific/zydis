@@ -52,6 +52,16 @@ if tools_req
         dependencies: [zydis_dep],
         c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
       )
+      zydisfuzzencoderstructured_exe = executable(
+        'ZydisFuzzEncoderStructured',
+        files(
+          'ZydisFuzzEncoderStructured.c',
+          'ZydisFuzzShared.c',
+          'ZydisFuzzShared.h',
+        ),
+        dependencies: [zydis_dep],
+        c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
+      )
       zydistestencoderabsolute_exe = executable(
         'ZydisTestEncoderAbsolute',
         files(

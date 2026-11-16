@@ -420,6 +420,18 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
             _maybe_set_emscripten_cfg("ZydisFuzzReEncoding")
             _maybe_set_fuzzer_cfg("ZydisFuzzReEncoding")
 
+            add_executable("ZydisFuzzEncoderStructured"
+                "tools/ZydisFuzzEncoderStructured.c"
+                "tools/ZydisFuzzShared.c"
+                "tools/ZydisFuzzShared.h")
+            target_link_libraries("ZydisFuzzEncoderStructured" PUBLIC "Zydis")
+            set_target_properties("ZydisFuzzEncoderStructured" PROPERTIES FOLDER "Tools")
+            target_compile_definitions("ZydisFuzzEncoderStructured" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+            zyan_set_common_flags("ZydisFuzzEncoderStructured")
+            zyan_maybe_enable_wpo("ZydisFuzzEncoderStructured")
+            _maybe_set_emscripten_cfg("ZydisFuzzEncoderStructured")
+            _maybe_set_fuzzer_cfg("ZydisFuzzEncoderStructured")
+
             if (NOT ZYDIS_BUILD_SHARED_LIB)
                 add_executable("ZydisTestEncoderAbsolute"
                     "tools/ZydisTestEncoderAbsolute.c")
