@@ -31,6 +31,17 @@ if tools_req
       c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
     )
 
+    zydisfuzzformatter_exe = executable(
+      'ZydisFuzzFormatter',
+      files(
+        'ZydisFuzzFormatter.c',
+        'ZydisFuzzShared.c',
+        'ZydisFuzzShared.h',
+      ),
+      dependencies: [zydis_dep],
+      c_args: llvm_fuzz ? ['-DZYDIS_LIBFUZZER'] : [],
+    )
+
     if encoder.enabled()
       zydisfuzzencoder_exe = executable(
         'ZydisFuzzEncoder',
