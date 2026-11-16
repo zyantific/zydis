@@ -395,6 +395,22 @@ if (ZYDIS_BUILD_TOOLS AND NOT ZYAN_NO_LIBC)
         _maybe_set_emscripten_cfg("ZydisFuzzDecoder")
         _maybe_set_fuzzer_cfg("ZydisFuzzDecoder")
 
+        add_executable("ZydisFuzzFormatter"
+            "tools/ZydisFuzzFormatter.c"
+            "tools/ZydisFuzzShared.c"
+            "tools/ZydisFuzzShared.h")
+        target_link_libraries("ZydisFuzzFormatter" PUBLIC "Zydis")
+        set_target_properties("ZydisFuzzFormatter" PROPERTIES FOLDER "Tools")
+        target_compile_definitions("ZydisFuzzFormatter" PRIVATE "_CRT_SECURE_NO_WARNINGS")
+        if (NOT ZYDIS_FEATURE_ENCODER)
+            # For 'ZydisFuzzShared.c'
+            target_compile_definitions("ZydisFuzzFormatter" PUBLIC "ZYDIS_DISABLE_ENCODER")
+        endif ()
+        zyan_set_common_flags("ZydisFuzzFormatter")
+        zyan_maybe_enable_wpo("ZydisFuzzFormatter")
+        _maybe_set_emscripten_cfg("ZydisFuzzFormatter")
+        _maybe_set_fuzzer_cfg("ZydisFuzzFormatter")
+
         if (ZYDIS_FEATURE_ENCODER)
             add_executable("ZydisFuzzEncoder"
                 "tools/ZydisFuzzEncoder.c"
