@@ -532,6 +532,12 @@ ZyanStatus ZydisFormatterBasePrintPrefixes(const ZydisFormatter* formatter,
                         ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_REPE, formatter->case_prefixes);
                     }
                     break;
+                case 0x3E:
+                    if (context->instruction->attributes & ZYDIS_ATTRIB_HAS_NOTRACK)
+                    {
+                        ZYDIS_BUFFER_APPEND_CASE(buffer, PREF_NOTRACK, formatter->case_prefixes);
+                    }
+                    break;
                 default:
                     break;
                 }
