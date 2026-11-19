@@ -506,7 +506,9 @@ ZyanStatus ZydisFormatterIntelPrintTypecastMASM(const ZydisFormatter* formatter,
 #if !defined(ZYDIS_DISABLE_AVX512)
     if (ZydisFormatterIntelIsDynamicEVEXBroadcast(context))
     {
-        switch (ZydisFormatterHelperGetExplicitSize(formatter, context, context->operand))
+        // The `{1toN}` decorator is omitted in MASM style, so the `bcst` qualifier is the only
+        // thing marking the operand as a broadcast. Print it even if `FORCE_SIZE` is disabled
+        switch (context->operand->size)
         {
         case 16: ZYDIS_BUFFER_APPEND(buffer, SIZE_16_MASM_BCST); break;
         case 32: ZYDIS_BUFFER_APPEND(buffer, SIZE_32_MASM_BCST); break;
