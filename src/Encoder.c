@@ -4570,7 +4570,7 @@ static ZyanStatus ZydisEncoderCheckRequestSanity(const ZydisEncoderRequest *requ
         switch (op->type)
         {
         case ZYDIS_OPERAND_TYPE_REGISTER:
-            if (op->reg.value > ZYDIS_REGISTER_MAX_VALUE)
+            if ((ZyanUSize)op->reg.value > ZYDIS_REGISTER_MAX_VALUE)
             {
                 return ZYAN_STATUS_INVALID_ARGUMENT;
             }
