@@ -156,7 +156,7 @@ ZydisRegister ZydisRegisterGetLargestEnclosing(ZydisMachineMode mode, ZydisRegis
         return ZYDIS_REGISTER_NONE;
     }
 
-    if (mode > ZYDIS_MACHINE_MODE_MAX_VALUE)
+    if ((ZyanUSize)mode > ZYDIS_MACHINE_MODE_MAX_VALUE)
     {
         return ZYDIS_REGISTER_NONE;
     }
